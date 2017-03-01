@@ -125,7 +125,7 @@ public class ProxyStore extends Store {
 
     @Override
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        final URL url = getProperties().getGafferUrl("graph/job/doOperation");
+        final URL url = getProperties().getGafferUrl("graph/jobs/doOperation");
         try {
             return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
         } catch (final StoreException e) {

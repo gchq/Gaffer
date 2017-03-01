@@ -40,22 +40,26 @@ The job result cache is actually just a second Gaffer Graph. So if you are runni
 These 2 operations need to be registered by providing an Operations Declarations json file in your store.properties file.
 To use the Accumulo store as your Gaffer cache the operations declarations json file would need to look something like:
 
-${ACCUMULO_RESULT_CACHE_OPERATIONS}
+${RESULT_CACHE_EXPORT_OPERATIONS}
 
-Here we are simply registering the fact that ExportToGafferResultCache operation should be handled by the ExportToGafferResultCacheHandler handler. We also provide the properties for the cache handler to create a Gaffer graph. Unfortunately you have to duplicate the store properties for the GetGafferResultCacheExportHandler too, as this also needs to be able to connect to the same Gaffer graph.
+Here we are simply registering the fact that ExportToGafferResultCache operation should be handled by the ExportToGafferResultCacheHandler handler. We also provide a path to the gaffer cache store properties for the cache handler to create a Gaffer graph.
 Then to register this file in your store.properties file you will need to add the following:
 
 ```
-gaffer.store.operation.declarations=/path/to/AccumuloResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 ```
 
 If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/AccumuloResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
 ```
 
 The json files can either be placed on your file system or bundled as a resource in your jar or war file.
+
+The cache-store.properties file is:
+
+${CACHE_STORE_PROPERTIES}
 
 An example of all of this can be seen in the example/example-rest module. So you you launch the example rest api it will have the Job Tracker and Gaffer cache configured.
 

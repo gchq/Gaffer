@@ -171,8 +171,10 @@ public abstract class WalkthroughStrSubstitutor {
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "all job details"));
         params.put("GET_JOB_RESULTS_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get job results"));
-        params.put("ACCUMULO_RESULT_CACHE_OPERATIONS",
-                "\n```json\n" + getResource("AccumuloResultCacheExportOperations.json", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
+        params.put("RESULT_CACHE_EXPORT_OPERATIONS",
+                "\n```json\n" + getResource("ResultCacheExportOperations.json", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
+        params.put("CACHE_STORE_PROPERTIES",
+                "\n```\n" + getResource("cache-store.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
         try {
             example.run();
         } catch (final OperationException e) {

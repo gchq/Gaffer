@@ -19,8 +19,11 @@ package uk.gov.gchq.gaffer.jobtracker;
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.TransformIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An <code>JcsJobTracker</code> is an implementation of {@link JobTracker}.
@@ -66,12 +69,18 @@ public class JcsJobTracker implements JobTracker {
 
     @Override
     public CloseableIterable<JobDetail> getAllJobs(final User user) {
-        return new TransformIterable<String, JobDetail>(cache.getGroupKeys(CACHE_GROUP)) {
-            @Override
-            protected JobDetail transform(final String jobId) {
-                return getJob(jobId, user);
-            }
-        };
+        final Set<?> jobIds = cache.getGroupKeys(CACHE_GROUP);
+        final List<JobDetail> jobs = new ArrayList<>(jobIds.size());
+        jobIds.stream()
+                .filter(jobId -> null != jobId)
+                .forEach(jobId -> {
+                    final JobDetail job = getJob(jobId.toString(), user);
+                    if (null != job) {
+                        jobs.add(job);
+                    }
+                });
+
+        return new WrappedCloseableIterable<>(jobs);
     }
 
     @Override

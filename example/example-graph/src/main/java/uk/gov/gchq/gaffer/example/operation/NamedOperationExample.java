@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -83,7 +82,7 @@ public class NamedOperationExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample((Operation) operation);
+        return (Iterable) runExample(operation);
     }
 
     public void deleteNamedOperation() {

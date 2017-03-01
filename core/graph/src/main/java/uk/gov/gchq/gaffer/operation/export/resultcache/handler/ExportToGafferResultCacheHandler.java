@@ -23,9 +23,7 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportHandler;
-import java.nio.file.Paths;
 
 public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGafferResultCache, GafferResultCacheExporter> {
     /**
@@ -35,7 +33,7 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
 
     private String visibility;
 
-    private StoreProperties cacheStoreProperties;
+    private String cacheStorePropertiesPath;
 
     private JSONSerialiser jsonSerialiser = new JSONSerialiser();
 
@@ -52,7 +50,7 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
     }
 
     protected Graph createGraph(final Store store) {
-        return GafferResultCacheUtil.createGraph(cacheStoreProperties, timeToLive);
+        return GafferResultCacheUtil.createGraph(cacheStorePropertiesPath, timeToLive);
     }
 
     public Long getTimeToLive() {
@@ -71,16 +69,12 @@ public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGaff
         this.visibility = visibility;
     }
 
-    public StoreProperties getStoreProperties() {
-        return cacheStoreProperties;
+    public String getStorePropertiesPath() {
+        return cacheStorePropertiesPath;
     }
 
-    public void setStoreProperties(final StoreProperties storeProperties) {
-        this.cacheStoreProperties = storeProperties;
-    }
-
-    public void setStorePropertiesPath(final String path) {
-        setStoreProperties(StoreProperties.loadStoreProperties(Paths.get(path)));
+    public void setStorePropertiesPath(final String cacheStorePropertiesPath) {
+        this.cacheStorePropertiesPath = cacheStorePropertiesPath;
     }
 
     public String getJsonSerialiserClass() {

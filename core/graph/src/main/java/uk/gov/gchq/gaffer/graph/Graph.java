@@ -259,6 +259,10 @@ public final class Graph {
             return this;
         }
 
+        public Builder storeProperties(final String propertiesPath) {
+            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
+        }
+
         public Builder storeProperties(final Path propertiesPath) {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
         }

@@ -64,7 +64,7 @@ public abstract class OperationExample extends Example {
         log(METHOD_DIVIDER);
     }
 
-    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
@@ -79,12 +79,19 @@ public abstract class OperationExample extends Example {
             throw new RuntimeException(e);
         }
 
-        log("Results:");
-        log("\n```");
-        for (final Object result : results) {
-            log(result.toString());
+        if (results instanceof Iterable) {
+            log("Results:");
+            log("\n```");
+            for (final Object result : ((Iterable) results)) {
+                log(result.toString());
+            }
+            log("```");
+        } else if (null != results) {
+            log("Result:");
+            log("\n```");
+            log(results.toString());
+            log("```");
         }
-        log("```");
 
         log(METHOD_DIVIDER);
         return results;

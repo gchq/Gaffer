@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
@@ -209,6 +211,23 @@ public class StoreProperties implements Cloneable {
     public Properties getProperties() {
         return props;
     }
+
+    public static StoreProperties loadStoreProperties(final String pathStr) {
+        final StoreProperties storeProperties;
+        final Path path = Paths.get(pathStr);
+        try {
+            if (path.toFile().exists()) {
+                storeProperties = loadStoreProperties(Files.newInputStream(path));
+            } else {
+                storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
+
+        return storeProperties;
+    }
+
 
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
         try {

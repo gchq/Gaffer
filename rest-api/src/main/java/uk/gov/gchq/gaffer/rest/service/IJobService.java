@@ -34,7 +34,7 @@ import javax.ws.rs.core.MediaType;
  * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
  * statuses.
  */
-@Path("/graph/job")
+@Path("/graph/jobs")
 @Api(value = "job", description = "Allows jobs to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,17 +46,16 @@ public interface IJobService {
     JobDetail executeJob(final OperationChain opChain);
 
     @GET
-    @Path("/details")
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")
     CloseableIterable<JobDetail> details();
 
     @GET
-    @Path("/details/{id}")
+    @Path("{id}")
     @ApiOperation(value = "Get the details of a job", response = JobDetail.class)
     JobDetail details(@ApiParam(value = "a job id") @PathParam("id") final String id);
 
     @GET
-    @Path("/results/{id}")
+    @Path("{id}/results")
     @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List")
     CloseableIterable results(@ApiParam(value = "a job id") @PathParam("id") final String id);
 }

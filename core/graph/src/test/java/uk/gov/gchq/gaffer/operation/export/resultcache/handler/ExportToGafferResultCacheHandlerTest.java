@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,7 +36,6 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResult
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.List;
@@ -83,7 +83,6 @@ public class ExportToGafferResultCacheHandlerTest {
 
         final Context context = new Context();
         final Store store = mock(Store.class);
-        final StoreProperties cacheStoreProperties = mock(StoreProperties.class);
         final JSONSerialiser jsonSerialiser = mock(JSONSerialiser.class);
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
@@ -92,7 +91,7 @@ public class ExportToGafferResultCacheHandlerTest {
         context.addExporter(exporter);
 
         final ExportToGafferResultCacheHandler handler = new ExportToGafferResultCacheHandler();
-        handler.setStoreProperties(cacheStoreProperties);
+        handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setJsonSerialiser(jsonSerialiser);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
@@ -115,15 +114,13 @@ public class ExportToGafferResultCacheHandlerTest {
                 .build();
         final Context context = new Context();
         final Store store = mock(Store.class);
-        final StoreProperties cacheStoreProperties = new StoreProperties();
-        cacheStoreProperties.setStoreClass(TestStore.class.getName());
 
         final JSONSerialiser jsonSerialiser = mock(JSONSerialiser.class);
         final Long timeToLive = 10000L;
         final String visibility = "visibility value";
 
         final ExportToGafferResultCacheHandler handler = new ExportToGafferResultCacheHandler();
-        handler.setStoreProperties(cacheStoreProperties);
+        handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setJsonSerialiser(jsonSerialiser);
         handler.setTimeToLive(timeToLive);
         handler.setVisibility(visibility);
@@ -147,13 +144,11 @@ public class ExportToGafferResultCacheHandlerTest {
     public void shouldCreateCacheGraph() throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        final StoreProperties cacheStoreProperties = new StoreProperties();
-        cacheStoreProperties.setStoreClass(TestStore.class.getName());
 
         final long timeToLive = 10000L;
 
         final ExportToGafferResultCacheHandler handler = new ExportToGafferResultCacheHandler();
-        handler.setStoreProperties(cacheStoreProperties);
+        handler.setStorePropertiesPath(StreamUtil.STORE_PROPERTIES);
         handler.setTimeToLive(timeToLive);
 
         // When

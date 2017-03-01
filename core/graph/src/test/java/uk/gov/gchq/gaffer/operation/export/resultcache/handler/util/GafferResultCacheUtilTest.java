@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.ElementValidator;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
@@ -72,7 +71,7 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldCreateGraphWithValidSchema() {
         // Given
-        final Graph graph = GafferResultCacheUtil.createGraph(StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass())), GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
+        final Graph graph = GafferResultCacheUtil.createGraph(StreamUtil.STORE_PROPERTIES, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
         final Schema schema = graph.getSchema();
 
 
@@ -91,7 +90,7 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldCreateGraphWithValidSchemaWithoutAgeOff() {
         // Given
-        final Graph graph = GafferResultCacheUtil.createGraph(StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass())), null);
+        final Graph graph = GafferResultCacheUtil.createGraph(StreamUtil.STORE_PROPERTIES, null);
         final Schema schema = graph.getSchema();
 
         // When

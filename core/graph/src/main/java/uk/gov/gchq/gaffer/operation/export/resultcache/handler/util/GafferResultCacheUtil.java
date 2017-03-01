@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -35,13 +34,13 @@ public final class GafferResultCacheUtil {
     private GafferResultCacheUtil() {
     }
 
-    public static Graph createGraph(final StoreProperties cacheStoreProperties, final Long timeToLive) {
-        if (null == cacheStoreProperties) {
+    public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
+        if (null == cacheStorePropertiesPath) {
             throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()
-                .storeProperties(cacheStoreProperties)
+                .storeProperties(cacheStorePropertiesPath)
                 .addSchema(createSchema(timeToLive));
 
         final Graph graph = graphBuilder.build();
