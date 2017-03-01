@@ -39,7 +39,8 @@ public abstract class ExamplesRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExamplesRunner.class);
 
     public void run(final Class<? extends Example> exampleParentClass, final Class<?> classForExample, final String type) throws Exception {
-        printHeader(type);
+        printHeader();
+        printEditWarning(type);
         printTableOfContents(exampleParentClass);
 
         final Set<? extends Class<?>> classes = Sets.newHashSet(getSubClasses(classForExample));
@@ -55,7 +56,7 @@ public abstract class ExamplesRunner {
         LOGGER.info(msg);
     }
 
-    private void printHeader(final String type) {
+    private void printHeader() {
         log("Copyright 2016-2017 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
@@ -69,8 +70,11 @@ public abstract class ExamplesRunner {
                 + "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n"
                 + "See the License for the specific language governing permissions and\n"
                 + "limitations under the License.\n"
-                + "\n"
-                + "_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/gchq/Gaffer/tree/master/example/example-graph/src/main/java/uk/gov/gchq/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
+                + "\n");
+    }
+
+    protected void printEditWarning(final String type) {
+        log("_This page has been generated from code. To make any changes please update the " + type + " examples in the [example](https://github.com/gchq/Gaffer/tree/master/example/example-graph/src/main/java/uk/gov/gchq/gaffer/example) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
