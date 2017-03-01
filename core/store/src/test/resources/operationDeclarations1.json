@@ -5,12 +5,6 @@
       "handler": {
         "class": "uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler"
       }
-    },
-    {
-      "operation": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
-      "handler": {
-        "class": "uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler"
-      }
     }
   ]
 }

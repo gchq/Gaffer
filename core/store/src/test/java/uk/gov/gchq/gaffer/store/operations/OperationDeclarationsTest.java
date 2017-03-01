@@ -55,7 +55,7 @@ public class OperationDeclarationsTest {
     @Test
     public void testDeserialiseFile() throws SerialisationException {
         // Given
-        final String paths = "operationDeclarations.json";
+        final String paths = "operationDeclarations1.json,operationDeclarations2.json";
 
         // When
         final OperationDeclarations deserialised = OperationDeclarations.fromPaths(paths);
