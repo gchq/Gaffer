@@ -112,6 +112,7 @@ public class Edge extends Element {
         }
     }
 
+    @Override
     public int hashCode() {
         int hash;
         if (directed) {

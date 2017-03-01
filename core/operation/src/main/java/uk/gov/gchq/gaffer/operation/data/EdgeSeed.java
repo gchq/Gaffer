@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.data;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
@@ -110,28 +112,44 @@ public class EdgeSeed extends ElementSeed {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
+    public boolean equals(final Object obj) {
+        return null != obj
+                && (obj instanceof EdgeSeed)
+                && equals((EdgeSeed) obj);
+    }
 
-        if (!(o instanceof EdgeSeed)) {
-            return false;
-        }
-
-        final EdgeSeed that = (EdgeSeed) o;
-
-        return directed == that.directed
-                && !(destination != null ? !destination.equals(that.destination) : that.destination != null)
-                && !(source != null ? !source.equals(that.source) : that.source != null);
+    private boolean equals(final EdgeSeed edgeSeed) {
+        return null != edgeSeed
+                && (new EqualsBuilder()
+                .append(source, edgeSeed.getSource())
+                .append(destination, edgeSeed.getDestination())
+                .append(directed, edgeSeed.isDirected())
+                .isEquals()
+                || new EqualsBuilder()
+                .append(source, edgeSeed.getDestination())
+                .append(destination, edgeSeed.getSource())
+                .append(directed, false)
+                .isEquals()
+        );
     }
 
     @Override
     public int hashCode() {
-        int result = source != null ? source.hashCode() : 0;
-        result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        result = 31 * result + (directed ? 1 : 0);
-        return result;
+        int hash;
+        if (directed) {
+            hash = new HashCodeBuilder(21, 3)
+                    .append(source)
+                    .append(destination)
+                    .append(directed)
+                    .toHashCode();
+        } else {
+            hash = new HashCodeBuilder(21, 3)
+                    .append(directed)
+                    .toHashCode();
+            hash ^= source.hashCode();
+            hash ^= destination.hashCode();
+        }
+        return hash;
     }
 
     @Override
