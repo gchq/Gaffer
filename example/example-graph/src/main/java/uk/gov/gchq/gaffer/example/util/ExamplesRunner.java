@@ -43,11 +43,11 @@ public abstract class ExamplesRunner {
         printEditWarning(type);
         printTableOfContents(exampleParentClass);
 
-        final Set<? extends Class<?>> classes = Sets.newHashSet(getSubClasses(classForExample));
+        final Set<? extends Class<?>> classes = Sets.newHashSet((Iterable) getSubClasses(classForExample));
         for (final Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
-            final Example functionExample = aClass.newInstance();
-            classes.remove(functionExample.getClassForExample());
-            functionExample.run();
+            final Example example = aClass.newInstance();
+            classes.remove(example.getClassForExample());
+            example.run();
             log(EXAMPLE_DIVIDER);
         }
     }
