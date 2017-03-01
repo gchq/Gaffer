@@ -290,6 +290,25 @@ public class EdgeTest extends ElementTest {
     }
 
     @Test
+    public void shouldCreateUndirectedEdgesUsingNaturalOrdering() {
+        // Given
+        final Edge edge1 = new Edge("group");
+        edge1.setSource("source vertex");
+        edge1.setDestination("dest vertex");
+        edge1.setDirected(false);
+
+        // Given
+        final Edge edge2 = new Edge("group");
+        edge2.setSource("dest vertex");
+        edge2.setDestination("source vertex");
+        edge2.setDirected(false);
+
+        // Then
+        assertEquals(edge1, edge2);
+        assertEquals(edge1.toString(), edge2.toString());
+    }
+
+    @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
         final Edge edge = newElement("group");

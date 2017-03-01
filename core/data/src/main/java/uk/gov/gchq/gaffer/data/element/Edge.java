@@ -53,6 +53,7 @@ public class Edge extends Element {
         this.source = source;
         this.destination = destination;
         this.directed = directed;
+        standardise();
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
@@ -62,6 +63,7 @@ public class Edge extends Element {
 
     public void setSource(final Object source) {
         this.source = source;
+        standardise();
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
@@ -71,6 +73,7 @@ public class Edge extends Element {
 
     public void setDestination(final Object destination) {
         this.destination = destination;
+        standardise();
     }
 
     public boolean isDirected() {
@@ -109,6 +112,16 @@ public class Edge extends Element {
                 break;
             default:
                 LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+        }
+    }
+
+    private void standardise() {
+        if (null != destination && null != source) {
+            if (destination.toString().compareTo(source.toString()) > 0) {
+                final Object tmp = destination;
+                destination = source;
+                source = tmp;
+            }
         }
     }
 
@@ -202,6 +215,7 @@ public class Edge extends Element {
         }
 
         public Edge build() {
+            edge.standardise();
             return edge;
         }
     }
