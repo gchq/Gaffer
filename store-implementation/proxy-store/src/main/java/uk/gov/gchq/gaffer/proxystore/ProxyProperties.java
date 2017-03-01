@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.proxystore;
 
 import org.apache.commons.lang.StringUtils;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,10 +49,6 @@ public class ProxyProperties extends StoreProperties {
 
     public ProxyProperties(final Properties props) {
         super(props);
-    }
-
-    public ProxyProperties(final Class<? extends Store> storeClass) {
-        super(storeClass);
     }
 
     public int getConnectTimeout() {

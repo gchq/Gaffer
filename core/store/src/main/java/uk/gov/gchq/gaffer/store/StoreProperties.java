@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -29,8 +30,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -48,35 +47,24 @@ public class StoreProperties implements Cloneable {
     public static final String JOB_TRACKER_CLASS = "gaffer.store.job.tracker.class";
     public static final String JOB_TRACKER_CONFIG_PATH = "gaffer.store.job.tracker.config.path";
 
-    private Path propFileLocation;
-    private Properties props;
-
-    // Allow classes to register observers for the properties being ready
-    private final List<Runnable> readyObservers = new ArrayList<>();
+    private Properties props = new Properties();
 
     // Required for loading by reflection.
     public StoreProperties() {
     }
 
     public StoreProperties(final Path propFileLocation) {
-        this.propFileLocation = propFileLocation;
+        if (null != propFileLocation) {
+            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
+                props.load(accIs);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public StoreProperties(final Properties props) {
-        this.props = props;
-    }
-
-    public StoreProperties(final Class<? extends Store> storeClass) {
-        this(new Properties());
-        setStoreClass(storeClass.getName());
-    }
-
-    public void whenReady(final Runnable o) {
-        if (null != props) {
-            o.run();
-        } else {
-            this.readyObservers.add(o);
-        }
+        setProperties(props);
     }
 
     /**
@@ -84,9 +72,6 @@ public class StoreProperties implements Cloneable {
      * @return a property properties file with the given key.
      */
     public String get(final String key) {
-        if (props == null) {
-            readProperties();
-        }
         return props.getProperty(key);
     }
 
@@ -98,9 +83,6 @@ public class StoreProperties implements Cloneable {
      * @return a property properties file with the given key or the default value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
-        if (props == null) {
-            readProperties();
-        }
         return props.getProperty(key, defaultValue);
     }
 
@@ -111,9 +93,6 @@ public class StoreProperties implements Cloneable {
      * @param value the value
      */
     public void set(final String key, final String value) {
-        if (props == null) {
-            readProperties();
-        }
         props.setProperty(key, value);
     }
 
@@ -124,14 +103,13 @@ public class StoreProperties implements Cloneable {
      *
      * @return The Operation Definitions to load dynamically
      */
+    @JsonIgnore
     public OperationDeclarations getOperationDeclarations() {
         OperationDeclarations declarations = null;
 
-        if (null != this.props) {
-            final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
-            if (null != declarationsPaths) {
-                declarations = OperationDeclarations.fromJson(declarationsPaths);
-            }
+        final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
+        if (null != declarationsPaths) {
+            declarations = OperationDeclarations.fromPaths(declarationsPaths);
         }
 
         if (null == declarations) {
@@ -212,10 +190,20 @@ public class StoreProperties implements Cloneable {
         set(STORE_PROPERTIES_CLASS, storePropertiesClass.getName());
     }
 
+    public String getOperationDeclarationPaths() {
+        return get(OPERATION_DECLARATIONS);
+    }
+
+    public void setOperationDeclarationPaths(final String paths) {
+        set(OPERATION_DECLARATIONS, paths);
+    }
 
     public void setProperties(final Properties properties) {
-        this.props = properties;
-        propFileLocation = null;
+        if (null == properties) {
+            this.props = new Properties();
+        } else {
+            this.props = properties;
+        }
     }
 
     public Properties getProperties() {
@@ -270,22 +258,5 @@ public class StoreProperties implements Cloneable {
         }
         storeProperties.setProperties(props);
         return storeProperties;
-    }
-
-    private void readProperties() {
-        if (null == propFileLocation) {
-            props = new Properties();
-        } else {
-            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
-                props = new Properties();
-                props.load(accIs);
-
-                for (final Runnable r : this.readyObservers) {
-                    r.run();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 }

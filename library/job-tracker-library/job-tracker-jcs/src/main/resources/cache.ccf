@@ -15,7 +15,7 @@ jcs.auxiliary.DC.attributes.OptimizeOnShutdown=true
 jcs.auxiliary.DC.attributes.DiskLimitType=COUNT
 
 # Region for aging off after 1 week
-jcs.region.oneWeek=DC
-jcs.region.oneWeek.cacheattributes.UseMemoryShrinker=true
-jcs.region.oneWeek.elementattributes.IsEternal=false
-jcs.region.oneWeek.elementattributes.MaxLifeSeconds=604800
+jcs.region.jobTrackerRegion=DC
+jcs.region.jobTrackerRegion.cacheattributes.UseMemoryShrinker=true
+jcs.region.jobTrackerRegion.elementattributes.IsEternal=false
+jcs.region.jobTrackerRegion.elementattributes.MaxLifeSeconds=604800

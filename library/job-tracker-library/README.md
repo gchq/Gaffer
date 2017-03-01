@@ -17,7 +17,7 @@ Job Tracker Library
 ===================
 This module contains job tracker implementations.
 
-In order to make use of a job tracker you will need to add a dependency on the
+By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the
 job tracker implementation you want e.g. job-tracker-jcs:
 
 ```

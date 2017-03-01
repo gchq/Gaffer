@@ -35,6 +35,7 @@ import java.util.Set;
  * Cache to store {@link ExtendedNamedOperation}s. This cache is configured using the cache.ccf file.
  */
 public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
+    public static final String REGION = "namedOperationsRegion";
     private static final String CACHE_GROUP = "NamedOperations";
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationJCSCache.class);
     private JCS cache;
@@ -156,9 +157,14 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
                 JCS.setConfigFilename(configPath);
             }
             try {
-                cache = JCS.getInstance("default");
-            } catch (CacheException e) {
-                throw new RuntimeException("Failed to create cache", e);
+                cache = JCS.getInstance(REGION);
+            } catch (CacheException e1) {
+                // Try just the default region
+                try {
+                    cache = JCS.getInstance("default");
+                } catch (CacheException e2) {
+                    throw new RuntimeException("Failed to create named operation cache", e2);
+                }
             }
         }
 

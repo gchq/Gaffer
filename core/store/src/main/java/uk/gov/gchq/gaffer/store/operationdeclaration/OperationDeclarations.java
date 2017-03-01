@@ -18,8 +18,10 @@ package uk.gov.gchq.gaffer.store.operationdeclaration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -62,7 +64,7 @@ public class OperationDeclarations {
         }
     }
 
-    public static OperationDeclarations fromJson(final String paths) {
+    public static OperationDeclarations fromPaths(final String paths) {
         final OperationDeclarations allDefinitions = new OperationDeclarations.Builder().build();
 
         try {
@@ -70,18 +72,34 @@ public class OperationDeclarations {
                 final OperationDeclarations definitions;
                 final Path path = Paths.get(pathStr);
                 if (path.toFile().exists()) {
-                    definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(path), OperationDeclarations.class);
+                    definitions = fromJson(Files.readAllBytes(path));
                 } else {
-                    definitions = JSON_SERIALISER.deserialise(StreamUtil.openStream(OperationDeclarations.class, pathStr), OperationDeclarations.class);
+                    definitions = fromJson(StreamUtil.openStream(OperationDeclarations.class, pathStr));
                 }
                 if (null != definitions && null != definitions.getOperations()) {
                     allDefinitions.getOperations().addAll(definitions.getOperations());
                 }
             }
         } catch (IOException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
+            throw new SchemaException("Failed to load element definitions from paths: " + paths, e);
         }
 
         return allDefinitions;
+    }
+
+    public static OperationDeclarations fromJson(final byte[] json) {
+        try {
+            return JSON_SERIALISER.deserialise(json, OperationDeclarations.class);
+        } catch (SerialisationException e) {
+            throw new SchemaException("Failed to load element definitions from bytes", e);
+        }
+    }
+
+    public static OperationDeclarations fromJson(final InputStream inputStream) {
+        try {
+            return JSON_SERIALISER.deserialise(inputStream, OperationDeclarations.class);
+        } catch (SerialisationException e) {
+            throw new SchemaException("Failed to load element definitions from bytes", e);
+        }
     }
 }

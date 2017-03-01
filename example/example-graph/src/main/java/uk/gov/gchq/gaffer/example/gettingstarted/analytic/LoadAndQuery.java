@@ -42,7 +42,7 @@ public abstract class LoadAndQuery {
     public LoadAndQuery(final String header) {
 
         exampleId = Integer.parseInt(getClass().getSimpleName().replace(LoadAndQuery.class.getSimpleName(), ""));
-        this.header = "Example - " + header;
+        this.header = header;
         dataFileLocation = "/example/gettingstarted/" + exampleId + "/data.txt";
         schemaFolderLocation = "/example/gettingstarted/" + exampleId + "/schema";
         storePropertiesLocation = "/example/gettingstarted/mockaccumulostore.properties";

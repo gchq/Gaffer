@@ -57,6 +57,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
@@ -70,6 +71,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandl
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.CoreOperationChainOptimiser;
@@ -526,9 +528,8 @@ public abstract class Store {
 
         // Jobs
         addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
-        if (null != jobTracker) {
-            addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
-        }
+        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
 
         // Other
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
@@ -540,14 +541,11 @@ public abstract class Store {
     }
 
     private void addConfiguredOperationHandlers() {
-        this.getProperties().whenReady(() -> {
-            final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
-
-            if (null != declarations) {
-                for (final OperationDeclaration definition : declarations.getOperations()) {
-                    addOperationHandler(definition.getOperation(), definition.getHandler());
-                }
+        final OperationDeclarations declarations = getProperties().getOperationDeclarations();
+        if (null != declarations) {
+            for (final OperationDeclaration definition : declarations.getOperations()) {
+                addOperationHandler(definition.getOperation(), definition.getHandler());
             }
-        });
+        }
     }
 }

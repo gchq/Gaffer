@@ -23,9 +23,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -95,7 +95,7 @@ public class SimpleJobService implements IJobService {
     public CloseableIterable results(final String id) {
         try {
             return getGraph().execute(
-                    new GetGafferResultCacheExport.Builder()
+                    new GetJobResults.Builder()
                             .jobId(id)
                             .build(),
                     createUser());

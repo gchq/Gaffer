@@ -161,7 +161,18 @@ public abstract class WalkthroughStrSubstitutor {
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get intersection"));
         params.put("UNION_ACROSS_DAYS_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get union across all days"));
-
+        params.put("JOB_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "job"));
+        params.put("EXECUTE_JOB_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "execute job"));
+        params.put("JOB_DETAILS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "job details"));
+        params.put("ALL_JOB_DETAILS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "all job details"));
+        params.put("GET_JOB_RESULTS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get job results"));
+        params.put("ACCUMULO_RESULT_CACHE_OPERATIONS",
+                "\n```json\n" + getResource("AccumuloResultCacheExportOperations.json", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
         try {
             example.run();
         } catch (final OperationException e) {

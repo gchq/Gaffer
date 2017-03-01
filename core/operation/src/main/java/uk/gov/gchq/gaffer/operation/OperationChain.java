@@ -56,12 +56,12 @@ public class OperationChain<OUT> {
     }
 
     public OperationChain(final Operation<?, OUT> operation) {
-        this(new ArrayList<Operation>(1));
+        this(new ArrayList<>(1));
         operations.add(operation);
     }
 
     public OperationChain(final List<Operation> operations) {
-        this.operations = operations;
+        this.operations = new ArrayList<>(operations);
     }
 
     @JsonIgnore

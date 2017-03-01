@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.user.User;
  * An <code>JcsJobTracker</code> is an implementation of {@link JobTracker}.
  */
 public class JcsJobTracker implements JobTracker {
-    public static final String REGION = "oneWeek";
+    public static final String REGION = "jobTrackerRegion";
     private static final String CACHE_GROUP = "JobTracker";
     private JCS cache;
 
@@ -39,7 +39,12 @@ public class JcsJobTracker implements JobTracker {
         try {
             cache = JCS.getInstance(REGION);
         } catch (final CacheException e) {
-            throw new RuntimeException("Unable to initialised the job tracker cache with config file: " + configPath, e);
+            // Try just the default region
+            try {
+                cache = JCS.getInstance("default");
+            } catch (CacheException e2) {
+                throw new RuntimeException("Unable to initialised the job tracker cache with config file: " + configPath, e);
+            }
         }
     }
 
