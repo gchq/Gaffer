@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -25,10 +26,12 @@ import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCache
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
-import uk.gov.gchq.gaffer.user.User;
 import java.util.Map;
 
 public class ExportToGafferResultCacheExample extends OperationExample {
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "it will be set prior to use")
+    private JobDetail jobDetail;
+
     public static void main(final String[] args) throws OperationException {
         new ExportToGafferResultCacheExample().run();
     }
@@ -40,7 +43,8 @@ public class ExportToGafferResultCacheExample extends OperationExample {
     @Override
     public void runExamples() {
         simpleExportAndGet();
-        exportAndGetInDifferentOperationChains();
+        exportAndGetJobDetails();
+        getExport();
         exportMultipleResultsToGafferResultCacheAndGetAllResults();
     }
 
@@ -56,30 +60,29 @@ public class ExportToGafferResultCacheExample extends OperationExample {
         return runExample(opChain);
     }
 
-    public CloseableIterable<?> exportAndGetInDifferentOperationChains() {
+    public JobDetail exportAndGetJobDetails() {
         // ---------------------------------------------------------
         final OperationChain<JobDetail> exportOpChain = new OperationChain.Builder()
                 .first(new GetAllEdges())
                 .then(new ExportToGafferResultCache())
                 .then(new GetJobDetails())
                 .build();
+        // ---------------------------------------------------------
 
-        final JobDetail jobDetail;
-        try {
-            jobDetail = getGraph().execute(exportOpChain, new User("user01"));
-        } catch (OperationException e) {
-            throw new RuntimeException(e);
-        }
+        jobDetail = runExample(exportOpChain);
+        return jobDetail;
+    }
 
-        final OperationChain<CloseableIterable<?>> getOpChain = new OperationChain.Builder()
+    public CloseableIterable<?> getExport() {
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetGafferResultCacheExport.Builder()
-                        .key(jobDetail.getJobId())
+                        .jobId(jobDetail.getJobId())
                         .build())
                 .build();
         // ---------------------------------------------------------
 
-
-        return runExample(getOpChain);
+        return runExample(opChain);
     }
 
     public Map<String, CloseableIterable<?>> exportMultipleResultsToGafferResultCacheAndGetAllResults() {
