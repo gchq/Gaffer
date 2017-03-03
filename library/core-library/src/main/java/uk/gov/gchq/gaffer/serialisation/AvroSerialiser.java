@@ -110,7 +110,7 @@ public class AvroSerialiser implements Serialisation<Object> {
             try {
                 close.close();
             } catch (IOException e) {
-                LOGGER.warn("Resource leak: unable to close stream in AvroSerialiser.class");
+                LOGGER.warn("Resource leak: unable to close stream in AvroSerialiser.class", e);
             }
         }
     }

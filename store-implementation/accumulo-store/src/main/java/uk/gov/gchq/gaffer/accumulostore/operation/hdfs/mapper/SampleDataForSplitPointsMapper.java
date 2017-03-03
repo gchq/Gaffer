@@ -32,9 +32,9 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
-* Mapper class used for estimating the split points to ensure even distribution of
-* data in Accumulo after initial insert.
-*/
+ * Mapper class used for estimating the split points to ensure even distribution of
+ * data in Accumulo after initial insert.
+ */
 public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
 
     private float proportionToSample;
@@ -48,7 +48,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
             schema = Schema.fromJson(context.getConfiguration()
                     .get(SampleDataForSplitPointsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise Store Schema from JSON");
+            throw new SchemaException("Unable to deserialise Store Schema from JSON", e);
         }
 
         final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
@@ -60,31 +60,31 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
         }
-   }
+    }
 
-   protected void map(final Element element, final Context context) throws IOException, InterruptedException {
-       if (Math.random() < proportionToSample) {
-           context.getCounter("Split points", "Number sampled").increment(1L);
-           final Pair<Key> keyPair;
-           try {
-               keyPair = elementConverter.getKeysFromElement(element);
-           } catch (final AccumuloElementConversionException e) {
-               throw new IllegalArgumentException(e.getMessage(), e);
-           }
+    protected void map(final Element element, final Context context) throws IOException, InterruptedException {
+        if (Math.random() < proportionToSample) {
+            context.getCounter("Split points", "Number sampled").increment(1L);
+            final Pair<Key> keyPair;
+            try {
+                keyPair = elementConverter.getKeysFromElement(element);
+            } catch (final AccumuloElementConversionException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
 
-           final Value value;
-           try {
-               value = elementConverter.getValueFromElement(element);
-           } catch (final AccumuloElementConversionException e) {
-               throw new IllegalArgumentException(e.getMessage(), e);
-           }
-           context.write(keyPair.getFirst(), value);
-           if (keyPair.getSecond() != null) {
-               context.write(keyPair.getSecond(), value);
-           }
-       } else {
-           context.getCounter("Split points", "Number not sampled").increment(1L);
-       }
-   }
+            final Value value;
+            try {
+                value = elementConverter.getValueFromElement(element);
+            } catch (final AccumuloElementConversionException e) {
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+            context.write(keyPair.getFirst(), value);
+            if (keyPair.getSecond() != null) {
+                context.write(keyPair.getSecond(), value);
+            }
+        } else {
+            context.getCounter("Split points", "Number not sampled").increment(1L);
+        }
+    }
 
 }

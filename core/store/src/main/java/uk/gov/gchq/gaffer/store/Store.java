@@ -382,7 +382,7 @@ public abstract class Store {
                 op.setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
+                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input", e);
             }
         }
     }

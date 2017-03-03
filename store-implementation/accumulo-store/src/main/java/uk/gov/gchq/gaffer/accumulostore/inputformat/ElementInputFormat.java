@@ -79,7 +79,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
             try {
                 keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
             } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
+                throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
             }
             keyPackage.setSchema(schema);
             this.converter = keyPackage.getKeyConverter();

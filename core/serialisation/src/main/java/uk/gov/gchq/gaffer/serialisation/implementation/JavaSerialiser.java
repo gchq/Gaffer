@@ -76,7 +76,7 @@ public class JavaSerialiser implements Serialisation<Object> {
             try {
                 close.close();
             } catch (IOException e) {
-                LOGGER.warn("Resource leak: unable to close stream in JavaSerialiser.class");
+                LOGGER.warn("Resource leak: unable to close stream in JavaSerialiser.class", e);
             }
         }
     }
