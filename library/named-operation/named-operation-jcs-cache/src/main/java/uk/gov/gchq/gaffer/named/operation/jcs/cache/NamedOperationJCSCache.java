@@ -116,7 +116,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
                     }
                 }
             } catch (CacheOperationFailedException e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
 
         }

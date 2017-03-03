@@ -95,7 +95,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
         group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
         aggregator = schema.getElement(group).getAggregator();

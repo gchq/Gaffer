@@ -152,7 +152,7 @@ public class ProxyStore extends Store {
         try {
             return doPost(url, new String(JSON_SERIALISER.serialise(body), CommonConstants.UTF_8), outputType, context);
         } catch (SerialisationException | UnsupportedEncodingException e) {
-            throw new StoreException("Unable to serialise body of request into json.");
+            throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }
 

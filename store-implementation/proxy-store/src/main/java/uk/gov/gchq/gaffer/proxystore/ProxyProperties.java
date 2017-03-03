@@ -128,7 +128,7 @@ public class ProxyProperties extends StoreProperties {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Could not create Gaffer URL from host (" + getGafferHost()
                     + "), port (" + getGafferPort()
-                    + ") and context root (" + getGafferContextRoot() + ")");
+                    + ") and context root (" + getGafferContextRoot() + ")", e);
         }
     }
 

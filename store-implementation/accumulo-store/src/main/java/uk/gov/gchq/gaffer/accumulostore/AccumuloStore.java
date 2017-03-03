@@ -83,7 +83,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -123,7 +122,7 @@ public class AccumuloStore extends Store {
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
+            throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
@@ -285,7 +284,7 @@ public class AccumuloStore extends Store {
                 keys = keyPackage.getKeyConverter().getKeysFromElement(element);
             } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                        + " when trying to insert elements");
+                        + " when trying to insert elements", e);
                 continue;
             }
             final Value value;
@@ -293,7 +292,7 @@ public class AccumuloStore extends Store {
                 value = keyPackage.getKeyConverter().getValueFromElement(element);
             } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
-                        + " when trying to insert elements");
+                        + " when trying to insert elements", e);
                 continue;
             }
             final Mutation m = new Mutation(keys.getFirst().getRow());
@@ -302,7 +301,7 @@ public class AccumuloStore extends Store {
             try {
                 writer.addMutation(m);
             } catch (final MutationsRejectedException e) {
-                LOGGER.error("Failed to create an accumulo key mutation");
+                LOGGER.error("Failed to create an accumulo key mutation", e);
                 continue;
             }
             // If the GraphElement is a Vertex then there will only be 1 key,
@@ -316,7 +315,7 @@ public class AccumuloStore extends Store {
                 try {
                     writer.addMutation(m2);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation");
+                    LOGGER.error("Failed to create an accumulo key mutation", e);
                 }
             }
         }

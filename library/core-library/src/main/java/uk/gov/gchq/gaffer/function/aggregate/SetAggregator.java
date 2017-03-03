@@ -45,7 +45,7 @@ public class SetAggregator<T> extends SimpleAggregateFunction<Set<T>> {
                     set = input.getClass().newInstance();
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new IllegalArgumentException("Unable to create new instance of " + input.getClass().getName()
-                            + ". This set aggregator can only be used on sets with a default constructor.");
+                            + ". This set aggregator can only be used on sets with a default constructor.", e);
                 }
             }
 
