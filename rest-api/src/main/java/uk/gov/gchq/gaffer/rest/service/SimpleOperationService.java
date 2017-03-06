@@ -48,7 +48,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.Closeable;
 import java.io.IOException;
@@ -57,7 +58,7 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IOperationService}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * All operations are simple delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
@@ -70,14 +71,16 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
 public class SimpleOperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
     private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
     public final ObjectMapper mapper = createDefaultMapper();
 
     public SimpleOperationService() {
-        this(GraphFactory.createGraphFactory());
+        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public SimpleOperationService(final GraphFactory graphFactory) {
+    public SimpleOperationService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
+        this.userFactory = userFactory;
     }
 
     @Override
@@ -218,7 +221,7 @@ public class SimpleOperationService implements IOperationService {
     }
 
     protected <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> opChain, final boolean async) {
-        final User user = createUser();
+        final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
         if (async) {

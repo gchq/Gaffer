@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.rest.application.ApplicationConfig;
+import uk.gov.gchq.gaffer.rest.factory.GafferGraphFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import javax.ws.rs.client.Client;
@@ -89,7 +90,7 @@ public class RestApiTestUtil {
 
 
     public static void reinitialiseGraph() throws IOException {
-        GraphFactory.setGraph(null);
+        GafferGraphFactory.setGraph(null);
 
         startServer();
         checkRestServiceStatus();

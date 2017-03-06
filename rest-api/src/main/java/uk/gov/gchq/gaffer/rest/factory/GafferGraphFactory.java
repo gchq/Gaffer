@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * A <code>GraphFactory</code> creates instances of {@link uk.gov.gchq.gaffer.graph.Graph} to be reused for all queries.
- */
-public class GraphFactory {
+public class GafferGraphFactory implements GraphFactory {
     private static Graph graph;
 
     /**
@@ -34,7 +31,7 @@ public class GraphFactory {
      */
     private boolean singletonGraph = true;
 
-    protected GraphFactory() {
+    protected GafferGraphFactory() {
         // Graph factories should be constructed via the createGraphFactory static method.
     }
 
@@ -44,11 +41,26 @@ public class GraphFactory {
 
         try {
             return Class.forName(graphFactoryClass)
-                    .asSubclass(GraphFactory.class)
-                    .newInstance();
+                        .asSubclass(GraphFactory.class)
+                        .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
         }
+    }
+
+    protected static Path[] getSchemaPaths() {
+        final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
+        if (null == schemaPaths) {
+            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
+        }
+
+        final String[] schemaPathsArray = schemaPaths.split(",");
+        final Path[] paths = new Path[schemaPathsArray.length];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = Paths.get(schemaPathsArray[i]);
+        }
+
+        return paths;
     }
 
     public Graph getGraph() {
@@ -62,15 +74,19 @@ public class GraphFactory {
         return createGraph();
     }
 
-    public void setSingletonGraph(final boolean singletonGraph) {
-        this.singletonGraph = singletonGraph;
+    public static void setGraph(final Graph graph) {
+        GafferGraphFactory.graph = graph;
     }
 
     public boolean isSingletonGraph() {
         return singletonGraph;
     }
 
-    protected Graph.Builder createGraphBuilder() {
+    public void setSingletonGraph(final boolean singletonGraph) {
+        this.singletonGraph = singletonGraph;
+    }
+
+    public Graph.Builder createGraphBuilder() {
         final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
@@ -89,7 +105,7 @@ public class GraphFactory {
         return builder;
     }
 
-    protected OperationAuthoriser createOpAuthoriser() {
+    public OperationAuthoriser createOpAuthoriser() {
         OperationAuthoriser opAuthoriser = null;
 
         final String opAuthsPathStr = System.getProperty(SystemProperty.OP_AUTHS_PATH);
@@ -105,26 +121,7 @@ public class GraphFactory {
         return opAuthoriser;
     }
 
-    protected static void setGraph(final Graph graph) {
-        GraphFactory.graph = graph;
-    }
-
-    protected static Path[] getSchemaPaths() {
-        final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
-        if (null == schemaPaths) {
-            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
-        }
-
-        final String[] schemaPathsArray = schemaPaths.split(",");
-        final Path[] paths = new Path[schemaPathsArray.length];
-        for (int i = 0; i < paths.length; i++) {
-            paths[i] = Paths.get(schemaPathsArray[i]);
-        }
-
-        return paths;
-    }
-
-    private Graph createGraph() {
+    public Graph createGraph() {
         return createGraphBuilder().build();
     }
 }

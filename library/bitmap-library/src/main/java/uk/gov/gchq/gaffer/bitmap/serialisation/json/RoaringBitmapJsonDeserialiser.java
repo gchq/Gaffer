@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.RoaringBitmapSerialiser;
-
 import java.io.IOException;
 
 public class RoaringBitmapJsonDeserialiser extends JsonDeserializer<RoaringBitmap> {

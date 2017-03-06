@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.rest.GraphFactoryForTest;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -35,7 +37,7 @@ public class GraphFactoryTest {
         final GraphFactory graphFactory = GraphFactory.createGraphFactory();
 
         // Then
-        assertEquals(GraphFactory.class, graphFactory.getClass());
+        assertEquals(GafferGraphFactory.class, graphFactory.getClass());
     }
 
     @Test
@@ -66,7 +68,7 @@ public class GraphFactoryTest {
     public void shouldReturnNullWhenCreateOpAuthoriserWithNoSystemPropertyPath() {
         // Given
         System.clearProperty(SystemProperty.OP_AUTHS_PATH);
-        final GraphFactory factory = new GraphFactory();
+        final GraphFactory factory = new GafferGraphFactory();
 
         // When
         final OperationAuthoriser opAuthoriser = factory.createOpAuthoriser();
@@ -78,7 +80,7 @@ public class GraphFactoryTest {
     @Test
     public void shouldDefaultToSingletonGraph() {
         // Given
-        final GraphFactory factory = new GraphFactory();
+        final GafferGraphFactory factory = new GafferGraphFactory();
 
         // When
         final boolean isSingleton = factory.isSingletonGraph();

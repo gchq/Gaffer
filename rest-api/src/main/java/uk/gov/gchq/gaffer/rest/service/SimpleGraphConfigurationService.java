@@ -27,8 +27,9 @@ import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.lang.reflect.Modifier;
@@ -41,7 +42,7 @@ import java.util.Set;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
- * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * <p>
  * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link uk.gov.gchq.gaffer.function.FilterFunction}s,
  * {@link uk.gov.gchq.gaffer.function.TransformFunction}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
@@ -53,13 +54,15 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
 
     private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
 
     public SimpleGraphConfigurationService() {
-        this(GraphFactory.createGraphFactory());
+        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public SimpleGraphConfigurationService(final GraphFactory graphFactory) {
+    public SimpleGraphConfigurationService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
+        this.userFactory = userFactory;
     }
 
     public static void initialise() {
