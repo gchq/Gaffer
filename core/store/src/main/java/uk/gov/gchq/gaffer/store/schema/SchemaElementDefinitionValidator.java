@@ -69,7 +69,7 @@ public class SchemaElementDefinitionValidator {
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
+                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found", e);
                 return false;
             }
         }
@@ -86,7 +86,7 @@ public class SchemaElementDefinitionValidator {
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
+                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found", e);
                 return false;
             }
         }

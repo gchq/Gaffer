@@ -41,7 +41,7 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
         try {
             name = namedOperation.getOperationName();
         } catch (NullPointerException e) {
-            throw new CacheOperationFailedException("NamedOperation cannot be null");
+            throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
         if (!overwrite) {
             addToCache(name, namedOperation, false);

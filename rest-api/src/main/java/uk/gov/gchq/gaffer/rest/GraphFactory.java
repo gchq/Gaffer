@@ -47,7 +47,7 @@ public class GraphFactory {
                     .asSubclass(GraphFactory.class)
                     .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass);
+            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
         }
     }
 

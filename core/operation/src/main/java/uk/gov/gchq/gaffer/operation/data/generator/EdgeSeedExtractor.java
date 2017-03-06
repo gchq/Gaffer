@@ -58,7 +58,7 @@ public class EdgeSeedExtractor extends OneToOneElementGenerator<EdgeSeed> {
         try {
             return getObject(((Edge) element));
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException("Cannot get an EdgeSeed from and Entity");
+            throw new IllegalArgumentException("Cannot get an EdgeSeed from and Entity", e);
         }
     }
 
