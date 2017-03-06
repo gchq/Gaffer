@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import uk.gov.gchq.gaffer.user.User;
 
-public class UnauthenticatedUserFactory implements UserFactory {
+public class UnknownUserFactory implements UserFactory {
     @Override
     public User createUser() {
         return new User();

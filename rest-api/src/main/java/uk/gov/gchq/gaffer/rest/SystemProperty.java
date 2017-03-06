@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import uk.gov.gchq.gaffer.rest.factory.GafferGraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UnauthenticatedUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
 /**
  * System property keys and default values.
@@ -42,6 +42,6 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
     public static final String BASE_URL_DEFAULT = "rest/v1";
     public static final String CORE_VERSION = "1.0.0";
-    public static final String GRAPH_FACTORY_CLASS_DEFAULT = GafferGraphFactory.class.getName();
-    public static final String USER_FACTORY_CLASS_DEFAULT = UnauthenticatedUserFactory.class.getName();
+    public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
+    public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
 }

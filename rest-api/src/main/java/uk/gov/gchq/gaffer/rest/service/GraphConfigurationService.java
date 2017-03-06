@@ -48,7 +48,7 @@ import java.util.Set;
  * {@link uk.gov.gchq.gaffer.function.TransformFunction}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
-public class SimpleGraphConfigurationService implements IGraphConfigurationService {
+public class GraphConfigurationService implements IGraphConfigurationService {
     private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(FilterFunction.class);
     private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
     private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
@@ -56,11 +56,11 @@ public class SimpleGraphConfigurationService implements IGraphConfigurationServi
     private final GraphFactory graphFactory;
     private final UserFactory userFactory;
 
-    public SimpleGraphConfigurationService() {
+    public GraphConfigurationService() {
         this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public SimpleGraphConfigurationService(final GraphFactory graphFactory, final UserFactory userFactory) {
+    public GraphConfigurationService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
         this.userFactory = userFactory;
     }

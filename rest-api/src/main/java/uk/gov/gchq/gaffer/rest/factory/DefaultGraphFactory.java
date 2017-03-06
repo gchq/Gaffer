@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class GafferGraphFactory implements GraphFactory {
+public class DefaultGraphFactory implements GraphFactory {
     private static Graph graph;
 
     /**
@@ -31,7 +31,7 @@ public class GafferGraphFactory implements GraphFactory {
      */
     private boolean singletonGraph = true;
 
-    protected GafferGraphFactory() {
+    protected DefaultGraphFactory() {
         // Graph factories should be constructed via the createGraphFactory static method.
     }
 
@@ -75,7 +75,7 @@ public class GafferGraphFactory implements GraphFactory {
     }
 
     public static void setGraph(final Graph graph) {
-        GafferGraphFactory.graph = graph;
+        DefaultGraphFactory.graph = graph;
     }
 
     public boolean isSingletonGraph() {

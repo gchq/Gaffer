@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import uk.gov.gchq.gaffer.rest.factory.GafferGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 
-public class GraphFactoryForTest extends GafferGraphFactory {
+public class GraphFactoryForTest extends DefaultGraphFactory {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class GraphFactoryTest {
         final GraphFactory graphFactory = GraphFactory.createGraphFactory();
 
         // Then
-        assertEquals(GafferGraphFactory.class, graphFactory.getClass());
+        assertEquals(DefaultGraphFactory.class, graphFactory.getClass());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class GraphFactoryTest {
     public void shouldReturnNullWhenCreateOpAuthoriserWithNoSystemPropertyPath() {
         // Given
         System.clearProperty(SystemProperty.OP_AUTHS_PATH);
-        final GraphFactory factory = new GafferGraphFactory();
+        final GraphFactory factory = new DefaultGraphFactory();
 
         // When
         final OperationAuthoriser opAuthoriser = factory.createOpAuthoriser();
@@ -80,7 +80,7 @@ public class GraphFactoryTest {
     @Test
     public void shouldDefaultToSingletonGraph() {
         // Given
-        final GafferGraphFactory factory = new GafferGraphFactory();
+        final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When
         final boolean isSingleton = factory.isSingletonGraph();

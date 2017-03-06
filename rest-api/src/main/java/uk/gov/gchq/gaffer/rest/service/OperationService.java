@@ -68,17 +68,17 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
  * be created from the http request.
  * </p>
  */
-public class SimpleOperationService implements IOperationService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleOperationService.class);
+public class OperationService implements IOperationService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationService.class);
     private final GraphFactory graphFactory;
     private final UserFactory userFactory;
     public final ObjectMapper mapper = createDefaultMapper();
 
-    public SimpleOperationService() {
+    public OperationService() {
         this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public SimpleOperationService(final GraphFactory graphFactory, final UserFactory userFactory) {
+    public OperationService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
         this.userFactory = userFactory;
     }

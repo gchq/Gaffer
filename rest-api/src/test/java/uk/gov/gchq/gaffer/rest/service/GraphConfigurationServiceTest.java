@@ -49,8 +49,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
-public class SimpleGraphConfigurationServiceTest {
-    private SimpleGraphConfigurationService service;
+public class GraphConfigurationServiceTest {
+    private GraphConfigurationService service;
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
@@ -71,7 +71,7 @@ public class SimpleGraphConfigurationServiceTest {
         given(userFactory.createUser()).willReturn(new User());
 
         given(graph.getStoreTraits()).willReturn(traits);
-        service = new SimpleGraphConfigurationService(graphFactory, userFactory);
+        service = new GraphConfigurationService(graphFactory, userFactory);
     }
 
     @Test

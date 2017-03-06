@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 
 public class ExamplesServiceTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-    private SimpleExamplesService service;
+    private ExamplesService service;
 
     private Schema schema;
 
@@ -67,7 +67,7 @@ public class ExamplesServiceTest {
         final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
 
-        service = new SimpleExamplesService(graphFactory);
+        service = new ExamplesService(graphFactory);
     }
 
     @Test

@@ -57,15 +57,15 @@ import java.util.Locale;
 import java.util.Map.Entry;
 
 
-public class SimpleExamplesService implements IExamplesService {
+public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
     private final GraphFactory graphFactory;
 
-    public SimpleExamplesService() {
+    public ExamplesService() {
         this(GraphFactory.createGraphFactory());
     }
 
-    public SimpleExamplesService(final GraphFactory graphFactory) {
+    public ExamplesService(final GraphFactory graphFactory) {
         this.graphFactory = graphFactory;
     }
 
