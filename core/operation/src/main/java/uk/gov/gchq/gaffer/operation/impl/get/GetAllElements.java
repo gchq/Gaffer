@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 
 /**
  * Extends {@link GetElements}, but fetches all elements from the graph that are
@@ -28,8 +28,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  *
  * @param <ELEMENT_TYPE> the element return type
  */
-public class GetAllElements<ELEMENT_TYPE extends Element>
-        extends GetElements<ElementSeed, ELEMENT_TYPE> {
+public class GetAllElements<ELEMENT_TYPE extends Element> extends AbstractGetIterableElementsOperation<Void, ELEMENT_TYPE> {
     public GetAllElements() {
         super();
     }
@@ -43,38 +42,33 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.EQUAL;
-    }
-
-    @Override
-    public void setSeeds(final Iterable<ElementSeed> seeds) {
+    public void setSeeds(final Iterable<Void> seeds) {
         if (null != seeds) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
     }
 
     @Override
-    public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
+    public void setSeeds(final CloseableIterable<Void> seeds) {
         if (null != seeds) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
     }
 
     @Override
-    public void setInput(final CloseableIterable<ElementSeed> input) {
+    public void setInput(final CloseableIterable<Void> input) {
         if (null != input) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
     }
 
     @Override
-    public CloseableIterable<ElementSeed> getSeeds() {
+    public CloseableIterable<Void> getSeeds() {
         return null;
     }
 
     @Override
-    public CloseableIterable<ElementSeed> getInput() {
+    public CloseableIterable<Void> getInput() {
         return null;
     }
 
@@ -85,13 +79,13 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
 
     @Override
     public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!IncludeIncomingOutgoingType.OUTGOING.equals(includeIncomingOutGoing)) {
+        if (null != includeIncomingOutGoing && !IncludeIncomingOutgoingType.OUTGOING.equals(includeIncomingOutGoing)) {
             throw new IllegalArgumentException(getClass().getSimpleName() + " does not support any direction apart from outgoing edges");
         }
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, ELEMENT_TYPE, ?>>
-            extends GetElements.BaseBuilder<OP_TYPE, ElementSeed, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractGetIterableElementsOperation.BaseBuilder<OP_TYPE, Void, ELEMENT_TYPE, CHILD_CLASS> {
         public BaseBuilder(final OP_TYPE op) {
             super(op);
         }
@@ -99,7 +93,7 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
 
     public static final class Builder<ELEMENT_TYPE extends Element> extends BaseBuilder<GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
         public Builder() {
-            super(new GetAllElements<ELEMENT_TYPE>());
+            super(new GetAllElements<>());
         }
 
         @Override

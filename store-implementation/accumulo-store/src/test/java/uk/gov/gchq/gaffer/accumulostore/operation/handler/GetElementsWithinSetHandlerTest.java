@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -188,20 +187,17 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final View view = new View.Builder(defaultView)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
+    private void shouldReturnOnlyEdgesWhenViewContainsNoEntities(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
@@ -210,7 +206,6 @@ public class GetElementsWithinSetHandlerTest {
                         .build())
                 .build();
         final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
-        operation.setIncludeEntities(false);
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -224,18 +219,22 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.setIncludeEdges(IncludeEdgeType.NONE);
+    private void shouldReturnOnlyEntitiesWhenViewContainsNoEdges(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);

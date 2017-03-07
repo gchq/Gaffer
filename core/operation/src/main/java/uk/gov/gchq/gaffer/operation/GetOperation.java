@@ -28,34 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
  */
 public interface GetOperation<SEED_TYPE, RETURN_TYPE>
         extends Operation<CloseableIterable<SEED_TYPE>, RETURN_TYPE> {
-
-    /**
-     * A <code>IncludeEdgeType</code> defines whether {@link uk.gov.gchq.gaffer.data.element.Edge}s used in the operation should
-     * be directed.
-     */
-    enum IncludeEdgeType {
-        ALL, DIRECTED, UNDIRECTED, NONE;
-
-        boolean accept(final boolean directed) {
-            return ALL.equals(this) || (DIRECTED.equals(this) && directed) || (UNDIRECTED.equals(this) && !directed);
-        }
-    }
-
-    /**
-     * A <code>IncludeIncomingOutgoingType</code> defines the direction of the {@link uk.gov.gchq.gaffer.data.element.Edge}s during
-     * the operation.
-     */
-    enum IncludeIncomingOutgoingType {
-        BOTH, INCOMING, OUTGOING
-    }
-
-    /**
-     * A <code>SeedMatchingType</code> defines how the seeds in the operation should be matched.
-     */
-    enum SeedMatchingType {
-        EQUAL, RELATED
-    }
-
     /**
      * @return the {@link CloseableIterable} of input seeds (SEED_TYPE) for the operation.
      */

@@ -34,8 +34,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
+import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -291,7 +291,7 @@ public class GetElementsinRangesHandlerTest {
         final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
 
         //All Edges stored should be outgoing from our provided seeds.
-        operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
+        operation.setDirectedType(DirectedType.UNDIRECTED);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);

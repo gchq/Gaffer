@@ -55,7 +55,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     }
 
     protected AbstractOperation(final View view, final INPUT input) {
-        this.view = view;
+        setView(view);
         this.input = input;
     }
 
@@ -68,6 +68,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     protected AbstractOperation(final Operation<? extends INPUT, ?> operation) {
         setView(operation.getView());
         setInput(operation.getInput());
+        setOptions(new HashMap<>(operation.getOptions()));
     }
 
     @Override
@@ -79,17 +80,17 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     @Override
     public boolean validate(final Element element) {
         return null != element
-                && element instanceof Edge ? validate(((Edge) element)) : validate(((Entity) element));
+                && element instanceof Edge ? validate((Edge) element) : validate((Entity) element);
     }
 
     @Override
     public boolean validate(final Edge edge) {
-        return validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
+        return null != edge && validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
     }
 
     @Override
     public boolean validate(final Entity entity) {
-        return validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
+        return null != entity && validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
     }
 
     @Override

@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 
 /**
  * A <code>GetElementsOperation</code> defines a seeded get operation to be processed on a graph.
@@ -27,76 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
  * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
  * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
  */
-public interface GetElementsOperation<SEED_TYPE, RETURN_TYPE> extends GetOperation<SEED_TYPE, RETURN_TYPE> {
-
-    /**
-     * @return true if properties should definitely populated. false if properties do not have to be populated.
-     */
-    boolean isPopulateProperties();
-
-    /**
-     * @param populateProperties true if properties should definitely populated. false if properties do not have to be populated.
-     */
-    void setPopulateProperties(final boolean populateProperties);
-
-    /**
-     * @return a {@link SeedMatchingType} describing how the seeds should be
-     * matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     */
-    SeedMatchingType getSeedMatching();
-
-    /**
-     * @param entity the entity to validate.
-     * @return true if the entity is passes validation for the operation flags - e.g isIncludeEntities
-     */
-    boolean validateFlags(final Entity entity);
-
-    /**
-     * @param edge the edge to validate.
-     * @return true if the edge is passes validation for the operation flags - e.g getIncludeEdges
-     */
-    boolean validateFlags(final Edge edge);
-
-    /**
-     * @return true if {@link Entity}s should be included, otherwise false.
-     */
-    boolean isIncludeEntities();
-
-    /**
-     * The result set should include {@link Entity}s.
-     *
-     * @param includeEntities set to TRUE to return {@link Entity}s
-     */
-    void setIncludeEntities(final boolean includeEntities);
-
-    /**
-     * @return includeIncomingOutGoing a {@link IncludeIncomingOutgoingType}
-     * that controls the direction of {@link Edge}s that are
-     * filtered out in the operation.
-     * @see IncludeIncomingOutgoingType
-     */
-    IncludeIncomingOutgoingType getIncludeIncomingOutGoing();
-
-    /**
-     * @param includeIncomingOutGoing a {@link IncludeIncomingOutgoingType}
-     *                                that controls the direction of {@link Edge}s that are
-     *                                filtered out in the operation.
-     * @see IncludeIncomingOutgoingType
-     */
-    void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing);
-
-    /**
-     * @param includeEdges a {@link IncludeEdgeType} controls which
-     *                     {@link Edge}s are filtered out in the operation.
-     * @see IncludeEdgeType
-     */
-    void setIncludeEdges(final IncludeEdgeType includeEdges);
-
-    /**
-     * @return includeEdges an {@link IncludeEdgeType} that controls which {@link Edge}s
-     * are filtered out in the operation.
-     * @see IncludeEdgeType
-     */
-    IncludeEdgeType getIncludeEdges();
+public interface GetElementsOperation<SEED_TYPE, RETURN_TYPE> extends
+        GetOperation<SEED_TYPE, RETURN_TYPE>,
+        ElementOperation<CloseableIterable<SEED_TYPE>, RETURN_TYPE> {
 }

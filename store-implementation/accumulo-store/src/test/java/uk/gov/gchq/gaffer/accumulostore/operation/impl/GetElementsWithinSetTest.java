@@ -6,7 +6,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -14,7 +14,6 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GetElementsWithinSetTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -45,12 +44,14 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
-                .includeEdges(GetOperation.IncludeEdgeType.NONE).includeEntities(true).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(true).view(new View.Builder().edge("testEdgegroup").build()).build();
+                .directedType(ElementOperation.DirectedType.DIRECTED)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(new View.Builder()
+                        .edge("testEdgegroup")
+                        .build())
+                .build();
         assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertTrue(getElementsWithinSet.isIncludeEntities());
-        assertEquals(GetOperation.IncludeEdgeType.NONE, getElementsWithinSet.getIncludeEdges());
-        assertTrue(getElementsWithinSet.isPopulateProperties());
+        assertEquals(ElementOperation.DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
     }

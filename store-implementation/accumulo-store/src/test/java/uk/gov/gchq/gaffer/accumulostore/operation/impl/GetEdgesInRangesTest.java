@@ -3,10 +3,11 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.ArrayList;
@@ -16,8 +17,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class GetEdgesInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -25,23 +24,12 @@ public class GetEdgesInRangesTest implements OperationTest {
     @Test
     public void shouldNotReturnEntities() {
 
-        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>();
-        assertFalse(op.isIncludeEntities());
-
-    }
-
-    @Test
-    public void shouldNotBeAbleToSetNoEdges() {
-
-        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>();
-
-        try {
-            op.setIncludeEdges(GetOperation.IncludeEdgeType.NONE);
-        } catch (final IllegalArgumentException e) {
-            assertTrue(true);
-            return;
-        }
-        fail();
+        final GetEdgesInRanges op = new GetEdgesInRanges();
+        op.setView(new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build());
+        assertFalse(op.getView().hasEntities());
 
     }
 
@@ -73,12 +61,16 @@ public class GetEdgesInRangesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED).inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
-                .addSeed(seed).option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().edge("testEdgeGroup").build()).build();
-        assertFalse(getEdgesInRanges.isPopulateProperties());
-        assertEquals(GetOperation.IncludeEdgeType.DIRECTED, getEdgesInRanges.getIncludeEdges());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
+                .directedType(ElementOperation.DirectedType.DIRECTED)
+                .inOutType(ElementOperation.IncludeIncomingOutgoingType.BOTH)
+                .addSeed(seed)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(new View.Builder()
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
+        assertEquals(ElementOperation.DirectedType.DIRECTED, getEdgesInRanges.getDirectedType());
+        assertEquals(ElementOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
         assertNotNull(getEdgesInRanges.getView());

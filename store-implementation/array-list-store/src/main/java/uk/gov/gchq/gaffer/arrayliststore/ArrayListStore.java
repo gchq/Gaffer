@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.arrayliststore;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
@@ -38,11 +39,11 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 
@@ -54,7 +55,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(PRE_AGGREGATION_FILTERING));
+    private static final Set<StoreTrait> TRAITS = Sets.newHashSet(PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING);
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 

@@ -15,14 +15,16 @@
  */
 package uk.gov.gchq.gaffer.store.optimiser;
 
-import uk.gov.gchq.gaffer.operation.GetIterableOperation;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
-import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.Store;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,27 +61,38 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
      * @return singleton list containing the current operation.
      */
     protected List<Operation> optimiseCurrentOperation(final Operation<?, ?> previousOp, final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
+        if (currentOp instanceof GetAdjacentEntitySeeds) {
+            currentOp.setView(new View.Builder()
+                    .merge(currentOp.getView())
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else if (currentOp instanceof GetAllEdges) {
+            currentOp.setView(new View.Builder()
+                    .merge(currentOp.getView())
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else if (currentOp instanceof GetEdges) {
+            currentOp.setView(new View.Builder()
+                    .merge(currentOp.getView())
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else if (currentOp instanceof GetAllEntities) {
+            currentOp.setView(new View.Builder()
+                    .merge(currentOp.getView())
+                    .edges(Collections.emptyMap())
+                    .build());
+        } else if (currentOp instanceof GetEntities) {
+            currentOp.setView(new View.Builder()
+                    .merge(currentOp.getView())
+                    .edges(Collections.emptyMap())
+                    .build());
+        }
         return Collections.singletonList((Operation) currentOp);
     }
 
-    /**
-     * Adds deduplicate operations for any {@link GetIterableOperation}s that have the
-     * deduplicate flag set.
-     *
-     * @param currentOp the current operation
-     * @param nextOp    the next operation
-     * @return the validate operation if required, otherwise an empty list.
-     */
+    @Override
     protected List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        final List<Operation> postOps = new ArrayList<>();
-        if (doesOperationResultsNeedLimiting(currentOp, nextOp)) {
-            postOps.add((Operation) createLimitOperation((GetIterableOperation<?, ?>) currentOp));
-        }
-        if (doesOperationNeedDeduplicating(currentOp, nextOp)) {
-            postOps.add((Operation) createDeduplicateOperation((GetIterableOperation<?, ?>) currentOp));
-        }
-
-        return postOps;
+        return Collections.emptyList();
     }
 
     /**
@@ -118,29 +131,5 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
         currentOp.setElements(null);
 
         return validate;
-    }
-
-    private Limit<?> createLimitOperation(final GetIterableOperation<?, ?> currentOp) {
-        final Limit<?> limit = new Limit();
-        limit.setResultLimit(currentOp.getResultLimit());
-        limit.setOptions(currentOp.getOptions());
-        return limit;
-    }
-
-    private Deduplicate<?> createDeduplicateOperation(final GetIterableOperation<?, ?> currentOp) {
-        final Deduplicate<?> duplicate = new Deduplicate();
-        duplicate.setOptions(currentOp.getOptions());
-        return duplicate;
-    }
-
-    private boolean doesOperationResultsNeedLimiting(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        return currentOp instanceof GetIterableOperation
-                && null != ((GetIterableOperation) currentOp).getResultLimit();
-    }
-
-    private boolean doesOperationNeedDeduplicating(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp) {
-        return currentOp instanceof GetIterableOperation
-                && ((GetIterableOperation) currentOp).isDeduplicate()
-                && (null == nextOp || !(nextOp instanceof Deduplicate));
     }
 }

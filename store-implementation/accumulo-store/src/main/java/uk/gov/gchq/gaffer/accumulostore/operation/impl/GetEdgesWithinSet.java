@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import java.util.Collections;
 
 /**
  * Returns {@link uk.gov.gchq.gaffer.data.element.Edge}s where both ends are in a given set.
@@ -47,23 +48,14 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
     }
 
     @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE == includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires edges to be included");
-        }
-
-        super.setIncludeEdges(includeEdges);
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return false;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including entities");
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
     }
 

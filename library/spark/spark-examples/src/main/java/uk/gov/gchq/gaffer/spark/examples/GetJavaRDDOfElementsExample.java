@@ -21,6 +21,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -106,7 +107,9 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         final GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
-                .includeEntities(false)
+                .view(new View.Builder()
+                        .edge("edge")
+                        .build())
                 .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
@@ -115,7 +118,9 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         printJava("GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()\n"
                 + "                .addSeed(new EdgeSeed(1, 2, true))\n"
                 + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .includeEntities(false)\n"
+                + "                .view(new View.Builder()\n" +
+                "                        .edge(\"edge\")\n" +
+                "                        .build())\n"
                 + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"

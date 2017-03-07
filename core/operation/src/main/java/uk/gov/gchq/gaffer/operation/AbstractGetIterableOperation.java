@@ -21,10 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
-        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<RESULT_TYPE>> implements GetIterableOperation<SEED_TYPE,  RESULT_TYPE> {
-    protected boolean deduplicate = false;
-    protected Integer resultLimit;
-
+        extends AbstractGetOperation<SEED_TYPE, CloseableIterable<RESULT_TYPE>> implements GetIterableOperation<SEED_TYPE, RESULT_TYPE> {
     protected AbstractGetIterableOperation() {
         super();
     }
@@ -53,26 +50,6 @@ public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
         super(operation);
     }
 
-    @Override
-    public boolean isDeduplicate() {
-        return deduplicate;
-    }
-
-    @Override
-    public void setDeduplicate(final boolean deduplicate) {
-        this.deduplicate = deduplicate;
-    }
-
-    @Override
-    public Integer getResultLimit() {
-        return resultLimit;
-    }
-
-    @Override
-    public void setResultLimit(final Integer resultLimit) {
-        this.resultLimit = resultLimit;
-    }
-
     public abstract static class BaseBuilder<
             OP_TYPE extends AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>,
             SEED_TYPE,
@@ -97,21 +74,6 @@ public abstract class AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE>
                 }
             }
             return op;
-        }
-
-        /**
-         * @param deduplicate sets the deduplicate flag on the operation.
-         * @return this Builder
-         * @see GetIterableOperation#setDeduplicate(boolean)
-         */
-        public CHILD_CLASS deduplicate(final boolean deduplicate) {
-            op.setDeduplicate(deduplicate);
-            return self();
-        }
-
-        public CHILD_CLASS limitResults(final Integer resultLimit) {
-            op.setResultLimit(resultLimit);
-            return self();
         }
     }
 

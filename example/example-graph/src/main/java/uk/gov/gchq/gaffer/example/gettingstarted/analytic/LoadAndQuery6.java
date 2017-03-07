@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;

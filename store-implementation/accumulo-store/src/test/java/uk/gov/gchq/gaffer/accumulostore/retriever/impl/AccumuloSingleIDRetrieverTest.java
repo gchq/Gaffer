@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
+import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -103,8 +103,6 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEntities(true);
-        operation.setIncludeEdges(IncludeEdgeType.ALL);
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
@@ -129,11 +127,10 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEntities(false);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -158,12 +155,10 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        final View view = new View.Builder().entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEntities(true);
-        operation.setIncludeEdges(IncludeEdgeType.NONE);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -193,7 +188,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
+        operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -227,7 +222,7 @@ public class AccumuloSingleIDRetrieverTest {
 
         AccumuloSingleIDRetriever retriever = null;
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEdges(IncludeEdgeType.DIRECTED);
+        operation.setDirectedType(DirectedType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -257,11 +252,10 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
         final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -291,11 +285,10 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
         GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
-        operation.setIncludeEntities(false);
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);

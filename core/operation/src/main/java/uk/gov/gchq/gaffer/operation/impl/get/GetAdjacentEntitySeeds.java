@@ -22,23 +22,30 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s at the opposite end of connected edges to a seed
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
- * Seed matching is always RELATED.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
- * @see uk.gov.gchq.gaffer.operation.GetOperation
+ * @see uk.gov.gchq.gaffer.operation.GetIterableOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
+public class GetAdjacentEntitySeeds
+        extends AbstractGetIterableOperation<EntitySeed, EntitySeed>
+        implements ElementOperation<CloseableIterable<EntitySeed>, CloseableIterable<EntitySeed>> {
+    private DirectedType directedType = DirectedType.BOTH;
+    private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
+
     public GetAdjacentEntitySeeds() {
     }
 
@@ -67,8 +74,23 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
     }
 
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.RELATED;
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return includeIncomingOutGoing;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
+        this.includeIncomingOutGoing = includeIncomingOutGoing;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
@@ -86,15 +108,57 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
     }
 
     @Override
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
+        }
+    }
+
+    @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
+    @Override
+    public boolean validate(final Edge edge) {
+        return null != edge && validateFlags(edge) && super.validate(edge);
+    }
+
+    public boolean validateFlags(final Edge edge) {
+        return DirectedType.BOTH == getDirectedType()
+                || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
+                || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
+    }
+
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
+            extends AbstractGetIterableOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }
+
+        /**
+         * @param directedType sets the directedType option on the operation.
+         * @return this Builder
+         */
+        public CHILD_CLASS directedType(final DirectedType directedType) {
+            op.setDirectedType(directedType);
+            return self();
+        }
+
+        /**
+         * @param inOutType sets the includeIncomingOutGoing option on the operation.
+         * @return this Builder
+         */
+        public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
+            op.setIncludeIncomingOutGoing(inOutType);
+            return self();
+        }
+
     }
 
     public static final class Builder extends BaseBuilder<Builder> {

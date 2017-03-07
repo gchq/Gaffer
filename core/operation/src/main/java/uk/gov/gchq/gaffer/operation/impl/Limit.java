@@ -30,6 +30,23 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * @see Limit.Builder
  */
 public class Limit<T> extends AbstractGetIterableOperation<T, T> {
+    protected Integer resultLimit;
+
+    public Limit() {
+    }
+
+    public Limit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
+    public Integer getResultLimit() {
+        return resultLimit;
+    }
+
+    public void setResultLimit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();
@@ -38,7 +55,7 @@ public class Limit<T> extends AbstractGetIterableOperation<T, T> {
     public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetIterableOperation.BaseBuilder<Limit<T>, T, T, CHILD_CLASS> {
 
         public BaseBuilder() {
-            super(new Limit<T>());
+            super(new Limit<>());
         }
 
         /**
@@ -48,6 +65,11 @@ public class Limit<T> extends AbstractGetIterableOperation<T, T> {
          */
         public CHILD_CLASS input(final Iterable<T> input) {
             return input(new WrappedCloseableIterable<>(input));
+        }
+
+        public CHILD_CLASS limitResults(final Integer resultLimit) {
+            op.setResultLimit(resultLimit);
+            return self();
         }
     }
 

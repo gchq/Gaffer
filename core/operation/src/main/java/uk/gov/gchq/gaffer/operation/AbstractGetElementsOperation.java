@@ -21,16 +21,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 
 public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE> implements GetElementsOperation<SEED_TYPE, RESULT_TYPE> {
-    private boolean includeEntities = true;
-    private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
+    private DirectedType directedType = DirectedType.BOTH;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
-    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
-    private boolean populateProperties = true;
 
     protected AbstractGetElementsOperation() {
         super();
@@ -58,24 +54,6 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
 
     protected AbstractGetElementsOperation(final GetElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
-        setPopulateProperties(operation.isPopulateProperties());
-        setIncludeEdges(operation.getIncludeEdges());
-        setIncludeEntities(operation.isIncludeEntities());
-        setSeedMatching(operation.getSeedMatching());
-    }
-
-    /**
-     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     */
-    protected void setSeedMatching(final SeedMatchingType seedMatching) {
-        this.seedMatching = seedMatching;
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
     }
 
     @JsonIgnore
@@ -91,36 +69,6 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     @Override
-    public boolean validate(final Edge edge) {
-        return validateFlags(edge) && super.validate(edge);
-    }
-
-    @Override
-    public boolean validate(final Entity entity) {
-        return validateFlags(entity) && super.validate(entity);
-    }
-
-    @Override
-    public boolean validateFlags(final Entity entity) {
-        return isIncludeEntities();
-    }
-
-    @Override
-    public boolean validateFlags(final Edge edge) {
-        return null != getIncludeEdges() && getIncludeEdges().accept(edge.isDirected());
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return includeEntities;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        this.includeEntities = includeEntities;
-    }
-
-    @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
         return includeIncomingOutGoing;
     }
@@ -131,23 +79,24 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
     }
 
     @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        this.includeEdges = includeEdges;
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
     }
 
     @Override
-    public IncludeEdgeType getIncludeEdges() {
-        return includeEdges;
+    public DirectedType getDirectedType() {
+        return directedType;
     }
 
     @Override
-    public boolean isPopulateProperties() {
-        return populateProperties;
+    public boolean validate(final Edge edge) {
+        return null != edge && validateFlags(edge) && super.validate(edge);
     }
 
-    @Override
-    public void setPopulateProperties(final boolean populateProperties) {
-        this.populateProperties = populateProperties;
+    public boolean validateFlags(final Edge edge) {
+        return DirectedType.BOTH == getDirectedType()
+                || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
+                || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
     }
 
     public abstract static class BaseBuilder<
@@ -177,22 +126,11 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
-         * @param includeEntities sets the includeEntities flag on the operation.
+         * @param directedType sets the directedType option on the operation.
          * @return this Builder
-         * @see GetElementsOperation#setIncludeEntities(boolean)
          */
-        public CHILD_CLASS includeEntities(final boolean includeEntities) {
-            op.setIncludeEntities(includeEntities);
-            return self();
-        }
-
-        /**
-         * @param includeEdgeType sets the includeEdges option on the operation.
-         * @return this Builder
-         * @see GetElementsOperation#setIncludeEdges(IncludeEdgeType)
-         */
-        public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
-            op.setIncludeEdges(includeEdgeType);
+        public CHILD_CLASS directedType(final DirectedType directedType) {
+            op.setDirectedType(directedType);
             return self();
         }
 
@@ -203,16 +141,6 @@ public abstract class AbstractGetElementsOperation<SEED_TYPE, RESULT_TYPE>
          */
         public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
             op.setIncludeIncomingOutGoing(inOutType);
-            return self();
-        }
-
-        /**
-         * @param populateProperties set the populateProperties flag on the operation.
-         * @return this Builder
-         * @see GetElementsOperation#setPopulateProperties(boolean)
-         */
-        public CHILD_CLASS populateProperties(final boolean populateProperties) {
-            op.setPopulateProperties(populateProperties);
             return self();
         }
     }

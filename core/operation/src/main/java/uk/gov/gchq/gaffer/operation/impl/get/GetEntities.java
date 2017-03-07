@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import java.util.Collections;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} to only return {@link uk.gov.gchq.gaffer.data.element.Entity}s.
@@ -60,26 +61,14 @@ public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED
     }
 
     @Override
-    public boolean isIncludeEntities() {
-        return true;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (!includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires entities to be included");
-        }
-    }
-
-    @Override
-    public IncludeEdgeType getIncludeEdges() {
-        return IncludeEdgeType.NONE;
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE != includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including edges");
+    public void setView(final View view) {
+        if (null != view && view.hasEdges()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .edges(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
     }
 
@@ -87,7 +76,7 @@ public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED
             CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
             extends GetElements.BaseBuilder<GetEntities<SEED_TYPE>, SEED_TYPE, Entity, CHILD_CLASS> {
         protected BaseBuilder() {
-            super(new GetEntities<SEED_TYPE>());
+            super(new GetEntities<>());
         }
 
         protected BaseBuilder(final GetEntities<SEED_TYPE> op) {

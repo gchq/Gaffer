@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -81,24 +81,27 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder includeEdges(final GetOperation.IncludeEdgeType includeEdgeType) {
-        if (GetOperation.IncludeEdgeType.DIRECTED == includeEdgeType) {
+    public IteratorSettingBuilder includeEdges(final boolean includeEdges) {
+        if (includeEdges) {
+            setting.addOption(AccumuloStoreConstants.INCLUDE_EDGES, "true");
+        }
+        return this;
+    }
+
+    public IteratorSettingBuilder directedType(final ElementOperation.DirectedType directedType) {
+        if (ElementOperation.DirectedType.DIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
-        } else if (GetOperation.IncludeEdgeType.UNDIRECTED == includeEdgeType) {
+        } else if (ElementOperation.DirectedType.UNDIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
-        } else if (GetOperation.IncludeEdgeType.NONE == includeEdgeType) {
-            setting.addOption(AccumuloStoreConstants.NO_EDGES, "true");
-        } else {
-            setting.addOption(AccumuloStoreConstants.INCLUDE_ALL_EDGES, "true");
         }
         return this;
     }
 
     public IteratorSettingBuilder includeIncomingOutgoing(
-            final GetOperation.IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (GetOperation.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
+            final ElementOperation.IncludeIncomingOutgoingType includeIncomingOutGoing) {
+        if (ElementOperation.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
-        } else if (GetOperation.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
+        } else if (ElementOperation.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }
         return this;

@@ -5,7 +5,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -13,7 +13,6 @@ import java.util.Iterator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GetElementsBetweenSetsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -47,16 +46,19 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(AccumuloTestData.SEED_B)
-                .addSeedB(AccumuloTestData.SEED_A).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
-                .includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
-                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>()
+                .addSeed(AccumuloTestData.SEED_B)
+                .addSeedB(AccumuloTestData.SEED_A)
+                .directedType(ElementOperation.DirectedType.UNDIRECTED)
+                .inOutType(ElementOperation.IncludeIncomingOutgoingType.INCOMING)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(new View.Builder()
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertTrue(getElementsBetweenSets.isIncludeEntities());
-        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
-        assertFalse(getElementsBetweenSets.isPopulateProperties());
+        assertEquals(ElementOperation.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
+        assertEquals(ElementOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

@@ -22,17 +22,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYPE>
         extends AbstractGetIterableOperation<SEED_TYPE, RESULT_TYPE> implements GetIterableElementsOperation<SEED_TYPE, RESULT_TYPE> {
-    private boolean includeEntities = true;
-    private IncludeEdgeType includeEdges = IncludeEdgeType.ALL;
+    private DirectedType directedType = DirectedType.BOTH;
     private IncludeIncomingOutgoingType includeIncomingOutGoing = IncludeIncomingOutgoingType.BOTH;
-    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
-    private boolean populateProperties = true;
 
     protected AbstractGetIterableElementsOperation() {
         super();
@@ -58,27 +54,14 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         super(view, seeds);
     }
 
+    protected AbstractGetIterableElementsOperation(final GetIterableOperation<SEED_TYPE, ?> operation) {
+        super(operation);
+    }
+
     protected AbstractGetIterableElementsOperation(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
         super(operation);
-        setPopulateProperties(operation.isPopulateProperties());
-        setIncludeEdges(operation.getIncludeEdges());
-        setIncludeEntities(operation.isIncludeEntities());
-        setSeedMatching(operation.getSeedMatching());
-    }
-
-
-    /**
-     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
-     *                     matched to the identifiers in the graph.
-     * @see SeedMatchingType
-     */
-    protected void setSeedMatching(final SeedMatchingType seedMatching) {
-        this.seedMatching = seedMatching;
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return seedMatching;
+        setDirectedType(operation.getDirectedType());
+        setIncludeIncomingOutGoing(operation.getIncludeIncomingOutGoing());
     }
 
     @JsonIgnore
@@ -94,36 +77,6 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
     }
 
     @Override
-    public boolean validate(final Edge edge) {
-        return validateFlags(edge) && super.validate(edge);
-    }
-
-    @Override
-    public boolean validate(final Entity entity) {
-        return validateFlags(entity) && super.validate(entity);
-    }
-
-    @Override
-    public boolean validateFlags(final Entity entity) {
-        return isIncludeEntities();
-    }
-
-    @Override
-    public boolean validateFlags(final Edge edge) {
-        return null != getIncludeEdges() && getIncludeEdges().accept(edge.isDirected());
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return includeEntities;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        this.includeEntities = includeEntities;
-    }
-
-    @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
         return includeIncomingOutGoing;
     }
@@ -134,28 +87,29 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
     }
 
     @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        this.includeEdges = includeEdges;
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
     }
 
     @Override
-    public IncludeEdgeType getIncludeEdges() {
-        return includeEdges;
-    }
-
-    @Override
-    public boolean isPopulateProperties() {
-        return populateProperties;
-    }
-
-    @Override
-    public void setPopulateProperties(final boolean populateProperties) {
-        this.populateProperties = populateProperties;
+    public DirectedType getDirectedType() {
+        return directedType;
     }
 
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public boolean validate(final Edge edge) {
+        return null != edge && validateFlags(edge) && super.validate(edge);
+    }
+
+    public boolean validateFlags(final Edge edge) {
+        return DirectedType.BOTH == getDirectedType()
+                || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
+                || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
     }
 
     public abstract static class BaseBuilder<
@@ -185,26 +139,6 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         }
 
         /**
-         * @param includeEntities sets the includeEntities flag on the operation.
-         * @return this Builder
-         * @see GetElementsOperation#setIncludeEntities(boolean)
-         */
-        public CHILD_CLASS includeEntities(final boolean includeEntities) {
-            op.setIncludeEntities(includeEntities);
-            return self();
-        }
-
-        /**
-         * @param includeEdgeType sets the includeEdges option on the operation.
-         * @return this Builder
-         * @see GetElementsOperation#setIncludeEdges(IncludeEdgeType)
-         */
-        public CHILD_CLASS includeEdges(final IncludeEdgeType includeEdgeType) {
-            op.setIncludeEdges(includeEdgeType);
-            return self();
-        }
-
-        /**
          * @param inOutType sets the includeIncomingOutGoing option on the operation.
          * @return this Builder
          * @see GetElementsOperation#setIncludeIncomingOutGoing(IncludeIncomingOutgoingType)
@@ -215,20 +149,13 @@ public abstract class AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYP
         }
 
         /**
-         * @param populateProperties set the populateProperties flag on the operation.
+         * @param directedType sets the directedType option on the operation.
          * @return this Builder
-         * @see GetElementsOperation#setPopulateProperties(boolean)
          */
-        public CHILD_CLASS populateProperties(final boolean populateProperties) {
-            op.setPopulateProperties(populateProperties);
+        public CHILD_CLASS directedType(final DirectedType directedType) {
+            op.setDirectedType(directedType);
             return self();
         }
-
-        public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
-            op.setSeedMatching(seedMatching);
-            return self();
-        }
-
     }
 
     public static final class Builder<OP_TYPE extends AbstractGetIterableElementsOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>

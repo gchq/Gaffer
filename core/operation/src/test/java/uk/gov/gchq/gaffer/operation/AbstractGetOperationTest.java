@@ -42,9 +42,6 @@ public class AbstractGetOperationTest implements OperationTest {
         // Given
         final GetOperation<ElementSeed, ?> operationToCopy = mock(GetOperation.class);
         final View view = mock(View.class);
-        final GetOperation.IncludeEdgeType includeEdges = GetOperation.IncludeEdgeType.ALL;
-        final boolean includeEntities = true;
-        final boolean populateProperties = true;
         final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
 
         given(operationToCopy.getView()).willReturn(view);

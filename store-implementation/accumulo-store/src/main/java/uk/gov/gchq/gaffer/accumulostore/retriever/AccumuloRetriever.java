@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
@@ -122,16 +121,11 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetElementsOperation<?, 
         }
         scanner.setRanges(ranges);
 
-        // Currently hard links element class to column family position.
-        if (IncludeEdgeType.NONE != operation.getIncludeEdges()) {
-            for (final String col : operation.getView().getEdgeGroups()) {
-                scanner.fetchColumnFamily(new Text(col));
-            }
+        for (final String col : operation.getView().getEdgeGroups()) {
+            scanner.fetchColumnFamily(new Text(col));
         }
-        if (operation.isIncludeEntities()) {
-            for (final String col : operation.getView().getEntityGroups()) {
-                scanner.fetchColumnFamily(new Text(col));
-            }
+        for (final String col : operation.getView().getEntityGroups()) {
+            scanner.fetchColumnFamily(new Text(col));
         }
         return scanner;
     }

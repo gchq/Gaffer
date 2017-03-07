@@ -22,9 +22,9 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.operation.ElementOperation;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -38,30 +38,27 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     public <T extends GetElementsOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException {
         if (elementSeed instanceof EntitySeed) {
-            if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && !operation.isIncludeEntities()) {
-                throw new IllegalArgumentException(
-                        "When doing querying by ID, you should only provide an EntitySeed seed if you also set includeEntities flag to true");
-            }
-            return getRange(((EntitySeed) elementSeed).getVertex(), operation, operation.getIncludeEdges());
+            return getRange(((EntitySeed) elementSeed).getVertex(), operation, operation.getView().hasEdges());
         } else {
-            if (!operation.isIncludeEntities() && IncludeEdgeType.NONE == operation.getIncludeEdges()) {
-                throw new IllegalArgumentException("Need to get either Entities and/or Edges when getting Elements");
-            }
-
             final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
             final List<Range> ranges = new ArrayList<>();
-            if (IncludeEdgeType.ALL == operation.getIncludeEdges()
-                    || (IncludeEdgeType.DIRECTED == operation.getIncludeEdges() && edgeSeed.isDirected())
-                    || (IncludeEdgeType.UNDIRECTED == operation.getIncludeEdges() && !edgeSeed.isDirected())) {
+            if (operation.getView().hasEdges()
+                    && (ElementOperation.DirectedType.BOTH == operation.getDirectedType()
+                    || (ElementOperation.DirectedType.DIRECTED == operation.getDirectedType() && edgeSeed.isDirected())
+                    || (ElementOperation.DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeSeed.isDirected()))) {
                 // Get Edges with the given EdgeSeed - This is applicable for
                 // EQUALS and RELATED seed matching.
                 ranges.add(new Range(getKeyFromEdgeSeed(edgeSeed, operation, false), true,
                         getKeyFromEdgeSeed(edgeSeed, operation, true), true));
             }
-            if (SeedMatchingType.RELATED.equals(operation.getSeedMatching()) && operation.isIncludeEntities()) {
+
+            // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
+            final boolean doRelated = !(operation instanceof SeedMatching)
+                    || SeedMatching.SeedMatchingType.RELATED.equals(((SeedMatching) operation).getSeedMatching());
+            if (doRelated && operation.getView().hasEntities()) {
                 // Get Entities related to EdgeSeeds
-                ranges.addAll(getRange(edgeSeed.getSource(), operation, IncludeEdgeType.NONE));
-                ranges.addAll(getRange(edgeSeed.getDestination(), operation, IncludeEdgeType.NONE));
+                ranges.addAll(getRange(edgeSeed.getSource(), operation, false));
+                ranges.addAll(getRange(edgeSeed.getDestination(), operation, false));
             }
 
             return ranges;
@@ -91,8 +88,8 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     protected abstract <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-            final boolean endKey) throws RangeFactoryException;
+                                                                                     final boolean endKey) throws RangeFactoryException;
 
     protected abstract <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-            final IncludeEdgeType includeEdgesParam) throws RangeFactoryException;
+                                                                                   final boolean includeEdges) throws RangeFactoryException;
 }

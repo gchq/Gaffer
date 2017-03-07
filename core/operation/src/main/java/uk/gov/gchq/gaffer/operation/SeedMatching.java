@@ -16,17 +16,23 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-
 /**
- * A <code>GetIterableOperation</code> defines a seeded get operation to be processed on a graph.
- * <p>
- * GetIterable operations have several flags to determine how to compose the resulting
- * {@link Iterable} object.
- *
- * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
- * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
+ * A <code>SeedMatching</code> adds seed matching to operations.
  */
-public interface GetIterableOperation<SEED_TYPE, RETURN_TYPE>
-        extends GetOperation<SEED_TYPE, CloseableIterable<RETURN_TYPE>> {
+public interface SeedMatching {
+    /**
+     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see SeedMatchingType
+     */
+    void setSeedMatching(final SeedMatchingType seedMatching);
+
+    SeedMatchingType getSeedMatching();
+
+    /**
+     * A <code>SeedMatchingType</code> defines how the seeds in the operation should be matched.
+     */
+    enum SeedMatchingType {
+        EQUAL, RELATED
+    }
 }

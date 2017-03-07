@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import java.util.Collections;
 
 /**
  * Restricts {@link GetAllElements} to only return entities.
@@ -36,31 +37,14 @@ public class GetAllEntities extends GetAllElements<Entity> {
     }
 
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.EQUAL;
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return true;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (!includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires entities to be included");
-        }
-    }
-
-    @Override
-    public IncludeEdgeType getIncludeEdges() {
-        return IncludeEdgeType.NONE;
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE != includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including edges");
+    public void setView(final View view) {
+        if (null != view && view.hasEdges()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .edges(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
     }
 

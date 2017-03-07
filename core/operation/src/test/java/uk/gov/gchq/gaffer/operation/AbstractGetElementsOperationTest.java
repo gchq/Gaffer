@@ -42,15 +42,9 @@ public class AbstractGetElementsOperationTest implements OperationTest {
         // Given
         final GetIterableElementsOperation<ElementSeed, ?> operationToCopy = mock(GetIterableElementsOperation.class);
         final View view = mock(View.class);
-        final GetOperation.IncludeEdgeType includeEdges = GetOperation.IncludeEdgeType.ALL;
-        final boolean includeEntities = true;
-        final boolean populateProperties = true;
         final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
 
         given(operationToCopy.getView()).willReturn(view);
-        given(operationToCopy.getIncludeEdges()).willReturn(includeEdges);
-        given(operationToCopy.isIncludeEntities()).willReturn(includeEntities);
-        given(operationToCopy.isPopulateProperties()).willReturn(populateProperties);
         given(operationToCopy.getInput()).willReturn(input);
 
         // When
@@ -58,10 +52,7 @@ public class AbstractGetElementsOperationTest implements OperationTest {
 
         // Then
         assertSame(view, operation.getView());
-        assertSame(includeEdges, operation.getIncludeEdges());
-        assertEquals(includeEntities, operation.isIncludeEntities());
         assertSame(input, operation.getInput());
-        assertEquals(populateProperties, operation.isPopulateProperties());
     }
 
     @Test

@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -41,28 +41,28 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
 
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final Context context, final Store store)
+                                                     final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final User user,
-                                            final AccumuloStore store)
+                                                     final User user,
+                                                     final AccumuloStore store)
             throws OperationException {
         operation.addOption(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         final AccumuloRetriever<?> edgeRetriever;
         try {
-            operation.setIncludeEntities(false);
-            if (IncludeEdgeType.NONE == operation.getIncludeEdges()) {
-                operation.setIncludeEdges(IncludeEdgeType.ALL);
-            }
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            edgeRetriever = new AccumuloSingleIDRetriever(store, operation, user,  iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            final GetEdges<EntitySeed> getEdges = new GetEdges<>(operation);
+            getEdges.setDirectedType(operation.getDirectedType());
+            getEdges.setIncludeIncomingOutGoing(operation.getIncludeIncomingOutGoing());
+
+            edgeRetriever = new AccumuloSingleIDRetriever(store, getEdges, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(getEdges.getView(), store),
+                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(getEdges.getView(), store),
+                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(getEdges),
+                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(getEdges.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

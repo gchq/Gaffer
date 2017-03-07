@@ -52,16 +52,6 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<
             op.setJavaSparkContext(sparkContext);
             return self();
         }
-
-        public CHILD_CLASS setIncludeEdges(final IncludeEdgeType value) {
-            op.setIncludeEdges(value);
-            return self();
-        }
-
-        public CHILD_CLASS setIncludeEntities(final boolean b) {
-            op.setIncludeEntities(b);
-            return self();
-        }
     }
 
     public static final class Builder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>, SEED_TYPE>

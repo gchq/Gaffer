@@ -78,7 +78,7 @@ public class ProxyStoreBasicIT {
                     .property(TestPropertyNames.COUNT, 1)
                     .build(),
             new Edge.Builder()
-                    .group(TestGroups.ENTITY)
+                    .group(TestGroups.EDGE)
                     .source("1")
                     .dest("2")
                     .directed(true)
@@ -141,9 +141,8 @@ public class ProxyStoreBasicIT {
         CloseableIterable<Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(2, Iterables.size(results));
+        assertEquals(1, Iterables.size(results));
         assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
     }
 
     @Test
