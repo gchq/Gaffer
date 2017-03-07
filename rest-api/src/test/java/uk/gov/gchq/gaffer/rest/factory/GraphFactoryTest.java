@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.rest.GraphFactoryForTest;
+import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -35,7 +37,7 @@ public class GraphFactoryTest {
         final GraphFactory graphFactory = GraphFactory.createGraphFactory();
 
         // Then
-        assertEquals(GraphFactory.class, graphFactory.getClass());
+        assertEquals(DefaultGraphFactory.class, graphFactory.getClass());
     }
 
     @Test
@@ -66,7 +68,7 @@ public class GraphFactoryTest {
     public void shouldReturnNullWhenCreateOpAuthoriserWithNoSystemPropertyPath() {
         // Given
         System.clearProperty(SystemProperty.OP_AUTHS_PATH);
-        final GraphFactory factory = new GraphFactory();
+        final GraphFactory factory = new DefaultGraphFactory();
 
         // When
         final OperationAuthoriser opAuthoriser = factory.createOpAuthoriser();
@@ -78,7 +80,7 @@ public class GraphFactoryTest {
     @Test
     public void shouldDefaultToSingletonGraph() {
         // Given
-        final GraphFactory factory = new GraphFactory();
+        final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When
         final boolean isSingleton = factory.isSingletonGraph();

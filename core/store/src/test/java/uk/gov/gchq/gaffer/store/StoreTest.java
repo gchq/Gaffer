@@ -85,9 +85,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {

@@ -24,10 +24,12 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,19 +42,20 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
-public class SimpleGraphConfigurationServiceTest {
-    private SimpleGraphConfigurationService service;
+public class GraphConfigurationServiceTest {
+    private GraphConfigurationService service;
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
     public void setup() {
+        final UserFactory userFactory = mock(UserFactory.class);
         final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
@@ -65,8 +68,10 @@ public class SimpleGraphConfigurationServiceTest {
         given(graph.getSupportedOperations()).willReturn(operations);
         given(graph.isSupported(AddElements.class)).willReturn(true);
 
+        given(userFactory.createUser()).willReturn(new User());
+
         given(graph.getStoreTraits()).willReturn(traits);
-        service = new SimpleGraphConfigurationService(graphFactory);
+        service = new GraphConfigurationService(graphFactory, userFactory);
     }
 
     @Test
