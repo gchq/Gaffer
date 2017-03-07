@@ -32,7 +32,7 @@ public abstract class ExportHandler<EXPORT extends Export, EXPORTER extends Expo
                               final EXPORTER exporter)
             throws OperationException {
         final Iterable<?> inputItr = wrapInIterable(export.getInput());
-        exporter.add(inputItr, export.getKey());
+        exporter.add(export.getKey(), inputItr);
         return export.getInput();
     }
 

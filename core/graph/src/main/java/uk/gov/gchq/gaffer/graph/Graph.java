@@ -333,7 +333,7 @@ public final class Graph {
         public Builder addSchema(final InputStream schemaStream) {
             try {
                 return addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException("Unable to read schema from input stream", e);
             } finally {
                 IOUtils.closeQuietly(schemaStream);
@@ -349,7 +349,7 @@ public final class Graph {
                 } else {
                     addSchema(Files.readAllBytes(schemaPath));
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException("Unable to read schema from path", e);
             }
 

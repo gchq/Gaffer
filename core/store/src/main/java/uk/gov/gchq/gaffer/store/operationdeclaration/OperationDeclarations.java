@@ -80,7 +80,7 @@ public class OperationDeclarations {
                     allDefinitions.getOperations().addAll(definitions.getOperations());
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SchemaException("Failed to load element definitions from paths: " + paths, e);
         }
 

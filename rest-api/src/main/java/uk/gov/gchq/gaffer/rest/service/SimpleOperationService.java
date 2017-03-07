@@ -246,7 +246,7 @@ public class SimpleOperationService implements IOperationService {
         } else {
             try {
                 output.write(mapper.writeValueAsString(result));
-            } catch (IOException ioe) {
+            } catch (final IOException ioe) {
                 LOGGER.warn("IOException (chunks)", ioe);
             }
         }

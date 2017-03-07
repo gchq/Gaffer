@@ -76,7 +76,7 @@ public class GafferResultCacheExporter implements Exporter {
         userOpAuths.add(user.getUserId());
     }
 
-    public void add(final Iterable<?> values, final String key) throws OperationException {
+    public void add(final String key, final Iterable<?> values) throws OperationException {
         if (null == values) {
             return;
         }

@@ -39,8 +39,8 @@ public class SetExporterTest {
         final SetExporter exporter = new SetExporter();
 
         // When
-        exporter.add(valuesA, "key");
-        exporter.add(valuesB, "key");
+        exporter.add("key", valuesA);
+        exporter.add("key", valuesB);
 
         // Then
         final CloseableIterable<?> export = exporter.get("key");
@@ -55,8 +55,8 @@ public class SetExporterTest {
         final SetExporter exporter = new SetExporter();
 
         // When
-        exporter.add(valuesA, "key1");
-        exporter.add(valuesB, "key2");
+        exporter.add("key1", valuesA);
+        exporter.add( "key2", valuesB);
 
         // Then
         final CloseableIterable<?> export1 = exporter.get("key1");
@@ -73,7 +73,7 @@ public class SetExporterTest {
         final SetExporter exporter = new SetExporter();
         final int start = 2;
         final int end = 3;
-        exporter.add(values1, "key");
+        exporter.add("key", values1);
 
         // When
         try (CloseableIterable<?> results = exporter.get("key", start, end)) {

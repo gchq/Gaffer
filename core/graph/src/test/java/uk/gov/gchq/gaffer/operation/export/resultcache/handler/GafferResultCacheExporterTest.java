@@ -77,7 +77,7 @@ public class GafferResultCacheExporterTest {
         );
 
         // When
-        exporter.add(results, key);
+        exporter.add(key, results);
 
         // Then
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
@@ -105,7 +105,7 @@ public class GafferResultCacheExporterTest {
         );
 
         // When
-        exporter.add(null, key);
+        exporter.add(key, null);
 
         // Then
         verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.eq(user));

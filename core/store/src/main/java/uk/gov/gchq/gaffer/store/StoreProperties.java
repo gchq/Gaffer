@@ -59,7 +59,7 @@ public class StoreProperties implements Cloneable {
         if (null != propFileLocation) {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
                 props.load(accIs);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -221,7 +221,7 @@ public class StoreProperties implements Cloneable {
             } else {
                 storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
 
@@ -232,7 +232,7 @@ public class StoreProperties implements Cloneable {
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
         try {
             return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
     }
@@ -244,12 +244,12 @@ public class StoreProperties implements Cloneable {
         final Properties props = new Properties();
         try {
             props.load(storePropertiesStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         } finally {
             try {
                 storePropertiesStream.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
             }
         }

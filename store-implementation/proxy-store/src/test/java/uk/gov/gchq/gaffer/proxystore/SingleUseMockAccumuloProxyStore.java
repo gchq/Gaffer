@@ -49,7 +49,7 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
         try {
             testFolder.delete();
             testFolder.create();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Unable to create temporary folder", e);
         }
 
@@ -57,7 +57,7 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
                 StreamUtil.openStream(getClass(), "accumulo-store.properties"));
         try {
             RestApiTestUtil.reinitialiseGraph(testFolder, accumuloSchema, accumuloStoreProperties);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }
     }

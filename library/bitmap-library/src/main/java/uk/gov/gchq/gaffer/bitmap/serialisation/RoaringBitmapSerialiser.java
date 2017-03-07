@@ -44,7 +44,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
         DataOutputStream out = new DataOutputStream(byteOut);
         try {
             value.serialize(out);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return byteOut.toByteArray();
@@ -58,7 +58,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
         DataInputStream in = new DataInputStream(byteIn);
         try {
             value.deserialize(in);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return value;

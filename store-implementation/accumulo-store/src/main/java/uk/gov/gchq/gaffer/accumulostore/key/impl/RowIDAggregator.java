@@ -240,7 +240,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             final Key nextKey = currentKey.followingKey(PartialKey.ROW);
             try {
                 source.seek(new Range(nextKey, true, currentRange.getEndKey(), currentRange.isEndKeyInclusive()), currentColumnFamilies, currentColumnFamiliesInclusive);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
             return hasNext();
@@ -255,7 +255,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             this.workKeyRef.set(key);
             try {
                 source.next();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
             final Properties properties;
