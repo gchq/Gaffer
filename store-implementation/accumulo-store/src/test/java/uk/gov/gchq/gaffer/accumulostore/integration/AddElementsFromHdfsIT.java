@@ -166,7 +166,7 @@ public class AddElementsFromHdfsIT {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .option(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE, "false")
-                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build(), new User());
 
         // Then

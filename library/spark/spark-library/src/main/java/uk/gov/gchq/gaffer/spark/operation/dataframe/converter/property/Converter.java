@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property;
 
 import org.apache.spark.sql.types.DataType;
-
 import java.io.Serializable;
 
 /**

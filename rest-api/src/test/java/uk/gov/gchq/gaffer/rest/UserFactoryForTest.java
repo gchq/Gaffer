@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest;
 
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 
-public class GraphFactoryForTest extends DefaultGraphFactory {
+public class UserFactoryForTest extends UnknownUserFactory {
 }

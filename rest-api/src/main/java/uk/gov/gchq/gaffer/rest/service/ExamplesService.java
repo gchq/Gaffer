@@ -40,10 +40,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleFilterFunction;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -57,15 +57,15 @@ import java.util.Locale;
 import java.util.Map.Entry;
 
 
-public class SimpleExamplesService implements IExamplesService {
+public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
     private final GraphFactory graphFactory;
 
-    public SimpleExamplesService() {
+    public ExamplesService() {
         this(GraphFactory.createGraphFactory());
     }
 
-    public SimpleExamplesService(final GraphFactory graphFactory) {
+    public ExamplesService(final GraphFactory graphFactory) {
         this.graphFactory = graphFactory;
     }
 
