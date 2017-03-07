@@ -22,8 +22,8 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -35,7 +35,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public <T extends GetElementsOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    public <T extends SeededGraphGet<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException {
         if (elementSeed instanceof EntitySeed) {
             return getRange(((EntitySeed) elementSeed).getVertex(), operation, operation.getView().hasEdges());
@@ -43,9 +43,9 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
             final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
             final List<Range> ranges = new ArrayList<>();
             if (operation.getView().hasEdges()
-                    && (ElementOperation.DirectedType.BOTH == operation.getDirectedType()
-                    || (ElementOperation.DirectedType.DIRECTED == operation.getDirectedType() && edgeSeed.isDirected())
-                    || (ElementOperation.DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeSeed.isDirected()))) {
+                    && (GraphFilters.DirectedType.BOTH == operation.getDirectedType()
+                    || (GraphFilters.DirectedType.DIRECTED == operation.getDirectedType() && edgeSeed.isDirected())
+                    || (GraphFilters.DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeSeed.isDirected()))) {
                 // Get Edges with the given EdgeSeed - This is applicable for
                 // EQUALS and RELATED seed matching.
                 ranges.add(new Range(getKeyFromEdgeSeed(edgeSeed, operation, false), true,
@@ -66,7 +66,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     @Override
-    public <T extends GetElementsOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    public <T extends SeededGraphGet<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
             throws RangeFactoryException {
         final ArrayList<Range> ran = new ArrayList<>();
         ran.addAll(getRange(pairRange.getFirst(), operation));
@@ -87,9 +87,9 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         return new Range(min.getStartKey(), max.getEndKey());
     }
 
-    protected abstract <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+    protected abstract <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
                                                                                      final boolean endKey) throws RangeFactoryException;
 
-    protected abstract <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+    protected abstract <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
                                                                                    final boolean includeEdges) throws RangeFactoryException;
 }

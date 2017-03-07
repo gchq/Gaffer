@@ -38,7 +38,10 @@ public class GenerateElementsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GenerateElements<String> op = new GenerateElements<>(Arrays.asList("obj 1", "obj 2"), new ElementGeneratorImpl());
+        final GenerateElements<String> op = new GenerateElements.Builder<String>()
+                .objects(Arrays.asList("obj 1", "obj 2"))
+                .generator(new ElementGeneratorImpl())
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

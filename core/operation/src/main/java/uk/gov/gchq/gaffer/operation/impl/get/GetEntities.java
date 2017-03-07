@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
@@ -31,35 +29,6 @@ import java.util.Collections;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Entity> {
-
-    public GetEntities() {
-        super();
-    }
-
-    public GetEntities(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetEntities(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetEntities(final View view) {
-        super(view);
-    }
-
-    public GetEntities(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEntities(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEntities(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEdges()) {

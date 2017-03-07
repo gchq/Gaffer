@@ -16,17 +16,5 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-
-/**
- * A <code>GetIterableOperation</code> defines a seeded get operation to be processed on a graph.
- * <p>
- * GetIterable operations have several flags to determine how to compose the resulting
- * {@link Iterable} object.
- *
- * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
- * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
- */
-public interface GetIterableOperation<SEED_TYPE, RETURN_TYPE>
-        extends GetOperation<SEED_TYPE, CloseableIterable<RETURN_TYPE>> {
+public interface Get<I, O> extends Operation<I, O> {
 }

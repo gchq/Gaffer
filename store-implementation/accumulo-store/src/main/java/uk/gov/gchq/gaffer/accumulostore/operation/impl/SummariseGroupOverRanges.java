@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 
 /**
@@ -42,7 +42,7 @@ public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSe
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
         public BaseBuilder() {
             super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
         }

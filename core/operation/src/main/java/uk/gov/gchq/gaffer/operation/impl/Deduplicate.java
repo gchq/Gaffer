@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Deduplicate.Builder
  */
-public class Deduplicate<T> extends AbstractGetIterableOperation<T, T> {
+public class Deduplicate<T> extends AbstractSeededGetIterable<T, T> {
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();

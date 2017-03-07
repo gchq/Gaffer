@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
@@ -36,7 +37,7 @@ import java.util.List;
  * @param <OBJ> the type of objects in the input iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
-public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<OBJ>, CloseableIterable<Element>> {
+public class GenerateElements<OBJ> extends AbstractSeededGraphGetIterable<OBJ, Element> {
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateElements() {
@@ -54,30 +55,6 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         this.elementGenerator = elementGenerator;
     }
 
-    /**
-     * Constructs a <code>GenerateElements</code> operation with input objects and a
-     * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert the objects into {@link uk.gov.gchq.gaffer.data.element.Element}s.
-     *
-     * @param objects          an {@link java.lang.Iterable} of objects to be converted
-     * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
-     *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
-     */
-    public GenerateElements(final Iterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
-        this(new WrappedCloseableIterable<>(objects), elementGenerator);
-    }
-
-    /**
-     * Constructs a <code>GenerateElements</code> operation with input objects and a
-     * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert the objects into {@link uk.gov.gchq.gaffer.data.element.Element}s.
-     *
-     * @param objects          an {@link CloseableIterable} of objects to be converted
-     * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
-     *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
-     */
-    public GenerateElements(final CloseableIterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
-        super(objects);
-        this.elementGenerator = elementGenerator;
-    }
 
     /**
      * @return the input objects to be converted into {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -175,6 +152,13 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
          */
         public CHILD_CLASS generator(final ElementGenerator<OBJ> generator) {
             op.setElementGenerator(generator);
+            return self();
+        }
+
+        @Override
+        public CHILD_CLASS copy(final GenerateElements<OBJ> opToCopy) {
+            super.copy(opToCopy);
+            op.setElementGenerator(opToCopy.getElementGenerator());
             return self();
         }
     }

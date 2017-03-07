@@ -35,8 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
-import static uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {

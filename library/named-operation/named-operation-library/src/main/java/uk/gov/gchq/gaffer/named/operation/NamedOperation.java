@@ -23,11 +23,11 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.Serializable;
 
-public class NamedOperation extends AbstractGetOperation<Object, Object> implements Serializable {
+public class NamedOperation extends AbstractSeededGet<Object, Object> implements Serializable {
     private static final long serialVersionUID = -356445124131310528L;
     private String operationName;
     private String description;
@@ -114,7 +114,7 @@ public class NamedOperation extends AbstractGetOperation<Object, Object> impleme
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
+            extends AbstractSeededGet.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
         public BaseBuilder() {
             super(new NamedOperation());
         }

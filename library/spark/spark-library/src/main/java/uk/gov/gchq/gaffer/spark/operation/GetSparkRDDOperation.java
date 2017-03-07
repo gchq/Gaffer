@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.spark.operation;
 
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 
 /**
  * Marker interface denoting operations which generate Spark RDDs from Accumulo.
@@ -24,6 +24,6 @@ import uk.gov.gchq.gaffer.operation.GetElementsOperation;
  * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
  * @param <RDD> the type of RDD to return
  */
-public interface GetSparkRDDOperation<SEED_TYPE, RDD> extends GetElementsOperation<SEED_TYPE, RDD> {
+public interface GetSparkRDDOperation<SEED_TYPE, RDD> extends SeededGraphGet<SEED_TYPE, RDD> {
     // Marker interface
 }

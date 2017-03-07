@@ -5,7 +5,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -49,16 +49,16 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>()
                 .addSeed(AccumuloTestData.SEED_B)
                 .addSeedB(AccumuloTestData.SEED_A)
-                .directedType(ElementOperation.DirectedType.UNDIRECTED)
-                .inOutType(ElementOperation.IncludeIncomingOutgoingType.INCOMING)
+                .directedType(GraphFilters.DirectedType.UNDIRECTED)
+                .inOutType(GraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(ElementOperation.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
-        assertEquals(ElementOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
+        assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
+        assertEquals(GraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

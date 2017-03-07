@@ -7,7 +7,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -61,17 +61,17 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder()
-                .directedType(ElementOperation.DirectedType.DIRECTED)
+                .directedType(GraphFilters.DirectedType.DIRECTED)
                 .addSeed(AccumuloTestData.SEED_A)
                 .addSeedB(AccumuloTestData.SEED_B)
-                .inOutType(ElementOperation.IncludeIncomingOutgoingType.OUTGOING)
+                .inOutType(GraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals(ElementOperation.DirectedType.DIRECTED, getEdgesBetweenSets.getDirectedType());
-        assertEquals(ElementOperation.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
+        assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesBetweenSets.getDirectedType());
+        assertEquals(GraphFilters.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(AccumuloTestData.SEED_A, getEdgesBetweenSets.getSeeds().iterator().next());
         assertEquals(AccumuloTestData.SEED_B, getEdgesBetweenSets.getSeedsB().iterator().next());

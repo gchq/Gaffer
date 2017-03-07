@@ -18,15 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 
-/**
- * A <code>GetIterableElementsOperation</code> defines a seeded get operation to be processed on a graph,
- * resulting in an Iterable of Element objects.
- *
- * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
- * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
- */
-public interface GetIterableElementsOperation<SEED_TYPE, RETURN_TYPE>
-        extends GetIterableOperation<SEED_TYPE, RETURN_TYPE>,
-        GetElementsOperation<SEED_TYPE, CloseableIterable<RETURN_TYPE>> {
-    // Empty marker interface
+public interface SeededGraphGetIterable<I_ITEM, O_ITEM> extends
+        SeededGetIterable<I_ITEM, O_ITEM>,
+        SeededGraphGet<I_ITEM, CloseableIterable<O_ITEM>> {
 }

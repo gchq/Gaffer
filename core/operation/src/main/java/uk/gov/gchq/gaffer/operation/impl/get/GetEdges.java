@@ -16,11 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
@@ -32,38 +29,6 @@ import java.util.Collections;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Edge> {
-    public GetEdges() {
-        super();
-    }
-
-    public GetEdges(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetEdges(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetEdges(final View view) {
-        super(view);
-    }
-
-    public GetEdges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdges(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
-    public GetEdges(final GetIterableOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
@@ -91,7 +56,7 @@ public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TY
     public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         @Override
-        protected Builder self() {
+        protected Builder<SEED_TYPE> self() {
             return this;
         }
     }

@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
@@ -36,11 +37,10 @@ import java.util.List;
  *
  * @see CountGroups.Builder
  */
-public class CountGroups extends AbstractOperation<CloseableIterable<Element>, GroupCounts> {
+public class CountGroups extends AbstractSeededGet<Element, GroupCounts> {
     private Integer limit;
 
     public CountGroups() {
-        this(null);
     }
 
     public CountGroups(final Integer limit) {

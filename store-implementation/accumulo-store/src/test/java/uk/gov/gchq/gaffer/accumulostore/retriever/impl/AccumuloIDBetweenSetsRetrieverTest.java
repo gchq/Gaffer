@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -53,7 +53,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class AccumuloIDBetweenSetsRetrieverTest {
 

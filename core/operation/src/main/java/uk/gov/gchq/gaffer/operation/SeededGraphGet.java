@@ -17,16 +17,11 @@
 package uk.gov.gchq.gaffer.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.graph.GraphGet;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 
-/**
- * A <code>GetElementsOperation</code> defines a seeded get operation to be processed on a graph.
- * <p>
- * GetElements operations have several flags to determine how to filter {@link uk.gov.gchq.gaffer.data.element.Element}s.
- *
- * @param <SEED_TYPE>   the seed type of the operation. This must be JSON serialisable.
- * @param <RETURN_TYPE> the result type of the operation. This must be JSON serialisable.
- */
-public interface GetElementsOperation<SEED_TYPE, RETURN_TYPE> extends
-        GetOperation<SEED_TYPE, RETURN_TYPE>,
-        ElementOperation<CloseableIterable<SEED_TYPE>, RETURN_TYPE> {
+public interface SeededGraphGet<I_ITEM, O> extends
+        SeededGet<I_ITEM, O>,
+        GraphGet<CloseableIterable<I_ITEM>, O>,
+        SeededGraphFilters {
 }

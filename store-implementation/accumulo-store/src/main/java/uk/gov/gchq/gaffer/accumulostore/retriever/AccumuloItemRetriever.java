@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
+public abstract class AccumuloItemRetriever<OP_TYPE extends SeededGraphGet<? extends SEED_TYPE, ?>, SEED_TYPE>
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 

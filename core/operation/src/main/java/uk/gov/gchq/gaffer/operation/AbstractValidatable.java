@@ -22,69 +22,12 @@ import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<CloseableIterable<Element>, OUTPUT> implements Validatable<OUTPUT> {
-    private boolean validate;
-    private boolean skipInvalidElements;
-
-    protected AbstractValidatable() {
-        this(null, null);
-    }
-
-    protected AbstractValidatable(final Iterable<Element> elements) {
-        this(null, elements);
-    }
-
-    protected AbstractValidatable(final CloseableIterable<Element> elements) {
-        this(null, elements);
-    }
-
-    protected AbstractValidatable(final View view) {
-        this(view, null);
-    }
-
-    protected AbstractValidatable(final View view, final Iterable<Element> elements) {
-        this(view, elements, true, false);
-    }
-
-    protected AbstractValidatable(final View view, final CloseableIterable<Element> elements) {
-        this(view, elements, true, false);
-    }
-
-    protected AbstractValidatable(final boolean validate, final boolean skipInvalidElements) {
-        this(null, null, validate, skipInvalidElements);
-    }
-
-    protected AbstractValidatable(final Iterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {
-        this(null, elements, validate, skipInvalidElements);
-    }
-
-    protected AbstractValidatable(final CloseableIterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {
-        this(null, elements, validate, skipInvalidElements);
-    }
-
-    protected AbstractValidatable(final View view, final boolean validate, final boolean skipInvalidElements) {
-        this(view, null, validate, skipInvalidElements);
-    }
-
-    protected AbstractValidatable(final View view, final Iterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {
-        this(view, new WrappedCloseableIterable<>(elements), validate, skipInvalidElements);
-    }
-
-    protected AbstractValidatable(final View view, final CloseableIterable<Element> elements, final boolean validate, final boolean skipInvalidElements) {
-        super(view, elements);
-        this.validate = validate;
-        this.skipInvalidElements = skipInvalidElements;
-    }
-
-    protected AbstractValidatable(final AbstractValidatable<?> operation) {
-        super(operation);
-        setValidate(operation.isValidate());
-        setSkipInvalidElements(operation.isSkipInvalidElements());
-    }
+    private boolean validate = true;
+    private boolean skipInvalidElements = false;
 
     @Override
     public CloseableIterable<Element> getElements() {
@@ -97,7 +40,7 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
     }
 
     public void setElements(final Iterable<Element> elements) {
-        setInput(new WrappedCloseableIterable(elements));
+        setInput(new WrappedCloseableIterable<>(elements));
     }
 
     @JsonIgnore
@@ -204,18 +147,13 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
             op.setValidate(validate);
             return self();
         }
-    }
-
-    public static final class Builder<OP_TYPE extends AbstractValidatable<OUTPUT>, OUTPUT>
-            extends BaseBuilder<OP_TYPE, OUTPUT, Builder<OP_TYPE, OUTPUT>> {
-
-        protected Builder(final OP_TYPE op) {
-            super(op);
-        }
 
         @Override
-        protected Builder<OP_TYPE, OUTPUT> self() {
-            return this;
+        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
+            super.copy(opToCopy);
+            op.setValidate(opToCopy.isValidate());
+            op.setSkipInvalidElements(opToCopy.isSkipInvalidElements());
+            return self();
         }
     }
 }

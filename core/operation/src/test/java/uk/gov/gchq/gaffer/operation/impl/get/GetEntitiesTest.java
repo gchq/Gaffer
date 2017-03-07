@@ -89,7 +89,9 @@ public class GetEntitiesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetEntities op = new GetEntities(Collections.singletonList(seed1));
+        final GetEntities op = new GetEntities.Builder<>()
+                .addSeed(seed1)
+                .build();
 
         // Then
         assertEquals(SeedMatching.SeedMatchingType.RELATED, op.getSeedMatching());
@@ -99,7 +101,10 @@ public class GetEntitiesTest implements OperationTest {
         // Given
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
-        final GetEntities op = new GetEntities(Arrays.asList(seed1, seed2));
+        final GetEntities op = new GetEntities.Builder<>()
+                .addSeed(seed1)
+                .addSeed(seed2)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

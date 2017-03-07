@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPUT, OUTPUT> {
+public abstract class AbstractOperation<I, O> implements Operation<I, O> {
     /**
      * The operation view. This allows filters and transformations to be applied to the graph.
      */
@@ -37,43 +37,14 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     /**
      * The input for the operation.
      */
-    private INPUT input;
+    private I input;
 
     private Map<String, String> options = new HashMap<>();
     private TypeReference<?> outputTypeReference = createOutputTypeReference();
 
-    protected AbstractOperation() {
-        this(null, null);
-    }
-
-    protected AbstractOperation(final INPUT input) {
-        this(null, input);
-    }
-
-    protected AbstractOperation(final View view) {
-        this(view, null);
-    }
-
-    protected AbstractOperation(final View view, final INPUT input) {
-        setView(view);
-        this.input = input;
-    }
-
-    /**
-     * Copies some of the fields from the given operation to this operation.
-     * The operation chain will not be copied across or changed.
-     *
-     * @param operation operation containing fields to copy.
-     */
-    protected AbstractOperation(final Operation<? extends INPUT, ?> operation) {
-        setView(operation.getView());
-        setInput(operation.getInput());
-        setOptions(new HashMap<>(operation.getOptions()));
-    }
-
     @Override
-    public OUTPUT castToOutputType(final Object result) {
-        return (OUTPUT) result;
+    public O castToOutputType(final Object result) {
+        return (O) result;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
@@ -113,12 +84,12 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
 
 
     @Override
-    public INPUT getInput() {
+    public I getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final INPUT input) {
+    public void setInput(final I input) {
         this.input = input;
     }
 
@@ -159,8 +130,8 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
 
     @JsonIgnore
     @Override
-    public TypeReference<OUTPUT> getOutputTypeReference() {
-        return (TypeReference<OUTPUT>) outputTypeReference;
+    public TypeReference<O> getOutputTypeReference() {
+        return (TypeReference<O>) outputTypeReference;
     }
 
     @Override
@@ -170,10 +141,10 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
 
     protected abstract TypeReference createOutputTypeReference();
 
-    public abstract static class BaseBuilder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>,
-            INPUT,
-            OUTPUT,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, ?>> {
+    public abstract static class BaseBuilder<OP_TYPE extends AbstractOperation<I, O>,
+            I,
+            O,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, I, O, ?>> {
         protected OP_TYPE op;
 
         protected BaseBuilder(final OP_TYPE op) {
@@ -194,7 +165,7 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
          * @return this Builder
          * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
-        public CHILD_CLASS input(final INPUT input) {
+        public CHILD_CLASS input(final I input) {
             op.setInput(input);
             return self();
         }
@@ -225,23 +196,17 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
             return self();
         }
 
+        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
+            op.setView(opToCopy.getView());
+            op.setInput(opToCopy.getInput());
+            op.setOptions(new HashMap<>(opToCopy.getOptions()));
+            return self();
+        }
+
         protected abstract CHILD_CLASS self();
 
         protected OP_TYPE getOp() {
             return op;
-        }
-    }
-
-    public static final class Builder<OP_TYPE extends AbstractOperation<INPUT, OUTPUT>, INPUT, OUTPUT>
-            extends BaseBuilder<OP_TYPE, INPUT, OUTPUT, Builder<OP_TYPE, INPUT, OUTPUT>> {
-
-        protected Builder(final OP_TYPE op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<OP_TYPE, INPUT, OUTPUT> self() {
-            return this;
         }
     }
 }

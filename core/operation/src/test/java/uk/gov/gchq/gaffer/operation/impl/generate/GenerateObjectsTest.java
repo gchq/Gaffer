@@ -56,7 +56,10 @@ public class GenerateObjectsTest implements OperationTest {
             elements.add(elm2);
         }
 
-        final GenerateObjects<Element, String> op = new GenerateObjects<>(elements, new ElementGeneratorImpl());
+        final GenerateObjects<Element, String> op = new GenerateObjects.Builder<Element, String>()
+                .elements(elements)
+                .generator(new ElementGeneratorImpl())
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -51,7 +51,7 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
     public void addIterators(final AccumuloStore accumuloStore,
                              final Configuration conf,
                              final User user,
-                             final GetElementsOperation<?, ?> operation) throws OperationException {
+                             final SeededGraphGet<?, ?> operation) throws OperationException {
         try {
             // Update configuration with instance name, table name, zookeepers, and with view
             accumuloStore.updateConfiguration(conf, operation.getView(), user);

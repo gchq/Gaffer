@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -304,7 +304,7 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .directedType(ElementOperation.DirectedType.BOTH)
+                .directedType(GraphFilters.DirectedType.BOTH)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);

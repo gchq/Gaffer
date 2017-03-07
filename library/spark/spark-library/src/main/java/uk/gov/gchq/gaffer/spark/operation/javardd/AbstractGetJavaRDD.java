@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
@@ -42,7 +42,7 @@ public abstract class AbstractGetJavaRDD<SEED_TYPE> extends AbstractGetSparkRDD<
     protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<SEED_TYPE>,
             SEED_TYPE,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends AbstractGetElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, JavaRDD<Element>, CHILD_CLASS> {
+            extends AbstractSeededGraphGet.BaseBuilder<OP_TYPE, SEED_TYPE, JavaRDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {
             super(op);

@@ -17,43 +17,19 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.GetIterableOperationImpl;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.impl.SeededGraphGetImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 
-public class AbstractGetIterableOperationTest implements OperationTest {
+public class AbstractSeededGraphGetTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Test
-    public void shouldCopyFieldsFromGivenOperationWhenConstructing() {
-        // Given
-        final GetIterableOperation<ElementSeed, ?> operationToCopy = mock(GetIterableOperation.class);
-        final View view = mock(View.class);
-        final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
-
-        given(operationToCopy.getView()).willReturn(view);
-        given(operationToCopy.getInput()).willReturn(input);
-
-        // When
-        final GetIterableOperationImpl<ElementSeed, Element> operation = new GetIterableOperationImpl<>(operationToCopy);
-
-        // Then
-        assertSame(view, operation.getView());
-        assertSame(input, operation.getInput());
-    }
 
     @Test
     @Override
@@ -61,11 +37,13 @@ public class AbstractGetIterableOperationTest implements OperationTest {
         // Given
         final String identifier = "identifier";
         final ElementSeed input = new EntitySeed(identifier);
-        final GetIterableOperationImpl<ElementSeed, Element> op = new GetIterableOperationImpl<>(Collections.singletonList(input));
+        final SeededGraphGetImpl<ElementSeed, Element> op = new SeededGraphGetImpl.Builder<ElementSeed, Element>()
+                .addSeed(input)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetIterableOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetIterableOperationImpl.class);
+        final SeededGraphGetImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, SeededGraphGetImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);

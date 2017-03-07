@@ -17,43 +17,19 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.GetOperationImpl;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.impl.SeededGetIterableImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 
-public class AbstractGetOperationTest implements OperationTest {
+public class AbstractSeededGetIterableTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Test
-    public void shouldCopyFieldsFromGivenOperationWhenConstructing() {
-        // Given
-        final GetOperation<ElementSeed, ?> operationToCopy = mock(GetOperation.class);
-        final View view = mock(View.class);
-        final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
-
-        given(operationToCopy.getView()).willReturn(view);
-        given(operationToCopy.getInput()).willReturn(input);
-
-        // When
-        final GetOperation<ElementSeed, Element> operation = new GetOperationImpl<>(operationToCopy);
-
-        // Then
-        assertSame(view, operation.getView());
-        assertSame(input, operation.getInput());
-    }
 
     @Test
     @Override
@@ -61,11 +37,13 @@ public class AbstractGetOperationTest implements OperationTest {
         // Given
         final String identifier = "identifier";
         final ElementSeed input = new EntitySeed(identifier);
-        final GetOperationImpl<ElementSeed, Element> op = new GetOperationImpl<>(Collections.singletonList(input));
+        final SeededGetIterableImpl<ElementSeed, Element> op = new SeededGetIterableImpl.Builder<ElementSeed, Element>()
+                .addSeed(input)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetOperationImpl.class);
+        final SeededGetIterableImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, SeededGetIterableImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);

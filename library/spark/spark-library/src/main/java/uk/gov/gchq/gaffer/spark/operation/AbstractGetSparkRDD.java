@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.spark.operation;
 
-import uk.gov.gchq.gaffer.operation.AbstractGetElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
 
 public abstract class AbstractGetSparkRDD<SEED_TYPE, RDD>
-        extends AbstractGetElementsOperation<SEED_TYPE, RDD> implements GetSparkRDDOperation<SEED_TYPE, RDD> {
+        extends AbstractSeededGraphGet<SEED_TYPE, RDD> implements GetSparkRDDOperation<SEED_TYPE, RDD> {
     // Empty marker class
 }

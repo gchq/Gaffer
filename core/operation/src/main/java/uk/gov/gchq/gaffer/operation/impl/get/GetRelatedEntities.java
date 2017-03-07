@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 
 /**
@@ -56,34 +53,6 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  */
 @Deprecated
 public class GetRelatedEntities<ELEMENT_SEED extends ElementSeed> extends GetEntities<ELEMENT_SEED> {
-    public GetRelatedEntities() {
-        super();
-    }
-
-    public GetRelatedEntities(final Iterable<ELEMENT_SEED> seeds) {
-        super(seeds);
-    }
-
-    public GetRelatedEntities(final CloseableIterable<ELEMENT_SEED> seeds) {
-        super(seeds);
-    }
-
-    public GetRelatedEntities(final View view) {
-        super(view);
-    }
-
-    public GetRelatedEntities(final View view, final Iterable<ELEMENT_SEED> seeds) {
-        super(view, seeds);
-    }
-
-    public GetRelatedEntities(final View view, final CloseableIterable<ELEMENT_SEED> seeds) {
-        super(view, seeds);
-    }
-
-    public GetRelatedEntities(final GetIterableElementsOperation<ELEMENT_SEED, ?> operation) {
-        super(operation);
-    }
-
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         if (!getSeedMatching().equals(seedMatching)) {

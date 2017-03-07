@@ -17,43 +17,19 @@
 package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.GetElementsOperationImpl;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.impl.SeededGetImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 
-public class AbstractGetElementsOperationTest implements OperationTest {
+public class AbstractSeededGetOperationTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-
-    @Test
-    public void shouldCopyFieldsFromGivenOperationWhenConstructing() {
-        // Given
-        final GetIterableElementsOperation<ElementSeed, ?> operationToCopy = mock(GetIterableElementsOperation.class);
-        final View view = mock(View.class);
-        final CloseableIterable<ElementSeed> input = mock(CloseableIterable.class);
-
-        given(operationToCopy.getView()).willReturn(view);
-        given(operationToCopy.getInput()).willReturn(input);
-
-        // When
-        final GetElementsOperationImpl<ElementSeed, Element> operation = new GetElementsOperationImpl<>(operationToCopy);
-
-        // Then
-        assertSame(view, operation.getView());
-        assertSame(input, operation.getInput());
-    }
 
     @Test
     @Override
@@ -61,11 +37,13 @@ public class AbstractGetElementsOperationTest implements OperationTest {
         // Given
         final String identifier = "identifier";
         final ElementSeed input = new EntitySeed(identifier);
-        final GetElementsOperationImpl<ElementSeed, Element> op = new GetElementsOperationImpl<>(Collections.singletonList(input));
+        final SeededGetImpl<ElementSeed, Element> op = new SeededGetImpl.Builder<ElementSeed, Element>()
+                .addSeed(input)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetElementsOperationImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, GetElementsOperationImpl.class);
+        final SeededGetImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, SeededGetImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.List;
  * The schema of the <code>Dataframe</code> is formed of all properties from the first group, followed by all
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
-public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<Row>> {
+public class GetDataFrameOfElements extends AbstractSeededGet<Void, Dataset<Row>> {
 
     private SQLContext sqlContext;
     private List<Converter> converters;
@@ -75,7 +75,7 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<GetDataFrameOfElements, Void, Dataset<Row>, CHILD_CLASS> {
+            extends AbstractSeededGet.BaseBuilder<GetDataFrameOfElements, Void, Dataset<Row>, CHILD_CLASS> {
 
         public BaseBuilder() {
             this(new GetDataFrameOfElements());

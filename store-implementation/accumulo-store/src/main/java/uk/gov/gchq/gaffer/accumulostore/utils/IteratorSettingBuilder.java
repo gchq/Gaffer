@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -88,20 +88,20 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder directedType(final ElementOperation.DirectedType directedType) {
-        if (ElementOperation.DirectedType.DIRECTED == directedType) {
+    public IteratorSettingBuilder directedType(final GraphFilters.DirectedType directedType) {
+        if (GraphFilters.DirectedType.DIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
-        } else if (ElementOperation.DirectedType.UNDIRECTED == directedType) {
+        } else if (GraphFilters.DirectedType.UNDIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
         }
         return this;
     }
 
     public IteratorSettingBuilder includeIncomingOutgoing(
-            final ElementOperation.IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (ElementOperation.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
+            final GraphFilters.IncludeIncomingOutgoingType includeIncomingOutGoing) {
+        if (GraphFilters.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
-        } else if (ElementOperation.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
+        } else if (GraphFilters.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }
         return this;

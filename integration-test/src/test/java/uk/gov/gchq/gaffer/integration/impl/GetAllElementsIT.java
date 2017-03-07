@@ -48,7 +48,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override

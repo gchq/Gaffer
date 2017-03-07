@@ -20,7 +20,7 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
@@ -28,20 +28,20 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final ElementOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters<?, ?> operation) {
         return null;
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final ElementOperation<?, ?> operation) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters<?, ?> operation) {
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
-        final ElementOperation.DirectedType directedType = operation.getDirectedType();
-        final ElementOperation.IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+        final GraphFilters.DirectedType directedType = operation.getDirectedType();
+        final GraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if (includeEdges && directedType == ElementOperation.DirectedType.BOTH
-                && includeIncomingOutgoingType == ElementOperation.IncludeIncomingOutgoingType.BOTH
+        if (includeEdges && directedType == GraphFilters.DirectedType.BOTH
+                && includeIncomingOutgoingType == GraphFilters.IncludeIncomingOutgoingType.BOTH
                 && includeEntities && !deduplicateUndirectedEdges) {
             return null;
         }

@@ -24,18 +24,6 @@ import java.util.Collections;
  * Restricts {@link GetAllElements} to only return entities.
  */
 public class GetAllEntities extends GetAllElements<Entity> {
-    public GetAllEntities() {
-        super();
-    }
-
-    public GetAllEntities(final View view) {
-        super(view);
-    }
-
-    public GetAllEntities(final GetAllEntities operation) {
-        super(operation);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEdges()) {

@@ -6,7 +6,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -44,14 +44,14 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
-                .directedType(ElementOperation.DirectedType.DIRECTED)
+                .directedType(GraphFilters.DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgegroup")
                         .build())
                 .build();
         assertEquals("true", getElementsWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(ElementOperation.DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
+        assertEquals(GraphFilters.DirectedType.DIRECTED, getElementsWithinSet.getDirectedType());
         assertEquals(AccumuloTestData.SEED_A, getElementsWithinSet.getInput().iterator().next());
         assertNotNull(getElementsWithinSet.getView());
     }

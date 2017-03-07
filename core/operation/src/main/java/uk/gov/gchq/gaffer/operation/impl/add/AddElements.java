@@ -33,34 +33,6 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
 public class AddElements extends AbstractValidatable<Void> implements VoidOutput<CloseableIterable<Element>> {
-    /**
-     * Constructs an <code>AddElements</code> with no {@link uk.gov.gchq.gaffer.data.element.Element}s to add. This could be used
-     * in an operation chain where the elements are provided by the previous operation.
-     */
-    public AddElements() {
-        super();
-    }
-
-    /**
-     * Constructs an <code>AddElements</code> with the given {@link CloseableIterable} of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     *
-     * @param elements the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     */
-    public AddElements(final CloseableIterable<Element> elements) {
-        super(elements);
-    }
-
-    /**
-     * Constructs an <code>AddElements</code> with the given {@link java.lang.Iterable} of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     *
-     * @param elements the {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     */
-    public AddElements(final Iterable<Element> elements) {
-        super(elements);
-    }
-
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();

@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
@@ -43,7 +43,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
+    protected <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
                                                                           final boolean includeEdgesParam) throws RangeFactoryException {
         final boolean includeEdges;
         final boolean includeEntities;
@@ -77,7 +77,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
+    protected <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
                                                                             final boolean endKey) throws RangeFactoryException {
         final byte directionFlag1 = seed.isDirected()
                 ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING

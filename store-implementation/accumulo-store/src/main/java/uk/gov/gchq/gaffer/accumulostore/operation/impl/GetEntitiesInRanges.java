@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
@@ -62,7 +62,7 @@ public class GetEntitiesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> 
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, Entity, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEntitiesInRanges<SEED_TYPE>, SEED_TYPE, Entity, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetEntitiesInRanges<SEED_TYPE>());
         }

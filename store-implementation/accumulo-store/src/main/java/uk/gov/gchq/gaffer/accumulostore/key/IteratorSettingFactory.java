@@ -21,7 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 
 /**
  * The iterator settings factory is designed to enable the AccumuloStore to
@@ -81,7 +81,7 @@ public interface IteratorSettingFactory {
      * @param operation the operation
      * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final ElementOperation<?, ?> operation);
+    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters<?, ?> operation);
 
     /**
      * Returns an Iterator that will aggregate values in the accumulo table,
@@ -138,7 +138,7 @@ public interface IteratorSettingFactory {
      * filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the
      * options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getElementPropertyRangeQueryFilter(final ElementOperation<?, ?> operation);
+    IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters<?, ?> operation);
 
     /**
      * Returns the iterator settings for a given iterator name. Allowed iterator

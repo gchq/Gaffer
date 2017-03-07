@@ -18,16 +18,16 @@ package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
 
-public class GetAllNamedOperations extends AbstractGetIterableOperation<Void, NamedOperation> {
+public class GetAllNamedOperations extends AbstractSeededGetIterable<Void, NamedOperation> {
     @Override
     protected TypeReference createOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperation();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetIterableOperation.BaseBuilder<GetAllNamedOperations, Void, NamedOperation, CHILD_CLASS> {
+            extends AbstractSeededGetIterable.BaseBuilder<GetAllNamedOperations, Void, NamedOperation, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAllNamedOperations());
         }

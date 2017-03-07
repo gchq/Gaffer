@@ -14,33 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.graph;
 
-/**
- * A <code>ElementOperation</code> defines an operation that processes elements.
- * <p>
- * ElementOperation operations have several flags to determine how to filter {@link uk.gov.gchq.gaffer.data.element.Element}s.
- *
- * @param <INPUT>  the input of the operation. This must be JSON serialisable.
- * @param <OUTPUT> the result type of the operation. This must be JSON serialisable.
- */
-public interface ElementOperation<INPUT, OUTPUT> extends Operation<INPUT, OUTPUT> {
-    /**
-     * @return directedType a {@link IncludeIncomingOutgoingType}
-     * that controls the direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
-     * filtered out in the operation.
-     * @see IncludeIncomingOutgoingType
-     */
-    DirectedType getDirectedType();
-
-    /**
-     * @param directedType a {@link IncludeIncomingOutgoingType}
-     *                     that controls the direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
-     *                     filtered out in the operation.
-     * @see IncludeIncomingOutgoingType
-     */
-    void setDirectedType(final DirectedType directedType);
-
+public interface SeededGraphFilters extends GraphFilters {
     /**
      * @return includeIncomingOutGoing a {@link IncludeIncomingOutgoingType}
      * that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
@@ -64,14 +40,5 @@ public interface ElementOperation<INPUT, OUTPUT> extends Operation<INPUT, OUTPUT
      */
     enum IncludeIncomingOutgoingType {
         BOTH, INCOMING, OUTGOING
-    }
-
-    /**
-     * A <code>DirectedType</code> defines whether
-     * {@link uk.gov.gchq.gaffer.data.element.Edge}s used in the operation should
-     * be directed.
-     */
-    enum DirectedType {
-        BOTH, DIRECTED, UNDIRECTED
     }
 }

@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 
 /**
@@ -33,34 +30,6 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
  */
 @Deprecated
 public class GetEdgesBySeed extends GetEdges<EdgeSeed> {
-    public GetEdgesBySeed() {
-        super();
-    }
-
-    public GetEdgesBySeed(final Iterable<EdgeSeed> seeds) {
-        super(seeds);
-    }
-
-    public GetEdgesBySeed(final CloseableIterable<EdgeSeed> seeds) {
-        super(seeds);
-    }
-
-    public GetEdgesBySeed(final View view) {
-        super(view);
-    }
-
-    public GetEdgesBySeed(final View view, final Iterable<EdgeSeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdgesBySeed(final View view, final CloseableIterable<EdgeSeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdgesBySeed(final GetIterableElementsOperation<EdgeSeed, ?> operation) {
-        super(operation);
-    }
-
     @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         if (!getSeedMatching().equals(seedMatching)) {

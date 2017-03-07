@@ -25,90 +25,60 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
-        extends AbstractOperation<CloseableIterable<SEED_TYPE>, RESULT_TYPE> implements GetOperation<SEED_TYPE, RESULT_TYPE> {
-
-    protected AbstractGetOperation() {
-        super();
-    }
-
-    protected AbstractGetOperation(final Iterable<SEED_TYPE> seeds) {
-        this(new WrappedCloseableIterable<>(seeds));
-    }
-
-    protected AbstractGetOperation(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    protected AbstractGetOperation(final View view) {
-        super(view);
-    }
-
-    protected AbstractGetOperation(final View view, final Iterable<SEED_TYPE> seeds) {
-        this(view, new WrappedCloseableIterable<>(seeds));
-    }
-
-    protected AbstractGetOperation(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    protected AbstractGetOperation(final GetOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
+public abstract class AbstractSeededGet<I_ITEM, O>
+        extends AbstractOperation<CloseableIterable<I_ITEM>, O> implements SeededGet<I_ITEM, O> {
     @Override
-    public CloseableIterable<SEED_TYPE> getSeeds() {
+    public CloseableIterable<I_ITEM> getSeeds() {
         return getInput();
     }
 
-    public void setSeeds(final Iterable<SEED_TYPE> seeds) {
+    public void setSeeds(final Iterable<I_ITEM> seeds) {
         setSeeds(new WrappedCloseableIterable<>(seeds));
     }
 
     @Override
-    public void setSeeds(final CloseableIterable<SEED_TYPE> seeds) {
+    public void setSeeds(final CloseableIterable<I_ITEM> seeds) {
         setInput(seeds);
     }
 
     @JsonIgnore
     @Override
-    public CloseableIterable<SEED_TYPE> getInput() {
+    public CloseableIterable<I_ITEM> getInput() {
         return super.getInput();
     }
 
     @JsonProperty
     @Override
-    public void setInput(final CloseableIterable<SEED_TYPE> input) {
+    public void setInput(final CloseableIterable<I_ITEM> input) {
         super.setInput(input);
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
-    public SEED_TYPE[] getSeedArray() {
-        final CloseableIterable<SEED_TYPE> input = getInput();
-        return null != input ? (SEED_TYPE[]) Lists.newArrayList(input).toArray() : null;
+    public I_ITEM[] getSeedArray() {
+        final CloseableIterable<I_ITEM> input = getInput();
+        return null != input ? (I_ITEM[]) Lists.newArrayList(input).toArray() : null;
     }
 
     @JsonSetter(value = "seeds")
-    void setSeedArray(final SEED_TYPE[] seeds) {
+    void setSeedArray(final I_ITEM[] seeds) {
         setInput(new WrappedCloseableIterable<>(Arrays.asList(seeds)));
     }
 
     public abstract static class BaseBuilder<
-            OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>,
-            SEED_TYPE,
-            RESULT_TYPE,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, ?>
+            OP_TYPE extends AbstractSeededGet<I_ITEM, O>,
+            I_ITEM,
+            O,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, I_ITEM, O, ?>
             >
-            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<SEED_TYPE>, RESULT_TYPE, CHILD_CLASS> {
+            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<I_ITEM>, O, CHILD_CLASS> {
 
-        protected List<SEED_TYPE> seeds;
+        protected List<I_ITEM> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
@@ -129,13 +99,13 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
-         * Sets an {@link java.lang.Iterable} of SEED_TYPE on the operation.
-         * It should not be used in conjunction with addSeed(SEED_TYPE).
+         * Sets an {@link java.lang.Iterable} of seed on the operation.
+         * It should not be used in conjunction with addSeed(I_ITEM).
          *
-         * @param newSeeds an {@link java.lang.Iterable} of SEED_TYPE to set on the operation.
+         * @param newSeeds an {@link java.lang.Iterable} of seed to set on the operation.
          * @return this Builder
          */
-        public CHILD_CLASS seeds(final Iterable<SEED_TYPE> newSeeds) {
+        public CHILD_CLASS seeds(final Iterable<I_ITEM> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
@@ -144,13 +114,13 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
-         * Sets an {@link CloseableIterable} of SEED_TYPE on the operation.
-         * It should not be used in conjunction with addSeed(SEED_TYPE).
+         * Sets an {@link CloseableIterable} of seed on the operation.
+         * It should not be used in conjunction with addSeed(I_ITEM).
          *
-         * @param newSeeds an {@link CloseableIterable} of SEED_TYPE to set on the operation.
+         * @param newSeeds an {@link CloseableIterable} of seed to set on the operation.
          * @return this Builder
          */
-        public CHILD_CLASS seeds(final CloseableIterable<SEED_TYPE> newSeeds) {
+        public CHILD_CLASS seeds(final CloseableIterable<I_ITEM> newSeeds) {
             if (null != seeds) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
@@ -159,13 +129,13 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
         }
 
         /**
-         * Adds a single SEED_TYPE to a {@link java.util.LinkedList} of seeds on the operation.
+         * Adds a single seed to a {@link java.util.LinkedList} of seeds on the operation.
          * It should not be used in conjunction with seeds(Iterable).
          *
-         * @param seed a single SEED_TYPE to add to a {@link java.util.LinkedList} of seeds on the operation.
+         * @param seed a single seed to add to a {@link java.util.LinkedList} of seeds on the operation.
          * @return this Builder
          */
-        public CHILD_CLASS addSeed(final SEED_TYPE seed) {
+        public CHILD_CLASS addSeed(final I_ITEM seed) {
             if (null != op.getSeeds()) {
                 throw new IllegalStateException("Either use builder method 'seeds' or 'addSeed' you cannot use both");
             }
@@ -174,19 +144,6 @@ public abstract class AbstractGetOperation<SEED_TYPE, RESULT_TYPE>
             }
             seeds.add(seed);
             return self();
-        }
-    }
-
-    public static final class Builder<OP_TYPE extends AbstractGetOperation<SEED_TYPE, RESULT_TYPE>, SEED_TYPE, RESULT_TYPE>
-            extends BaseBuilder<OP_TYPE, SEED_TYPE, RESULT_TYPE, Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE>> {
-
-        protected Builder(final OP_TYPE op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<OP_TYPE, SEED_TYPE, RESULT_TYPE> self() {
-            return this;
         }
     }
 }

@@ -24,9 +24,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
  * that can optionally be validated before being processed.
  * <p>
  *
- * @param <OUTPUT> the output type
+ * @param <O> the output type
  */
-public interface Validatable<OUTPUT> extends Operation<CloseableIterable<Element>, OUTPUT> {
+public interface Validatable<O> extends Operation<CloseableIterable<Element>, O> {
     /**
      * @return true if invalid elements should be skipped. Otherwise false if the operation should fail.
      */

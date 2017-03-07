@@ -7,7 +7,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.ArrayList;
@@ -61,16 +61,16 @@ public class GetEdgesInRangesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
-                .directedType(ElementOperation.DirectedType.DIRECTED)
-                .inOutType(ElementOperation.IncludeIncomingOutgoingType.BOTH)
+                .directedType(GraphFilters.DirectedType.DIRECTED)
+                .inOutType(GraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals(ElementOperation.DirectedType.DIRECTED, getEdgesInRanges.getDirectedType());
-        assertEquals(ElementOperation.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
+        assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesInRanges.getDirectedType());
+        assertEquals(GraphFilters.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
         assertNotNull(getEdgesInRanges.getView());

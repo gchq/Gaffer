@@ -92,7 +92,9 @@ public class AddElementsTest implements OperationTest {
             elements.add(elm2);
         }
 
-        final AddElements addElements = new AddElements(elements);
+        final AddElements addElements = new AddElements.Builder()
+                .elements(elements)
+                .build();
 
         // When
         String json = new String(serialiser.serialise(addElements, true));

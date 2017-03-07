@@ -39,9 +39,9 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
-import uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
-import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -191,7 +191,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             assertEquals(expectedResults, results);
 
             // Set set edges only option, and query for the set {C,D}.
-            op.setIncludeIncomingOutGoing(ElementOperation.IncludeIncomingOutgoingType.INCOMING);
+            op.setIncludeIncomingOutGoing(GraphFilters.IncludeIncomingOutgoingType.INCOMING);
             final Set<Element> incomingResults = returnElementsFromOperation(store, op, new User(), false);
             assertEquals(expectedResults, incomingResults);
 
@@ -231,7 +231,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         seeds.add(new EntitySeed("D"));
         final GetElements<EntitySeed, ?> op = new GetElements<>(defaultView, seeds);
         // Set undirected edges only option, and query for edges in set {C, D} - should get the undirected edge
-        op.setDirectedType(ElementOperation.DirectedType.UNDIRECTED);
+        op.setDirectedType(GraphFilters.DirectedType.UNDIRECTED);
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_UNDIRECTED));
 

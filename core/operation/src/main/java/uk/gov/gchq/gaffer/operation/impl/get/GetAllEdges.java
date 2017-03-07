@@ -24,18 +24,6 @@ import java.util.Collections;
  * Restricts {@link GetAllElements} to only return edges.
  */
 public class GetAllEdges extends GetAllElements<Edge> {
-    public GetAllEdges() {
-        super();
-    }
-
-    public GetAllEdges(final View view) {
-        super(view);
-    }
-
-    public GetAllEdges(final GetAllEdges operation) {
-        super(operation);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {

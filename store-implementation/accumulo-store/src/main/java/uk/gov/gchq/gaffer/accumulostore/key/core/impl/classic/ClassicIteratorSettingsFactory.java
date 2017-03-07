@@ -19,11 +19,11 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.operation.ElementOperation;
-import uk.gov.gchq.gaffer.operation.ElementOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
-import static uk.gov.gchq.gaffer.operation.ElementOperation.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
@@ -32,7 +32,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final ElementOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters<?, ?> operation) {
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
         final DirectedType directedType = operation.getDirectedType();
@@ -59,7 +59,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final ElementOperation<?, ?> operation) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters<?, ?> operation) {
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
         if (includeEdges && includeEntities) {

@@ -23,7 +23,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetIterableElementsOperation<EntitySeed, ELEMENT_TYPE> {
+public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractSeededGraphGetIterable<EntitySeed, ELEMENT_TYPE> {
 
     public GetElementsWithinSet() {
     }
@@ -82,7 +82,7 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
     }
 
     public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetElementsWithinSet<ELEMENT_TYPE>());
         }

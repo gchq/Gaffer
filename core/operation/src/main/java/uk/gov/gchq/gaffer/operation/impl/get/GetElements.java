@@ -22,65 +22,24 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableOperation;
+import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.List;
 
 /**
- * Restricts {@link uk.gov.gchq.gaffer.operation.AbstractGetOperation} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
+ * Restricts {@link AbstractSeededGet} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
  *
  * @param <SEED_TYPE>    the seed seed type
  * @param <ELEMENT_TYPE> the element return type
- * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
 public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE>
+        extends AbstractSeededGraphGetIterable<SEED_TYPE, ELEMENT_TYPE>
         implements SeedMatching {
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
-
-    public GetElements() {
-        super();
-    }
-
-    public GetElements(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetElements(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetElements(final View view) {
-        super(view);
-    }
-
-    public GetElements(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElements(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElements(final GetIterableOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
-    public GetElements(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
-    public GetElements(final GetElements<SEED_TYPE, ?> operation) {
-        super(operation);
-        setSeedMatching(operation.getSeedMatching());
-    }
-
 
     /**
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
@@ -113,7 +72,7 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
             SEED_TYPE extends ElementSeed,
             ELEMENT_TYPE extends Element,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
@@ -124,6 +83,13 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
         public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
             op.setSeedMatching(seedMatching);
+            return self();
+        }
+
+        @Override
+        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
+            super.copy(opToCopy);
+            op.setSeedMatching(opToCopy.getSeedMatching());
             return self();
         }
     }
