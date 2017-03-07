@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "entityGroup": {}
+  },
+  "edges": {
+    "BasicEdge": {
+      "transientProperties": {
+        "concatProperty": "java.lang.String"
+      },
+      "transformFunctions": [
+        {
+          "selection": [
+            "property1",
+            "SOURCE"
+          ],
+          "projection": [
+            "transientProperty1"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.ExampleTransformFunction"
+          }
+        }
+      ],
+      "postTransformFilterFunctions": [
+        {
+          "selection": [
+            "transientProperty1"
+          ],
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -16,7 +16,7 @@
 
 angular.module('app').factory('settings', [function(){
   return {
-     resultLimit: 300,
+     resultLimit: 100,
      restUrl: window.location.origin + "/rest/v1"
    };
 } ]);

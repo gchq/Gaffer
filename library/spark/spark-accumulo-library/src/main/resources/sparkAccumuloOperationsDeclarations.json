@@ -1,0 +1,58 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportKeyValueJavaPairRDDToAccumuloHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportJavaRDDOfElementsHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportKeyValuePairRDDToAccumuloHandler"
+      }
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportRDDOfElementsHandler"
+      }
+    }
+  ]
+}

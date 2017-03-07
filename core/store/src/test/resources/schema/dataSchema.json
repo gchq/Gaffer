@@ -1,0 +1,31 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "id.string",
+      "description": "Entity description",
+      "properties": {
+        "property1": "prop.string",
+        "visibility": "prop.string",
+        "timestamp": "timestamp"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.true",
+      "description": "Edge description",
+      "properties": {
+        "property2": "prop.string",
+        "dateProperty": "prop.date",
+        "timestamp": "timestamp"
+      },
+      "groupBy": [
+        "dateProperty"
+      ]
+    }
+  },
+  "visibilityProperty": "visibility",
+  "timestampProperty": "timestamp"
+}

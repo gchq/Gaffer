@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
+        "property1": "simpleProperty",
+        "property2": "simpleProperty",
+        "property3": "simpleProperty",
+        "property4": "simpleProperty",
+        "count": "simpleProperty"
+      },
+      "groupBy": [
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
+      ]
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "columnQualifier2": "colQualProperty",
+        "columnQualifier3": "colQualProperty",
+        "columnQualifier4": "colQualProperty",
+        "property1": "simpleProperty",
+        "property2": "simpleProperty",
+        "property3": "simpleProperty",
+        "property4": "simpleProperty",
+        "count": "simpleProperty"
+      },
+      "groupBy": [
+        "columnQualifier",
+        "columnQualifier2",
+        "columnQualifier3",
+        "columnQualifier4"
+      ]
+    },
+    "BasicEdge2": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "property1": "simpleProperty",
+        "property2": "simpleProperty",
+        "property3": "simpleProperty",
+        "property4": "simpleProperty",
+        "count": "simpleProperty"
+      },
+      "groupBy": [
+        "columnQualifier"
+      ]
+    }
+  },
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+    },
+    "timestamp": {
+      "class": "java.lang.Integer"
+    }
+  }
+}

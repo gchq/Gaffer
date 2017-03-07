@@ -1,0 +1,34 @@
+{
+  "types": {
+    "string": {
+      "class": "java.lang.String"
+    },
+    "int": {
+      "class": "java.lang.Integer"
+    },
+    "float": {
+      "class": "java.lang.Float"
+    },
+    "double": {
+      "class": "java.lang.Double"
+    },
+    "long": {
+      "class": "java.lang.Long"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "simpleProperty": {
+      "class": "java.lang.Integer"
+    },
+    "colQualProperty": {
+      "class": "java.lang.Integer"
+    },
+    "freqMapProperty": {
+      "class": "uk.gov.gchq.gaffer.types.FreqMap"
+    },
+    "hyperLogLogPlus": {
+      "class": "com.clearspring.analytics.stream.cardinality.HyperLogLogPlus"
+    }
+  }
+}

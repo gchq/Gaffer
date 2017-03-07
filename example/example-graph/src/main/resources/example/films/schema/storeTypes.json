@@ -1,0 +1,46 @@
+{
+  "types": {
+    "userId.string": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
+      }
+    },
+    "certificate": {
+      "serialiserClass": "uk.gov.gchq.gaffer.example.films.serialiser.CertificateVisibilitySerialiser",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.ComparableMax"
+      }
+    },
+    "name.string": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
+      }
+    },
+    "rating.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+      }
+    },
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "total.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "timestamp.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max",
+        "mode": "LONG"
+      }
+    },
+    "max.integer": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+      }
+    }
+  }
+}

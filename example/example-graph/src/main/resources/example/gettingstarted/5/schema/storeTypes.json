@@ -1,0 +1,15 @@
+{
+  "types": {
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "visibility.string": {
+      "serialiserClass": "uk.gov.gchq.gaffer.example.gettingstarted.serialiser.VisibilitySerialiser",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.aggregate.VisibilityAggregator"
+      }
+    }
+  }
+}

@@ -65,6 +65,14 @@
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
+        <module name="ImportOrder">
+            <property name="groups" value="*,javax,java"/>
+            <property name="ordered" value="true"/>
+            <property name="separated" value="false"/>
+            <property name="option" value="bottom"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
+
         <module name="MethodLength"/>
         <module name="ParameterNumber"/>
 
@@ -97,7 +105,11 @@
         <module name="InterfaceIsType"/>
 
         <module name="ArrayTypeStyle"/>
-        <module name="FinalParameters"/>
+        <module name="FinalParameters">
+            <property name="tokens" value="FOR_EACH_CLAUSE"/>
+            <property name="tokens" value="CTOR_DEF"/>
+            <property name="tokens" value="METHOD_DEF"/>
+        </module>
         <module name="UpperEll"/>
 
     </module>

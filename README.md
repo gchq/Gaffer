@@ -16,6 +16,8 @@ limitations under the License.
 
 Gaffer
 ======
+[![Build Status](https://travis-ci.org/gchq/Gaffer.svg?branch=master)](https://travis-ci.org/gchq/Gaffer)
+[![codecov](https://codecov.io/gh/gchq/Gaffer/branch/master/graph/badge.svg)](https://codecov.io/gh/gchq/Gaffer)
 
 Gaffer is built for very large graphs.
 
@@ -51,6 +53,22 @@ There are more in depth examples of using the Java API on our wiki: [Getting Sta
 To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
 
 The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Instructions for installing Gaffer on Accumulo can be found on the [wiki](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#accumulo-set-up).
+
+### Inclusion in other projects
+
+Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
+
+To use Gaffer on Accumulo the only required dependency is the accumulo-store dependency:
+
+```
+<dependency>
+    <groupId>uk.gov.gchq.gaffer</groupId>
+    <artifactId>accumulo-store</artifactId>
+    <version>${gaffer.version}</version>
+</dependency>
+```
+
+This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
 
 ### Documentation
 
