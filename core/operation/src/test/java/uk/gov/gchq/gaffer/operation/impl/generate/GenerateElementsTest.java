@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.generator.ElementGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -25,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -61,9 +59,7 @@ public class GenerateElementsTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         GenerateElements generateElements = new GenerateElements.Builder<String>().generator(new ElementGeneratorImpl())
                 .objects(Arrays.asList("Test1", "Test2"))
-                .view(new View.Builder().edge("TestEdgeGroup").build())
                 .option("testOption", "true").build();
-        assertNotNull(generateElements.getView());
         assertEquals("true", generateElements.getOption("testOption"));
         Iterator iter = generateElements.getInput().iterator();
         assertEquals("Test1", iter.next());

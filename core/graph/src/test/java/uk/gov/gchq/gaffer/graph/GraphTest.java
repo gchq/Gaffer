@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -437,7 +438,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final Get<?, Integer> operation = mock(Get.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -466,7 +467,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final Get<?, Integer> operation = mock(Get.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -480,6 +481,33 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    @Test
+    public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet
+            () throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final View opView = mock(View.class);
+        final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+        final User user = new User();
+        final int expectedResult = 5;
+        final Operation<?, Integer> operation = mock(Operation.class);
+
+        final OperationChain<Integer> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
+        given(store.execute(opChain, user)).willReturn(expectedResult);
+
+        // When
+        int result = graph.execute(opChain, user);
+
+        // Then
+        assertEquals(expectedResult, result);
+        verify(store).execute(opChain, user);
     }
 
     @Test

@@ -23,9 +23,11 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -364,7 +366,13 @@ public abstract class Store {
         }
 
         for (final Operation<?, ?> op : operationChain.getOperations()) {
-            if (!viewValidator.validate(op.getView(), schema, hasTrait(StoreTrait.ORDERED))) {
+            final View opView;
+            if (op instanceof Get) {
+                opView = ((Get) op).getView();
+            } else {
+                opView = null;
+            }
+            if (!viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED))) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()
                         + " is not valid. See the logs for more information.");

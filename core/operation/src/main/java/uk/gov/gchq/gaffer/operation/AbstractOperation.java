@@ -19,21 +19,10 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractOperation<I, O> implements Operation<I, O> {
-    /**
-     * The operation view. This allows filters and transformations to be applied to the graph.
-     */
-    private View view;
-
     /**
      * The input for the operation.
      */
@@ -47,42 +36,6 @@ public abstract class AbstractOperation<I, O> implements Operation<I, O> {
         return (O) result;
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
-    @Override
-    public boolean validate(final Element element) {
-        return null != element
-                && element instanceof Edge ? validate((Edge) element) : validate((Entity) element);
-    }
-
-    @Override
-    public boolean validate(final Edge edge) {
-        return null != edge && validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
-    }
-
-    @Override
-    public boolean validate(final Entity entity) {
-        return null != entity && validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
-    }
-
-    @Override
-    public boolean validatePreAggregationFilter(final Element element) {
-        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
-    }
-
-    @Override
-    public boolean validatePostAggregationFilter(final Element element) {
-        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
-    }
-
-    @Override
-    public boolean validatePostTransformFilter(final Element element) {
-        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
-    }
-
-
     @Override
     public I getInput() {
         return input;
@@ -91,16 +44,6 @@ public abstract class AbstractOperation<I, O> implements Operation<I, O> {
     @Override
     public void setInput(final I input) {
         this.input = input;
-    }
-
-    @Override
-    public View getView() {
-        return view;
-    }
-
-    @Override
-    public void setView(final View view) {
-        this.view = view;
     }
 
     @Override
@@ -167,16 +110,6 @@ public abstract class AbstractOperation<I, O> implements Operation<I, O> {
          */
         public CHILD_CLASS input(final I input) {
             op.setInput(input);
-            return self();
-        }
-
-        /**
-         * @param view the view to set on the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setView(View)
-         */
-        public CHILD_CLASS view(final View view) {
-            op.setView(view);
             return self();
         }
 

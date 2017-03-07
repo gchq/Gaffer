@@ -19,11 +19,12 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.operation.AbstractGet;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetAllJobDetails extends AbstractOperation<Void, CloseableIterable<JobDetail>> implements VoidInput<CloseableIterable<JobDetail>> {
+public class GetAllJobDetails extends AbstractGet<Void, CloseableIterable<JobDetail>> implements VoidInput<CloseableIterable<JobDetail>> {
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.JobDetail();

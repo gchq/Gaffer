@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
@@ -37,7 +36,7 @@ import java.util.List;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.Validate.Builder
  */
-public class Validate extends AbstractSeededGetIterable<Element, Element> {
+public class Validate extends AbstractOperation<CloseableIterable<Element>, CloseableIterable<Element>> {
     private boolean skipInvalidElements;
 
     /**

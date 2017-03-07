@@ -16,8 +16,74 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+
 public abstract class AbstractGet<I, O>
         extends AbstractOperation<I, O> implements Get<I, O> {
+    /**
+     * The operation view. This allows filters and transformations to be applied to the graph.
+     */
+    private View view;
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
+    @Override
+    public boolean validate(final Element element) {
+        return null != element
+                && element instanceof Edge ? validate((Edge) element) : validate((Entity) element);
+    }
+
+    @Override
+    public boolean validate(final Edge edge) {
+        return null != edge && validatePreAggregationFilter(edge) && validatePostAggregationFilter(edge) && validatePostTransformFilter(edge);
+    }
+
+    @Override
+    public boolean validate(final Entity entity) {
+        return null != entity && validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
+    }
+
+    @Override
+    public boolean validatePreAggregationFilter(final Element element) {
+        if (null == view) {
+            return false;
+        }
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
+    }
+
+    @Override
+    public boolean validatePostAggregationFilter(final Element element) {
+        if (null == view) {
+            return false;
+        }
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
+    }
+
+    @Override
+    public boolean validatePostTransformFilter(final Element element) {
+        if (null == view) {
+            return false;
+        }
+        final ViewElementDefinition elementDef = view.getElement(element.getGroup());
+        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
+    }
+
     public abstract static class BaseBuilder<
             OP_TYPE extends AbstractGet<I, O>,
             I,
@@ -28,6 +94,16 @@ public abstract class AbstractGet<I, O>
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
+        }
+
+        /**
+         * @param view the view to set on the operation
+         * @return this Builder
+         * @see uk.gov.gchq.gaffer.operation.Get#setView(View)
+         */
+        public CHILD_CLASS view(final View view) {
+            op.setView(view);
+            return self();
         }
     }
 }

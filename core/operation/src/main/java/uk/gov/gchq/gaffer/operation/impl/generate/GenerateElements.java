@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
@@ -37,7 +36,7 @@ import java.util.List;
  * @param <OBJ> the type of objects in the input iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
-public class GenerateElements<OBJ> extends AbstractSeededGraphGetIterable<OBJ, Element> {
+public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<OBJ>, CloseableIterable<Element>> {
     private ElementGenerator<OBJ> elementGenerator;
 
     public GenerateElements() {
@@ -122,7 +121,7 @@ public class GenerateElements<OBJ> extends AbstractSeededGraphGetIterable<OBJ, E
     public abstract static class BaseBuilder<OBJ, CHILD_CLASS extends BaseBuilder<OBJ, ?>>
             extends AbstractOperation.BaseBuilder<GenerateElements<OBJ>, CloseableIterable<OBJ>, CloseableIterable<Element>, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new GenerateElements<OBJ>());
+            super(new GenerateElements<>());
         }
 
         /**
@@ -131,7 +130,7 @@ public class GenerateElements<OBJ> extends AbstractSeededGraphGetIterable<OBJ, E
          * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS objects(final Iterable<OBJ> objects) {
-            op.setInput(new WrappedCloseableIterable(objects));
+            op.setInput(new WrappedCloseableIterable<>(objects));
             return self();
         }
 

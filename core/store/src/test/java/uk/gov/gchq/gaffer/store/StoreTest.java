@@ -243,19 +243,19 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final AddElements addElements = new AddElements();
+        final GetAllElements op = new GetAllElements();
         final View view = mock(View.class);
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final StoreImpl store = new StoreImpl(viewValidator);
 
-        addElements.setView(view);
+        op.setView(view);
         given(schema.validate()).willReturn(true);
         given(viewValidator.validate(view, schema, true)).willReturn(false);
         store.initialise(schema, properties);
 
         // When / Then
         try {
-            store.execute(addElements, user);
+            store.execute(op, user);
             fail("Exception expected");
         } catch (final SchemaException e) {
             verify(viewValidator).validate(view, schema, true);
