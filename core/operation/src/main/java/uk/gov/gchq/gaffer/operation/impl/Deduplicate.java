@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -29,7 +28,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Deduplicate.Builder
  */
-public class Deduplicate<T> extends AbstractSeededGetIterable<T, T> {
+public class Deduplicate<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
     @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();
@@ -39,7 +38,7 @@ public class Deduplicate<T> extends AbstractSeededGetIterable<T, T> {
             extends AbstractOperation.BaseBuilder<Deduplicate<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {
 
         public BaseBuilder() {
-            super(new Deduplicate<T>());
+            super(new Deduplicate<>());
         }
 
         /**
@@ -48,7 +47,7 @@ public class Deduplicate<T> extends AbstractSeededGetIterable<T, T> {
          * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS input(final Iterable<T> input) {
-            return super.input(new WrappedCloseableIterable<T>(input));
+            return super.input(new WrappedCloseableIterable<>(input));
         }
 
         /**

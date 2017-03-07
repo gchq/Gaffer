@@ -17,8 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
+import uk.gov.gchq.gaffer.operation.AbstractOperation;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -29,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Limit.Builder
  */
-public class Limit<T> extends AbstractSeededGetIterable<T, T> {
+public class Limit<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
     protected Integer resultLimit;
 
     public Limit() {
@@ -52,7 +53,8 @@ public class Limit<T> extends AbstractSeededGetIterable<T, T> {
         return new TypeReferenceImpl.CloseableIterableObj();
     }
 
-    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractSeededGetIterable.BaseBuilder<Limit<T>, T, T, CHILD_CLASS> {
+    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
+            extends AbstractOperation.BaseBuilder<Limit<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new Limit<>());
