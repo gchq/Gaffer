@@ -5,11 +5,11 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
@@ -27,16 +27,16 @@ public class GetElementsInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
-        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
+        final List<Pair<EntityId>> pairList = new ArrayList<>();
+        final Pair<EntityId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
+        final Pair<EntityId> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges.Builder<Pair<EntitySeed>, Edge>().seeds(pairList).build();
+        final GetElementsInRanges<Pair<EntityId>, Edge> op = new GetElementsInRanges.Builder<Pair<EntityId>, Edge>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
-        final GetElementsInRanges<Pair<EntitySeed>, Edge> deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
+        final GetElementsInRanges<Pair<EntityId>, Edge> deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
         final Iterator itrPairs = deserialisedOp.getSeeds().iterator();
@@ -49,7 +49,7 @@ public class GetElementsInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final Pair<EntityId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed)

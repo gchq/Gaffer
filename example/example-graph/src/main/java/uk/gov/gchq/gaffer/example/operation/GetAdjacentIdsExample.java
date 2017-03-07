@@ -17,31 +17,32 @@ package uk.gov.gchq.gaffer.example.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
-public class GetAdjacentEntitySeedsExample extends OperationExample {
+public class GetAdjacentIdsExample extends OperationExample {
     public static void main(final String[] args) {
-        new GetAdjacentEntitySeedsExample().run();
+        new GetAdjacentIdsExample().run();
     }
 
-    public GetAdjacentEntitySeedsExample() {
-        super(GetAdjacentEntitySeeds.class);
+    public GetAdjacentIdsExample() {
+        super(GetAdjacentIds.class);
     }
 
     public void runExamples() {
-        getAdjacentEntitySeedsFromVertex2();
-        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2();
-        getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
+        getAdjacentIdsFromVertex2();
+        getAdjacentIdsAlongOutboundEdgesFromVertex2();
+        getAdjacentIdsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
+    public CloseableIterable<EntityId> getAdjacentIdsFromVertex2() {
         // ---------------------------------------------------------
-        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
+        final GetAdjacentIds operation = new GetAdjacentIds.Builder()
                 .addSeed(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
@@ -49,9 +50,9 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
+    public CloseableIterable<EntityId> getAdjacentIdsAlongOutboundEdgesFromVertex2() {
         // ---------------------------------------------------------
-        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
+        final GetAdjacentIds operation = new GetAdjacentIds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
@@ -60,9 +61,9 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
+    public CloseableIterable<EntityId> getAdjacentIdsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
+        final GetAdjacentIds operation = new GetAdjacentIds.Builder()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()

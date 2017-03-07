@@ -28,9 +28,9 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeededGraphGet;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.GetSparkRDDOperation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -72,16 +72,16 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
         }
     }
 
-    public <ELEMENT_SEED extends ElementSeed> void addRanges(final AccumuloStore accumuloStore,
-                                                             final Configuration conf,
-                                                             final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
+    public <ELEMENT_SEED extends ElementId> void addRanges(final AccumuloStore accumuloStore,
+                                                           final Configuration conf,
+                                                           final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
-        for (final ELEMENT_SEED entitySeed : operation.getSeeds()) {
+        for (final ELEMENT_SEED entityId : operation.getSeeds()) {
             try {
                 ranges.addAll(accumuloStore.getKeyPackage()
                         .getRangeFactory()
-                        .getRange(entitySeed, operation));
+                        .getRange(entityId, operation));
             } catch (final RangeFactoryException e) {
                 throw new OperationException("Failed to add ranges to configuration", e);
             }

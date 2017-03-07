@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
@@ -87,7 +88,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2, entity3)).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View())
                 .build();
@@ -145,7 +146,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2, entity3)).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -198,7 +199,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -242,7 +243,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -286,7 +287,7 @@ public class AccumuloAggregationIT {
         graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -382,7 +383,7 @@ public class AccumuloAggregationIT {
                 )).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getElements = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.spark.operation.javardd;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 
-public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetJavaRDD<SEED_TYPE> {
+public class GetJavaRDDOfElements<SEED_TYPE extends ElementId> extends AbstractGetJavaRDD<SEED_TYPE> {
 
     public GetJavaRDDOfElements() {
     }
@@ -34,7 +34,7 @@ public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends Abstrac
         setInput(seeds);
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
+    public abstract static class BaseBuilder<SEED_TYPE extends ElementId, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
             extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
 
         public BaseBuilder() {
@@ -46,7 +46,7 @@ public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends Abstrac
         }
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed>
+    public static final class Builder<SEED_TYPE extends ElementId>
             extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         public Builder() {

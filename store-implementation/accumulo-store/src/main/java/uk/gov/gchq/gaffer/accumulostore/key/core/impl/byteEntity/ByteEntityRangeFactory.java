@@ -23,10 +23,10 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeededGraphGet;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
@@ -46,8 +46,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                      final boolean endKey) throws RangeFactoryException {
+    protected <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeId(final EdgeId seed, final T operation,
+                                                                    final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;

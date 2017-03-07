@@ -20,13 +20,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
@@ -70,7 +70,7 @@ public class OperationChainTest {
         final AddElements addElements = mock(AddElements.class);
         final GetElements getAdj1 = mock(GetElements.class);
         final GetElements getAdj2 = mock(GetElements.class);
-        final GetElements<EntitySeed, Element> getRelElements = mock(GetElements.class);
+        final GetElements<EntityId, Element> getRelElements = mock(GetElements.class);
 
         // When
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
@@ -93,9 +93,9 @@ public class OperationChainTest {
     public void shouldReturnReadableStringForToString() {
         // Given
         final AddElements addElements = new AddElements();
-        final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
-        final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
-        final GetElements<EntitySeed, Element> getRelElements = new GetElements<>();
+        final GetAdjacentIds getAdj1 = new GetAdjacentIds();
+        final GetAdjacentIds getAdj2 = new GetAdjacentIds();
+        final GetElements<EntityId, Element> getRelElements = new GetElements<>();
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
@@ -108,40 +108,40 @@ public class OperationChainTest {
 
         // Then
         final String expectedToString =
-                "OperationChain[AddElements->GetAdjacentEntitySeeds->GetAdjacentEntitySeeds->GetElements]";
+                "OperationChain[AddElements->GetAdjacentIds->GetAdjacentIds->GetElements]";
         assertEquals(expectedToString, toString);
     }
 
     @Test
     public void shouldBuildOperationChainWithSingleOperation() throws SerialisationException {
         // Given
-        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
+        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
-                .first(getAdjacentEntitySeeds)
+                .first(getAdjacentIds)
                 .build();
 
         // Then
         assertEquals(1, opChain.getOperations().size());
-        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+        assertSame(getAdjacentIds, opChain.getOperations().get(0));
     }
 
     @Test
-    public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
+    public void shouldBuildOperationChain_AdjEntityIdsThenRelatedEdges() throws SerialisationException {
         // Given
-        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
-        final GetEdges<EntitySeed> getEdges = mock(GetEdges.class);
+        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
+        final GetEdges<EntityId> getEdges = mock(GetEdges.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
-                .first(getAdjacentEntitySeeds)
+                .first(getAdjacentIds)
                 .then(getEdges)
                 .build();
 
         // Then
         assertEquals(2, opChain.getOperations().size());
-        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+        assertSame(getAdjacentIds, opChain.getOperations().get(0));
         assertSame(getEdges, opChain.getOperations().get(1));
     }
 

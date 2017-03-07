@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator15;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -72,7 +73,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
         // [job] create an operation chain to be executed as a job
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> job = new OperationChain.Builder()
-                .first(new GetEdges.Builder<EntitySeed>()
+                .first(new GetEdges.Builder<EntityId>()
                         .addSeed(new EntitySeed("1"))
                         .build())
                 .build();

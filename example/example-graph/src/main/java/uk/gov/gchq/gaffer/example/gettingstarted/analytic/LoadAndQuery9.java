@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator9;
@@ -122,8 +123,8 @@ public class LoadAndQuery9 extends LoadAndQuery {
 
         // [get red edge cardinality 1] Get the cardinality value at vertex 1 for red edges
         // ---------------------------------------------------------
-        final GetEntities<EntitySeed> getCardinalities =
-                new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getCardinalities =
+                new GetEntities.Builder<EntityId>()
                         .addSeed(new EntitySeed("1"))
                         .view(new View.Builder()
                                 .entity("Cardinality", new ViewElementDefinition.Builder()

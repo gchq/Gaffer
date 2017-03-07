@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -24,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Collections;
@@ -40,10 +40,10 @@ public class GetElementsTest implements OperationTest {
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
-        final ElementSeed elementSeed1 = new EntitySeed("identifier");
+        final ElementId elementId1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementSeed1))
+        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementId1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -51,13 +51,13 @@ public class GetElementsTest implements OperationTest {
         assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithElementSeeds() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithElementIds() throws SerialisationException {
         // Given
-        final ElementSeed elementSeed1 = new EntitySeed("identifier");
-        final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
+        final ElementId elementId1 = new EntitySeed("identifier");
+        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
         final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementSeed1)
-                .addSeed(elementSeed2)
+                .addSeed(elementId1)
+                .addSeed(elementId2)
                 .build();
 
         // When
@@ -66,8 +66,8 @@ public class GetElementsTest implements OperationTest {
 
         // Then
         final Iterator itr = deserialisedOp.getSeeds().iterator();
-        assertEquals(elementSeed1, itr.next());
-        assertEquals(elementSeed2, itr.next());
+        assertEquals(elementId1, itr.next());
+        assertEquals(elementId2, itr.next());
         assertFalse(itr.hasNext());
     }
 
@@ -89,13 +89,13 @@ public class GetElementsTest implements OperationTest {
 
     @Test
     public void shouldSetSeedMatchingTypeToRelated() {
-        final ElementSeed elementSeed1 = new EntitySeed("identifier");
-        final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
+        final ElementId elementId1 = new EntitySeed("identifier");
+        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
 
         // When
         final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementSeed1)
-                .addSeed(elementSeed2)
+                .addSeed(elementId1)
+                .addSeed(elementId2)
                 .build();
 
         // Then
@@ -103,7 +103,7 @@ public class GetElementsTest implements OperationTest {
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {
-        ElementSeed seed = new EntitySeed("A");
+        ElementId seed = new EntitySeed("A");
         GetElements op = new GetElements.Builder<>()
                 .addSeed(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
@@ -122,7 +122,7 @@ public class GetElementsTest implements OperationTest {
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithElementSeeds();
+        shouldSerialiseAndDeserialiseOperationWithElementIds();
     }
 
     @Test

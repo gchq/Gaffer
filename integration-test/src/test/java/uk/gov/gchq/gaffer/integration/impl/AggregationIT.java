@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsIn;
@@ -33,7 +35,6 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -83,7 +84,7 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
-        final GetElements<ElementSeed, Element> getElements = new GetElements.Builder<>()
+        final GetElements<ElementId, Element> getElements = new GetElements.Builder<>()
                 .addSeed(new EntitySeed(AGGREGATED_SOURCE))
                 .build();
 
@@ -102,8 +103,8 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
         assertThat(results, IsCollectionContaining.hasItems(new Element[]{
-                expectedEdge,
-                expectedEntity}
+                        expectedEdge,
+                        expectedEntity}
         ));
 
         for (final Element result : results) {
@@ -120,7 +121,7 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
-        final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
                 .build();
 

@@ -25,12 +25,14 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
@@ -52,7 +54,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     private final static String EDGE_GROUP = "BasicEdge";
 
     @Test
-    public void checkGetCorrectElementsInJavaRDDForEntitySeed() throws OperationException, IOException {
+    public void checkGetCorrectElementsInJavaRDDForEntityId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
@@ -86,7 +88,7 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntitySeed")
+                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
@@ -99,7 +101,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
         // Check get correct edges for "1"
-        GetJavaRDDOfElements<EntitySeed> rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
+        GetJavaRDDOfElements<EntityId> rddQuery = new GetJavaRDDOfElements.Builder<EntityId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .build();
@@ -128,7 +130,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify entities only
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EntityId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
@@ -147,7 +149,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify edges only
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EntityId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
@@ -167,10 +169,10 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" and "5"
-        Set<EntitySeed> seeds = new HashSet<>();
+        Set<EntityId> seeds = new HashSet<>();
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
-        rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EntityId>()
                 .javaSparkContext(sparkContext)
                 .seeds(seeds)
                 .build();
@@ -206,7 +208,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInRDDForEdgeSeed() throws OperationException, IOException {
+    public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
@@ -240,7 +242,7 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEdgeSeed")
+                .setAppName("testCheckGetCorrectElementsInJavaRDDForEdgeId")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
@@ -252,8 +254,8 @@ public class GetJavaRDDOfElementsHandlerTest {
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
-        // Check get correct edges for EdgeSeed 1 -> B
-        GetJavaRDDOfElements<EdgeSeed> rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
+        // Check get correct edges for EdgeId 1 -> B
+        GetJavaRDDOfElements<EdgeId> rddQuery = new GetJavaRDDOfElements.Builder<EdgeId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
@@ -277,7 +279,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get entity for 1 when query for 1 -> B and specify entities only
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EdgeId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
@@ -298,7 +300,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B when specify edges only
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EdgeId>()
                 .javaSparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
@@ -318,10 +320,10 @@ public class GetJavaRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B and 5 -> C
-        Set<EdgeSeed> seeds = new HashSet<>();
+        Set<EdgeId> seeds = new HashSet<>();
         seeds.add(new EdgeSeed("1", "B", false));
         seeds.add(new EdgeSeed("5", "C", false));
-        rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
+        rddQuery = new GetJavaRDDOfElements.Builder<EdgeId>()
                 .javaSparkContext(sparkContext)
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)

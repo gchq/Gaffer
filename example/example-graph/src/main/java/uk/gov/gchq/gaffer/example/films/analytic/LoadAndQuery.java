@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.films.data.Certificate;
@@ -40,7 +41,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -117,13 +118,13 @@ public class LoadAndQuery {
         // Create an operation chain.
         // So the chain operation will get the adjacent review entity seeds then get the review entities.
         final OperationChain<CloseableIterable<Entity>> queryChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds.Builder()
+                .first(new GetAdjacentIds.Builder()
                         .view(new View.Builder()
                                 .edge(Group.VIEWING)
                                 .build())
                         .addSeed(new EntitySeed("user02"))
                         .build())
-                .then(new GetEntities.Builder()
+                .then(new GetEntities.Builder<EntityId>()
                         .view(new View.Builder()
                                 .entity(Group.REVIEW, new ViewElementDefinition.Builder()
                                         .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)

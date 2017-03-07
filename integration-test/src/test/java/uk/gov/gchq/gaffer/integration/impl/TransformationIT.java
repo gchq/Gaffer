@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.transform.Concat;
@@ -77,7 +79,7 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEntityPropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getEntities = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed(VERTEX))
                 .build();
 
@@ -100,7 +102,7 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEdgePropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> getEdges = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
                 .build();
 
@@ -120,7 +122,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEntityProperty() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getEntities = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -149,7 +151,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEdgeProperty() throws OperationException {
         // Given
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> getEdges = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed(SOURCE_1, DEST_1, false))
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -176,7 +178,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldTransformExistingProperty() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> getEntities = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

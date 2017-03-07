@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransform;
@@ -85,7 +86,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
 
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getRelatedEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
@@ -117,7 +118,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final GetEdges<EntitySeed> getRelatedEdgesWithMean = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getRelatedEdgesWithMean = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();

@@ -20,8 +20,8 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.generator.EdgeSeedExtractor;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.operation.data.generator.EdgeIdExtractor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -29,15 +29,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class EdgeSeedExtractorTest {
+public class EdgeIdExtractorTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionIfGetElementCalled() {
         // Given
-        final EdgeSeedExtractor extractor = new EdgeSeedExtractor();
+        final EdgeIdExtractor extractor = new EdgeIdExtractor();
 
         // When / Then
         try {
-            extractor.getElement(mock(EdgeSeed.class));
+            extractor.getElement(mock(EdgeId.class));
         } catch (final UnsupportedOperationException e) {
             assertNotNull(e.getMessage());
         }
@@ -46,11 +46,11 @@ public class EdgeSeedExtractorTest {
     @Test
     public void shouldGetIdentifierFromEdge() {
         // Given
-        final EdgeSeedExtractor extractor = new EdgeSeedExtractor();
+        final EdgeIdExtractor extractor = new EdgeIdExtractor();
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
 
         // When
-        final EdgeSeed seed = extractor.getObject(edge);
+        final EdgeId seed = extractor.getObject(edge);
 
         // Then
         assertEquals("source", seed.getSource());
@@ -61,7 +61,7 @@ public class EdgeSeedExtractorTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionForEntity() {
         // Given
-        final EdgeSeedExtractor extractor = new EdgeSeedExtractor();
+        final EdgeIdExtractor extractor = new EdgeIdExtractor();
         final Entity entity = new Entity(TestGroups.ENTITY, "identifier");
 
         // When / Then

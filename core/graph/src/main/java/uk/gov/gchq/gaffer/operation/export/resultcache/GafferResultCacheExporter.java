@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -119,7 +120,7 @@ public class GafferResultCacheExporter implements Exporter {
     }
 
     public CloseableIterable<?> get(final String key) throws OperationException {
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> getEdges = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed(jobId, key, true))
                 .view(new View.Builder()
                         .edge("result", new ViewElementDefinition.Builder()

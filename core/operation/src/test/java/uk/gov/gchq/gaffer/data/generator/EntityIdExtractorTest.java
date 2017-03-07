@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,15 +30,15 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class EntitySeedExtractorTest {
+public class EntityIdExtractorTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionIfGetElementCalled() {
         // Given
-        final EntitySeedExtractor extractor = new EntitySeedExtractor();
+        final EntityIdExtractor extractor = new EntityIdExtractor();
 
         // When / Then
         try {
-            extractor.getElement(mock(EntitySeed.class));
+            extractor.getElement(mock(EntityId.class));
         } catch (final UnsupportedOperationException e) {
             assertNotNull(e.getMessage());
         }
@@ -47,11 +47,11 @@ public class EntitySeedExtractorTest {
     @Test
     public void shouldGetIdentifierFromEntity() {
         // Given
-        final EntitySeedExtractor extractor = new EntitySeedExtractor();
+        final EntityIdExtractor extractor = new EntityIdExtractor();
         final Entity entity = new Entity(TestGroups.ENTITY, "identifier");
 
         // When
-        final EntitySeed seed = extractor.getObject(entity);
+        final EntityId seed = extractor.getObject(entity);
 
         // Then
         assertSame("identifier", seed.getVertex());
@@ -60,11 +60,11 @@ public class EntitySeedExtractorTest {
     @Test
     public void shouldGetSourceFromEdge() {
         // Given
-        final EntitySeedExtractor extractor = new EntitySeedExtractor(IdentifierType.SOURCE);
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.SOURCE);
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
 
         // When
-        final EntitySeed seed = extractor.getObject(edge);
+        final EntityId seed = extractor.getObject(edge);
 
         // Then
         assertEquals("source", seed.getVertex());
@@ -73,11 +73,11 @@ public class EntitySeedExtractorTest {
     @Test
     public void shouldGetDestinationFromEdge() {
         // Given
-        final EntitySeedExtractor extractor = new EntitySeedExtractor(IdentifierType.DESTINATION);
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DESTINATION);
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
 
         // When
-        final EntitySeed seed = extractor.getObject(edge);
+        final EntityId seed = extractor.getObject(edge);
 
         // Then
         assertEquals("destination", seed.getVertex());
@@ -86,7 +86,7 @@ public class EntitySeedExtractorTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionFromEdgeWhenIdTypeIsDirected() {
         // Given
-        final EntitySeedExtractor extractor = new EntitySeedExtractor(IdentifierType.DIRECTED);
+        final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DIRECTED);
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
 
         // When / Then

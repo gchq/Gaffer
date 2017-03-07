@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.element;
+package uk.gov.gchq.gaffer.data.element.id;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-public abstract class ElementId {
-    @JsonIgnore
-    public abstract Object getIdentifier(final IdentifierType identifierType);
-
-    public abstract void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet);
-
+public interface ElementId extends Serializable {
     /**
      * @param that the {@link ElementId} to compare
      * @return An instance of {@link Matches} to describe how the seeds are related.
-     * @see EntityId#isRelated(ElementId)
-     * @see EdgeId#isRelated(ElementId)
      */
-    public abstract Matches isRelated(ElementId that);
+    Matches isRelated(ElementId that);
 
-    public enum Matches {
+    boolean isEqual(final ElementId that);
+
+    enum Matches {
         BOTH,
         VERTEX,
         SOURCE,
@@ -58,15 +51,5 @@ public abstract class ElementId {
         public boolean isMatch() {
             return this != NONE;
         }
-    }
-
-    @JsonGetter("class")
-    String getClassName() {
-        return getClass().getName();
-    }
-
-    @JsonSetter("class")
-    void setClassName(final String className) {
-        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 }

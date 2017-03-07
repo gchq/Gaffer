@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator10;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -84,14 +85,14 @@ public class LoadAndQuery10 extends LoadAndQuery {
 
         // [get frequencies of 1L and 9L] Get the edge A-B and print estimates of frequencies of 1L and 9L
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> query = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();
         final LongsSketch longsSketch = (LongsSketch) edge.getProperty("longsSketch");
         final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)
-            + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
+                + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
         // ---------------------------------------------------------
         log("\nEdge A-B with estimates of the frequencies of 1 and 9");
         log("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B", estimates);

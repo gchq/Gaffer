@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.rest.service;
 
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
@@ -58,31 +58,31 @@ public interface IExamplesService {
 
     @GET
     @Path("/graph/doOperation/get/elements/bySeed")
-    GetElements<ElementSeed, Element> getElementsBySeed();
+    GetElements<ElementId, Element> getElementsBySeed();
 
     @GET
     @Path("/graph/doOperation/get/elements/related")
-    GetElements<ElementSeed, Element> getRelatedElements();
+    GetElements<ElementId, Element> getRelatedElements();
 
     @GET
     @Path("/graph/doOperation/get/entities/bySeed")
-    GetEntities<ElementSeed> getEntitiesBySeed();
+    GetEntities<ElementId> getEntitiesBySeed();
 
     @GET
     @Path("/graph/doOperation/get/entities/related")
-    GetEntities<ElementSeed> getRelatedEntities();
+    GetEntities<ElementId> getRelatedEntities();
 
     @GET
     @Path("/graph/doOperation/get/edges/bySeed")
-    GetEdges<ElementSeed> getEdgesBySeed();
+    GetEdges<ElementId> getEdgesBySeed();
 
     @GET
     @Path("/graph/doOperation/get/edges/related")
-    GetEdges<ElementSeed> getRelatedEdges();
+    GetEdges<ElementId> getRelatedEdges();
 
     @GET
-    @Path("/graph/doOperation/get/entitySeeds/adjacent")
-    GetAdjacentEntitySeeds getAdjacentEntitySeeds();
+    @Path("/graph/doOperation/get/entityIds/adjacent")
+    GetAdjacentIds getAdjacentIds();
 
     @GET
     @Path("/graph/doOperation/get/elements/all")

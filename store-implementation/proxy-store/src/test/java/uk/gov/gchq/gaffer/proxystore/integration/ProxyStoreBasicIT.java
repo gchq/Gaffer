@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -135,7 +136,7 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> getElements = new GetElements.Builder<EntityId, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -165,7 +166,7 @@ public class ProxyStoreBasicIT {
         }
 
         // Get elements
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> getElements = new GetElements.Builder<EntityId, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE)

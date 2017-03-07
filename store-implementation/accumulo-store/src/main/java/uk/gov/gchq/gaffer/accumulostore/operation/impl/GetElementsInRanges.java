@@ -18,16 +18,16 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 
 /**
  * This returns all data between the provided
- * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
+ * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s.
  */
-public class GetElementsInRanges<I_TYPE extends Pair<? extends ElementSeed>, E extends Element>
+public class GetElementsInRanges<I_TYPE extends Pair<? extends ElementId>, E extends Element>
         extends AbstractSeededGraphGetIterable<I_TYPE, E> {
-    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>,
+    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementId>,
             E extends Element,
             CHILD_CLASS extends BaseBuilder<I_TYPE, E, ?>>
             extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsInRanges<I_TYPE, E>, I_TYPE, E, CHILD_CLASS> {
@@ -36,7 +36,7 @@ public class GetElementsInRanges<I_TYPE extends Pair<? extends ElementSeed>, E e
         }
     }
 
-    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>,
+    public static final class Builder<I_TYPE extends Pair<? extends ElementId>,
             E extends Element>
             extends BaseBuilder<I_TYPE, E, Builder<I_TYPE, E>> {
 

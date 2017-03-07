@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.operation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.SeededGraphGetImpl;
 
@@ -36,18 +37,18 @@ public class AbstractSeededGraphGetTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final String identifier = "identifier";
-        final ElementSeed input = new EntitySeed(identifier);
-        final SeededGraphGetImpl<ElementSeed, Element> op = new SeededGraphGetImpl.Builder<ElementSeed, Element>()
+        final ElementId input = new EntitySeed(identifier);
+        final SeededGraphGetImpl<ElementId, Element> op = new SeededGraphGetImpl.Builder<ElementId, Element>()
                 .addSeed(input)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final SeededGraphGetImpl<ElementSeed, Element> deserialisedOp = serialiser.deserialise(json, SeededGraphGetImpl.class);
+        final SeededGraphGetImpl<ElementId, Element> deserialisedOp = serialiser.deserialise(json, SeededGraphGetImpl.class);
 
         // Then
         assertNotNull(deserialisedOp);
-        assertEquals(identifier, ((EntitySeed) deserialisedOp.getInput().iterator().next()).getVertex());
+        assertEquals(identifier, ((EntityId) deserialisedOp.getInput().iterator().next()).getVertex());
     }
 
     @Override

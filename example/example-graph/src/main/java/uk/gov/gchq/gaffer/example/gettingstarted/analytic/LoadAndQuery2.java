@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator2;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
@@ -82,7 +83,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         // [get simple] Get all the edges related to vertex 1
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getRelatedEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
@@ -99,7 +100,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final View view = new View.Builder()
                 .edge("red")
                 .build();
-        final GetEdges<EntitySeed> getRelatedRedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getRelatedRedEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .view(view)
                 .build();

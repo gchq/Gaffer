@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId.Matches;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed.Matches;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -39,39 +39,44 @@ import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements<ElementId, Element>, CloseableIterable<Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements<ElementId, Element> operation,
                                                   final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
-    private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {
+    private List<Element> doOperation(final GetElements<ElementId, Element> operation, final ArrayListStore store) {
         final ArrayList<Element> result = new ArrayList<>();
         if (null != operation.getSeeds()) {
-            for (final Entity entity : store.getEntities()) {
-                if (operation.validate(entity)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getDirectedType())) {
-                            result.add(entity);
-                        }
-                    } else {
-                        if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
-                            result.add(entity);
+            if (operation.getView().hasEntities()) {
+                for (final Entity entity : store.getEntities()) {
+                    if (operation.validate(entity)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(entity, operation.getSeeds(), operation.getDirectedType())) {
+                                result.add(entity);
+                            }
+                        } else {
+                            if (isSeedRelated(entity, operation.getSeeds()).isMatch()) {
+                                result.add(entity);
+                            }
                         }
                     }
                 }
             }
-            for (final Edge edge : store.getEdges()) {
-                if (operation.validate(edge)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getDirectedType())) {
-                            result.add(edge);
-                        }
-                    } else {
-                        if (isSeedRelated(operation, edge)) {
-                            result.add(edge);
+
+            if (operation.getView().hasEdges()) {
+                for (final Edge edge : store.getEdges()) {
+                    if (operation.validate(edge)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(edge, operation.getSeeds(), operation.getDirectedType())) {
+                                result.add(edge);
+                            }
+                        } else {
+                            if (isSeedRelated(operation, edge)) {
+                                result.add(edge);
+                            }
                         }
                     }
                 }
@@ -81,8 +86,8 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         return result;
     }
 
-    private boolean isSeedRelated(final GetElements<ElementSeed, Element> operation, final Edge edge) {
-        final Matches seedMatches = isSeedRelated(ElementSeed.createSeed(edge), operation.getSeeds());
+    private boolean isSeedRelated(final GetElements<ElementId, Element> operation, final Edge edge) {
+        final Matches seedMatches = isSeedRelated(edge, operation.getSeeds());
         final DirectedType directedType = operation.getDirectedType();
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
 
@@ -136,10 +141,10 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         return false;
     }
 
-    private Matches isSeedRelated(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds) {
+    private Matches isSeedRelated(final ElementId elementId, final Iterable<ElementId> seeds) {
         Set<Matches> matchesSet = new HashSet<>();
-        for (final ElementSeed seed : seeds) {
-            final Matches isRelatedMatch = elementSeed.isRelated(seed);
+        for (final ElementId seed : seeds) {
+            final Matches isRelatedMatch = elementId.isRelated(seed);
             if (isRelatedMatch.isMatch()) {
                 matchesSet.add(isRelatedMatch);
                 if (matchesSet.size() > 1) {
@@ -158,12 +163,12 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         return Matches.NONE;
     }
 
-    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds, final DirectedType includeEdges) {
-        for (final ElementSeed seed : seeds) {
-            if (elementSeed.equals(seed)) {
-                if (elementSeed instanceof EdgeSeed
-                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeSeed) elementSeed).isDirected())
-                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeSeed) elementSeed).isDirected()))) {
+    private boolean isSeedEqual(final ElementId elementId, final Iterable<ElementId> seeds, final DirectedType includeEdges) {
+        for (final ElementId seed : seeds) {
+            if (elementId.isEqual(seed)) {
+                if (elementId instanceof EdgeId
+                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeId) elementId).isDirected())
+                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeId) elementId).isDirected()))) {
                     continue;
                 }
 

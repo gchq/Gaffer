@@ -19,6 +19,8 @@ import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator12;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -74,8 +76,8 @@ public class LoadAndQuery12 extends LoadAndQuery {
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
         log("Added the edge A-B 1000 times each time with a ReservoirItemsUnion<String> containing a random string."
-            + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
-            + " ReservoirItemsUnion<String> containing the destination node.");
+                + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
+                + " ReservoirItemsUnion<String> containing the destination node.");
 
 
         // [get red edge] Get the red edge
@@ -95,7 +97,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
 
         // [get strings sample from the red edge] Get the edge A-B and print out the sample of strings
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> query = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
@@ -117,7 +119,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
 
         // [get sample from the blue entity] Get the entity Y and print a sample of the neighbours
         // ---------------------------------------------------------
-        final GetEntities<EntitySeed> query2 = new GetEntities.Builder<EntitySeed>()
+        final GetEntities<EntityId> query2 = new GetEntities.Builder<EntityId>()
                 .addSeed(new EntitySeed("X"))
                 .build();
         final Iterable<Entity> entities = graph.execute(query2, user);

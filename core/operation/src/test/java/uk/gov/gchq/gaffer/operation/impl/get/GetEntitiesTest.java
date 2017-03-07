@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -41,23 +43,23 @@ public class GetEntitiesTest implements OperationTest {
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithEdgeSeed();
-        shouldSerialiseAndDeserialiseOperationWithEntitySeed();
+        shouldSerialiseAndDeserialiseOperationWithEdgeId();
+        shouldSerialiseAndDeserialiseOperationWithEntityId();
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        builderShouldCreatePopulatedOperationWithEntitySeed();
+        builderShouldCreatePopulatedOperationWithEntityId();
     }
 
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
-        final EntitySeed seed1 = new EntitySeed("identifier");
+        final EntityId seed1 = new EntitySeed("identifier");
 
         // When
-        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Collections.singletonList(seed1))
+        final GetEntities op = new GetEntities.Builder<EntityId>().seeds(Collections.singletonList(seed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -65,11 +67,11 @@ public class GetEntitiesTest implements OperationTest {
         assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithEntitySeed() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithEntityId() throws SerialisationException {
         // Given
-        final EntitySeed seed1 = new EntitySeed("id1");
-        final EntitySeed seed2 = new EntitySeed("id2");
-        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Arrays.asList(seed1, seed2))
+        final EntityId seed1 = new EntitySeed("id1");
+        final EntityId seed2 = new EntitySeed("id2");
+        final GetEntities op = new GetEntities.Builder<EntityId>().seeds(Arrays.asList(seed1, seed2))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -84,9 +86,9 @@ public class GetEntitiesTest implements OperationTest {
         assertFalse(itr.hasNext());
     }
 
-    private void shouldSetSeedMatchingTypeToRelatedWithEdgeSeed() {
+    private void shouldSetSeedMatchingTypeToRelatedWithEdgeId() {
         // Given
-        final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
+        final EdgeId seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
         final GetEntities op = new GetEntities.Builder<>()
@@ -97,10 +99,10 @@ public class GetEntitiesTest implements OperationTest {
         assertEquals(SeedMatching.SeedMatchingType.RELATED, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithEdgeSeed() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithEdgeId() throws SerialisationException {
         // Given
-        final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
-        final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
+        final EdgeId seed1 = new EdgeSeed("source1", "destination1", true);
+        final EdgeId seed2 = new EdgeSeed("source2", "destination2", false);
         final GetEntities op = new GetEntities.Builder<>()
                 .addSeed(seed1)
                 .addSeed(seed2)
@@ -117,9 +119,9 @@ public class GetEntitiesTest implements OperationTest {
         assertFalse(itr.hasNext());
     }
 
-    private void builderShouldCreatePopulatedOperationWithEntitySeed() {
+    private void builderShouldCreatePopulatedOperationWithEntityId() {
         // Given
-        final EntitySeed seed = new EntitySeed("A");
+        final EntityId seed = new EntitySeed("A");
 
         // When
         final GetEntities op = new GetEntities.Builder<>()

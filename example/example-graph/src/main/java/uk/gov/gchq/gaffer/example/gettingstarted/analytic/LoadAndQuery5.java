@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator5;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -82,7 +83,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         log("\nNow run a simple query to get edges\n");
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getEdges, basicUser);
@@ -101,7 +102,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .dataAuth("public")
                 .build();
 
-        final GetEdges<EntitySeed> getPublicRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getPublicRelatedEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 
@@ -120,7 +121,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .dataAuth("private")
                 .build();
 
-        final GetEdges<EntitySeed> getPrivateRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> getPrivateRelatedEdges = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
 

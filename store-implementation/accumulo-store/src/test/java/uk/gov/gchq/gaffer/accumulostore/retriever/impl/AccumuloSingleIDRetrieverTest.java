@@ -31,10 +31,10 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -82,27 +82,27 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     @Test
-    public void testEntitySeedQueryEdgesAndEntitiesByteEntityStore() throws AccumuloException, StoreException {
-        testEntitySeedQueryEdgesAndEntities(byteEntityStore);
+    public void testEntityIdQueryEdgesAndEntitiesByteEntityStore() throws AccumuloException, StoreException {
+        testEntityIdQueryEdgesAndEntities(byteEntityStore);
     }
 
     @Test
-    public void testEntitySeedQueryEdgesAndEntitiesGaffer1Store() throws AccumuloException, StoreException {
-        testEntitySeedQueryEdgesAndEntities(gaffer1KeyStore);
+    public void testEntityIdQueryEdgesAndEntitiesGaffer1Store() throws AccumuloException, StoreException {
+        testEntityIdQueryEdgesAndEntities(gaffer1KeyStore);
     }
 
-    private void testEntitySeedQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testEntityIdQueryEdgesAndEntities(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
@@ -113,73 +113,73 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     @Test
-    public void testEntitySeedQueryEdgesOnly() throws AccumuloException, StoreException {
-        testEntitySeedQueryEdgesOnly(byteEntityStore);
-        testEntitySeedQueryEdgesOnly(gaffer1KeyStore);
+    public void testEntityIdQueryEdgesOnly() throws AccumuloException, StoreException {
+        testEntityIdQueryEdgesOnly(byteEntityStore);
+        testEntityIdQueryEdgesOnly(gaffer1KeyStore);
     }
 
-    private void testEntitySeedQueryEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testEntityIdQueryEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         //Should find both i-B and i-C edges.
         assertEquals(numEntries * 2, Iterables.size(retriever));
     }
 
     @Test
-    public void testEntitySeedQueryEntitiesOnly() throws AccumuloException, StoreException {
-        testEntitySeedQueryEntitiesOnly(byteEntityStore);
-        testEntitySeedQueryEntitiesOnly(gaffer1KeyStore);
+    public void testEntityIdQueryEntitiesOnly() throws AccumuloException, StoreException {
+        testEntityIdQueryEntitiesOnly(byteEntityStore);
+        testEntityIdQueryEntitiesOnly(gaffer1KeyStore);
     }
 
-    private void testEntitySeedQueryEntitiesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testEntityIdQueryEntitiesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         //Should find only the entities i
         assertEquals(numEntries, Iterables.size(retriever));
     }
 
     @Test
-    public void testUndirectedEdgeSeedQueries() throws AccumuloException, StoreException {
-        testUndirectedEdgeSeedQueries(byteEntityStore);
-        testUndirectedEdgeSeedQueries(gaffer1KeyStore);
+    public void testUndirectedEdgeIdQueries() throws AccumuloException, StoreException {
+        testUndirectedEdgeIdQueries(byteEntityStore);
+        testUndirectedEdgeIdQueries(gaffer1KeyStore);
     }
 
-    private void testUndirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testUndirectedEdgeIdQueries(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EdgeSeed("" + i, "B", false));
             ids.add(new EdgeSeed("" + i, "C", true));
@@ -187,12 +187,12 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
             Edge edge = (Edge) element;
@@ -203,17 +203,17 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     @Test
-    public void testDirectedEdgeSeedQueries() throws AccumuloException, StoreException {
-        testDirectedEdgeSeedQueries(byteEntityStore);
-        testDirectedEdgeSeedQueries(gaffer1KeyStore);
+    public void testDirectedEdgeIdQueries() throws AccumuloException, StoreException {
+        testDirectedEdgeIdQueries(byteEntityStore);
+        testDirectedEdgeIdQueries(gaffer1KeyStore);
     }
 
-    private void testDirectedEdgeSeedQueries(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testDirectedEdgeIdQueries(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EdgeSeed("" + i, "B", false));
             ids.add(new EdgeSeed("" + i, "C", true));
@@ -221,12 +221,12 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setDirectedType(DirectedType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
             Edge edge = (Edge) element;
@@ -238,29 +238,29 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     @Test
-    public void testEntitySeedQueryIncomingEdgesOnly() throws AccumuloException, StoreException {
-        testEntitySeedQueryIncomingEdgesOnly(byteEntityStore);
-        testEntitySeedQueryIncomingEdgesOnly(gaffer1KeyStore);
+    public void testEntityIdQueryIncomingEdgesOnly() throws AccumuloException, StoreException {
+        testEntityIdQueryIncomingEdgesOnly(byteEntityStore);
+        testEntityIdQueryIncomingEdgesOnly(gaffer1KeyStore);
     }
 
-    private void testEntitySeedQueryIncomingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testEntityIdQueryIncomingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        final Set<ElementSeed> ids = new HashSet<>();
+        final Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        final GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
             Edge edge = (Edge) element;
@@ -271,29 +271,29 @@ public class AccumuloSingleIDRetrieverTest {
     }
 
     @Test
-    public void testEntitySeedQueryOutgoingEdgesOnly() throws AccumuloException, StoreException {
-        testEntitySeedQueryOutgoingEdgesOnly(byteEntityStore);
-        testEntitySeedQueryOutgoingEdgesOnly(gaffer1KeyStore);
+    public void testEntityIdQueryOutgoingEdgesOnly() throws AccumuloException, StoreException {
+        testEntityIdQueryOutgoingEdgesOnly(byteEntityStore);
+        testEntityIdQueryOutgoingEdgesOnly(gaffer1KeyStore);
     }
 
-    private void testEntitySeedQueryOutgoingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
+    private void testEntityIdQueryOutgoingEdgesOnly(final AccumuloStore store) throws AccumuloException, StoreException {
         setupGraph(store, numEntries);
         final User user = new User();
 
         // Create set to query for
-        Set<ElementSeed> ids = new HashSet<>();
+        Set<ElementId> ids = new HashSet<>();
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
+        GetElements<ElementId, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         int count = 0;
         for (final Element element : retriever) {

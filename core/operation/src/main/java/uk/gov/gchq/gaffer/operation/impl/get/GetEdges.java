@@ -17,18 +17,18 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} to only return {@link uk.gov.gchq.gaffer.data.element.Edge}s.
  * See implementations of {@link GetEdges} for further details.
  *
- * @param <SEED_TYPE> the seed seed type
+ * @param <ID> the id type
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Edge> {
+public class GetEdges<ID extends ElementId> extends GetElements<ID, Edge> {
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
@@ -41,22 +41,22 @@ public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TY
         }
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends GetElements.BaseBuilder<GetEdges<SEED_TYPE>, SEED_TYPE, Edge, CHILD_CLASS> {
+    public abstract static class BaseBuilder<ID extends ElementId, CHILD_CLASS extends BaseBuilder<ID, ?>>
+            extends GetElements.BaseBuilder<GetEdges<ID>, ID, Edge, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new GetEdges<>());
         }
 
-        protected BaseBuilder(final GetEdges<SEED_TYPE> op) {
+        protected BaseBuilder(final GetEdges<ID> op) {
             super(op);
         }
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
+    public static final class Builder<ID extends ElementId> extends BaseBuilder<ID, Builder<ID>> {
 
         @Override
-        protected Builder<SEED_TYPE> self() {
+        protected Builder<ID> self() {
             return this;
         }
     }

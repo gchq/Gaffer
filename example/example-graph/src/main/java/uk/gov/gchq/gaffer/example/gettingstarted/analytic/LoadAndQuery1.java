@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator1;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -81,7 +82,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
         // [get] Get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> query = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> query = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(query, user);

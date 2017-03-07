@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.List;
 
@@ -31,7 +31,7 @@ import java.util.List;
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraphGetIterable<EntitySeed, E> {
+public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraphGetIterable<EntityId, E> {
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
         return IncludeIncomingOutgoingType.OUTGOING;
@@ -49,18 +49,18 @@ public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraph
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public EntitySeed[] getSeedArray() {
-        final CloseableIterable<EntitySeed> input = getInput();
+    public EntityId[] getSeedArray() {
+        final CloseableIterable<EntityId> input = getInput();
         if (null != input) {
-            final List<EntitySeed> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntitySeed[inputList.size()]);
+            final List<EntityId> inputList = Lists.newArrayList(input);
+            return inputList.toArray(new EntityId[inputList.size()]);
         }
 
         return null;
     }
 
     public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<E>, EntitySeed, E, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<E>, EntityId, E, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetElementsWithinSet<>());
         }

@@ -25,6 +25,7 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.apache.spark.sql.sources.LessThan;
 import org.apache.spark.sql.sources.Or;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.function.FilterFunction;
 import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
@@ -140,9 +141,9 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(Collections.singleton(ENTITY_GROUP), operation.getView().getEntityGroups());
         assertEquals(0, operation.getView().getEdgeGroups().size());
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
@@ -163,9 +164,9 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(0, operation.getView().getEntityGroups().size());
         assertEquals(EDGE_GROUPS, operation.getView().getEdgeGroups());
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
@@ -186,9 +187,9 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(0, operation.getView().getEntityGroups().size());
         assertEquals(EDGE_GROUPS, operation.getView().getEdgeGroups());
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
 
@@ -332,9 +333,9 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(1, operation.getView().getEntityGroups().size());
         assertEquals(0, operation.getView().getEdgeGroups().size());
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         View opView = operation.getView();
@@ -361,7 +362,7 @@ public class FilterToOperationConverterTest {
         assertEquals(0, operation.getView().getEdgeGroups().size());
         seeds.clear();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         opView = operation.getView();
@@ -401,9 +402,9 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfElements);
         assertEquals(0, operation.getView().getEntityGroups().size());
         assertEquals(2, operation.getView().getEdgeGroups().size());
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         View opView = operation.getView();
@@ -428,7 +429,7 @@ public class FilterToOperationConverterTest {
         assertEquals(1, operation.getView().getEdgeGroups().size());
         seeds.clear();
         for (final Object seed : ((GetRDDOfElements) operation).getSeeds()) {
-            seeds.add((EntitySeed) seed);
+            seeds.add((EntityId) seed);
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         opView = operation.getView();

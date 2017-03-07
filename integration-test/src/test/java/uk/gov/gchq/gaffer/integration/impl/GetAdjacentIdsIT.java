@@ -19,12 +19,13 @@ package uk.gov.gchq.gaffer.integration.impl;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 
-public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
+public class GetAdjacentIdsIT extends AbstractStoreIT {
     private static final List<String> SEEDS = Arrays.asList(
             SOURCE_1, DEST_2, SOURCE_3, DEST_3,
             SOURCE_DIR_1, DEST_DIR_2, SOURCE_DIR_3, DEST_DIR_3,
@@ -48,7 +49,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldGetEntitySeeds() throws Exception {
+    public void shouldGetEntityIds() throws Exception {
         for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
             for (final DirectedType directedType : DirectedType.values()) {
                 final List<String> expectedSeeds = new ArrayList<>();
@@ -78,35 +79,35 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                     }
                 }
 
-                shouldGetEntitySeeds(expectedSeeds, inOutType, directedType);
+                shouldGetEntityIds(expectedSeeds, inOutType, directedType);
             }
         }
     }
 
-    private void shouldGetEntitySeeds(final List<String> expectedResultSeeds,
-                                      final IncludeIncomingOutgoingType inOutType,
-                                      final DirectedType directedType
+    private void shouldGetEntityIds(final List<String> expectedResultSeeds,
+                                    final IncludeIncomingOutgoingType inOutType,
+                                    final DirectedType directedType
     )
             throws IOException, OperationException {
         // Given
         final User user = new User();
-        final List<EntitySeed> seeds = new ArrayList<>();
+        final List<EntityId> seeds = new ArrayList<>();
         for (final String seed : SEEDS) {
             seeds.add(new EntitySeed(seed));
         }
 
-        final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
+        final GetAdjacentIds operation = new GetAdjacentIds.Builder()
                 .seeds(seeds)
                 .directedType(directedType)
                 .inOutType(inOutType)
                 .build();
 
         // When
-        final CloseableIterable<EntitySeed> results = graph.execute(operation, user);
+        final CloseableIterable<EntityId> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();
-        for (final EntitySeed result : results) {
+        for (final EntityId result : results) {
             resultSeeds.add((String) result.getVertex());
         }
         Collections.sort(resultSeeds);

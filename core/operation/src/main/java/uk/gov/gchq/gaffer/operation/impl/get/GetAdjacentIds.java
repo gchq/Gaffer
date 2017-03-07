@@ -22,32 +22,31 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * An <code>GetAdjacentEntitySeeds</code> operation will return the
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s at the opposite end of connected edges to a seed
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
+ * An <code>GetAdjacentVertices</code> operation will return the
+ * vertices at the opposite end of connected edges to a provided seed vertices
  *
- * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
+ * @see GetAdjacentIds.Builder
  * @see AbstractSeededGraphGetIterable
  */
-public class GetAdjacentEntitySeeds
-        extends AbstractSeededGraphGetIterable<EntitySeed, EntitySeed> {
+public class GetAdjacentIds
+        extends AbstractSeededGraphGetIterable<EntityId, EntityId> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public EntitySeed[] getSeedArray() {
-        final CloseableIterable<EntitySeed> input = getInput();
+    public EntityId[] getSeedArray() {
+        final CloseableIterable<EntityId> input = getInput();
         if (null != input) {
-            final List<EntitySeed> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntitySeed[inputList.size()]);
+            final List<EntityId> inputList = Lists.newArrayList(input);
+            return inputList.toArray(new EntityId[inputList.size()]);
         }
 
         return null;
@@ -67,13 +66,13 @@ public class GetAdjacentEntitySeeds
 
     @Override
     protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableEntitySeed();
+        return new TypeReferenceImpl.CloseableIterableEntityId();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetAdjacentIds, EntityId, EntityId, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new GetAdjacentEntitySeeds());
+            super(new GetAdjacentIds());
         }
     }
 

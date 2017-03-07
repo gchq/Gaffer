@@ -20,9 +20,11 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.io.Serializable;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map.Entry;
 
 /**
@@ -40,32 +42,20 @@ import java.util.Map.Entry;
  * <p>
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-public abstract class Element<IdType extends ElementId> implements Serializable, Id<IdType> {
+@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
+public abstract class Element implements ElementId {
     public static final String DEFAULT_GROUP = "UNKNOWN";
-
-    @JsonIgnore
-    private IdType id;
 
     private Properties properties;
     private String group;
 
-    Element(final IdType elementId) {
-        this(DEFAULT_GROUP, elementId);
+    Element() {
+        this(DEFAULT_GROUP);
     }
 
-    Element(final String group, final IdType elementId) {
-        setGroup(group);
-        setId(elementId);
+    Element(final String group) {
+        this.group = group;
         properties = new Properties();
-    }
-
-    public void setId(final IdType elementId) {
-        this.id = elementId;
-    }
-
-    public IdType getId() {
-        return id;
     }
 
     public void putProperty(final String name, final Object value) {
@@ -94,7 +84,6 @@ public abstract class Element<IdType extends ElementId> implements Serializable,
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 17)
-                .appendSuper(id.hashCode())
                 .append(group)
                 .toHashCode();
     }
@@ -109,8 +98,7 @@ public abstract class Element<IdType extends ElementId> implements Serializable,
         return null != element
                 && new EqualsBuilder()
                 .append(group, element.getGroup())
-                .isEquals()
-                && id.equals(element.getId());
+                .isEquals();
     }
 
     @Override
@@ -122,21 +110,18 @@ public abstract class Element<IdType extends ElementId> implements Serializable,
 
     public boolean equals(final Element element) {
         return null != element
-                && shallowEquals(element)
-                && getProperties().equals(element.getProperties());
+                && new EqualsBuilder()
+                .append(group, element.getGroup())
+                .isEquals() && getProperties().equals(element.getProperties());
     }
 
     @JsonIgnore
     public abstract Element emptyClone();
 
     @JsonIgnore
-    public Object getIdentifier(final IdentifierType identifierType) {
-        return id.getIdentifier(identifierType);
-    }
+    public abstract Object getIdentifier(final IdentifierType identifierType);
 
-    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
-        id.putIdentifier(identifierType, propertyToBeSet);
-    }
+    public abstract void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet);
 
     @JsonIgnore
     public Element getElement() {

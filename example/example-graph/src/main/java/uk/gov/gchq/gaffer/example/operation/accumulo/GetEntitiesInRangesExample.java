@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.example.operation.accumulo;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
 public class GetEntitiesInRangesExample extends OperationExample {
@@ -40,7 +41,7 @@ public class GetEntitiesInRangesExample extends OperationExample {
 
     public Iterable<Entity> getAllEntitiesInTheRangeFromEntity1toEntity4() {
         // ---------------------------------------------------------
-        final GetEntitiesInRanges<Pair<EntitySeed>> operation = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
+        final GetEntitiesInRanges<Pair<EntityId>> operation = new GetEntitiesInRanges.Builder<Pair<EntityId>>()
                 .addSeed(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
                 .build();
         // ---------------------------------------------------------
@@ -50,7 +51,7 @@ public class GetEntitiesInRangesExample extends OperationExample {
 
     public Iterable<Entity> getAllEntitiesInTheRangeFromEntity4ToEdge4_5() {
         // ---------------------------------------------------------
-        final GetEntitiesInRanges<Pair<ElementSeed>> operation = new GetEntitiesInRanges.Builder<Pair<ElementSeed>>()
+        final GetEntitiesInRanges<Pair<ElementId>> operation = new GetEntitiesInRanges.Builder<Pair<ElementId>>()
                 .addSeed(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
                 .build();
         // ---------------------------------------------------------

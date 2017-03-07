@@ -17,9 +17,9 @@ package uk.gov.gchq.gaffer.example.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
@@ -41,7 +41,7 @@ public class DeduplicateExample extends OperationExample {
 
     public Iterable<Edge> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
-        final GetEdges<ElementSeed> operation = new GetEdges.Builder<>()
+        final GetEdges<ElementId> operation = new GetEdges.Builder<>()
                 .addSeed(new EntitySeed(1))
                 .addSeed(new EntitySeed(2))
                 .build();

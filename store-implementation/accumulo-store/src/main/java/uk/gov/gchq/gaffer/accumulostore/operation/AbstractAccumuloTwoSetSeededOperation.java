@@ -21,13 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractAccumuloTwoSetSeededOperation<I_TYPE extends ElementSeed, E extends Element>
+public abstract class AbstractAccumuloTwoSetSeededOperation<I_TYPE extends ElementId, E extends Element>
         extends GetElements<I_TYPE, E> {
 
     private Iterable<I_TYPE> seedsB;
@@ -53,7 +53,7 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<I_TYPE extends Eleme
     }
 
     public abstract static class BaseBuilder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<I_TYPE, E>,
-            I_TYPE extends ElementSeed,
+            I_TYPE extends ElementId,
             E extends Element,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, I_TYPE, E, ?>>
             extends GetElements.BaseBuilder<OP_TYPE, I_TYPE, E, CHILD_CLASS> {
@@ -90,7 +90,7 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<I_TYPE extends Eleme
     }
 
     public static final class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<I_TYPE, E>,
-            I_TYPE extends ElementSeed,
+            I_TYPE extends ElementId,
             E extends Element>
             extends BaseBuilder<OP_TYPE, I_TYPE, E, Builder<OP_TYPE, I_TYPE, E>> {
 

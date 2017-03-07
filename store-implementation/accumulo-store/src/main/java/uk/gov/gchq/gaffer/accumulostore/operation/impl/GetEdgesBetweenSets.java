@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Collections;
 
 /**
- * Given two sets of {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s, called A and B,
+ * Given two sets of {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s, called A and B,
  * this retrieves all {@link uk.gov.gchq.gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B.
  */
@@ -41,7 +41,7 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetEdgesBetweenSets, EntitySeed, Edge, CHILD_CLASS> {
+            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetEdgesBetweenSets, EntityId, Edge, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new GetEdgesBetweenSets());

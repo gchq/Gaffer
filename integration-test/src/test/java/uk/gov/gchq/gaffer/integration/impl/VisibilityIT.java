@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -77,7 +78,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -116,7 +117,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -151,7 +152,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("A"))
                 .build();
 
@@ -189,7 +190,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("B"))
                 .build();
@@ -232,7 +233,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, USER_VIS_1);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("B"))
                 .build();
@@ -277,7 +278,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("B"))
                 .build();
 
@@ -310,7 +311,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
                 .addSeed(new EntitySeed("B"))
                 .build();
         final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets

@@ -18,19 +18,19 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
- * Given two sets of {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s, called A and B,
+ * Given two sets of {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s, called A and B,
  * this retrieves all {@link uk.gov.gchq.gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B and also returns
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s in set A.
+ * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 public class GetElementsBetweenSets<E extends Element>
-        extends AbstractAccumuloTwoSetSeededOperation<EntitySeed, E> {
+        extends AbstractAccumuloTwoSetSeededOperation<EntityId, E> {
     public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
-            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetElementsBetweenSets<E>, EntitySeed, E, CHILD_CLASS> {
+            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetElementsBetweenSets<E>, EntityId, E, CHILD_CLASS> {
 
         public BaseBuilder() {
             super(new GetElementsBetweenSets<E>());

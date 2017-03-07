@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -41,21 +43,21 @@ public class GetEdgesTest implements OperationTest {
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithEdgeSeed();
-        shouldSerialiseAndDeserialiseOperationWithEntitySeed();
+        shouldSerialiseAndDeserialiseOperationWithEdgeId();
+        shouldSerialiseAndDeserialiseOperationWithEntityId();
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        builderShouldCreatePopulatedOperationWithEdgeSeed();
-        builderShouldCreatePopulatedOperationWithEntitySeed();
+        builderShouldCreatePopulatedOperationWithEdgeId();
+        builderShouldCreatePopulatedOperationWithEntityId();
     }
 
     @Test
     public void shouldSetSeedMatchingTypeToRelated() {
         // Given
-        final EntitySeed seed1 = new EntitySeed("identifier1");
+        final EntityId seed1 = new EntitySeed("identifier1");
 
         // When
         final GetEdges op = new GetEdges.Builder<>()
@@ -69,10 +71,10 @@ public class GetEdgesTest implements OperationTest {
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
-        final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
+        final EdgeId seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetEdges op = new GetEdges.Builder<EdgeSeed>().seeds(Collections.singletonList(seed1))
+        final GetEdges op = new GetEdges.Builder<EdgeId>().seeds(Collections.singletonList(seed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -80,10 +82,10 @@ public class GetEdgesTest implements OperationTest {
         assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithEdgeSeed() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithEdgeId() throws SerialisationException {
         // Given
-        final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
-        final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", true);
+        final EdgeId seed1 = new EdgeSeed("source1", "destination1", true);
+        final EdgeId seed2 = new EdgeSeed("source2", "destination2", true);
         final GetEdges op = new GetEdges.Builder<>()
                 .addSeed(seed1)
                 .addSeed(seed2)
@@ -100,8 +102,8 @@ public class GetEdgesTest implements OperationTest {
         assertFalse(itr.hasNext());
     }
 
-    private void builderShouldCreatePopulatedOperationWithEdgeSeed() {
-        EdgeSeed seed = new EdgeSeed("A", "B", true);
+    private void builderShouldCreatePopulatedOperationWithEdgeId() {
+        EdgeId seed = new EdgeSeed("A", "B", true);
         GetEdges op = new GetEdges.Builder<>()
                 .addSeed(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
@@ -117,10 +119,10 @@ public class GetEdgesTest implements OperationTest {
         assertEquals(seed, op.getInput().iterator().next());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithEntitySeed() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithEntityId() throws SerialisationException {
         // Given
-        final EntitySeed seed1 = new EntitySeed("identifier1");
-        final EntitySeed seed2 = new EntitySeed("identifier2");
+        final EntityId seed1 = new EntitySeed("identifier1");
+        final EntityId seed2 = new EntitySeed("identifier2");
         final GetEdges op = new GetEdges.Builder<>()
                 .addSeed(seed1)
                 .addSeed(seed2)
@@ -137,7 +139,7 @@ public class GetEdgesTest implements OperationTest {
         TestCase.assertFalse(itr.hasNext());
     }
 
-    private void builderShouldCreatePopulatedOperationWithEntitySeed() {
+    private void builderShouldCreatePopulatedOperationWithEntityId() {
         final GetEdges op = new GetEdges.Builder<>()
                 .addSeed(new EntitySeed("A"))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)

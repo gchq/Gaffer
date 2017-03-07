@@ -22,13 +22,14 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -53,8 +54,8 @@ public class ExportIT extends AbstractStoreIT {
      * @return map of edges
      */
     @Override
-    protected Map<EdgeSeed, Edge> createEdges() {
-        final Map<EdgeSeed, Edge> edges = super.createEdges();
+    protected Map<EdgeId, Edge> createEdges() {
+        final Map<EdgeId, Edge> edges = super.createEdges();
         for (int i = 0; i <= 10; i++) {
             final Edge thirdEdge = new Edge(TestGroups.EDGE, DEST_DIR + i, SOURCE_DIR + (i + 1), true);
             thirdEdge.putProperty(TestPropertyNames.INT, 1);
@@ -73,8 +74,8 @@ public class ExportIT extends AbstractStoreIT {
                         .addSeed(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new ExportToSet())
-                .then(new GenerateObjects.Builder<Edge, EntitySeed>()
-                        .generator(new EntitySeedExtractor())
+                .then(new GenerateObjects.Builder<Edge, EntityId>()
+                        .generator(new EntityIdExtractor())
                         .build())
                 .then(new GetEdges<>())
                 .then(new ExportToSet())

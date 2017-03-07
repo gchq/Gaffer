@@ -18,9 +18,10 @@ package uk.gov.gchq.gaffer.example.operation.accumulo;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 
 public class GetEdgesInRangesExample extends OperationExample {
     public static void main(final String[] args) {
@@ -39,7 +40,7 @@ public class GetEdgesInRangesExample extends OperationExample {
 
     public Iterable<Edge> getAllEdgesInTheRangeFromEdge1_2ToEdge1_4() {
         // ---------------------------------------------------------
-        final GetEdgesInRanges<Pair<EdgeSeed>> operation = new GetEdgesInRanges.Builder<Pair<EdgeSeed>>()
+        final GetEdgesInRanges<Pair<EdgeId>> operation = new GetEdgesInRanges.Builder<Pair<EdgeId>>()
                 .addSeed(new Pair<>(new EdgeSeed(1, 2, true), new EdgeSeed(1, 4, true)))
                 .build();
         // ---------------------------------------------------------
@@ -49,8 +50,8 @@ public class GetEdgesInRangesExample extends OperationExample {
 
     public Iterable<Edge> getAllEdgesInTheRangeFromEdge1_2ToEdge4_5() {
         // ---------------------------------------------------------
-        final GetEdgesInRanges<Pair<ElementSeed>> operation = new GetEdgesInRanges.Builder<Pair<ElementSeed>>()
-                .addSeed(new Pair<>((ElementSeed) new EdgeSeed(1, 2, true), new EdgeSeed(4, 5, true)))
+        final GetEdgesInRanges<Pair<ElementId>> operation = new GetEdgesInRanges.Builder<Pair<ElementId>>()
+                .addSeed(new Pair<>((ElementId) new EdgeSeed(1, 2, true), new EdgeSeed(4, 5, true)))
                 .build();
         // ---------------------------------------------------------
 

@@ -5,11 +5,11 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,16 +35,16 @@ public class GetEntitiesInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final List<Pair<EntitySeed>> pairList = new ArrayList<>();
-        final Pair<EntitySeed> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
-        final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
+        final List<Pair<EntityId>> pairList = new ArrayList<>();
+        final Pair<EntityId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
+        final Pair<EntityId> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
+        final GetEntitiesInRanges<Pair<EntityId>> op = new GetEntitiesInRanges.Builder<Pair<EntityId>>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
-        final GetEntitiesInRanges<Pair<EntitySeed>> deserialisedOp = serialiser.deserialise(json, GetEntitiesInRanges.class);
+        final GetEntitiesInRanges<Pair<EntityId>> deserialisedOp = serialiser.deserialise(json, GetEntitiesInRanges.class);
 
         // Then
         final Iterator itrPairs = deserialisedOp.getSeeds().iterator();
@@ -57,8 +57,8 @@ public class GetEntitiesInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
-        final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
+        final Pair<EntityId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntityId>>()
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .addSeed(seed).build();

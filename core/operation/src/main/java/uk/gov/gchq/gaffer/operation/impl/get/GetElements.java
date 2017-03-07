@@ -22,21 +22,21 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.List;
 
 /**
- * Restricts {@link AbstractSeededGraphGetIterable} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
+ * Restricts {@link AbstractSeededGraphGetIterable} to take {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
  *
- * @param <SEED_TYPE>    the seed seed type
+ * @param <ID>           the id type
  * @param <ELEMENT_TYPE> the element return type
  */
-public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractSeededGraphGetIterable<SEED_TYPE, ELEMENT_TYPE>
+public class GetElements<ID extends ElementId, ELEMENT_TYPE extends Element>
+        extends AbstractSeededGraphGetIterable<ID, ELEMENT_TYPE>
         implements SeedMatching {
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
 
@@ -57,27 +57,27 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public SEED_TYPE[] getSeedArray() {
-        final CloseableIterable<SEED_TYPE> input = getInput();
+    public ID[] getSeedArray() {
+        final CloseableIterable<ID> input = getInput();
         if (null != input) {
-            final List<SEED_TYPE> inputList = Lists.newArrayList(input);
-            return (SEED_TYPE[]) inputList.toArray(new ElementSeed[inputList.size()]);
+            final List<ID> inputList = Lists.newArrayList(input);
+            return (ID[]) inputList.toArray(new ElementId[inputList.size()]);
         }
 
         return null;
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
-            SEED_TYPE extends ElementSeed,
+    public abstract static class BaseBuilder<OP_TYPE extends GetElements<ID, ELEMENT_TYPE>,
+            ID extends ElementId,
             ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, ID, ELEMENT_TYPE, ?>>
+            extends AbstractSeededGraphGetIterable.BaseBuilder<OP_TYPE, ID, ELEMENT_TYPE, CHILD_CLASS> {
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
 
         protected BaseBuilder() {
-            super((OP_TYPE) new GetElements<SEED_TYPE, ELEMENT_TYPE>());
+            super((OP_TYPE) new GetElements<ID, ELEMENT_TYPE>());
         }
 
         public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
@@ -86,19 +86,19 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
         }
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends BaseBuilder<GetElements<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+    public static final class Builder<ID extends ElementId, ELEMENT_TYPE extends Element>
+            extends BaseBuilder<GetElements<ID, ELEMENT_TYPE>, ID, ELEMENT_TYPE, Builder<ID, ELEMENT_TYPE>> {
 
         public Builder() {
             super(new GetElements<>());
         }
 
-        public Builder(final GetElements<SEED_TYPE, ELEMENT_TYPE> op) {
+        public Builder(final GetElements<ID, ELEMENT_TYPE> op) {
             super(op);
         }
 
         @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
+        protected Builder<ID, ELEMENT_TYPE> self() {
             return this;
         }
     }

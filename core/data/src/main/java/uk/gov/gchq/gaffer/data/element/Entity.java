@@ -16,8 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
  * An <code>Entity</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
@@ -29,33 +34,60 @@ import org.apache.commons.lang.builder.EqualsBuilder;
  *
  * @see uk.gov.gchq.gaffer.data.element.Entity.Builder
  */
-public class Entity extends Element<EntityId> {
-    private static final long serialVersionUID = 3564192309337144721L;
+public class Entity extends Element implements EntityId {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
+    private static final long serialVersionUID = 2863628004463113755L;
+    private Object vertex;
 
     Entity() {
-        super(new EntityId());
+        super();
     }
 
     public Entity(final String group) {
-        super(group, new EntityId());
+        super(group);
     }
 
     public Entity(final String group, final Object vertex) {
-        super(group, new EntityId(vertex));
+        super(group);
+        this.vertex = vertex;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
-        return getId().getVertex();
+        return vertex;
     }
 
     public void setVertex(final Object vertex) {
-        getId().setVertex(vertex);
+        this.vertex = vertex;
     }
 
     @Override
+    public Object getIdentifier(final IdentifierType identifierType) {
+        switch (identifierType) {
+            case VERTEX:
+                return getVertex();
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
+        switch (identifierType) {
+            case VERTEX:
+                setVertex(propertyToBeSet);
+                break;
+            default:
+                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                break;
+        }
+    }
+
     public int hashCode() {
-        return super.hashCode();
+        return new HashCodeBuilder(23, 5)
+                .appendSuper(super.hashCode())
+                .append(vertex)
+                .toHashCode();
     }
 
     @Override
@@ -69,6 +101,7 @@ public class Entity extends Element<EntityId> {
         return null != entity
                 && new EqualsBuilder()
                 .appendSuper(super.equals(entity))
+                .append(vertex, entity.getVertex())
                 .isEquals();
     }
 
@@ -79,10 +112,7 @@ public class Entity extends Element<EntityId> {
 
     @Override
     public String toString() {
-        return "Entity{"
-                + getId()
-                + super.toString()
-                + "} ";
+        return "Entity{vertex=" + vertex + super.toString() + "} ";
     }
 
     public static class Builder {

@@ -16,8 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
  * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -29,50 +34,101 @@ import org.apache.commons.lang.builder.EqualsBuilder;
  *
  * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
-public class Edge extends Element<EdgeId> {
-    private static final long serialVersionUID = -1263742403728471638L;
+public class Edge extends Element implements EdgeId {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
+    private static final long serialVersionUID = -5596452468277807842L;
+    private Object source;
+    private Object destination;
+    private boolean directed;
 
     Edge() {
-        super(new EdgeId());
+        super();
     }
 
     public Edge(final String group) {
-        super(group, new EdgeId());
+        super(group);
     }
 
     public Edge(final String group, final Object source, final Object destination, final boolean directed) {
-        super(group, new EdgeId(source, destination, directed));
+        super(group);
+        this.source = source;
+        this.destination = destination;
+        this.directed = directed;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getSource() {
-        return getId().getSource();
+        return source;
     }
 
     public void setSource(final Object source) {
-        getId().setSource(source);
+        this.source = source;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getDestination() {
-        return getId().getDestination();
+        return destination;
     }
 
     public void setDestination(final Object destination) {
-        getId().setDestination(destination);
+        this.destination = destination;
     }
 
     public boolean isDirected() {
-        return getId().isDirected();
+        return directed;
     }
 
     public void setDirected(final boolean directed) {
-        getId().setDirected(directed);
+        this.directed = directed;
+    }
+
+    @Override
+    public Object getIdentifier(final IdentifierType identifierType) {
+        switch (identifierType) {
+            case SOURCE:
+                return getSource();
+            case DESTINATION:
+                return getDestination();
+            case DIRECTED:
+                return isDirected();
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
+        switch (identifierType) {
+            case SOURCE:
+                setSource(propertyToBeSet);
+                break;
+            case DESTINATION:
+                setDestination(propertyToBeSet);
+                break;
+            case DIRECTED:
+                setDirected((boolean) propertyToBeSet);
+                break;
+            default:
+                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+        }
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int hash;
+        if (directed) {
+            hash = new HashCodeBuilder(21, 3)
+                    .appendSuper(super.hashCode())
+                    .append(source)
+                    .append(destination)
+                    .append(directed)
+                    .toHashCode();
+        } else {
+            hash = super.hashCode();
+            hash ^= source.hashCode();
+            hash ^= destination.hashCode();
+        }
+        return hash;
     }
 
     @Override
@@ -84,9 +140,19 @@ public class Edge extends Element<EdgeId> {
 
     public boolean equals(final Edge edge) {
         return null != edge
-                && new EqualsBuilder()
+                && (new EqualsBuilder()
                 .appendSuper(super.equals(edge))
-                .isEquals();
+                .append(directed, edge.isDirected())
+                .append(source, edge.getSource())
+                .append(destination, edge.getDestination())
+                .isEquals()
+                || new EqualsBuilder()
+                .appendSuper(super.equals(edge))
+                .append(directed, false)
+                .append(source, edge.getDestination())
+                .append(destination, edge.getSource())
+                .isEquals()
+        );
     }
 
     @Override
@@ -102,7 +168,9 @@ public class Edge extends Element<EdgeId> {
     @Override
     public String toString() {
         return "Edge{"
-                + getId()
+                + "source=" + source
+                + ", destination=" + destination
+                + ", directed=" + directed
                 + super.toString()
                 + "} ";
     }

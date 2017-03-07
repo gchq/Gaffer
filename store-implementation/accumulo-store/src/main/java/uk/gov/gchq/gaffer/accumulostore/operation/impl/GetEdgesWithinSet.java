@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.Collections;
 
@@ -39,7 +39,7 @@ public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEdgesWithinSet, EntitySeed, Edge, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEdgesWithinSet, EntityId, Edge, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetEdgesWithinSet());
         }

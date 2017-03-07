@@ -27,14 +27,14 @@ import scala.Tuple2;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
+public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementId>
         extends AbstractGetRDDHandler<JavaRDD<Element>, GetJavaRDDOfElements<SEED_TYPE>> {
 
     @Override

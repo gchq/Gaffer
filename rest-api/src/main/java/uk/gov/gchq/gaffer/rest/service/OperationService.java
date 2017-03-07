@@ -26,15 +26,15 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
@@ -108,12 +108,12 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
+    public CloseableIterable<Element> generateElements(final GenerateElements<ElementId> operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
+    public CloseableIterable<EntityId> getAdjacentIds(final GetAdjacentIds operation) {
         return _execute(operation);
     }
 
@@ -133,17 +133,17 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation) {
+    public CloseableIterable<Element> getElements(final GetElements<ElementId, Element> operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getEntities(final GetEntities<ElementSeed> operation) {
+    public CloseableIterable<Entity> getEntities(final GetEntities<ElementId> operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Edge> getEdges(final GetEdges<ElementSeed> operation) {
+    public CloseableIterable<Edge> getEdges(final GetEdges<ElementId> operation) {
         return _execute(operation);
     }
 

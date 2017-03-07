@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
@@ -140,30 +141,30 @@ public class AccumuloStoreTest {
                 .build();
         store.execute(add, user);
 
-        final EntitySeed entitySeed1 = new EntitySeed("1");
+        final EntityId entityId1 = new EntitySeed("1");
 
-        final GetElements<EntitySeed, Element> getBySeed = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> getBySeed = new GetElements.Builder<EntityId, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .addSeed(entityId1)
                 .build();
         final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelated = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> getRelated = new GetElements.Builder<EntityId, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .addSeed(entityId1)
                 .build();
         CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntityId, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -176,7 +177,7 @@ public class AccumuloStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .addSeed(entitySeed1)
+                .addSeed(entityId1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));

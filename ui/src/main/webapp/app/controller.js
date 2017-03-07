@@ -202,7 +202,7 @@ angular.module('app').controller('AppController',
                jsonVertex = vertex;
             }
             operation.seeds.push({
-                      "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
+                      "class": "uk.gov.gchq.gaffer.data.element.id.EntityId",
                       "vertex": jsonVertex
                    });
         }

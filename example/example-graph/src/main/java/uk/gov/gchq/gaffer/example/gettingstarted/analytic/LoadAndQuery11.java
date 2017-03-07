@@ -19,6 +19,7 @@ import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator11;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -70,7 +71,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
         log("Added an edge A-B 1000 times, each time with a DoublesUnion containing a normally distributed"
-            + " (mean 0, standard deviation 1) random double.");
+                + " (mean 0, standard deviation 1) random double.");
 
 
         // [get] Get all edges
@@ -85,7 +86,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
 
         // [get 0.25, 0.5, 0.75 percentiles] Get the edge A-B and print an estimate of the 0.25, 0.5 and 0.75 quantiles, i.e. the 25th, 50th and 75th percentiles
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> query = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
@@ -102,7 +103,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
 
         // [get cdf] Get the edge A-B and print some values from the cumulative density function
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query2 = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> query2 = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges2 = graph.execute(query2, user);

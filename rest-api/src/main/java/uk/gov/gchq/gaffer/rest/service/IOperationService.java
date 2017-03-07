@@ -23,13 +23,13 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
@@ -70,12 +70,12 @@ public interface IOperationService {
     @POST
     @Path("/generate/elements")
     @ApiOperation(value = "Generate elements from objects", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation);
+    CloseableIterable<Element> generateElements(final GenerateElements<ElementId> operation);
 
     @POST
-    @Path("/get/entitySeeds/adjacent")
-    @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
+    @Path("/get/entityIds/adjacent")
+    @ApiOperation(value = "Gets adjacent entity seeds", response = EntityId.class, responseContainer = "List")
+    CloseableIterable<EntityId> getAdjacentIds(final GetAdjacentIds operation);
 
     @POST
     @Path("/get/elements/all")
@@ -95,17 +95,17 @@ public interface IOperationService {
     @POST
     @Path("/get/elements")
     @ApiOperation(value = "Gets elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation);
+    CloseableIterable<Element> getElements(final GetElements<ElementId, Element> operation);
 
     @POST
     @Path("/get/entities")
     @ApiOperation(value = "Gets entities", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getEntities(final GetEntities<ElementSeed> operation);
+    CloseableIterable<Entity> getEntities(final GetEntities<ElementId> operation);
 
     @POST
     @Path("/get/edges")
     @ApiOperation(value = "Gets edges", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getEdges(final GetEdges<ElementSeed> operation);
+    CloseableIterable<Edge> getEdges(final GetEdges<ElementId> operation);
 
     @PUT
     @Path("/add/elements")

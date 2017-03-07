@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.user.User;
@@ -57,7 +57,7 @@ public class OperationChainLimiterTest {
     public void shouldAcceptOperationChainWhenUserHasAuthScoreEqualToChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
+                .first(new GetAdjacentIds())
                 .then(new GenerateObjects())
                 .build();
         final User user = new User.Builder()
@@ -74,10 +74,10 @@ public class OperationChainLimiterTest {
     public void shouldRejectOperationChainWhenUserHasAuthScoreLessThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
+                .first(new GetAdjacentIds())
+                .then(new GetAdjacentIds())
+                .then(new GetAdjacentIds())
+                .then(new GetAdjacentIds())
                 .then(new GenerateObjects())
                 .build();
         final User user = new User.Builder()
@@ -98,9 +98,9 @@ public class OperationChainLimiterTest {
     public void shouldAcceptOperationChainWhenUserHasMaxAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
+                .first(new GetAdjacentIds())
+                .then(new GetAdjacentIds())
+                .then(new GetAdjacentIds())
                 .then(new GenerateObjects())
                 .build();
         final User user = new User.Builder()

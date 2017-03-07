@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -130,10 +131,10 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private void shouldGetCorrectEdges(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges in set {A0, A23}
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(seeds)
                 .build();
@@ -141,7 +142,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElements<EntitySeed, ?> a1Operation = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> a1Operation = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(AccumuloTestData.SEED_A1_SET)
                 .build();
@@ -151,10 +152,10 @@ public class AccumuloIDWithinSetRetrieverTest {
 
         // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
-        final Set<EntitySeed> a1A2Seeds = new HashSet<>();
+        final Set<EntityId> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElements<EntitySeed, ?> a1A2Operation = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> a1A2Operation = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(a1A2Seeds)
                 .build();
@@ -189,13 +190,13 @@ public class AccumuloIDWithinSetRetrieverTest {
     private void shouldDealWithOutgoingEdgesOnlyOption(final AccumuloStore store) {
         try {
             // Set outgoing edges only option, and query for the set {C,D}.
-            final Set<EntitySeed> seeds = new HashSet<>();
+            final Set<EntityId> seeds = new HashSet<>();
             seeds.add(new EntitySeed("C"));
             seeds.add(new EntitySeed("D"));
             final Set<Element> expectedResults = new HashSet<>();
             expectedResults.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             expectedResults.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
-            final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>()
+            final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>()
                     .view(defaultView)
                     .seeds(seeds)
                     .build();
@@ -239,10 +240,10 @@ public class AccumuloIDWithinSetRetrieverTest {
     }
 
     private void shouldDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(new EntitySeed("C"));
         seeds.add(new EntitySeed("D"));
-        final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(seeds)
                 .build();
@@ -252,14 +253,14 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_UNDIRECTED));
 
         // Set directed edges only option, and query for edges in set {C, D} - should get the directed edge
-        final GetElements<EntitySeed, ?> directedCOop = new GetElements.Builder<EntitySeed, Element>().view(defaultView)
+        final GetElements<EntityId, ?> directedCOop = new GetElements.Builder<EntityId, Element>().view(defaultView)
                 .seeds(seeds)
                 .build();
         directedCOop.setDirectedType(DirectedType.DIRECTED);
         final Set<Element> directedCDResults = returnElementsFromOperation(store, directedCOop, new User(), loadIntoMemory);
         assertThat(directedCDResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_DIRECTED));
 
-        final GetElements<EntitySeed, ?> bothDirectedAndUndirectedOp = new GetElements.Builder<EntitySeed, Element>().view(defaultView)
+        final GetElements<EntityId, ?> bothDirectedAndUndirectedOp = new GetElements.Builder<EntityId, Element>().view(defaultView)
                 .seeds(seeds)
                 .build();
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
@@ -298,7 +299,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
         // Query for all edges in set {A0, A23}
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
         // Add a bunch of items that are not in the data to make the probability of being able to find a false
@@ -326,7 +327,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math.log(2)));
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
-        for (final EntitySeed seed : seeds) {
+        for (final EntityId seed : seeds) {
             filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 
@@ -345,7 +346,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         }
 
         // False positive is "" + count so create an edge from seeds to that
-        final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>().view(defaultView)
+        final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>().view(defaultView)
                 .seeds(seeds)
                 .build();
         // Now query for all edges in set - shouldn't get the false positive
@@ -383,12 +384,12 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private void shouldStillApplyOtherFilter(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges in set {A0, A23}
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
 
         final View edgesOnlyView = new View.Builder().edge(TestGroups.EDGE).build();
-        final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>()
                 .view(edgesOnlyView)
                 .seeds(seeds)
                 .build();
@@ -398,7 +399,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
         // Set graph to return entities only
         final View entitiesOnlyView = new View.Builder().entity(TestGroups.ENTITY).build();
-        final GetElements<EntitySeed, ?> entitiesOnlyOp = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> entitiesOnlyOp = new GetElements.Builder<EntityId, Element>()
                 .view(entitiesOnlyView)
                 .seeds(seeds)
                 .build();
@@ -409,7 +410,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Set graph to return both entities and edges again, and to only return summary type "X" (which will result
         // in no data)
         final View view = new View.Builder().edge("X").build();
-        final GetElements<EntitySeed, ?> entitiesAndEdgesOp = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> entitiesAndEdgesOp = new GetElements.Builder<EntityId, Element>()
                 .view(view)
                 .seeds(seeds)
                 .build();
@@ -441,10 +442,10 @@ public class AccumuloIDWithinSetRetrieverTest {
         store.getProperties().setMaxEntriesForBatchScanner("1");
 
         // Query for all edges in set {A0, A23}
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
-        final GetElements<EntitySeed, ?> op = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> op = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(seeds)
                 .build();
@@ -452,7 +453,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         assertThat(results, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_A0_A23, AccumuloTestData.A0_ENTITY, AccumuloTestData.A23_ENTITY));
 
         // Query for all edges in set {A1} - there shouldn't be any, but we will get the entity for A1
-        final GetElements<EntitySeed, ?> a1Operation = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> a1Operation = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(AccumuloTestData.SEED_A1_SET)
                 .build();
@@ -462,10 +463,10 @@ public class AccumuloIDWithinSetRetrieverTest {
 
         // Query for all edges in set {A1, A2} - there shouldn't be any edges but will
         // get the two entities
-        final Set<EntitySeed> a1A2Seeds = new HashSet<>();
+        final Set<EntityId> a1A2Seeds = new HashSet<>();
         a1A2Seeds.add(AccumuloTestData.SEED_A1);
         a1A2Seeds.add(AccumuloTestData.SEED_A2);
-        final GetElements<EntitySeed, ?> a1A23Operation = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements<EntityId, ?> a1A23Operation = new GetElements.Builder<EntityId, Element>()
                 .view(defaultView)
                 .seeds(a1A2Seeds)
                 .build();

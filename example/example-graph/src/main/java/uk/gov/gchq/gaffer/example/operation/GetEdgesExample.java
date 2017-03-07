@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.example.operation;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
@@ -36,8 +38,8 @@ public class GetEdgesExample extends OperationExample {
     }
 
     public void runExamples() {
-        getEdgesByEdgeSeeds1to2and2to3();
-        getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2();
+        getEdgesByEdgeIds1to2and2to3();
+        getEdgesByEdgeIds1to2and2to3WithCountGreaterThan2();
         getAllEdgesThatAreConnectedToVertex2();
         getAllOutboundEdgesThatAreConnectedToVertex2();
         getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1();
@@ -45,7 +47,7 @@ public class GetEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllEdgesThatAreConnectedToVertex2() {
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> operation = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
@@ -55,7 +57,7 @@ public class GetEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2() {
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> operation = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
@@ -66,7 +68,7 @@ public class GetEdgesExample extends OperationExample {
 
     public CloseableIterable<Edge> getAllOutboundEdgesThatAreConnectedToVertex2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> operation = new GetEdges.Builder<EntitySeed>()
+        final GetEdges<EntityId> operation = new GetEdges.Builder<EntityId>()
                 .addSeed(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
@@ -83,9 +85,9 @@ public class GetEdgesExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3() {
+    public CloseableIterable<Edge> getEdgesByEdgeIds1to2and2to3() {
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> operation = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> operation = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .build();
@@ -94,9 +96,9 @@ public class GetEdgesExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Edge> getEdgesByEdgeSeeds1to2and2to3WithCountGreaterThan2() {
+    public CloseableIterable<Edge> getEdgesByEdgeIds1to2and2to3WithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> operation = new GetEdges.Builder<EdgeSeed>()
+        final GetEdges<EdgeId> operation = new GetEdges.Builder<EdgeId>()
                 .addSeed(new EdgeSeed(1, 2, true))
                 .addSeed(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
