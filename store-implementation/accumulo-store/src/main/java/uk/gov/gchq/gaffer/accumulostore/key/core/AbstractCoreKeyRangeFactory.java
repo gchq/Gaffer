@@ -22,12 +22,12 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,8 +88,8 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     protected abstract <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                                     final boolean endKey) throws RangeFactoryException;
+                                                                               final boolean endKey) throws RangeFactoryException;
 
     protected abstract <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                                   final boolean includeEdges) throws RangeFactoryException;
+                                                                             final boolean includeEdges) throws RangeFactoryException;
 }

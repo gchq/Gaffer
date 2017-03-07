@@ -6,9 +6,8 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import java.util.Arrays;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -32,9 +31,12 @@ public class GetEdgesWithinSetTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetEdgesWithinSet op = new GetEdgesWithinSet(
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1,
-                        AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
+        final GetEdgesWithinSet op = new GetEdgesWithinSet.Builder()
+                .addSeed(AccumuloTestData.SEED_SOURCE_1)
+                .addSeed(AccumuloTestData.SEED_DESTINATION_1)
+                .addSeed(AccumuloTestData.SEED_SOURCE_2)
+                .addSeed(AccumuloTestData.SEED_DESTINATION_2)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

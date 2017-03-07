@@ -27,7 +27,7 @@ import java.util.List;
  * The range factory is designed so that a List of Accumulo
  * {@link org.apache.accumulo.core.data.Range}s can be created from just a
  * provided {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} and
- * {@link uk.gov.gchq.gaffer.operation.GetOperation} The created range list should contain
+ * {@link uk.gov.gchq.gaffer.operation.SeededGraphGet} The created range list should contain
  * all the ranges (preferably optimised) necessary to retrieve all desired
  * {@link uk.gov.gchq.gaffer.data.element.Element}s as expressed by the
  * gaffer.accumulostore.operation.

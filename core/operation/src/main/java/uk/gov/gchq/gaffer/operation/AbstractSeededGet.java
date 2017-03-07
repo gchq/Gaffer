@@ -30,7 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractSeededGet<I_ITEM, O>
-        extends AbstractOperation<CloseableIterable<I_ITEM>, O> implements SeededGet<I_ITEM, O> {
+        extends AbstractGet<CloseableIterable<I_ITEM>, O> implements SeededGet<I_ITEM, O> {
     @Override
     public CloseableIterable<I_ITEM> getSeeds() {
         return getInput();
@@ -76,7 +76,7 @@ public abstract class AbstractSeededGet<I_ITEM, O>
             O,
             CHILD_CLASS extends BaseBuilder<OP_TYPE, I_ITEM, O, ?>
             >
-            extends AbstractOperation.BaseBuilder<OP_TYPE, CloseableIterable<I_ITEM>, O, CHILD_CLASS> {
+            extends AbstractGet.BaseBuilder<OP_TYPE, CloseableIterable<I_ITEM>, O, CHILD_CLASS> {
 
         protected List<I_ITEM> seeds;
 

@@ -21,8 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.Serializable;
@@ -33,26 +31,9 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
     private String description;
 
     public NamedOperation() {
-        super();
     }
 
-    public NamedOperation(final Iterable<Object> input) {
-        super(input);
-    }
-
-    public NamedOperation(final CloseableIterable<Object> input) {
-        super(input);
-    }
-
-    public NamedOperation(final View view) {
-        super(view);
-    }
-
-    public NamedOperation(final CloseableIterable<Object> input, final View view) {
-        super(view, input);
-    }
-
-    public NamedOperation(final String operationName, final String description) {
+    protected NamedOperation(final String operationName, final String description) {
         super();
         this.operationName = operationName;
         this.description = description;
@@ -121,6 +102,11 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
 
         public CHILD_CLASS name(final String name) {
             getOp().setOperationName(name);
+            return self();
+        }
+
+        public CHILD_CLASS description(final String description) {
+            getOp().setDescription(description);
             return self();
         }
     }

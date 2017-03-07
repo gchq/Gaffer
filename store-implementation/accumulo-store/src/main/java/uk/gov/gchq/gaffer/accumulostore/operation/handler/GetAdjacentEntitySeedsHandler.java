@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.HashMap;
 
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
 
@@ -55,7 +56,10 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
         final AccumuloRetriever<?> edgeRetriever;
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            final GetEdges<EntitySeed> getEdges = new GetEdges<>(operation);
+            final GetEdges<EntitySeed> getEdges = new GetEdges<>();
+            getEdges.setOptions(new HashMap<>(operation.getOptions()));
+            getEdges.setView(operation.getView());
+            getEdges.setSeeds(operation.getSeeds());
             getEdges.setDirectedType(operation.getDirectedType());
             getEdges.setIncludeIncomingOutGoing(operation.getIncludeIncomingOutGoing());
 

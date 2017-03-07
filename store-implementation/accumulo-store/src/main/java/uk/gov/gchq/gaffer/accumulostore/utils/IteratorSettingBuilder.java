@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -98,10 +99,10 @@ public class IteratorSettingBuilder {
     }
 
     public IteratorSettingBuilder includeIncomingOutgoing(
-            final GraphFilters.IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (GraphFilters.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
+            final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutGoing) {
+        if (SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
-        } else if (GraphFilters.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
+        } else if (SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING == includeIncomingOutGoing) {
             setting.addOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }
         return this;

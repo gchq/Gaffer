@@ -28,18 +28,6 @@ import java.util.Collections;
  * A and the other is in set B.
  */
 public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
-
-    public GetEdgesBetweenSets() {
-    }
-
-    public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
-        super(seedsA, seedsB);
-    }
-
-    public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB, final View view) {
-        super(seedsA, seedsB, view);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {

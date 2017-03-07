@@ -196,13 +196,6 @@ public abstract class AbstractOperation<I, O> implements Operation<I, O> {
             return self();
         }
 
-        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
-            op.setView(opToCopy.getView());
-            op.setInput(opToCopy.getInput());
-            op.setOptions(new HashMap<>(opToCopy.getOptions()));
-            return self();
-        }
-
         protected abstract CHILD_CLASS self();
 
         protected OP_TYPE getOp() {

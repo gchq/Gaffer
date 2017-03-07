@@ -18,9 +18,8 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 
 /**
  * A <code>SummariseGroupOverRanges</code> operation will return an
@@ -29,30 +28,20 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * more likely to produce multiple results and you will need to cache the results and aggregate them again to get a final answer.
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
- *
- * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
-public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element> extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE> {
-
-    public SummariseGroupOverRanges() {
-    }
-
-    public SummariseGroupOverRanges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+public class SummariseGroupOverRanges<I_TYPE extends Pair<? extends ElementSeed>, E extends Element> extends GetElementsInRanges<I_TYPE, E> {
+    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>, E extends Element, CHILD_CLASS extends BaseBuilder<I_TYPE, E, ?>>
+            extends AbstractSeededGraphGetIterable.BaseBuilder<SummariseGroupOverRanges<I_TYPE, E>, I_TYPE, E, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
+            super(new SummariseGroupOverRanges<>());
         }
     }
 
-    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>, E extends Element>
+            extends BaseBuilder<I_TYPE, E, Builder<I_TYPE, E>> {
 
         @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
+        protected Builder<I_TYPE, E> self() {
             return this;
         }
     }

@@ -22,10 +22,8 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.List;
 
 /**
@@ -33,27 +31,7 @@ import java.util.List;
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractSeededGraphGetIterable<EntitySeed, ELEMENT_TYPE> {
-
-    public GetElementsWithinSet() {
-    }
-
-    public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetElementsWithinSet(final View view) {
-        super(view);
-    }
-
-    public GetElementsWithinSet(final View view, final Iterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElementsWithinSet(final GetIterableElementsOperation<EntitySeed, ?> operation) {
-        super(operation);
-    }
-
+public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraphGetIterable<EntitySeed, E> {
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
         return IncludeIncomingOutgoingType.OUTGOING;
@@ -81,18 +59,18 @@ public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends Abstract
         return null;
     }
 
-    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
+    public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<E>, EntitySeed, E, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new GetElementsWithinSet<ELEMENT_TYPE>());
+            super(new GetElementsWithinSet<>());
         }
     }
 
-    public static final class Builder<ELEMENT_TYPE extends Element>
-            extends BaseBuilder<ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
+    public static final class Builder<E extends Element>
+            extends BaseBuilder<E, Builder<E>> {
 
         @Override
-        protected Builder self() {
+        protected Builder<E> self() {
             return this;
         }
     }

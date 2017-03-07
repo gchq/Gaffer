@@ -40,7 +40,7 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>(pairList);
+        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 

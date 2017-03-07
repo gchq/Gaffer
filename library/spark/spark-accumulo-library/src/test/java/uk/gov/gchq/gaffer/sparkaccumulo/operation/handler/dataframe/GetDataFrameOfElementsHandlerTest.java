@@ -477,10 +477,10 @@ public class GetDataFrameOfElementsHandlerTest {
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                    .select("property1")
-                                    .execute(new IsMoreThan(1))
-                                    .build())
-                            .build())
+                                        .select("property1")
+                                        .execute(new IsMoreThan(1))
+                                        .build())
+                                .build())
                         .build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
@@ -512,7 +512,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        graph.execute(new AddElements(elements), new User());
+        graph.execute(new AddElements.Builder().elements(elements).build(), new User());
         return graph;
     }
 

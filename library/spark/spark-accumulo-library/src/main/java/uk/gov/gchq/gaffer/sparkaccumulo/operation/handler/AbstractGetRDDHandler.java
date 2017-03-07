@@ -28,9 +28,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.GetSparkRDDOperation;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -90,7 +89,7 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
         InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
     }
 
-    protected Configuration getConfiguration(final GetOperation<?, ?> operation) throws OperationException {
+    protected Configuration getConfiguration(final GetSparkRDDOperation<?, ?> operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
         if (serialisedConf != null) {

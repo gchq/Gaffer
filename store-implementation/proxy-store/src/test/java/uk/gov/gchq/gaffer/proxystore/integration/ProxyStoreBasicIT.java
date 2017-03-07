@@ -168,6 +168,7 @@ public class ProxyStoreBasicIT {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE)
                         .build())
                 .addSeed(new EntitySeed("1"))
                 .build();

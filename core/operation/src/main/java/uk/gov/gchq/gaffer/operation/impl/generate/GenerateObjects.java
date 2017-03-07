@@ -156,13 +156,6 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ>
             op.setElementGenerator(generator);
             return self();
         }
-
-        @Override
-        public CHILD_CLASS copy(final GenerateObjects<ELEMENT_TYPE, OBJ> opToCopy) {
-            super.copy(opToCopy);
-            op.setElementGenerator(opToCopy.getElementGenerator());
-            return self();
-        }
     }
 
     public static final class Builder<ELEMENT_TYPE extends Element, OBJ>

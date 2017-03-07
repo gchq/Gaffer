@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.export;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
@@ -25,7 +26,8 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * A <code>GetExport</code> fetches an export {@link Iterable} for a
  * provided jobId and key. If a key is not provided the default key is 'ALL'.
  */
-public abstract class GetExport extends ExportOperation<Void, CloseableIterable<?>> implements VoidInput<CloseableIterable<?>> {
+public abstract class GetExport extends ExportOperation<Void, CloseableIterable<?>>
+        implements VoidInput<CloseableIterable<?>>, Get<Void, CloseableIterable<?>> {
     private String jobId;
 
     public String getJobId() {

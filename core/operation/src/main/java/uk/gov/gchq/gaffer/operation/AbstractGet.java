@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import java.util.List;
-
 public abstract class AbstractGet<I, O>
         extends AbstractOperation<I, O> implements Get<I, O> {
     public abstract static class BaseBuilder<
@@ -27,8 +25,6 @@ public abstract class AbstractGet<I, O>
             CHILD_CLASS extends BaseBuilder<OP_TYPE, I, O, ?>
             >
             extends AbstractOperation.BaseBuilder<OP_TYPE, I, O, CHILD_CLASS> {
-
-        protected List<I> seeds;
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);

@@ -7,8 +7,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -35,9 +36,10 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetEdgesBetweenSets op = new GetEdgesBetweenSets(
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1),
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
+        final GetEdgesBetweenSets op = new GetEdgesBetweenSets.Builder()
+                .seeds(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
+                .seedsB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -64,14 +66,14 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
                 .directedType(GraphFilters.DirectedType.DIRECTED)
                 .addSeed(AccumuloTestData.SEED_A)
                 .addSeedB(AccumuloTestData.SEED_B)
-                .inOutType(GraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesBetweenSets.getDirectedType());
-        assertEquals(GraphFilters.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(AccumuloTestData.SEED_A, getEdgesBetweenSets.getSeeds().iterator().next());
         assertEquals(AccumuloTestData.SEED_B, getEdgesBetweenSets.getSeedsB().iterator().next());

@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.operation.AbstractGet;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -401,7 +401,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final boolean supported = store.isSupported(GetOperation.class);
+        final boolean supported = store.isSupported(AbstractGet.class);
 
         // Then
         assertFalse(supported);

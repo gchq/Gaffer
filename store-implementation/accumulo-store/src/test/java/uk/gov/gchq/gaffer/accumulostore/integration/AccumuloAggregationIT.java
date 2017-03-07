@@ -84,7 +84,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
+        graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2, entity3)).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -142,7 +142,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
+        graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2, entity3)).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -195,7 +195,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -239,7 +239,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -283,7 +283,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().elements(Arrays.asList((Element) entity1, entity2)).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -358,7 +358,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements(
+        graph.execute(new AddElements.Builder().elements(
                 Arrays.asList(
                         (Element) entity1,
                         entity2,
@@ -367,10 +367,10 @@ public class AccumuloAggregationIT {
                         entity5,
                         entity6,
                         entity7
-                )), USER);
+                )).build(), USER);
 
         // Duplicate the entities to check they are aggregated properly
-        graph.execute(new AddElements(
+        graph.execute(new AddElements.Builder().elements(
                 Arrays.asList(
                         (Element) entity1,
                         entity2,
@@ -379,7 +379,7 @@ public class AccumuloAggregationIT {
                         entity5,
                         entity6,
                         entity7
-                )), USER);
+                )).build(), USER);
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
@@ -483,7 +483,7 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements(
+        graph.execute(new AddElements.Builder().elements(
                 Arrays.asList(
                         (Element) entity1,
                         entity2,
@@ -492,10 +492,10 @@ public class AccumuloAggregationIT {
                         entity5,
                         entity6,
                         entity7
-                )), USER);
+                )).build(), USER);
 
         // Duplicate the entities to check they are not aggregated
-        graph.execute(new AddElements(
+        graph.execute(new AddElements.Builder().elements(
                 Arrays.asList(
                         (Element) entity1,
                         entity2,
@@ -504,7 +504,7 @@ public class AccumuloAggregationIT {
                         entity5,
                         entity6,
                         entity7
-                )), USER);
+                )).build(), USER);
 
         // Given
         final GetAllEntities getAllEntities = new GetAllEntities();

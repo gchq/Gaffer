@@ -22,14 +22,13 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.List;
 
 /**
- * Restricts {@link AbstractSeededGet} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
+ * Restricts {@link AbstractSeededGraphGetIterable} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
  *
@@ -83,13 +82,6 @@ public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Ele
 
         public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
             op.setSeedMatching(seedMatching);
-            return self();
-        }
-
-        @Override
-        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
-            super.copy(opToCopy);
-            op.setSeedMatching(opToCopy.getSeedMatching());
             return self();
         }
     }

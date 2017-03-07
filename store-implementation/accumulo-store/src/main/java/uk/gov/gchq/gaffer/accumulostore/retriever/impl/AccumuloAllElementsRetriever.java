@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
-import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
+import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
@@ -44,7 +43,7 @@ import java.util.Set;
 /**
  * This allows queries for all elements.
  */
-public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllElements<?>, Void> {
+public class AccumuloAllElementsRetriever extends AccumuloRetriever<GetAllElements<?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
     public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,
@@ -73,11 +72,6 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
                                         final User user,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
-    }
-
-    @Override
-    protected void addToRanges(final Void seed, final Set<Range> ranges) throws RangeFactoryException {
-        throw new UnsupportedOperationException("Seeds are not supported for GetAllElements operations");
     }
 
     @Override

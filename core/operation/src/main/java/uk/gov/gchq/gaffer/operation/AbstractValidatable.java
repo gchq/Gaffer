@@ -147,13 +147,5 @@ public abstract class AbstractValidatable<OUTPUT> extends AbstractOperation<Clos
             op.setValidate(validate);
             return self();
         }
-
-        @Override
-        public CHILD_CLASS copy(final OP_TYPE opToCopy) {
-            super.copy(opToCopy);
-            op.setValidate(opToCopy.isValidate());
-            op.setSkipInvalidElements(opToCopy.isSkipInvalidElements());
-            return self();
-        }
     }
 }

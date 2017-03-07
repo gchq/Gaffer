@@ -32,12 +32,12 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -102,7 +102,7 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
@@ -130,7 +130,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -158,7 +158,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -187,7 +187,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -221,7 +221,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setDirectedType(DirectedType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -255,7 +255,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -288,7 +288,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        GetElements<ElementSeed, ?> operation = new GetElements<>(view, ids);
+        GetElements<ElementSeed, ?> operation = new GetElements.Builder<>().view(view).seeds(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
@@ -325,7 +325,7 @@ public class AccumuloSingleIDRetrieverTest {
             elements.add(entity);
         }
         try {
-            store.execute(new AddElements(elements), new User());
+            store.execute(new AddElements.Builder().elements(elements).build(), new User());
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

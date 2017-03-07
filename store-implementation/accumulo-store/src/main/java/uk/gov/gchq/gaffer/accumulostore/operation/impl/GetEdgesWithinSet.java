@@ -18,35 +18,14 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.Collections;
 
 /**
  * Returns {@link uk.gov.gchq.gaffer.data.element.Edge}s where both ends are in a given set.
  **/
 public class GetEdgesWithinSet extends GetElementsWithinSet<Edge> {
-
-    public GetEdgesWithinSet() {
-    }
-
-    public GetEdgesWithinSet(final Iterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetEdgesWithinSet(final View view) {
-        super(view);
-    }
-
-    public GetEdgesWithinSet(final View view, final Iterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdgesWithinSet(final GetIterableElementsOperation<EntitySeed, ?> operation) {
-        super(operation);
-    }
-
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {

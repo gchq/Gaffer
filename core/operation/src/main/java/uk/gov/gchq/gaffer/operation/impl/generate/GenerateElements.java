@@ -154,18 +154,11 @@ public class GenerateElements<OBJ> extends AbstractSeededGraphGetIterable<OBJ, E
             op.setElementGenerator(generator);
             return self();
         }
-
-        @Override
-        public CHILD_CLASS copy(final GenerateElements<OBJ> opToCopy) {
-            super.copy(opToCopy);
-            op.setElementGenerator(opToCopy.getElementGenerator());
-            return self();
-        }
     }
 
     public static final class Builder<OBJ> extends BaseBuilder<OBJ, Builder<OBJ>> {
         @Override
-        protected Builder self() {
+        protected Builder<OBJ> self() {
             return this;
         }
     }

@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                          final boolean includeEdgesParam) throws RangeFactoryException {
+                                                                    final boolean includeEdgesParam) throws RangeFactoryException {
         final boolean includeEdges;
         final boolean includeEntities;
         final boolean seedEqual = operation instanceof SeedMatching
@@ -78,7 +78,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
     @Override
     protected <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                            final boolean endKey) throws RangeFactoryException {
+                                                                      final boolean endKey) throws RangeFactoryException {
         final byte directionFlag1 = seed.isDirected()
                 ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING
                 ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE

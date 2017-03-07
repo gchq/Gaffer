@@ -164,15 +164,15 @@ public class BloomFilterIT {
             file.delete();
         }
         final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .openWriter(filename, fs, conf, accumuloConf);
+                .openWriter(filename, fs, conf, accumuloConf);
 
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                                    .getGroup()
-                                    .equals(TestGroups.ENTITY)) {
+                        .getGroup()
+                        .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -184,7 +184,7 @@ public class BloomFilterIT {
 
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .openReader(filename, false, fs, conf, accumuloConf);
+                .openReader(filename, false, fs, conf, accumuloConf);
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
@@ -256,7 +256,9 @@ public class BloomFilterIT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>()
+                .view(view)
+                .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);

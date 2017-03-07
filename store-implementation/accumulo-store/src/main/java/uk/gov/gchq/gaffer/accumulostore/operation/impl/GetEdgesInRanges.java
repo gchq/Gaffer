@@ -19,36 +19,15 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.Collections;
 
 /**
  * Returns all {@link uk.gov.gchq.gaffer.data.element.Edge}'s between the provided
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
  */
-public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> extends GetElementsInRanges<SEED_TYPE, Edge> {
-
-    public GetEdgesInRanges() {
-    }
-
-    public GetEdgesInRanges(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetEdgesInRanges(final View view) {
-        super(view);
-    }
-
-    public GetEdgesInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetEdgesInRanges(final GetIterableElementsOperation<SEED_TYPE, Edge> operation) {
-        super(operation);
-    }
-
+public class GetEdgesInRanges<I_TYPE extends Pair<? extends ElementSeed>> extends GetElementsInRanges<I_TYPE, Edge> {
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
@@ -61,19 +40,19 @@ public class GetEdgesInRanges<SEED_TYPE extends Pair<? extends ElementSeed>> ext
         }
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEdgesInRanges<SEED_TYPE>, SEED_TYPE, Edge, CHILD_CLASS> {
+    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<I_TYPE, ?>>
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEdgesInRanges<I_TYPE>, I_TYPE, Edge, CHILD_CLASS> {
 
         public BaseBuilder() {
-            super(new GetEdgesInRanges());
+            super(new GetEdgesInRanges<>());
         }
     }
 
-    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>>
-            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
+    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>>
+            extends BaseBuilder<I_TYPE, Builder<I_TYPE>> {
 
         @Override
-        protected Builder<SEED_TYPE> self() {
+        protected Builder<I_TYPE> self() {
             return this;
         }
     }

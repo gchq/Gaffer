@@ -6,8 +6,8 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -22,8 +22,13 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsWithinSet op = new GetElementsWithinSet(Arrays.asList(AccumuloTestData.SEED_SOURCE_1,
-                AccumuloTestData.SEED_DESTINATION_1, AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder<>()
+                .seeds(Arrays.asList(
+                        AccumuloTestData.SEED_SOURCE_1,
+                        AccumuloTestData.SEED_DESTINATION_1,
+                        AccumuloTestData.SEED_SOURCE_2,
+                        AccumuloTestData.SEED_DESTINATION_2))
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);

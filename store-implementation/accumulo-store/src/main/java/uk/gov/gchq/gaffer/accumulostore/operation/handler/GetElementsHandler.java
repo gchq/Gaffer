@@ -34,14 +34,14 @@ import uk.gov.gchq.gaffer.user.User;
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
     public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final Context context, final Store store)
+                                                  final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final User user,
-                                         final AccumuloStore store) throws OperationException {
+                                                  final User user,
+                                                  final AccumuloStore store) throws OperationException {
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
             return new AccumuloSingleIDRetriever(store, operation, user,

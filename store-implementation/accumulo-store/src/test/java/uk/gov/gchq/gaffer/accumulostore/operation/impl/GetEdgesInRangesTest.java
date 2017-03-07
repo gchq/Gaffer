@@ -7,9 +7,10 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges<>(pairList);
+        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -62,7 +63,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
                 .directedType(GraphFilters.DirectedType.DIRECTED)
-                .inOutType(GraphFilters.IncludeIncomingOutgoingType.BOTH)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
@@ -70,7 +71,7 @@ public class GetEdgesInRangesTest implements OperationTest {
                         .build())
                 .build();
         assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesInRanges.getDirectedType());
-        assertEquals(GraphFilters.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
         assertNotNull(getEdgesInRanges.getView());

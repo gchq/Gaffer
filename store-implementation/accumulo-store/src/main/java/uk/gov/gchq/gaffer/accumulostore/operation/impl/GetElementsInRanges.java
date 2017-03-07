@@ -18,52 +18,30 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 
 /**
  * This returns all data between the provided
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
  */
-public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends AbstractSeededGraphGetIterable<SEED_TYPE, ELEMENT_TYPE> {
-
-    public GetElementsInRanges() {
-    }
-
-    public GetElementsInRanges(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetElementsInRanges(final View view) {
-        super(view);
-    }
-
-    public GetElementsInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElementsInRanges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
-    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>,
-            ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
+public class GetElementsInRanges<I_TYPE extends Pair<? extends ElementSeed>, E extends Element>
+        extends AbstractSeededGraphGetIterable<I_TYPE, E> {
+    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>,
+            E extends Element,
+            CHILD_CLASS extends BaseBuilder<I_TYPE, E, ?>>
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsInRanges<I_TYPE, E>, I_TYPE, E, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new GetElementsInRanges());
+            super(new GetElementsInRanges<>());
         }
     }
 
-    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>,
-            ELEMENT_TYPE extends Element>
-            extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>,
+            E extends Element>
+            extends BaseBuilder<I_TYPE, E, Builder<I_TYPE, E>> {
 
         @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
+        protected Builder<I_TYPE, E> self() {
             return this;
         }
     }

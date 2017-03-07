@@ -20,9 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
@@ -48,11 +49,11 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetEntitySeeds() throws Exception {
-        for (final GraphFilters.IncludeIncomingOutgoingType inOutType : GraphFilters.IncludeIncomingOutgoingType.values()) {
-            for (final GraphFilters.DirectedType directedType : GraphFilters.DirectedType.values()) {
+        for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
+            for (final DirectedType directedType : DirectedType.values()) {
                 final List<String> expectedSeeds = new ArrayList<>();
 
-                if (GraphFilters.DirectedType.DIRECTED != directedType) {
+                if (DirectedType.DIRECTED != directedType) {
                     expectedSeeds.add(DEST_1);
                     expectedSeeds.add(SOURCE_2);
                     expectedSeeds.add(DEST_3);
@@ -63,15 +64,15 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                     expectedSeeds.add("D1");
                 }
 
-                if (GraphFilters.IncludeIncomingOutgoingType.INCOMING != inOutType) {
-                    if (GraphFilters.DirectedType.UNDIRECTED != directedType) {
+                if (IncludeIncomingOutgoingType.INCOMING != inOutType) {
+                    if (DirectedType.UNDIRECTED != directedType) {
                         expectedSeeds.add(DEST_DIR + "1");
                         expectedSeeds.add(DEST_DIR_3);
                     }
                 }
 
-                if (GraphFilters.IncludeIncomingOutgoingType.OUTGOING != inOutType) {
-                    if (GraphFilters.DirectedType.UNDIRECTED != directedType) {
+                if (IncludeIncomingOutgoingType.OUTGOING != inOutType) {
+                    if (DirectedType.UNDIRECTED != directedType) {
                         expectedSeeds.add(SOURCE_DIR_2);
                         expectedSeeds.add(SOURCE_DIR_3);
                     }
@@ -83,8 +84,8 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     }
 
     private void shouldGetEntitySeeds(final List<String> expectedResultSeeds,
-                                      final GraphFilters.IncludeIncomingOutgoingType inOutType,
-                                      final GraphFilters.DirectedType directedType
+                                      final IncludeIncomingOutgoingType inOutType,
+                                      final DirectedType directedType
     )
             throws IOException, OperationException {
         // Given

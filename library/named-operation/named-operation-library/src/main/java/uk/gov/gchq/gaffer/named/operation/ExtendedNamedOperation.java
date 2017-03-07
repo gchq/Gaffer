@@ -38,7 +38,6 @@ public class ExtendedNamedOperation extends NamedOperation {
     private List<String> writeAccessRoles;
 
     public ExtendedNamedOperation() {
-        super();
     }
 
     private ExtendedNamedOperation(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {

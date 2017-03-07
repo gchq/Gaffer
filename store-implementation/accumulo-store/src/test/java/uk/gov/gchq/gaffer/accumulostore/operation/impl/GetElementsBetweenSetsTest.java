@@ -5,8 +5,9 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -21,9 +22,10 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsBetweenSets op = new GetElementsBetweenSets(
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1),
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder<>()
+                .seeds(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
+                .seedsB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -50,7 +52,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
                 .addSeed(AccumuloTestData.SEED_B)
                 .addSeedB(AccumuloTestData.SEED_A)
                 .directedType(GraphFilters.DirectedType.UNDIRECTED)
-                .inOutType(GraphFilters.IncludeIncomingOutgoingType.INCOMING)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
@@ -58,7 +60,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
                 .build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
-        assertEquals(GraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());

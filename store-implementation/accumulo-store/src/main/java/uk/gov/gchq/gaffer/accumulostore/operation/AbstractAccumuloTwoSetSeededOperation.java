@@ -21,69 +21,54 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends GetElements<SEED_TYPE, ELEMENT_TYPE> {
+public abstract class AbstractAccumuloTwoSetSeededOperation<I_TYPE extends ElementSeed, E extends Element>
+        extends GetElements<I_TYPE, E> {
 
-    private Iterable<SEED_TYPE> seedsB;
-
-    public AbstractAccumuloTwoSetSeededOperation() {
-    }
-
-    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB) {
-        super(seedsA);
-        this.setSeedsB(seedsB);
-    }
-
-    public AbstractAccumuloTwoSetSeededOperation(final Iterable<SEED_TYPE> seedsA, final Iterable<SEED_TYPE> seedsB,
-                                                 final View view) {
-        super(view, seedsA);
-        this.setSeedsB(seedsB);
-    }
+    private Iterable<I_TYPE> seedsB;
 
     @JsonGetter(value = "seedsB")
-    List<SEED_TYPE> getSeedBArray() {
-        final Iterable<SEED_TYPE> seedsB = getSeedsB();
+    List<I_TYPE> getSeedBArray() {
+        final Iterable<I_TYPE> seedsB = getSeedsB();
         return null != seedsB ? Lists.newArrayList(seedsB) : null;
     }
 
     @JsonSetter(value = "seedsB")
-    void setSeedBArray(final SEED_TYPE[] seedsB) {
+    void setSeedBArray(final I_TYPE[] seedsB) {
         setSeedsB(Arrays.asList(seedsB));
     }
 
     @JsonIgnore
-    public Iterable<SEED_TYPE> getSeedsB() {
+    public Iterable<I_TYPE> getSeedsB() {
         return seedsB;
     }
 
-    public void setSeedsB(final Iterable<SEED_TYPE> seedsB) {
+    public void setSeedsB(final Iterable<I_TYPE> seedsB) {
         this.seedsB = seedsB;
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>,
-            SEED_TYPE extends ElementSeed,
-            ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends GetElements.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
-        private final List<SEED_TYPE> seedsB = new ArrayList<>();
+    public abstract static class BaseBuilder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<I_TYPE, E>,
+            I_TYPE extends ElementSeed,
+            E extends Element,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, I_TYPE, E, ?>>
+            extends GetElements.BaseBuilder<OP_TYPE, I_TYPE, E, CHILD_CLASS> {
+        private final List<I_TYPE> seedsB = new ArrayList<>();
 
         protected BaseBuilder(final OP_TYPE op) {
             super(op);
         }
 
-        public CHILD_CLASS seedsB(final Iterable<SEED_TYPE> seedsB) {
+        public CHILD_CLASS seedsB(final Iterable<I_TYPE> seedsB) {
             this.op.setSeedsB(seedsB);
             return self();
         }
 
-        public CHILD_CLASS addSeedB(final SEED_TYPE seed) {
+        public CHILD_CLASS addSeedB(final I_TYPE seed) {
             this.seedsB.add(seed);
             return self();
         }
@@ -92,9 +77,9 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         public OP_TYPE build() {
             super.build();
             if (!this.seedsB.isEmpty()) {
-                final Iterable<SEED_TYPE> seeds = this.op.getSeedsB();
+                final Iterable<I_TYPE> seeds = this.op.getSeedsB();
                 if (null != seeds) {
-                    for (final SEED_TYPE seed : seeds) {
+                    for (final I_TYPE seed : seeds) {
                         this.seedsB.add(seed);
                     }
                 }
@@ -104,19 +89,18 @@ public abstract class AbstractAccumuloTwoSetSeededOperation<SEED_TYPE extends El
         }
     }
 
-    public static final class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<SEED_TYPE, ELEMENT_TYPE>,
-            SEED_TYPE extends ElementSeed,
-            ELEMENT_TYPE extends Element>
-            extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE>> {
+    public static final class Builder<OP_TYPE extends AbstractAccumuloTwoSetSeededOperation<I_TYPE, E>,
+            I_TYPE extends ElementSeed,
+            E extends Element>
+            extends BaseBuilder<OP_TYPE, I_TYPE, E, Builder<OP_TYPE, I_TYPE, E>> {
 
         protected Builder(final OP_TYPE op) {
             super(op);
         }
 
         @Override
-        protected Builder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE> self() {
+        protected Builder<OP_TYPE, I_TYPE, E> self() {
             return this;
         }
     }
-
 }
