@@ -363,7 +363,7 @@ angular.module('app').controller('AppController',
         var operation = createBuildQueryOperation();
         $scope.operations.push(operation);
         $scope.resetBuildQuery();
-        raw.execute(JSON.stringify({operations: [operation, createDeduplicateOperation(), createLimitOperation()]}));
+        raw.execute(JSON.stringify({operations: [operation, createLimitOperation(), createDeduplicateOperation()]}));
     };
 
     var createCountOperation = function() {
@@ -396,7 +396,7 @@ angular.module('app').controller('AppController',
         $scope.clearResults();
         $scope.resetBuildQuery();
        for(var i in $scope.operations) {
-           raw.execute(JSON.stringify({operations: [$scope.operations[i], createDeduplicateOperation(), createLimitOperation()]}));
+           raw.execute(JSON.stringify({operations: [$scope.operations[i], createLimitOperation(), createDeduplicateOperation()]}));
        }
     }
 
