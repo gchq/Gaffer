@@ -19,43 +19,45 @@ package uk.gov.gchq.gaffer.rest.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
  * An implementation of {@link IJobService}. By default it will use a singleton
- * {@link Graph} generated using the {@link GraphFactory}.
+ * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
  * <p>
  * By default queries will be executed with an UNKNOWN user containing no auths.
- * The createUser() method should be overridden and a {@link User} object should
+ * TheuserFactory.createUser() method should be overridden and a {@link User} object should
  * be created from the http request.
  * </p>
  */
-public class SimpleJobService implements IJobService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleJobService.class);
+public class JobService implements IJobService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
     private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
 
-    public SimpleJobService() {
-        this(GraphFactory.createGraphFactory());
+    public JobService() {
+        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public SimpleJobService(final GraphFactory graphFactory) {
+    public JobService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
+        this.userFactory = userFactory;
     }
 
     @Override
     public JobDetail executeJob(final OperationChain opChain) {
-        final User user = createUser();
+        final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
         try {
@@ -72,7 +74,7 @@ public class SimpleJobService implements IJobService {
     @Override
     public CloseableIterable<JobDetail> details() {
         try {
-            return getGraph().execute(new GetAllJobDetails(), createUser());
+            return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createUser());
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
@@ -81,11 +83,11 @@ public class SimpleJobService implements IJobService {
     @Override
     public JobDetail details(final String id) {
         try {
-            return getGraph().execute(
+            return graphFactory.getGraph().execute(
                     new GetJobDetails.Builder()
                             .jobId(id)
                             .build(),
-                    createUser());
+                    userFactory.createUser());
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
@@ -94,28 +96,14 @@ public class SimpleJobService implements IJobService {
     @Override
     public CloseableIterable results(final String id) {
         try {
-            return getGraph().execute(
+            return graphFactory.getGraph().execute(
                     new GetJobResults.Builder()
                             .jobId(id)
                             .build(),
-                    createUser());
+                    userFactory.createUser());
         } catch (OperationException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Creates a {@link User} object containing information about the user
-     * querying Gaffer.
-     * By default this will return a user with id: UNKNOWN.
-     * <p>
-     * This method should be overridden for implementations of this API. The
-     * user information should be fetched from the request.
-     *
-     * @return the user querying Gaffer.
-     */
-    protected User createUser() {
-        return new User();
     }
 
     protected void preOperationHook(final OperationChain<?> opChain, final User user) {
@@ -124,9 +112,5 @@ public class SimpleJobService implements IJobService {
 
     protected void postOperationHook(final OperationChain<?> opChain, final User user) {
         // no action by default
-    }
-
-    protected Graph getGraph() {
-        return graphFactory.getGraph();
     }
 }

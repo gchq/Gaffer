@@ -19,7 +19,6 @@ import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
