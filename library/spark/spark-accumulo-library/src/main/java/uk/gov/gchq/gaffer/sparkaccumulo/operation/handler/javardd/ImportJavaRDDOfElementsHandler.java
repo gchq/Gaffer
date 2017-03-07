@@ -21,6 +21,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.broadcast.Broadcast;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
@@ -54,7 +55,7 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().input(rdd).failurePath(failurePath).outputPath(outputPath).build();
-        store.execute(op, context.getUser());
+        store._execute(new OperationChain<>(op), context);
     }
 }
 

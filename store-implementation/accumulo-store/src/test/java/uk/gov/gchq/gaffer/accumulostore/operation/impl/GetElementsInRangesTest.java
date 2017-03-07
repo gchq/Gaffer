@@ -8,9 +8,10 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,7 +19,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GetElementsInRangesTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -32,7 +32,7 @@ public class GetElementsInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges<>(pairList);
+        final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges.Builder<Pair<EntitySeed>, Edge>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -51,19 +51,15 @@ public class GetElementsInRangesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .addSeed(seed)
-                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
-                .includeEntities(false)
+                .directedType(GraphFilters.DirectedType.UNDIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(true)
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .build();
         assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertFalse(getElementsInRanges.isIncludeEntities());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
-        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsInRanges.getIncludeEdges());
-        assertTrue(getElementsInRanges.isPopulateProperties());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
+        assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
     }

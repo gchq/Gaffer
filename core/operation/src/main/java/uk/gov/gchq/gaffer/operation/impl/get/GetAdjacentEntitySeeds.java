@@ -23,54 +23,22 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s at the opposite end of connected edges to a seed
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
- * Seed matching is always RELATED.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
- * @see uk.gov.gchq.gaffer.operation.GetOperation
+ * @see AbstractSeededGraphGet
  */
-public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
-    public GetAdjacentEntitySeeds() {
-    }
-
-    public GetAdjacentEntitySeeds(final Iterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final CloseableIterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final View view) {
-        super(view);
-    }
-
-    public GetAdjacentEntitySeeds(final View view, final Iterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final View view, final CloseableIterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final GetIterableElementsOperation<EntitySeed, ?> operation) {
-        super(operation);
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.RELATED;
-    }
-
+public class GetAdjacentEntitySeeds
+        extends AbstractSeededGraphGet<EntitySeed, CloseableIterable<EntitySeed>> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
@@ -86,12 +54,24 @@ public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation
     }
 
     @Override
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
+        }
+    }
+
+    @Override
     protected TypeReference createOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
+            extends AbstractSeededGraphGet.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }

@@ -4,10 +4,10 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.ArrayList;
@@ -23,10 +23,12 @@ public class GetEntitiesInRangesTest implements OperationTest {
 
     @Test
     public void shouldNotReturnEdges() {
-
-        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>();
-        assertEquals(GetOperation.IncludeEdgeType.NONE, op.getIncludeEdges());
-
+        final GetEntitiesInRanges op = new GetEntitiesInRanges();
+        op.setView(new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE)
+                .build());
+        assertFalse(op.getView().hasEdges());
     }
 
     @Test
@@ -38,7 +40,7 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges<>(pairList);
+        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -58,12 +60,10 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
-                .populateProperties(false)
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .addSeed(seed).build();
         assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
         assertEquals("true", getEntitiesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertFalse(getEntitiesInRanges.isPopulateProperties());
         assertNotNull(getEntitiesInRanges.getView());
     }
 }

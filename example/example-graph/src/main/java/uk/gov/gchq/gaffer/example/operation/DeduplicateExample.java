@@ -36,7 +36,6 @@ public class DeduplicateExample extends OperationExample {
     @Override
     public void runExamples() {
         withoutDeduplicatingEdges();
-        withDeduplicateEdgesFlag();
         withDeduplicateEdgesChain();
     }
 
@@ -51,18 +50,6 @@ public class DeduplicateExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<Edge> withDeduplicateEdgesFlag() {
-        // ---------------------------------------------------------
-        final GetEdges<ElementSeed> build = new GetEdges.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
-                .deduplicate(true)
-                .build();
-        // ---------------------------------------------------------
-
-        return runExample(build);
-    }
-
     public Iterable<Edge> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain.Builder()
@@ -70,7 +57,7 @@ public class DeduplicateExample extends OperationExample {
                         .addSeed(new EntitySeed(1))
                         .addSeed(new EntitySeed(2))
                         .build())
-                .then(new Deduplicate<Edge>())
+                .then(new Deduplicate<>())
                 .build();
         // ---------------------------------------------------------
 

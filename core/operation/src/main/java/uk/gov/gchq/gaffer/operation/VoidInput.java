@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.operation;
 
 /**
  * An <code>VoidInput</code> operation has no input.
- * @param <OUTPUT> the output type.
+ *
+ * @param <O> the output type.
  */
-public interface VoidInput<OUTPUT> extends Operation<Void, OUTPUT> {
+public interface VoidInput<O> extends Operation<Void, O> {
 }

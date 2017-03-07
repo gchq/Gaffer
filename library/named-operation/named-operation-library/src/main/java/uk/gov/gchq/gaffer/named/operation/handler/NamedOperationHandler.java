@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
+import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -61,7 +62,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
             updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
             operationChain = updateView(operation.getView(), operationChain);
-            return store.execute(operationChain, context.getUser());
+            return store._execute(operationChain, context);
         } catch (CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (ClassCastException e) {
@@ -80,15 +81,22 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      */
     private OperationChain<?> updateView(final View view, final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            if (null == operation.getView()) {
-                operation.setView(view);
-            } else if (!operation.getView().hasGroups()) {
-                // this allows users to create an empty view and setup summarisation,
-                // without having to specify all the element groups.
-                operation.setView(new View.Builder()
-                        .merge(operation.getView())
-                        .merge(view)
-                        .build());
+            if (operation instanceof Get) {
+                final Get get = ((Get) operation);
+                final View opView;
+                if (null == get.getView()) {
+                    opView = view;
+                } else if (!get.getView().hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(view)
+                            .merge(get.getView())
+                            .build();
+                } else {
+                    opView = get.getView();
+                }
+
+                opView.expandGlobalDefinitions();
+                get.setView(opView);
             }
         }
         return operationChain;

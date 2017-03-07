@@ -20,9 +20,9 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.GraphGet;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 
 public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
@@ -30,18 +30,25 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetElementsOperation<?, ?> operation) {
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphGet<?, ?> operation) {
         return null;
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final GetElementsOperation<?, ?> operation) {
-        final boolean includeEntities = operation.isIncludeEntities();
-        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
-        final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GraphGet<?, ?> operation) {
+        final boolean includeEntities = operation.getView().hasEntities();
+        final boolean includeEdges = operation.getView().hasEdges();
+        final GraphFilters.DirectedType directedType = operation.getDirectedType();
+        final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
+        if (operation instanceof SeededGraphFilters) {
+            includeIncomingOutgoingType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
+        } else {
+            includeIncomingOutgoingType = SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
+        }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if (includeEdgeType == IncludeEdgeType.ALL && includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
+        if (includeEdges && directedType == GraphFilters.DirectedType.BOTH
+                && includeIncomingOutgoingType == SeededGraphFilters.IncludeIncomingOutgoingType.BOTH
                 && includeEntities && !deduplicateUndirectedEdges) {
             return null;
         }
@@ -50,7 +57,8 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR)
                 .all()
                 .includeIncomingOutgoing(includeIncomingOutgoingType)
-                .includeEdges(includeEdgeType)
+                .includeEdges(includeEdges)
+                .directedType(directedType)
                 .includeEntities(includeEntities)
                 .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();

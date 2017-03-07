@@ -64,7 +64,9 @@ public class TransformationIT extends AbstractStoreIT {
         sampleEntityWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
         elements.add(sampleEntityWithTransientProperty);
 
-        graph.execute(new AddElements(elements), getUser());
+        graph.execute(new AddElements.Builder()
+                .elements(elements)
+                .build(), getUser());
     }
 
     /**

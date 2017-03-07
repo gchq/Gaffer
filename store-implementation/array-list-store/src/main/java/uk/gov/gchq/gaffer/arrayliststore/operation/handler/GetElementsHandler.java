@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -36,46 +35,43 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
     @Override
     public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final Context context, final Store store)
+                                                  final Context context, final Store store)
             throws OperationException {
-        return new WrappedCloseableIterable(doOperation(operation, (ArrayListStore) store));
+        return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
     private List<Element> doOperation(final GetElements<ElementSeed, Element> operation, final ArrayListStore store) {
         final ArrayList<Element> result = new ArrayList<>();
         if (null != operation.getSeeds()) {
-            if (operation.isIncludeEntities()) {
-                for (final Entity entity : store.getEntities()) {
-                    if (operation.validateFlags(entity) && operation.validatePreAggregationFilter(entity)) {
-                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                            if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getIncludeEdges())) {
-                                result.add(entity);
-                            }
-                        } else {
-                            if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
-                                result.add(entity);
-                            }
+            for (final Entity entity : store.getEntities()) {
+                if (operation.validate(entity)) {
+                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                        if (isSeedEqual(ElementSeed.createSeed(entity), operation.getSeeds(), operation.getDirectedType())) {
+                            result.add(entity);
+                        }
+                    } else {
+                        if (isSeedRelated(ElementSeed.createSeed(entity), operation.getSeeds()).isMatch()) {
+                            result.add(entity);
                         }
                     }
                 }
             }
-            if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
-                for (final Edge edge : store.getEdges()) {
-                    if (operation.validateFlags(edge) && operation.validatePreAggregationFilter(edge)) {
-                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                            if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getIncludeEdges())) {
-                                result.add(edge);
-                            }
-                        } else {
-                            if (isSeedRelated(operation, edge)) {
-                                result.add(edge);
-                            }
+            for (final Edge edge : store.getEdges()) {
+                if (operation.validate(edge)) {
+                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                        if (isSeedEqual(ElementSeed.createSeed(edge), operation.getSeeds(), operation.getDirectedType())) {
+                            result.add(edge);
+                        }
+                    } else {
+                        if (isSeedRelated(operation, edge)) {
+                            result.add(edge);
                         }
                     }
                 }
@@ -87,10 +83,10 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
 
     private boolean isSeedRelated(final GetElements<ElementSeed, Element> operation, final Edge edge) {
         final Matches seedMatches = isSeedRelated(ElementSeed.createSeed(edge), operation.getSeeds());
-        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
+        final DirectedType directedType = operation.getDirectedType();
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
 
-        if (IncludeEdgeType.ALL == includeEdgeType) {
+        if (DirectedType.BOTH == directedType) {
             if (IncludeIncomingOutgoingType.BOTH == inOutType) {
                 return seedMatches.isMatch();
             }
@@ -108,7 +104,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
             }
         }
 
-        if (IncludeEdgeType.DIRECTED == includeEdgeType) {
+        if (DirectedType.DIRECTED == directedType) {
             if (!edge.isDirected()) {
                 return false;
             }
@@ -123,7 +119,7 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
             }
         }
 
-        if (IncludeEdgeType.UNDIRECTED == includeEdgeType) {
+        if (DirectedType.UNDIRECTED == directedType) {
             if (edge.isDirected()) {
                 return false;
             }
@@ -162,12 +158,12 @@ public class GetElementsHandler implements OperationHandler<GetElements<ElementS
         return Matches.NONE;
     }
 
-    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds, final IncludeEdgeType includeEdges) {
+    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds, final DirectedType includeEdges) {
         for (final ElementSeed seed : seeds) {
             if (elementSeed.equals(seed)) {
                 if (elementSeed instanceof EdgeSeed
-                        && ((IncludeEdgeType.DIRECTED == includeEdges && !((EdgeSeed) elementSeed).isDirected())
-                        || (IncludeEdgeType.UNDIRECTED == includeEdges && ((EdgeSeed) elementSeed).isDirected()))) {
+                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeSeed) elementSeed).isDirected())
+                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeSeed) elementSeed).isDirected()))) {
                     continue;
                 }
 

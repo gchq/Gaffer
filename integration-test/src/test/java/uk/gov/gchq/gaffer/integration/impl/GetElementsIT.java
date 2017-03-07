@@ -29,13 +29,12 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
@@ -50,6 +49,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class GetElementsIT extends AbstractStoreIT {
     // ElementSeed Seeds
@@ -103,24 +103,26 @@ public class GetElementsIT extends AbstractStoreIT {
     @Test
     public void shouldGetElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
-            for (final IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
-                if (!includeEntities && IncludeEdgeType.NONE == includeEdgeType) {
+            for (final boolean includeEdges : Arrays.asList(true, false)) {
+                if (!includeEntities && !includeEdges) {
                     // Cannot query for nothing!
                     continue;
                 }
-                for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
-                    try {
-                        shouldGetElementsBySeed(includeEntities, includeEdgeType, inOutType);
-                    } catch (AssertionError e) {
-                        throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
-                                + ", includeEdgeType=" + includeEdgeType.name() + ", inOutType=" + inOutType, e);
-                    }
+                for (final DirectedType directedType : DirectedType.values()) {
+                    for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
+                        try {
+                            shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
+                        } catch (AssertionError e) {
+                            throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
+                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name() + ", inOutType=" + inOutType, e);
+                        }
 
-                    try {
-                        shouldGetRelatedElements(includeEntities, includeEdgeType, inOutType);
-                    } catch (AssertionError e) {
-                        throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
-                                + ", includeEdgeType=" + includeEdgeType.name() + ", inOutType=" + inOutType, e);
+                        try {
+                            shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
+                        } catch (AssertionError e) {
+                            throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
+                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name() + ", inOutType=" + inOutType, e);
+                        }
                     }
                 }
             }
@@ -128,7 +130,8 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed
+            () throws Exception {
         // Given
         final GetElements<ElementSeed, Element> op = new GetElements<>();
 
@@ -140,7 +143,8 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements
+            () throws Exception {
         // Given
         final GetElements<ElementSeed, Element> op = new GetElements<>();
 
@@ -151,20 +155,26 @@ public class GetElementsIT extends AbstractStoreIT {
         assertFalse(results.iterator().hasNext());
     }
 
-    private void shouldGetElementsBySeed(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
+    private void shouldGetElementsBySeed(final boolean includeEntities,
+                                         final boolean includeEdges,
+                                         final DirectedType directedType,
+                                         final IncludeIncomingOutgoingType inOutType) throws Exception {
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
             expectedElements.addAll(ENTITIES_EXIST);
         }
-        if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.DIRECTED == includeEdgeType) {
-            expectedElements.addAll(EDGES_DIR_EXIST);
-        }
-        if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.UNDIRECTED == includeEdgeType) {
-            expectedElements.addAll(EDGES_EXIST);
+
+        if (includeEdges) {
+            if (DirectedType.UNDIRECTED != directedType) {
+                expectedElements.addAll(EDGES_DIR_EXIST);
+            }
+            if (DirectedType.DIRECTED != directedType) {
+                expectedElements.addAll(EDGES_EXIST);
+            }
         }
 
         final List<ElementSeed> seeds;
-        if (IncludeEdgeType.NONE != includeEdgeType) {
+        if (includeEdges) {
             if (includeEntities) {
                 seeds = ALL_SEEDS;
             } else {
@@ -176,11 +186,14 @@ public class GetElementsIT extends AbstractStoreIT {
             seeds = new ArrayList<>();
         }
 
-        shouldGetElements(expectedElements, SeedMatchingType.EQUAL, includeEdgeType, includeEntities, inOutType, seeds);
+        shouldGetElements(expectedElements, SeedMatchingType.EQUAL, directedType, includeEntities, includeEdges, inOutType, seeds);
     }
 
 
-    private void shouldGetRelatedElements(boolean includeEntities, final IncludeEdgeType includeEdgeType, final IncludeIncomingOutgoingType inOutType) throws Exception {
+    private void shouldGetRelatedElements(final boolean includeEntities,
+                                          final boolean includeEdges,
+                                          final DirectedType directedType,
+                                          final IncludeIncomingOutgoingType inOutType) throws Exception {
         final List<ElementSeed> seedTerms = new LinkedList<>();
         final List<Element> expectedElements = new LinkedList<>();
         if (includeEntities) {
@@ -190,52 +203,61 @@ public class GetElementsIT extends AbstractStoreIT {
             }
         }
 
-        if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.DIRECTED == includeEdgeType) {
-            final EdgeSeed seed = new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true);
-            seedTerms.add(seed);
+        if (includeEdges) {
+            if (DirectedType.UNDIRECTED != directedType) {
+                final EdgeSeed seed = new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true);
+                seedTerms.add(seed);
 
-            if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
-                final EdgeSeed seedSourceDestDir2 = new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true);
-                seedTerms.add(seedSourceDestDir2);
+                if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
+                    final EdgeSeed seedSourceDestDir2 = new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true);
+                    seedTerms.add(seedSourceDestDir2);
+                }
+
+                if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
+                    final EdgeSeed seedSourceDestDir3 = new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true);
+                    seedTerms.add(seedSourceDestDir3);
+                }
             }
 
-            if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
-                final EdgeSeed seedSourceDestDir3 = new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true);
-                seedTerms.add(seedSourceDestDir3);
+            if (DirectedType.DIRECTED != directedType) {
+                final EdgeSeed seedSourceDest1 = new EdgeSeed(SOURCE_1, DEST_1, false);
+                seedTerms.add(seedSourceDest1);
+
+                final EdgeSeed seedSourceDest2 = new EdgeSeed(SOURCE_2, DEST_2, false);
+                seedTerms.add(seedSourceDest2);
+
+                final EdgeSeed seedSourceDest3 = new EdgeSeed(SOURCE_3, DEST_3, false);
+                seedTerms.add(seedSourceDest3);
             }
-        }
-
-        if (IncludeEdgeType.ALL == includeEdgeType || IncludeEdgeType.UNDIRECTED == includeEdgeType) {
-            final EdgeSeed seedSourceDest1 = new EdgeSeed(SOURCE_1, DEST_1, false);
-            seedTerms.add(seedSourceDest1);
-
-            final EdgeSeed seedSourceDest2 = new EdgeSeed(SOURCE_2, DEST_2, false);
-            seedTerms.add(seedSourceDest2);
-
-            final EdgeSeed seedSourceDest3 = new EdgeSeed(SOURCE_3, DEST_3, false);
-            seedTerms.add(seedSourceDest3);
         }
 
         expectedElements.addAll(getElements(seedTerms));
-        shouldGetElements(expectedElements, SeedMatchingType.RELATED, includeEdgeType, includeEntities, inOutType, ALL_SEEDS);
+        shouldGetElements(expectedElements, SeedMatchingType.RELATED, directedType, includeEntities, includeEdges, inOutType, ALL_SEEDS);
     }
 
-    private void shouldGetElements(final List<Element> expectedElements, final SeedMatchingType seedMatching,
-                                   final IncludeEdgeType includeEdgeType,
-                                   final Boolean includeEntities,
+    private void shouldGetElements(final List<Element> expectedElements,
+                                   final SeedMatchingType seedMatching,
+                                   final DirectedType directedType,
+                                   final boolean includeEntities,
+                                   final boolean includeEdges,
                                    final IncludeIncomingOutgoingType inOutType,
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
         final User user = new User();
         final GetElements<ElementSeed, Element> op = new GetElements.Builder<>().seedMatching(seedMatching).build();
         op.setSeeds(seeds);
-        op.setIncludeEntities(includeEntities);
-        op.setIncludeEdges(includeEdgeType);
+
+        final View.Builder viewBuilder = new View.Builder();
+        if (includeEntities) {
+            viewBuilder.entity(TestGroups.ENTITY);
+        }
+        if (includeEdges) {
+            viewBuilder.edge(TestGroups.EDGE);
+        }
+
+        op.setDirectedType(directedType);
         op.setIncludeIncomingOutGoing(inOutType);
-        op.setView(new View.Builder()
-                .entity(TestGroups.ENTITY)
-                .edge(TestGroups.EDGE)
-                .build());
+        op.setView(viewBuilder.build());
 
 
         // When
@@ -275,7 +297,8 @@ public class GetElementsIT extends AbstractStoreIT {
         assertEquals(new HashSet<>(expectedElements), Sets.newHashSet(results));
     }
 
-    private static List<Element> getElements(final List<ElementSeed> seeds) {
+    private static List<Element> getElements(
+            final List<ElementSeed> seeds) {
         final List<Element> elements = new ArrayList<>(seeds.size());
         for (final ElementSeed seed : seeds) {
             if (seed instanceof EntitySeed) {

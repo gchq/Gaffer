@@ -34,14 +34,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -77,48 +71,6 @@ public interface IOperationService {
     @Path("/generate/elements")
     @ApiOperation(value = "Generate elements from objects", response = Element.class, responseContainer = "List")
     CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation);
-
-    @POST
-    @Path("/get/elements/bySeed")
-    @Deprecated
-    @ApiOperation(value = "Gets elements by seed from the graph",
-            response = Element.class, responseContainer = "List", hidden = true)
-    CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation);
-
-    @POST
-    @Path("/get/elements/related")
-    @Deprecated
-    @ApiOperation(value = "Gets related elements from the graph", response =
-            Element.class, responseContainer = "List", hidden = true)
-    CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation);
-
-    @POST
-    @Path("/get/entities/bySeed")
-    @Deprecated
-    @ApiOperation(value = "Gets entities by seed from the graph", response =
-            Entity.class, responseContainer = "List", hidden = true)
-    CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation);
-
-    @POST
-    @Path("/get/entities/related")
-    @Deprecated
-    @ApiOperation(value = "Gets related entities from the graph", response =
-            Entity.class, responseContainer = "List", hidden = true)
-    CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation);
-
-    @POST
-    @Path("/get/edges/bySeed")
-    @Deprecated
-    @ApiOperation(value = "Gets edge by seed from the graph", response = Edge
-            .class, responseContainer = "List", hidden = true)
-    CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation);
-
-    @POST
-    @Path("/get/edges/related")
-    @Deprecated
-    @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed
-            .class, responseContainer = "List", hidden = true)
-    CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation);
 
     @POST
     @Path("/get/entitySeeds/adjacent")

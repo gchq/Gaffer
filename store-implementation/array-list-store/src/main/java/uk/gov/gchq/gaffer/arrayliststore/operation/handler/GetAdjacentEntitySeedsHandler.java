@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
     @Override

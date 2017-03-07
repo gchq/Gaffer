@@ -39,8 +39,7 @@ public final class AccumuloStoreConstants {
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";
     public static final String INCLUDE_ENTITIES = "Include_All_Entities";
-    public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
-    public static final String NO_EDGES = "No_Edges";
+    public static final String INCLUDE_EDGES = "Include_All_Edges";
     public static final String DIRECTED_EDGE_ONLY = "Directed_Edges_Only";
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";

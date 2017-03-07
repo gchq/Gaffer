@@ -18,47 +18,22 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import java.util.Collections;
 
 /**
  * Restricts {@link GetAllElements} to only return edges.
  */
 public class GetAllEdges extends GetAllElements<Edge> {
-    public GetAllEdges() {
-        super();
-    }
-
-    public GetAllEdges(final View view) {
-        super(view);
-    }
-
-    public GetAllEdges(final GetAllEdges operation) {
-        super(operation);
-    }
-
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.EQUAL;
-    }
-
-    @Override
-    public boolean isIncludeEntities() {
-        return false;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including entities");
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE == includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires edges to be included");
-        }
-
-        super.setIncludeEdges(includeEdges);
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

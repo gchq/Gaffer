@@ -21,9 +21,9 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class GetEntitiesTest implements OperationTest {
                 .build();
 
         // Then
-        assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
+        assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithEntitySeed() throws SerialisationException {
@@ -89,17 +89,22 @@ public class GetEntitiesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetEntities op = new GetEntities(Collections.singletonList(seed1));
+        final GetEntities op = new GetEntities.Builder<>()
+                .addSeed(seed1)
+                .build();
 
         // Then
-        assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
+        assertEquals(SeedMatching.SeedMatchingType.RELATED, op.getSeedMatching());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithEdgeSeed() throws SerialisationException {
         // Given
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
-        final GetEntities op = new GetEntities(Arrays.asList(seed1, seed2));
+        final GetEntities op = new GetEntities.Builder<>()
+                .addSeed(seed1)
+                .addSeed(seed2)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -120,7 +125,6 @@ public class GetEntitiesTest implements OperationTest {
         final GetEntities op = new GetEntities.Builder<>()
                 .addSeed(seed)
                 .option("testOption", "true")
-                .populateProperties(false)
                 .view(new View.Builder()
                         .edge(TestGroups.ENTITY)
                         .build())
@@ -128,7 +132,6 @@ public class GetEntitiesTest implements OperationTest {
 
         // Then
         assertEquals("true", op.getOption("testOption"));
-        assertFalse(op.isPopulateProperties());
         assertNotNull(op.getView());
         assertEquals(seed, op.getSeeds().iterator().next());
     }

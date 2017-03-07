@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.jsonserialisation;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -65,6 +66,30 @@ public class JSONSerialiser {
      */
     public JSONSerialiser(final ObjectMapper mapper) {
         this.mapper = mapper;
+    }
+
+    public static JSONSerialiser fromClass(final String className) {
+        if (null == className || className.isEmpty()) {
+            return new JSONSerialiser();
+        }
+
+        try {
+            return fromClass(Class.forName(className).asSubclass(JSONSerialiser.class));
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + className);
+        }
+    }
+
+    public static JSONSerialiser fromClass(final Class<? extends JSONSerialiser> clazz) {
+        if (null == clazz) {
+            return new JSONSerialiser();
+        }
+
+        try {
+            return clazz.newInstance();
+        } catch (final InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + clazz.getName());
+        }
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -223,6 +248,7 @@ public class JSONSerialiser {
         }
     }
 
+    @JsonIgnore
     public ObjectMapper getMapper() {
         return mapper;
     }

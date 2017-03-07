@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,62 +21,17 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 
 
 public class SetExporterTest {
 
     @Test
-    public void shouldSetAndGetExport() {
-        // Given
-        final SetExporter exporter = new SetExporter();
-        final Set<Object> export = new LinkedHashSet<>();
-
-        // When
-        exporter.setExport(export);
-
-        // Then
-        assertSame(export, exporter.getExport());
-    }
-
-    @Test
-    public void shouldNotBeAbleToSetANullExport() {
-        // Given
-        final SetExporter exporter = new SetExporter();
-        final Set<Object> export = exporter.getExport();
-
-        // When
-        exporter.setExport(null);
-
-        // Then
-        assertNotNull(exporter.getExport());
-        assertNotSame(export, exporter.getExport());
-    }
-
-    @Test
-    public void shouldCreateNewHashMapWhenInitialising() {
-        // Given
-        final SetExporter exporter = new SetExporter();
-        final Set<Object> export = exporter.getExport();
-
-        // When
-        exporter.initialise("key", null, new User());
-
-        // Then
-        assertNotSame(export, exporter.getExport());
-    }
-
-    @Test
-    public void shouldAddIterablesToMap() {
+    public void shouldAddIterablesToSet() {
         // Given
         final List<String> valuesA = Arrays.asList("1", "2", "3");
         final List<String> valuesB = Arrays.asList("4", "5", "6");
@@ -84,12 +39,31 @@ public class SetExporterTest {
         final SetExporter exporter = new SetExporter();
 
         // When
-        exporter._add(valuesA, new User());
-        exporter._add(valuesB, new User());
+        exporter.add(valuesA, "key");
+        exporter.add(valuesB, "key");
 
         // Then
-        final Set<Object> export = exporter.getExport();
-        assertEquals(Sets.newHashSet(valuesCombined), export);
+        final CloseableIterable<?> export = exporter.get("key");
+        assertEquals(Sets.newHashSet(valuesCombined), Sets.newHashSet(export));
+    }
+
+    @Test
+    public void shouldAddIterablesToDifferentSets() {
+        // Given
+        final List<String> valuesA = Arrays.asList("1", "2", "3");
+        final List<String> valuesB = Arrays.asList("4", "5", "6");
+        final SetExporter exporter = new SetExporter();
+
+        // When
+        exporter.add(valuesA, "key1");
+        exporter.add(valuesB, "key2");
+
+        // Then
+        final CloseableIterable<?> export1 = exporter.get("key1");
+        assertEquals(valuesA, Lists.newArrayList(export1));
+
+        final CloseableIterable<?> export2 = exporter.get("key2");
+        assertEquals(valuesB, Lists.newArrayList(export2));
     }
 
     @Test
@@ -99,10 +73,10 @@ public class SetExporterTest {
         final SetExporter exporter = new SetExporter();
         final int start = 2;
         final int end = 3;
-        exporter._add(values1, new User());
+        exporter.add(values1, "key");
 
         // When
-        try (CloseableIterable<?> results = exporter._get(new User(), start, end)) {
+        try (CloseableIterable<?> results = exporter.get("key", start, end)) {
 
             // Then
             assertEquals(values1.subList(start, end), Lists.newArrayList(results));

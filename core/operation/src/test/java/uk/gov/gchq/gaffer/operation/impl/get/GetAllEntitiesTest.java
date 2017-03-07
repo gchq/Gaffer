@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -50,13 +49,11 @@ public class GetAllEntitiesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         GetAllEntities getAllEntities = new GetAllEntities.Builder()
                 .option("testOption", "true")
-                .populateProperties(false)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
                 .build();
 
-        assertFalse(getAllEntities.isPopulateProperties());
         assertEquals("true", getAllEntities.getOption("testOption"));
         assertNotNull(getAllEntities.getView().getEntity(TestGroups.ENTITY));
     }

@@ -20,7 +20,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -86,10 +84,9 @@ public class ValidateTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element edge = new Edge("testGroup");
-        Validate validate = new Validate.Builder().elements(Arrays.asList(edge)).skipInvalidElements(true).view(new View.Builder().edge("testEdgeGroup").build()).option("testOption", "true").build();
+        Validate validate = new Validate.Builder().elements(Arrays.asList(edge)).skipInvalidElements(true).option("testOption", "true").build();
         assertEquals("true", validate.getOption("testOption"));
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
-        assertNotNull(validate.getView());
     }
 }

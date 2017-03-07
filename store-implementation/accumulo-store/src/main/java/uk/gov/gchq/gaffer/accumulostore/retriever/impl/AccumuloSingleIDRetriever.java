@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
@@ -33,9 +33,9 @@ import java.util.Set;
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
  */
 public class AccumuloSingleIDRetriever
-        extends AccumuloItemRetriever<GetElementsOperation<? extends ElementSeed, ?>, ElementSeed> {
+        extends AccumuloItemRetriever<SeededGraphGet<? extends ElementSeed, ?>, ElementSeed> {
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetElementsOperation<? extends ElementSeed, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final SeededGraphGet<? extends ElementSeed, ?> operation,
                                      final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
@@ -58,7 +58,7 @@ public class AccumuloSingleIDRetriever
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final GetElementsOperation<? extends ElementSeed, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final SeededGraphGet<? extends ElementSeed, ?> operation,
                                      final User user,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);

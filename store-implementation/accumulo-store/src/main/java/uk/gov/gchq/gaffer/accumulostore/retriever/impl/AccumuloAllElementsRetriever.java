@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
@@ -42,7 +43,7 @@ import java.util.Set;
 /**
  * This allows queries for all elements.
  */
-public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
+public class AccumuloAllElementsRetriever extends AccumuloRetriever<GetAllElements<?>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
     public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,

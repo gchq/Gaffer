@@ -21,7 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.graph.GraphGet;
 
 /**
  * The iterator settings factory is designed to enable the AccumuloStore to
@@ -81,7 +81,7 @@ public interface IteratorSettingFactory {
      * @param operation the operation
      * @return A new {@link IteratorSetting} for an Iterator capable of filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetElementsOperation<?, ?> operation);
+    IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphGet<?, ?> operation);
 
     /**
      * Returns an Iterator that will aggregate values in the accumulo table,
@@ -117,7 +117,7 @@ public interface IteratorSettingFactory {
     /**
      * Returns an Iterator that will aggregate properties across a range of RowID's for a given columnFamily
      *
-     * @param store the accumulo store
+     * @param store        the accumulo store
      * @param columnFamily the columnFamily that will be summarised
      * @return A new {@link IteratorSetting} for an Iterator that will aggregate elements at query time on the {@link uk.gov.gchq.gaffer.store.schema.Schema}
      * @throws IteratorSettingException if an iterator setting could not be created
@@ -138,7 +138,7 @@ public interface IteratorSettingFactory {
      * filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the
      * options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getElementPropertyRangeQueryFilter(final GetElementsOperation<?, ?> operation);
+    IteratorSetting getElementPropertyRangeQueryFilter(final GraphGet<?, ?> operation);
 
     /**
      * Returns the iterator settings for a given iterator name. Allowed iterator

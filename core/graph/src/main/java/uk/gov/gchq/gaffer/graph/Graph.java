@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -55,8 +55,6 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Graph.class);
-
     /**
      * The instance of the store.
      */
@@ -109,7 +107,33 @@ public final class Graph {
     }
 
     /**
-     * Performs the given operation on the store.
+     * Performs the given operation chain job on the store.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operationChain may be modified/optimised by the store.
+     *
+     * @param operationChain the operation chain to be executed.
+     * @param user           the user executing the job.
+     * @return the job details
+     * @throws OperationException thrown if the job fails to run.
+     */
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        updateOperationChainView(operationChain);
+
+        for (final GraphHook graphHook : graphHooks) {
+            graphHook.preExecute(operationChain, user);
+        }
+
+        JobDetail result = store.executeJob(operationChain, user);
+
+        for (final GraphHook graphHook : graphHooks) {
+            result = graphHook.postExecute(result, operationChain, user);
+        }
+
+        return result;
+    }
+
+    /**
+     * Performs the given operation chain on the store.
      * If the operation does not have a view then the graph view is used.
      * NOTE the operationChain may be modified/optimised by the store.
      *
@@ -120,24 +144,7 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        // Update the view
-        for (final Operation operation : operationChain.getOperations()) {
-            final View opView;
-            if (null == operation.getView()) {
-                opView = view;
-            } else if (!operation.getView().hasGroups()) {
-                opView = new View.Builder()
-                        .merge(view)
-                        .merge(operation.getView())
-                        .build();
-
-            } else {
-                opView = operation.getView();
-            }
-
-            opView.expandGlobalDefinitions();
-            operation.setView(opView);
-        }
+        updateOperationChainView(operationChain);
 
         for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
@@ -150,6 +157,29 @@ public final class Graph {
         }
 
         return result;
+    }
+
+    private <OUTPUT> void updateOperationChainView(final OperationChain<OUTPUT> operationChain) {
+        for (final Operation operation : operationChain.getOperations()) {
+
+            if (operation instanceof Get) {
+                final Get get = ((Get) operation);
+                final View opView;
+                if (null == get.getView()) {
+                    opView = view;
+                } else if (!get.getView().hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(view)
+                            .merge(get.getView())
+                            .build();
+                } else {
+                    opView = get.getView();
+                }
+
+                opView.expandGlobalDefinitions();
+                get.setView(opView);
+            }
+        }
     }
 
     /**
@@ -231,6 +261,10 @@ public final class Graph {
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             return this;
+        }
+
+        public Builder storeProperties(final String propertiesPath) {
+            return storeProperties(StoreProperties.loadStoreProperties(propertiesPath));
         }
 
         public Builder storeProperties(final Path propertiesPath) {
@@ -368,7 +402,13 @@ public final class Graph {
                 store = createStore(properties, cloneSchema(schema));
             } else if (null != properties || null != schema) {
                 try {
-                    store.initialise(cloneSchema(schema), properties);
+                    if (null == properties) {
+                        store.initialise(cloneSchema(schema), store.getProperties());
+                    } else if (null == schema) {
+                        store.initialise(store.getSchema(), properties);
+                    } else {
+                        store.initialise(cloneSchema(schema), properties);
+                    }
                 } catch (StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }
@@ -376,6 +416,10 @@ public final class Graph {
                 schema = store.getSchema();
                 store.optimiseSchema();
                 store.validateSchemas();
+            }
+
+            if (null == schema) {
+                schema = store.getSchema();
             }
         }
 
@@ -407,8 +451,8 @@ public final class Graph {
         private void updateView() {
             if (null == view) {
                 this.view = new View.Builder()
-                        .entities(store.getSchema().getEntityGroups())
-                        .edges(store.getSchema().getEdgeGroups())
+                        .entities(schema.getEntityGroups())
+                        .edges(schema.getEdgeGroups())
                         .build();
             }
         }

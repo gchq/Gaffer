@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * The range factory is designed so that a List of Accumulo
  * {@link org.apache.accumulo.core.data.Range}s can be created from just a
  * provided {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} and
- * {@link uk.gov.gchq.gaffer.operation.GetOperation} The created range list should contain
+ * {@link uk.gov.gchq.gaffer.operation.SeededGraphGet} The created range list should contain
  * all the ranges (preferably optimised) necessary to retrieve all desired
  * {@link uk.gov.gchq.gaffer.data.element.Element}s as expressed by the
  * gaffer.accumulostore.operation.
@@ -44,7 +44,7 @@ public interface RangeFactory {
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends GetElementsOperation<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    <T extends SeededGraphGet<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
             throws RangeFactoryException;
 
     /**
@@ -66,6 +66,6 @@ public interface RangeFactory {
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends GetElementsOperation<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    <T extends SeededGraphGet<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
             throws RangeFactoryException;
 }

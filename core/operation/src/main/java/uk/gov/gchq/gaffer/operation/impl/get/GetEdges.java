@@ -16,11 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import java.util.Collections;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} to only return {@link uk.gov.gchq.gaffer.data.element.Edge}s.
@@ -30,66 +29,23 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
 public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Edge> {
-    public GetEdges() {
-        super();
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final View view) {
-        super(view);
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-        setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
     @Override
-    public boolean isIncludeEntities() {
-        return false;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including entities");
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE == includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires edges to be included");
-        }
-
-        super.setIncludeEdges(includeEdges);
     }
 
     public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
             extends GetElements.BaseBuilder<GetEdges<SEED_TYPE>, SEED_TYPE, Edge, CHILD_CLASS> {
 
         public BaseBuilder() {
-            super(new GetEdges());
+            super(new GetEdges<>());
         }
 
         protected BaseBuilder(final GetEdges<SEED_TYPE> op) {
@@ -100,7 +56,7 @@ public class GetEdges<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TY
     public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
 
         @Override
-        protected Builder self() {
+        protected Builder<SEED_TYPE> self() {
             return this;
         }
     }

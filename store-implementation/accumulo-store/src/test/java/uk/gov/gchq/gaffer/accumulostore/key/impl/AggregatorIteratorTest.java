@@ -134,7 +134,9 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
         final User user = new User();
-        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
+        store.execute(new AddElements.Builder()
+                .elements(Arrays.asList((Element) edge1, edge2, edge3))
+                .build(), user);
 
         final GetEdges<EntitySeed> get = new GetEdges.Builder<EntitySeed>()
                 .view(defaultView)

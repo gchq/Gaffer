@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -82,7 +81,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements(elements), user);
+        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -254,7 +253,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements(elements), user);
+        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -274,8 +273,9 @@ public class GetRDDOfElementsHandlerTest {
         GetRDDOfElements<EdgeSeed> rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
-                .includeEntities(false)
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP)
+                        .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         RDD<Element> rdd = graph1.execute(rddQuery, user);
@@ -302,8 +302,9 @@ public class GetRDDOfElementsHandlerTest {
         rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
                 .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
-                .includeEntities(true)
-                .includeEdges(GetOperation.IncludeEdgeType.NONE)
+                .view(new View.Builder()
+                        .entity(ENTITY_GROUP)
+                        .build())
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -329,8 +330,6 @@ public class GetRDDOfElementsHandlerTest {
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .includeEntities(false)
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -353,7 +352,9 @@ public class GetRDDOfElementsHandlerTest {
         seeds.add(new EdgeSeed("5", "C", false));
         rddQuery = new GetRDDOfElements.Builder<EdgeSeed>()
                 .sparkContext(sparkContext)
-                .includeEntities(false)
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP)
+                        .build())
                 .seeds(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);

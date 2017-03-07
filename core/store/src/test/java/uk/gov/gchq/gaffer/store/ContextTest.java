@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,45 @@
 package uk.gov.gchq.gaffer.store;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.export.Exporter;
+import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ContextTest {
     @Test
-    public void shouldConstructContextWithUser() {
+    public void shouldConstructContextsWithTheSameUserAndGenerateDifferentJobIds() {
         // Given
         final User user = new User();
 
         // When
-        final Context context = new Context(user);
+        final Context context1 = new Context(user);
+        final Context context2 = new Context(user);
+
+        // Then
+        assertEquals(user, context1.getUser());
+        assertEquals(user, context2.getUser());
+        assertNotEquals(context1.getJobId(), context2.getJobId());
+        assertTrue(context1.getExporters().isEmpty());
+        assertTrue(context2.getExporters().isEmpty());
+    }
+
+    @Test
+    public void shouldConstructContextWithUserAndJobId() {
+        // Given
+        final User user = new User();
+        final String randomId = "randomId";
+
+        // When
+        final Context context = new Context(user, randomId);
 
         // Then
         assertEquals(user, context.getUser());
+        assertEquals(randomId, context.getJobId());
         assertTrue(context.getExporters().isEmpty());
     }
 
@@ -51,17 +70,16 @@ public class ContextTest {
     }
 
     @Test
-    public void shouldAddAndGetExporterWithKey() {
+    public void shouldAddAndGetExporter() {
         // Given
         final Exporter exporter = mock(Exporter.class);
         final Context context = new Context();
-        final String key = "key";
-        given(exporter.getKey()).willReturn(key);
 
         // When
         context.addExporter(exporter);
 
         // Then
-        assertSame(exporter, context.getExporter(key));
+        assertSame(exporter, context.getExporter(exporter.getClass()));
+        assertSame(exporter, context.getExporter(Exporter.class));
     }
 }

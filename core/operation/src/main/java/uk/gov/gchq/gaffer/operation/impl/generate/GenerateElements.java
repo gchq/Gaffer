@@ -54,30 +54,6 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
         this.elementGenerator = elementGenerator;
     }
 
-    /**
-     * Constructs a <code>GenerateElements</code> operation with input objects and a
-     * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert the objects into {@link uk.gov.gchq.gaffer.data.element.Element}s.
-     *
-     * @param objects          an {@link java.lang.Iterable} of objects to be converted
-     * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
-     *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
-     */
-    public GenerateElements(final Iterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
-        this(new WrappedCloseableIterable<>(objects), elementGenerator);
-    }
-
-    /**
-     * Constructs a <code>GenerateElements</code> operation with input objects and a
-     * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert the objects into {@link uk.gov.gchq.gaffer.data.element.Element}s.
-     *
-     * @param objects          an {@link CloseableIterable} of objects to be converted
-     * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
-     *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
-     */
-    public GenerateElements(final CloseableIterable<OBJ> objects, final ElementGenerator<OBJ> elementGenerator) {
-        super(objects);
-        this.elementGenerator = elementGenerator;
-    }
 
     /**
      * @return the input objects to be converted into {@link uk.gov.gchq.gaffer.data.element.Element}s
@@ -145,7 +121,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
     public abstract static class BaseBuilder<OBJ, CHILD_CLASS extends BaseBuilder<OBJ, ?>>
             extends AbstractOperation.BaseBuilder<GenerateElements<OBJ>, CloseableIterable<OBJ>, CloseableIterable<Element>, CHILD_CLASS> {
         public BaseBuilder() {
-            super(new GenerateElements<OBJ>());
+            super(new GenerateElements<>());
         }
 
         /**
@@ -154,7 +130,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
          * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
          */
         public CHILD_CLASS objects(final Iterable<OBJ> objects) {
-            op.setInput(new WrappedCloseableIterable(objects));
+            op.setInput(new WrappedCloseableIterable<>(objects));
             return self();
         }
 
@@ -181,7 +157,7 @@ public class GenerateElements<OBJ> extends AbstractOperation<CloseableIterable<O
 
     public static final class Builder<OBJ> extends BaseBuilder<OBJ, Builder<OBJ>> {
         @Override
-        protected Builder self() {
+        protected Builder<OBJ> self() {
             return this;
         }
     }

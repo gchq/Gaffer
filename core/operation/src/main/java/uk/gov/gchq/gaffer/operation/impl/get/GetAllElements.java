@@ -18,92 +18,38 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.graph.AbstractGraphGetIterable;
 
 /**
  * Extends {@link GetElements}, but fetches all elements from the graph that are
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
  *
- * @param <ELEMENT_TYPE> the element return type
+ * @param <E> the element return type
  */
-public class GetAllElements<ELEMENT_TYPE extends Element>
-        extends GetElements<ElementSeed, ELEMENT_TYPE> {
-    public GetAllElements() {
-        super();
-    }
-
-    public GetAllElements(final View view) {
-        super(view);
-    }
-
-    public GetAllElements(final GetAllElements<?> operation) {
-        super(operation);
-    }
-
+public class GetAllElements<E extends Element>
+        extends AbstractGraphGetIterable<Void, E>
+        implements VoidInput<CloseableIterable<E>> {
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.EQUAL;
-    }
-
-    @Override
-    public void setSeeds(final Iterable<ElementSeed> seeds) {
-        if (null != seeds) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
-    }
-
-    @Override
-    public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
-        if (null != seeds) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
-    }
-
-    @Override
-    public void setInput(final CloseableIterable<ElementSeed> input) {
-        if (null != input) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
-    }
-
-    @Override
-    public CloseableIterable<ElementSeed> getSeeds() {
+    public Void getInput() {
         return null;
     }
 
-    @Override
-    public CloseableIterable<ElementSeed> getInput() {
-        return null;
-    }
-
-    @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return IncludeIncomingOutgoingType.OUTGOING;
-    }
-
-    @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!IncludeIncomingOutgoingType.OUTGOING.equals(includeIncomingOutGoing)) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support any direction apart from outgoing edges");
-        }
-    }
-
-    public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, ELEMENT_TYPE, ?>>
-            extends GetElements.BaseBuilder<OP_TYPE, ElementSeed, ELEMENT_TYPE, CHILD_CLASS> {
+    public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<E>, E extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, E, ?>>
+            extends AbstractGraphGetIterable.BaseBuilder<OP_TYPE, Void, E, CHILD_CLASS> {
         public BaseBuilder(final OP_TYPE op) {
             super(op);
         }
     }
 
-    public static final class Builder<ELEMENT_TYPE extends Element> extends BaseBuilder<GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
+    public static final class Builder<E extends Element> extends BaseBuilder<GetAllElements<E>, E, Builder<E>> {
         public Builder() {
-            super(new GetAllElements<ELEMENT_TYPE>());
+            super(new GetAllElements<>());
         }
 
         @Override
-        protected Builder<ELEMENT_TYPE> self() {
+        protected Builder<E> self() {
             return this;
         }
     }

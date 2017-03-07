@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOp
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import java.util.Collections;
 
 /**
  * Given two sets of {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s, called A and B,
@@ -27,38 +28,16 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
  * A and the other is in set B.
  */
 public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
-
-    public GetEdgesBetweenSets() {
-    }
-
-    public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB) {
-        super(seedsA, seedsB);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
-    public GetEdgesBetweenSets(final Iterable<EntitySeed> seedsA, final Iterable<EntitySeed> seedsB, final View view) {
-        super(seedsA, seedsB, view);
-        super.setIncludeEdges(IncludeEdgeType.ALL);
-    }
-
     @Override
-    public boolean isIncludeEntities() {
-        return false;
-    }
-
-    @Override
-    public void setIncludeEntities(final boolean includeEntities) {
-        if (includeEntities) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support including entities");
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            super.setView(new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build());
+        } else {
+            super.setView(view);
         }
-    }
-
-    @Override
-    public void setIncludeEdges(final IncludeEdgeType includeEdges) {
-        if (IncludeEdgeType.NONE == includeEdges) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " requires edges to be included");
-        }
-        super.setIncludeEdges(includeEdges);
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>

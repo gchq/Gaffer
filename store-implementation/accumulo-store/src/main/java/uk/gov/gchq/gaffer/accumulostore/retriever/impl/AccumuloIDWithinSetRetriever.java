@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
@@ -74,13 +74,13 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
     private Iterator<EntitySeed> seedsIter;
 
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
                                         final User user,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsOperation<EntitySeed, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
                                         final User user,
                                         final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, readEntriesIntoMemory, iteratorSettings);

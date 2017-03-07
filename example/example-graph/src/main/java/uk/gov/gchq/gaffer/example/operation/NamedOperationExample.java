@@ -20,10 +20,10 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import java.util.Collections;
 
@@ -49,12 +49,12 @@ public class NamedOperationExample extends OperationExample {
         final AddNamedOperation operation = new AddNamedOperation.Builder()
                 .operationChain(new OperationChain.Builder()
                         .first(new GetAdjacentEntitySeeds.Builder()
-                                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
                         .then(new GetAdjacentEntitySeeds.Builder()
-                                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
-                                .deduplicate(true)
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
+                        .then(new Deduplicate<>())
                         .build())
                 .description("2 hop query")
                 .name("2-hop")
@@ -83,7 +83,7 @@ public class NamedOperationExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample((Operation) operation);
+        return (Iterable) runExample(operation);
     }
 
     public void deleteNamedOperation() {
