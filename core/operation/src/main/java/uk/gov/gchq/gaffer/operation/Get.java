@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
  * A <code>Get</code> operation gets information out of gaffer and applies filtering
  * based on a {@link View}.
  *
- * @param <I>
- * @param <O>
+ * @param <I> input type
+ * @param <O> output type
  */
 public interface Get<I, O> extends Operation<I, O> {
     /**

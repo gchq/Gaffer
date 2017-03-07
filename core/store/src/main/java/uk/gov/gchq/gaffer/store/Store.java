@@ -49,14 +49,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
@@ -523,14 +517,6 @@ public abstract class Store {
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
-
-        // Deprecated Get operations
-        addOperationHandler(GetEdgesBySeed.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetElementsBySeed.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetEntitiesBySeed.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetRelatedElements.class, (OperationHandler) getGetElementsHandler());
-        addOperationHandler(GetRelatedEntities.class, (OperationHandler) getGetElementsHandler());
 
         // Export
         addOperationHandler(ExportToSet.class, new ExportToSetHandler());

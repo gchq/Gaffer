@@ -341,7 +341,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 32; // this includes the deprecated Get operations
+        final int expectedNumberOfOperations = 26;
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);

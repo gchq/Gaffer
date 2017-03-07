@@ -39,14 +39,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
@@ -115,36 +109,6 @@ public class OperationService implements IOperationService {
 
     @Override
     public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation) {
         return _execute(operation);
     }
 
