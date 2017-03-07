@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package uk.gov.gchq.gaffer.store;
 
-import uk.gov.gchq.gaffer.export.Exporter;
+import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * A <code>Context</code> contains operation chain execution information, such
@@ -27,29 +29,66 @@ import java.util.Map;
  */
 public class Context {
     private final User user;
-    private final Map<String, Exporter> exporters = new HashMap<>();
+    private final String jobId;
+
+    /**
+     * Map of exporter simple class name to exporter
+     */
+    private final Map<Class<? extends Exporter>, Exporter> exporters = new HashMap<>();
 
     public Context() {
         this(new User());
     }
 
     public Context(final User user) {
+        this(user, createJobId());
+    }
+
+    public Context(final User user, final String jobId) {
         this.user = user;
+        this.jobId = jobId;
     }
 
     public User getUser() {
         return user;
     }
 
-    public Map<String, Exporter> getExporters() {
-        return Collections.unmodifiableMap(exporters);
+    public String getJobId() {
+        return jobId;
+    }
+
+    public Collection<Exporter> getExporters() {
+        return Collections.unmodifiableCollection(exporters.values());
     }
 
     public void addExporter(final Exporter exporter) {
-        exporters.put(exporter.getKey(), exporter);
+        if (exporters.containsKey(exporter.getClass())) {
+            throw new IllegalArgumentException("Exporter of type " + exporter.getClass() + " has already been registered");
+        }
+        exporters.put(exporter.getClass(), exporter);
     }
 
-    public Exporter getExporter(final String key) {
-        return exporters.get(key);
+    public <E> E getExporter(final Class<? extends E> exporterClass) {
+        if (null == exporterClass) {
+            throw new IllegalArgumentException("Exporter class is required.");
+        }
+
+        final E exporter = (E) exporters.get(exporterClass);
+        if (null != exporter) {
+            return exporter;
+        }
+
+        // Check to see if the class is a subclass of an exporter
+        for (final Map.Entry<Class<? extends Exporter>, Exporter> entry : exporters.entrySet()) {
+            if (exporterClass.isAssignableFrom(entry.getKey())) {
+                return (E) entry.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    public static String createJobId() {
+        return UUID.randomUUID().toString();
     }
 }

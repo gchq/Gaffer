@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.impl.RowIDAggregator;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -72,6 +73,10 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
+        if (!TableUtils.schemaContainsAggregators(store.getSchema())) {
+            return null;
+        }
+
         return new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
                 .all()
@@ -98,16 +103,20 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
             return null;
         }
         return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
-            AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
-            .all()
-            .schema(store.getSchema())
-            .view(view)
-            .keyConverter(store.getKeyPackage().getKeyConverter())
-            .build();
+                AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
+                .all()
+                .schema(store.getSchema())
+                .view(view)
+                .keyConverter(store.getKeyPackage().getKeyConverter())
+                .build();
     }
 
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
         Schema schema = store.getSchema();
+        if (!TableUtils.schemaContainsAggregators(schema)) {
+            return false;
+        }
+
         String visibilityProp = schema.getVisibilityProperty();
         for (final String edgeGroup : view.getEdgeGroups()) {
             SchemaEdgeDefinition edgeDefinition = schema.getEdge(edgeGroup);
@@ -127,7 +136,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                 return true;
             }
             ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
-            if (viewElementDefinition.getGroupBy() != null)  {
+            if (viewElementDefinition.getGroupBy() != null) {
                 if (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
                     return true;
                 }

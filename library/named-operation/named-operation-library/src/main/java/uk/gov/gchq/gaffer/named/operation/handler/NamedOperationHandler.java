@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
             updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
             operationChain = updateView(operation.getView(), operationChain);
-            return store.execute(operationChain, context.getUser());
+            return store._execute(operationChain, context);
         } catch (CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         } catch (ClassCastException e) {

@@ -73,7 +73,7 @@ public class ExamplesService implements IExamplesService {
     public OperationChain execute() {
         return new OperationChain.Builder()
                 .first(getAdjacentEntitySeeds())
-                .then(new GetEdges<EntitySeed>())
+                .then(new GetEdges<>())
                 .build();
     }
 

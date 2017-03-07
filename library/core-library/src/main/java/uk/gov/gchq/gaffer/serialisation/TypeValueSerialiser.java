@@ -44,7 +44,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
         if (type != null) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Type from TypeValue Object", e);
             }
         }
@@ -52,7 +52,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
         if (value != null) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Value from TypeValue Object", e);
             }
         }

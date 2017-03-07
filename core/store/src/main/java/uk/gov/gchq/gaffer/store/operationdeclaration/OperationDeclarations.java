@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package uk.gov.gchq.gaffer.store.operationdeclaration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +51,7 @@ public class OperationDeclarations {
 
         public Builder() {
             this.instance = new OperationDeclarations();
-            this.instance.setOperations(new ArrayList<OperationDeclaration>());
+            this.instance.setOperations(new ArrayList<>());
         }
 
         public Builder declaration(final OperationDeclaration declaration) {
@@ -61,19 +64,42 @@ public class OperationDeclarations {
         }
     }
 
-    public static OperationDeclarations fromJson(final Path filePath) {
-        final OperationDeclarations definitions;
+    public static OperationDeclarations fromPaths(final String paths) {
+        final OperationDeclarations allDefinitions = new OperationDeclarations.Builder().build();
 
         try {
-            if (filePath.toFile().exists()) {
-                definitions = JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), OperationDeclarations.class);
-            } else {
-                definitions = JSON_SERIALISER.deserialise(StreamUtil.openStream(OperationDeclarations.class, filePath.toString()), OperationDeclarations.class);
+            for (final String pathStr : paths.split(",")) {
+                final OperationDeclarations definitions;
+                final Path path = Paths.get(pathStr);
+                if (path.toFile().exists()) {
+                    definitions = fromJson(Files.readAllBytes(path));
+                } else {
+                    definitions = fromJson(StreamUtil.openStream(OperationDeclarations.class, pathStr));
+                }
+                if (null != definitions && null != definitions.getOperations()) {
+                    allDefinitions.getOperations().addAll(definitions.getOperations());
+                }
             }
-        } catch (IOException e) {
-            throw new SchemaException("Failed to load element definitions from bytes", e);
+        } catch (final IOException e) {
+            throw new SchemaException("Failed to load element definitions from paths: " + paths, e);
         }
 
-        return definitions;
+        return allDefinitions;
+    }
+
+    public static OperationDeclarations fromJson(final byte[] json) {
+        try {
+            return JSON_SERIALISER.deserialise(json, OperationDeclarations.class);
+        } catch (SerialisationException e) {
+            throw new SchemaException("Failed to load element definitions from bytes", e);
+        }
+    }
+
+    public static OperationDeclarations fromJson(final InputStream inputStream) {
+        try {
+            return JSON_SERIALISER.deserialise(inputStream, OperationDeclarations.class);
+        } catch (SerialisationException e) {
+            throw new SchemaException("Failed to load element definitions from bytes", e);
+        }
     }
 }

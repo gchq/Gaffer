@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class MockAccumuloStore extends AccumuloStore {
         if (!(properties instanceof AccumuloProperties)) {
             throw new StoreException("Store must be initialised with AccumuloProperties");
         }
-        mockAccumulo = new MockInstance(((AccumuloProperties) properties).getInstanceName());
+        mockAccumulo = new MockInstance(((AccumuloProperties) properties).getInstance());
         super.initialise(schema, properties);
     }
 
@@ -71,7 +71,7 @@ public class MockAccumuloStore extends AccumuloStore {
     protected void addZookeeperToConfiguration(final Configuration conf) {
         InputConfigurator.setMockInstance(AccumuloInputFormat.class,
                 conf,
-                getProperties().getInstanceName());
+                getProperties().getInstance());
     }
 
     public MockInstance getMockAccumulo() {
