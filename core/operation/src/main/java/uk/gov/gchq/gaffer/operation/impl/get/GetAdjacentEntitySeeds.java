@@ -24,7 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +35,10 @@ import java.util.List;
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
- * @see AbstractSeededGraphGet
+ * @see AbstractSeededGraphGetIterable
  */
 public class GetAdjacentEntitySeeds
-        extends AbstractSeededGraphGet<EntitySeed, CloseableIterable<EntitySeed>> {
+        extends AbstractSeededGraphGetIterable<EntitySeed, EntitySeed> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @JsonGetter(value = "seeds")
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
@@ -71,7 +71,7 @@ public class GetAdjacentEntitySeeds
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGraphGet.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, CloseableIterable<EntitySeed>, CHILD_CLASS> {
+            extends AbstractSeededGraphGetIterable.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
         public BaseBuilder() {
             super(new GetAdjacentEntitySeeds());
         }
