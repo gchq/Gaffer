@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
+import java.util.Map;
 
 public abstract class OperationExample extends Example {
     private final Graph graph = createExampleGraph();
@@ -64,7 +65,7 @@ public abstract class OperationExample extends Example {
         log(METHOD_DIVIDER);
     }
 
-    protected <RESULT_TYPE extends Iterable<?>> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
@@ -79,12 +80,7 @@ public abstract class OperationExample extends Example {
             throw new RuntimeException(e);
         }
 
-        log("Results:");
-        log("\n```");
-        for (final Object result : results) {
-            log(result.toString());
-        }
-        log("```");
+        logResult(results);
 
         log(METHOD_DIVIDER);
         return results;
@@ -104,19 +100,35 @@ public abstract class OperationExample extends Example {
             throw new RuntimeException(e);
         }
 
+        logResult(result);
+
+        log(METHOD_DIVIDER);
+        return result;
+    }
+
+    private <RESULT_TYPE> void logResult(final RESULT_TYPE result) {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
             for (final Object item : ((Iterable) result)) {
                 log(item.toString());
             }
+        } else if (result instanceof Map) {
+            final Map<?, ?> resultMap = ((Map) result);
+            for (final Map.Entry<?, ?> entry : resultMap.entrySet()) {
+                log(entry.getKey() + ":");
+                if (entry.getValue() instanceof Iterable) {
+                    for (final Object item : ((Iterable) entry.getValue())) {
+                        log("    " + item.toString());
+                    }
+                } else {
+                    log("    " + entry.getValue().toString());
+                }
+            }
         } else {
             log(result.toString());
         }
         log("```");
-
-        log(METHOD_DIVIDER);
-        return result;
     }
 
     protected void printOperationClass(final Operation operation) {

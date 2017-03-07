@@ -91,7 +91,7 @@ public class WalkthroughRunner {
         int index = 1;
         LOGGER.info(index + ". [A *Very* Short Introduction to Gaffer](#a-very-short-introduction-to-gaffer)");
         index++;
-        LOGGER.info(index + ". [Examples](#examples)");
+        LOGGER.info(index + ". [Walkthroughs](#walkthroughs)");
 
         index = 1;
         for (final Class<? extends LoadAndQuery> aClass : EXAMPLES) {

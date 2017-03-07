@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
 import uk.gov.gchq.gaffer.rest.service.ExamplesService;
 import uk.gov.gchq.gaffer.rest.service.GraphConfigurationService;
+import uk.gov.gchq.gaffer.rest.service.JobService;
 import uk.gov.gchq.gaffer.rest.service.OperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
 import java.util.HashSet;
@@ -56,6 +57,7 @@ public class ApplicationConfig extends ResourceConfig {
 
     protected void addServices() {
         resources.add(StatusService.class);
+        resources.add(JobService.class);
         resources.add(OperationService.class);
         resources.add(GraphConfigurationService.class);
         resources.add(ExamplesService.class);

@@ -22,6 +22,7 @@ import scala.Tuple2;
 import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
@@ -59,7 +60,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();
-        store.execute(op, context.getUser());
+        store._execute(new OperationChain<>(op), context);
     }
 }
 

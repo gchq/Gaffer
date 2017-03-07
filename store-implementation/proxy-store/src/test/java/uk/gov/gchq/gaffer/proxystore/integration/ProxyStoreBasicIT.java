@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,15 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
@@ -125,7 +129,6 @@ public class ProxyStoreBasicIT {
         assertThat(results, hasItems(DEFAULT_ELEMENTS));
     }
 
-
     @Test
     public void shouldAddElementsAndGetRelatedElements() throws Exception {
         // Given
@@ -143,6 +146,37 @@ public class ProxyStoreBasicIT {
         // Then
         assertEquals(1, Iterables.size(results));
         assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
+    }
+
+    @Test
+    public void shouldAddElementsViaAJob() throws Exception {
+        // Add elements
+        final AddElements add = new AddElements.Builder()
+                .elements(DEFAULT_ELEMENTS)
+                .build();
+        JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
+
+        // Wait until the job status is not RUNNING
+        while (JobStatus.RUNNING.equals(jobDetail.getStatus())) {
+            jobDetail = graph.execute(new GetJobDetails.Builder()
+                    .jobId(jobDetail.getJobId())
+                    .build(), USER);
+            Thread.sleep(100);
+        }
+
+        // Get elements
+        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .addSeed(new EntitySeed("1"))
+                .build();
+        CloseableIterable<Element> results = graph.execute(getElements, USER);
+
+        // Then
+        assertEquals(2, Iterables.size(results));
+        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
     }
 
     @Test
