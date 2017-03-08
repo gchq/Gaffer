@@ -55,6 +55,11 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
+    public CloseableIterable<ElementSeed> getSeeds() {
+        return null;
+    }
+
+    @Override
     public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
         if (null != seeds) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
@@ -62,20 +67,15 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
     }
 
     @Override
+    public CloseableIterable<ElementSeed> getInput() {
+        return null;
+    }
+
+    @Override
     public void setInput(final CloseableIterable<ElementSeed> input) {
         if (null != input) {
             throw new IllegalArgumentException("This operation does not allow seeds to be set");
         }
-    }
-
-    @Override
-    public CloseableIterable<ElementSeed> getSeeds() {
-        return null;
-    }
-
-    @Override
-    public CloseableIterable<ElementSeed> getInput() {
-        return null;
     }
 
     @Override
@@ -94,6 +94,35 @@ public class GetAllElements<ELEMENT_TYPE extends Element>
             extends GetElements.BaseBuilder<OP_TYPE, ElementSeed, ELEMENT_TYPE, CHILD_CLASS> {
         public BaseBuilder(final OP_TYPE op) {
             super(op);
+        }
+
+        @Override
+        public CHILD_CLASS seeds(final Iterable<ElementSeed> seeds) {
+            if (null != seeds) {
+                throw new IllegalArgumentException("This operation does not allow seeds to be set");
+            }
+            return self();
+        }
+
+        @Override
+        public CHILD_CLASS seeds(final CloseableIterable<ElementSeed> seeds) {
+            if (null != seeds) {
+                throw new IllegalArgumentException("This operation does not allow seeds to be set");
+            }
+            return self();
+        }
+
+        @Override
+        public CHILD_CLASS addSeed(final ElementSeed seed) {
+            throw new IllegalArgumentException("This operation does not allow seeds to be set");
+        }
+
+        @Override
+        public CHILD_CLASS inOutType(final IncludeIncomingOutgoingType inOutType) {
+            if (!IncludeIncomingOutgoingType.OUTGOING.equals(inOutType)) {
+                throw new IllegalArgumentException(getClass().getSimpleName() + " does not support any direction apart from outgoing edges");
+            }
+            return self();
         }
     }
 
