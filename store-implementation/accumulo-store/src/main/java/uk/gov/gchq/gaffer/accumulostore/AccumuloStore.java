@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -81,21 +82,22 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static uk.gov.gchq.gaffer.store.StoreTrait.AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
-
 
 /**
  * An Accumulo Implementation of the Gaffer Framework
@@ -107,7 +109,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY)));
+    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(STORE_AGGREGATION, QUERY_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY)));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
@@ -120,7 +122,7 @@ public class AccumuloStore extends Store {
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass);
+            throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
@@ -136,8 +138,8 @@ public class AccumuloStore extends Store {
      */
     public Connector getConnection() throws StoreException {
         if (null == connection) {
-            connection = TableUtils.getConnector(getProperties().getInstanceName(), getProperties().getZookeepers(),
-                    getProperties().getUserName(), getProperties().getPassword());
+            connection = TableUtils.getConnector(getProperties().getInstance(), getProperties().getZookeepers(),
+                    getProperties().getUser(), getProperties().getPassword());
         }
         return connection;
     }
@@ -149,9 +151,10 @@ public class AccumuloStore extends Store {
      *
      * @param conf A {@link Configuration} to be updated.
      * @param view The {@link View} to be applied.
+     * @param user The {@link User} to be used.
      * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
      */
-    public void updateConfiguration(final Configuration conf, final View view) throws StoreException {
+    public void updateConfiguration(final Configuration conf, final View view, final User user) throws StoreException {
         try {
             // Table name
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
@@ -160,9 +163,15 @@ public class AccumuloStore extends Store {
             // User
             addUserToConfiguration(conf);
             // Authorizations
+            Authorizations authorisations;
+            if (null != user && null != user.getDataAuths()) {
+                authorisations = new Authorizations(user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
+            } else {
+                authorisations = new Authorizations();
+            }
             InputConfigurator.setScanAuthorizations(AccumuloInputFormat.class,
                     conf,
-                    TableUtils.getCurrentAuthorizations(getConnection()));
+                    authorisations);
             // Zookeeper
             addZookeeperToConfiguration(conf);
             // Add keypackage, schema and view to conf
@@ -170,7 +179,7 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
             // Add iterators that depend on the view
-            if (!view.getEntityGroups().isEmpty() || !view.getEdgeGroups().isEmpty()) {
+            if (view.hasGroups()) {
                 IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);
@@ -180,7 +189,6 @@ public class AccumuloStore extends Store {
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
                 InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
             }
-
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
@@ -189,7 +197,7 @@ public class AccumuloStore extends Store {
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
         InputConfigurator.setConnectorInfo(AccumuloInputFormat.class,
                 conf,
-                getProperties().getUserName(),
+                getProperties().getUser(),
                 new PasswordToken(getProperties().getPassword()));
     }
 
@@ -197,7 +205,7 @@ public class AccumuloStore extends Store {
         InputConfigurator.setZooKeeperInstance(AccumuloInputFormat.class,
                 conf,
                 new ClientConfiguration()
-                        .withInstance(getProperties().getInstanceName())
+                        .withInstance(getProperties().getInstance())
                         .withZkHosts(getProperties().getZookeepers()));
     }
 
@@ -276,7 +284,7 @@ public class AccumuloStore extends Store {
                 keys = keyPackage.getKeyConverter().getKeysFromElement(element);
             } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                        + " when trying to insert elements");
+                        + " when trying to insert elements", e);
                 continue;
             }
             final Value value;
@@ -284,7 +292,7 @@ public class AccumuloStore extends Store {
                 value = keyPackage.getKeyConverter().getValueFromElement(element);
             } catch (final AccumuloElementConversionException e) {
                 LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
-                        + " when trying to insert elements");
+                        + " when trying to insert elements", e);
                 continue;
             }
             final Mutation m = new Mutation(keys.getFirst().getRow());
@@ -293,7 +301,7 @@ public class AccumuloStore extends Store {
             try {
                 writer.addMutation(m);
             } catch (final MutationsRejectedException e) {
-                LOGGER.error("Failed to create an accumulo key mutation");
+                LOGGER.error("Failed to create an accumulo key mutation", e);
                 continue;
             }
             // If the GraphElement is a Vertex then there will only be 1 key,
@@ -307,7 +315,7 @@ public class AccumuloStore extends Store {
                 try {
                     writer.addMutation(m2);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation");
+                    LOGGER.error("Failed to create an accumulo key mutation", e);
                 }
             }
         }

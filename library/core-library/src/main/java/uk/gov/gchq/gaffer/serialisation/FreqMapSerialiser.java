@@ -50,14 +50,14 @@ public class FreqMapSerialiser implements Serialisation<FreqMap> {
 
                 try {
                     out.write(ByteArrayEscapeUtils.escape(entry.getKey().getBytes(CommonConstants.UTF_8)));
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new SerialisationException("Failed to serialise a key from a FreqMap: " + entry.getKey(), e);
                 }
                 out.write(ByteArrayEscapeUtils.DELIMITER);
 
                 try {
                     out.write(ByteArrayEscapeUtils.escape(longSerialiser.serialise(entry.getValue())));
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new SerialisationException("Failed to serialise a value from a FreqMap: " + entry.getValue(), e);
                 }
             }

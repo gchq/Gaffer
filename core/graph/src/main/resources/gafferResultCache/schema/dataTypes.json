@@ -1,0 +1,35 @@
+{
+  "types": {
+    "jobId": {
+      "class": "java.lang.String"
+    },
+    "exportKey": {
+      "class": "java.lang.String"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          }
+        }
+      ]
+    },
+    "timestamp": {
+      "class": "java.lang.Long"
+    },
+    "json": {
+      "class": "[B"
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "stringSet": {
+      "class": "java.util.TreeSet"
+    },
+    "visibility": {
+      "class": "java.lang.String"
+    }
+  }
+}

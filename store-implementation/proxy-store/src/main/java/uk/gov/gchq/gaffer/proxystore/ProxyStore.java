@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -44,6 +45,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.TypeReferenceStoreImpl;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.user.User;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -61,7 +63,7 @@ import java.util.Set;
 
 public class ProxyStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStore.class);
-    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
+    private JSONSerialiser jsonSerialiser;
     private Client client;
     private Set<StoreTrait> traits;
     private Schema schema;
@@ -71,22 +73,26 @@ public class ProxyStore extends Store {
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
+        jsonSerialiser = proxyProps.getJsonSerialiser();
 
         client = createClient(proxyProps);
-        fetchSchema(proxyProps);
-        fetchTraits(proxyProps);
-        fetchOperations(proxyProps);
+        schema = fetchSchema(proxyProps);
+        traits = fetchTraits(proxyProps);
+        supportedOperations = fetchOperations(proxyProps);
 
         super.initialise(schema, proxyProps);
+        checkDelegateStoreStatus(proxyProps);
+    }
 
+    protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("status");
-        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map());
+        final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
         LOGGER.info("Delegate REST API status: " + status.get("description"));
     }
 
-    private void fetchOperations(final ProxyProperties proxyProps) throws StoreException {
+    protected Set<Class<? extends Operation>> fetchOperations(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/operations");
-        supportedOperations = (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations()));
+        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations(), null));
     }
 
     @Override
@@ -99,21 +105,32 @@ public class ProxyStore extends Store {
         return supportedOperations.contains(operationClass);
     }
 
-    protected void fetchTraits(final ProxyProperties proxyProps) throws StoreException {
+    protected Set<StoreTrait> fetchTraits(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/storeTraits");
-        traits = doGet(url, new TypeReferenceStoreImpl.StoreTraits());
-        if (null == traits) {
-            traits = new HashSet<>(0);
+        Set<StoreTrait> newTraits = doGet(url, new TypeReferenceStoreImpl.StoreTraits(), null);
+        if (null == newTraits) {
+            newTraits = new HashSet<>(0);
         } else {
             // This proxy store cannot handle visibility due to the simple rest api using a default user.
-            traits.remove(StoreTrait.VISIBILITY);
+            newTraits.remove(StoreTrait.VISIBILITY);
         }
+        return newTraits;
     }
 
-    protected void fetchSchema(final ProxyProperties proxyProps) throws
+    protected Schema fetchSchema(final ProxyProperties proxyProps) throws
             StoreException {
         final URL url = proxyProps.getGafferUrl("graph/schema");
-        schema = doGet(url, new TypeReferenceStoreImpl.Schema());
+        return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
+    }
+
+    @Override
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        final URL url = getProperties().getGafferUrl("graph/jobs/doOperation");
+        try {
+            return doPost(url, operationChain, new TypeReferenceImpl.JobDetail(), new Context(user));
+        } catch (final StoreException e) {
+            throw new OperationException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -128,7 +145,7 @@ public class ProxyStore extends Store {
             throws OperationException {
         final String opChainJson;
         try {
-            opChainJson = new String(JSON_SERIALISER.serialise(operationChain), CommonConstants.UTF_8);
+            opChainJson = new String(jsonSerialiser.serialise(operationChain), CommonConstants.UTF_8);
         } catch (final UnsupportedEncodingException | SerialisationException e) {
             throw new OperationException("Unable to serialise operation chain into JSON.", e);
         }
@@ -142,17 +159,12 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
-                                     final TypeReference<OUTPUT> outputType) throws StoreException {
-        return doPost(url, body, outputType, null);
-    }
-
-    protected <OUTPUT> OUTPUT doPost(final URL url, final Object body,
                                      final TypeReference<OUTPUT> outputType,
                                      final Context context) throws StoreException {
         try {
-            return doPost(url, new String(JSON_SERIALISER.serialise(body), CommonConstants.UTF_8), outputType, context);
+            return doPost(url, new String(jsonSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
         } catch (SerialisationException | UnsupportedEncodingException e) {
-            throw new StoreException("Unable to serialise body of request into json.");
+            throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }
 
@@ -174,9 +186,9 @@ public class ProxyStore extends Store {
     }
 
     protected <OUTPUT> OUTPUT doGet(final URL url,
-                                    final TypeReference<OUTPUT> outputTypeReference)
+                                    final TypeReference<OUTPUT> outputTypeReference, final Context context)
             throws StoreException {
-        final Invocation.Builder request = createRequest(null, url, null);
+        final Invocation.Builder request = createRequest(null, url, context);
         final Response response;
         try {
             response = request.get();
@@ -194,7 +206,7 @@ public class ProxyStore extends Store {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (200 != response.getStatus() && 204 != response.getStatus()) {
             LOGGER.warn("Gaffer bad status " + response.getStatus());
-            LOGGER.warn("Detail: " + response.readEntity(String.class));
+            LOGGER.warn("Detail: " + outputJson);
             throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
         }
 
@@ -231,7 +243,7 @@ public class ProxyStore extends Store {
                     "Unable to deserialise JSON: " + jsonString, e);
         }
 
-        return JSON_SERIALISER.deserialise(jsonBytes, outputTypeReference);
+        return jsonSerialiser.deserialise(jsonBytes, outputTypeReference);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ProxyProperties")

@@ -20,8 +20,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -35,13 +36,15 @@ import javax.ws.rs.core.MediaType;
 @Api(value = "/status", description = "Methods to check the status of the system.")
 public class StatusService {
     private final GraphFactory graphFactory;
+    private final UserFactory userFactory;
 
     public StatusService() {
-        this(GraphFactory.createGraphFactory());
+        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
     }
 
-    public StatusService(final GraphFactory graphFactory) {
+    public StatusService(final GraphFactory graphFactory, final UserFactory userFactory) {
         this.graphFactory = graphFactory;
+        this.userFactory = userFactory;
     }
 
     @GET
@@ -54,7 +57,11 @@ public class StatusService {
                 return new SystemStatus("The system is working normally.");
             }
         } catch (final Exception e) {
-            return new SystemStatus("Unable to create graph. Error: " + e.getMessage());
+            String msg = e.getMessage();
+            if (null == msg) {
+                msg = e.getClass().getSimpleName();
+            }
+            return new SystemStatus("Unable to create graph. Error: " + msg);
         }
 
         return new SystemStatus("Unable to create graph.");

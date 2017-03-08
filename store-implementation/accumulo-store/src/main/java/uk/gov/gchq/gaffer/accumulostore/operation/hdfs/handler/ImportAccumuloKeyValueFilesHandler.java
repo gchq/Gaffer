@@ -35,10 +35,10 @@ public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<Impo
     }
 
     public void doOperation(final ImportAccumuloKeyValueFiles operation, final AccumuloStore store) throws OperationException {
-        splitTable(operation, store);
+        importFiles(operation, store);
     }
 
-    private void splitTable(final ImportAccumuloKeyValueFiles operation, final AccumuloStore store) throws OperationException {
+    private void importFiles(final ImportAccumuloKeyValueFiles operation, final AccumuloStore store) throws OperationException {
         final ImportElementsToAccumuloTool importTool = new ImportElementsToAccumuloTool(operation.getInputPath(), operation.getFailurePath(), store);
         try {
             ToolRunner.run(importTool, new String[0]);

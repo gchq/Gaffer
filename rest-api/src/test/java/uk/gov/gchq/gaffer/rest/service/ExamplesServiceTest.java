@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 
 public class ExamplesServiceTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-    private SimpleExamplesService service;
+    private ExamplesService service;
 
     private Schema schema;
 
@@ -67,7 +67,7 @@ public class ExamplesServiceTest {
         final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
 
-        service = new SimpleExamplesService(graphFactory);
+        service = new ExamplesService(graphFactory);
     }
 
     @Test
@@ -132,19 +132,6 @@ public class ExamplesServiceTest {
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws IOException {
-        //Given
-        final OperationChain opChain = service.execute();
-
-        // When
-        byte[] bytes = serialiser.serialise(opChain);
-        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseOperationChainAsync() throws IOException {
         //Given
         final OperationChain opChain = service.execute();
 

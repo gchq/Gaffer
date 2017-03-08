@@ -183,7 +183,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
                 result = Integer.parseInt(option);
             } catch (final NumberFormatException e) {
                 LOGGER.error("Error parsing {}, got {}", optionKey, option);
-                throw new IOException("Can't parse " + optionKey + " option, got " + option);
+                throw new IOException("Can't parse " + optionKey + " option, got " + option, e);
             }
             if (result < 1) {
                 LOGGER.error("Invalid {} option - must be >=1, got {}", optionKey, result);

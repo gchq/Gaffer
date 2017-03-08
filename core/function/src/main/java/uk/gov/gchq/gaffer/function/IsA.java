@@ -60,7 +60,7 @@ public class IsA extends SimpleFilterFunction<Object> {
         try {
             this.type = Class.forName(type);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not load class for given type: " + type);
+            throw new IllegalArgumentException("Could not load class for given type: " + type, e);
         }
     }
 

@@ -56,7 +56,7 @@ public class SplitTableTool extends Configured implements Tool {
         FileSystem fs;
         try {
             fs = FileSystem.get(conf);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new OperationException("Failed to get Filesystem from configuration: " + e.getMessage(), e);
         }
         final SortedSet<Text> splits = new TreeSet<>();

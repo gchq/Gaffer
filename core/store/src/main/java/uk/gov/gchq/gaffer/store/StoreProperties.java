@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -28,14 +32,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
@@ -43,35 +46,27 @@ public class StoreProperties implements Cloneable {
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
-    private Path propFileLocation;
-    private Properties props;
+    public static final String JOB_TRACKER_CLASS = "gaffer.store.job.tracker.class";
+    public static final String JOB_TRACKER_CONFIG_PATH = "gaffer.store.job.tracker.config.path";
 
-    // Allow classes to register observers for the properties being ready
-    private final List<Runnable> readyObservers = new ArrayList<>();
+    private Properties props = new Properties();
 
     // Required for loading by reflection.
     public StoreProperties() {
     }
 
     public StoreProperties(final Path propFileLocation) {
-        this.propFileLocation = propFileLocation;
+        if (null != propFileLocation) {
+            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
+                props.load(accIs);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public StoreProperties(final Properties props) {
-        this.props = props;
-    }
-
-    public StoreProperties(final Class<? extends Store> storeClass) {
-        this(new Properties());
-        setStoreClass(storeClass.getName());
-    }
-
-    public void whenReady(final Runnable o) {
-        if (null != props) {
-            o.run();
-        } else {
-            this.readyObservers.add(o);
-        }
+        setProperties(props);
     }
 
     /**
@@ -79,9 +74,6 @@ public class StoreProperties implements Cloneable {
      * @return a property properties file with the given key.
      */
     public String get(final String key) {
-        if (props == null) {
-            readProperties();
-        }
         return props.getProperty(key);
     }
 
@@ -93,9 +85,6 @@ public class StoreProperties implements Cloneable {
      * @return a property properties file with the given key or the default value if the property doesn't exist
      */
     public String get(final String key, final String defaultValue) {
-        if (props == null) {
-            readProperties();
-        }
         return props.getProperty(key, defaultValue);
     }
 
@@ -106,9 +95,6 @@ public class StoreProperties implements Cloneable {
      * @param value the value
      */
     public void set(final String key, final String value) {
-        if (props == null) {
-            readProperties();
-        }
         props.setProperty(key, value);
     }
 
@@ -117,17 +103,15 @@ public class StoreProperties implements Cloneable {
      * This is an optional feature, so if the property does not exist then this function
      * will return an empty object.
      *
-     * @return  The Operation Definitions to load dynamically
+     * @return The Operation Definitions to load dynamically
      */
+    @JsonIgnore
     public OperationDeclarations getOperationDeclarations() {
         OperationDeclarations declarations = null;
 
-        if (null != this.props) {
-            final String declarationsFilename = get(StoreProperties.OPERATION_DECLARATIONS);
-            if (null != declarationsFilename) {
-                final Path declarationsPath = Paths.get(declarationsFilename);
-                declarations = OperationDeclarations.fromJson(declarationsPath);
-            }
+        final String declarationsPaths = get(StoreProperties.OPERATION_DECLARATIONS);
+        if (null != declarationsPaths) {
+            declarations = OperationDeclarations.fromPaths(declarationsPaths);
         }
 
         if (null == declarations) {
@@ -145,6 +129,22 @@ public class StoreProperties implements Cloneable {
         set(STORE_CLASS, storeClass);
     }
 
+    public String getJobTrackerClass() {
+        return get(JOB_TRACKER_CLASS);
+    }
+
+    public void setJobTrackerClass(final String jobTrackerClass) {
+        set(JOB_TRACKER_CLASS, jobTrackerClass);
+    }
+
+    public String getJobTrackerConfigPath() {
+        return get(JOB_TRACKER_CONFIG_PATH);
+    }
+
+    public void setJobTrackerConfigPath(final String jobTrackerConfigPath) {
+        set(JOB_TRACKER_CONFIG_PATH, jobTrackerConfigPath);
+    }
+
     public String getSchemaClassName() {
         return get(SCHEMA_CLASS, Schema.class.getName());
     }
@@ -160,12 +160,9 @@ public class StoreProperties implements Cloneable {
         return schemaClass;
     }
 
+    @JsonSetter
     public void setSchemaClass(final String schemaClass) {
         set(SCHEMA_CLASS, schemaClass);
-    }
-
-    public void setSchemaClassName(final String schemaClassName) {
-        set(SCHEMA_CLASS, schemaClassName);
     }
 
     public void setSchemaClass(final Class<? extends Schema> schemaClass) {
@@ -195,20 +192,47 @@ public class StoreProperties implements Cloneable {
         set(STORE_PROPERTIES_CLASS, storePropertiesClass.getName());
     }
 
+    public String getOperationDeclarationPaths() {
+        return get(OPERATION_DECLARATIONS);
+    }
+
+    public void setOperationDeclarationPaths(final String paths) {
+        set(OPERATION_DECLARATIONS, paths);
+    }
 
     public void setProperties(final Properties properties) {
-        this.props = properties;
-        propFileLocation = null;
+        if (null == properties) {
+            this.props = new Properties();
+        } else {
+            this.props = properties;
+        }
     }
 
     public Properties getProperties() {
         return props;
     }
 
+    public static StoreProperties loadStoreProperties(final String pathStr) {
+        final StoreProperties storeProperties;
+        final Path path = Paths.get(pathStr);
+        try {
+            if (path.toFile().exists()) {
+                storeProperties = loadStoreProperties(Files.newInputStream(path));
+            } else {
+                storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
+            }
+        } catch (final IOException e) {
+            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        }
+
+        return storeProperties;
+    }
+
+
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
         try {
             return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         }
     }
@@ -220,12 +244,12 @@ public class StoreProperties implements Cloneable {
         final Properties props = new Properties();
         try {
             props.load(storePropertiesStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
         } finally {
             try {
                 storePropertiesStream.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
             }
         }
@@ -253,20 +277,5 @@ public class StoreProperties implements Cloneable {
         }
         storeProperties.setProperties(props);
         return storeProperties;
-    }
-
-    private void readProperties() {
-        if (null != propFileLocation) {
-            try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {
-                props = new Properties();
-                props.load(accIs);
-
-                for (final Runnable r : this.readyObservers) {
-                    r.run();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 }

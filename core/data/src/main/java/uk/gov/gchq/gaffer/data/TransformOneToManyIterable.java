@@ -16,6 +16,10 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import java.io.Closeable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -28,10 +32,11 @@ import java.util.NoSuchElementException;
  * @param <INPUT>  The input iterable type.
  * @param <OUTPUT> the output iterable type.
  */
-public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Iterable<OUTPUT> {
+public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements CloseableIterable<OUTPUT> {
     private final Iterable<INPUT> input;
     private final Validator<INPUT> validator;
     private final boolean skipInvalid;
+    private final boolean autoClose;
 
     /**
      * Constructs an <code>TransformOneToManyIterable</code> with the given input {@link Iterable} and no validation.
@@ -39,7 +44,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Itera
      * @param input the input {@link Iterable}
      */
     public TransformOneToManyIterable(final Iterable<INPUT> input) {
-        this(input, new AlwaysValid<INPUT>(), false);
+        this(input, new AlwaysValid<>(), false);
     }
 
     /**
@@ -62,20 +67,47 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Itera
      * @param skipInvalid if true invalid items should be skipped
      */
     public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid) {
+        this(input, validator, skipInvalid, false);
+    }
+
+    /**
+     * Constructs an <code>TransformOneToManyIterable</code> with the given inputs
+     *
+     * @param input       the input {@link Iterable}
+     * @param validator   the {@link Validator}
+     * @param skipInvalid if true invalid items should be skipped
+     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
+     */
+    public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
+        this.autoClose = autoClose;
+    }
+
+    @Override
+    public void close() {
+        if (input instanceof Closeable) {
+            IOUtils.closeQuietly(((Closeable) input));
+        }
     }
 
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
      */
-    public Iterator<OUTPUT> iterator() {
-        return new Iterator<OUTPUT>() {
+    public CloseableIterator<OUTPUT> iterator() {
+        return new CloseableIterator<OUTPUT>() {
             private final Iterator<INPUT> inputItr = input.iterator();
 
             private Iterator<OUTPUT> nextElements;
             private Boolean hasNext;
+
+            @Override
+            public void close() {
+                if (inputItr instanceof Closeable) {
+                    IOUtils.closeQuietly(((Closeable) inputItr));
+                }
+            }
 
             @Override
             public boolean hasNext() {
@@ -106,7 +138,12 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Itera
                     }
                 }
 
-                return _hasNext();
+                final boolean hasNextResult = _hasNext();
+                if (autoClose && !hasNextResult) {
+                    close();
+                }
+
+                return hasNextResult;
             }
 
             @Override
