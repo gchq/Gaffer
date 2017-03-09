@@ -18,22 +18,21 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.gaffer.function.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class ExistsTest extends FilterFunctionTest {
+public class ExistsTest extends PredicateTest {
     @Test
     public void shouldAcceptTheValueWhenNotNull() {
         // Given
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.isValid("Not null value");
+        boolean accepted = filter.test("Not null value");
 
         // Then
         assertTrue(accepted);
@@ -45,22 +44,10 @@ public class ExistsTest extends FilterFunctionTest {
         final Exists filter = new Exists();
 
         // When
-        boolean accepted = filter.isValid((Object) null);
+        boolean accepted = filter.test((Object) null);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final Exists filter = new Exists();
-
-        // When
-        final Exists clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -84,7 +71,7 @@ public class ExistsTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<Exists> getFunctionClass() {
+    protected Class<Exists> getPredicateClass() {
         return Exists.class;
     }
 

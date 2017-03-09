@@ -23,17 +23,17 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.function.Predicate;
 
 /**
  * An <code>AreIn</code> is a {@link SimpleFilterFunction}
  * that checks whether a provided {@link Collection} contains all the input values.
  */
-@Inputs(Collection.class)
-public class AreIn extends SimpleFilterFunction<Collection<?>> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class AreIn implements Predicate<Collection<?>> {
     private Collection<?> allowedValues;
 
     public AreIn() {
@@ -72,14 +72,9 @@ public class AreIn extends SimpleFilterFunction<Collection<?>> {
         }
     }
 
-    public AreIn statelessClone() {
-        return new AreIn(allowedValues);
-    }
-
     @Override
-    protected boolean isValid(final Collection<?> input) {
+    public boolean test(final Collection<?> input) {
         return null == allowedValues || allowedValues.isEmpty() || (null != input && allowedValues.containsAll(input));
-
     }
 
     @Override
@@ -95,7 +90,6 @@ public class AreIn extends SimpleFilterFunction<Collection<?>> {
         final AreIn that = (AreIn) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(allowedValues, that.allowedValues)
                 .isEquals();
     }
@@ -103,7 +97,6 @@ public class AreIn extends SimpleFilterFunction<Collection<?>> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(allowedValues)
                 .toHashCode();
     }
@@ -111,7 +104,6 @@ public class AreIn extends SimpleFilterFunction<Collection<?>> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("allowedValues", allowedValues)
                 .toString();
     }

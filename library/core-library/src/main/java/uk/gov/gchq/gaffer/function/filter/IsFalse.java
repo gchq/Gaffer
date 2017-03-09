@@ -15,21 +15,31 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import java.util.function.Predicate;
 
 /**
  * An <code>IsFalse</code> is a {@link SimpleFilterFunction} that checks that the input boolean is
  * false.
  */
-@Inputs(Boolean.class)
-public class IsFalse extends SimpleFilterFunction<Boolean> {
-    public IsFalse statelessClone() {
-        return new IsFalse();
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class IsFalse implements Predicate<Boolean> {
+    @Override
+    public boolean test(final Boolean input) {
+        return null != input && Boolean.FALSE.equals(input);
     }
 
     @Override
-    public boolean isValid(final Boolean input) {
-        return null != input && Boolean.FALSE.equals(input);
+    public boolean equals(final Object o) {
+        return this == o || o != null && getClass() == o.getClass();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getClass())
+                .toHashCode();
     }
 }

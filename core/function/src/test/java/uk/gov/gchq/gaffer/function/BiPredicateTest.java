@@ -20,11 +20,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import java.io.IOException;
+import java.util.function.BiPredicate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public abstract class FunctionTest {
+public abstract class BiPredicateTest {
     private static final ObjectMapper MAPPER = createObjectMapper();
 
     private static ObjectMapper createObjectMapper() {
@@ -34,9 +35,9 @@ public abstract class FunctionTest {
         return mapper;
     }
 
-    protected abstract Function getInstance();
+    protected abstract BiPredicate getInstance();
 
-    protected abstract Class<? extends Function> getFunctionClass();
+    protected abstract Class<? extends BiPredicate> getPredicateClass();
 
     @Test
     public abstract void shouldJsonSerialiseAndDeserialise() throws IOException;
@@ -45,17 +46,17 @@ public abstract class FunctionTest {
         return MAPPER.writeValueAsString(object);
     }
 
-    protected Function deserialise(String json) throws IOException {
-        return MAPPER.readValue(json, getFunctionClass());
+    protected BiPredicate deserialise(String json) throws IOException {
+        return MAPPER.readValue(json, getPredicateClass());
     }
 
     @Test
     public void shouldEquals() {
         // Given
-        final Function instance = getInstance();
+        final BiPredicate instance = getInstance();
 
         // When
-        final Function other = getInstance();
+        final BiPredicate other = getInstance();
 
         // Then
         assertEquals(instance, other);
@@ -65,7 +66,7 @@ public abstract class FunctionTest {
     @Test
     public void shouldEqualsWhenSameObject() {
         // Given
-        final Function instance = getInstance();
+        final BiPredicate instance = getInstance();
 
         // Then
         assertEquals(instance, instance);
@@ -75,7 +76,7 @@ public abstract class FunctionTest {
     @Test
     public void shouldNotEqualsWhenDifferentClass() {
         // Given
-        final Function instance = getInstance();
+        final BiPredicate instance = getInstance();
 
         // When
         final Object other = new Object();
@@ -88,7 +89,7 @@ public abstract class FunctionTest {
     @Test
     public void shouldNotEqualsNull() {
         // Given
-        final Function instance = getInstance();
+        final BiPredicate instance = getInstance();
 
         // Then
         assertNotEquals(instance, null);

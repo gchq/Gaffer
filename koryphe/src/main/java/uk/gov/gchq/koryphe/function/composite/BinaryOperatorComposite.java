@@ -28,7 +28,7 @@ public final class BinaryOperatorComposite<T> extends Composite<BinaryOperator<T
     @Override
     public T apply(final T input, final T state) {
         T result = state;
-        for (BinaryOperator<T> function : this) {
+        for (BinaryOperator<T> function : getFunctions()) {
             result = function.apply(input, result);
         }
         return result;

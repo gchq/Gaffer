@@ -31,7 +31,7 @@ public final class BiFunctionComposite<I, O> extends Composite<BiFunction> imple
     @Override
     public O apply(final I input, final O state) {
         Object result = state;
-        for (BiFunction function : this) {
+        for (BiFunction function : getFunctions()) {
             result = function.apply(input, result);
         }
         return (O) result;

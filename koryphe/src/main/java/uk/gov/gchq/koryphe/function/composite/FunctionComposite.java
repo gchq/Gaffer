@@ -32,7 +32,7 @@ public final class FunctionComposite<I, O> extends Composite<Function> implement
     @Override
     public O apply(final I input) {
         Object result = input;
-        for (Function function : this) {
+        for (Function function : getFunctions()) {
             // Assume the output of one is the input of the next
             result = function.apply(result);
         }

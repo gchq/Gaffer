@@ -15,40 +15,40 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import java.util.function.BiPredicate;
 
 /**
  * An <code>AreEqual</code> is a {@link FilterFunction} that returns true if the two input objects
  * are equal.
  */
-@Inputs({ Object.class, Object.class })
-public class AreEqual extends FilterFunction {
-
-    @Override
-    public AreEqual statelessClone() {
-        return new AreEqual();
-    }
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class AreEqual implements BiPredicate<Object, Object> {
     /**
-     * @param input the input objects
+     * @param input1 input 1
+     * @param input2 input 2
      * @return true if either the input array is null, it has only 1 item or the first 2 items are equal. Otherwise false.
      */
     @Override
-    public boolean isValid(final Object[] input) {
-        if (null == input) {
-            return true;
+    public boolean test(final Object input1, final Object input2) {
+        if (null == input1) {
+            return null == input2;
         }
 
-        int inputLength = input.length;
-        if (inputLength < 2) {
-            return true;
-        }
+        return input1.equals(input2);
+    }
 
-        if (null == input[0]) {
-            return null == input[1];
-        }
+    @Override
+    public boolean equals(final Object o) {
+        return this == o || o != null && getClass() == o.getClass();
+    }
 
-        return input[0].equals(input[1]);
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getClass())
+                .toHashCode();
     }
 }

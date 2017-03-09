@@ -13,49 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.MultiFilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
+import com.google.common.collect.Lists;
+import uk.gov.gchq.koryphe.function.composite.Composite;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * An <code>Or</code> is a {@link MultiFilterFunction} that should be created with a list of
- * {@link ConsumerFunctionContext} contain {@link FilterFunction}s.
- * This filter ORs together the filter results from all these filters and returns the result.
+ * A composite {@link Predicate} that returns true if any of it's predicates return true, otherwise false.
  *
- * @see uk.gov.gchq.gaffer.function.aggregate.NumericAggregateFunction
+ * @param <I> Type of input to be validated.
  */
-public class Or extends MultiFilterFunction {
+public final class Or<I> extends Composite<Predicate<I>> implements Predicate<I> {
     public Or() {
+        super();
     }
 
-    public Or(final List<ConsumerFunctionContext<Integer, FilterFunction>> functions) {
-        super(functions);
+    public Or(Predicate<I>... predicates) {
+        super(Lists.newArrayList(predicates));
+    }
+
+    public Or(final List<Predicate<I>> predicates) {
+        super(predicates);
     }
 
     @Override
-    public Or statelessClone() {
-        return new Or(cloneFunctions());
-    }
-
-    /**
-     * @param input the input to test
-     * @return true if any of the contained filter functions returns true, otherwise false.
-     */
-    @Override
-    public boolean isValid(final Object[] input) {
-        if (getFunctions().isEmpty()) {
-            return true;
-        }
-
-        for (final Boolean result : executeFilters(input)) {
-            if (result) {
+    public boolean test(final I input) {
+        for (Predicate<I> validator : getFunctions()) {
+            if (validator.test(input)) {
                 return true;
             }
         }
-
         return false;
     }
 }

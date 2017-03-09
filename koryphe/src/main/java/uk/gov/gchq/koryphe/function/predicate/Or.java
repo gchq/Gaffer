@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.koryphe.function.predicate;
 
+import com.google.common.collect.Lists;
 import uk.gov.gchq.koryphe.function.composite.Composite;
 import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * A composite {@link Predicate} that returns true if any of it's validators return true, otherwise false.
+ * A composite {@link Predicate} that returns true if any of it's predicates return true, otherwise false.
  *
  * @param <I> Type of input to be validated.
  */
@@ -30,13 +31,17 @@ public final class Or<I> extends Composite<Predicate<I>> implements Predicate<I>
         super();
     }
 
-    public Or(final List<Predicate<I>> validators) {
-        super(validators);
+    public Or(Predicate<I>... predicates) {
+        super(Lists.newArrayList(predicates));
+    }
+
+    public Or(final List<Predicate<I>> predicates) {
+        super(predicates);
     }
 
     @Override
     public boolean test(final I input) {
-        for (Predicate<I> validator : this) {
+        for (Predicate<I> validator : getFunctions()) {
             if (validator.test(input)) {
                 return true;
             }

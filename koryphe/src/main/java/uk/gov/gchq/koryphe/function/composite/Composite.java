@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.koryphe.function.composite;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -26,12 +29,48 @@ import java.util.function.Function;
  *
  * @param <F> The type of Function
  */
-public abstract class Composite<F> extends ArrayList<F> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public abstract class Composite<F> {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    private List<F> functions;
+
     public Composite() {
-        super();
+        this(new ArrayList<F>());
     }
 
     public Composite(List<F> functions) {
-        super(functions);
+        this.functions = functions;
+    }
+
+    public List<F> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(final List<F> functions) {
+        this.functions = functions;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Composite composite = (Composite) o;
+
+        return new EqualsBuilder()
+                .append(functions, composite.functions)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(functions)
+                .toHashCode();
     }
 }

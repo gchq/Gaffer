@@ -18,22 +18,21 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.gaffer.function.BiPredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class AreEqualTest extends FilterFunctionTest {
+public class AreEqualTest extends BiPredicateTest {
 
     @Test
     public void shouldAcceptTheWhenEqualValues() {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.isValid(new String[]{"test", "test"});
+        boolean accepted = equals.test("test", "test");
 
         assertTrue(accepted);
     }
@@ -43,7 +42,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.isValid(new String[]{null, null});
+        boolean accepted = equals.test(null, null);
 
         assertTrue(accepted);
     }
@@ -53,7 +52,7 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.isValid(new String[]{null, "test"});
+        boolean accepted = equals.test(null, "test");
 
         assertFalse(accepted);
     }
@@ -63,22 +62,9 @@ public class AreEqualTest extends FilterFunctionTest {
 
         final AreEqual equals = new AreEqual();
 
-        boolean accepted = equals.isValid(new String[]{"test", "test2"});
+        boolean accepted = equals.test("test", "test2");
 
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final AreEqual filter = new AreEqual();
-
-        // When
-        final AreEqual clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertNotNull(clonedFilter);
     }
 
     @Test
@@ -102,7 +88,7 @@ public class AreEqualTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<AreEqual> getFunctionClass() {
+    protected Class<AreEqual> getPredicateClass() {
         return AreEqual.class;
     }
 

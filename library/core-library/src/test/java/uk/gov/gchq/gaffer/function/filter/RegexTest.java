@@ -18,18 +18,15 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
+import uk.gov.gchq.gaffer.function.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class RegexTest extends FilterFunctionTest {
+public class RegexTest extends PredicateTest {
     @Test
     public void shouldAccepValidValue() {
         // Given
@@ -37,7 +34,7 @@ public class RegexTest extends FilterFunctionTest {
 
 
         // When
-        boolean accepted = filter.isValid("teaadst");
+        boolean accepted = filter.test("teaadst");
 
         // Then
         assertTrue(accepted);
@@ -49,22 +46,10 @@ public class RegexTest extends FilterFunctionTest {
         final Regex filter = new Regex("fa[a-d]{3}il");
 
         // When
-        boolean accepted = filter.isValid("favcdil");
+        boolean accepted = filter.test("favcdil");
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final Regex filter = new Regex();
-
-        // When
-        final Regex clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -92,12 +77,12 @@ public class RegexTest extends FilterFunctionTest {
     }
 
     @Override
-    protected FilterFunction getInstance() {
+    protected Regex getInstance() {
         return new Regex("[a-zA-Z]{1,12}");
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<Regex> getPredicateClass() {
         return Regex.class;
     }
 

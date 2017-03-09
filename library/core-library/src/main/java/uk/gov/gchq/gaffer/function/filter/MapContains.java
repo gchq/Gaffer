@@ -15,19 +15,20 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * An <code>MapContains</code> is a {@link SimpleFilterFunction} that checks
  * whether a {@link Map} contains a provided key.
  */
-@Inputs(Map.class)
-public class MapContains extends SimpleFilterFunction<Map> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class MapContains implements Predicate<Map> {
     private String key;
 
     public MapContains() {
@@ -46,12 +47,8 @@ public class MapContains extends SimpleFilterFunction<Map> {
         this.key = key;
     }
 
-    public MapContains statelessClone() {
-        return new MapContains(key);
-    }
-
     @Override
-    public boolean isValid(final Map input) {
+    public boolean test(final Map input) {
         return input.containsKey(key);
     }
 
@@ -68,7 +65,6 @@ public class MapContains extends SimpleFilterFunction<Map> {
         final MapContains that = (MapContains) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(key, that.key)
                 .isEquals();
     }
@@ -76,7 +72,6 @@ public class MapContains extends SimpleFilterFunction<Map> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(key)
                 .toHashCode();
     }
@@ -84,7 +79,6 @@ public class MapContains extends SimpleFilterFunction<Map> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("key", key)
                 .toString();
     }

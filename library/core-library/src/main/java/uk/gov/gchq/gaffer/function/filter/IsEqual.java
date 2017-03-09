@@ -21,14 +21,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import java.util.function.Predicate;
 
 /**
  * An <code>IsEqual</code> is a {@link SimpleFilterFunction} that checks that the input object is
  * equal to a control value.
  */
-@Inputs(Object.class)
-public class IsEqual extends SimpleFilterFunction<Object> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class IsEqual implements Predicate<Object> {
     private Object controlValue;
 
     public IsEqual() {
@@ -37,11 +37,6 @@ public class IsEqual extends SimpleFilterFunction<Object> {
 
     public IsEqual(final Object controlValue) {
         this.controlValue = controlValue;
-    }
-
-    @Override
-    public IsEqual statelessClone() {
-        return new IsEqual(controlValue);
     }
 
     @JsonProperty("value")
@@ -55,7 +50,7 @@ public class IsEqual extends SimpleFilterFunction<Object> {
     }
 
     @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         if (null == controlValue) {
             return null == input;
         }
@@ -76,7 +71,6 @@ public class IsEqual extends SimpleFilterFunction<Object> {
         final IsEqual isEqual = (IsEqual) o;
 
         return new EqualsBuilder()
-                .append(inputs, isEqual.inputs)
                 .append(controlValue, isEqual.controlValue)
                 .isEquals();
     }
@@ -84,7 +78,6 @@ public class IsEqual extends SimpleFilterFunction<Object> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(controlValue)
                 .toHashCode();
     }
@@ -92,7 +85,6 @@ public class IsEqual extends SimpleFilterFunction<Object> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("controlValue", controlValue)
                 .toString();
     }

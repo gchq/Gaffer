@@ -18,17 +18,16 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.gaffer.function.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class IsShorterThanTest extends FilterFunctionTest {
+public class IsShorterThanTest extends PredicateTest {
     @Test
     public void shouldSetAndGetMaxLength() {
         // Given
@@ -50,7 +49,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.isValid("1234");
+        final boolean accepted = filter.test("1234");
 
         // Then
         assertTrue(accepted);
@@ -62,7 +61,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.isValid("123456");
+        final boolean accepted = filter.test("123456");
 
         // Then
         assertFalse(accepted);
@@ -74,7 +73,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         final IsShorterThan filter = new IsShorterThan(5);
 
         // When
-        final boolean accepted = filter.isValid("12345");
+        final boolean accepted = filter.test("12345");
 
         // Then
         assertFalse(accepted);
@@ -87,24 +86,11 @@ public class IsShorterThanTest extends FilterFunctionTest {
 
         // When / Then
         try {
-            filter.isValid(4);
+            filter.test(4);
             fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertNotNull(e);
         }
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsShorterThan filter = new IsShorterThan(5);
-
-        // When
-        final IsShorterThan clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(5, clonedFilter.getMaxLength());
     }
 
     @Test
@@ -132,7 +118,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsShorterThan> getFunctionClass() {
+    protected Class<IsShorterThan> getPredicateClass() {
         return IsShorterThan.class;
     }
 

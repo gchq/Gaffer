@@ -13,36 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.function;
+package uk.gov.gchq.gaffer.function.filter;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
- * An <code>MapFilter</code> is a {@link SimpleFilterFunction} that extracts a
+ * An <code>PredicateMap</code> is a {@link Predicate} that extracts a
  * value from a map using the provided key and passes the value to a provided
- * {@link FilterFunction}.
+ * {@link Predicate}.
  */
-@Inputs(Map.class)
-public class MapFilter extends SimpleFilterFunction<Map> {
-    private FilterFunction function;
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class PredicateMap<T> implements Predicate<Map<?, T>> {
+    private Predicate<? super T> predicate;
     private Object key;
 
-    public MapFilter() {
+    public PredicateMap() {
     }
 
-    public MapFilter(final Object key, final FilterFunction function) {
-        this.function = function;
+    public PredicateMap(final Object key, final Predicate<? super T> predicate) {
+        this.predicate = predicate;
         this.key = key;
     }
 
     @Override
-    protected boolean isValid(final Map map) {
-        if (null == function) {
+    public boolean test(final Map<?, T> map) {
+        if (null == predicate) {
             return true;
         }
 
@@ -50,30 +50,20 @@ public class MapFilter extends SimpleFilterFunction<Map> {
             return false;
         }
 
-        // If the function is a simple filter function we can avoid having to wrap
-        // the map value in an object array.
-        if (function instanceof SimpleFilterFunction) {
-            try {
-                return ((SimpleFilterFunction) function).isValid(map.get(key));
-            } catch (final ClassCastException e) {
-                throw new IllegalArgumentException("Input does not match parametrised type", e);
-            }
+        try {
+            return predicate.test(map.get(key));
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException("Input does not match parametrised type", e);
         }
-
-        return function.isValid(new Object[]{map.get(key)});
     }
 
-    @Override
-    public MapFilter statelessClone() {
-        return new MapFilter(key, function.statelessClone());
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public Predicate<? super T> getPredicate() {
+        return predicate;
     }
 
-    public FilterFunction getFunction() {
-        return function;
-    }
-
-    public void setFunction(final FilterFunction function) {
-        this.function = function;
+    public void setPredicate(final Predicate<? super T> predicate) {
+        this.predicate = predicate;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -95,20 +85,18 @@ public class MapFilter extends SimpleFilterFunction<Map> {
             return false;
         }
 
-        final MapFilter mapFilter = (MapFilter) o;
+        final PredicateMap predicateMap = (PredicateMap) o;
 
         return new EqualsBuilder()
-                .append(inputs, mapFilter.inputs)
-                .append(function, mapFilter.function)
-                .append(key, mapFilter.key)
+                .append(predicate, predicateMap.predicate)
+                .append(key, predicateMap.key)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(function)
+                .append(predicate)
                 .append(key)
                 .toHashCode();
     }
@@ -116,8 +104,7 @@ public class MapFilter extends SimpleFilterFunction<Map> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("function", function)
+                .append("predicate", predicate)
                 .append("key", key)
                 .toString();
     }

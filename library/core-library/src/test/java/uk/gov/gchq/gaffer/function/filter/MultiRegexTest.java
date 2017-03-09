@@ -18,19 +18,16 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
+import uk.gov.gchq.gaffer.function.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class MultiRegexTest extends FilterFunctionTest {
+public class MultiRegexTest extends PredicateTest {
 
     @Test
     public void shouldAccepValidValue() {
@@ -41,7 +38,7 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter.isValid("pass");
+        boolean accepted = filter.test("pass");
 
         // Then
         assertTrue(accepted);
@@ -56,22 +53,10 @@ public class MultiRegexTest extends FilterFunctionTest {
         final MultiRegex filter = new MultiRegex(patterns);
 
         // When
-        boolean accepted = filter.isValid("pass");
+        boolean accepted = filter.test("pass");
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final MultiRegex filter = new MultiRegex();
-
-        // When
-        final MultiRegex clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -105,7 +90,7 @@ public class MultiRegexTest extends FilterFunctionTest {
     }
 
     @Override
-    protected FilterFunction getInstance() {
+    protected MultiRegex getInstance() {
         Pattern[] patterns = new Pattern[2];
         patterns[0] = Pattern.compile("NOTHING");
         patterns[1] = Pattern.compile("[t,T].*[t,T]");
@@ -114,7 +99,7 @@ public class MultiRegexTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<MultiRegex> getPredicateClass() {
         return MultiRegex.class;
     }
 }

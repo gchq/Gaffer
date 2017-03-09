@@ -23,18 +23,18 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * An <code>IsIn</code> is a {@link SimpleFilterFunction} that checks that the input object is
  * in a set of allowed values.
  */
-@Inputs(Object.class)
-public class IsIn extends SimpleFilterFunction<Object> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class IsIn implements Predicate<Object> {
     private Set<Object> allowedValues;
 
     public IsIn() {
@@ -73,12 +73,8 @@ public class IsIn extends SimpleFilterFunction<Object> {
         this.allowedValues = allowedValues;
     }
 
-    public IsIn statelessClone() {
-        return new IsIn(allowedValues);
-    }
-
     @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         return allowedValues.contains(input);
     }
 
@@ -95,7 +91,6 @@ public class IsIn extends SimpleFilterFunction<Object> {
         final IsIn isIn = (IsIn) o;
 
         return new EqualsBuilder()
-                .append(inputs, isIn.inputs)
                 .append(allowedValues, isIn.allowedValues)
                 .isEquals();
     }
@@ -103,7 +98,6 @@ public class IsIn extends SimpleFilterFunction<Object> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(allowedValues)
                 .toHashCode();
     }
@@ -111,7 +105,6 @@ public class IsIn extends SimpleFilterFunction<Object> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("allowedValues", allowedValues)
                 .toString();
     }

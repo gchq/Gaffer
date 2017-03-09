@@ -22,17 +22,16 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsATest extends FilterFunctionTest {
+public class IsATest extends PredicateTest {
     @Test
     public void shouldAcceptTheValueWhenSameClass() {
         // Given
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.isValid(new String[]{"Test"});
+        boolean accepted = filter.test(new String[]{"Test"});
 
         // Then
         assertTrue(accepted);
@@ -44,7 +43,7 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.isValid(new Integer[]{5});
+        boolean accepted = filter.test(new Integer[]{5});
 
         // Then
         assertFalse(accepted);
@@ -56,7 +55,7 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(Number.class);
 
         // When
-        boolean accepted = filter.isValid(new Integer[]{5});
+        boolean accepted = filter.test(new Integer[]{5});
 
         // Then
         assertTrue(accepted);
@@ -68,23 +67,10 @@ public class IsATest extends FilterFunctionTest {
         final IsA filter = new IsA(String.class);
 
         // When
-        boolean accepted = filter.isValid(new Object[]{null});
+        boolean accepted = filter.test(new Object[]{null});
 
         // Then
         assertTrue(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsA filter = new IsA(String.class);
-
-        // When
-        final IsA clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(String.class.getName(), clonedFilter.getType());
     }
 
     @Test
@@ -114,7 +100,7 @@ public class IsATest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<? extends ConsumerFunction> getFunctionClass() {
+    protected Class<IsA> getPredicateClass() {
         return IsA.class;
     }
 }

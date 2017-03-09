@@ -18,26 +18,24 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.gaffer.function.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsInTest extends FilterFunctionTest {
+public class IsInTest extends PredicateTest {
     @Test
     public void shouldAcceptWhenValueInList() {
         // Given
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.isValid("B");
+        boolean accepted = filter.test("B");
 
         // Then
         assertTrue(accepted);
@@ -49,25 +47,10 @@ public class IsInTest extends FilterFunctionTest {
         final IsIn filter = new IsIn(Arrays.asList((Object) "A", "B", "C"));
 
         // When
-        boolean accepted = filter.isValid("D");
+        boolean accepted = filter.test("D");
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final List<Object> controlData = Arrays.asList((Object) 1, 2, 3, 4);
-        final IsIn filter = new IsIn(controlData);
-
-        // When
-        final IsIn clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertNotSame(controlData, clonedFilter.getAllowedValues());
-        assertArrayEquals(controlData.toArray(), clonedFilter.getAllowedValuesArray());
     }
 
     @Test
@@ -94,7 +77,7 @@ public class IsInTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsIn> getFunctionClass() {
+    protected Class<IsIn> getPredicateClass() {
         return IsIn.class;
     }
 

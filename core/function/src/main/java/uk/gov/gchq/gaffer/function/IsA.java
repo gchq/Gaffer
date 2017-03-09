@@ -19,14 +19,13 @@ package uk.gov.gchq.gaffer.function;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import java.util.function.Predicate;
 
 /**
- * An <code>IsA</code> {@link uk.gov.gchq.gaffer.function.FilterFunction} tests whether an input {@link java.lang.Object} is an
- * instance of some control {@link java.lang.Class}.
+ * An <code>IsA</code> {@link Predicate} tests whether an input {@link Object} is an
+ * instance of a given control {@link Class}.
  */
-@Inputs(Object.class)
-public class IsA extends SimpleFilterFunction<Object> {
+public class IsA implements Predicate<Object> {
     private Class<?> type;
 
     /**
@@ -36,7 +35,7 @@ public class IsA extends SimpleFilterFunction<Object> {
     }
 
     /**
-     * Create an <code>IsA</code> filter that tests for instances of a given control {@link java.lang.Class}.
+     * Create an <code>IsA</code> validate that tests for instances of a given control {@link Class}.
      *
      * @param type Control class.
      */
@@ -45,7 +44,7 @@ public class IsA extends SimpleFilterFunction<Object> {
     }
 
     /**
-     * Create an <code>IsA</code> filter that tests for instances of a given control class name.
+     * Create an <code>IsA</code> validate that tests for instances of a given control class name.
      *
      * @param type Name of the control class.
      */
@@ -60,7 +59,7 @@ public class IsA extends SimpleFilterFunction<Object> {
         try {
             this.type = Class.forName(type);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not load class for given type: " + type, e);
+            throw new IllegalArgumentException("Could not load class for given type: " + type);
         }
     }
 
@@ -72,22 +71,13 @@ public class IsA extends SimpleFilterFunction<Object> {
     }
 
     /**
-     * Create a new <code>IsA</code> filter with the same control class as this one.
+     * Tests whether the argument supplied is an instance of the control class.
      *
-     * @return New <code>IsA</code> filter.
-     */
-    public IsA statelessClone() {
-        return new IsA(type);
-    }
-
-    /**
-     * Tests whether the argument supplied to this method is an instance of the control class.
-     *
-     * @param input {@link java.lang.Object} to test.
-     * @return true iff there is a single, non-null input object that can be cast to the control class, otherwise false.
+     * @param input {@link Object} to test.
+     * @return true iff input is null or non-null and can be cast to the control class, otherwise false.
      */
     @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         return null == input || type.isAssignableFrom(input.getClass());
     }
 
@@ -104,8 +94,6 @@ public class IsA extends SimpleFilterFunction<Object> {
         final IsA isA = (IsA) o;
 
         return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(inputs, isA.inputs)
                 .append(type, isA.type)
                 .isEquals();
     }
@@ -113,8 +101,6 @@ public class IsA extends SimpleFilterFunction<Object> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(inputs)
                 .append(type)
                 .toHashCode();
     }
@@ -122,7 +108,6 @@ public class IsA extends SimpleFilterFunction<Object> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("type", type)
                 .toString();
     }

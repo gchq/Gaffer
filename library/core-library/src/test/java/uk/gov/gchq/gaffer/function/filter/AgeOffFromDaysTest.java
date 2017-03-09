@@ -18,15 +18,14 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.gaffer.function.BiPredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class AgeOffFromDaysTest extends FilterFunctionTest {
+public class AgeOffFromDaysTest extends BiPredicateTest {
     public static final int MINUTE_IN_MILLISECONDS = 60000;
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final int AGE_OFF_DAYS = 14;
@@ -38,8 +37,7 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
         final AgeOffFromDays filter = new AgeOffFromDays();
 
         // When
-        final Object[] input = new Object[]{System.currentTimeMillis() - AGE_OFF_MILLISECONDS + MINUTE_IN_MILLISECONDS, AGE_OFF_DAYS};
-        final boolean accepted = filter.isValid(input);
+        final boolean accepted = filter.test(System.currentTimeMillis() - AGE_OFF_MILLISECONDS + MINUTE_IN_MILLISECONDS, AGE_OFF_DAYS);
 
         // Then
         assertTrue(accepted);
@@ -51,54 +49,10 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
         final AgeOffFromDays filter = new AgeOffFromDays();
 
         // When
-        final Object[] input = new Object[]{System.currentTimeMillis() - AGE_OFF_MILLISECONDS - DAY_IN_MILLISECONDS, AGE_OFF_DAYS};
-        final boolean accepted = filter.isValid(input);
+        final boolean accepted = filter.test(System.currentTimeMillis() - AGE_OFF_MILLISECONDS - DAY_IN_MILLISECONDS, AGE_OFF_DAYS);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldNotAcceptWhenInputIsNull() {
-        // Given
-        final AgeOffFromDays filter = new AgeOffFromDays();
-
-        // When
-        final Object[] input = null;
-        final boolean accepted = filter.isValid(input);
-
-        // Then
-        assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldNotAcceptWhenInputIsEmpty() {
-        // Given
-        final AgeOffFromDays filter = new AgeOffFromDays();
-
-        // When
-        final Object[] input = new Object[]{};
-        final boolean accepted = filter.isValid(input);
-
-        // Then
-        assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldNotAcceptWhenInputIsIncorrectSize() {
-        // Given
-        final AgeOffFromDays filter = new AgeOffFromDays();
-
-        // When
-        final Object[] smallInput = new Object[]{""};
-        final Object[] largeInput = new Object[]{"", "", ""};
-
-        final boolean acceptedSmall = filter.isValid(smallInput);
-        final boolean acceptedLarge = filter.isValid(largeInput);
-
-        // Then
-        assertFalse(acceptedSmall);
-        assertFalse(acceptedLarge);
     }
 
     @Test
@@ -107,9 +61,7 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
         final AgeOffFromDays filter = new AgeOffFromDays();
 
         // When
-        final Object[] input = new Object[]{null, 0};
-
-        final boolean accepted = filter.isValid(input);
+        final boolean accepted = filter.test(null, 0);
 
         // Then
         assertFalse(accepted);
@@ -121,24 +73,10 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
         final AgeOffFromDays filter = new AgeOffFromDays();
 
         // When
-        final Object[] input = new Object[]{0L, null};
-
-        final boolean accepted = filter.isValid(input);
+        final boolean accepted = filter.test(0L, null);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final AgeOffFromDays filter = new AgeOffFromDays();
-
-        // When
-        final AgeOffFromDays clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -163,7 +101,7 @@ public class AgeOffFromDaysTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<AgeOffFromDays> getFunctionClass() {
+    protected Class<AgeOffFromDays> getPredicateClass() {
         return AgeOffFromDays.class;
     }
 

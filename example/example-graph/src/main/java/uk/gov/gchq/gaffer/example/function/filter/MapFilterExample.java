@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.MapFilter;
+import uk.gov.gchq.gaffer.function.filter.PredicateMap;
 import uk.gov.gchq.gaffer.function.filter.Exists;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.types.FreqMap;
@@ -29,7 +29,7 @@ public class MapFilterExample extends FilterFunctionExample {
     }
 
     public MapFilterExample() {
-        super(MapFilter.class);
+        super(PredicateMap.class);
     }
 
     public void runExamples() {
@@ -40,7 +40,7 @@ public class MapFilterExample extends FilterFunctionExample {
 
     public void freqMapIsMoreThan2() {
         // ---------------------------------------------------------
-        final MapFilter function = new MapFilter("key1", new IsMoreThan(2L));
+        final PredicateMap function = new PredicateMap("key1", new IsMoreThan(2L));
         // ---------------------------------------------------------
 
         final FreqMap map1 = new FreqMap();
@@ -64,7 +64,7 @@ public class MapFilterExample extends FilterFunctionExample {
 
     public void freqMapIsMoreThanOrEqualTo2() {
         // ---------------------------------------------------------
-        final MapFilter function = new MapFilter("key1", new IsMoreThan(2L, true));
+        final PredicateMap function = new PredicateMap("key1", new IsMoreThan(2L, true));
         // ---------------------------------------------------------
 
         final FreqMap map1 = new FreqMap();
@@ -88,7 +88,7 @@ public class MapFilterExample extends FilterFunctionExample {
 
     public void mapWithDateKeyHasAValueThatExists() {
         // ---------------------------------------------------------
-        final MapFilter function = new MapFilter(new Date(0L), new Exists());
+        final PredicateMap function = new PredicateMap(new Date(0L), new Exists());
         // ---------------------------------------------------------
 
         final Map<Date, Long> map1 = new HashMap<>();
