@@ -17,8 +17,8 @@
 package koryphe.function.validate;
 
 /**
- * An <code>IsA</code> {@link Validator} tests whether an input {@link java.lang.Object} is an
- * instance of a given control {@link java.lang.Class}.
+ * An <code>IsA</code> {@link Validator} tests whether an input {@link Object} is an
+ * instance of a given control {@link Class}.
  */
 public class IsA implements Validator<Object> {
     private Class<?> type;
@@ -30,7 +30,7 @@ public class IsA implements Validator<Object> {
     }
 
     /**
-     * Create an <code>IsA</code> validate that tests for instances of a given control {@link java.lang.Class}.
+     * Create an <code>IsA</code> validate that tests for instances of a given control {@link Class}.
      *
      * @param type Control class.
      */
@@ -68,7 +68,7 @@ public class IsA implements Validator<Object> {
     /**
      * Tests whether the argument supplied is an instance of the control class.
      *
-     * @param input {@link java.lang.Object} to test.
+     * @param input {@link Object} to test.
      * @return true iff input is null or non-null and can be cast to the control class, otherwise false.
      */
     @Override

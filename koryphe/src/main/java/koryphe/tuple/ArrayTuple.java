@@ -23,7 +23,7 @@ import java.util.Iterator;
 
 /**
  * An <code>ArrayTuple</code> is a simple implementation of the {@link Tuple} interface, backed by an
- * array of {@link java.lang.Object}s, referenced by their index.
+ * array of {@link Object}s, referenced by their index.
  */
 public class ArrayTuple implements Tuple<Integer> {
     private final Object[] values;

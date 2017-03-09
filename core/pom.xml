@@ -34,6 +34,5 @@
         <module>function</module>
         <module>store</module>
         <module>operation</module>
-        <module>koryphe</module>
     </modules>
 </project>

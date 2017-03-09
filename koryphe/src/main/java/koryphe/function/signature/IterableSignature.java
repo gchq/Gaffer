@@ -17,7 +17,7 @@
 package koryphe.function.signature;
 
 /**
- * An <code>IterableSignature</code> is the type metadata for an {@link java.lang.Iterable} of values.
+ * An <code>IterableSignature</code> is the type metadata for an {@link Iterable} of values.
  */
 public class IterableSignature extends Signature {
     private Signature iterableSignature;

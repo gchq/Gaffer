@@ -84,7 +84,7 @@ public abstract class Signature {
     }
 
     /**
-     * Create a <code>Signature</code> for the supplied {@link java.lang.reflect.Type}. This could be a singleton or
+     * Create a <code>Signature</code> for the supplied {@link Type}. This could be a singleton or
      * iterable.
      * @param type Type to create a signature for.
      * @return Signature of supplied type.

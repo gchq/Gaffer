@@ -22,21 +22,21 @@ import java.util.Map;
 
 /**
  * A <code>MapTuple</code> is an implementation of {@link Tuple} backed by a
- * {@link java.util.Map}.
+ * {@link Map}.
  */
 public class MapTuple<R> implements Tuple<R> {
     private Map<R, Object> values;
 
     /**
-     * Create a <code>MapTuple</code> backed by the given {@link java.util.Map}.
-     * @param values Backing {@link java.util.Map}.
+     * Create a <code>MapTuple</code> backed by the given {@link Map}.
+     * @param values Backing {@link Map}.
      */
     public MapTuple(final Map<R, Object> values) {
         this.values = values;
     }
 
     /**
-     * Create a <code>MapTuple</code> backed by a new {@link java.util.HashMap}.
+     * Create a <code>MapTuple</code> backed by a new {@link HashMap}.
      */
     public MapTuple() {
         this.values = new HashMap<R, Object>();
