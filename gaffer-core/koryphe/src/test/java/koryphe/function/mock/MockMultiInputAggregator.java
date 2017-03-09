@@ -16,10 +16,10 @@
 
 package koryphe.function.mock;
 
-import koryphe.function.stateful.aggregator.Aggregator;
-import koryphe.tuple.tuplen.Tuple2;
+import koryphe.function.aggregate.Aggregator;
+import koryphe.tuple.n.Tuple2;
 
-public class MockMultiInputAggregator implements Aggregator<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>> {
+public class MockMultiInputAggregator implements Aggregator<Tuple2<Integer,Integer>> {
     @Override
     public Tuple2<Integer, Integer> execute(Tuple2<Integer, Integer> input, Tuple2<Integer, Integer> state) {
         return input;

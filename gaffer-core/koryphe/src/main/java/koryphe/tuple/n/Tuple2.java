@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.tuple.n;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+/**
+ * A {@link koryphe.tuple.Tuple} with two values of the specified generic types.
+ * @param <A> Type of first tuple value.
+ * @param <B> Type of second tuple value.
+ */
+public interface Tuple2<A, B> extends Tuple1<A> {
+    /**
+     * Get the value at index 1.
+     * @return Value.
+     */
+    B get1();
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
-    }
+    /**
+     * Put a value into index 1.
+     * @param b Value to put.
+     */
+    void put1(final B b);
 }

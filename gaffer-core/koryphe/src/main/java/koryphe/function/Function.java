@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * A <code>Function</code> is a logical unit of processing that can be applied to an input to produce an output.
- * @param <I> Function input type
- * @param <O> Function output type
+ * @param <I> Type of function input
+ * @param <O> Type of function output
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface Function<I, O> { }

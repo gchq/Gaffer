@@ -16,9 +16,9 @@
 
 package koryphe.function.mock;
 
-import koryphe.function.stateless.transformer.Transformer;
+import koryphe.function.transform.Transformer;
 
-public class MockTransformer implements Transformer<Object, Object> {
+public class MockTransformer implements Transformer<Object,Object> {
     @Override
     public Object execute(Object input) {
         return input;

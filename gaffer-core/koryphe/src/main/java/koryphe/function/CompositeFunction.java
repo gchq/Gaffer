@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.function;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
+/**
+ * A <code>CompositeFunction</code> is a {@link List} of {@link Function}s that combine to make a composite
+ * function.
+ * @param <F> The type of Function
+ */
+public abstract class CompositeFunction<F extends Function> extends ArrayList<F> {
+    public CompositeFunction() {
+        super();
+    }
+
+    public CompositeFunction(List<F> functions) {
+        super(functions);
     }
 }

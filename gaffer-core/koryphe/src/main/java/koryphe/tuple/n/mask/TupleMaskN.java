@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.tuple.n.mask;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.tuple.mask.TupleMask;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
+/**
+ * A {@link TupleMask} that refers to more than 5 values in the wrapped tuple.
+ * @param <R> Type of reference used by wrapped tuple.
+ */
+public class TupleMaskN<R> extends TupleMask5<Object, Object, Object, Object, Object, R> {
+    public TupleMaskN(final TupleMask<R, ?>... references) {
+        super(references);
     }
+
+    public TupleMaskN() { }
 }

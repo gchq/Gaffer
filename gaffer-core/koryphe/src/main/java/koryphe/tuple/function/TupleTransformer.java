@@ -16,28 +16,36 @@
 
 package koryphe.tuple.function;
 
-import koryphe.function.stateless.transformer.TransformerContext;
+import koryphe.function.transform.Transformer;
 import koryphe.tuple.Tuple;
-import koryphe.tuple.adapter.TupleAdapter;
+import koryphe.tuple.mask.TupleMask;
 
 /**
  * A <code>TupleTransformer</code> transforms input {@link Tuple}s by applying a
- * {@link koryphe.function.stateless.transformer.Transformer} to the tuple values.
+ * {@link Transformer} to the tuple values.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleTransformer<R, I, O> extends TransformerContext<Tuple<R>, I, TupleAdapter<R, I>, O, TupleAdapter<R, O>> {
+public class TupleTransformer<R, I, O> extends TupleInputOutputFunction<R, I, O, Transformer<I, O>> implements Transformer<Tuple<R>, Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */
-    public TupleTransformer() { }
+    public TupleTransformer() {}
+
+    public TupleTransformer(TupleMask<R, I> selection, Transformer<I, O> function, TupleMask<R, O> projection) {
+        super(selection, function, projection);
+    }
 
     /**
      * Transform an input tuple.
-     * @param input Input tuple.
-     * @return Input tuple with transformed content.
+     * @param input Input tuple
      */
     @Override
     public Tuple<R> execute(final Tuple<R> input) {
-        return super.execute(input);
+        if (input == null) {
+            return null;
+        } else {
+            projection.setContext(input);
+            return projection.project(function.execute(selection.select(input)));
+        }
     }
 }

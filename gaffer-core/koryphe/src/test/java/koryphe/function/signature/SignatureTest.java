@@ -16,19 +16,6 @@
 
 package koryphe.function.signature;
 
-import koryphe.function.stateful.aggregator.Aggregator;
-import koryphe.function.mock.MockComplexInputAggregator;
-import koryphe.function.mock.MockMultiInputAggregator;
-import koryphe.function.mock.MockAggregator;
-import koryphe.tuple.MapTuple;
-import koryphe.tuple.function.TupleAggregator;
-import koryphe.tuple.tuplen.Tuple2;
-import koryphe.tuple.tuplen.Tuple5;
-import koryphe.tuple.tuplen.Tuple3;
-import koryphe.tuple.tuplen.value.Value2;
-import koryphe.tuple.tuplen.value.Value5;
-import koryphe.tuple.tuplen.value.Value3;
-import koryphe.tuple.adapter.TupleAdapter;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

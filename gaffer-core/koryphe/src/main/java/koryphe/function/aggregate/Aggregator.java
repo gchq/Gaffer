@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.function.aggregate;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.function.combine.Combiner;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
-    }
+/**
+ * A <code>Aggregator</code> is a {@link Combiner} that has the same input and output types.
+ * @param <T> Function input/output type
+ */
+public interface Aggregator<T> extends Combiner<T, T> {
 }

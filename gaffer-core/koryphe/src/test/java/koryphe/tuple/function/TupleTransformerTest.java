@@ -16,19 +16,16 @@
 
 package koryphe.tuple.function;
 
-import koryphe.function.Adapter;
-import koryphe.function.stateless.StatelessFunction;
 import koryphe.function.mock.MockTransformer;
-import koryphe.function.stateless.transformer.Transformer;
+import koryphe.function.transform.Transformer;
 import koryphe.tuple.Tuple;
-import koryphe.tuple.tuplen.Tuple2;
-import koryphe.tuple.tuplen.value.Value2;
-import koryphe.tuple.adapter.TupleAdapter;
+import koryphe.tuple.mask.TupleMask;
+import koryphe.tuple.n.Tuple2;
+import koryphe.tuple.n.value.Value2;
 import org.junit.Test;
 import util.JsonSerialiser;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.given;
@@ -49,22 +46,22 @@ public class TupleTransformerTest {
         // set up a function
         TupleTransformer<String, String, Tuple2<String, String>> transformer = new TupleTransformer<>();
         Transformer<String, Tuple2<String, String>> function1 = mock(Transformer.class);
-        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
-        TupleAdapter<String, Tuple2<String, String>> outputAdapter = mock(TupleAdapter.class);
-        given(inputAdapter.from(tuple)).willReturn(input1);
+        TupleMask<String, String> inputAdapter = mock(TupleMask.class);
+        TupleMask<String, Tuple2<String, String>> outputAdapter = mock(TupleMask.class);
+        given(inputAdapter.select(tuple)).willReturn(input1);
         given(function1.execute(input1)).willReturn(output1);
         transformer.setFunction(function1);
-        transformer.setInputAdapter(inputAdapter);
-        transformer.setOutputAdapter(outputAdapter);
+        transformer.setSelection(inputAdapter);
+        transformer.setProjection(outputAdapter);
 
         // execute it
         transformer.execute(tuple);
 
         // check it was called as expected
-        verify(inputAdapter, times(1)).from(tuple);
+        verify(inputAdapter, times(1)).select(tuple);
         verify(function1, times(1)).execute(input1);
         verify(outputAdapter, times(1)).setContext(tuple);
-        verify(outputAdapter, times(1)).to(output1);
+        verify(outputAdapter, times(1)).project(output1);
     }
 
     @Test
@@ -83,13 +80,13 @@ public class TupleTransformerTest {
 
         // set up a function to transform the tuples
         Transformer<String, String> function1 = mock(Transformer.class);
-        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
-        TupleAdapter<String, String> outputAdapter = mock(TupleAdapter.class);
+        TupleMask<String, String> inputAdapter = mock(TupleMask.class);
+        TupleMask<String, String> outputAdapter = mock(TupleMask.class);
         transformer.setFunction(function1);
-        transformer.setInputAdapter(inputAdapter);
-        transformer.setOutputAdapter(outputAdapter);
+        transformer.setSelection(inputAdapter);
+        transformer.setProjection(outputAdapter);
         for (int i = 0; i < times; i++) {
-            given(inputAdapter.from(tuples[i])).willReturn(input + i);
+            given(inputAdapter.select(tuples[i])).willReturn(input + i);
             given(function1.execute(input + i)).willReturn(output + i);
         }
 
@@ -100,10 +97,10 @@ public class TupleTransformerTest {
 
         // check expected calls
         for (int i = 0; i < times; i++) {
-            verify(inputAdapter, times(1)).from(tuples[i]);
+            verify(inputAdapter, times(1)).select(tuples[i]);
             verify(function1, times(1)).execute(input + i);
             verify(outputAdapter, times(1)).setContext(tuples[i]);
-            verify(outputAdapter, times(1)).to(output + i);
+            verify(outputAdapter, times(1)).project(output + i);
         }
     }
 
@@ -112,10 +109,10 @@ public class TupleTransformerTest {
         TupleTransformer<String, Object, Object> transformer = new TupleTransformer<>();
         MockTransformer function = new MockTransformer();
         transformer.setFunction(function);
-        TupleAdapter<String, Object> inputAdapter = new TupleAdapter<>("a");
-        TupleAdapter<String, Object> outputAdapter = new TupleAdapter<>("b");
-        transformer.setInputAdapter(inputAdapter);
-        transformer.setOutputAdapter(outputAdapter);
+        TupleMask<String, Object> inputAdapter = new TupleMask<>("a");
+        TupleMask<String, Object> outputAdapter = new TupleMask<>("b");
+        transformer.setSelection(inputAdapter);
+        transformer.setProjection(outputAdapter);
 
         String json = JsonSerialiser.serialise(transformer);
         TupleTransformer<String, Object, Object> deserialisedTransformer = JsonSerialiser.deserialise(json, TupleTransformer.class);
@@ -125,11 +122,11 @@ public class TupleTransformerTest {
         assertNotSame(function, functionCopy);
         assertTrue(functionCopy instanceof MockTransformer);
 
-        Adapter<Tuple<String>, Object> inputAdapterCopy = deserialisedTransformer.getInputAdapter();
-        Adapter<Tuple<String>, Object> outputAdapterCopy = deserialisedTransformer.getOutputAdapter();
+        TupleMask<String, Object> inputAdapterCopy = deserialisedTransformer.getSelection();
+        TupleMask<String, Object> outputAdapterCopy = deserialisedTransformer.getProjection();
         assertNotSame(inputAdapter, inputAdapterCopy);
-        assertTrue(inputAdapterCopy instanceof TupleAdapter);
+        assertTrue(inputAdapterCopy instanceof TupleMask);
         assertNotSame(outputAdapter, outputAdapterCopy);
-        assertTrue(outputAdapterCopy instanceof TupleAdapter);
+        assertTrue(outputAdapterCopy instanceof TupleMask);
     }
 }

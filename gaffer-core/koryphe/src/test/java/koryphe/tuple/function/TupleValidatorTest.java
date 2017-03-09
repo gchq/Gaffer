@@ -16,16 +16,14 @@
 
 package koryphe.tuple.function;
 
-import koryphe.function.Adapter;
-import koryphe.function.stateless.validator.Validator;
+import koryphe.function.validate.Validator;
 import koryphe.function.mock.MockValidator;
 import koryphe.tuple.Tuple;
-import koryphe.tuple.adapter.TupleAdapter;
+import koryphe.tuple.mask.TupleMask;
 import org.junit.Test;
 import util.JsonSerialiser;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
@@ -41,21 +39,21 @@ public class TupleValidatorTest {
         String input = "input";
 
         TupleValidator<String, String> validator = new TupleValidator<>();
-        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
-        validator.setInputAdapter(inputAdapter);
+        TupleMask<String, String> inputAdapter = mock(TupleMask.class);
+        validator.setSelection(inputAdapter);
         Validator<String> function = mock(Validator.class);
         validator.setFunction(function);
         Tuple<String> tuple = mock(Tuple.class);
 
         // set up mocks
-        given(inputAdapter.from(tuple)).willReturn(input);
+        given(inputAdapter.select(tuple)).willReturn(input);
         given(function.execute(input)).willReturn(true);
 
         // validate
         assertTrue(validator.execute(tuple));
 
         // function should have been executed
-        verify(inputAdapter, times(1)).from(tuple);
+        verify(inputAdapter, times(1)).select(tuple);
         verify(function, times(1)).execute(input);
 
         // switch to fail
@@ -65,7 +63,7 @@ public class TupleValidatorTest {
         assertFalse(validator.execute(tuple));
 
         // function should have been executed again
-        verify(inputAdapter, times(2)).from(tuple);
+        verify(inputAdapter, times(2)).select(tuple);
         verify(function, times(2)).execute(input);
     }
 
@@ -85,12 +83,12 @@ public class TupleValidatorTest {
 
         // set up the function - will return false for one input, all others will pass
         Validator<String> function = mock(Validator.class);
-        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
+        TupleMask<String, String> inputAdapter = mock(TupleMask.class);
         validator.setFunction(function);
-        validator.setInputAdapter(inputAdapter);
+        validator.setSelection(inputAdapter);
 
         for (int i = 0; i < times; i++) {
-            given(inputAdapter.from(tuples[i])).willReturn(input + i);
+            given(inputAdapter.select(tuples[i])).willReturn(input + i);
             boolean result = i != falseResult;
             given(function.execute(input + i)).willReturn(result);
         }
@@ -103,19 +101,19 @@ public class TupleValidatorTest {
 
         // and check functions were called expected number of times
         for (int i = 0; i < times; i++) {
-            verify(inputAdapter, times(1)).from(tuples[i]);
+            verify(inputAdapter, times(1)).select(tuples[i]);
             verify(function, times(1)).execute(input + i);
         }
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        // set up a tuple validator
+        // set up a tuple validate
         TupleValidator<String, Object> validator = new TupleValidator<>();
         MockValidator function = new MockValidator();
         validator.setFunction(function);
-        TupleAdapter<String, Object> inputAdapter = new TupleAdapter("a");
-        validator.setInputAdapter(inputAdapter);
+        TupleMask<String, Object> inputAdapter = new TupleMask("a");
+        validator.setSelection(inputAdapter);
 
         String json = JsonSerialiser.serialise(validator);
         TupleValidator<String, Object> deserialisedValidator = JsonSerialiser.deserialise(json, TupleValidator.class);
@@ -124,8 +122,8 @@ public class TupleValidatorTest {
         Validator deserialisedFunction = deserialisedValidator.getFunction();
         assertNotSame(function, deserialisedFunction);
 
-        Adapter<Tuple<String>, Object> deserialisedInputAdapter = deserialisedValidator.getInputAdapter();
+        TupleMask<String, Object> deserialisedInputAdapter = deserialisedValidator.getSelection();
         assertNotSame(inputAdapter, deserialisedInputAdapter);
-        assertTrue(deserialisedInputAdapter instanceof TupleAdapter);
+        assertTrue(deserialisedInputAdapter instanceof TupleMask);
     }
 }

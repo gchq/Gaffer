@@ -16,9 +16,9 @@
 
 package koryphe.function.mock;
 
-import koryphe.function.stateful.aggregator.Aggregator;
+import koryphe.function.aggregate.Aggregator;
 
-public class MockAggregator implements Aggregator<Integer, Integer> {
+public class MockAggregator implements Aggregator<Integer> {
     @Override
     public Integer execute(Integer input, Integer state) {
         return input;

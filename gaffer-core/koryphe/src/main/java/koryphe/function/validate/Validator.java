@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.function.validate;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.function.transform.Transformer;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
-    }
+/**
+ * A <code>Validator</code> tests an input value and outputs a <code>Boolean</code> result.
+ * @param <I> Type of input to be validated
+ */
+public interface Validator<I> extends Transformer<I, Boolean> {
 }

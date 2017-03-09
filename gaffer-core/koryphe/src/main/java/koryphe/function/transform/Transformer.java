@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.function.transform;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.function.Function;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
-    }
+/**
+ * A <code>Transformer</code> is a {@link Function} that transforms a single input into a single output.
+ * @param <I> Function input type
+ * @param <O> Function output type
+ */
+public interface Transformer<I, O> extends Function<I, O> {
+    /**
+     * Execute this <code>Transformer</code>.
+     * @param input Input value
+     * @return Output value
+     */
+    O execute(I input);
 }

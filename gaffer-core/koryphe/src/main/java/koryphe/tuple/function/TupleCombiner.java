@@ -17,23 +17,24 @@
 package koryphe.tuple.function;
 
 import koryphe.function.aggregate.Aggregator;
+import koryphe.function.combine.Combiner;
 import koryphe.tuple.Tuple;
 import koryphe.tuple.mask.TupleMask;
 
 /**
- * A <code>TupleAggregator</code> aggregates {@link Tuple}s by applying a
- * {@link Aggregator} to aggregate the tuple values. Projects aggregated values into a
+ * A <code>TupleCombiner</code> aggregates {@link Tuple}s by applying a
+ * {@link Combiner} to aggregate the tuple values. Projects aggregated values into a
  * single output {@link Tuple}, which will be the first tuple supplied as input.
  * @param <R> The type of reference used by tuples.
  */
-public class TupleAggregator<R, T> extends TupleInputFunction<R, T, T, Aggregator<T>> implements Aggregator<Tuple<R>> {
+public class TupleCombiner<R, I, O> extends TupleInputOutputFunction<R, I, O, Combiner<I, O>> implements Aggregator<Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */
-    public TupleAggregator() {}
+    public TupleCombiner() {}
 
-    public TupleAggregator(TupleMask<R, T> selection, Aggregator<T> function) {
-        super(selection, function);
+    public TupleCombiner(TupleMask<R, I> selection, Combiner<I, O> function, TupleMask<R, O> projection) {
+        super(selection, function, projection);
     }
 
     /**
@@ -47,16 +48,15 @@ public class TupleAggregator<R, T> extends TupleInputFunction<R, T, T, Aggregato
             return state;
         } else {
             Tuple<R> currentStateTuple;
-            T currentState = null;
+            O currentState = null;
             if (state == null) {
                 currentStateTuple = input;
             } else {
                 currentStateTuple = state;
-                currentState = selection.select(state);
+                currentState = projection.select(state);
             }
-            T output = function.execute(selection.select(input), currentState);
-            selection.setContext(currentStateTuple);
-            return selection.project(output);
+            projection.setContext(currentStateTuple);
+            return projection.project(function.execute(selection.select(input), currentState));
         }
     }
 

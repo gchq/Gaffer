@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package koryphe.function.mock;
+package koryphe.function.aggregate;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.function.combine.CombineByKey;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
-    @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
+import java.util.Map;
+
+/**
+ * Applies an {@link Aggregator} to the values of an input {@link Map}, updating the output {@link Map} with the current
+ * state.
+ * @param <K> Type of key
+ * @param <T> Type of input/output value
+ */
+public class AggregateByKey<K, T> extends CombineByKey<K, T, T> implements Aggregator<Map<K, T>> {
+    public AggregateByKey() { }
+
+    public AggregateByKey(final Aggregator<T> function) {
+        setFunction(function);
     }
 }

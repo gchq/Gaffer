@@ -16,15 +16,16 @@
 
 package koryphe.function.mock;
 
-import koryphe.function.aggregate.Aggregator;
-import koryphe.tuple.n.Tuple2;
-import koryphe.tuple.n.Tuple3;
+import koryphe.function.combine.Combiner;
 
-public class MockComplexInputAggregator implements Aggregator<Tuple3<Tuple2<Integer,String>,Integer,Iterable<String>>> {
+import java.util.HashSet;
+import java.util.Set;
+
+public class MockCombiner implements Combiner<String, Set<String>> {
     @Override
-    public Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> execute(
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> input,
-            Tuple3<Tuple2<Integer, String>, Integer, Iterable<String>> state) {
-        return input;
+    public Set<String> execute(String input, Set<String> state) {
+        Set<String> newState = state == null ? new HashSet<String>() : state;
+        newState.add(input);
+        return newState;
     }
 }
