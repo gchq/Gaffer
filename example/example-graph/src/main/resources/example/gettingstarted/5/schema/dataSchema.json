@@ -1,0 +1,32 @@
+{
+  "edges": {
+    "red": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int",
+        "visibility": "visibility.string"
+      }
+    },
+    "yellow": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int",
+        "visibility": "visibility.string"
+      }
+    },
+    "green": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int",
+        "visibility": "visibility.string"
+      }
+    }
+  },
+  "visibilityProperty": "visibility"
+}

@@ -1,0 +1,25 @@
+{
+  "view": {
+    "edges": {
+      "data": {
+        "preAggregationFilterFunctions": [
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+              "value": 3
+            },
+            "selection": [
+              "count"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "seeds": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
+      "vertex": "1"
+    }
+  ]
+}

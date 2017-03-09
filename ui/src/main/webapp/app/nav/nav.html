@@ -1,0 +1,58 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href=".">Gaffer UI</a>
+        </div>
+        <div id="navbar">
+            <ul class="nav navbar-nav">
+                <li ng-class="{ active: showGraph }">
+                    <a href="#graph"
+                       ng-click="openGraph()">Graph</a>
+                </li>
+                <li ng-class="{ active: showResultsTable }">
+                    <a href="#resultsTable"
+                       ng-click="openResultsTable()">Table</a>
+                </li>
+                <li ng-class="{ active: showRaw }">
+                    <a href="#raw" ng-click="openRaw()">Raw</a>
+                </li>
+                <li ng-class="{ active: showSettings }">
+                    <a href="#settings" ng-click="openSettings()">Settings</a>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <md-progress-circular ng-show="rawData.loading"
+                                          md-mode="indeterminate"
+                                          md-diameter="30"
+                                          style="margin-top: 5px; margin-right: 10px;">
+                    </md-progress-circular>
+                </li>
+                <li><a class="nav-button"
+                       ng-show="showGraph">
+                    <button ng-click="addSeedPrompt()"
+                            class="btn btn-primary">Add Seed
+                    </button>
+                </a></li>
+                <li><a class="nav-button"
+                       ng-show="seeds.length != 0 || operations.length != 0">
+                    <button ng-click="buildQuery()"
+                            class="btn btn-primary">Build query
+                    </button>
+                </a></li>
+                <li><a class="nav-button">
+                    <button ng-click="executeAll()"
+                            class="btn btn-default">Execute All
+                    </button>
+                </a></li>
+                <li><a class="nav-button"
+                       ng-show="showGraph">
+                    <button ng-click="redraw()"
+                            class="btn btn-default">Redraw
+                    </button>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

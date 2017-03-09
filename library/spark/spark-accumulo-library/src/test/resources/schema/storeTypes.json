@@ -1,0 +1,21 @@
+{
+  "types": {
+    "colQualProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+    },
+    "simpleProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+    },
+    "string": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
+      }
+    }
+  }
+}

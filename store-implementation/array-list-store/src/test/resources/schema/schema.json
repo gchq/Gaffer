@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "properties": {
+        "intProperty": "prop.integer",
+        "stringProperty": "prop.string"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "properties": {
+        "intProperty": "prop.integer",
+        "stringProperty": "prop.string"
+      }
+    }
+  },
+  "types": {
+    "prop.integer": {
+      "class": "java.lang.Integer"
+    },
+    "prop.string": {
+      "class": "java.lang.String"
+    }
+  }
+}

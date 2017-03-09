@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "film": {
+      "vertex": "filmId.string",
+      "properties": {
+        "name": "name.string",
+        "certificate": "certificate"
+      }
+    },
+    "person": {
+      "vertex": "userId.string",
+      "properties": {
+        "name": "name.string",
+        "age": "max.integer"
+      }
+    },
+    "review": {
+      "vertex": "filmId.string",
+      "properties": {
+        "rating": "total.long",
+        "count": "count.int",
+        "userId": "userId.string"
+      },
+      "groupBy": [
+        "userId"
+      ]
+    }
+  },
+  "edges": {
+    "viewing": {
+      "source": "userId.string",
+      "destination": "filmId.string",
+      "directed": "true",
+      "properties": {
+        "startTime": "timestamp.long",
+        "count": "count.int"
+      }
+    }
+  },
+  "visibilityProperty": "certificate"
+}

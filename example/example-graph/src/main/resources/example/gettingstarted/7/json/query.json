@@ -1,0 +1,63 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "view": {
+        "edges": {
+          "data": {
+            "preAggregationFilterFunctions": [
+              {
+                "function": {
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+                  "value": 1
+                },
+                "selection": ["count"]
+              }
+            ]
+          }
+        }
+      },
+      "includeIncomingOutGoing": "OUTGOING",
+      "seeds": [
+        {
+          "vertex": "1",
+          "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed"
+        }
+      ]
+    }, {
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet",
+      "key": "ALL"
+    }, {
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
+      "elementGenerator": {
+        "class": "uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor",
+        "elementValidator": {
+          "class": "uk.gov.gchq.gaffer.data.IsEdgeValidator"
+        },
+        "edgeIdentifierToExtract": "DESTINATION"
+      }
+    }, {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "view": {
+        "edges": {
+          "data": {
+            "preAggregationFilterFunctions": [
+              {
+                "function": {
+                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+                  "value": 1
+                },
+                "selection": ["count"]
+              }
+            ]
+          }
+        }
+      },
+      "includeIncomingOutGoing": "OUTGOING"
+    }, {
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet"
+    }, {
+      "class": "uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport"
+    }
+  ]
+}

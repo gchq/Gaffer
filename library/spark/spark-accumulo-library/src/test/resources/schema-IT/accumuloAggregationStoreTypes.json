@@ -1,0 +1,16 @@
+{
+  "types": {
+    "prop.string": {
+      "position": "COLUMN_QUALIFIER"
+    },
+    "prop.integer": {
+      "position": "COLUMN_QUALIFIER"
+    },
+    "prop.count": {
+      "position": "VALUE"
+    },
+    "timestamp": {
+      "position": "VALUE"
+    }
+  }
+}

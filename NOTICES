@@ -1,28 +1,32 @@
-Copyright 2016 Crown Copyright
+Copyright 2016-2017 Crown Copyright
 
-Gaffer2 contains two classes which are modified versions of classes from Apache Accumulo:
+Gaffer contains two classes which are modified versions of classes from Apache Accumulo:
 
-- gaffer2.accumulostore.key.core.impl.CoreKeyColumnQualifierColumnVisibilityValueCombiner is based on Accumulo's
- Combiner class (org.apache.accumulo.core.iterators.Combiner) which is licensed under the Apache 2 license,
- Copyright 2011-2015 The Apache Software Foundation.
-
-- gaffer2.accumulostore.integration.BloomFilterIT is based on Accumulo's BloomFilterLayerLookupTest class
-(org.apache.accumulo.core.file.BloomFilterLayerLookupTest) which is licensed under the Apache 2 license,
+- uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyGroupByCombiner is based on Accumulo's
+Combiner class (org.apache.accumulo.core.iterators.Combiner) which is licensed under the Apache 2 license,
 Copyright 2011-2015 The Apache Software Foundation.
 
+- uk.gov.gchq.gaffer.accumulostore.integration.performanceBloomFilterIT is based on Accumulo's
+BloomFilterLayerLookupTest class (org.apache.accumulo.core.file.BloomFilterLayerLookupTest) which is
+licensed under the Apache 2 license, Copyright 2011-2015 The Apache Software Foundation.
 
-Gaffer2 is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
- and their licenses, below. For information on the dependencies of these dependencies, see the websites of the
- projects below.
+Gaffer contains code which is a modified version of code from Apache Hadoop:
+
+- uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils is based on methods from
+Hadoop's WritableUtil class (org.apache.hadoop.io.WritableUtils) which is licensed under the Apache 2 license,
+Copyright 2011-2015 The Apache Software Foundation.
+
+Gaffer is built using maven. This process will automatically pull in dependencies. We list Gaffer2's dependencies,
+and their licenses, below. For information on the dependencies of these dependencies, see the websites of the
+projects below.
 
 
-
-Apache Hadoop (org.apache.hadoop:hadoop-common:2.5.0-cdh5.2.1):
+Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 
 - Apache License, Version 2.0
 
 
-Apache Accumulo (org.apache.accumulo:accumulo-core:1.6.2):
+Apache Accumulo (org.apache.accumulo:accumulo-core:1.7.2):
 
 - Apache License, Version 2.0
 
@@ -36,8 +40,21 @@ Apache Commons Lang (commons-lang:commons-lang:2.6):
 
 - Apache License, Version 2.0
 
+Apache Commons JCS (org.apache.jcs:jcs:1.3):
+
+- Apache Licence, Version 2.0
+
+Apache Spark (org.apache.spark:spark-core:2.1.0, org.apache.spark:spark-sql:2.1.0, org.apache.spark:spark-catalyst:2.1.0)
+
+- Apache License, Version 2.0
+
 
 Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
+
+- Apache License, Version 2.0
+
+
+Datasketches (com.yahoo.sketches:sketches-core:0.8.3):
 
 - Apache License, Version 2.0
 
@@ -47,15 +64,14 @@ Commons IO (commons-io:commons-io:2.4)
 - Apache License, Version 2.0
 
 
-Json4S (org.json4s:json4s-core_2.10:3.2.4, org.json4s:json4s-ext_2.10:3.2.4,
-org.json4s.jackson:json4s-jackson_2.10:3.2.4, org.json4s:json4s-native_2.10:3.2.4,
-org.json4s:json4s-ast_2.10:3.2.4):
+Json4S (org.json4s:json4s-core_2.10:3.2.11, org.json4s:json4s-ext_2.10:3.2.11,
+org.json4s.jackson:json4s-jackson_2.10:3.2.11, org.json4s:json4s-native_2.10:3.2.11,
+org.json4s:json4s-ast_2.10:3.2.11):
 
 - Apache License, Version 2.0
 
 
-Swagger (swagger:swagger-core:2.10-1.3.2, swagger:swagger-annotations:2.10-1.3.2,
-swagger:swagger-jaxrs:2.10-1.3.2):
+Swagger (io.swagger:-jersey2-jaxrs:1.5.9):
 
 - Apache License, Version 2.0
 
@@ -85,10 +101,15 @@ Javax Web Api (javax:javaee-web-api:7.0)
 - Common Development and Distribution License 1.0
 
 
-Jersey Server (com.sun.jersey:jersey-server:1.9)
+Jersey Server (org.glassfish.jersey.core:jersey-server:2.25)
 
 - Common Development and Distribution License 1.0
 - GNU General Public License 2.0
+
+
+Javax Servlet (javax.servlet:java.servlet-api:3.1.0)
+
+- CDDL + GPLv2 with classpath exception
 
 
 Junit (junit:junit:4.12):
@@ -111,7 +132,7 @@ Reflections (org.reflections:reflections:RC1:0.9.9)
 - WTFPL
 
 
-Scala (org.scala-lang:scala-library:2.10.2):
+Scala (org.scala-lang:scala-library:2.11.8):
 
 - BSD 3 Clause Licence ("New" or "Revised")
 
@@ -134,3 +155,117 @@ FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
 FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
+
+
+Nexus Staging (org.sonatype.nexus.maven:nexus-staging:1.6.7):
+
+- Eclipse Public License, Version 1.0
+
+
+Maven war plugin (org.apache.maven.plugins:maven-war-plugin:3.0.0):
+
+- Apache License, Version 2.0
+
+
+------------------------------------------------------------------------------------------------
+
+The Gaffer rest-api and ui modules contain the following javascript dependencies:
+
+Backbone (backbone-min.js:1.3.3)
+
+- Copyright (c) 2010-2016 Jeremy Ashkenas, DocumentCloud
+- MIT License
+
+
+Handlebars (handlebars-2.0.0.js)
+
+- Copyright (C) 2011-2016 by Yehuda Katz
+- MIT License
+
+
+Highlight (highlight.9.1.0.pack.js, highlight.9.1.0.pack_extended.js)
+
+- Copyright (c) 2006, Ivan Sagalaev
+- BSD3 License
+
+
+JQuery Back Button and Query Library (jquery.ba-bbq.min.js)
+
+- Copyright © 2010 “Cowboy” Ben Alman
+- MIT License
+- GPL License
+
+
+JQuery Slide To (jquery.slideto.min.js)
+
+- Copyright (c) 2015 Joakim Hedlund
+- MIT License
+
+
+JQuery Wiggle (jquery.wiggle.min.js)
+
+- Copyright (c) 2011 - Wilhelm Murdoch <wilhelm.murdoch@gmail.com>, TheDrunkenEpic <http://www.thedrunkenepic.com>
+- MIT License
+
+
+JQuery (jquery-1.8.0.min.js)
+
+- MIT License
+
+
+Javascript YAML Parser and Dumper (js-yaml.min.js)
+
+- MIT License
+
+
+Json Editor (jsoneditor.min.js)
+
+- Apache License, Version 2.0
+
+
+Lodash (lodash.min.js)
+
+- MIT License
+
+
+Marked (marked.js)
+
+- MIT License
+
+
+Swagger (swagger-oauth.js, swagger-ui.js, swagger-ui.min.js)
+
+- Apache License, Version 2.0
+
+
+Bootstrap (bootstrap.min.js)
+
+- MIT License
+
+
+Angular (angular.min.js)
+
+- MIT License
+
+
+Angular Material (angular-animate.min.js)
+
+- MIT License
+
+
+Angular Material (angular-aria.min.js)
+
+- MIT License
+
+
+Angular Material (angular-material.min.js)
+
+- MIT License
+
+
+Roaring Bitmap (org.roaringbitmap:RoaringBitmap:0.5.11)
+
+- Apache License, Version 2.0
+
+
+------------------------------------------------------------------------------------------------

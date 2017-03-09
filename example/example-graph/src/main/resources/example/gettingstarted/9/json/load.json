@@ -1,0 +1,25 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
+      "elementGenerator": {
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator9"
+      },
+      "objects": [
+        "red,1,2",
+        "red,1,2",
+        "red,1,2",
+        "red,1,3",
+        "red,1,3",
+        "red,1,4",
+        "red,2,3",
+        "blue,1,2",
+        "blue,1,5",
+        "blue,2,6"
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
+    }
+  ]
+}

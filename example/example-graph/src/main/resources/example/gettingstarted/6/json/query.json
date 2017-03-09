@@ -1,0 +1,24 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "includeIncomingOutGoing": "OUTGOING",
+      "seeds": [
+        {
+          "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
+          "vertex": "1"
+        }
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "includeIncomingOutGoing": "OUTGOING"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
+      "elementGenerator": {
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6"
+      }
+    }
+  ]
+}

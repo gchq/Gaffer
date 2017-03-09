@@ -1,0 +1,126 @@
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+  margin: 0;
+}
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+}
+
+.nav-button {
+   padding: 5px !important;
+}
+
+.transparent {
+    background-color: transparent !important;
+}
+
+.cy {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+h4 {
+    font-size: 16px;
+    font-weight: normal;
+    padding: 10px 0 5px 0;
+    margin: 0;
+}
+
+h5 {
+    font-size: 14px;
+    font-weight: normal;
+    padding: 10px 0 5px 0;
+    margin: 0;
+}
+
+th {
+  text-align: left;
+  font-weight: normal;
+  font-size: 14px;
+  min-width: 100px;
+  vertical-align: top;
+}
+
+tr {
+    vertical-align: top;
+}
+
+table table th{
+  font-size: 12px;
+}
+
+.bottomPanel {
+    z-index: 5 !important;
+    position: absolute !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    max-height: 50%;
+    background-color: white
+}
+
+.panel {
+    margin: 5px 20px;
+}
+
+.panelHeading {
+    padding: 0 0 10px 0;
+}
+
+.buttonRow {
+    z-index: 5 !important;
+    position: absolute !important;
+    top: 0;
+    width: 100%;
+}
+
+.inline {
+    display:inline-block;
+    width: auto;
+}
+
+pre {
+    background: white;
+    padding: 5px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 150px;
+    font-size: 14px;
+}
+
+.right-space {
+    margin-right: 15px
+}
+
+.caret.caret-up {
+    border-top-width: 0;
+    border-bottom: 4px solid #000;
+}
+
+.fill {
+    height: 100%;
+}
+
+.no-bottom-border {
+    margin-bottom: 0;
+}

@@ -1,0 +1,9 @@
+{
+  "view": {
+    "entities": {
+      "Cardinality": {
+        "groupBy": []
+      }
+    }
+  }
+}

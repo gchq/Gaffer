@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app
+        metadata-complete="false"
+        version="3.1">
+
+    <display-name>Gaffer REST example</display-name>
+
+    <servlet>
+        <servlet-name>Gaffer REST example</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer
+        </servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>
+                uk.gov.gchq.gaffer.rest.application.ApplicationConfig
+            </param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Gaffer REST example</servlet-name>
+        <url-pattern>/v1/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <filter-name>OriginFilter</filter-name>
+        <filter-class>uk.gov.gchq.gaffer.rest.filter.OriginFilter</filter-class>
+        <async-supported>true</async-supported>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>OriginFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
+

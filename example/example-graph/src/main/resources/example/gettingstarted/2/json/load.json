@@ -1,0 +1,85 @@
+{
+  "elements": [
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "red",
+      "source": "1",
+      "destination": "2"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "red",
+      "source": "1",
+      "destination": "2"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "green",
+      "source": "1",
+      "destination": "2"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "green",
+      "source": "1",
+      "destination": "2"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "yellow",
+      "source": "1",
+      "destination": "2"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "red",
+      "source": "1",
+      "destination": "3"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "green",
+      "source": "1",
+      "destination": "3"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "red",
+      "source": "1",
+      "destination": "4"
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.data.element.Edge",
+      "properties": {
+        "count": 1
+      },
+      "group": "green",
+      "source": "2",
+      "destination": "3"
+    }
+  ]
+}
