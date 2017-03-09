@@ -8,9 +8,18 @@
               "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
               "value": 3
             },
-            "selection": [
-              "count"
-            ]
+            "selection": {
+              "field": "count"
+            }
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+              "value": 3
+            },
+            "selection": {
+              "fields": ["count", "sum"]
+            }
           }
         ]
       }
