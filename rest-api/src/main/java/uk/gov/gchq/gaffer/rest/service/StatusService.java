@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiResponses;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -35,17 +36,12 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Api(value = "/status", description = "Methods to check the status of the system.")
 public class StatusService {
-    private final GraphFactory graphFactory;
-    private final UserFactory userFactory;
 
-    public StatusService() {
-        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
-    }
+     @Inject
+    private GraphFactory graphFactory;
 
-    public StatusService(final GraphFactory graphFactory, final UserFactory userFactory) {
-        this.graphFactory = graphFactory;
-        this.userFactory = userFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     @GET
     @ApiOperation(value = "Returns the status of the service", response = SystemStatus.class)

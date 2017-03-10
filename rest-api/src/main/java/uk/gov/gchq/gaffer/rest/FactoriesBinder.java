@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.rest.factory;
+package uk.gov.gchq.gaffer.rest;
 
-import uk.gov.gchq.gaffer.user.User;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
-public class UnknownUserFactory implements UserFactory {
-
-    public UnknownUserFactory() {
-        // User factories should be constructed via the createGraphFactory static method,
-        // public constructor is required only by HK2
-    }
-
+public class FactoriesBinder extends AbstractBinder {
     @Override
-    public User createUser() {
-        return new User();
+    protected void configure() {
+        bind(DefaultGraphFactory.class).to(GraphFactory.class);
+        bind(UnknownUserFactory.class).to(UserFactory.class);
     }
 }
