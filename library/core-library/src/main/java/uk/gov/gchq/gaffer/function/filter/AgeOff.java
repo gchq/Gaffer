@@ -15,18 +15,16 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import java.util.function.Predicate;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 
 /**
  * An <code>AgeOff</code> is a {@link SimpleFilterFunction} that ages off old data based on a provided age of time in milliseconds.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class AgeOff implements Predicate<Long> {
+public class AgeOff extends KorphePredicate<Long> {
     public static final long HOURS_TO_MILLISECONDS = 60L * 60L * 1000L;
     public static final long DAYS_TO_MILLISECONDS = 24L * HOURS_TO_MILLISECONDS;
 
@@ -67,25 +65,25 @@ public class AgeOff implements Predicate<Long> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object other) {
+        if (this == other) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(other)) {
             return false;
         }
 
-        final AgeOff ageOff = (AgeOff) o;
-
+        final AgeOff otherPredicate = (AgeOff) other;
         return new EqualsBuilder()
-                .append(ageOffTime, ageOff.ageOffTime)
+                .append(ageOffTime, otherPredicate.ageOffTime)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
                 .append(ageOffTime)
                 .toHashCode();
     }

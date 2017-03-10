@@ -15,39 +15,27 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
-
 /**
- * An <code>Min</code> is a {@link uk.gov.gchq.gaffer.function.SimpleAggregateFunction} that takes in
+ * An <code>Min</code> is a {@link java.util.function.BinaryOperator} that takes in
  * {@link Number}s of the same type and calculates the sum.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
  *
  * @see NumericAggregateFunction
  */
-@Inputs(Number.class)
-@Outputs(Number.class)
 public class Sum extends NumericAggregateFunction {
     @Override
-    protected void aggregateInt(final Integer input) {
-        aggregate = (Integer) aggregate + input;
+    protected Integer aggregateInt(final Integer input1, final Integer input2) {
+        return input1 + input2;
     }
 
     @Override
-    protected void aggregateLong(final Long input) {
-        aggregate = (Long) aggregate + input;
+    protected Long aggregateLong(final Long input1, final Long input2) {
+        return input1 + input2;
     }
 
     @Override
-    protected void aggregateDouble(final Double input) {
-        aggregate = (Double) aggregate + input;
-    }
-
-    public Sum statelessClone() {
-        Sum sum = new Sum();
-        sum.setMode(super.getMode());
-        sum.init();
-        return sum;
+    protected Double aggregateDouble(final Double input1, final Double input2) {
+        return input1 + input2;
     }
 }

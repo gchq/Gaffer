@@ -15,28 +15,37 @@
  */
 package uk.gov.gchq.gaffer.function.transform;
 
-import org.apache.commons.lang.StringUtils;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.bifunction.KorpheBiFunction;
 
 /**
  * An <code>Concat</code> is a {@link TransformFunction} that takes in
  * two objects and calls toString on them and concatenates them together. The default separator is a comma,
  * you can set a custom separator using setSeparator(String).
  */
-@Inputs({ Object.class, Object.class })
-@Outputs(String.class)
-public class Concat extends TransformFunction {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class Concat extends KorpheBiFunction<Object, Object, String> {
     private static final String DEFAULT_SEPARATOR = ",";
     private String separator = DEFAULT_SEPARATOR;
 
     @Override
-    public Object[] transform(final Object[] input) {
-        return new Object[]{StringUtils.join(input, separator)};
+    public String apply(final Object input1, final Object input2) {
+        if (null == input1) {
+            if (null == input2) {
+                return null;
+            }
+            return String.valueOf(input2);
+        }
+
+        if (null == input2) {
+            return String.valueOf(input1);
+        }
+
+        return input1 + separator + input2;
     }
 
     public String getSeparator() {
@@ -45,12 +54,6 @@ public class Concat extends TransformFunction {
 
     public void setSeparator(final String separator) {
         this.separator = separator;
-    }
-
-    public Concat statelessClone() {
-        Concat concat = new Concat();
-        concat.setSeparator(getSeparator());
-        return concat;
     }
 
     @Override
@@ -66,8 +69,6 @@ public class Concat extends TransformFunction {
         final Concat concat = (Concat) o;
 
         return new EqualsBuilder()
-                .append(inputs, concat.inputs)
-                .append(outputs, concat.outputs)
                 .append(separator, concat.separator)
                 .isEquals();
     }
@@ -75,8 +76,6 @@ public class Concat extends TransformFunction {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(outputs)
                 .append(separator)
                 .toHashCode();
     }
@@ -84,8 +83,6 @@ public class Concat extends TransformFunction {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
                 .append("separator", separator)
                 .toString();
     }

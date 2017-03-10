@@ -20,6 +20,7 @@ package uk.gov.gchq.gaffer.function.filter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.function.Predicate;
 
 /**
@@ -27,8 +28,7 @@ import java.util.function.Predicate;
  *
  * @param <I> Type of input to be validated
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public final class Not<I> implements Predicate<I> {
+public final class Not<I> extends KorphePredicate<I> {
     private Predicate<I> predicate;
 
     public Not() {
@@ -58,12 +58,11 @@ public final class Not<I> implements Predicate<I> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final Not not = (Not) o;
-
         return new EqualsBuilder()
                 .append(predicate, not.predicate)
                 .isEquals();

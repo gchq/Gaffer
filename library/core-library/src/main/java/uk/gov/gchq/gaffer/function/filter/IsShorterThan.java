@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * An <code>IsShorterThan</code> is a {@link SimpleFilterFunction} that checks that the input
@@ -32,8 +31,7 @@ import java.util.function.Predicate;
  * Allowed object types are {@link String}s, arrays, {@link Collection}s and {@link Map}s.
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class IsShorterThan implements Predicate<Object> {
+public class IsShorterThan extends KorphePredicate<Object> {
     private int maxLength;
     private boolean orEqualTo;
 
@@ -97,12 +95,11 @@ public class IsShorterThan implements Predicate<Object> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final IsShorterThan that = (IsShorterThan) o;
-
         return new EqualsBuilder()
                 .append(maxLength, that.maxLength)
                 .append(orEqualTo, that.orEqualTo)

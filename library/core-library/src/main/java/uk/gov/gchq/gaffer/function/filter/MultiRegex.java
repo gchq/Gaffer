@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class MultiRegex implements Predicate<String> {
+
+public class MultiRegex extends KorphePredicate<String> {
     private Pattern[] patterns;
 
     public MultiRegex() {
@@ -70,7 +70,7 @@ public class MultiRegex implements Predicate<String> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 

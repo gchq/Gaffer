@@ -23,17 +23,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.Predicate;
 
 /**
  * An <code>AreIn</code> is a {@link SimpleFilterFunction}
  * that checks whether a provided {@link Collection} contains all the input values.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class AreIn implements Predicate<Collection<?>> {
+public class AreIn extends KorphePredicate<Collection<?>> {
     private Collection<?> allowedValues;
 
     public AreIn() {
@@ -83,12 +82,11 @@ public class AreIn implements Predicate<Collection<?>> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final AreIn that = (AreIn) o;
-
         return new EqualsBuilder()
                 .append(allowedValues, that.allowedValues)
                 .isEquals();

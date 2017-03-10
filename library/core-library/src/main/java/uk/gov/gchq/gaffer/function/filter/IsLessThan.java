@@ -21,15 +21,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import java.util.function.Predicate;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 
 /**
  * An <code>IsLessThan</code> is a {@link SimpleFilterFunction} that checks that the input
  * {@link Comparable} is less than a control value. There is also an orEqualTo flag that can be set to allow
  * the input value to be less than or equal to the control value.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class IsLessThan implements Predicate<Comparable> {
+public class IsLessThan extends KorphePredicate<Comparable> {
     private Comparable controlValue;
     private boolean orEqualTo;
 
@@ -84,12 +83,11 @@ public class IsLessThan implements Predicate<Comparable> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final IsLessThan that = (IsLessThan) o;
-
         return new EqualsBuilder()
                 .append(orEqualTo, that.orEqualTo)
                 .append(controlValue, that.controlValue)

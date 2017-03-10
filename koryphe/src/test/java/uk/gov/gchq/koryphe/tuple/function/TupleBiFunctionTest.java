@@ -17,10 +17,10 @@
 package uk.gov.gchq.koryphe.tuple.function;
 
 import org.junit.Test;
-import uk.gov.gchq.koryphe.function.mock.MockBiFunction;
+import uk.gov.gchq.koryphe.bifunction.MockBiFunction;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.mask.TupleMask;
-import util.JsonSerialiser;
+import uk.gov.gchq.koryphe.util.JsonSerialiser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

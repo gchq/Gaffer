@@ -26,6 +26,11 @@
     <artifactId>function</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>koryphe</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <!-- JSON Serialisation/De-serialisation dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

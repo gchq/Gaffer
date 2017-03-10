@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import java.util.function.Predicate;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.regex.Pattern;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class Regex implements Predicate<String> {
+public class Regex extends KorphePredicate<String> {
     private Pattern controlValue;
 
     public Regex() {
@@ -61,12 +61,11 @@ public class Regex implements Predicate<String> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final Regex regex = (Regex) o;
-
         return new EqualsBuilder()
                 .append(controlValue.toString(), regex.controlValue.toString())
                 .isEquals();

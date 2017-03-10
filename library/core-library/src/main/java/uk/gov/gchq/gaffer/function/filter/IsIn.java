@@ -23,18 +23,17 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * An <code>IsIn</code> is a {@link SimpleFilterFunction} that checks that the input object is
  * in a set of allowed values.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class IsIn implements Predicate<Object> {
+public class IsIn extends KorphePredicate<Object> {
     private Set<Object> allowedValues;
 
     public IsIn() {
@@ -84,12 +83,11 @@ public class IsIn implements Predicate<Object> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final IsIn isIn = (IsIn) o;
-
         return new EqualsBuilder()
                 .append(allowedValues, isIn.allowedValues)
                 .isEquals();

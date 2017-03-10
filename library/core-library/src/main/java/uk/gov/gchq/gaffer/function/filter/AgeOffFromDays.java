@@ -15,32 +15,19 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.util.function.BiPredicate;
+import uk.gov.gchq.koryphe.predicate.KorpheBiPredicate;
 
 /**
  * An <code>AgeOffFromDays</code> is a {@link uk.gov.gchq.gaffer.function.processor.Filter}
  * that ages off old data based on a provided age off time in days.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class AgeOffFromDays implements BiPredicate<Long, Integer> {
+public class AgeOffFromDays extends KorpheBiPredicate<Long, Integer> {
     public static final long DAYS_TO_MILLISECONDS = 24L * 60L * 60L * 1000L;
 
     @Override
     public boolean test(final Long timestamp, final Integer days) {
-        return (null != timestamp && null != days) && (System.currentTimeMillis() - (days * DAYS_TO_MILLISECONDS) < timestamp);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        return this == o || o != null && getClass() == o.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getClass())
-                .toHashCode();
+        return null != timestamp
+                && null != days
+                && (System.currentTimeMillis() - (days * DAYS_TO_MILLISECONDS) < timestamp);
     }
 }

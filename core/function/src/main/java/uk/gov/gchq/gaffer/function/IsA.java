@@ -16,16 +16,19 @@
 
 package uk.gov.gchq.gaffer.function;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.function.Predicate;
 
 /**
  * An <code>IsA</code> {@link Predicate} tests whether an input {@link Object} is an
  * instance of a given control {@link Class}.
  */
-public class IsA implements Predicate<Object> {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+public class IsA extends KorphePredicate<Object> {
     private Class<?> type;
 
     /**
@@ -83,16 +86,11 @@ public class IsA implements Predicate<Object> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final IsA isA = (IsA) o;
-
         return new EqualsBuilder()
                 .append(type, isA.type)
                 .isEquals();
@@ -101,6 +99,7 @@ public class IsA implements Predicate<Object> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
                 .append(type)
                 .toHashCode();
     }

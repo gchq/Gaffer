@@ -15,45 +15,25 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import java.util.function.BinaryOperator;
 
 /**
- * An <code>Min</code> is a {@link uk.gov.gchq.gaffer.function.SimpleAggregateFunction} that takes in
- * {@link Number}s of the same type and calculates the minimum.
- * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
- * otherwise it will be automatically set for you using the class of the first number passed in.
- *
- * @see NumericAggregateFunction
+ * An <code>ComparableMin</code> is a {@link BinaryOperator} that takes in
+ * {@link Comparable}s and calculates the minimum comparable. It assumes that all the input comparables
+ * are compatible and can be compared against each other.
  */
-@Inputs(Number.class)
-@Outputs(Number.class)
-public class Min extends NumericAggregateFunction {
+public class Min extends KorpheBinaryOperator<Comparable> {
     @Override
-    protected void aggregateInt(final Integer input) {
-        if (input < (Integer) aggregate) {
-            aggregate = input;
+    public Comparable apply(final Comparable a, final Comparable b) {
+        if (null == b) {
+            return a;
         }
-    }
 
-    @Override
-    protected void aggregateLong(final Long input) {
-        if (input < (Long) aggregate) {
-            aggregate = input;
+        if (null == a) {
+            return b;
         }
-    }
 
-    @Override
-    protected void aggregateDouble(final Double input) {
-        if (input < (Double) aggregate) {
-            aggregate = input;
-        }
-    }
-
-    public Min statelessClone() {
-        Min min = new Min();
-        min.setMode(super.getMode());
-        min.init();
-        return min;
+        return a.compareTo(b) <= 0 ? a : b;
     }
 }

@@ -15,31 +15,16 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import java.util.function.Predicate;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 
 /**
  * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks the input object
  * is not null.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class Exists implements Predicate<Object> {
+public class Exists extends KorphePredicate<Object> {
     @Override
     public boolean test(final Object input) {
         return null != input;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        return this == o || o != null && getClass() == o.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getClass())
-                .toHashCode();
     }
 }

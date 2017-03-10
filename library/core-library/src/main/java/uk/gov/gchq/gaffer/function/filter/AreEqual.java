@@ -15,17 +15,14 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.function.FilterFunction;
-import java.util.function.BiPredicate;
+import uk.gov.gchq.koryphe.predicate.KorpheBiPredicate;
 
 /**
  * An <code>AreEqual</code> is a {@link FilterFunction} that returns true if the two input objects
  * are equal.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class AreEqual implements BiPredicate<Object, Object> {
+public class AreEqual extends KorpheBiPredicate<Object, Object> {
     /**
      * @param input1 input 1
      * @param input2 input 2
@@ -38,17 +35,5 @@ public class AreEqual implements BiPredicate<Object, Object> {
         }
 
         return input1.equals(input2);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        return this == o || o != null && getClass() == o.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(getClass())
-                .toHashCode();
     }
 }

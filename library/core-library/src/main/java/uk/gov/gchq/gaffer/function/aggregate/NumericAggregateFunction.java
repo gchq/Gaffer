@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.function.aggregate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
+import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import java.util.function.BinaryOperator;
 
 /**
- * An <code>NumericAggregateFunction</code> is a {@link SimpleAggregateFunction} that takes in
+ * An <code>NumericAggregateFunction</code> is a {@link BinaryOperator} that takes in
  * {@link Number}s of the same type and processes the number in some way. To implement this class just
  * implement the init methods and aggregate methods for the different number types.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
@@ -30,11 +30,9 @@ import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
  *
  * @see NumericAggregateFunction
  */
-public abstract class NumericAggregateFunction extends SimpleAggregateFunction<Number> {
+public abstract class NumericAggregateFunction extends KorpheBinaryOperator<Number> {
 
     private NumberType mode = NumberType.AUTO;
-
-    protected Number aggregate = null;
 
     /**
      * Sets the number type mode. If this is not set, then this will be set automatically based on the class of the
@@ -54,71 +52,49 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
     }
 
     @Override
-    public void init() {
-        aggregate = null;
-    }
+    public Number apply(final Number input1, final Number input2) {
+        if (input1 == null) {
+            return input2;
+        }
 
-    @Override
-    protected void _aggregate(final Number input) {
-        if (input == null) {
-            return;
+        if (input2 == null) {
+            return input1;
         }
 
         switch (mode) {
             case AUTO:
-                if (input instanceof Integer) {
+                if (input1 instanceof Integer) {
                     setMode(NumberType.INT);
-                } else if (input instanceof Long) {
+                } else if (input1 instanceof Long) {
                     setMode(NumberType.LONG);
-                } else if (input instanceof Double) {
+                } else if (input1 instanceof Double) {
                     setMode(NumberType.DOUBLE);
                 } else {
                     break;
                 }
-                _aggregate(input);
-                break;
+                return apply(input1, input2);
             case INT:
-                if (null == aggregate) {
-                    aggregate = (Integer) input;
-                } else {
-                    aggregateInt((Integer) input);
-                }
-                break;
+                return aggregateInt((Integer) input1, (Integer) input2);
             case LONG:
-                if (null == aggregate) {
-                    aggregate = (Long) input;
-                } else {
-                    aggregateLong((Long) input);
-                }
-                break;
+                return aggregateLong((Long) input1, (Long) input2);
             case DOUBLE:
-                if (null == aggregate) {
-                    aggregate = (Double) input;
-                } else {
-                    aggregateDouble((Double) input);
-                }
-                break;
+                return aggregateDouble((Double) input1, (Double) input2);
             default:
-                break;
+                return null;
         }
+
+        return null;
     }
 
-    protected abstract void aggregateInt(final Integer input);
+    protected abstract Integer aggregateInt(final Integer input1, final Integer input2);
 
-    protected abstract void aggregateLong(final Long input);
+    protected abstract Long aggregateLong(final Long input1, final Long input2);
 
-    protected abstract void aggregateDouble(final Double input);
-
-    @Override
-    public Number _state() {
-        return aggregate;
-    }
+    protected abstract Double aggregateDouble(final Double input1, final Double input2);
 
     public enum NumberType {
         AUTO, INT, LONG, DOUBLE
     }
-
-    public abstract AggregateFunction statelessClone();
 
     @Override
     public boolean equals(final Object o) {
@@ -133,30 +109,21 @@ public abstract class NumericAggregateFunction extends SimpleAggregateFunction<N
         final NumericAggregateFunction that = (NumericAggregateFunction) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
-                .append(outputs, that.outputs)
                 .append(mode, that.mode)
-                .append(aggregate, that.aggregate)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(outputs)
                 .append(mode)
-                .append(aggregate)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
                 .append("mode", mode)
-                .append("aggregate", aggregate)
                 .toString();
     }
 }

@@ -15,20 +15,18 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * An <code>MapContains</code> is a {@link SimpleFilterFunction} that checks
  * whether a {@link Map} contains a provided key.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class MapContains implements Predicate<Map> {
+public class MapContains extends KorphePredicate<Map> {
     private String key;
 
     public MapContains() {

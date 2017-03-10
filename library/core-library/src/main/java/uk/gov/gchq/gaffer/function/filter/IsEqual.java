@@ -21,14 +21,13 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import java.util.function.Predicate;
+import uk.gov.gchq.koryphe.predicate.KorphePredicate;
 
 /**
  * An <code>IsEqual</code> is a {@link SimpleFilterFunction} that checks that the input object is
  * equal to a control value.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class IsEqual implements Predicate<Object> {
+public class IsEqual extends KorphePredicate<Object> {
     private Object controlValue;
 
     public IsEqual() {
@@ -64,12 +63,11 @@ public class IsEqual implements Predicate<Object> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         final IsEqual isEqual = (IsEqual) o;
-
         return new EqualsBuilder()
                 .append(controlValue, isEqual.controlValue)
                 .isEquals();

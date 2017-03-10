@@ -16,17 +16,39 @@
 
 package uk.gov.gchq.koryphe.function;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import java.io.IOException;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 public abstract class FunctionTest {
+    private static final ObjectMapper MAPPER = createObjectMapper();
+
+    private static ObjectMapper createObjectMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        return mapper;
+    }
 
     protected abstract Function getInstance();
 
     protected abstract Class<? extends Function> getFunctionClass();
+
+    @Test
+    public abstract void shouldJsonSerialiseAndDeserialise() throws IOException;
+
+    protected String serialise(Object object) throws IOException {
+        return MAPPER.writeValueAsString(object);
+    }
+
+    protected Function deserialise(String json) throws IOException {
+        return MAPPER.readValue(json, getFunctionClass());
+    }
 
     @Test
     public void shouldEquals() {
