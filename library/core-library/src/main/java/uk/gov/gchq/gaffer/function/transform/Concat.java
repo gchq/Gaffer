@@ -19,16 +19,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.koryphe.bifunction.KorpheBiFunction;
+import uk.gov.gchq.koryphe.function.KorypheFunction2;
 
 /**
- * An <code>Concat</code> is a {@link TransformFunction} that takes in
+ * An <code>Concat</code> is a {@link java.util.function.Function} that takes in
  * two objects and calls toString on them and concatenates them together. The default separator is a comma,
  * you can set a custom separator using setSeparator(String).
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class Concat extends KorpheBiFunction<Object, Object, String> {
+public class Concat extends KorypheFunction2<Object, Object, String> {
     private static final String DEFAULT_SEPARATOR = ",";
     private String separator = DEFAULT_SEPARATOR;
 

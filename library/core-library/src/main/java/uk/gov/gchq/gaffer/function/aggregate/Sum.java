@@ -25,17 +25,17 @@ package uk.gov.gchq.gaffer.function.aggregate;
  */
 public class Sum extends NumericAggregateFunction {
     @Override
-    protected Integer aggregateInt(final Integer input1, final Integer input2) {
-        return input1 + input2;
+    protected Integer aggregateInt(final Integer a, final Integer b) {
+        return a + b;
     }
 
     @Override
-    protected Long aggregateLong(final Long input1, final Long input2) {
-        return input1 + input2;
+    protected Long aggregateLong(final Long a, final Long b) {
+        return a + b;
     }
 
     @Override
-    protected Double aggregateDouble(final Double input1, final Double input2) {
-        return input1 + input2;
+    protected Double aggregateDouble(final Double a, final Double b) {
+        return a + b;
     }
 }

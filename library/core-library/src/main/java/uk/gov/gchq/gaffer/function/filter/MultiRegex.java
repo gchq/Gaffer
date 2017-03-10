@@ -20,13 +20,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class MultiRegex extends KorphePredicate<String> {
+public class MultiRegex extends KoryphePredicate<String> {
     private Pattern[] patterns;
 
     public MultiRegex() {

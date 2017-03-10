@@ -18,7 +18,7 @@ public class CollectionConcatTest extends BiFunctionTest {
     @Test
     public void shouldConcatArraysTogether() {
         // Given
-        final CollectionConcat aggregator = new CollectionConcat();
+        final CollectionConcat<Object> aggregator = new CollectionConcat<>();
 
         final ArrayList<Object> list1 = new ArrayList<>(Arrays.asList(1, 2, 3));
         final ArrayList<Object> list2 = new ArrayList<>(Arrays.asList("3", "4", 5L));

@@ -5,11 +5,9 @@
     },
     "true": {
       "class": "java.lang.Boolean",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
             "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
         }
       ]
     }

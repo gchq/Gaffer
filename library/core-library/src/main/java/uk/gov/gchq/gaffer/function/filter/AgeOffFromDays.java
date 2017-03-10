@@ -15,13 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.koryphe.predicate.KorpheBiPredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate2;
 
 /**
- * An <code>AgeOffFromDays</code> is a {@link uk.gov.gchq.gaffer.function.processor.Filter}
+ * An <code>AgeOffFromDays</code> is a {@link java.util.function.BiPredicate}
  * that ages off old data based on a provided age off time in days.
  */
-public class AgeOffFromDays extends KorpheBiPredicate<Long, Integer> {
+public class AgeOffFromDays extends KoryphePredicate2<Long, Integer> {
     public static final long DAYS_TO_MILLISECONDS = 24L * 60L * 60L * 1000L;
 
     @Override

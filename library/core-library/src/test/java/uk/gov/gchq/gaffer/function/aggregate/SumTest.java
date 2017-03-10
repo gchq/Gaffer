@@ -37,20 +37,9 @@ public class SumTest extends BinaryOperatorTest {
     }
 
     @Test
-    public void testInitialiseInAutoMode() {
-        final Sum sum = new Sum();
-
-        assertEquals(NumericAggregateFunction.NumberType.AUTO, sum.getMode());
-
-        assertNull(state);
-    }
-
-    @Test
     public void testAggregateInIntMode() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.INT);
-
 
         // When 1
         state = sum.apply(state, 1);
@@ -78,8 +67,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInIntModeMixedInput() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.INT);
-
 
         // When 1
         state = sum.apply(state, 1);
@@ -115,8 +102,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInLongMode() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.LONG);
-
 
         // When 1
         state = sum.apply(state, 2l);
@@ -144,7 +129,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInLongModeMixedInput() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.LONG);
         state = 0l;
 
         // When 1
@@ -180,8 +164,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInDoubleMode() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.DOUBLE);
-
 
         // When 1
         state = sum.apply(state, 1.1d);
@@ -209,7 +191,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInDoubleModeMixedInput() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.DOUBLE);
         state = 0d;
 
         // When 1
@@ -250,7 +231,6 @@ public class SumTest extends BinaryOperatorTest {
         state = sum.apply(state, 1);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(1, state);
 
@@ -262,7 +242,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(1, state);
 
@@ -274,7 +253,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.INT, sum.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(1, state);
     }
@@ -289,7 +267,6 @@ public class SumTest extends BinaryOperatorTest {
         state = sum.apply(state, 1l);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(state instanceof Long);
         assertEquals(1l, state);
 
@@ -301,7 +278,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(state instanceof Long);
         assertEquals(1l, state);
 
@@ -313,7 +289,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.LONG, sum.getMode());
         assertTrue(state instanceof Long);
         assertEquals(1l, state);
     }
@@ -328,7 +303,6 @@ public class SumTest extends BinaryOperatorTest {
         state = sum.apply(state, 1.1d);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
@@ -340,7 +314,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
@@ -352,7 +325,6 @@ public class SumTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, sum.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
     }
@@ -366,7 +338,6 @@ public class SumTest extends BinaryOperatorTest {
         // When 1
         state = sum.apply(state, null);
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.AUTO, sum.getMode());
         assertEquals(null, state);
     }
 
@@ -374,7 +345,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInIntModeNullFirst() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.INT);
 
 
         // When 1
@@ -388,7 +358,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInLongModeNullFirst() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.LONG);
 
 
         // When 1
@@ -402,7 +371,6 @@ public class SumTest extends BinaryOperatorTest {
     public void testAggregateInDoubleModeNullFirst() {
         // Given
         final Sum sum = new Sum();
-        sum.setMode(NumericAggregateFunction.NumberType.DOUBLE);
 
 
         // When 1

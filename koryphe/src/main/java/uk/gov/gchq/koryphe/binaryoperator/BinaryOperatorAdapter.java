@@ -27,7 +27,7 @@ import java.util.function.Function;
  * @param <T>  Type of value to be aggregated
  * @param <FT> Type of value expected by aggregator
  */
-public class BinaryOperatorAdapter<T, FT> extends InputOutputAdapter<T, FT, FT, T, BinaryOperator<FT>> implements IKorpheBinaryOperator<T> {
+public class BinaryOperatorAdapter<T, FT> extends InputOutputAdapter<T, FT, FT, T, BinaryOperator<FT>> implements IKorypheBinaryOperator<T> {
     /**
      * Default constructor - for serialisation.
      */

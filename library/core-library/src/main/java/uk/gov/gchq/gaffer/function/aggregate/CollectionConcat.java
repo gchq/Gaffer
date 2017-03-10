@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Collection;
 import java.util.function.BinaryOperator;
 
@@ -23,29 +23,10 @@ import java.util.function.BinaryOperator;
  * An <code>CollectionConcat</code> is a {@link BinaryOperator} that concatenates
  * {@link Collection}s together.
  */
-public class CollectionConcat<T> extends KorpheBinaryOperator<Collection<T>> {
-
+public class CollectionConcat<T> extends KorypheBinaryOperator<Collection<T>> {
     @Override
-    public Collection<T> apply(final Collection<T> input1, final Collection<T> input2) {
-        if (null == input1) {
-            return input2;
-        }
-
-        if (null == input2) {
-            return input1;
-        }
-
-        final Collection<T> result;
-        try {
-            result = input1.getClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new IllegalArgumentException("Unable to create new instance of " + input1.getClass().getName()
-                    + ". This collection aggregator can only be used on collections with a default constructor.", e);
-        }
-
-        result.addAll(input1);
-        result.addAll(input2);
-
-        return result;
+    protected Collection<T> _apply(final Collection<T> a, final Collection<T> b) {
+        a.addAll(b);
+        return a;
     }
 }

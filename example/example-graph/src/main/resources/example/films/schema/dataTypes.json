@@ -2,82 +2,66 @@
   "types": {
     "filmId.string": {
       "class": "java.lang.String",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
     "userId.string": {
       "class": "java.lang.String",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
     "true": {
       "class": "java.lang.Boolean",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
       ]
     },
     "name.string": {
       "class": "java.lang.String",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
     "certificate": {
       "class": "uk.gov.gchq.gaffer.example.films.data.Certificate",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
     "rating.int": {
       "class": "java.lang.Integer",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
-            "orEqualTo": true,
-            "value": 0
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
         },
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
-            "orEqualTo": true,
-            "value": 100
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
+          "orEqualTo": true,
+          "value": 100
         }
       ]
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
-            "orEqualTo": true,
-            "value": 0
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
         }
       ]
     },

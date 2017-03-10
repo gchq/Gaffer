@@ -5,45 +5,37 @@
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
-            "orEqualTo": true,
-            "value": 0
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
         }
       ]
     },
     "score.int": {
       "class": "java.lang.Integer",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
-            "orEqualTo": true,
-            "value": 0
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
         }
       ]
     },
     "true": {
       "class": "java.lang.Boolean",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
       ]
     },
     "false": {
       "class": "java.lang.Boolean",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
         }
       ]
     }

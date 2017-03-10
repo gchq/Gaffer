@@ -18,6 +18,7 @@ package uk.gov.gchq.koryphe.tuple.function;
 
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.mask.TupleMask;
+import uk.gov.gchq.koryphe.tuple.n.mask.TupleMaskN;
 import java.util.function.Predicate;
 
 /**
@@ -40,5 +41,60 @@ public class TuplePredicate<R, I> extends TupleInputPredicate<R, I, Predicate<I>
     @Override
     public boolean test(Tuple<R> input) {
         return function.test(selection.select(input));
+    }
+
+    public static class Builder<R, I> {
+        private boolean selected = false;
+
+        private final TuplePredicate<R, I> tuplePredicate;
+        private boolean executed = false;
+
+        public Builder() {
+            this(new TuplePredicate<>());
+        }
+
+        protected Builder(final TuplePredicate<R, I> tuplePredicate) {
+            this.tuplePredicate = tuplePredicate;
+        }
+
+        public Builder execute(final Predicate<I> function) {
+            if (!executed) {
+                tuplePredicate.setFunction(function);
+                executed = true;
+            } else {
+                throw new IllegalStateException("Function has already been set");
+            }
+
+            return this;
+        }
+
+        public Builder<R, I> select(final R... newSelection) {
+            if (!selected) {
+                final TupleMask tupleMask = new TupleMaskN<R>();
+                tupleMask.setFields(newSelection);
+                getContext().setSelection(tupleMask);
+                selected = true;
+            } else {
+                throw new IllegalStateException("Selection has already been set");
+            }
+            return this;
+        }
+
+        public TuplePredicate<R, I> build() {
+            return getContext();
+        }
+
+        protected boolean isExecuted() {
+            return executed;
+        }
+
+        protected boolean isSelected() {
+            return selected;
+        }
+
+
+        protected TuplePredicate<R, I> getContext() {
+            return tuplePredicate;
+        }
     }
 }

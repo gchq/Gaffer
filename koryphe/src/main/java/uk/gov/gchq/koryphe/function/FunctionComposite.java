@@ -29,7 +29,7 @@ import java.util.function.Function;
  * @param <I> Type of input of first transformer
  * @param <O> Type of output of last transformer
  */
-public final class FunctionComposite<I, O> extends Composite<Function> implements Function<I, O> {
+public class FunctionComposite<I, O> extends Composite<Function> implements Function<I, O> {
     @Override
     public O apply(final I input) {
         Object result = input;

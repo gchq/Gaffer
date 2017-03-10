@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.function.BinaryOperator;
 
 /**
@@ -23,17 +23,9 @@ import java.util.function.BinaryOperator;
  * {@link Comparable}s and calculates the minimum comparable. It assumes that all the input comparables
  * are compatible and can be compared against each other.
  */
-public class Min extends KorpheBinaryOperator<Comparable> {
+public class Min extends KorypheBinaryOperator<Comparable> {
     @Override
-    public Comparable apply(final Comparable a, final Comparable b) {
-        if (null == b) {
-            return a;
-        }
-
-        if (null == a) {
-            return b;
-        }
-
+    protected Comparable _apply(final Comparable a, final Comparable b) {
         return a.compareTo(b) <= 0 ? a : b;
     }
 }

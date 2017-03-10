@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * @param <I> Type of input to be validated
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public final class Not<I> implements IKorphePredicate<I> {
+public final class Not<I> implements IKoryphePredicate<I> {
     private Predicate<I> predicate;
 
     public Not() {

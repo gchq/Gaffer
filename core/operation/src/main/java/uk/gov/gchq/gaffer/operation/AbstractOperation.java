@@ -95,19 +95,19 @@ public abstract class AbstractOperation<INPUT, OUTPUT> implements Operation<INPU
     @Override
     public boolean validatePreAggregationFilter(final Element element) {
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().test(element));
     }
 
     @Override
     public boolean validatePostAggregationFilter(final Element element) {
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().test(element));
     }
 
     @Override
     public boolean validatePostTransformFilter(final Element element) {
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().test(element));
     }
 
 

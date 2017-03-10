@@ -39,17 +39,17 @@ import java.util.Set;
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
  * A view should contain {@link uk.gov.gchq.gaffer.data.element.Edge} and {@link uk.gov.gchq.gaffer.data.element.Entity} types required and
- * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} and a
- * {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer}.
- * The {@link uk.gov.gchq.gaffer.function.FilterFunction}s within the ElementFilter describe the how the elements should be filtered.
- * The {@link uk.gov.gchq.gaffer.function.TransformFunction}s within ElementTransformer allow transient properties to be created
+ * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter} and a
+ * {@link uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer}.
+ * The {@link java.util.function.Predicate}s within the ElementFilter describe the how the elements should be filtered.
+ * The {@link java.util.function.Function}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
  * It also contains any transient properties that are created in transform functions.
  *
  * @see Builder
  * @see uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition
- * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter
- * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
+ * @see uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter
+ * @see uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {

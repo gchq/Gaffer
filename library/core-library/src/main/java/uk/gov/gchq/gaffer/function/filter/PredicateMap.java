@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  * value from a map using the provided key and passes the value to a provided
  * {@link Predicate}.
  */
-public class PredicateMap<T> extends KorphePredicate<Map<?, T>> {
+public class PredicateMap<T> extends KoryphePredicate<Map<?, T>> {
     private Predicate<? super T> predicate;
     private Object key;
 

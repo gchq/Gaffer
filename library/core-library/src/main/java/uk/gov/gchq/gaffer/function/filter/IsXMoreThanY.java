@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorpheBiPredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate2;
 
 /**
- * An <code>IsXMoreThanY</code> is a {@link FilterFunction} that checks that the first input
+ * An <code>IsXMoreThanY</code> is a {@link java.util.function.BiPredicate} that checks that the first input
  * {@link Comparable} is more than the second input {@link Comparable}.
  */
-public class IsXMoreThanY extends KorpheBiPredicate<Comparable, Comparable> {
+public class IsXMoreThanY extends KoryphePredicate2<Comparable, Comparable> {
     @Override
     public boolean test(final Comparable input1, final Comparable input2) {
         return null != input1 && null != input2

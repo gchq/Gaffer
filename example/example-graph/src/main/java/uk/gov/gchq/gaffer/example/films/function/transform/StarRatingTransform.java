@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.example.films.function.transform;
 
-import uk.gov.gchq.gaffer.function.TransformFunction;
+import java.util.function.Function;
 import uk.gov.gchq.gaffer.function.annotation.Inputs;
 import uk.gov.gchq.gaffer.function.annotation.Outputs;
 

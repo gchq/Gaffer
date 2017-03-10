@@ -18,14 +18,14 @@ package uk.gov.gchq.gaffer.function.transform;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.bifunction.BiFunctionTest;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class ConcatTest extends BiFunctionTest {
+public class ConcatTest extends FunctionTest {
     @Test
     public void shouldConcatStringsWithDefaultSeparator() {
         // Given

@@ -27,7 +27,7 @@ import java.util.function.Predicate;
  * instance of a given control {@link Class}.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class IsA extends KorphePredicate<Object> {
+public class IsA extends KoryphePredicate<Object> {
     private Class<?> type;
 
     /**

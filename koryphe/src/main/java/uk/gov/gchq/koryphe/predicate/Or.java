@@ -26,7 +26,7 @@ import java.util.function.Predicate;
  *
  * @param <I> Type of input to be validated.
  */
-public final class Or<I> extends Composite<Predicate<I>> implements IKorphePredicate<I> {
+public final class Or<I> extends Composite<Predicate<I>> implements IKoryphePredicate<I> {
     public Or() {
         super();
     }

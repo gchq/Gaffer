@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.IsA;
-import uk.gov.gchq.gaffer.function.PredicateTest;
+import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.function.Predicate;
 
@@ -87,7 +87,7 @@ public class NotTest extends PredicateTest {
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.function.filter.Not\",%n" +
                 "  \"predicate\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.function.IsA\",%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.predicate.IsA\",%n" +
                 "    \"type\" : \"java.lang.String\"%n" +
                 "  }%n" +
                 "}"), json);

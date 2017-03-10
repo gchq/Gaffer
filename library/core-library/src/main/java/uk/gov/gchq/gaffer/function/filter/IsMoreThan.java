@@ -20,15 +20,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>IsMoreThan</code> is a {@link SimpleFilterFunction} that checks that the input
+ * An <code>IsMoreThan</code> is a {@link java.util.function.Predicate} that checks that the input
  * {@link Comparable} is more than a control value. There is also an orEqualTo flag that can be set to allow
  * the input value to be more than or equal to the control value.
  */
-public class IsMoreThan extends KorphePredicate<Comparable> {
+public class IsMoreThan extends KoryphePredicate<Comparable> {
     private Comparable controlValue;
     private boolean orEqualTo;
 

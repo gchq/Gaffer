@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.example.util.ExamplesRunner;
-import uk.gov.gchq.gaffer.function.FilterFunction;
+import java.util.function.Predicate;
 
 /**
  * This runner will run all filter function examples.

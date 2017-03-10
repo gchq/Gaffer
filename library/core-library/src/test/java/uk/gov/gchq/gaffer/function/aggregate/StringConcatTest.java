@@ -5,12 +5,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.bifunction.BiFunctionTest;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class StringConcatTest extends BiFunctionTest {
+public class StringConcatTest extends BinaryOperatorTest {
     private String state;
 
     @Before
@@ -31,22 +31,6 @@ public class StringConcatTest extends BiFunctionTest {
 
         // Then
         assertEquals("1;2", state);
-    }
-
-    @Test
-    public void shouldConcatObjectAndStringsTogether() {
-        // Given
-        final StringConcat function = new StringConcat();
-        function.setSeparator(";");
-
-        // When
-        state = function.apply(1, state);
-        state = function.apply(state, "2");
-        state = function.apply(3L, state);
-        function.apply(state, null);
-
-        // Then
-        assertEquals("3;1;2", state);
     }
 
     @Test

@@ -19,7 +19,7 @@
       "properties": {
         "score": "score.int"
       },
-      "validateFunctions": [
+      "predicates": [
         {
           "function": {
             "class": "uk.gov.gchq.gaffer.function.filter.IsXLessThanY"

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.function.filter;
 
 import com.google.common.collect.Lists;
 import uk.gov.gchq.koryphe.composite.Composite;
-import uk.gov.gchq.koryphe.predicate.IKorphePredicate;
+import uk.gov.gchq.koryphe.predicate.IKoryphePredicate;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -27,7 +27,7 @@ import java.util.function.Predicate;
  *
  * @param <I> Type of input to be validated
  */
-public final class And<I> extends Composite<Predicate<I>> implements IKorphePredicate<I> {
+public final class And<I> extends Composite<Predicate<I>> implements IKoryphePredicate<I> {
     public And() {
         super();
     }

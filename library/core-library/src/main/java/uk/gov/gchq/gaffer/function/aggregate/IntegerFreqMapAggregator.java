@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.function.aggregate;
 
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
-import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
 import java.util.function.BinaryOperator;
 
@@ -27,26 +27,17 @@ import java.util.function.BinaryOperator;
  * @deprecated use {@link uk.gov.gchq.gaffer.types.IntegerFreqMap} with {@link FreqMapAggregator}.
  */
 @Deprecated
-public class IntegerFreqMapAggregator extends KorpheBinaryOperator<IntegerFreqMap> {
+public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
     @Override
-    public IntegerFreqMap apply(final IntegerFreqMap input1, final IntegerFreqMap input2) {
-        if (null == input1) {
-            return new IntegerFreqMap(input2);
-        }
-
-        if (null == input2) {
-            return new IntegerFreqMap(input1);
-        }
-
-        final IntegerFreqMap result = new IntegerFreqMap(input1);
-        for (final Entry<String, Integer> entry : input2.entrySet()) {
-            if (result.containsKey(entry.getKey())) {
-                result.put(entry.getKey(), result.get(entry.getKey()) + entry.getValue());
+    public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {
+        for (final Entry<String, Integer> entry : b.entrySet()) {
+            if (a.containsKey(entry.getKey())) {
+                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
             } else {
-                result.put(entry.getKey(), entry.getValue());
+                a.put(entry.getKey(), entry.getValue());
             }
         }
 
-        return result;
+        return a;
     }
 }

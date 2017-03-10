@@ -39,7 +39,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInIntMode() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.INT);
 
         // When 1
         state = product.apply(state, 2);
@@ -67,8 +66,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInIntModeMixedInput() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.INT);
-
 
         // When 1
         state = product.apply(state, 2);
@@ -104,7 +101,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInLongMode() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.LONG);
 
         // When 1
         state = product.apply(state, 2l);
@@ -132,7 +128,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInLongModeMixedInput() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.LONG);
         state = 1l;
 
         // When 1
@@ -168,7 +163,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInDoubleMode() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.DOUBLE);
 
         // When 1
         state = product.apply(state, 1.2d);
@@ -196,7 +190,6 @@ public class ProductTest extends BinaryOperatorTest {
     public void testAggregateInDoubleModeMixedInput() {
         // Given
         final Product product = new Product();
-        product.setMode(NumericAggregateFunction.NumberType.DOUBLE);
         state = 1d;
 
         // When 1
@@ -237,7 +230,6 @@ public class ProductTest extends BinaryOperatorTest {
         state = product.apply(state, 2);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(2, state);
 
@@ -249,7 +241,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(2, state);
 
@@ -261,7 +252,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.INT, product.getMode());
         assertTrue(state instanceof Integer);
         assertEquals(2, state);
     }
@@ -276,7 +266,6 @@ public class ProductTest extends BinaryOperatorTest {
         state = product.apply(state, 2l);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
@@ -288,7 +277,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
@@ -300,7 +288,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.LONG, product.getMode());
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
     }
@@ -315,7 +302,6 @@ public class ProductTest extends BinaryOperatorTest {
         state = product.apply(state, 1.1d);
 
         // Then 1
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
@@ -327,7 +313,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 2
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
@@ -339,7 +324,6 @@ public class ProductTest extends BinaryOperatorTest {
         }
 
         // Then 3
-        assertEquals(NumericAggregateFunction.NumberType.DOUBLE, product.getMode());
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
     }

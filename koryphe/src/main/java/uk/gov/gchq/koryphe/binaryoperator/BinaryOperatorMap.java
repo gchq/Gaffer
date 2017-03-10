@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.koryphe.binaryoperator;
 
-import uk.gov.gchq.koryphe.function.BiFunctionMap;
+import uk.gov.gchq.koryphe.bifunction.BiFunctionMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 

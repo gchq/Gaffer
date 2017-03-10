@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.Validator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -28,7 +28,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
 /**
  * An <code>ElementValidator</code> is a {@link Validator} for {@link Element}s
- * It is capable of validating an {@link Element} based on {@link uk.gov.gchq.gaffer.function.FilterFunction}s
+ * It is capable of validating an {@link Element} based on {@link java.util.function.Predicate}s
  * in {@link Schema} or {@link View}.
  */
 public class ElementValidator implements Validator<Element> {
@@ -130,7 +130,7 @@ public class ElementValidator implements Validator<Element> {
             return false;
         }
 
-        return elementDef.getValidator(includeIsA).filter(element);
+        return elementDef.getValidator(includeIsA).test(element);
     }
 
     private boolean validateAgainstViewFilter(final Element element, final FilterType filterType) {
@@ -146,7 +146,7 @@ public class ElementValidator implements Validator<Element> {
         }
 
         final ElementFilter validator = getElementFilter(elementDef, filterType);
-        return null == validator || validator.filter(element);
+        return null == validator || validator.test(element);
     }
 
     private ElementFilter getElementFilter(final ViewElementDefinition elementDef, final FilterType filterType) {

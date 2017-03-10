@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks the input object
+ * An <code>Exists</code> is a {@link java.util.function.Predicate} that simply checks the input object
  * is not null.
  */
-public class Exists extends KorphePredicate<Object> {
+public class Exists extends KoryphePredicate<Object> {
     @Override
     public boolean test(final Object input) {
         return null != input;

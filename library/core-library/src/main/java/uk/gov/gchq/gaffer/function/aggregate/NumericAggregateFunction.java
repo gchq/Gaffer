@@ -15,10 +15,7 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.binaryoperator.KorpheBinaryOperator;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.function.BinaryOperator;
 
 /**
@@ -30,100 +27,23 @@ import java.util.function.BinaryOperator;
  *
  * @see NumericAggregateFunction
  */
-public abstract class NumericAggregateFunction extends KorpheBinaryOperator<Number> {
-
-    private NumberType mode = NumberType.AUTO;
-
-    /**
-     * Sets the number type mode. If this is not set, then this will be set automatically based on the class of the
-     * first number that is passed to the aggregator.
-     *
-     * @param mode the {@link NumberType} to set.
-     */
-    public void setMode(final NumberType mode) {
-        this.mode = mode;
-    }
-
-    /**
-     * @return the {@link NumberType} to be aggregated
-     */
-    public NumberType getMode() {
-        return mode;
-    }
-
+public abstract class NumericAggregateFunction extends KorypheBinaryOperator<Number> {
     @Override
-    public Number apply(final Number input1, final Number input2) {
-        if (input1 == null) {
-            return input2;
-        }
-
-        if (input2 == null) {
-            return input1;
-        }
-
-        switch (mode) {
-            case AUTO:
-                if (input1 instanceof Integer) {
-                    setMode(NumberType.INT);
-                } else if (input1 instanceof Long) {
-                    setMode(NumberType.LONG);
-                } else if (input1 instanceof Double) {
-                    setMode(NumberType.DOUBLE);
-                } else {
-                    break;
-                }
-                return apply(input1, input2);
-            case INT:
-                return aggregateInt((Integer) input1, (Integer) input2);
-            case LONG:
-                return aggregateLong((Long) input1, (Long) input2);
-            case DOUBLE:
-                return aggregateDouble((Double) input1, (Double) input2);
-            default:
-                return null;
+    public Number _apply(final Number a, final Number b) {
+        if (a instanceof Integer) {
+            return aggregateInt((Integer) a, (Integer) b);
+        } else if (a instanceof Long) {
+            return aggregateLong((Long) a, (Long) b);
+        } else if (a instanceof Double) {
+            return aggregateDouble((Double) a, (Double) b);
         }
 
         return null;
     }
 
-    protected abstract Integer aggregateInt(final Integer input1, final Integer input2);
+    protected abstract Integer aggregateInt(final Integer a, final Integer b);
 
-    protected abstract Long aggregateLong(final Long input1, final Long input2);
+    protected abstract Long aggregateLong(final Long a, final Long b);
 
-    protected abstract Double aggregateDouble(final Double input1, final Double input2);
-
-    public enum NumberType {
-        AUTO, INT, LONG, DOUBLE
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final NumericAggregateFunction that = (NumericAggregateFunction) o;
-
-        return new EqualsBuilder()
-                .append(mode, that.mode)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(mode)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("mode", mode)
-                .toString();
-    }
+    protected abstract Double aggregateDouble(final Double a, final Double b);
 }

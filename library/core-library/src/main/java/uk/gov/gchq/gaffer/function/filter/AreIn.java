@@ -22,17 +22,16 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * An <code>AreIn</code> is a {@link SimpleFilterFunction}
+ * An <code>AreIn</code> is a {@link java.util.function.BiPredicate}
  * that checks whether a provided {@link Collection} contains all the input values.
  */
-public class AreIn extends KorphePredicate<Collection<?>> {
+public class AreIn extends KoryphePredicate<Collection<?>> {
     private Collection<?> allowedValues;
 
     public AreIn() {

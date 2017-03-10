@@ -7,22 +7,18 @@
     "directed.true": {
       "class": "java.lang.Boolean",
       "description": "Directed true type description",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
             "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
-          }
         }
       ]
     },
     "prop.string": {
       "description": "String type description",
       "class": "java.lang.String",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
             "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
-          }
         }
       ]
     },

@@ -20,6 +20,7 @@ import uk.gov.gchq.koryphe.tuple.mask.TupleMask;
 
 /**
  * A {@link TupleMask} that refers to more than 5 values in the wrapped tuple.
+ *
  * @param <R> Type of reference used by wrapped tuple.
  */
 public class TupleMaskN<R> extends TupleMask5<Object, Object, Object, Object, Object, R> {
@@ -27,5 +28,10 @@ public class TupleMaskN<R> extends TupleMask5<Object, Object, Object, Object, Ob
         super(references);
     }
 
-    public TupleMaskN() { }
+    public TupleMaskN(final R... fields) {
+        setFields(fields);
+    }
+
+    public TupleMaskN() {
+    }
 }

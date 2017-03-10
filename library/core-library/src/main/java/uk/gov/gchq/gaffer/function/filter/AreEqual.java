@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorpheBiPredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate2;
 
 /**
- * An <code>AreEqual</code> is a {@link FilterFunction} that returns true if the two input objects
+ * An <code>AreEqual</code> is a {@link java.util.function.BiPredicate} that returns true if the two input objects
  * are equal.
  */
-public class AreEqual extends KorpheBiPredicate<Object, Object> {
+public class AreEqual extends KoryphePredicate2<Object, Object> {
     /**
      * @param input1 input 1
      * @param input2 input 2

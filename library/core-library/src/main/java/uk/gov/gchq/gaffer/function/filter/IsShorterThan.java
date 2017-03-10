@@ -18,20 +18,19 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * An <code>IsShorterThan</code> is a {@link SimpleFilterFunction} that checks that the input
+ * An <code>IsShorterThan</code> is a {@link java.util.function.Predicate} that checks that the input
  * object has a length less than a maximum length. There is also an orEqualTo flag that can be set to allow
  * the input object length to be less than or equal to the maximum length.
  * <p>
  * Allowed object types are {@link String}s, arrays, {@link Collection}s and {@link Map}s.
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */
-public class IsShorterThan extends KorphePredicate<Object> {
+public class IsShorterThan extends KoryphePredicate<Object> {
     private int maxLength;
     private boolean orEqualTo;
 

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.function.aggregate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.bifunction.KorpheBiFunction;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.function.BinaryOperator;
 
 /**
@@ -26,21 +26,13 @@ import java.util.function.BinaryOperator;
  * {@link String}s and concatenates them together. The default separator is a comma, you can set a custom
  * separator using setSeparator(String).
  */
-public class StringConcat extends KorpheBiFunction<Object, String, String> {
+public class StringConcat extends KorypheBinaryOperator<String> {
     private static final String DEFAULT_SEPARATOR = ",";
     private String separator = DEFAULT_SEPARATOR;
 
     @Override
-    public String apply(final Object input1, final String input2) {
-        if (null == input1) {
-            return input2;
-        }
-
-        if (null == input2) {
-            return String.valueOf(input1);
-        }
-
-        return input1 + separator + input2;
+    public String _apply(final String a, final String b) {
+        return a + separator + b;
     }
 
     public String getSeparator() {

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.koryphe.composite;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.ArrayList;
@@ -29,9 +28,7 @@ import java.util.function.Function;
  *
  * @param <F> The type of Function
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public abstract class Composite<F> {
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     private List<F> functions;
 
     public Composite() {

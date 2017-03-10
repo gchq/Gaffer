@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.rest.service;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.function.IsA;
+import uk.gov.gchq.koryphe.predicate.IsA;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;

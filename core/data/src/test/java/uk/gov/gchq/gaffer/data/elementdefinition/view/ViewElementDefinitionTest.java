@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;

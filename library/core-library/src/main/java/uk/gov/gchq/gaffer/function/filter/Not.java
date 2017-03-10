@@ -20,7 +20,7 @@ package uk.gov.gchq.gaffer.function.filter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.function.Predicate;
 
 /**
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  *
  * @param <I> Type of input to be validated
  */
-public final class Not<I> extends KorphePredicate<I> {
+public final class Not<I> extends KoryphePredicate<I> {
     private Predicate<I> predicate;
 
     public Not() {

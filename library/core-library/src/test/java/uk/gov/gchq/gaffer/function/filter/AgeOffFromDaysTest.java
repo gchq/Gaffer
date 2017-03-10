@@ -18,14 +18,14 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.BiPredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class AgeOffFromDaysTest extends BiPredicateTest {
+public class AgeOffFromDaysTest extends PredicateTest {
     public static final int MINUTE_IN_MILLISECONDS = 60000;
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final int AGE_OFF_DAYS = 14;

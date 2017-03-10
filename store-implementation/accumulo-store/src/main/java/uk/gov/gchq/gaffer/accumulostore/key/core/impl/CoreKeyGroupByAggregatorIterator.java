@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AggregationException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementAggregator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -44,16 +44,14 @@ public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
             return properties;
         }
 
+        Properties aggregatedProps = null;
         final ElementAggregator aggregator = schema.getElement(group).getAggregator();
-        aggregator.aggregate(properties);
+        aggregatedProps = aggregator.apply(properties, aggregatedProps);
         while (iter.hasNext()) {
-            aggregator.aggregate(iter.next());
+            aggregatedProps = aggregator.apply(iter.next(), aggregatedProps);
         }
 
-        final Properties aggregatedProperties = new Properties();
-        aggregator.state(aggregatedProperties);
-
-        return aggregatedProperties;
+        return aggregatedProps;
     }
 
     @Override

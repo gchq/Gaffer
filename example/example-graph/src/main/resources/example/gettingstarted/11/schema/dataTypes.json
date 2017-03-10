@@ -2,11 +2,9 @@
   "types": {
     "vertex.string": {
       "class": "java.lang.String",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -15,11 +13,9 @@
     },
     "false": {
       "class": "java.lang.Boolean",
-      "validateFunctions": [
+      "predicates": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
         }
       ]
     }

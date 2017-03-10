@@ -25,16 +25,17 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementAggregator;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.IsA;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import java.util.Arrays;
+import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.tuple.Tuple;
+import uk.gov.gchq.koryphe.tuple.function.TupleBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.function.TuplePredicate;
+import uk.gov.gchq.koryphe.tuple.n.mask.TupleMaskN;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * A <code>SchemaElementDefinition</code> is the representation of a single group in a
@@ -159,27 +161,27 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     /**
      * @return a cloned instance of {@link ElementAggregator} fully populated with all the
-     * {@link uk.gov.gchq.gaffer.function.AggregateFunction}s defined in this
+     * {@link java.util.function.BinaryOperator}s defined in this
      * {@link SchemaElementDefinition} and also the
-     * {@link uk.gov.gchq.gaffer.function.AggregateFunction}s defined in the corresponding property value
+     * {@link java.util.function.BinaryOperator}s defined in the corresponding property value
      * {@link TypeDefinition}s.
      */
     @JsonIgnore
     public ElementAggregator getAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
         for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-            addTypeAggregateFunctions(aggregator, entry.getKey(), entry.getValue());
+            addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
         }
 
         return aggregator;
     }
 
     /**
-     * @return a cloned instance of {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} fully populated with all the
-     * {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in this
+     * @return a cloned instance of {@link ElementFilter} fully populated with all the
+     * {@link java.util.function.Predicate}s defined in this
      * {@link SchemaElementDefinition} and also the
      * {@link SchemaElementDefinition} and also the
-     * {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in the corresponding identifier and property value
+     * {@link java.util.function.Predicate}s defined in the corresponding identifier and property value
      * {@link TypeDefinition}s.
      */
     @JsonIgnore
@@ -188,7 +190,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     }
 
     public ElementFilter getValidator(final boolean includeIsA) {
-        final ElementFilter fullValidator = null != validator ? validator.clone() : new ElementFilter();
+        final ElementFilter fullValidator = new ElementFilter();
+        if (null != validator) {
+            fullValidator.setFunctions(new ArrayList<>(validator.getFunctions()));
+        }
         for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final String key = entry.getKey().name();
             if (includeIsA) {
@@ -209,10 +214,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
-    public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
+    public TuplePredicate[] getOriginalValidateFunctions() {
         if (null != validator) {
-            final List<ConsumerFunctionContext<String, FilterFunction>> functions = validator.getFunctions();
-            return functions.toArray(new ConsumerFunctionContext[functions.size()]);
+            final List<TuplePredicate<String, ?>> functions = validator.getFunctions();
+            return functions.toArray(new TuplePredicate[functions.size()]);
         }
 
         return null;
@@ -286,30 +291,28 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
         final TypeDefinition type = getTypeDef(classOrTypeName);
-        if (null != type.getValidator()) {
-            for (final ConsumerFunctionContext<String, FilterFunction> function : type.getValidator().clone().getFunctions()) {
-                final List<String> selection = function.getSelection();
-                if (null == selection || selection.isEmpty()) {
-                    function.setSelection(Collections.singletonList(key));
-                } else if (!selection.contains(key)) {
-                    selection.add(key);
-                }
-                fullValidator.addFunction(function);
+        if (null != type.getPredicates()) {
+            for (final Predicate<?> predicate : type.getPredicates()) {
+                final TuplePredicate<String, ?> function =
+                        new TuplePredicate<>(new TupleMaskN(key), predicate);
+                fullValidator.getFunctions().add(function);
             }
         }
     }
 
-    private void addTypeAggregateFunctions(final ElementAggregator aggregator, final String key, final String typeName) {
+    private void addTypeAggregateFunction(final ElementAggregator aggregator, final String key, final String typeName) {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
-            aggregator.addFunction(new PassThroughFunctionContext<>(type.getAggregateFunction().statelessClone(), Collections.singletonList(key)));
+            final TupleBinaryOperator<String, ?> function =
+                    new TupleBinaryOperator<>(new TupleMaskN(key), type.getAggregateFunction());
+            aggregator.getFunctions().add(function);
         }
     }
 
     private void addIsAFunction(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
-        fullValidator.addFunction(
-                new ConsumerFunctionContext<String, FilterFunction>(
-                        new IsA(getTypeDef(classOrTypeName).getClazz()), Collections.singletonList(key)));
+        final TuplePredicate<String, ?> function =
+                new TuplePredicate<>(new TupleMaskN(key), new IsA(getTypeDef(classOrTypeName).getClazz()));
+        fullValidator.getFunctions().add(function);
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
@@ -413,11 +416,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        public CHILD_CLASS validateFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+        public CHILD_CLASS validateFunctions(final List<TuplePredicate<String, Tuple<String>>> predicates) {
             if (null == getElementDef().validator) {
                 getElementDef().validator = new ElementFilter();
             }
-            getElementDef().validator.addFunctions(filterFunctions);
+            getElementDef().validator.getFunctions().addAll(predicates);
             return self();
         }
 
@@ -466,7 +469,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             if (null == getElementDef().validator) {
                 getElementDef().validator = elementDef.validator;
             } else if (null != elementDef.getOriginalValidateFunctions()) {
-                getElementDef().validator.addFunctions(Arrays.asList(elementDef.getOriginalValidateFunctions()));
+                getElementDef().validator.getFunctions().addAll(elementDef.validator.getFunctions());
             }
 
             getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);

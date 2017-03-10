@@ -18,15 +18,14 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Map;
 
 /**
- * An <code>MapContains</code> is a {@link SimpleFilterFunction} that checks
+ * An <code>MapContains</code> is a {@link java.util.function.Predicate} that checks
  * whether a {@link Map} contains a provided key.
  */
-public class MapContains extends KorphePredicate<Map> {
+public class MapContains extends KoryphePredicate<Map> {
     private String key;
 
     public MapContains() {

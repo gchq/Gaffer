@@ -19,15 +19,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Collection;
 
 /**
- * An <code>CollectionContains</code> is a {@link uk.gov.gchq.gaffer.function.SimpleFilterFunction}
+ * An <code>CollectionContains</code> is a {@link java.util.function.Predicate}
  * that checks whether a {@link java.util.Collection} contains a provided value.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public class CollectionContains extends KorphePredicate<Collection<?>> {
+public class CollectionContains extends KoryphePredicate<Collection<?>> {
     private Object value;
 
     public CollectionContains() {

@@ -11,7 +11,7 @@ import java.util.function.Predicate;
  * @param <I>  Type of input to be transformed
  * @param <VI> Type of input expected by the predicate
  */
-public class PredicateAdapter<I, VI> extends InputAdapter<I, VI, Predicate<VI>> implements IKorphePredicate<I> {
+public class PredicateAdapter<I, VI> extends InputAdapter<I, VI, Predicate<VI>> implements IKoryphePredicate<I> {
     /**
      * Default constructor - for serialisation.
      */

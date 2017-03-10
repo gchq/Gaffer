@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>IsTrue</code> is a {@link SimpleFilterFunction} that checks that the input boolean is
+ * An <code>IsTrue</code> is a {@link java.util.function.Predicate} that checks that the input boolean is
  * true.
  */
-public class IsTrue extends KorphePredicate<Boolean> {
+public class IsTrue extends KoryphePredicate<Boolean> {
     @Override
     public boolean test(final Boolean input) {
         return Boolean.TRUE.equals(input);

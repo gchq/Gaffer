@@ -27,7 +27,7 @@ import java.util.function.BinaryOperator;
  *
  * @param <R> The type of reference used by tuples.
  */
-public class TupleBinaryOperator<R, T> extends TupleInputBiFunction<R, T, T, BinaryOperator<T>> implements BinaryOperator<Tuple<R>> {
+public class TupleBinaryOperator<R, T> extends TupleInputBinaryOperator<R, T, BinaryOperator<T>> implements BinaryOperator<Tuple<R>> {
     /**
      * Default constructor - for serialisation.
      */

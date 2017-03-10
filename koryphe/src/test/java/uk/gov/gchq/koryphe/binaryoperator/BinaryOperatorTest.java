@@ -24,5 +24,5 @@ public abstract class BinaryOperatorTest extends BiFunctionTest {
     protected abstract BinaryOperator getInstance();
 
     @Override
-    protected abstract Class<? extends BinaryOperator> getFunctionClass();
+    protected abstract Class<? extends KorypheBinaryOperator> getFunctionClass();
 }

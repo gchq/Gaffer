@@ -93,15 +93,19 @@ public class TupleMask<R, T> implements Tuple<Integer> {
      */
     public void setFields(final R... fields) {
         if (fields != null) {
-            TupleMask<R, ?>[] references = new TupleMask[fields.length];
-            int i = 0;
-            for (R field : fields) {
-                TupleMask<R, ?> reference = new TupleMask<>(field);
-                references[i++] = reference;
+            if (1 == fields.length) {
+                setField(fields[0]);
+            } else {
+                TupleMask<R, ?>[] references = new TupleMask[fields.length];
+                int i = 0;
+                for (R field : fields) {
+                    TupleMask<R, ?> reference = new TupleMask<>(field);
+                    references[i++] = reference;
+                }
+                setTupleReferences(references);
+                field = null;
+                referenceType = Type.FIELDS;
             }
-            setTupleReferences(references);
-            field = null;
-            referenceType = Type.FIELDS;
         }
     }
 

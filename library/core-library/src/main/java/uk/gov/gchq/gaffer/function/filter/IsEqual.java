@@ -20,14 +20,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.koryphe.predicate.KorphePredicate;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>IsEqual</code> is a {@link SimpleFilterFunction} that checks that the input object is
+ * An <code>IsEqual</code> is a {@link java.util.function.Predicate} that checks that the input object is
  * equal to a control value.
  */
-public class IsEqual extends KorphePredicate<Object> {
+public class IsEqual extends KoryphePredicate<Object> {
     private Object controlValue;
 
     public IsEqual() {

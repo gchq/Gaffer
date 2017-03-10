@@ -29,8 +29,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
@@ -138,11 +138,11 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetElementsOperation<?, 
 
     protected void transform(final Element element, final ElementTransformer transformer) {
         if (transformer != null) {
-            transformer.transform(element);
+            transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return postFilter != null ? postFilter.filter(element) : true;
+        return postFilter == null || postFilter.test(element);
     }
 }

@@ -25,7 +25,7 @@ import java.util.function.BinaryOperator;
  *
  * @param <T> Type of aggregator input/output
  */
-public final class BinaryOperatorComposite<T> extends Composite<BinaryOperator<T>> implements BinaryOperator<T> {
+public class BinaryOperatorComposite<T> extends Composite<BinaryOperator<T>> implements BinaryOperator<T> {
     @Override
     public T apply(final T input, final T state) {
         T result = state;
