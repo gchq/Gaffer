@@ -31,6 +31,7 @@ public final class Or<I> extends Composite<Predicate<I>> implements IKoryphePred
         super();
     }
 
+    @SafeVarargs
     public Or(Predicate<I>... predicates) {
         super(Lists.newArrayList(predicates));
     }

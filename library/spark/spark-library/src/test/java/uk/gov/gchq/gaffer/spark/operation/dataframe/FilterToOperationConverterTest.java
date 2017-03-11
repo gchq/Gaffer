@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.tuple.function.TuplePredicate;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -209,13 +209,13 @@ public class FilterToOperationConverterTest {
 
         assertTrue(operation instanceof GetRDDOfAllElements);
         View opView = operation.getView();
-        List<TuplePredicate<String, ?>> entityPostAggFilters = opView
+        List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
         assertEquals(new ArrayList<>(Collections.singleton("property1")), entityPostAggFilters.get(0).getSelection());
         assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0));
         for (final String edgeGroup : EDGE_GROUPS) {
-            final List<TuplePredicate<String, ?>> edgePostAggFilters = opView
+            final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
             assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
@@ -235,7 +235,7 @@ public class FilterToOperationConverterTest {
         assertEquals(1, entityPostAggFilters.size());
         assertEquals(new ArrayList<>(Collections.singleton("property4")), entityPostAggFilters.get(0).getSelection());
         assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getFunction());
-        List<TuplePredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
+        List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(1, edgePostAggFilters.size());
         assertEquals(new ArrayList<>(Collections.singleton("property4")), edgePostAggFilters.get(0).getSelection());
@@ -290,7 +290,7 @@ public class FilterToOperationConverterTest {
         assertTrue(operation instanceof GetRDDOfAllElements);
         // Only groups ENTITY_GROUP and EDGE_GROUP should be in the view as only they have property1 and property4
         View opView = operation.getView();
-        List<TuplePredicate<String, ?>> entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
+        List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView.getEntity(ENTITY_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(2, entityPostAggFilters.size());
         final ArrayList<String> expectedProperties = new ArrayList<>();
@@ -305,7 +305,7 @@ public class FilterToOperationConverterTest {
         expectedFunctions.add(new IsLessThan(8L, false));
         assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
         assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
-        final List<TuplePredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
+        final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(2, edgePostAggFilters.size());
         assertEquals(1, edgePostAggFilters.get(0).getSelection().size());
@@ -338,7 +338,7 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         View opView = operation.getView();
-        List<TuplePredicate<String, ?>> entityPostAggFilters = opView
+        List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
         final ArrayList<String> expectedProperties = new ArrayList<>();
@@ -408,7 +408,7 @@ public class FilterToOperationConverterTest {
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         View opView = operation.getView();
         for (final String edgeGroup : EDGE_GROUPS) {
-            final List<TuplePredicate<String, ?>> edgePostAggFilters = opView
+            final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
             assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
@@ -432,7 +432,7 @@ public class FilterToOperationConverterTest {
         }
         assertEquals(Collections.singleton(new EntitySeed("0")), seeds);
         opView = operation.getView();
-        final List<TuplePredicate<String, ?>> entityPostAggFilters = opView
+        final List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
         assertEquals(2, entityPostAggFilters.size());
         final List<String> expectedProperties = new ArrayList<>();

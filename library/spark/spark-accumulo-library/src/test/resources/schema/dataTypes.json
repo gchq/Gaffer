@@ -17,7 +17,7 @@
     },
     "string": {
       "class": "java.lang.String",
-      "predicates": [
+      "validateFunctions": [
         {
             "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }

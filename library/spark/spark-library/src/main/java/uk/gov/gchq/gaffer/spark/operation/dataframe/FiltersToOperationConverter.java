@@ -45,8 +45,8 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.koryphe.tuple.function.TuplePredicate;
-import uk.gov.gchq.koryphe.tuple.n.mask.TupleMaskN;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import uk.gov.gchq.koryphe.tuple.TupleAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -214,20 +214,20 @@ public class FiltersToOperationConverter {
         }
         LOGGER.info("Groups that can be returned are: {}", StringUtils.join(intersection, ','));
         // Update view with filters and add to operation
-        final Map<String, List<TuplePredicate<String, ?>>> groupToFunctions = new HashMap<>();
+        final Map<String, List<TupleAdaptedPredicate<String, ?>>> groupToFunctions = new HashMap<>();
         for (final Filter filter : filters) {
-            final Map<String, List<TuplePredicate<String, ?>>> map = getFunctionsFromFilter(filter);
-            for (final Entry<String, List<TuplePredicate<String, ?>>> entry : map.entrySet()) {
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = getFunctionsFromFilter(filter);
+            for (final Entry<String, List<TupleAdaptedPredicate<String, ?>>> entry : map.entrySet()) {
                 if (!groupToFunctions.containsKey(entry.getKey())) {
-                    groupToFunctions.put(entry.getKey(), new ArrayList<TuplePredicate<String, ?>>());
+                    groupToFunctions.put(entry.getKey(), new ArrayList<TupleAdaptedPredicate<String, ?>>());
                 }
                 groupToFunctions.get(entry.getKey()).addAll(entry.getValue());
             }
         }
         LOGGER.info("The following functions will be applied for the given group:");
-        for (final Entry<String, List<TuplePredicate<String, ?>>> entry : groupToFunctions.entrySet()) {
+        for (final Entry<String, List<TupleAdaptedPredicate<String, ?>>> entry : groupToFunctions.entrySet()) {
             LOGGER.info("Group = {}: ", entry.getKey());
-            for (final TuplePredicate<String, ?> cfc : entry.getValue()) {
+            for (final TupleAdaptedPredicate<String, ?> cfc : entry.getValue()) {
                 if (null != cfc.getSelection().getField()) {
                     LOGGER.info("\t{} {}", cfc.getSelection().getField(), cfc.getFunction());
                 } else {
@@ -246,7 +246,7 @@ public class FiltersToOperationConverter {
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
                             .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
-                    for (final TuplePredicate<String, ?> cfc : groupToFunctions.get(group)) {
+                    for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection().getField()) {
                             LOGGER.info("\t{} {}", cfc.getSelection().getField(), cfc.getFunction());
                         } else {
@@ -268,7 +268,7 @@ public class FiltersToOperationConverter {
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
                             .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
-                    for (final TuplePredicate<String, ?> cfc : groupToFunctions.get(group)) {
+                    for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection().getField()) {
                             LOGGER.info("\t{} {}", cfc.getSelection().getField(), cfc.getFunction());
                         } else {
@@ -343,7 +343,7 @@ public class FiltersToOperationConverter {
     }
 
     /**
-     * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link TuplePredicate}s.
+     * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link TupleAdaptedPredicate}s.
      * <p>
      * Note that Spark also applies all the filters provided to the <code>buildScan(String[], Filter[])</code> method
      * so not implementing some of the provided {@link Filter}s in Gaffer will not cause errors. However, as many as
@@ -351,10 +351,10 @@ public class FiltersToOperationConverter {
      * tablet servers (this avoids unnecessary data transfer from Accumulo to Spark).
      *
      * @param filter The {@link Filter} to transform.
-     * @return A map from {@link String} to {@link TuplePredicate}s implementing the provided {@link Filter}.
+     * @return A map from {@link String} to {@link TupleAdaptedPredicate}s implementing the provided {@link Filter}.
      */
-    private Map<String, List<TuplePredicate<String, ?>>> getFunctionsFromFilter(final Filter filter) {
-        final Map<String, List<TuplePredicate<String, ?>>> map = new HashMap<>();
+    private Map<String, List<TupleAdaptedPredicate<String, ?>>> getFunctionsFromFilter(final Filter filter) {
+        final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = new HashMap<>();
         if (filter instanceof EqualTo) {
             // Not dealt with as requires a Predicate that returns null if either the controlValue or the
             // test value is null - the API of Predicate doesn't permit this.
@@ -366,9 +366,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isEqual));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isEqual));
                 }
             }
             LOGGER.debug("Converted {} to IsEqual ({})", filter, properties.get(0));
@@ -380,9 +380,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isMoreThan));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isMoreThan));
                 }
             }
             LOGGER.debug("Converted {} to isMoreThan ({})", filter, properties.get(0));
@@ -394,9 +394,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isMoreThan));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isMoreThan));
                 }
             }
             LOGGER.debug("Converted {} to IsMoreThan ({})", filter, properties.get(0));
@@ -408,9 +408,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isLessThan));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isLessThan));
                 }
             }
             LOGGER.debug("Converted {} to IsLessThan ({})", filter, properties.get(0));
@@ -422,9 +422,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isLessThan));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isLessThan));
                 }
             }
             LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, properties.get(0));
@@ -436,9 +436,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), isIn));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), isIn));
                 }
             }
             LOGGER.debug("Converted {} to IsIn ({})", filter, properties.get(0));
@@ -450,9 +450,9 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), doesntExist));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), doesntExist));
                 }
             }
             LOGGER.debug("Converted {} to Not(Exists) ({})", filter, properties.get(0));
@@ -464,20 +464,20 @@ public class FiltersToOperationConverter {
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
-                    map.get(group).add(new TuplePredicate<>(new TupleMaskN(properties), exists));
+                    map.get(group).add(new TupleAdaptedPredicate<>(new TupleAdapter(properties), exists));
                 }
             }
             LOGGER.debug("Converted {} to Exists ({})", filter, properties.get(0));
         } else if (filter instanceof And) {
             final And and = (And) filter;
-            final Map<String, List<TuplePredicate<String, ?>>> left = getFunctionsFromFilter(and.left());
-            final Map<String, List<TuplePredicate<String, ?>>> right = getFunctionsFromFilter(and.right());
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> left = getFunctionsFromFilter(and.left());
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> right = getFunctionsFromFilter(and.right());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
-                    final List<TuplePredicate<String, ?>> concatFilters = new ArrayList<>();
+                    final List<TupleAdaptedPredicate<String, ?>> concatFilters = new ArrayList<>();
                     if (left.get(group) != null) {
                         concatFilters.addAll(left.get(group));
                     }
@@ -485,7 +485,7 @@ public class FiltersToOperationConverter {
                         concatFilters.addAll(right.get(group));
                     }
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<TuplePredicate<String, ?>>());
+                        map.put(group, new ArrayList<TupleAdaptedPredicate<String, ?>>());
                     }
                     map.get(group).addAll(concatFilters);
                 }

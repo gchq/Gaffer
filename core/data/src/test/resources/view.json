@@ -9,12 +9,13 @@
       },
       "transformFunctions": [
         {
-          "selection": {
-            "fields": ["property1", "SOURCE"]
-          },
-          "projection": {
-            "field": "transientProperty1"
-          },
+          "selection": [
+            "property1",
+            "SOURCE"
+          ],
+          "projection": [
+            "transientProperty1"
+          ],
           "function": {
             "class": "uk.gov.gchq.gaffer.function.ExampleTransformFunction"
           }
@@ -22,9 +23,9 @@
       ],
       "postTransformFilterFunctions": [
         {
-          "selection": {
-            "field": "transientProperty1"
-          },
+          "selection": [
+            "transientProperty1"
+          ],
           "function": {
             "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
           }

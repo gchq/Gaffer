@@ -157,7 +157,7 @@ public class GetGafferResultCacheExportHandlerTest {
         final Schema schema = graph.getSchema();
         JsonUtil.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
         assertTrue(schema.validate());
-        assertEquals(timeToLive, ((AgeOff) (schema.getType("timestamp").getPredicates().get(0))).getAgeOffTime());
+        assertEquals(timeToLive, ((AgeOff) (schema.getType("timestamp").getValidateFunctions().get(0))).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
         assertTrue(schema.validate());

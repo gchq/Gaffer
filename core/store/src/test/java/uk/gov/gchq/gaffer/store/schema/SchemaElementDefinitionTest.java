@@ -21,7 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
@@ -175,7 +175,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(2, elementDef.getProperties().size());
         assertEquals(Integer.class, elementDef.getPropertyClass(TestPropertyNames.PROP_1));
         assertEquals(Object.class, elementDef.getPropertyClass(TestPropertyNames.PROP_2));
-        assertSame(validator, elementDef.getValidator());
+        assertSame(validator, elementDef.getOriginalValidator());
     }
 
     //TODO: fix this

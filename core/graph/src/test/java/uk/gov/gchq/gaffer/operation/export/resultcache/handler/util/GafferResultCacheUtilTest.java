@@ -81,7 +81,7 @@ public class GafferResultCacheUtilTest {
 
         // Then
         assertTrue(isValid);
-        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) (schema.getType("timestamp").getPredicates().get(0))).getAgeOffTime());
+        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) (schema.getType("timestamp").getValidateFunctions().get(0))).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
         assertTrue(schema.validate());
@@ -98,7 +98,7 @@ public class GafferResultCacheUtilTest {
 
         // Then
         assertTrue(isValid);
-        assertNull(schema.getType("timestamp").getPredicates());
+        assertNull(schema.getType("timestamp").getValidateFunctions());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertTrue(new ElementValidator(schema).validate(oldEdge));
         assertTrue(schema.validate());

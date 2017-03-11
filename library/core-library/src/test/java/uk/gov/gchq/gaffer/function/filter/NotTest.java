@@ -97,7 +97,7 @@ public class NotTest extends PredicateTest {
 
         // Then 2
         assertNotNull(deserialisedFilter);
-        assertEquals(String.class.getName(), ((IsA) deserialisedFilter.getPredicate()).getType());
+        assertEquals(String.class.getName(), ((IsA) deserialisedFilter.getFunction()).getType());
     }
 
     @Override

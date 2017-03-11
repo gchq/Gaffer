@@ -8,7 +8,7 @@
     },
     "true": {
       "class": "java.lang.Boolean",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }

@@ -32,7 +32,7 @@ public class StringConcat extends KorypheBinaryOperator<String> {
 
     @Override
     public String _apply(final String a, final String b) {
-        return a + separator + b;
+        return b + separator + a;
     }
 
     public String getSeparator() {
@@ -49,7 +49,7 @@ public class StringConcat extends KorypheBinaryOperator<String> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

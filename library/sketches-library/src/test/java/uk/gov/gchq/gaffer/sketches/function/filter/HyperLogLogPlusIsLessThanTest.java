@@ -160,7 +160,7 @@
 //    }
 //
 //    @Override
-//    protected FilterFunction getInstance() {
+//    protected Predicate getInstance() {
 //        return new HyperLogLogPlusIsLessThan(10);
 //    }
 //}

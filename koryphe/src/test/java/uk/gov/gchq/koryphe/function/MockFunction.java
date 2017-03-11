@@ -16,11 +16,9 @@
 
 package uk.gov.gchq.koryphe.function;
 
-import java.util.function.Function;
-
-public class MockFunction implements Function<Object, Object> {
+public class MockFunction extends KorypheFunction<Object, String> {
     @Override
-    public Object apply(Object input) {
-        return input;
+    public String apply(Object input) {
+        return input.toString();
     }
 }

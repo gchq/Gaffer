@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapFilterExample extends FilterFunctionExample {
+public class MapFilterExample extends PredicateExample {
     public static void main(final String[] args) {
         new MapFilterExample().run();
     }

@@ -61,7 +61,7 @@ public class Regex extends KoryphePredicate<String> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

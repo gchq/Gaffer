@@ -17,10 +17,15 @@
 package uk.gov.gchq.koryphe.signature;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * A <code>Signature</code> is the type metadata for the input or output of a {@link Function}.
@@ -55,6 +60,18 @@ public abstract class Signature {
      */
     public abstract boolean assignable(final Object arguments, final boolean to);
 
+    public abstract Class[] getClasses();
+
+    /**
+     * Get the input signature of a function.
+     *
+     * @param function Function.
+     * @return Input signature.
+     */
+    public static Signature getInputSignature(final Predicate function) {
+        return createSignatureFromTypeVariable(function, Predicate.class, 0);
+    }
+
     /**
      * Get the input signature of a function.
      *
@@ -62,7 +79,7 @@ public abstract class Signature {
      * @return Input signature.
      */
     public static Signature getInputSignature(final Function function) {
-        return createSignatureFromTypeVariable(function, 0);
+        return createSignatureFromTypeVariable(function, Function.class, 0);
     }
 
     /**
@@ -72,7 +89,7 @@ public abstract class Signature {
      * @return Output signature.
      */
     public static Signature getOutputSignature(final Function function) {
-        return createSignatureFromTypeVariable(function, 1);
+        return createSignatureFromTypeVariable(function, Function.class, 1);
     }
 
     /**
@@ -82,10 +99,11 @@ public abstract class Signature {
      * @param typeVariableIndex 0 for I or 1 for O.
      * @return Signature of the type variable.
      */
-    private static Signature createSignatureFromTypeVariable(final Function function, final int typeVariableIndex) {
-        TypeVariable<?> tv = Function.class.getTypeParameters()[typeVariableIndex];
-        Type type = TypeUtils.getTypeArguments(function.getClass(), Function.class).get(tv);
-        return createSignature(type);
+    protected static Signature createSignatureFromTypeVariable(final Object function, final Class functionClass, final int typeVariableIndex) {
+        TypeVariable<?> tv = functionClass.getTypeParameters()[typeVariableIndex];
+        final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(function.getClass(), functionClass);
+        Type type = typeArgs.get(tv);
+        return createSignature(type, typeArgs);
     }
 
     /**
@@ -95,24 +113,47 @@ public abstract class Signature {
      * @param type Type to create a signature for.
      * @return Signature of supplied type.
      */
-    public static Signature createSignature(final Type type) {
+    protected static Signature createSignature(final Type type) {
+        return createSignature(type, Collections.emptyMap());
+    }
+
+    protected static Signature createSignature(final Type type, final Map<TypeVariable<?>, Type> typeArgs) {
+        final Class clazz = getTypeClass(type, typeArgs);
+
+        if (Tuple.class.isAssignableFrom(clazz)) {
+            final TypeVariable[] tupleTypes = getTypeClass(type, typeArgs).getTypeParameters();
+            final Map<TypeVariable<?>, Type> classTypeArgs = TypeUtils.getTypeArguments(type, clazz);
+            Collection<? extends Type> types = TypeUtils.getTypeArguments(type, clazz).values();
+            Class[] classes = new Class[types.size()];
+            int i = 0;
+            for (TypeVariable tupleType : tupleTypes) {
+                classes[i++] = getTypeClass(classTypeArgs.get(tupleType), typeArgs);
+            }
+
+            return new TupleSignature(classes);
+        }
+
+        return new SingletonSignature(clazz);
+    }
+
+    protected static Class getTypeClass(final Type type, final Map<TypeVariable<?>, Type> typeArgs) {
         Type rawType = type;
         if (type instanceof ParameterizedType) {
             rawType = ((ParameterizedType) type).getRawType();
         }
 
-        if (!(rawType instanceof Class)) {
-            // cannot resolve - default to Object;
-            rawType = Object.class;
+        if (rawType instanceof Class) {
+            return (Class) rawType;
         }
-        Class clazz = (Class) rawType;
 
-        if (Iterable.class.isAssignableFrom(clazz)) {
-            TypeVariable<?> tv = Iterable.class.getTypeParameters()[0];
-            Type t = TypeUtils.getTypeArguments(type, Iterable.class).get(tv);
-            return new IterableSignature(createSignature(t));
-        } else {
-            return new SingletonSignature(clazz);
+
+        if (rawType instanceof TypeVariable) {
+            final Type t = typeArgs.get(rawType);
+            if (null != t) {
+                return getTypeClass(t, typeArgs);
+            }
         }
+        // cannot resolve - default to Object;
+        return Object.class;
     }
 }

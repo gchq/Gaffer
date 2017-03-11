@@ -40,7 +40,7 @@ import java.util.function.Predicate;
 public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
-    private List<Predicate> predicates;
+    private List<Predicate> validateFunctions;
     private BinaryOperator aggregateFunction;
     private String description;
 
@@ -71,12 +71,12 @@ public class TypeDefinition {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public List<Predicate> getPredicates() {
-        return predicates;
+    public List<Predicate> getValidateFunctions() {
+        return validateFunctions;
     }
 
-    public void setPredicates(final List<Predicate> predicates) {
-        this.predicates = predicates;
+    public void setValidateFunctions(final List<Predicate> validateFunctions) {
+        this.validateFunctions = validateFunctions;
     }
 
     /**
@@ -121,7 +121,7 @@ public class TypeDefinition {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public BinaryOperator getAggregateFunction() {
+    public BinaryOperator<?> getAggregateFunction() {
         return aggregateFunction;
     }
 
@@ -154,10 +154,10 @@ public class TypeDefinition {
             }
         }
 
-        if (null == predicates) {
-            predicates = type.getPredicates();
-        } else if (null != type.getPredicates()) {
-            predicates.addAll(type.getPredicates());
+        if (null == validateFunctions) {
+            validateFunctions = type.getValidateFunctions();
+        } else if (null != type.getValidateFunctions()) {
+            validateFunctions.addAll(type.getValidateFunctions());
         }
 
         if (null == aggregateFunction) {
@@ -178,7 +178,7 @@ public class TypeDefinition {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("clazz", clazz)
-                .append("predicates", predicates)
+                .append("validateFunctions", validateFunctions)
                 .append("serialiser", serialiser)
                 .append("aggregateFunction", aggregateFunction)
                 .append("description", description)
@@ -198,7 +198,7 @@ public class TypeDefinition {
 
         return new EqualsBuilder()
                 .append(clazz, that.clazz)
-                .append(predicates, that.predicates)
+                .append(validateFunctions, that.validateFunctions)
                 .append(serialiser, that.serialiser)
                 .append(aggregateFunction, that.aggregateFunction)
                 .append(description, that.description)
@@ -209,7 +209,7 @@ public class TypeDefinition {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(clazz)
-                .append(predicates)
+                .append(validateFunctions)
                 .append(serialiser)
                 .append(aggregateFunction)
                 .append(description)
@@ -232,13 +232,13 @@ public class TypeDefinition {
             return this;
         }
 
-        public Builder predicates(final List<Predicate> predicates) {
-            type.setPredicates(predicates);
+        public Builder validateFunctions(final List<Predicate> validateFunctions) {
+            type.setValidateFunctions(validateFunctions);
             return this;
         }
 
-        public Builder predicates(final Predicate... predicates) {
-            return predicates(Lists.newArrayList(predicates));
+        public Builder validateFunctions(final Predicate... validateFunctions) {
+            return validateFunctions(Lists.newArrayList(validateFunctions));
         }
 
         public Builder aggregateFunction(final BinaryOperator aggregateFunction) {

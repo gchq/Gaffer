@@ -79,7 +79,7 @@ public class AccumuloStoreRelationTest {
 
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
-        final List<ConsumerFunctionContext<String, FilterFunction>> filters = new ArrayList<>();
+        final List<ConsumerFunctionContext<String, Predicate>> filters = new ArrayList<>();
         filters.add(new ConsumerFunctionContext<>(new IsMoreThan(5, false), new ArrayList<>(Arrays.asList("property1"))));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP, new ViewElementDefinition.Builder()

@@ -19,7 +19,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.function.BinaryOperator;
 
 /**
- * An <code>ComparableMin</code> is a {@link BinaryOperator} that takes in
+ * A <code>Min</code> is a {@link BinaryOperator} that takes in
  * {@link Comparable}s and calculates the minimum comparable. It assumes that all the input comparables
  * are compatible and can be compared against each other.
  */

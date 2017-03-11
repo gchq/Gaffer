@@ -18,9 +18,10 @@ package uk.gov.gchq.koryphe.bifunction;
 public abstract class KorypheBiFunction<T, U, R> implements IKorypheBiFunction<T, U, R> {
     @Override
     public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
+        return this == other || classEquals(other);
+    }
+
+    protected boolean classEquals(final Object other) {
         return null != other && getClass().equals(other.getClass());
     }
 

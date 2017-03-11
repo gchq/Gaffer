@@ -57,7 +57,7 @@ public class CollectionContains extends KoryphePredicate<Collection<?>> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

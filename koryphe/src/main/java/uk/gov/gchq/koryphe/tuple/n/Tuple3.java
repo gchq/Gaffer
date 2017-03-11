@@ -16,24 +16,44 @@
 
 package uk.gov.gchq.koryphe.tuple.n;
 
-import uk.gov.gchq.koryphe.tuple.Tuple;
+import uk.gov.gchq.koryphe.tuple.ArrayTuple;
 
 /**
- * A {@link Tuple} with three values of the specified generic types.
- * @param <A> Type of first tuple value.
- * @param <B> Type of second tuple value.
- * @param <C> Type of third tuple value.
+ * An {@link ArrayTuple} containing 3 entries.
+ *
+ * @param <A> Type of the entry at index 0.
+ * @param <B> Type of the entry at index 1.
+ * @param <C> Type of the entry at index 2.
  */
-public interface Tuple3<A, B, C> extends Tuple2<A, B> {
-    /**
-     * Get the value at index 2.
-     * @return Value.
-     */
-    C get2();
+public class Tuple3<A, B, C> extends Tuple2<A, B> {
+    public Tuple3() {
+        super(3);
+    }
+
+    public Tuple3(final A a, final B b, final C c) {
+        this();
+        put0(a);
+        put1(b);
+        put2(c);
+    }
 
     /**
-     * Put a value into index 2.
-     * @param c Value to put.
+     * Pass-through constructor for larger tuple sizes.
+     *
+     * @param size Tuple size.
      */
-    void put2(final C c);
+    protected Tuple3(final int size) {
+        super(size);
+        if (size < 3) {
+            throw new IllegalArgumentException("Invalid size");
+        }
+    }
+
+    public C get2() {
+        return (C) get(2);
+    }
+
+    public void put2(final C c) {
+        put(2, c);
+    }
 }

@@ -2,7 +2,7 @@
   "types": {
     "vertex.string": {
       "class": "java.lang.String",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
@@ -13,7 +13,7 @@
     },
     "false": {
       "class": "java.lang.Boolean",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
         }

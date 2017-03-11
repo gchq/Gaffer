@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.koryphe.predicate.IsA;
 
-public class IsAExample extends FilterFunctionExample {
+public class IsAExample extends PredicateExample {
     public static void main(final String[] args) {
         new IsAExample().run();
     }

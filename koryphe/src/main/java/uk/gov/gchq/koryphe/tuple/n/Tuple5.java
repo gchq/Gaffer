@@ -16,26 +16,48 @@
 
 package uk.gov.gchq.koryphe.tuple.n;
 
-import uk.gov.gchq.koryphe.tuple.Tuple;
+import uk.gov.gchq.koryphe.tuple.ArrayTuple;
 
 /**
- * A {@link Tuple} with five values of the specified generic types.
- * @param <A> Type of first tuple value.
- * @param <B> Type of second tuple value.
- * @param <C> Type of third tuple value.
- * @param <D> Type of fourth tuple value.
- * @param <E> Type of fifth tuple value.
+ * An {@link ArrayTuple} containing 5 entries.
+ *
+ * @param <A> Type of the entry at index 0.
+ * @param <B> Type of the entry at index 1.
+ * @param <C> Type of the entry at index 2.
+ * @param <D> Type of the entry at index 3.
+ * @param <E> Type of the entry at index 4.
  */
-public interface Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
-    /**
-     * Get the value at index 4.
-     * @return Value.
-     */
-    E get4();
+public class Tuple5<A, B, C, D, E> extends Tuple4<A, B, C, D> {
+    public Tuple5() {
+        super(5);
+    }
+
+    public Tuple5(final A a, final B b, final C c, final D d, final E e) {
+        this();
+        put0(a);
+        put1(b);
+        put2(c);
+        put3(d);
+        put4(e);
+    }
 
     /**
-     * Put a value into index 4.
-     * @param e Value to put.
+     * Pass-through constructor for larger tuple sizes.
+     *
+     * @param size Tuple size.
      */
-    void put4(final E e);
+    protected Tuple5(final int size) {
+        super(size);
+        if (size < 5) {
+            throw new IllegalArgumentException("Invalid size");
+        }
+    }
+
+    public E get4() {
+        return (E) get(4);
+    }
+
+    public void put4(final E e) {
+        put(4, e);
+    }
 }

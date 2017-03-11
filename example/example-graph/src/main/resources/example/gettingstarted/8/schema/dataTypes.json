@@ -2,7 +2,7 @@
   "types": {
     "vertex": {
       "class": "java.lang.String",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
@@ -10,7 +10,7 @@
     },
     "date.earliest": {
       "class": "java.util.Date",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
@@ -18,7 +18,7 @@
     },
     "date.latest": {
       "class": "java.util.Date",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
@@ -26,7 +26,7 @@
     },
     "count.long": {
       "class": "java.lang.Long",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
@@ -34,7 +34,7 @@
     },
     "true": {
       "class": "java.lang.Boolean",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
@@ -42,7 +42,7 @@
     },
     "visibility": {
       "class": "java.lang.String",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }

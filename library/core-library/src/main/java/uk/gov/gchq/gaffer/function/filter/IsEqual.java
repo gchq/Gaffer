@@ -62,7 +62,7 @@ public class IsEqual extends KoryphePredicate<Object> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

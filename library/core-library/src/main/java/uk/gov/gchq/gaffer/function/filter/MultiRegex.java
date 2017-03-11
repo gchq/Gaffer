@@ -70,7 +70,7 @@ public class MultiRegex extends KoryphePredicate<String> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

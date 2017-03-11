@@ -5,7 +5,7 @@
     },
     "count.int": {
       "class": "java.lang.Integer",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
           "orEqualTo": true,
@@ -15,7 +15,7 @@
     },
     "score.int": {
       "class": "java.lang.Integer",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
           "orEqualTo": true,
@@ -25,7 +25,7 @@
     },
     "true": {
       "class": "java.lang.Boolean",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
@@ -33,7 +33,7 @@
     },
     "false": {
       "class": "java.lang.Boolean",
-      "predicates": [
+      "validateFunctions": [
         {
           "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
         }

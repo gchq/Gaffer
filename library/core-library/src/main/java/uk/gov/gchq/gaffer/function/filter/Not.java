@@ -29,27 +29,27 @@ import java.util.function.Predicate;
  * @param <I> Type of input to be validated
  */
 public final class Not<I> extends KoryphePredicate<I> {
-    private Predicate<I> predicate;
+    private Predicate<I> function;
 
     public Not() {
     }
 
-    public Not(final Predicate<I> predicate) {
-        setPredicate(predicate);
+    public Not(final Predicate<I> function) {
+        setFunction(function);
     }
 
-    public void setPredicate(final Predicate<I> predicate) {
-        this.predicate = predicate;
+    public void setFunction(final Predicate<I> function) {
+        this.function = function;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Predicate<I> getPredicate() {
-        return predicate;
+    public Predicate<I> getFunction() {
+        return function;
     }
 
     @Override
     public boolean test(final I input) {
-        return null != predicate && !predicate.test(input);
+        return null != function && !function.test(input);
     }
 
     @Override
@@ -58,20 +58,20 @@ public final class Not<I> extends KoryphePredicate<I> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 
         final Not not = (Not) o;
         return new EqualsBuilder()
-                .append(predicate, not.predicate)
+                .append(function, not.function)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(predicate)
+                .append(function)
                 .toHashCode();
     }
 }

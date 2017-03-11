@@ -33,9 +33,10 @@ public abstract class KorypheBinaryOperator<T> implements IKorypheBinaryOperator
 
     @Override
     public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
+        return this == other || classEquals(other);
+    }
+
+    protected boolean classEquals(final Object other) {
         return null != other && getClass().equals(other.getClass());
     }
 

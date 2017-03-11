@@ -69,7 +69,7 @@ public class AgeOff extends KoryphePredicate<Long> {
             return true;
         }
 
-        if (!super.equals(other)) {
+        if (!classEquals(other)) {
             return false;
         }
 

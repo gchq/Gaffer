@@ -39,8 +39,8 @@ import java.util.Set;
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
  * A view should contain {@link uk.gov.gchq.gaffer.data.element.Edge} and {@link uk.gov.gchq.gaffer.data.element.Entity} types required and
- * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter} and a
- * {@link uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer}.
+ * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} and a
+ * {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer}.
  * The {@link java.util.function.Predicate}s within the ElementFilter describe the how the elements should be filtered.
  * The {@link java.util.function.Function}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
@@ -48,8 +48,8 @@ import java.util.Set;
  *
  * @see Builder
  * @see uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition
- * @see uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter
- * @see uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter
+ * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {

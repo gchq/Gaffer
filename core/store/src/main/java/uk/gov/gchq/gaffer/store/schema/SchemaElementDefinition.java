@@ -25,16 +25,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementAggregator;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.function.TupleBinaryOperator;
-import uk.gov.gchq.koryphe.tuple.function.TuplePredicate;
-import uk.gov.gchq.koryphe.tuple.n.mask.TupleMaskN;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -189,6 +188,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return getValidator(true);
     }
 
+    @JsonIgnore
+    public ElementFilter getOriginalValidator() {
+        return validator;
+    }
+
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = new ElementFilter();
         if (null != validator) {
@@ -214,10 +218,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
     @JsonGetter("validateFunctions")
-    public TuplePredicate[] getOriginalValidateFunctions() {
+    public TupleAdaptedPredicate[] getOriginalValidateFunctions() {
         if (null != validator) {
-            final List<TuplePredicate<String, ?>> functions = validator.getFunctions();
-            return functions.toArray(new TuplePredicate[functions.size()]);
+            final List<TupleAdaptedPredicate<String, ?>> functions = validator.getFunctions();
+            return functions.toArray(new TupleAdaptedPredicate[functions.size()]);
         }
 
         return null;
@@ -291,11 +295,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     private void addTypeValidatorFunctions(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
         final TypeDefinition type = getTypeDef(classOrTypeName);
-        if (null != type.getPredicates()) {
-            for (final Predicate<?> predicate : type.getPredicates()) {
-                final TuplePredicate<String, ?> function =
-                        new TuplePredicate<>(new TupleMaskN(key), predicate);
-                fullValidator.getFunctions().add(function);
+        if (null != type.getValidateFunctions()) {
+            for (final Predicate<?> predicate : type.getValidateFunctions()) {
+                fullValidator.getFunctions().add(
+                        new TupleAdaptedPredicate<>(predicate, key));
             }
         }
     }
@@ -303,16 +306,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private void addTypeAggregateFunction(final ElementAggregator aggregator, final String key, final String typeName) {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
-            final TupleBinaryOperator<String, ?> function =
-                    new TupleBinaryOperator<>(new TupleMaskN(key), type.getAggregateFunction());
-            aggregator.getFunctions().add(function);
+            aggregator.getFunctions().add(
+                    new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), key));
         }
     }
 
     private void addIsAFunction(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
-        final TuplePredicate<String, ?> function =
-                new TuplePredicate<>(new TupleMaskN(key), new IsA(getTypeDef(classOrTypeName).getClazz()));
-        fullValidator.getFunctions().add(function);
+        fullValidator.getFunctions().add(
+                new TupleAdaptedPredicate<>(
+                        new IsA(getTypeDef(classOrTypeName).getClazz()),
+                        key));
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
@@ -416,7 +419,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        public CHILD_CLASS validateFunctions(final List<TuplePredicate<String, Tuple<String>>> predicates) {
+        public CHILD_CLASS validateFunctions(final List<TupleAdaptedPredicate<String, Tuple<String>>> predicates) {
             if (null == getElementDef().validator) {
                 getElementDef().validator = new ElementFilter();
             }

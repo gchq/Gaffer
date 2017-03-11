@@ -17,6 +17,8 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.example.util.Example;
 import uk.gov.gchq.gaffer.example.util.JavaSourceUtil;
+import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.function.Predicate;
 
 public abstract class PredicateExample extends Example {
@@ -24,53 +26,39 @@ public abstract class PredicateExample extends Example {
         super(classForExample);
     }
 
-    protected void runExample(final Predicate filterFunction, final Object[]... inputs) {
-        _runExample(filterFunction, inputs);
-    }
-
-    protected void runExample(final Predicate filterFunction, final Object... inputs) {
-        final Object[][] wrappedInputs = new Object[inputs.length][];
-        for (int i = 0; i < inputs.length; i++) {
-            wrappedInputs[i] = new Object[]{inputs[i]};
-        }
-
-        _runExample(filterFunction, wrappedInputs);
-    }
-
-    private void _runExample(final Predicate filterFunction, final Object[][] inputs) {
+    public void runExample(final Predicate predicate, final Object... inputs) {
         log("#### " + getMethodNameAsSentence(2) + "\n");
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
-        printAsJson(filterFunction);
+        printAsJson(predicate);
 
         log("Input type:");
         log("\n```");
         final StringBuilder inputClasses = new StringBuilder();
-        //TODO: get input classes
-//        for (final Class<?> item : filterFunction.getInputClasses()) {
-//            inputClasses.append(item.getName());
-//            inputClasses.append(", ");
-//        }
+        for (final Class<?> item : Signature.getInputSignature(predicate).getClasses()) {
+            inputClasses.append(item.getName());
+            inputClasses.append(", ");
+        }
         log(inputClasses.substring(0, inputClasses.length() - 2));
         log("```\n");
 
         log("Example inputs:");
         log("<table>");
         log("<tr><th>Type</th><th>Input</th><th>Result</th></tr>");
-        for (final Object[] input : inputs) {
+        for (final Object input : inputs) {
             final String inputType;
             final String inputString;
-            if (1 == input.length) {
-                if (null == input[0]) {
+            if (!(input instanceof Tuple)) {
+                if (null == input) {
                     inputType = "";
                     inputString = "null";
                 } else {
-                    inputType = input[0].getClass().getName();
-                    inputString = String.valueOf(input[0]);
+                    inputType = input.getClass().getName();
+                    inputString = String.valueOf(input);
                 }
             } else {
                 final StringBuilder inputTypeBuilder = new StringBuilder("[");
                 final StringBuilder inputStringBuilder = new StringBuilder("[");
-                for (final Object item : input) {
+                for (final Object item : (Tuple) input) {
                     if (null == item) {
                         inputTypeBuilder.append(" ,");
                         inputStringBuilder.append("null, ");
@@ -88,7 +76,7 @@ public abstract class PredicateExample extends Example {
 
             String result;
             try {
-                result = String.valueOf(filterFunction.test(input));
+                result = String.valueOf(predicate.test(input));
             } catch (final Exception e) {
                 result = e.toString();
             }

@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
@@ -264,9 +264,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : {%n" +
-                "          \"field\" : \"property1\"%n" +
-                "        }%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +
@@ -284,9 +282,7 @@ public class SchemaTest {
                 "        \"function\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
-                "        \"selection\" : {%n" +
-                "          \"field\" : \"property1\"%n" +
-                "        }%n" +
+                "        \"selection\" : [ \"property1\" ]%n" +
                 "      } ]%n" +
                 "    }%n" +
                 "  },%n" +

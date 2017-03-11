@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.function;
 
-import uk.gov.gchq.koryphe.function.KorypheFunction2;
+import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 
 public class ExampleTransformFunction extends KorypheFunction2<Object, Object, String> {
     @Override

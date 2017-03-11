@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.koryphe.predicate.KoryphePredicate2;
+import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 
 /**
  * An <code>IsXMoreThanY</code> is a {@link java.util.function.BiPredicate} that checks that the first input

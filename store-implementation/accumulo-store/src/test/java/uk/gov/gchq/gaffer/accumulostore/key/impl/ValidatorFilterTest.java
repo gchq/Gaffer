@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter.Builder;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -150,9 +149,7 @@ public class ValidatorFilterTest {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .predicates(new Builder()
-                                .execute(new ExampleFilterFunction())
-                                .build())
+                        .validateFunctions(new ExampleFilterFunction())
                         .build())
                 .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
                         .clazz(Boolean.class)

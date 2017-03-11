@@ -24,6 +24,7 @@ public class SingletonSignature extends Signature {
 
     /**
      * Create a <code>SingletonSignature</code> with the given {@link Class}.
+     *
      * @param type Class to test for.
      */
     SingletonSignature(final Class type) {
@@ -31,15 +32,25 @@ public class SingletonSignature extends Signature {
     }
 
     @Override
-    public boolean assignable(final Object arguments, final boolean reverse) {
-        if (arguments instanceof Class) {
+    public boolean assignable(final Object argument, final boolean reverse) {
+        if ((argument instanceof Object[])) {
+            final Object[] arguments = ((Object[]) argument);
+            return 1 == arguments.length && assignable(arguments[0], reverse);
+        }
+
+        if (argument instanceof Class) {
             if (reverse) {
-                return type == null ? false : ((Class) arguments).isAssignableFrom(type);
+                return type == null ? false : ((Class) argument).isAssignableFrom(type);
             } else {
-                return type == null ? false : type.isAssignableFrom((Class) arguments);
+                return type == null ? false : type.isAssignableFrom((Class) argument);
             }
         } else {
             return false;
         }
+    }
+
+    @Override
+    public Class[] getClasses() {
+        return new Class[]{type};
     }
 }

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.koryphe.function.KorypheFunction2;
+import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 
 /**
  * An <code>Concat</code> is a {@link java.util.function.Function} that takes in

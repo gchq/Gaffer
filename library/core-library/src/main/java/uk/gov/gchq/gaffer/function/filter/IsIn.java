@@ -82,7 +82,7 @@ public class IsIn extends KoryphePredicate<Object> {
             return true;
         }
 
-        if (!super.equals(o)) {
+        if (!classEquals(o)) {
             return false;
         }
 

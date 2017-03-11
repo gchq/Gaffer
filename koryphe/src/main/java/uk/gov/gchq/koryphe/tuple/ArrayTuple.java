@@ -17,7 +17,6 @@
 package uk.gov.gchq.koryphe.tuple;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -30,15 +29,17 @@ public class ArrayTuple implements Tuple<Integer> {
 
     /**
      * Create an <code>ArrayTuple</code> backed by the given array.
+     *
      * @param values Array backing this <code>ArrayTuple</code>.
      */
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "This class is designed to simply wrap an object array.")
-    public ArrayTuple(final Object[] values) {
+    public ArrayTuple(final Object... values) {
         this.values = values;
     }
 
     /**
      * Create an <code>ArrayTuple</code> backed by a new array of the given size.
+     *
      * @param size Size of array backing this <code>ArrayTuple</code>.
      */
     public ArrayTuple(final int size) {
@@ -47,6 +48,7 @@ public class ArrayTuple implements Tuple<Integer> {
 
     /**
      * Get a value from this <code>ArrayTuple</code> at the given index.
+     *
      * @param index Value index.
      * @return Value.
      */
@@ -56,6 +58,7 @@ public class ArrayTuple implements Tuple<Integer> {
 
     /**
      * Put a value into this <code>ArrayTuple</code> at the given index.
+     *
      * @param index Value index.
      * @param value Value to put.
      */

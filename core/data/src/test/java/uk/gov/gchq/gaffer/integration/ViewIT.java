@@ -54,7 +54,7 @@ public class ViewIT {
 //        final ElementFilter postFilter = edge.getPostTransformFilter();
 //        assertNotNull(postFilter);
 //
-//        final List<ConsumerFunctionContext<String, FilterFunction>> filterContexts = postFilter.getFunctions();
+//        final List<ConsumerFunctionContext<String, Predicate>> filterContexts = postFilter.getFunctions();
 //        assertEquals(1, contexts.size());
 //
 //        final List<String> postFilterSelection = filterContexts.get(0).getSelection();

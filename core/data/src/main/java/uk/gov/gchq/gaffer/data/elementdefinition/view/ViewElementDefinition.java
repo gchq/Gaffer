@@ -24,14 +24,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.koryphe.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.tuple.function.TupleFunction;
-import uk.gov.gchq.koryphe.tuple.function.TuplePredicate;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -126,7 +126,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("preAggregationFilterFunctions")
-    public List<TuplePredicate<String, ?>> getPreAggregationFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
     }
 
@@ -136,7 +136,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("postAggregationFilterFunctions")
-    public List<TuplePredicate<String, ?>> getPostAggregationFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPostAggregationFilterFunctions() {
         return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
     }
 
@@ -146,7 +146,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("postTransformFilterFunctions")
-    public List<TuplePredicate<String, ?>> getPostTransformFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
     }
 
@@ -156,7 +156,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("transformFunctions")
-    public List<TupleFunction<String, ?, ?>> getTransformFunctions() {
+    public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
     }
 
@@ -265,7 +265,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS preAggregationFilterFunctions(final List<TuplePredicate<String, ?>> filterFunctions) {
+        public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
             getElementDef().preAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
@@ -281,7 +281,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS postAggregationFilterFunctions(final List<TuplePredicate<String, ?>> filterFunctions) {
+        public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postAggregationFilter = new ElementFilter();
             getElementDef().postAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
@@ -297,7 +297,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS postTransformFilterFunctions(final List<TuplePredicate<String, ?>> filterFunctions) {
+        public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postTransformFilter = new ElementFilter();
             getElementDef().postTransformFilter.getFunctions().addAll(filterFunctions);
             return self();
@@ -308,7 +308,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS transformFunctions(final List<TupleFunction<String, ?, ?>> transformFunctions) {
+        public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
             getElementDef().transformer.getFunctions().addAll(transformFunctions);
             return self();

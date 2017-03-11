@@ -29,6 +29,7 @@ public class MapTuple<R> implements Tuple<R> {
 
     /**
      * Create a <code>MapTuple</code> backed by the given {@link Map}.
+     *
      * @param values Backing {@link Map}.
      */
     public MapTuple(final Map<R, Object> values) {
@@ -39,7 +40,7 @@ public class MapTuple<R> implements Tuple<R> {
      * Create a <code>MapTuple</code> backed by a new {@link HashMap}.
      */
     public MapTuple() {
-        this.values = new HashMap<R, Object>();
+        this.values = new HashMap<>();
     }
 
     @Override
@@ -60,5 +61,13 @@ public class MapTuple<R> implements Tuple<R> {
     @Override
     public Iterator<Object> iterator() {
         return values().iterator();
+    }
+
+    public Map<R, Object> getValues() {
+        return values;
+    }
+
+    public void setValues(final Map<R, Object> values) {
+        this.values = values;
     }
 }

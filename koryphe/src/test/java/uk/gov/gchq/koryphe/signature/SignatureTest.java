@@ -17,6 +17,16 @@
 package uk.gov.gchq.koryphe.signature;
 
 import org.junit.Test;
+import uk.gov.gchq.koryphe.function.MockFunction;
+import uk.gov.gchq.koryphe.function.MockFunction2;
+import uk.gov.gchq.koryphe.function.MockFunction2b;
+import uk.gov.gchq.koryphe.function.MockFunction3;
+import uk.gov.gchq.koryphe.function.MockFunctionMultiParents2;
+import uk.gov.gchq.koryphe.predicate.MockPredicate;
+import uk.gov.gchq.koryphe.predicate.MockPredicate1;
+import uk.gov.gchq.koryphe.predicate.MockPredicate2;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -39,5 +49,79 @@ public class SignatureTest {
         assertTrue(signature.assignableTo(Object.class)); // Cast Number to Object is OK.
     }
 
+    @Test
+    public void shouldCheckFunctionTypes() {
+        Function function = new MockFunction();
+        final Signature input = Signature.getInputSignature(function);
+        final Signature output = Signature.getOutputSignature(function);
+
+        assertTrue(input.assignableTo(Object.class));
+        assertTrue(output.assignableTo(String.class));
+    }
+
+    @Test
+    public void shouldCheckFunction2Types() {
+        Function function = new MockFunction2();
+        final Signature input = Signature.getInputSignature(function);
+        final Signature output = Signature.getOutputSignature(function);
+
+        assertTrue(input.assignable(new Class[]{Double.class, Object.class}, true));
+        assertTrue(output.assignableTo(String.class));
+    }
+
+    @Test
+    public void shouldCheckFunctionMultiParentsTypes() {
+        Function function = new MockFunctionMultiParents2();
+        final Signature input = Signature.getInputSignature(function);
+        final Signature output = Signature.getOutputSignature(function);
+
+        assertTrue(input.assignable(new Class[]{Double.class, Object.class, Integer.class}, true));
+        assertTrue(output.assignableTo(String.class));
+    }
+
+    @Test
+    public void shouldCheckFunction2bTypes() {
+        Function function = new MockFunction2b();
+        final Signature input = Signature.getInputSignature(function);
+        final Signature output = Signature.getOutputSignature(function);
+
+        assertTrue(input.assignable(new Class[]{Double.class, Object.class}, true));
+        assertTrue(output.assignableTo(String.class));
+    }
+
+    @Test
+    public void shouldCheckFunction3Types() {
+        Function function = new MockFunction3();
+        final Signature input = Signature.getInputSignature(function);
+        final Signature output = Signature.getOutputSignature(function);
+
+        assertTrue(input.assignable(new Class[]{Integer.class, Double.class, Object.class}, true));
+        assertTrue(output.assignableTo(String.class));
+    }
+
     //TODO: add iterable signature tests
+
+    @Test
+    public void shouldCheckPredicateTypes() {
+        Predicate predicate = new MockPredicate();
+        final Signature input = Signature.getInputSignature(predicate);
+
+        assertTrue(input.assignable(new Class[]{Double.class}, true));
+    }
+
+    @Test
+    public void shouldCheckPredicateTypes1() {
+        Predicate predicate = new MockPredicate1();
+        final Signature input = Signature.getInputSignature(predicate);
+
+        assertTrue(input.assignable(new Class[]{Double.class}, true));
+    }
+
+    @Test
+    public void shouldCheckPredicateTypes2() {
+        Predicate predicate = new MockPredicate2();
+        final Signature input = Signature.getInputSignature(predicate);
+
+        assertTrue(input.assignable(new Class[]{Double.class, Integer.class}, true));
+    }
 }

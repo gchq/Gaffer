@@ -31,6 +31,7 @@ public final class And<I> extends Composite<Predicate<I>> implements IKoryphePre
         super();
     }
 
+    @SafeVarargs
     public And(Predicate<I>... predicates) {
         super(Lists.newArrayList(predicates));
     }
