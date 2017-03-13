@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
  * An <code>Exporter</code> can store data of any kind and retrieve it.
  */
 public interface Exporter {
-    void add(Iterable<?> results, String key) throws OperationException;
+    void add(String key, Iterable<?> results) throws OperationException;
 
     CloseableIterable<?> get(String key) throws OperationException;
 }

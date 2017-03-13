@@ -188,7 +188,7 @@ public class AddNamedOperationHandlerTest {
             assert (cacheContains("grandparent"));
 
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             fail("Expected test to pass without error");
         }
 

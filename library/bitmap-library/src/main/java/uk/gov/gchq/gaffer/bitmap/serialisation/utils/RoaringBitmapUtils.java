@@ -44,7 +44,7 @@ public final class RoaringBitmapUtils {
         int cookie;
         try {
             cookie = Integer.reverseBytes(input.readInt());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("I failed to read the bitmap version cookie", e);
         }
 
@@ -105,7 +105,7 @@ public final class RoaringBitmapUtils {
                 return baos.toByteArray();
             } catch (SerialisationException e) {
                 throw (e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("IOException: I failed to convert roaring bitmap from pre 0.4.0 version", e);
             }
         } else if (cookie == VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE || (cookie & 0xFFFF) == VERSION_ZERO_FIVE_ZERO_TO_SIX_THIRTY_FIVE_COOKIE) {

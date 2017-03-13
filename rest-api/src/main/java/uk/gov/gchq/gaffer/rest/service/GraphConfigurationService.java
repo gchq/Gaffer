@@ -89,7 +89,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         final Class<?> clazz;
         try {
             clazz = Class.forName(inputClass);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
 
@@ -116,7 +116,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         final Class<?> clazz;
         try {
             clazz = Class.forName(className);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
 

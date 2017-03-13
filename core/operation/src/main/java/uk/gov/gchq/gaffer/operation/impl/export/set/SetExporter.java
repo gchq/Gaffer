@@ -36,7 +36,7 @@ public class SetExporter implements Exporter {
     private Map<String, Set<Object>> exports = new HashMap<>();
 
     @Override
-    public void add(final Iterable<?> results, final String key) {
+    public void add(final String key, final Iterable<?> results) {
         Iterables.addAll(getExport(key), results);
     }
 

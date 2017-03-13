@@ -62,7 +62,7 @@ public class ExtendedNamedOperation extends NamedOperation {
     public OperationChain<?> getOperationChain() {
         try {
             return SERIALISER.deserialise(operations.getBytes(Charset.forName(CHARSET_NAME)), OperationChain.class);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }

@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * An <code>ContainsAll</code> is a {@link SimpleFilterFunction}
+ * An <code>AreIn</code> is a {@link SimpleFilterFunction}
  * that checks whether a provided {@link Collection} contains all the input values.
  */
 @Inputs(Collection.class)

@@ -100,7 +100,7 @@ public class ExportToGafferResultCacheHandlerTest {
         final Object handlerResult = handler.doOperation(export, context, store);
 
         // Then
-        verify(exporter).add(results, "key");
+        verify(exporter).add("key", results);
         assertSame(handlerResult, results);
     }
 
