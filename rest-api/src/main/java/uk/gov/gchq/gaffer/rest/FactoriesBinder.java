@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
 /**
  * HK2 binder class to facilitate dependency injection with Jersey.
- * </p>
  * Any depedency which has the {@link javax.inject.Inject} annotation can be
  * included. This denoted which concrete instance is bound to a particular
  * interface, and optionally in which scope the binding applies.
@@ -39,7 +38,7 @@ public class FactoriesBinder extends AbstractBinder {
 
         try {
             return Class.forName(graphFactoryClass)
-                        .asSubclass(GraphFactory.class);
+                    .asSubclass(GraphFactory.class);
         } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
         }
@@ -51,7 +50,7 @@ public class FactoriesBinder extends AbstractBinder {
 
         try {
             return Class.forName(userFactoryClass)
-                        .asSubclass(UserFactory.class);
+                    .asSubclass(UserFactory.class);
         } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create user factory from class: " + userFactoryClass, e);
         }
