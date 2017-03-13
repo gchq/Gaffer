@@ -111,6 +111,6 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         }
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
-        assertArrayEquals(expectedResultSeeds.toArray(), resultSeeds.toArray());
+        assertArrayEquals("Expected: " + expectedResultSeeds + ", but got: " + resultSeeds, expectedResultSeeds.toArray(), resultSeeds.toArray());
     }
 }

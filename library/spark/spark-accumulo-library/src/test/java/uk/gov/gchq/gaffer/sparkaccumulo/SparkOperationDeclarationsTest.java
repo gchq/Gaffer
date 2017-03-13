@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,21 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.javardd.ImportJavaRDDOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
+import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.GetDataFrameOfElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.GetJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportJavaRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.javardd.ImportKeyValueJavaPairRDDToAccumuloHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfAllElementsHandler;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.GetRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportKeyValuePairRDDToAccumuloHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.ImportRDDOfElementsHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd.ImportKeyValueJavaPairRDDToAccumulo;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd.ImportKeyValuePairRDDToAccumulo;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 
@@ -45,10 +53,11 @@ public class SparkOperationDeclarationsTest {
         final JSONSerialiser jsonSerialiser = new JSONSerialiser();
 
         // When
-        final OperationDeclarations deserialised = jsonSerialiser.deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
+        final OperationDeclarations deserialised = jsonSerialiser
+                .deserialise(StreamUtil.openStream(getClass(), ACCUMULO_OP_DECLARATIONS_JSON_PATH), OperationDeclarations.class);
 
         // Then
-        assertEquals(5, deserialised.getOperations().size());
+        assertEquals(9, deserialised.getOperations().size());
 
         final OperationDeclaration od0 = deserialised.getOperations().get(0);
         assertEquals(GetJavaRDDOfElements.class, od0.getOperation());
@@ -69,5 +78,24 @@ public class SparkOperationDeclarationsTest {
         final OperationDeclaration od4 = deserialised.getOperations().get(4);
         assertEquals(GetDataFrameOfElements.class, od4.getOperation());
         assertTrue(od4.getHandler() instanceof GetDataFrameOfElementsHandler);
+
+        final OperationDeclaration od5 = deserialised.getOperations().get(5);
+        assertEquals(ImportKeyValueJavaPairRDDToAccumulo.class, od5.getOperation());
+        assertTrue(od5.getHandler() instanceof ImportKeyValueJavaPairRDDToAccumuloHandler);
+
+        final OperationDeclaration od6 = deserialised.getOperations().get(6);
+        assertEquals(ImportJavaRDDOfElements.class, od6.getOperation());
+        assertTrue(od6.getHandler() instanceof ImportJavaRDDOfElementsHandler);
+
+        final OperationDeclaration od7 = deserialised.getOperations().get(7);
+        assertEquals(ImportKeyValuePairRDDToAccumulo.class, od7.getOperation());
+        assertTrue(od7.getHandler() instanceof ImportKeyValuePairRDDToAccumuloHandler);
+
+        final OperationDeclaration od8 = deserialised.getOperations().get(8);
+        assertEquals(ImportRDDOfElements.class, od8.getOperation());
+        assertTrue(od8.getHandler() instanceof ImportRDDOfElementsHandler);
+
+
+
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 Crown Copyright
+  ~ Copyright 2016-2017 Crown Copyright
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>proxy-store</artifactId>
@@ -38,6 +38,12 @@
         </dependency>
 
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>job-tracker-jcs</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>core-library</artifactId>

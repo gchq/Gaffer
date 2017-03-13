@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseExport;
+import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,12 +56,12 @@ public class OperationChain<OUT> {
     }
 
     public OperationChain(final Operation<?, OUT> operation) {
-        this(new ArrayList<Operation>(1));
+        this(new ArrayList<>(1));
         operations.add(operation);
     }
 
     public OperationChain(final List<Operation> operations) {
-        this.operations = operations;
+        this.operations = new ArrayList<>(operations);
     }
 
     @JsonIgnore
@@ -83,7 +86,7 @@ public class OperationChain<OUT> {
     @JsonSetter("operations")
     void setOperationArray(final Operation[] operations) {
         if (null != operations) {
-            this.operations = Arrays.asList(operations);
+            this.operations = Lists.newArrayList(operations);
         } else {
             this.operations = null;
         }
@@ -136,11 +139,7 @@ public class OperationChain<OUT> {
             return new TypelessBuilder(op);
         }
 
-        public TypelessBuilder first(final InitialiseExport op) {
-            return new TypelessBuilder(op);
-        }
-
-        public TypelessBuilder first(final UpdateExport op) {
+        public TypelessBuilder first(final Export op) {
             return new TypelessBuilder(op);
         }
     }
@@ -149,7 +148,7 @@ public class OperationChain<OUT> {
         private final List<Operation> ops;
 
         private TypelessBuilder(final Operation op) {
-            this(new ArrayList<Operation>());
+            this(new ArrayList<>());
             ops.add(op);
         }
 
@@ -167,9 +166,19 @@ public class OperationChain<OUT> {
             return new TypedBuilder<>(ops);
         }
 
-        public TypelessBuilder then(final InitialiseExport op) {
+        public TypelessBuilder then(final Export op) {
             ops.add(op);
             return new TypelessBuilder(ops);
+        }
+
+        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
         }
 
         public TypelessBuilder then(final VoidOutput<?> op) {
@@ -186,7 +195,7 @@ public class OperationChain<OUT> {
         private final List<Operation> ops;
 
         private TypedBuilder(final Operation<?, OUT> op) {
-            this(new ArrayList<Operation>());
+            this(new ArrayList<>());
             ops.add(op);
         }
 
@@ -195,14 +204,19 @@ public class OperationChain<OUT> {
         }
 
 
-        public TypelessBuilder then(final UpdateExport op) {
+        public TypelessBuilder then(final Export op) {
             ops.add(op);
             return new TypelessBuilder(ops);
         }
 
-        public TypelessBuilder then(final InitialiseExport op) {
+        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
             ops.add(op);
-            return new TypelessBuilder(ops);
+            return new TypedBuilder<>(ops);
+        }
+
+        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
+            ops.add(op);
+            return new TypedBuilder<>(ops);
         }
 
         public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,7 +166,7 @@ public class AddElementsFromHdfsIT {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .option(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE, "false")
-                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "target/data/splits.txt")
+                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
                 .build(), new User());
 
         // Then
@@ -205,11 +205,11 @@ public class AddElementsFromHdfsIT {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());
-        properties.setInstanceName("instance_" + keyPackageClass.getName());
+        properties.setInstance("instance_" + keyPackageClass.getName());
 
         final AccumuloStore store = new MockAccumuloStore();
         store.initialise(schema, properties);
-        store.updateConfiguration(createLocalConf(), new View());
+        store.updateConfiguration(createLocalConf(), new View(), new User());
 
         return new Graph.Builder()
                 .store(store)

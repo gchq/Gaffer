@@ -30,7 +30,7 @@ public abstract class SimpleTransformFunction<T> extends TransformFunction {
         try {
             return new Object[]{_transform((T) input[0])};
         } catch (final ClassCastException e) {
-            throw new IllegalArgumentException("Input does not match parametrised type");
+            throw new IllegalArgumentException("Input does not match parametrised type", e);
         }
     }
 

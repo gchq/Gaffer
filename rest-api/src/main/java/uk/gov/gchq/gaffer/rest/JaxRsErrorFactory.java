@@ -18,14 +18,20 @@ package uk.gov.gchq.gaffer.rest;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
-import uk.gov.gchq.gaffer.core.exception.Status;
 import javax.ws.rs.WebApplicationException;
 
 /**
  * Static utility class to standardise the instantiation of {@link uk.gov.gchq.gaffer.core.exception.Error}
  * objects from {@link javax.ws.rs.WebApplicationException}s.
  */
-public class JaxRsErrorFactory {
+public final class JaxRsErrorFactory {
+
+    /**
+     * Empty, private constructor to prevent instantiation.
+     */
+    private JaxRsErrorFactory() {
+        // Empty
+    }
 
     /**
      * Create an {@link uk.gov.gchq.gaffer.core.exception.Error} object from a

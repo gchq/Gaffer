@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,9 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe.ClassTagConstants;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -37,15 +38,16 @@ public class GetRDDOfAllElementsHandler
                                     final Context context,
                                     final Store store)
             throws OperationException {
-        return doOperation(operation, (AccumuloStore) store);
+        return doOperation(operation, context, (AccumuloStore) store);
     }
 
     private RDD<Element> doOperation(final GetRDDOfAllElements operation,
+                                     final Context context,
                                      final AccumuloStore accumuloStore)
             throws OperationException {
         final SparkContext sparkContext = operation.getSparkContext();
         final Configuration conf = getConfiguration(operation);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         final RDD<Tuple2<Element, NullWritable>> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,
                 Element.class,

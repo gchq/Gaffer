@@ -26,8 +26,8 @@ import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements
 import uk.gov.gchq.gaffer.user.User
 
 /**
-  * An example showing how the {@link GetRDDOfElements} operation is used from Scala.
-  */
+ * An example showing how the {@link GetRDDOfElements} operation is used from Scala.
+ */
 class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElements[ElementSeed]]) {
   private lazy val ROOT_LOGGER = Logger.getRootLogger
 
@@ -54,6 +54,7 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
       }
     }
     sc.stop()
+    ROOT_LOGGER.setLevel(Level.INFO)
   }
 
   @throws[OperationException]
@@ -71,13 +72,14 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect()
     ROOT_LOGGER.setLevel(Level.INFO)
-    printScala("""val operation = new GetRDDOfElements.Builder[EdgeSeed]()
-                  |    .addSeed(new EdgeSeed(1, 2, true))
-                  |    .addSeed(new EdgeSeed(2, 3, true))
-                  |    .sparkContext(sc)
-                  |    .build()
-                  |val rdd = graph.execute(operation, new User(\"user01\"))
-                  |val elements = rdd.collect())""".stripMargin)
+    printScala(
+      """val operation = new GetRDDOfElements.Builder[EdgeSeed]()
+        |    .addSeed(new EdgeSeed(1, 2, true))
+        |    .addSeed(new EdgeSeed(2, 3, true))
+        |    .sparkContext(sc)
+        |    .build()
+        |val rdd = graph.execute(operation, new User(\"user01\"))
+        |val elements = rdd.collect())""".stripMargin)
     log("The results are:")
     log("```")
     for (e <- elements) {
@@ -111,15 +113,16 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     val rdd = graph.execute(operation, new User("user01"))
     val elements: Array[Element] = rdd.collect
     ROOT_LOGGER.setLevel(Level.INFO)
-    printScala("""val operation = new GetRDDOfElements.Builder[EdgeSeed]()
-                 |    .addSeed(new EdgeSeed(1, 2, true))
-                 |    .addSeed(new EdgeSeed(2, 3, true))
-                 |    .includeEntities(false)
-                 |    .sparkContext(sc)
-                 |    .build()
-                 |val rdd = graph.execute(operation, new User(\"user01\"))
-                 |val elements = rdd.collect())
-               """.stripMargin)
+    printScala(
+      """val operation = new GetRDDOfElements.Builder[EdgeSeed]()
+        |    .addSeed(new EdgeSeed(1, 2, true))
+        |    .addSeed(new EdgeSeed(2, 3, true))
+        |    .includeEntities(false)
+        |    .sparkContext(sc)
+        |    .build()
+        |val rdd = graph.execute(operation, new User(\"user01\"))
+        |val elements = rdd.collect())
+      """.stripMargin)
     log("The results are:")
     log("```")
     for (e <- elements) {

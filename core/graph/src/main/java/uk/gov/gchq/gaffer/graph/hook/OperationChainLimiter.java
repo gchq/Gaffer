@@ -111,7 +111,7 @@ public class OperationChainLimiter implements GraphHook {
         if (null != propFileLocation) {
             try {
                 props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
         } else {
@@ -126,7 +126,7 @@ public class OperationChainLimiter implements GraphHook {
         if (null != stream) {
             try {
                 props.load(stream);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Failed to load store properties file : " + e
                         .getMessage(), e);
             } finally {
@@ -232,7 +232,7 @@ public class OperationChainLimiter implements GraphHook {
                 opClass = Class.forName(opClassName)
                         .asSubclass(Operation.class);
             } catch (ClassNotFoundException e) {
-                LOGGER.error("An operation class could not be found for operation score property " + opClassName);
+                LOGGER.error("An operation class could not be found for operation score property " + opClassName, e);
                 throw new IllegalArgumentException(e);
             }
             final Integer score = Integer.parseInt(operationScorePropertiesFile.getProperty(opClassName));

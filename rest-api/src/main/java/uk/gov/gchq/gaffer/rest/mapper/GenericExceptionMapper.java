@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.rest.mapper;
 
 import uk.gov.gchq.gaffer.core.exception.Error;
 import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
-import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;

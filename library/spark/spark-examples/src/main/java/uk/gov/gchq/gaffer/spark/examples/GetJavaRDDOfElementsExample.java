@@ -65,6 +65,7 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
             throw new RuntimeException(e);
         }
         sc.stop();
+        ROOT_LOGGER.setLevel(Level.INFO);
     }
 
     public void getJavaRddOfElements(final JavaSparkContext sc, final Graph graph) throws OperationException {

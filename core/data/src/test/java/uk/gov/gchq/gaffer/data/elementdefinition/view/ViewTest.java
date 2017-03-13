@@ -26,7 +26,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -165,44 +167,7 @@ public class ViewTest {
     @Test
     public void shouldJsonSerialiseAndDeserialise() {
         // Given
-        final View view = new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .globalEntities(new GlobalViewElementDefinition.Builder()
-                        .postAggregationFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.VERTEX.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .globalEdges(new GlobalViewElementDefinition.Builder()
-                        .postAggregationFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.SOURCE.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
-                        .transientProperty(TestPropertyNames.PROP_3, String.class)
-                        .transformer(new ElementTransformer.Builder()
-                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
-                                .execute(new ExampleTransformFunction())
-                                .build())
-                        .postTransformFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_3)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
-                .build();
+        final View view = createView();
 
         // When
         byte[] json = view.toJson(true);
@@ -554,5 +519,61 @@ public class ViewTest {
         // Then
         assertEquals(2, mergedView.getEntities().size());
         assertEquals(2, mergedView.getEdges().size());
+    }
+
+    @Test
+    public void shouldGetAllGroups() {
+        // Given
+        final View view = createView();
+
+        // When
+        final Set<String> groups = view.getGroups();
+
+        // Then
+        final Set<String> allGroups = new HashSet<>(view.getEntityGroups());
+        allGroups.addAll(view.getEdgeGroups());
+
+        assertEquals(allGroups, groups);
+    }
+
+    private View createView() {
+        return new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.SOURCE.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .project(TestPropertyNames.PROP_3)
+                                .execute(new ExampleTransformFunction())
+                                .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
+                .build();
     }
 }
