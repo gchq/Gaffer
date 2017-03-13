@@ -31,8 +31,9 @@ public class DefaultGraphFactory implements GraphFactory {
      */
     private boolean singletonGraph = true;
 
-    protected DefaultGraphFactory() {
-        // Graph factories should be constructed via the createGraphFactory static method.
+    public DefaultGraphFactory() {
+        // Graph factories should be constructed via the createGraphFactory static method,
+        // public constructor is required only by HK2
     }
 
     public static GraphFactory createGraphFactory() {

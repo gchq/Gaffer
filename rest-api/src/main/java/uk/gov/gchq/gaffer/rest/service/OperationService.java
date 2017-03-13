@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
+import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -69,18 +70,13 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
  */
 public class OperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationService.class);
-    private final GraphFactory graphFactory;
-    private final UserFactory userFactory;
     public final ObjectMapper mapper = createDefaultMapper();
 
-    public OperationService() {
-        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
-    }
+    @Inject
+    private GraphFactory graphFactory;
 
-    public OperationService(final GraphFactory graphFactory, final UserFactory userFactory) {
-        this.graphFactory = graphFactory;
-        this.userFactory = userFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     @Override
     public Object execute(final OperationChain opChain) {
