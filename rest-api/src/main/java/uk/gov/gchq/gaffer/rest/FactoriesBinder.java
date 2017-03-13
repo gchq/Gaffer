@@ -16,15 +16,44 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
-import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 
+/**
+ * HK2 binder class to facilitate dependency injection with Jersey.
+ * </p>
+ * Any depedency which has the {@link javax.inject.Inject} annotation can be
+ * included. This denoted which concrete instance is bound to a particular
+ * interface, and optionally in which scope the binding applies.
+ */
 public class FactoriesBinder extends AbstractBinder {
     @Override
     protected void configure() {
-        bind(DefaultGraphFactory.class).to(GraphFactory.class);
-        bind(UnknownUserFactory.class).to(UserFactory.class);
+        bind(getDefaultGraphFactory()).to(GraphFactory.class);
+        bind(getDefaultUserFactory()).to(UserFactory.class);
+    }
+
+    private Class<?> getDefaultGraphFactory() {
+        final String graphFactoryClass = System.getProperty(SystemProperty.GRAPH_FACTORY_CLASS,
+                SystemProperty.GRAPH_FACTORY_CLASS_DEFAULT);
+
+        try {
+            return Class.forName(graphFactoryClass)
+                        .asSubclass(GraphFactory.class);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
+        }
+    }
+
+    private Class<?> getDefaultUserFactory() {
+        final String userFactoryClass = System.getProperty(SystemProperty.USER_FACTORY_CLASS,
+                SystemProperty.USER_FACTORY_CLASS_DEFAULT);
+
+        try {
+            return Class.forName(userFactoryClass)
+                        .asSubclass(UserFactory.class);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Unable to create user factory from class: " + userFactoryClass, e);
+        }
     }
 }
