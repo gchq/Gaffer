@@ -17,6 +17,10 @@ package uk.gov.gchq.gaffer.core.exception;
 
 import java.util.Arrays;
 
+/**
+ * Enumerated types for HTTP status codes, loosely based on the JAX-RS 2.0
+ * Status class.
+ */
 public enum Status {
     CONTINUE(100, "Continue"),
     SWITCHING_PROTOCOLS(101, "Switching protocols"),
