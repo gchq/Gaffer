@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key.exception;
 
-public class IteratorSettingException extends Exception {
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloException;
+
+public class IteratorSettingException extends AccumuloException {
     private static final long serialVersionUID = -7500248684483372945L;
 
     public IteratorSettingException(final String message, final Throwable e) {

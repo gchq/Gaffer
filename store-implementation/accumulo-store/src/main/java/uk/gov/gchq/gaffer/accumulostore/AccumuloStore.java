@@ -65,6 +65,8 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -278,46 +280,50 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        for (final Element element : elements) {
-            final Pair<Key> keys;
-            try {
-                keys = keyPackage.getKeyConverter().getKeysFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                        + " when trying to insert elements", e);
-                continue;
-            }
-            final Value value;
-            try {
-                value = keyPackage.getKeyConverter().getValueFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
-                        + " when trying to insert elements", e);
-                continue;
-            }
-            final Mutation m = new Mutation(keys.getFirst().getRow());
-            m.put(keys.getFirst().getColumnFamily(), keys.getFirst().getColumnQualifier(),
-                    new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
-            try {
-                writer.addMutation(m);
-            } catch (final MutationsRejectedException e) {
-                LOGGER.error("Failed to create an accumulo key mutation", e);
-                continue;
-            }
-            // If the GraphElement is a Vertex then there will only be 1 key,
-            // and the second will be null.
-            // If the GraphElement is an Edge then there will be 2 keys.
-            if (keys.getSecond() != null) {
-                final Mutation m2 = new Mutation(keys.getSecond().getRow());
-                m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
-                        new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
-                        value);
+        if (elements != null) {
+            for (final Element element : elements) {
+                final Pair<Key> keys;
                 try {
-                    writer.addMutation(m2);
+                    keys = keyPackage.getKeyConverter().getKeysFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
+                            + " when trying to insert elements");
+                    continue;
+                }
+                final Value value;
+                try {
+                    value = keyPackage.getKeyConverter().getValueFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
+                            + " when trying to insert elements");
+                    continue;
+                }
+                final Mutation m = new Mutation(keys.getFirst().getRow());
+                m.put(keys.getFirst().getColumnFamily(), keys.getFirst().getColumnQualifier(),
+                        new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
+                try {
+                    writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation", e);
+                    LOGGER.error("Failed to create an accumulo key mutation");
+                    continue;
+                }
+                // If the GraphElement is a Vertex then there will only be 1 key,
+                // and the second will be null.
+                // If the GraphElement is an Edge then there will be 2 keys.
+                if (keys.getSecond() != null) {
+                    final Mutation m2 = new Mutation(keys.getSecond().getRow());
+                    m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
+                            new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
+                            value);
+                    try {
+                        writer.addMutation(m2);
+                    } catch (final MutationsRejectedException e) {
+                        LOGGER.error("Failed to create an accumulo key mutation");
+                    }
                 }
             }
+        } else {
+            throw new GafferRuntimeException("Could not find any elements to add to graph.", Status.BAD_REQUEST);
         }
         try {
             writer.close();

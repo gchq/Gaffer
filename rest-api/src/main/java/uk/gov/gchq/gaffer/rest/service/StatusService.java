@@ -20,6 +20,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.rest.SystemStatus;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -53,11 +55,7 @@ public class StatusService {
                 return new SystemStatus("The system is working normally.");
             }
         } catch (final Exception e) {
-            String msg = e.getMessage();
-            if (null == msg) {
-                msg = e.getClass().getSimpleName();
-            }
-            return new SystemStatus("Unable to create graph. Error: " + msg);
+            throw new GafferRuntimeException("Unable to create graph.", e, Status.IM_A_TEAPOT);
         }
 
         return new SystemStatus("Unable to create graph.");

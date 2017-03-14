@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.accumulostore.key;
 
-package uk.gov.gchq.gaffer.accumulostore.key.exception;
+public class AccumuloRuntimeException extends RuntimeException {
 
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
-
-public class AccumuloElementConversionException extends AccumuloRuntimeException {
-
-    private static final long serialVersionUID = -7168514897597660295L;
-
-    public AccumuloElementConversionException(final String message, final Throwable e) {
+    public AccumuloRuntimeException(final String message, final Throwable e) {
         super(message, e);
     }
 
-    public AccumuloElementConversionException(final String message) {
+    public AccumuloRuntimeException(final String message) {
         super(message);
     }
+
+    public AccumuloRuntimeException(final Throwable e) {
+        super(e);
+    }
+
 }

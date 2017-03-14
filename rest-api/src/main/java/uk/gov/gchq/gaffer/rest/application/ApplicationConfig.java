@@ -22,6 +22,11 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
 import uk.gov.gchq.gaffer.rest.FactoriesBinder;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.rest.mapper.GafferCheckedExceptionMapper;
+import uk.gov.gchq.gaffer.rest.mapper.GafferRuntimeExceptionMapper;
+import uk.gov.gchq.gaffer.rest.mapper.GenericExceptionMapper;
+import uk.gov.gchq.gaffer.rest.mapper.ProcessingExceptionMapper;
+import uk.gov.gchq.gaffer.rest.mapper.WebApplicationExceptionMapper;
 import uk.gov.gchq.gaffer.rest.serialisation.RestJsonProvider;
 import uk.gov.gchq.gaffer.rest.service.ExamplesService;
 import uk.gov.gchq.gaffer.rest.service.GraphConfigurationService;
@@ -40,6 +45,7 @@ public class ApplicationConfig extends ResourceConfig {
     public ApplicationConfig() {
         addSystemResources();
         addServices();
+        addExceptionMappers();
         setupBeanConfig();
         registerClasses(resources);
         register(new FactoriesBinder());
@@ -69,6 +75,14 @@ public class ApplicationConfig extends ResourceConfig {
         resources.add(ApiListingResource.class);
         resources.add(SwaggerSerializers.class);
         resources.add(RestJsonProvider.class);
+    }
+
+    protected void addExceptionMappers() {
+        resources.add(GafferCheckedExceptionMapper.class);
+        resources.add(GafferRuntimeExceptionMapper.class);
+        resources.add(ProcessingExceptionMapper.class);
+        resources.add(WebApplicationExceptionMapper.class);
+        resources.add(GenericExceptionMapper.class);
     }
 
 }
