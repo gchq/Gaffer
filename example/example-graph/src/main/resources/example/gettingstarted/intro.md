@@ -13,7 +13,21 @@ To do this you need to do a few things:
 
 When you've done these things you can write java applications to load and query the data.
 
-But before that you will need to download the code and compile it - sorry we are not yet publishing our artifacts to maven central.
+Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
+
+To use Gaffer on Accumulo the only required dependency is the accumulo-store dependency:
+
+```
+<dependency>
+    <groupId>uk.gov.gchq.gaffer</groupId>
+    <artifactId>accumulo-store</artifactId>
+    <version>${gaffer.version}</version>
+</dependency>
+```
+
+This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
+
+Alternatively, you can download the code and compile it yourself.
 
 Start by cloning the gaffer GitHub project.
 
@@ -21,7 +35,7 @@ Start by cloning the gaffer GitHub project.
 git clone https://github.com/gchq/Gaffer.git
 ```
 
-Then from inside the Gaffer folder run the maven 'quick' build. There are quite a few dependencies to download so it is not actually that quick.
+Then from inside the Gaffer folder run the maven 'quick' profile. There are quite a few dependencies to download so it is not actually that quick.
 
 ```bash
 mvn clean install -Pquick
