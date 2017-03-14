@@ -26,12 +26,12 @@ public interface SeededGraphFilters extends GraphFilters {
     IncludeIncomingOutgoingType getIncludeIncomingOutGoing();
 
     /**
-     * @param includeIncomingOutGoing a {@link DirectedType}
-     *                                that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
-     *                                filtered out in the operation.
+     * @param inOutType a {@link DirectedType}
+     *                  that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
+     *                  filtered out in the operation.
      * @see IncludeIncomingOutgoingType
      */
-    void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing);
+    void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType);
 
     /**
      * A <code>IncludeIncomingOutgoingType</code> defines the incoming/outgoing
@@ -40,5 +40,12 @@ public interface SeededGraphFilters extends GraphFilters {
      */
     enum IncludeIncomingOutgoingType {
         BOTH, INCOMING, OUTGOING
+    }
+
+    interface Builder<OP extends SeededGraphFilters, B extends Builder<OP, ?>> extends GraphFilters.Builder<OP, B> {
+        default B inOutType(final IncludeIncomingOutgoingType inOutType) {
+            _getOp().setIncludeIncomingOutGoing(inOutType);
+            return _self();
+        }
     }
 }

@@ -95,8 +95,8 @@ public class CoreOperationChainOptimiser extends AbstractOperationChainOptimiser
         validate.setOptions(currentOp.getOptions());
 
         // Move input to new validate operation
-        validate.setElements(currentOp.getElements());
-        currentOp.setElements(null);
+        validate.setInput(currentOp.getInput());
+        currentOp.setInput(null);
 
         return validate;
     }

@@ -88,7 +88,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
         final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
@@ -108,7 +108,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
                         .build())
                 .build();
         final GetEdges<EntitySeed> getRelatedEdgesWithCountMoreThan3 = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .view(view)
                 .build();
         final CloseableIterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);

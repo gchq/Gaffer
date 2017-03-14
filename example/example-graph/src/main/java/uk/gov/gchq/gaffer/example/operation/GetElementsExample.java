@@ -47,7 +47,7 @@ public class GetElementsExample extends OperationExample {
     public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
         // ---------------------------------------------------------
         final GetElements<EntitySeed, Element> operation = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
@@ -57,7 +57,7 @@ public class GetElementsExample extends OperationExample {
     public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
         // ---------------------------------------------------------
         final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
 
@@ -67,7 +67,7 @@ public class GetElementsExample extends OperationExample {
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -91,8 +91,8 @@ public class GetElementsExample extends OperationExample {
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
         // ---------------------------------------------------------
         final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EdgeSeed(2, 3, true))
+                .input(new EntitySeed(2))
+                .input(new EdgeSeed(2, 3, true))
                 .build();
         // ---------------------------------------------------------
 
@@ -102,8 +102,8 @@ public class GetElementsExample extends OperationExample {
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EdgeSeed(2, 3, true))
+                .input(new EntitySeed(2))
+                .input(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

@@ -32,10 +32,10 @@ public class GetEdgesWithinSetTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final GetEdgesWithinSet op = new GetEdgesWithinSet.Builder()
-                .addSeed(AccumuloTestData.SEED_SOURCE_1)
-                .addSeed(AccumuloTestData.SEED_DESTINATION_1)
-                .addSeed(AccumuloTestData.SEED_SOURCE_2)
-                .addSeed(AccumuloTestData.SEED_DESTINATION_2)
+                .input(AccumuloTestData.SEED_SOURCE_1)
+                .input(AccumuloTestData.SEED_DESTINATION_1)
+                .input(AccumuloTestData.SEED_SOURCE_2)
+                .input(AccumuloTestData.SEED_DESTINATION_2)
                 .build();
 
         // When
@@ -57,7 +57,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetEdgesWithinSet getEdgesWithinSet = new GetEdgesWithinSet.Builder()
                 .directedType(GraphFilters.DirectedType.DIRECTED)
-                .addSeed(AccumuloTestData.SEED_A)
+                .input(AccumuloTestData.SEED_A)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")

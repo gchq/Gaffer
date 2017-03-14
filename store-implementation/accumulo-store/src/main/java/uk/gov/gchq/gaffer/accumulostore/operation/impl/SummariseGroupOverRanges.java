@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
+import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraph;
 
 /**
  * A <code>SummariseGroupOverRanges</code> operation will return an
@@ -29,19 +29,19 @@ import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
-public class SummariseGroupOverRanges<I_TYPE extends Pair<? extends ElementSeed>, E extends Element> extends GetElementsInRanges<I_TYPE, E> {
-    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>, E extends Element, CHILD_CLASS extends BaseBuilder<I_TYPE, E, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<SummariseGroupOverRanges<I_TYPE, E>, I_TYPE, E, CHILD_CLASS> {
+public class SummariseGroupOverRanges<I_ITEM extends Pair<? extends ElementSeed>, E extends Element> extends GetElementsInRanges<I_ITEM, E> {
+    public abstract static class BaseBuilder<I_ITEM extends Pair<? extends ElementSeed>, E extends Element, CHILD_CLASS extends BaseBuilder<I_ITEM, E, ?>>
+            extends AbstractSeededGraph.BaseBuilder<SummariseGroupOverRanges<I_ITEM, E>, I_ITEM, E, CHILD_CLASS> {
         public BaseBuilder() {
             super(new SummariseGroupOverRanges<>());
         }
     }
 
-    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>, E extends Element>
-            extends BaseBuilder<I_TYPE, E, Builder<I_TYPE, E>> {
+    public static final class Builder<I_ITEM extends Pair<? extends ElementSeed>, E extends Element>
+            extends BaseBuilder<I_ITEM, E, Builder<I_ITEM, E>> {
 
         @Override
-        protected Builder<I_TYPE, E> self() {
+        protected Builder<I_ITEM, E> self() {
             return this;
         }
     }

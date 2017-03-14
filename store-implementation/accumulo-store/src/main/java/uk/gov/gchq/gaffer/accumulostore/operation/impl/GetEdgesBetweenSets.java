@@ -16,10 +16,16 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.IterableInput;
+import uk.gov.gchq.gaffer.operation.IterableInputB;
+import uk.gov.gchq.gaffer.operation.IterableOutput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Collections;
 
 /**
@@ -40,18 +46,15 @@ public class GetEdgesBetweenSets extends GetElementsBetweenSets<Edge> {
         }
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetEdgesBetweenSets, EntitySeed, Edge, CHILD_CLASS> {
-
-        public BaseBuilder() {
+    public static class Builder extends Operation.BaseBuilder<GetEdgesBetweenSets, Builder>
+            implements IterableInput.Builder<GetEdgesBetweenSets, EntitySeed, Builder>,
+            IterableInputB.Builder<GetEdgesBetweenSets, EntitySeed, Builder>,
+            IterableOutput.Builder<GetEdgesBetweenSets, Edge, Builder>,
+            SeededGraphFilters.Builder<GetEdgesBetweenSets, Builder>,
+            SeedMatching.Builder<GetEdgesBetweenSets, Builder>,
+            Options.Builder<GetEdgesBetweenSets, Builder> {
+        public Builder() {
             super(new GetEdgesBetweenSets());
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

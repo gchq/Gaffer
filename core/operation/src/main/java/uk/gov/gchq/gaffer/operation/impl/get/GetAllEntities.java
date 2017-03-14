@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.IterableOutput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import java.util.Collections;
 
 /**
@@ -36,28 +40,12 @@ public class GetAllEntities extends GetAllElements<Entity> {
         }
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetAllElements.BaseBuilder<GetAllEntities, Entity, CHILD_CLASS> {
-        public BaseBuilder() {
-            this(new GetAllEntities());
-        }
-
-        public BaseBuilder(final GetAllEntities op) {
-            super(op);
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
+    public static class Builder extends Operation.BaseBuilder<GetAllEntities, Builder>
+            implements IterableOutput.Builder<GetAllEntities, Entity, Builder>,
+            GraphFilters.Builder<GetAllEntities, Builder>,
+            Options.Builder<GetAllEntities, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetAllEntities op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
+            super(new GetAllEntities());
         }
     }
 }

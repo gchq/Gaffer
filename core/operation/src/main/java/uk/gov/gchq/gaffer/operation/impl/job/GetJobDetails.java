@@ -16,61 +16,39 @@
 
 package uk.gov.gchq.gaffer.operation.impl.job;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.Input;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetJobDetails extends AbstractOperation<Object, JobDetail> {
-    @JsonIgnore
+public class GetJobDetails implements
+        Operation,
+        Input<String>,
+        Output<JobDetail> {
+    private String jobId;
+
     @Override
     public String getInput() {
-        return (String) super.getInput();
-    }
-
-    @JsonIgnore
-    @Override
-    public void setInput(final Object input) {
-        // Ignore the input if it isn't a string to allow chaining
-        if (input instanceof String) {
-            super.setInput(input);
-        }
-    }
-
-    public String getJobId() {
-        return (String) super.getInput();
-    }
-
-    public void setJobId(final String jobId) {
-        super.setInput(jobId);
+        return jobId;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public void setInput(final String jobId) {
+        this.jobId = jobId;
+    }
+
+    @Override
+    public TypeReference<JobDetail> getOutputTypeReference() {
         return new TypeReferenceImpl.JobDetail();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends AbstractOperation.BaseBuilder<GetJobDetails, Object, JobDetail, CHILD_CLASS> {
-
-        public BaseBuilder() {
+    public static class Builder extends Operation.BaseBuilder<GetJobDetails, Builder>
+            implements Input.Builder<GetJobDetails, String, Builder>,
+            Output.Builder<GetJobDetails, JobDetail, Builder> {
+        public Builder() {
             super(new GetJobDetails());
-        }
-
-        /**
-         * @param jobId the jobId
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
-         */
-        public CHILD_CLASS jobId(final String jobId) {
-            return super.input(jobId);
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

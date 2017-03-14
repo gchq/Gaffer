@@ -37,16 +37,15 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-//@RunWith(MockitoJUnitRunner.class)
 public class OperationChainTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
-        final OperationChain<Object> opChain = new Builder()
-                .first(new OperationImpl<>())
-                .then(new OperationImpl<>())
+        final OperationChain opChain = new Builder()
+                .first(new OperationImpl())
+                .then(new OperationImpl())
                 .build();
 
         // When
@@ -68,8 +67,8 @@ public class OperationChainTest {
     public void shouldBuildOperationChain() {
         // Given
         final AddElements addElements = mock(AddElements.class);
-        final GetElements getAdj1 = mock(GetElements.class);
-        final GetElements getAdj2 = mock(GetElements.class);
+        final GetAdjacentEntitySeeds getAdj1 = mock(GetAdjacentEntitySeeds.class);
+        final GetAdjacentEntitySeeds getAdj2 = mock(GetAdjacentEntitySeeds.class);
         final GetElements<EntitySeed, Element> getRelElements = mock(GetElements.class);
 
         // When
@@ -149,7 +148,7 @@ public class OperationChainTest {
     public void shouldDetermineOperationChainOutputType() {
         // Given
         final Operation operation1 = mock(Operation.class);
-        final Operation operation2 = mock(Operation.class);
+        final GetElements operation2 = mock(GetElements.class);
         final TypeReference typeRef = mock(TypeReference.class);
 
         given(operation2.getOutputTypeReference()).willReturn(typeRef);

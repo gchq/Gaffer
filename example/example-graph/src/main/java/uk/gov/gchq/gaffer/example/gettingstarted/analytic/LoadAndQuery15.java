@@ -73,7 +73,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> job = new OperationChain.Builder()
                 .first(new GetEdges.Builder<EntitySeed>()
-                        .addSeed(new EntitySeed("1"))
+                        .input(new EntitySeed("1"))
                         .build())
                 .build();
         // ---------------------------------------------------------

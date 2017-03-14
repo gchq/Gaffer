@@ -108,7 +108,7 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
         final JavaPairRDD<Key, Value> elementJavaRDD = sparkContext.parallelize(elements).flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo addRdd = new ImportKeyValueJavaPairRDDToAccumulo.Builder()
-                .input(elementJavaRDD)
+                .seeds(elementJavaRDD)
                 .outputPath(outputPath)
                 .failurePath(failurePath)
                 .build();

@@ -41,9 +41,9 @@ public class GetEdgesWithinSetExample extends OperationExample {
     public Iterable<Edge> getEdgesWithinSetOfVertices1And2And3() {
         // ---------------------------------------------------------
         final GetEdgesWithinSet operation = new GetEdgesWithinSet.Builder()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EntitySeed(3))
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
+                .input(new EntitySeed(3))
                 .build();
         // ---------------------------------------------------------
 
@@ -53,9 +53,9 @@ public class GetEdgesWithinSetExample extends OperationExample {
     public Iterable<Edge> getEdgesWithinSetOfVertices1And2And3WithCountGreaterThan2() {
         // ---------------------------------------------------------
         final GetEdgesWithinSet operation = new GetEdgesWithinSet.Builder()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EntitySeed(3))
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
+                .input(new EntitySeed(3))
                 .view(new View.Builder()
                         .edge("edge", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

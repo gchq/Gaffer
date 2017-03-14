@@ -95,7 +95,7 @@ public class AccumuloRangeIDRetrieverTest {
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
         final SeededGraphGet<Pair<ElementSeed>, CloseableIterable<Element>> operation = new GetElementsInRanges.Builder<Pair<ElementSeed>, Element>()
                 .view(defaultView)
-                .seeds(simpleEntityRanges)
+                .input(simpleEntityRanges)
                 .build();
         try {
             final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());

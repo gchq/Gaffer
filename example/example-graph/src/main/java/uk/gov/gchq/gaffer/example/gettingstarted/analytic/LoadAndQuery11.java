@@ -86,7 +86,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         // [get 0.25, 0.5, 0.75 percentiles] Get the edge A-B and print an estimate of the 0.25, 0.5 and 0.75 quantiles, i.e. the 25th, 50th and 75th percentiles
         // ---------------------------------------------------------
         final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();
@@ -103,7 +103,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         // [get cdf] Get the edge A-B and print some values from the cumulative density function
         // ---------------------------------------------------------
         final GetEdges<EdgeSeed> query2 = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges2 = graph.execute(query2, user);
         final Edge edge2 = edges2.iterator().next();

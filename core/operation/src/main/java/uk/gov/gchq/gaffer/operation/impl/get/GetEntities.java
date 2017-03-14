@@ -18,17 +18,23 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.IterableInput;
+import uk.gov.gchq.gaffer.operation.IterableOutput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Collections;
 
 /**
  * Restricts {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements} to only return {@link uk.gov.gchq.gaffer.data.element.Entity}s.
  * See implementations of {@link GetEntities} for further details.
  *
- * @param <SEED_TYPE> the seed seed type
+ * @param <I_ITEM> the seed seed type
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetElements
  */
-public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED_TYPE, Entity> {
+public class GetEntities<I_ITEM extends ElementSeed> extends GetElements<I_ITEM, Entity> {
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEdges()) {
@@ -41,23 +47,14 @@ public class GetEntities<SEED_TYPE extends ElementSeed> extends GetElements<SEED
         }
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed,
-            CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends GetElements.BaseBuilder<GetEntities<SEED_TYPE>, SEED_TYPE, Entity, CHILD_CLASS> {
-        protected BaseBuilder() {
+    public static class Builder<I_ITEM extends ElementSeed> extends Operation.BaseBuilder<GetEntities<I_ITEM>, Builder<I_ITEM>>
+            implements IterableInput.Builder<GetEntities<I_ITEM>, I_ITEM, Builder<I_ITEM>>,
+            IterableOutput.Builder<GetEntities<I_ITEM>, Entity, Builder<I_ITEM>>,
+            SeededGraphFilters.Builder<GetEntities<I_ITEM>, Builder<I_ITEM>>,
+            SeedMatching.Builder<GetEntities<I_ITEM>, Builder<I_ITEM>>,
+            Options.Builder<GetEntities<I_ITEM>, Builder<I_ITEM>> {
+        public Builder() {
             super(new GetEntities<>());
-        }
-
-        protected BaseBuilder(final GetEntities<SEED_TYPE> op) {
-            super(op);
-        }
-    }
-
-    public static final class Builder<SEED_TYPE extends ElementSeed> extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
-
-        @Override
-        protected Builder<SEED_TYPE> self() {
-            return this;
         }
     }
 }

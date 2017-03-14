@@ -40,7 +40,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // When 1 - before age off
         final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .build(), user);
 
         // Then 1
@@ -56,7 +56,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // When 2 - after age off
         final CloseableIterable<Entity> results2 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .build(), user);
 
         // Then 2
@@ -80,7 +80,7 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // When
         final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .build(), user);
 
         // Then

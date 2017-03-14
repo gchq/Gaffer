@@ -22,11 +22,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
-import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
-import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,9 +34,8 @@ import java.util.List;
  * <p>
  * A couple of special cases:
  * <ul>
- * <li>A {@link uk.gov.gchq.gaffer.operation.VoidOutput} can come before any operation - as long as the following operation doesn't
- * require some seeds to be automatically set.</li>
- * <li>A {@link uk.gov.gchq.gaffer.operation.VoidInput} can follow any operation - the output from the previous operation will
+ * <li>An operation with no output can come before any operation.</li>
+ * <li>An operation with no input can follow any operation - the output from the previous operation will
  * just be lost.</li>
  * </ul>
  *
@@ -55,7 +49,7 @@ public class OperationChain<OUT> {
     public OperationChain() {
     }
 
-    public OperationChain(final Operation<?, OUT> operation) {
+    public OperationChain(final Operation operation) {
         this(new ArrayList<>(1));
         operations.add(operation);
     }
@@ -66,11 +60,14 @@ public class OperationChain<OUT> {
 
     @JsonIgnore
     public TypeReference<OUT> getOutputTypeReference() {
-        if (null == operations || operations.isEmpty()) {
-            return (TypeReference<OUT>) new TypeReferenceImpl.Object();
+        if (null != operations && !operations.isEmpty()) {
+            final Operation lastOp = operations.get(operations.size() - 1);
+            if (lastOp instanceof Output) {
+                return ((Output) lastOp).getOutputTypeReference();
+            }
         }
 
-        return operations.get(operations.size() - 1).getOutputTypeReference();
+        return (TypeReference<OUT>) new TypeReferenceImpl.Void();
     }
 
     public List<Operation> getOperations() {
@@ -113,128 +110,20 @@ public class OperationChain<OUT> {
         return strBuilder.toString();
     }
 
-    /**
-     * A <code>Builder</code> is a type safe way of building an {@link uk.gov.gchq.gaffer.operation.OperationChain}.
-     * The builder instance is updated after each method call so it is best to chain the method calls together.
-     * Usage:<br>
-     * new Builder()<br>
-     * &nbsp;.first(new SomeOperation.Builder()<br>
-     * &nbsp;&nbsp;.addSomething()<br>
-     * &nbsp;&nbsp;.build()<br>
-     * &nbsp;)<br>
-     * &nbsp;.then(new SomeOtherOperation.Builder()<br>
-     * &nbsp;&nbsp;.addSomethingElse()<br>
-     * &nbsp;&nbsp;.build()<br>
-     * &nbsp;)<br>
-     * &nbsp;.build();
-     * <p>
-     * For a full example see the Example module.
-     */
     public static class Builder {
-        public <NEXT_OUT> TypedBuilder<NEXT_OUT> first(final Operation<?, NEXT_OUT> op) {
-            return new TypedBuilder<>(op);
-        }
+        private final List<Operation> ops = new ArrayList<>();
 
-        public TypelessBuilder first(final VoidOutput<?> op) {
-            return new TypelessBuilder(op);
-        }
-
-        public TypelessBuilder first(final Export op) {
-            return new TypelessBuilder(op);
-        }
-    }
-
-    public static final class TypelessBuilder {
-        private final List<Operation> ops;
-
-        private TypelessBuilder(final Operation op) {
-            this(new ArrayList<>());
+        public Builder first(final Operation op) {
             ops.add(op);
+            return this;
         }
 
-        private TypelessBuilder(final List<Operation> ops) {
-            this.ops = ops;
-        }
-
-        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<?, NEXT_OUT> op) {
+        public Builder then(final Operation op) {
             ops.add(op);
-            return new TypedBuilder<>(ops);
+            return this;
         }
 
-        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public TypelessBuilder then(final Export op) {
-            ops.add(op);
-            return new TypelessBuilder(ops);
-        }
-
-        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public TypelessBuilder then(final VoidOutput<?> op) {
-            ops.add(op);
-            return new TypelessBuilder(ops);
-        }
-
-        public OperationChain<Void> build() {
-            return new OperationChain<>(ops);
-        }
-    }
-
-    public static final class TypedBuilder<OUT> {
-        private final List<Operation> ops;
-
-        private TypedBuilder(final Operation<?, OUT> op) {
-            this(new ArrayList<>());
-            ops.add(op);
-        }
-
-        private TypedBuilder(final List<Operation> ops) {
-            this.ops = ops;
-        }
-
-
-        public TypelessBuilder then(final Export op) {
-            ops.add(op);
-            return new TypelessBuilder(ops);
-        }
-
-        public TypedBuilder<JobDetail> then(final GetJobDetails op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public TypedBuilder<CloseableIterable<JobDetail>> then(final GetAllJobDetails op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final Operation<? extends OUT, NEXT_OUT> op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public <NEXT_OUT> TypedBuilder<NEXT_OUT> then(final VoidInput<NEXT_OUT> op) {
-            ops.add(op);
-            return new TypedBuilder<>(ops);
-        }
-
-        public TypelessBuilder then(final VoidOutput<OUT> op) {
-            ops.add(op);
-            return new TypelessBuilder(ops);
-        }
-
-        public OperationChain<OUT> build() {
+        public <T> OperationChain<T> build() {
             return new OperationChain<>(ops);
         }
     }

@@ -33,7 +33,7 @@ public class GetJobDetailsTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final GetJobDetails operation = new GetJobDetails.Builder()
-                .jobId("jobId")
+                .input("jobId")
                 .build();
 
         // When
@@ -41,7 +41,7 @@ public class GetJobDetailsTest implements OperationTest {
         final GetJobDetails deserialisedOp = serialiser.deserialise(json, GetJobDetails.class);
 
         // Then
-        assertEquals("jobId", deserialisedOp.getJobId());
+        assertEquals("jobId", deserialisedOp.getInput());
     }
 
     @Test
@@ -49,10 +49,10 @@ public class GetJobDetailsTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // When
         final GetJobDetails op = new GetJobDetails.Builder()
-                .jobId("jobId")
+                .input("jobId")
                 .build();
 
         // Then
-        assertEquals("jobId", op.getJobId());
+        assertEquals("jobId", op.getInput());
     }
 }

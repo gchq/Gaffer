@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -48,13 +47,11 @@ public class GetAllEdgesTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllEdges getAllEdges = new GetAllEdges.Builder()
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertEquals("true", getAllEdges.getOption("testOption"));
         assertNotNull(getAllEdges.getView().getEdge(TestGroups.EDGE));
     }
 }

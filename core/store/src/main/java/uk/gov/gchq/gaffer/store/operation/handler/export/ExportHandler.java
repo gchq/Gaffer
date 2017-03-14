@@ -17,14 +17,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.impl.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import java.util.Arrays;
 import java.util.Collections;
 
-public abstract class ExportHandler<EXPORT extends Export, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER, Object> {
+public abstract class ExportHandler<EXPORT extends ExportTo, EXPORTER extends Exporter> extends ExportOperationHandler<EXPORT, EXPORTER, Object> {
     @Override
     public Object doOperation(final EXPORT export,
                               final Context context,

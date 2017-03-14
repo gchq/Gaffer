@@ -96,7 +96,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
         // [get strings sample from the red edge] Get the edge A-B and print out the sample of strings
         // ---------------------------------------------------------
         final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();
@@ -118,7 +118,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
         // [get sample from the blue entity] Get the entity Y and print a sample of the neighbours
         // ---------------------------------------------------------
         final GetEntities<EntitySeed> query2 = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("X"))
+                .input(new EntitySeed("X"))
                 .build();
         final Iterable<Entity> entities = graph.execute(query2, user);
         final Entity entity = entities.iterator().next();

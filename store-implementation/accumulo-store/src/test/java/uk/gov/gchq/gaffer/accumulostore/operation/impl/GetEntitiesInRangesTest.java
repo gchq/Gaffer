@@ -40,7 +40,7 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
+        final GetEntitiesInRanges<Pair<EntitySeed>> op = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>().input(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -61,7 +61,7 @@ public class GetEntitiesInRangesTest implements OperationTest {
         final GetEntitiesInRanges getEntitiesInRanges = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder().edge("testEdgeGroup").build())
-                .addSeed(seed).build();
+                .input(seed).build();
         assertEquals(seed, getEntitiesInRanges.getSeeds().iterator().next());
         assertEquals("true", getEntitiesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertNotNull(getEntitiesInRanges.getView());

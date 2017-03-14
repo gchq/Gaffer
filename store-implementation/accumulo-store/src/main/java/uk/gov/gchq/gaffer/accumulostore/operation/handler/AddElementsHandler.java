@@ -36,7 +36,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     private void addElements(final AddElements addElementsOperation, final AccumuloStore store)
             throws OperationException {
         try {
-            store.addElements(addElementsOperation.getElements());
+            store.addElements(addElementsOperation.getInput());
         } catch (final StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }

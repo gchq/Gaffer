@@ -18,5 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 
-public interface GetIterable<I, O_ITEM> extends Get<I, CloseableIterable<O_ITEM>> {
+public interface IterableOutput<O_ITEM> extends Output<CloseableIterable<O_ITEM>> {
+    interface Builder<OP extends IterableOutput<O_ITEM>, O_ITEM, B extends Builder<OP, O_ITEM, ?>> extends Output.Builder<OP, CloseableIterable<O_ITEM>, B> {
+    }
 }

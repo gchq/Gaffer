@@ -18,8 +18,9 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.IterableInput;
+import uk.gov.gchq.gaffer.operation.IterableOutput;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -30,8 +31,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Limit.Builder
  */
-public class Limit<T> extends AbstractOperation<CloseableIterable<T>, CloseableIterable<T>> {
+public class Limit<T> implements Operation, IterableInput<T>, IterableOutput<T> {
     protected Integer resultLimit;
+    private Iterable<T> input;
 
     public Limit() {
     }
@@ -49,37 +51,30 @@ public class Limit<T> extends AbstractOperation<CloseableIterable<T>, CloseableI
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public Iterable<T> getInput() {
+        return input;
     }
 
-    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
-            extends AbstractOperation.BaseBuilder<Limit<T>, CloseableIterable<T>, CloseableIterable<T>, CHILD_CLASS> {
+    @Override
+    public void setInput(final Iterable<T> input) {
+        this.input = input;
+    }
 
-        public BaseBuilder() {
+    @Override
+    public TypeReference<CloseableIterable<T>> getOutputTypeReference() {
+        return TypeReferenceImpl.createCloseableIterableT();
+    }
+
+    public static final class Builder<T>
+            extends Operation.BaseBuilder<Limit<T>, Builder<T>>
+            implements IterableInput.Builder<Limit<T>, T, Builder<T>>, IterableOutput.Builder<Limit<T>, T, Builder<T>> {
+        public Builder() {
             super(new Limit<>());
         }
 
-        /**
-         * @param input the input to set on the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
-         */
-        public CHILD_CLASS input(final Iterable<T> input) {
-            return input(new WrappedCloseableIterable<>(input));
-        }
-
-        public CHILD_CLASS limitResults(final Integer resultLimit) {
-            op.setResultLimit(resultLimit);
-            return self();
-        }
-    }
-
-    public static final class Builder<T> extends BaseBuilder<T, Builder<T>> {
-
-        @Override
-        protected Builder<T> self() {
-            return this;
+        public Builder<T> resultLimit(final Integer resultLimit) {
+            _getOp().setResultLimit(resultLimit);
+            return _self();
         }
     }
 }

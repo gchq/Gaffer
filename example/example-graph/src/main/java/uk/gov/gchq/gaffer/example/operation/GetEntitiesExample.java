@@ -44,7 +44,7 @@ public class GetEntitiesExample extends OperationExample {
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2() {
         // ---------------------------------------------------------
         final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
 
@@ -54,7 +54,7 @@ public class GetEntitiesExample extends OperationExample {
     public Iterable<Entity> getAllEntitiesThatAreConnectedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetEntities<EdgeSeed> operation = new GetEntities.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -72,8 +72,8 @@ public class GetEntitiesExample extends OperationExample {
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2() {
         // ---------------------------------------------------------
         final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
@@ -83,8 +83,8 @@ public class GetEntitiesExample extends OperationExample {
     public CloseableIterable<Entity> getEntitiesByEntitySeed1And2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetEntities<EntitySeed> operation = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

@@ -19,15 +19,16 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.IterableInput;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
 import java.util.Collections;
 
 /**
  * Returns all {@link uk.gov.gchq.gaffer.data.element.Edge}'s between the provided
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
  */
-public class GetEdgesInRanges<I_TYPE extends Pair<? extends ElementSeed>> extends GetElementsInRanges<I_TYPE, Edge> {
+public class GetEdgesInRanges<I_ITEM extends Pair<? extends ElementSeed>> extends GetElementsInRanges<I_ITEM, Edge> {
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
@@ -40,20 +41,11 @@ public class GetEdgesInRanges<I_TYPE extends Pair<? extends ElementSeed>> extend
         }
     }
 
-    public abstract static class BaseBuilder<I_TYPE extends Pair<? extends ElementSeed>, CHILD_CLASS extends BaseBuilder<I_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetEdgesInRanges<I_TYPE>, I_TYPE, Edge, CHILD_CLASS> {
-
-        public BaseBuilder() {
+    public static class Builder<I_ITEM extends Pair<? extends ElementSeed>>
+            extends Operation.BaseBuilder<GetEdgesInRanges<I_ITEM>, Builder<I_ITEM>>
+            implements IterableInput.Builder<GetEdgesInRanges<I_ITEM>, I_ITEM, Builder<I_ITEM>> {
+        protected Builder() {
             super(new GetEdgesInRanges<>());
-        }
-    }
-
-    public static final class Builder<I_TYPE extends Pair<? extends ElementSeed>>
-            extends BaseBuilder<I_TYPE, Builder<I_TYPE>> {
-
-        @Override
-        protected Builder<I_TYPE> self() {
-            return this;
         }
     }
 }

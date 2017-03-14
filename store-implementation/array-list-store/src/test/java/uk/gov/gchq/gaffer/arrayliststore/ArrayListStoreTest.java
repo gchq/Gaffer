@@ -65,8 +65,8 @@ public class ArrayListStoreTest {
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(1))
-                        .addSeed(new EntitySeed(2))
+                        .input(new EntitySeed(1))
+                        .input(new EntitySeed(2))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -124,7 +124,7 @@ public class ArrayListStoreTest {
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEntities.Builder<>()
-                        .addSeed(new EdgeSeed(2, 1, false))
+                        .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -172,7 +172,7 @@ public class ArrayListStoreTest {
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEntities.Builder()
-                        .addSeed(new EntitySeed(1))
+                        .input(new EntitySeed(1))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -216,7 +216,7 @@ public class ArrayListStoreTest {
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEdges.Builder()
-                        .addSeed(new EdgeSeed(2, 1, false))
+                        .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -263,7 +263,7 @@ public class ArrayListStoreTest {
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(1))
+                        .input(new EntitySeed(1))
                         .build())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()
                         .generator(new EntitySeedExtractor(IdentifierType.DESTINATION))

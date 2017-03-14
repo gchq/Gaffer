@@ -84,7 +84,7 @@ public class AggregationIT extends AbstractStoreIT {
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetElements<ElementSeed, Element> getElements = new GetElements.Builder<>()
-                .addSeed(new EntitySeed(AGGREGATED_SOURCE))
+                .input(new EntitySeed(AGGREGATED_SOURCE))
                 .build();
 
         // When
@@ -121,7 +121,7 @@ public class AggregationIT extends AbstractStoreIT {
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
+                .input(new EntitySeed(NON_AGGREGATED_SOURCE))
                 .build();
 
         // When

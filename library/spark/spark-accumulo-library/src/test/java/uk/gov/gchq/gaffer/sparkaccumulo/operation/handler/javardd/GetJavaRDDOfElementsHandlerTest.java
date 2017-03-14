@@ -101,7 +101,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for "1"
         GetJavaRDDOfElements<EntitySeed> rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(Collections.singleton(new EntitySeed("1")))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         JavaRDD<Element> rdd = graph1.execute(rddQuery, user);
@@ -130,7 +130,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for "1" when specify entities only
         rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
                         .build())
@@ -149,7 +149,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for "1" when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(Collections.singleton(new EntitySeed("1")))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -172,7 +172,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         seeds.add(new EntitySeed("5"));
         rddQuery = new GetJavaRDDOfElements.Builder<EntitySeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(seeds)
+                .input(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -255,7 +255,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for EdgeSeed 1 -> B
         GetJavaRDDOfElements<EdgeSeed> rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -279,7 +279,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get entity for 1 when query for 1 -> B and specify entities only
         rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
                         .build())
@@ -300,7 +300,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for 1 -> B when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder<EdgeSeed>()
                 .javaSparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(Collections.singleton(new EdgeSeed("1", "B", false)))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -326,7 +326,7 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .seeds(seeds)
+                .input(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);

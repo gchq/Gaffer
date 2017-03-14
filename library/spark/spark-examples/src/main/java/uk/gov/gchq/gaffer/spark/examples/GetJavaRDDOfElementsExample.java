@@ -76,16 +76,16 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
         final GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()
-                .addSeed(new EdgeSeed(1, 2, true))
-                .addSeed(new EdgeSeed(2, 3, true))
+                .input(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(2, 3, true))
                 .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .seeds(new EdgeSeed(1, 2, true))\n"
+                + "                .seeds(new EdgeSeed(2, 3, true))\n"
                 + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
@@ -105,8 +105,8 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
         final GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()
-                .addSeed(new EdgeSeed(1, 2, true))
-                .addSeed(new EdgeSeed(2, 3, true))
+                .input(new EdgeSeed(1, 2, true))
+                .input(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()
                         .edge("edge")
                         .build())
@@ -116,8 +116,8 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+                + "                .seeds(new EdgeSeed(1, 2, true))\n"
+                + "                .seeds(new EdgeSeed(2, 3, true))\n"
                 + "                .view(new View.Builder()\n" +
                 "                        .edge(\"edge\")\n" +
                 "                        .build())\n"

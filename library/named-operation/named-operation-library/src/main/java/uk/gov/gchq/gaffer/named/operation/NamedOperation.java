@@ -21,12 +21,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
+import uk.gov.gchq.gaffer.operation.WithView;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.Serializable;
 
-public class NamedOperation extends AbstractSeededGet<Object, Object> implements Serializable {
+public class NamedOperation extends AbstractSeededGet<Object, Object> implements WithView, Serializable {
     private static final long serialVersionUID = -356445124131310528L;
+    private View view;
     private String operationName;
     private String description;
 
@@ -37,6 +40,16 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
         super();
         this.operationName = operationName;
         this.description = description;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
     }
 
     public String getOperationName() {
@@ -98,6 +111,15 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
             extends AbstractSeededGet.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
         public BaseBuilder() {
             super(new NamedOperation());
+        }
+
+        /**
+         * @param view the view to set on the operation
+         * @return this Builder
+         */
+        public CHILD_CLASS view(final View view) {
+            op.setView(view);
+            return self();
         }
 
         public CHILD_CLASS name(final String name) {

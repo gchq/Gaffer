@@ -21,48 +21,48 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import java.util.Collections;
 
-public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
+public class GetRDDOfElements<I_ITEM extends ElementSeed> extends AbstractGetRDD<I_ITEM> {
 
     public GetRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
+    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<I_ITEM> seeds) {
         this(sparkContext, new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
+    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<I_ITEM> seeds) {
         setSparkContext(sparkContext);
         setInput(new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {
+    public GetRDDOfElements(final SparkContext sparkContext, final I_ITEM seed) {
         this(sparkContext, Collections.singleton(seed));
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetRDD.BaseBuilder<GetRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
+    public abstract static class BaseBuilder<I_ITEM extends ElementSeed, CHILD_CLASS extends BaseBuilder<I_ITEM, ?>>
+            extends AbstractGetRDD.BaseBuilder<GetRDDOfElements<I_ITEM>, I_ITEM, CHILD_CLASS> {
 
         public BaseBuilder() {
-            this(new GetRDDOfElements<SEED_TYPE>());
+            this(new GetRDDOfElements<I_ITEM>());
         }
 
-        public BaseBuilder(final GetRDDOfElements<SEED_TYPE> op) {
+        public BaseBuilder(final GetRDDOfElements<I_ITEM> op) {
             super(op);
         }
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed>
-            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
+    public static final class Builder<I_ITEM extends ElementSeed>
+            extends BaseBuilder<I_ITEM, Builder<I_ITEM>> {
 
         public Builder() {
         }
 
-        public Builder(final GetRDDOfElements<SEED_TYPE> op) {
+        public Builder(final GetRDDOfElements<I_ITEM> op) {
             super(op);
         }
 
         @Override
-        protected Builder<SEED_TYPE> self() {
+        protected Builder<I_ITEM> self() {
             return this;
         }
     }

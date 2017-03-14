@@ -41,7 +41,7 @@ public class GetEdgesBetweenSetsExample extends OperationExample {
     public Iterable<Edge> getElementsWithinSetOfVertices1And2And4() {
         // ---------------------------------------------------------
         final GetEdgesBetweenSets operation = new GetEdgesBetweenSets.Builder()
-                .addSeed(new EntitySeed(1))
+                .input(new EntitySeed(1))
                 .addSeedB(new EntitySeed(2))
                 .addSeedB(new EntitySeed(4))
                 .build();
@@ -53,7 +53,7 @@ public class GetEdgesBetweenSetsExample extends OperationExample {
     public Iterable<Edge> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
         // ---------------------------------------------------------
         final GetEdgesBetweenSets operation = new GetEdgesBetweenSets.Builder()
-                .addSeed(new EntitySeed(1))
+                .input(new EntitySeed(1))
                 .addSeedB(new EntitySeed(2))
                 .addSeedB(new EntitySeed(4))
                 .view(new View.Builder()

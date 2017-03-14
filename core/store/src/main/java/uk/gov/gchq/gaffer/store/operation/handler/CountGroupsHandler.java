@@ -31,8 +31,8 @@ public class CountGroupsHandler implements OperationHandler<CountGroups, GroupCo
             throws OperationException {
         int count = 0;
         final GroupCounts groupCounts = new GroupCounts();
-        if (null != operation.getElements()) {
-            for (final Element element : operation.getElements()) {
+        if (null != operation.getInput()) {
+            for (final Element element : operation.getInput()) {
                 if (null != operation.getLimit()) {
                     count++;
                     if (count > operation.getLimit()) {

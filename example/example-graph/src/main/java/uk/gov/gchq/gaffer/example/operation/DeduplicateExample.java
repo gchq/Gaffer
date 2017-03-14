@@ -42,8 +42,8 @@ public class DeduplicateExample extends OperationExample {
     public Iterable<Edge> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
         final GetEdges<ElementSeed> operation = new GetEdges.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
@@ -54,8 +54,8 @@ public class DeduplicateExample extends OperationExample {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain.Builder()
                 .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(1))
-                        .addSeed(new EntitySeed(2))
+                        .input(new EntitySeed(1))
+                        .input(new EntitySeed(2))
                         .build())
                 .then(new Deduplicate<>())
                 .build();

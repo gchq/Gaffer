@@ -19,9 +19,9 @@ package uk.gov.gchq.gaffer.operation.impl.export;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractGet;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Output;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,9 @@ import java.util.Map;
  * The keys in the map are: "[ExportOperationClassName]: [key]"
  * The values in the map are the exported values.
  */
-public class GetExports extends AbstractGet<Void, Map<String, CloseableIterable<?>>> implements VoidInput<Map<String, CloseableIterable<?>>> {
+public class GetExports implements
+        Operation,
+        Output<Map<String, CloseableIterable<?>>> {
     private List<GetExport> getExports = new ArrayList<>();
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -51,36 +53,26 @@ public class GetExports extends AbstractGet<Void, Map<String, CloseableIterable<
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.MapStringSet();
+    public TypeReference<Map<String, CloseableIterable<?>>> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.MapStringSet();
     }
 
-    public abstract static class BaseBuilder<EXPORT extends GetExports, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
-            extends AbstractOperation.BaseBuilder<GetExports, Void, Map<String, CloseableIterable<?>>, CHILD_CLASS> {
-        public BaseBuilder(final GetExports export) {
-            super(export);
-        }
-
-        public CHILD_CLASS exports(final List<GetExport> exports) {
-            getOp().setGetExports(exports);
-            return self();
-        }
-
-        public CHILD_CLASS exports(final GetExport... exports) {
-            getOp().getGetExports().clear();
-            Collections.addAll(getOp().getGetExports(), exports);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<GetExports, Builder> {
+    public static class Builder
+            extends Operation.BaseBuilder<GetExports, Builder>
+            implements Output.Builder<GetExports, Map<String, CloseableIterable<?>>, Builder> {
         public Builder() {
             super(new GetExports());
         }
 
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder exports(final List<GetExport> exports) {
+            _getOp().setGetExports(exports);
+            return _self();
+        }
+
+        public Builder exports(final GetExport... exports) {
+            _getOp().getGetExports().clear();
+            Collections.addAll(_getOp().getGetExports(), exports);
+            return _self();
         }
     }
 }

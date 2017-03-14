@@ -17,11 +17,12 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import uk.gov.gchq.gaffer.operation.Input;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
 
 public class GetJobResults extends GetGafferResultCacheExport {
-
     @JsonIgnore
     @Override
     public String getKey() {
@@ -35,25 +36,11 @@ public class GetJobResults extends GetGafferResultCacheExport {
         }
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetGafferResultCacheExport.BaseBuilder<GetJobResults, CHILD_CLASS> {
-        protected BaseBuilder() {
-            super(new GetJobResults());
-        }
-
-        protected BaseBuilder(final GetJobResults export) {
-            super(export);
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
+    public static class Builder
+            extends Operation.BaseBuilder<GetJobResults, Builder>
+            implements Input.Builder<GetJobResults, String, Builder> {
         public Builder() {
             super(new GetJobResults());
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

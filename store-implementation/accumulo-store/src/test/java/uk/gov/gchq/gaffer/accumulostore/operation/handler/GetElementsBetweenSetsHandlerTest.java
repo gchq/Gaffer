@@ -132,7 +132,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(defaultView).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(defaultView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
         //Without query compaction the result size should be 4
@@ -162,7 +162,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
 
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(opView).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -191,7 +191,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
 
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(opView).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -219,7 +219,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(opView).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(opView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
@@ -249,7 +249,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(view).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -280,7 +280,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().seeds(seedsA).seedsB(seedsB).view(view).build();
+        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets.Builder<>().input(seedsA).seedsB(seedsB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);

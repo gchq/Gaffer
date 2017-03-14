@@ -16,18 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
+import uk.gov.gchq.gaffer.operation.IterableInput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.List;
 
 /**
  * A <code>CountGroups</code> operation takes in {@link Element}s and collects
@@ -37,7 +32,11 @@ import java.util.List;
  *
  * @see CountGroups.Builder
  */
-public class CountGroups extends AbstractSeededGet<Element, GroupCounts> {
+public class CountGroups implements
+        Operation,
+        IterableInput<Element>,
+        Output<GroupCounts> {
+    private Iterable<Element> input;
     private Integer limit;
 
     public CountGroups() {
@@ -45,27 +44,6 @@ public class CountGroups extends AbstractSeededGet<Element, GroupCounts> {
 
     public CountGroups(final Integer limit) {
         this.limit = limit;
-    }
-
-    /**
-     * @return the input {@link CloseableIterable} of {@link Element}s to be validated.
-     */
-    public CloseableIterable<Element> getElements() {
-        return getInput();
-    }
-
-    /**
-     * @param elements the input {@link Iterable} of {@link Element}s to be validated.
-     */
-    public void setElements(final Iterable<Element> elements) {
-        setElements(new WrappedCloseableIterable<Element>(elements));
-    }
-
-    /**
-     * @param elements the input {@link CloseableIterable} of {@link Element}s to be validated.
-     */
-    public void setElements(final CloseableIterable<Element> elements) {
-        setInput(elements);
     }
 
     public Integer getLimit() {
@@ -76,65 +54,28 @@ public class CountGroups extends AbstractSeededGet<Element, GroupCounts> {
         this.limit = limit;
     }
 
-    @JsonIgnore
     @Override
-    public CloseableIterable<Element> getInput() {
-        return super.getInput();
-    }
-
-    @JsonProperty
-    @Override
-    public void setInput(final CloseableIterable<Element> input) {
-        super.setInput(input);
-    }
-
-    /**
-     * @return the input {@link List} of {@link Element}s to be validated.
-     */
-    @JsonProperty(value = "elements")
-    List<Element> getElementList() {
-        final CloseableIterable<Element> input = getInput();
-        return null != input ? Lists.newArrayList(input) : null;
-    }
-
-    /**
-     * @param elements the input {@link List} of {@link Element}s to be validated.
-     */
-    @JsonProperty(value = "elements")
-    void setElementList(final List<Element> elements) {
-        setInput(new WrappedCloseableIterable<>(elements));
-    }
-
-    @Override
-    protected TypeReference createOutputTypeReference() {
+    public TypeReference<GroupCounts> getOutputTypeReference() {
         return new TypeReferenceImpl.CountGroups();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<CountGroups, CloseableIterable<Element>, GroupCounts, CHILD_CLASS> {
+    @Override
+    public Iterable<Element> getInput() {
+        return input;
+    }
 
-        public BaseBuilder() {
+    @Override
+    public void setInput(final Iterable<Element> input) {
+        this.input = input;
+    }
+
+    public static class Builder
+            extends Operation.BaseBuilder<CountGroups, Builder>
+            implements IterableInput.Builder<CountGroups, Element, Builder>,
+            Output.Builder<CountGroups, GroupCounts, Builder> {
+
+        public Builder() {
             super(new CountGroups());
-        }
-
-        /**
-         * @param elements the input {@link Iterable} of {@link Element}s to be set on the operation.
-         * @return this Builder
-         * @see CountGroups#setElements(Iterable)
-         */
-        public CHILD_CLASS elements(final Iterable<Element> elements) {
-            op.setElements(elements);
-            return self();
-        }
-
-        /**
-         * @param elements the input {@link CloseableIterable} of {@link Element}s to be set on the operation.
-         * @return this Builder
-         * @see CountGroups#setElements(CloseableIterable)
-         */
-        public CHILD_CLASS elements(final CloseableIterable<Element> elements) {
-            op.setElements(elements);
-            return self();
         }
 
         /**
@@ -142,15 +83,8 @@ public class CountGroups extends AbstractSeededGet<Element, GroupCounts> {
          * @return this Builder
          * @see CountGroups#setLimit(Integer)
          */
-        public CHILD_CLASS limit(final Integer limit) {
-            op.setLimit(limit);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
+        public Builder limit(final Integer limit) {
+            _getOp().setLimit(limit);
             return this;
         }
     }

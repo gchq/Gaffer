@@ -96,7 +96,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         }
 
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .seeds(seeds)
+                .input(seeds)
                 .directedType(directedType)
                 .inOutType(inOutType)
                 .build();

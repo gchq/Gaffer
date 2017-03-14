@@ -57,7 +57,7 @@ public class GetEntitiesTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("identifier");
 
         // When
-        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Collections.singletonList(seed1))
+        final GetEntities op = new GetEntities.Builder<EntitySeed>().input(Collections.singletonList(seed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -69,16 +69,16 @@ public class GetEntitiesTest implements OperationTest {
         // Given
         final EntitySeed seed1 = new EntitySeed("id1");
         final EntitySeed seed2 = new EntitySeed("id2");
-        final GetEntities op = new GetEntities.Builder<EntitySeed>().seeds(Arrays.asList(seed1, seed2))
+        final GetEntities op = new GetEntities.Builder<EntitySeed>().input(Arrays.asList(seed1, seed2))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEntities deserialisedOp = serialiser.deserialise(json, GetEntities.class);
+        final GetEntities<?> deserialisedOp = serialiser.deserialise(json, GetEntities.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
@@ -90,7 +90,7 @@ public class GetEntitiesTest implements OperationTest {
 
         // When
         final GetEntities op = new GetEntities.Builder<>()
-                .addSeed(seed1)
+                .input(seed1)
                 .build();
 
         // Then
@@ -102,16 +102,15 @@ public class GetEntitiesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", false);
         final GetEntities op = new GetEntities.Builder<>()
-                .addSeed(seed1)
-                .addSeed(seed2)
+                .input(seed1, seed2)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEntities deserialisedOp = serialiser.deserialise(json, GetEntities.class);
+        final GetEntities<?> deserialisedOp = serialiser.deserialise(json, GetEntities.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
@@ -122,17 +121,15 @@ public class GetEntitiesTest implements OperationTest {
         final EntitySeed seed = new EntitySeed("A");
 
         // When
-        final GetEntities op = new GetEntities.Builder<>()
-                .addSeed(seed)
-                .option("testOption", "true")
+        final GetEntities<?> op = new GetEntities.Builder<>()
+                .input(seed)
                 .view(new View.Builder()
                         .edge(TestGroups.ENTITY)
                         .build())
                 .build();
 
         // Then
-        assertEquals("true", op.getOption("testOption"));
         assertNotNull(op.getView());
-        assertEquals(seed, op.getSeeds().iterator().next());
+        assertEquals(seed, op.getInput().iterator().next());
     }
 }

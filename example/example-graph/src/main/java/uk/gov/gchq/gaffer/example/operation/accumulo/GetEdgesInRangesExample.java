@@ -40,7 +40,7 @@ public class GetEdgesInRangesExample extends OperationExample {
     public Iterable<Edge> getAllEdgesInTheRangeFromEdge1_2ToEdge1_4() {
         // ---------------------------------------------------------
         final GetEdgesInRanges<Pair<EdgeSeed>> operation = new GetEdgesInRanges.Builder<Pair<EdgeSeed>>()
-                .addSeed(new Pair<>(new EdgeSeed(1, 2, true), new EdgeSeed(1, 4, true)))
+                .input(new Pair<>(new EdgeSeed(1, 2, true), new EdgeSeed(1, 4, true)))
                 .build();
         // ---------------------------------------------------------
 
@@ -50,7 +50,7 @@ public class GetEdgesInRangesExample extends OperationExample {
     public Iterable<Edge> getAllEdgesInTheRangeFromEdge1_2ToEdge4_5() {
         // ---------------------------------------------------------
         final GetEdgesInRanges<Pair<ElementSeed>> operation = new GetEdgesInRanges.Builder<Pair<ElementSeed>>()
-                .addSeed(new Pair<>((ElementSeed) new EdgeSeed(1, 2, true), new EdgeSeed(4, 5, true)))
+                .input(new Pair<>((ElementSeed) new EdgeSeed(1, 2, true), new EdgeSeed(4, 5, true)))
                 .build();
         // ---------------------------------------------------------
 

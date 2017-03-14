@@ -32,7 +32,7 @@ public class GetElementsInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges.Builder<Pair<EntitySeed>, Edge>().seeds(pairList).build();
+        final GetElementsInRanges<Pair<EntitySeed>, Edge> op = new GetElementsInRanges.Builder<Pair<EntitySeed>, Edge>().input(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -52,7 +52,7 @@ public class GetElementsInRangesTest implements OperationTest {
         final Pair<EntitySeed> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder<>()
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
-                .addSeed(seed)
+                .input(seed)
                 .directedType(GraphFilters.DirectedType.UNDIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder().edge("testEdgeGroup").build())

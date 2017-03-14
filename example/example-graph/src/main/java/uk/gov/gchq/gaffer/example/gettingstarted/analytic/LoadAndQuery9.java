@@ -124,7 +124,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         // ---------------------------------------------------------
         final GetEntities<EntitySeed> getCardinalities =
                 new GetEntities.Builder<EntitySeed>()
-                        .addSeed(new EntitySeed("1"))
+                        .input(new EntitySeed("1"))
                         .view(new View.Builder()
                                 .entity("Cardinality", new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()

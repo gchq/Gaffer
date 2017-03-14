@@ -139,7 +139,7 @@ public class ProxyStoreBasicIT {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         CloseableIterable<Element> results = graph.execute(getElements, USER);
 
@@ -170,7 +170,7 @@ public class ProxyStoreBasicIT {
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         CloseableIterable<Element> results = graph.execute(getElements, USER);
 

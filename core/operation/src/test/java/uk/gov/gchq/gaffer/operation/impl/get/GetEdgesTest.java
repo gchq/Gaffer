@@ -59,7 +59,7 @@ public class GetEdgesTest implements OperationTest {
 
         // When
         final GetEdges op = new GetEdges.Builder<>()
-                .addSeed(seed1)
+                .input(seed1)
                 .build();
 
         // Then
@@ -72,7 +72,7 @@ public class GetEdgesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
 
         // When
-        final GetEdges op = new GetEdges.Builder<EdgeSeed>().seeds(Collections.singletonList(seed1))
+        final GetEdges op = new GetEdges.Builder<EdgeSeed>().input(Collections.singletonList(seed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -85,16 +85,15 @@ public class GetEdgesTest implements OperationTest {
         final EdgeSeed seed1 = new EdgeSeed("source1", "destination1", true);
         final EdgeSeed seed2 = new EdgeSeed("source2", "destination2", true);
         final GetEdges op = new GetEdges.Builder<>()
-                .addSeed(seed1)
-                .addSeed(seed2)
+                .input(seed1, seed2)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEdges deserialisedOp = serialiser.deserialise(json, GetEdges.class);
+        final GetEdges<?> deserialisedOp = serialiser.deserialise(json, GetEdges.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         assertFalse(itr.hasNext());
@@ -102,16 +101,14 @@ public class GetEdgesTest implements OperationTest {
 
     private void builderShouldCreatePopulatedOperationWithEdgeSeed() {
         EdgeSeed seed = new EdgeSeed("A", "B", true);
-        GetEdges op = new GetEdges.Builder<>()
-                .addSeed(seed)
+        GetEdges<?> op = new GetEdges.Builder<>()
+                .input(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertNotNull(op.getView());
-        assertEquals("true", op.getOption("testOption"));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING, op
                 .getIncludeIncomingOutGoing());
         assertEquals(seed, op.getInput().iterator().next());
@@ -122,16 +119,15 @@ public class GetEdgesTest implements OperationTest {
         final EntitySeed seed1 = new EntitySeed("identifier1");
         final EntitySeed seed2 = new EntitySeed("identifier2");
         final GetEdges op = new GetEdges.Builder<>()
-                .addSeed(seed1)
-                .addSeed(seed2)
+                .input(seed1, seed2)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetEdges deserialisedOp = serialiser.deserialise(json, GetEdges.class);
+        final GetEdges<?> deserialisedOp = serialiser.deserialise(json, GetEdges.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(seed1, itr.next());
         assertEquals(seed2, itr.next());
         TestCase.assertFalse(itr.hasNext());
@@ -139,16 +135,14 @@ public class GetEdgesTest implements OperationTest {
 
     private void builderShouldCreatePopulatedOperationWithEntitySeed() {
         final GetEdges op = new GetEdges.Builder<>()
-                .addSeed(new EntitySeed("A"))
+                .input(new EntitySeed("A"))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING, op
                 .getIncludeIncomingOutGoing());
-        assertEquals("true", op.getOption("testOption"));
         assertNotNull(op.getView());
     }
 }

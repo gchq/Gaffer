@@ -146,7 +146,7 @@ public class AccumuloStoreTest {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .input(entitySeed1)
                 .build();
         final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
@@ -157,7 +157,7 @@ public class AccumuloStoreTest {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .input(entitySeed1)
                 .build();
         CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
@@ -176,7 +176,7 @@ public class AccumuloStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .addSeed(entitySeed1)
+                .input(entitySeed1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));

@@ -79,7 +79,7 @@ public class NamedOperationExample extends OperationExample {
         // ---------------------------------------------------------
         final NamedOperation operation = new NamedOperation.Builder()
                 .name("2-hop")
-                .seeds(Collections.singletonList(new EntitySeed(2)))
+                .input(Collections.singletonList(new EntitySeed(2)))
                 .build();
         // ---------------------------------------------------------
 

@@ -64,11 +64,11 @@ public class GeneratorsIT extends AbstractStoreIT {
         // Given
         final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder<>()
-                        .addSeed(new EntitySeed(SOURCE_1))
+                        .input(new EntitySeed(SOURCE_1))
                         .build())
                 .then(new GenerateObjects.Builder<Element, DomainObject>()
                         .generator(new BasicGenerator())
-                        .outputType(new TypeReference<CloseableIterable<DomainObject>>() {
+                        ._outputType(new TypeReference<CloseableIterable<DomainObject>>() {
                         })
                         .build())
                 .build();
@@ -105,8 +105,8 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         // Then - check they were added correctly
         final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder<>()
-                .addSeed(new EntitySeed(NEW_VERTEX))
-                .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
+                .input(new EntitySeed(NEW_VERTEX))
+                .input(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));
 
         final Edge expectedEdge = new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);

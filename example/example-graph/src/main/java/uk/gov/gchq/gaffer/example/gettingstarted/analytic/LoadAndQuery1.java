@@ -82,7 +82,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         // [get] Get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
         final GetEdges<EntitySeed> query = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> results = graph.execute(query, user);
         // ---------------------------------------------------------

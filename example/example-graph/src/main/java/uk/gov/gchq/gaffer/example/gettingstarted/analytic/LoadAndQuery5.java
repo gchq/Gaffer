@@ -83,7 +83,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
         final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getEdges, basicUser);
         // ---------------------------------------------------------
@@ -102,7 +102,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .build();
 
         final GetEdges<EntitySeed> getPublicRelatedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
 
         final CloseableIterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
@@ -121,7 +121,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .build();
 
         final GetEdges<EntitySeed> getPrivateRelatedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
 
         final CloseableIterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);

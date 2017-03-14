@@ -72,7 +72,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator7())
-                        .objects(DataUtils.loadData(getData()))
+                        .input(DataUtils.loadData(getData()))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -116,7 +116,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // ---------------------------------------------------------
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetEdges.Builder<EntitySeed>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())

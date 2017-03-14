@@ -83,7 +83,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         // [get simple] Get all the edges related to vertex 1
         // ---------------------------------------------------------
         final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         final CloseableIterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
@@ -100,7 +100,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
                 .edge("red")
                 .build();
         final GetEdges<EntitySeed> getRelatedRedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .view(view)
                 .build();
         final CloseableIterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);

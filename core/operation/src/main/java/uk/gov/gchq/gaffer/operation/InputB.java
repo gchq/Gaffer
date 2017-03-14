@@ -16,12 +16,19 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.operation.graph.GraphGet;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public interface SeededGraphGet<I_ITEM, O> extends
-        SeededGet<I_ITEM, O>,
-        GraphGet<CloseableIterable<I_ITEM>, O>,
-        SeededGraphFilters {
+public interface InputB<I> {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    I getInputB();
+
+    void setInputB(final I inputB);
+
+    interface Builder<OP extends InputB<I>, I, B extends Builder<OP, I, ?>>
+            extends Operation.Builder<OP, B> {
+        default B inputB(final I inputB) {
+            _getOp().setInputB(inputB);
+            return _self();
+        }
+    }
 }

@@ -40,22 +40,22 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends SeededGraphGet<? extends SEED_TYPE, ?>, SEED_TYPE>
+public abstract class AccumuloItemRetriever<OP_TYPE extends SeededGraphGet<? extends I_ITEM, ?>, I_ITEM>
         extends AccumuloRetriever<OP_TYPE> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private final Iterable<? extends SEED_TYPE> ids;
+    private final Iterable<? extends I_ITEM> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
                                     final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
-        this.ids = operation.getSeeds();
+        this.ids = operation.getInput();
     }
 
     @Override
     public CloseableIterator<Element> iterator() {
-        final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Iterators.<I_ITEM>emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
         }
@@ -70,16 +70,16 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends SeededGraphGet<? ext
         return iterator;
     }
 
-    protected abstract void addToRanges(final SEED_TYPE seed, final Set<Range> ranges) throws RangeFactoryException;
+    protected abstract void addToRanges(final I_ITEM seed, final Set<Range> ranges) throws RangeFactoryException;
 
     protected class ElementIterator implements CloseableIterator<Element> {
-        private final Iterator<? extends SEED_TYPE> idsIterator;
+        private final Iterator<? extends I_ITEM> idsIterator;
         private int count;
         private BatchScanner scanner;
         private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
 
-        protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+        protected ElementIterator(final Iterator<? extends I_ITEM> idIterator) throws RetrieverException {
             idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();

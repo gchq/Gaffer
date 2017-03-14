@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
 import uk.gov.gchq.gaffer.spark.operation.AbstractGetSparkRDD;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 
-public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED_TYPE, RDD<Element>> {
+public abstract class AbstractGetRDD<I_ITEM> extends AbstractGetSparkRDD<I_ITEM, RDD<Element>> {
     private SparkContext sparkContext;
 
     public SparkContext getSparkContext() {
@@ -39,10 +39,10 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
         return new TypeReferenceSparkImpl.RDDElement();
     }
 
-    protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>,
-            SEED_TYPE,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ?>>
-            extends AbstractSeededGraphGet.BaseBuilder<OP_TYPE, SEED_TYPE, RDD<Element>, CHILD_CLASS> {
+    protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetRDD<I_ITEM>,
+            I_ITEM,
+            CHILD_CLASS extends BaseBuilder<OP_TYPE, I_ITEM, ?>>
+            extends AbstractSeededGraphGet.BaseBuilder<OP_TYPE, I_ITEM, RDD<Element>, CHILD_CLASS> {
 
         public BaseBuilder(final OP_TYPE op) {
             super(op);
@@ -54,15 +54,15 @@ public abstract class AbstractGetRDD<SEED_TYPE> extends AbstractGetSparkRDD<SEED
         }
     }
 
-    protected static final class Builder<OP_TYPE extends AbstractGetRDD<SEED_TYPE>, SEED_TYPE>
-            extends BaseBuilder<OP_TYPE, SEED_TYPE, Builder<OP_TYPE, SEED_TYPE>> {
+    protected static final class Builder<OP_TYPE extends AbstractGetRDD<I_ITEM>, I_ITEM>
+            extends BaseBuilder<OP_TYPE, I_ITEM, Builder<OP_TYPE, I_ITEM>> {
 
         public Builder(final OP_TYPE op) {
             super(op);
         }
 
         @Override
-        protected Builder<OP_TYPE, SEED_TYPE> self() {
+        protected Builder<OP_TYPE, I_ITEM> self() {
             return this;
         }
     }

@@ -35,4 +35,11 @@ public interface SeedMatching {
     enum SeedMatchingType {
         EQUAL, RELATED
     }
+
+    interface Builder<OP extends SeedMatching, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
+        default B seedMatching(final SeedMatchingType seedMatchingType) {
+            _getOp().setSeedMatching(seedMatchingType);
+            return _self();
+        }
+    }
 }

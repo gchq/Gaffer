@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.Get;
+import uk.gov.gchq.gaffer.operation.Output;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -330,7 +330,7 @@ public class ExamplesService implements IExamplesService {
         return graphFactory.getGraph().getSchema();
     }
 
-    private void populateOperation(final Get operation) {
+    private void populateOperation(final Output operation) {
         populateOperation((Operation) operation);
 
         View.Builder viewBuilder = generateViewBuilder();

@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -49,13 +48,11 @@ public class GetAllElementsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertEquals("true", getAllElements.getOption("testOption"));
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

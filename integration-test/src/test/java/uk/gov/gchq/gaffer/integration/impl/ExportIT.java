@@ -70,7 +70,7 @@ public class ExportIT extends AbstractStoreIT {
         // Given
         final OperationChain<CloseableIterable<?>> exportOpChain = new Builder()
                 .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+                        .input(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new ExportToSet())
                 .then(new GenerateObjects.Builder<Edge, EntitySeed>()

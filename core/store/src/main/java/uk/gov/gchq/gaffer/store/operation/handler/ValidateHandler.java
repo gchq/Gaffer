@@ -35,8 +35,8 @@ public class ValidateHandler implements OperationHandler<Validate, Iterable<Elem
     public Iterable<Element> doOperation(final Validate operation,
                                          final Context context, final Store store)
             throws OperationException {
-        return null != operation.getElements()
-                ? new ValidatedElements(operation.getElements(), store.getSchema(), operation.isSkipInvalidElements())
+        return null != operation.getInput()
+                ? new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements())
                 : null;
     }
 }

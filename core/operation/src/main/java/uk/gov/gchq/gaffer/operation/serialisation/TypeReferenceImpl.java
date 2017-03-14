@@ -47,6 +47,10 @@ public class TypeReferenceImpl {
             TypeReference<CloseableIterable<java.lang.Object>> {
     }
 
+    public static <T> TypeReference<CloseableIterable<T>> createCloseableIterableT() {
+        return (TypeReference) new CloseableIterableObj();
+    }
+
     public static class CloseableIterableElement extends
             TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
     }
@@ -71,5 +75,8 @@ public class TypeReferenceImpl {
     }
 
     public static class JobDetail extends TypeReference<uk.gov.gchq.gaffer.jobtracker.JobDetail> {
+    }
+
+    public static class JobDetailIterable extends TypeReference<CloseableIterable<uk.gov.gchq.gaffer.jobtracker.JobDetail>> {
     }
 }

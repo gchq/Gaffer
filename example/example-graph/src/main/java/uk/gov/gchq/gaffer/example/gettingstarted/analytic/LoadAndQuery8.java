@@ -79,7 +79,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator8())
-                        .objects(DataUtils.loadData(getData()))
+                        .input(DataUtils.loadData(getData()))
                         .build())
                 .then(new AddElements())
                 .build();

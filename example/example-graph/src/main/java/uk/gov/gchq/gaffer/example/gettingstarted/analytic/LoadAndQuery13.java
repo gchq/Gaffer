@@ -65,7 +65,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator13())
-                        .objects(dummyData)
+                        .input(dummyData)
                         .build())
                 .then(new AddElements())
                 .build();

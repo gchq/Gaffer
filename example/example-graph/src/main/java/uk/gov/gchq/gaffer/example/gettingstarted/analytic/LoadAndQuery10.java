@@ -85,7 +85,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
         // [get frequencies of 1L and 9L] Get the edge A-B and print estimates of frequencies of 1L and 9L
         // ---------------------------------------------------------
         final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", false))
                 .build();
         final Iterable<Edge> edges = graph.execute(query, user);
         final Edge edge = edges.iterator().next();

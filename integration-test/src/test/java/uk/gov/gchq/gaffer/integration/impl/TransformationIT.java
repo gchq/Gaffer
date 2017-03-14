@@ -78,7 +78,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void shouldNotStoreEntityPropertiesThatAreNotInSchema() throws OperationException {
         // Given
         final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .build();
 
         // When
@@ -101,7 +101,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void shouldNotStoreEdgePropertiesThatAreNotInSchema() throws OperationException {
         // Given
         final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
+                .input(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
                 .build();
 
         // When
@@ -121,7 +121,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void shouldCreateTransientEntityProperty() throws OperationException {
         // Given
         final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("A1"))
+                .input(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
@@ -150,7 +150,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void shouldCreateTransientEdgeProperty() throws OperationException {
         // Given
         final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed(SOURCE_1, DEST_1, false))
+                .input(new EdgeSeed(SOURCE_1, DEST_1, false))
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .transientProperty(TestPropertyNames.TRANSIENT_1, String.class)
@@ -177,7 +177,7 @@ public class TransformationIT extends AbstractStoreIT {
     public void shouldTransformExistingProperty() throws OperationException {
         // Given
         final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("A1"))
+                .input(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()

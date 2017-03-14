@@ -56,7 +56,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         final RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo op =
                 new ImportKeyValuePairRDDToAccumulo.Builder()
-                        .input(rdd)
+                        .seeds(rdd)
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();

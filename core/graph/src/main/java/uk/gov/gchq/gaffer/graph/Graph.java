@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.WithView;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -162,22 +162,22 @@ public final class Graph {
     private <OUTPUT> void updateOperationChainView(final OperationChain<OUTPUT> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
 
-            if (operation instanceof Get) {
-                final Get get = ((Get) operation);
+            if (operation instanceof WithView) {
+                final WithView viewFilters = ((WithView) operation);
                 final View opView;
-                if (null == get.getView()) {
+                if (null == viewFilters.getView()) {
                     opView = view;
-                } else if (!get.getView().hasGroups()) {
+                } else if (!viewFilters.getView().hasGroups()) {
                     opView = new View.Builder()
                             .merge(view)
-                            .merge(get.getView())
+                            .merge(viewFilters.getView())
                             .build();
                 } else {
-                    opView = get.getView();
+                    opView = viewFilters.getView();
                 }
 
                 opView.expandGlobalDefinitions();
-                get.setView(opView);
+                viewFilters.setView(opView);
             }
         }
     }

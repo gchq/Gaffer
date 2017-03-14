@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.IterableOutput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import java.util.Collections;
 
 /**
@@ -36,29 +40,12 @@ public class GetAllEdges extends GetAllElements<Edge> {
         }
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends GetAllElements.BaseBuilder<GetAllEdges, Edge, CHILD_CLASS> {
-        public BaseBuilder() {
-            this(new GetAllEdges());
-        }
-
-        public BaseBuilder(final GetAllEdges op) {
-            super(op);
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
+    public static class Builder extends Operation.BaseBuilder<GetAllEdges, Builder>
+            implements IterableOutput.Builder<GetAllEdges, Edge, Builder>,
+            GraphFilters.Builder<GetAllEdges, Builder>,
+            Options.Builder<GetAllEdges, Builder>{
         public Builder() {
-            this(new GetAllEdges());
-        }
-
-        public Builder(final GetAllEdges op) {
-            super(op);
-        }
-
-        @Override
-        public Builder self() {
-            return this;
+            super(new GetAllEdges());
         }
     }
 }

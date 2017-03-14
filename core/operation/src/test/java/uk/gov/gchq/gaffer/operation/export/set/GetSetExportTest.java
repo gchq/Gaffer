@@ -20,7 +20,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
@@ -34,9 +33,9 @@ public class GetSetExportTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetExport operation = new GetSetExport.Builder()
+        final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
-                .jobId("jobId")
+                .input("jobId")
                 .start(0)
                 .end(5)
                 .build();
@@ -47,7 +46,7 @@ public class GetSetExportTest implements OperationTest {
 
         // Then
         assertEquals("key", deserialisedOp.getKey());
-        assertEquals("jobId", deserialisedOp.getJobId());
+        assertEquals("jobId", deserialisedOp.getInput());
         assertEquals(0, deserialisedOp.getStart());
         assertEquals(5, (int) deserialisedOp.getEnd());
     }
@@ -58,14 +57,14 @@ public class GetSetExportTest implements OperationTest {
         // When
         final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
-                .jobId("jobId")
+                .input("jobId")
                 .start(0)
                 .end(5)
                 .build();
 
         // Then
         assertEquals("key", operation.getKey());
-        assertEquals("jobId", operation.getJobId());
+        assertEquals("jobId", operation.getInput());
         assertEquals(0, operation.getStart());
         assertEquals(5, (int) operation.getEnd());
     }

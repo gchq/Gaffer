@@ -41,7 +41,7 @@ public class GetEntitiesInRangesExample extends OperationExample {
     public Iterable<Entity> getAllEntitiesInTheRangeFromEntity1toEntity4() {
         // ---------------------------------------------------------
         final GetEntitiesInRanges<Pair<EntitySeed>> operation = new GetEntitiesInRanges.Builder<Pair<EntitySeed>>()
-                .addSeed(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
+                .input(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
                 .build();
         // ---------------------------------------------------------
 
@@ -51,7 +51,7 @@ public class GetEntitiesInRangesExample extends OperationExample {
     public Iterable<Entity> getAllEntitiesInTheRangeFromEntity4ToEdge4_5() {
         // ---------------------------------------------------------
         final GetEntitiesInRanges<Pair<ElementSeed>> operation = new GetEntitiesInRanges.Builder<Pair<ElementSeed>>()
-                .addSeed(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
+                .input(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
                 .build();
         // ---------------------------------------------------------
 

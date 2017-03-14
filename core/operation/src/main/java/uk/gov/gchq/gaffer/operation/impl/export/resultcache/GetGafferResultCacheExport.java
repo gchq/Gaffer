@@ -16,24 +16,43 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
+import uk.gov.gchq.gaffer.operation.Input;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
 
-public class GetGafferResultCacheExport extends GetExport {
-    public abstract static class BaseBuilder<OP extends GetGafferResultCacheExport, CHILD_CLASS extends BaseBuilder<OP, ?>>
-            extends GetExport.BaseBuilder<OP, CHILD_CLASS> {
-        protected BaseBuilder(final OP export) {
-            super(export);
-        }
+public class GetGafferResultCacheExport implements
+        Operation,
+        GetExport,
+        Input<String> {
+    private String jobId;
+    private String key;
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public static final class Builder extends BaseBuilder<GetGafferResultCacheExport, Builder> {
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getInput() {
+        return jobId;
+    }
+
+    @Override
+    public void setInput(final String jobId) {
+        this.jobId = jobId;
+    }
+
+    public static class Builder
+            extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
+            implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
+            Input.Builder<GetGafferResultCacheExport, String, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

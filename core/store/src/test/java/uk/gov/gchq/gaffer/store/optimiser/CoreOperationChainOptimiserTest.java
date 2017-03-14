@@ -51,7 +51,7 @@ public class CoreOperationChainOptimiserTest {
         given(validatable1.getOptions()).willReturn(options);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable1.isValidate()).willReturn(true);
-        given(validatable1.getElements()).willReturn(elements);
+        given(validatable1.getInput()).willReturn(elements);
 
 
         // When
@@ -59,10 +59,10 @@ public class CoreOperationChainOptimiserTest {
 
         // Then
         assertEquals(2, optimisedOpChain.getOperations().size());
-        assertSame(elements, ((Validate) optimisedOpChain.getOperations().get(0)).getElements());
+        assertSame(elements, ((Validate) optimisedOpChain.getOperations().get(0)).getInput());
         assertSame(options, optimisedOpChain.getOperations().get(0).getOptions());
         assertSame(validatable1, optimisedOpChain.getOperations().get(1));
-        verify(validatable1).setElements(null);
+        verify(validatable1).setInput(null);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CoreOperationChainOptimiserTest {
 
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable1.isValidate()).willReturn(false);
-        given(validatable1.getElements()).willReturn(elements);
+        given(validatable1.getInput()).willReturn(elements);
 
 
         // When
@@ -86,7 +86,7 @@ public class CoreOperationChainOptimiserTest {
         // Then
         assertEquals(1, optimisedOpChain.getOperations().size());
         assertSame(validatable1, optimisedOpChain.getOperations().get(0));
-        verify(validatable1, never()).setElements(null);
+        verify(validatable1, never()).setInput(null);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class CoreOperationChainOptimiserTest {
                 .build();
 
 
-        given(validatable1.getElements()).willReturn(elements);
+        given(validatable1.getInput()).willReturn(elements);
         given(validatable1.isSkipInvalidElements()).willReturn(skipInvalidElements);
         given(validatable2.isSkipInvalidElements()).willReturn(skipInvalidElements);
 
@@ -150,10 +150,10 @@ public class CoreOperationChainOptimiserTest {
         assertSame(validatable2, optimisedOpChain.getOperations().get(3));
         assertSame(nonValidatable1, optimisedOpChain.getOperations().get(4));
         assertTrue(optimisedOpChain.getOperations().get(5) instanceof Validate);
-        assertSame(elements, ((Validate) optimisedOpChain.getOperations().get(5)).getElements());
+        assertSame(elements, ((Validate) optimisedOpChain.getOperations().get(5)).getInput());
         assertSame(validatable1, optimisedOpChain.getOperations().get(6));
-        verify(validatable2).setElements(null);
-        verify(validatable1).setElements(null);
-        verify(validatable3, never()).setElements(null);
+        verify(validatable2).setInput(null);
+        verify(validatable1).setInput(null);
+        verify(validatable3, never()).setInput(null);
     }
 }

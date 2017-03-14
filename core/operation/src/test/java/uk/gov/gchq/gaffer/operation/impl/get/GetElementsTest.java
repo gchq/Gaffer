@@ -43,7 +43,7 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementSeed1))
+        final GetElements op = new GetElements.Builder<>().input(Collections.singletonList(elementSeed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -56,16 +56,15 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
         final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementSeed1)
-                .addSeed(elementSeed2)
+                .input(elementSeed1, elementSeed2)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
+        final GetElements<?, ?> deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(elementSeed1, itr.next());
         assertEquals(elementSeed2, itr.next());
         assertFalse(itr.hasNext());
@@ -73,9 +72,8 @@ public class GetElementsTest implements OperationTest {
 
     private void builderShouldCreatePopulatedOperationAll() {
         final GetElements op = new GetElements.Builder<>()
-                .addSeed(new EntitySeed("A"))
+                .input(new EntitySeed("A"))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
@@ -83,7 +81,6 @@ public class GetElementsTest implements OperationTest {
 
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH,
                 op.getIncludeIncomingOutGoing());
-        assertEquals("true", op.getOption("testOption"));
         assertNotNull(op.getView());
     }
 
@@ -94,8 +91,7 @@ public class GetElementsTest implements OperationTest {
 
         // When
         final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementSeed1)
-                .addSeed(elementSeed2)
+                .input(elementSeed1, elementSeed2)
                 .build();
 
         // Then
@@ -104,19 +100,17 @@ public class GetElementsTest implements OperationTest {
 
     private void builderShouldCreatePopulatedOperationIncoming() {
         ElementSeed seed = new EntitySeed("A");
-        GetElements op = new GetElements.Builder<>()
-                .addSeed(seed)
+        GetElements<?, ?> op = new GetElements.Builder<>()
+                .input(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals("true", op.getOption("testOption"));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, op
                 .getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getSeeds().iterator().next());
+        assertEquals(seed, op.getInput().iterator().next());
     }
 
     @Test

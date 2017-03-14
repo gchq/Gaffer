@@ -20,39 +20,39 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 
-public class GetJavaRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetJavaRDD<SEED_TYPE> {
+public class GetJavaRDDOfElements<I_ITEM extends ElementSeed> extends AbstractGetJavaRDD<I_ITEM> {
 
     public GetJavaRDDOfElements() {
     }
 
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<I_ITEM> seeds) {
         this(sparkContext, new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final CloseableIterable<I_ITEM> seeds) {
         setJavaSparkContext(sparkContext);
         setInput(seeds);
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
+    public abstract static class BaseBuilder<I_ITEM extends ElementSeed, CHILD_CLASS extends BaseBuilder<I_ITEM, ?>>
+            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<I_ITEM>, I_ITEM, CHILD_CLASS> {
 
         public BaseBuilder() {
-            this(new GetJavaRDDOfElements<SEED_TYPE>());
+            this(new GetJavaRDDOfElements<I_ITEM>());
         }
 
-        public BaseBuilder(final GetJavaRDDOfElements<SEED_TYPE> op) {
+        public BaseBuilder(final GetJavaRDDOfElements<I_ITEM> op) {
             super(op);
         }
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed>
-            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
+    public static final class Builder<I_ITEM extends ElementSeed>
+            extends BaseBuilder<I_ITEM, Builder<I_ITEM>> {
 
         public Builder() {
         }
 
-        public Builder(final GetJavaRDDOfElements<SEED_TYPE> op) {
+        public Builder(final GetJavaRDDOfElements<I_ITEM> op) {
             super(op);
         }
 

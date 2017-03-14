@@ -144,7 +144,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(defaultView).seeds(seeds).build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -176,7 +176,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).seeds(seeds).build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -205,7 +205,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).seeds(seeds).build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -234,7 +234,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).seeds(seeds).build();
+        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);

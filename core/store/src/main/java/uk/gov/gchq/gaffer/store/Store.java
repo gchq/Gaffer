@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.WithView;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
@@ -361,8 +361,8 @@ public abstract class Store {
 
         for (final Operation<?, ?> op : operationChain.getOperations()) {
             final View opView;
-            if (op instanceof Get) {
-                opView = ((Get) op).getView();
+            if (op instanceof WithView) {
+                opView = ((WithView) op).getView();
             } else {
                 opView = null;
             }

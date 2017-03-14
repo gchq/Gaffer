@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.impl.export.set;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.impl.export.Export;
 
-public interface SeededGraphGetIterable<I_ITEM, O_ITEM> extends
-        SeededGetIterable<I_ITEM, O_ITEM>,
-        SeededGraphGet<I_ITEM, CloseableIterable<O_ITEM>> {
+public interface GetExport extends Export {
+    interface Builder<OP extends GetExport, B extends Builder<OP, ?>>
+            extends Export.Builder<OP, B> {
+    }
 }

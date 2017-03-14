@@ -60,11 +60,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
                 new GetElements.Builder<>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .build();
 
         final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -103,11 +103,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
                 new GetElements.Builder<>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .build();
 
         final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -154,11 +154,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
                 new GetElements.Builder<>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .build();
 
         final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -215,11 +215,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
                 new GetElements.Builder<>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .build();
 
         final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -266,11 +266,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
                 new GetElements.Builder<>()
-                        .seeds(seeds)
+                        .input(seeds)
                         .build();
 
         final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()

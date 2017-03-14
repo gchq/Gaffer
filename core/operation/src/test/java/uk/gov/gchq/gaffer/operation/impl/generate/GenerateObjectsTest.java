@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -55,16 +54,16 @@ public class GenerateObjectsTest implements OperationTest {
         }
 
         final GenerateObjects<Element, String> op = new GenerateObjects.Builder<Element, String>()
-                .elements(elements)
+                .input(elements)
                 .generator(new ElementGeneratorImpl())
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GenerateObjects deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
+        final GenerateObjects<Element, ?> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
 
         // Then
-        final Iterator<Element> itr = deserialisedOp.getElements().iterator();
+        final Iterator<Element> itr = deserialisedOp.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
         assertEquals("vertex 1", elm1.getVertex());
@@ -87,9 +86,11 @@ public class GenerateObjectsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element entity = new Entity("testEntityGroup", "A");
-        GenerateObjects generateObjects = new GenerateObjects.Builder<Element, String>().elements(Arrays.asList(entity)).generator(new ElementGeneratorImpl()).option("testOption", "true").build();
-        assertEquals(entity, generateObjects.getElements().iterator().next());
+        GenerateObjects<?, ?> generateObjects = new GenerateObjects.Builder<Element, String>()
+                .input(entity)
+                .generator(new ElementGeneratorImpl())
+                .build();
+        assertEquals(entity, generateObjects.getInput().iterator().next());
         assertEquals(ElementGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
-        assertEquals("true", generateObjects.getOption("testOption"));
     }
 }

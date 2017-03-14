@@ -120,7 +120,7 @@ public class GafferResultCacheExporter implements Exporter {
 
     public CloseableIterable<?> get(final String key) throws OperationException {
         final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed(jobId, key, true))
+                .input(new EdgeSeed(jobId, key, true))
                 .view(new View.Builder()
                         .edge("result", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

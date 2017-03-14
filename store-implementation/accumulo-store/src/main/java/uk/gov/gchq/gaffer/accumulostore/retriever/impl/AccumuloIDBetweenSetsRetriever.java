@@ -21,7 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
+import uk.gov.gchq.gaffer.accumulostore.operation.IterableInputB;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
@@ -74,19 +74,19 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
 
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+                                          final IterableInputB<EntitySeed, ?> operation,
                                           final User user,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final AbstractAccumuloTwoSetSeededOperation<EntitySeed, ?> operation,
+                                          final IterableInputB<EntitySeed, ?> operation,
                                           final User user,
                                           final boolean readEntriesIntoMemory,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
-        setSeeds(operation.getSeeds(), operation.getSeedsB());
+        setSeeds(operation.getInput(), operation.getInputB());
     }
 
     private void setSeeds(final Iterable<EntitySeed> setA, final Iterable<EntitySeed> setB) {

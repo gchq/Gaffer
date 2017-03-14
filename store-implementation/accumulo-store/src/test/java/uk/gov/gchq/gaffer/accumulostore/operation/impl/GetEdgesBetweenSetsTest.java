@@ -37,7 +37,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final GetEdgesBetweenSets op = new GetEdgesBetweenSets.Builder()
-                .seeds(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
+                .input(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
                 .seedsB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
                 .build();
 
@@ -52,7 +52,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
 
-        final Iterator itrSeedsB = deserialisedOp.getSeedsB().iterator();
+        final Iterator itrSeedsB = deserialisedOp.getInputB().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsB.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsB.next());
         assertFalse(itrSeedsB.hasNext());
@@ -64,7 +64,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final GetEdgesBetweenSets getEdgesBetweenSets = new GetEdgesBetweenSets.Builder()
                 .directedType(GraphFilters.DirectedType.DIRECTED)
-                .addSeed(AccumuloTestData.SEED_A)
+                .input(AccumuloTestData.SEED_A)
                 .addSeedB(AccumuloTestData.SEED_B)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
@@ -76,7 +76,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(AccumuloTestData.SEED_A, getEdgesBetweenSets.getSeeds().iterator().next());
-        assertEquals(AccumuloTestData.SEED_B, getEdgesBetweenSets.getSeedsB().iterator().next());
+        assertEquals(AccumuloTestData.SEED_B, getEdgesBetweenSets.getInputB().iterator().next());
         assertNotNull(getEdgesBetweenSets.getView());
     }
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.export.Export;
 
 /**
@@ -24,22 +25,23 @@ import uk.gov.gchq.gaffer.operation.impl.export.Export;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-public class ExportToSet extends Export {
-    public abstract static class BaseBuilder<EXPORT extends ExportToSet, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
-            extends Export.BaseBuilder<ExportToSet, CHILD_CLASS> {
-        public BaseBuilder(final ExportToSet export) {
-            super(export);
-        }
+public class ExportToSet implements Operation, Export {
+    private String key;
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public static final class Builder extends BaseBuilder<ExportToSet, Builder> {
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public static final class Builder extends Operation.BaseBuilder<ExportToSet, Builder>
+            implements Export.Builder<ExportToSet, Builder> {
         public Builder() {
             super(new ExportToSet());
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

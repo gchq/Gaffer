@@ -88,7 +88,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View())
                 .build();
 
@@ -146,7 +146,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER)
@@ -199,7 +199,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy()
@@ -243,7 +243,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
@@ -287,7 +287,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
@@ -383,7 +383,7 @@ public class AccumuloAggregationIT {
 
         // Given
         final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)

@@ -140,7 +140,7 @@ public class AggregatorIteratorTest {
 
         final GetEdges<EntitySeed> get = new GetEdges.Builder<EntitySeed>()
                 .view(defaultView)
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
 
         // When

@@ -59,7 +59,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
             final GetEdges<EntitySeed> getEdges = new GetEdges<>();
             getEdges.setOptions(new HashMap<>(operation.getOptions()));
             getEdges.setView(operation.getView());
-            getEdges.setSeeds(operation.getSeeds());
+            getEdges.setInput(operation.getInput());
             getEdges.setDirectedType(operation.getDirectedType());
             getEdges.setIncludeIncomingOutGoing(operation.getIncludeIncomingOutGoing());
 

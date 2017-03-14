@@ -102,7 +102,7 @@ public class ImportJavaRDDOfElementsHandlerTest {
         final JavaRDD<Element> elementJavaRDD = sparkContext.parallelize(elements);
         final ImportJavaRDDOfElements addRdd = new ImportJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
-                .input(elementJavaRDD)
+                .seeds(elementJavaRDD)
                 .option("outputPath", outputPath)
                 .option("failurePath", failurePath)
                 .build();

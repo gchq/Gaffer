@@ -43,7 +43,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final Pair<EntitySeed> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
-        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges.Builder<Pair<EntitySeed>>().seeds(pairList).build();
+        final GetEdgesInRanges<Pair<EntitySeed>> op = new GetEdgesInRanges.Builder<Pair<EntitySeed>>().input(pairList).build();
         // When
         byte[] json = serialiser.serialise(op, true);
 
@@ -64,7 +64,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final GetEdgesInRanges getEdgesInRanges = new GetEdgesInRanges.Builder<>()
                 .directedType(GraphFilters.DirectedType.DIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
-                .addSeed(seed)
+                .input(seed)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
