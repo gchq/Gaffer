@@ -77,8 +77,8 @@ import static org.junit.Assert.assertTrue;
  * than looking up data that is present.
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
-public class BloomFilterIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
+public class BloomFilter17IT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilter17IT.class);
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
@@ -163,8 +163,8 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
-        final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .openWriter(filename, fs, conf, accumuloConf);
+
+        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf,accumuloConf);
 
         try {
             // Write data to file
@@ -183,8 +183,8 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
+
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
