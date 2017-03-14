@@ -33,6 +33,7 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -90,6 +91,9 @@ public final class TableUtils {
         if (connector.tableOperations().exists(tableName)) {
             LOGGER.info("Table {} exists, not creating", tableName);
             return;
+        }
+        if (null == tableName) {
+            throw new AccumuloRuntimeException("Table name not specified.");
         }
         try {
             LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());

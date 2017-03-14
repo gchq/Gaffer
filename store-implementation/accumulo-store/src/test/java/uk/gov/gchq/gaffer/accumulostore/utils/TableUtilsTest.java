@@ -23,6 +23,8 @@ import org.apache.hadoop.io.Text;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.AggregatorIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
@@ -31,6 +33,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -42,6 +45,7 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class TableUtilsTest {
     public static final String TABLE_NAME = "table1";
@@ -177,5 +181,31 @@ public class TableUtilsTest {
         }
 
         assertEquals(0, Integer.parseInt(tableProps.get(Property.TABLE_FILE_REPLICATION.getKey())));
+    }
+
+    @Test(expected = AccumuloRuntimeException.class)
+    public void shouldThrowExceptionIfTableNameIsNotSpecified() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .type("int", Integer.class)
+                .type("string", String.class)
+                .type("boolean", Boolean.class)
+                .edge("EDGE", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("boolean")
+                        .build())
+                .build();
+
+        final AccumuloProperties properties = new AccumuloProperties();
+        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .addSchema(schema)
+                .storeProperties(properties)
+                .build();
+
+        fail("The expected exception was not thrown.");
     }
 }
