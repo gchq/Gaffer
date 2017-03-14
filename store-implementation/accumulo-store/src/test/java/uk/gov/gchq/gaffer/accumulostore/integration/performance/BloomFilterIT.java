@@ -25,6 +25,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.file.FileOperations;
+import org.apache.accumulo.core.file.FileOperations.OpenWriterOperationBuilder;
 import org.apache.accumulo.core.file.FileSKVIterator;
 import org.apache.accumulo.core.file.FileSKVWriter;
 import org.apache.accumulo.core.file.rfile.RFile;
@@ -163,8 +164,13 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
+
         final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .openWriter(filename, fs, conf, accumuloConf);
+                                                   .newWriterBuilder()
+                                                   .forFile(filename)
+                                                   .inFileSystem(fs, conf)
+                                                   .withTableConfiguration(accumuloConf)
+                                                   .build();
 
         try {
             // Write data to file
@@ -184,7 +190,13 @@ public class BloomFilterIT {
 
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .openReader(filename, false, fs, conf, accumuloConf);
+                                                     .newReaderBuilder()
+                                                     .forFile(filename)
+                                                     .inFileSystem(fs, conf)
+                                                     .withTableConfiguration(accumuloConf)
+                                                     .seekToBeginning(false)
+                                                     .build();
+
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;

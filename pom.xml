@@ -51,7 +51,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
-        <accumulo.version>1.7.2</accumulo.version>
+        <accumulo.version>1.8.0</accumulo.version>
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
         <jackson.compile.version>2.6.5</jackson.compile.version>
