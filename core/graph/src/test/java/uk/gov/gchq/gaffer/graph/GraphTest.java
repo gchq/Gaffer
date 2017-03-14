@@ -32,8 +32,11 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
+import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -72,6 +75,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
@@ -489,8 +493,47 @@ public class GraphTest {
                     .addSchema(new Schema())
                     .storeProperties(new StoreProperties())
                     .build();
+            fail("exception expected");
         } catch (final IllegalArgumentException e) {
             assertEquals("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS, e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(StoreImpl.class.getName());
+        try {
+            new Graph.Builder()
+                    .addSchema(new Schema.Builder()
+                            .type("intnoagg", new TypeDefinition.Builder()
+                                    .clazz(Integer.class)
+                                    .build())
+                            .type("int", new TypeDefinition.Builder()
+                                    .clazz(Integer.class)
+                                    .aggregateFunction(new Sum())
+                                    .build())
+                            .type("string", new TypeDefinition.Builder()
+                                    .clazz(String.class)
+                                    .aggregateFunction(new StringConcat())
+                                    .build())
+                            .type("boolean", Boolean.class)
+                            .edge("EDGE", new SchemaEdgeDefinition.Builder()
+                                    .source("string")
+                                    .destination("string")
+                                    .directed("boolean")
+                                    .property("p", "intnoagg")
+                                    .build())
+                            .entity("ENTITY", new SchemaEntityDefinition.Builder()
+                                    .vertex("string")
+                                    .property("p2", "int")
+                                    .build())
+                            .build())
+                    .storeProperties(storeProperties)
+                    .build();
+            fail("exception expected");
+        } catch (final SchemaException e) {
+            assertNotNull(e.getMessage());
         }
     }
 

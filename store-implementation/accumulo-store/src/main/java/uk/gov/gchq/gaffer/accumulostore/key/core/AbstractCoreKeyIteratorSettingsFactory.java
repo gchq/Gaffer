@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.impl.RowIDAggregator;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -73,7 +72,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
-        if (!TableUtils.schemaContainsAggregators(store.getSchema())) {
+        if (!store.getSchema().hasAggregators()) {
             return null;
         }
 
@@ -113,7 +112,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
         Schema schema = store.getSchema();
-        if (!TableUtils.schemaContainsAggregators(schema)) {
+        if (!schema.hasAggregators()) {
             return false;
         }
 

@@ -100,6 +100,23 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
+     * Checks the schema has aggregators.
+     *
+     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
+     */
+    public boolean hasAggregators() {
+        boolean schemaContainsAggregators = false;
+
+        for (final TypeDefinition type : types.values()) {
+            if (null != type.getAggregateFunction()) {
+                schemaContainsAggregators = true;
+            }
+        }
+
+        return schemaContainsAggregators;
+    }
+
+    /**
      * Validates the schema to ensure all element definitions are valid.
      * Throws a SchemaException if it is not valid.
      *
@@ -115,12 +132,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
+        final boolean hasAggregators = hasAggregators();
+
         for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
 
-            if (!elementDefEntry.getValue().validate()) {
+            if (!elementDefEntry.getValue().validate(hasAggregators)) {
                 LOGGER.warn("VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
                 return false;
             }
@@ -131,7 +150,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
 
-            if (!elementDefEntry.getValue().validate()) {
+            if (!elementDefEntry.getValue().validate(hasAggregators)) {
                 LOGGER.warn("VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
                 return false;
             }

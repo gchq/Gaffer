@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -111,7 +109,7 @@ public final class TableUtils {
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-            if (schemaContainsAggregators(store.getSchema())) {
+            if (store.getSchema().hasAggregators()) {
                 // Add Combiner iterator to table for all scopes
                 LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
                 connector.tableOperations().attachIterator(tableName,
@@ -199,27 +197,6 @@ public final class TableUtils {
         } catch (AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Checks the given {@link uk.gov.gchq.gaffer.store.schema.Schema} and determines
-     * whether the types specified by the schema contain aggregators.
-     *
-     * @param schema the schema
-     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
-     */
-    public static boolean schemaContainsAggregators(final Schema schema) {
-        boolean schemaContainsAggregators = false;
-
-        final Map<String, TypeDefinition> types = schema.getTypes();
-
-        for (final TypeDefinition type : types.values()) {
-            if (null != type.getAggregateFunction()) {
-                schemaContainsAggregators = true;
-            }
-        }
-
-        return schemaContainsAggregators;
     }
 
     /**
