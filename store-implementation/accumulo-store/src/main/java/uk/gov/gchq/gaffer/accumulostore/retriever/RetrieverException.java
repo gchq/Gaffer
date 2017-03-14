@@ -16,15 +16,19 @@
 
 package uk.gov.gchq.gaffer.accumulostore.retriever;
 
-public class RetrieverException extends Exception {
+import uk.gov.gchq.gaffer.core.exception.GafferCheckedException;
+
+import static uk.gov.gchq.gaffer.core.exception.Status.INTERNAL_SERVER_ERROR;
+
+public class RetrieverException extends GafferCheckedException {
 
     private static final long serialVersionUID = -5471324536508286444L;
 
     public RetrieverException(final String message, final Throwable e) {
-        super(message, e);
+        super(message, e, INTERNAL_SERVER_ERROR);
     }
 
     public RetrieverException(final Throwable e) {
-        super(e);
+        super(e, INTERNAL_SERVER_ERROR);
     }
 }
