@@ -20,7 +20,10 @@ import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ReservoirStringsUnionSerialiserTest {
     private static final ReservoirStringsUnionSerialiser SERIALISER = new ReservoirStringsUnionSerialiser();

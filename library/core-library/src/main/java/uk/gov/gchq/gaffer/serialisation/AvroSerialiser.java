@@ -50,7 +50,7 @@ public class AvroSerialiser implements Serialisation<Object> {
             dataFileWriter.create(schema, byteOut);
             dataFileWriter.append(object);
             dataFileWriter.flush();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise given object of class: " + object.getClass().getName(), e);
         } finally {
             close(dataFileWriter);
@@ -63,7 +63,7 @@ public class AvroSerialiser implements Serialisation<Object> {
         try (final InputStream inputStream = new ByteArrayInputStream(bytes);
              final DataFileStream<Object> in = new DataFileStream<>(inputStream, datumReader)) {
             return in.next();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
         }
     }
@@ -97,7 +97,7 @@ public class AvroSerialiser implements Serialisation<Object> {
         try {
             in = new DataFileStream<>(new ByteArrayInputStream(bytes), datumReader);
             ret = in.next();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
         } finally {
             close(in);
@@ -109,8 +109,8 @@ public class AvroSerialiser implements Serialisation<Object> {
         if (close != null) {
             try {
                 close.close();
-            } catch (IOException e) {
-                LOGGER.warn("Resource leak: unable to close stream in AvroSerialiser.class");
+            } catch (final IOException e) {
+                LOGGER.warn("Resource leak: unable to close stream in AvroSerialiser.class", e);
             }
         }
     }

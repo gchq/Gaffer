@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -91,14 +90,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator");
+                LOGGER.error(e.getMessage() + " returning empty iterator", e);
                 return new EmptyCloseableIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator");
+                LOGGER.error(e.getMessage() + " returning empty iterator", e);
                 return new EmptyCloseableIterator<>();
             }
         }
@@ -346,7 +345,7 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
 
             try {
                 scanner = getScanner(ranges);
-            } catch (TableNotFoundException | StoreException e) {
+            } catch (final TableNotFoundException | StoreException e) {
                 throw new RetrieverException(e);
             }
             try {

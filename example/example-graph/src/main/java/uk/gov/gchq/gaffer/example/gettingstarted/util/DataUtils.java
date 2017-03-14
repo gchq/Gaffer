@@ -27,7 +27,7 @@ public final class DataUtils {
         List<String> lines = null;
         try {
             lines = IOUtils.readLines(dataStream);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(dataStream);

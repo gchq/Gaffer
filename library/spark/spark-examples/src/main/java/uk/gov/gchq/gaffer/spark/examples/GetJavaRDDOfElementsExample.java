@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.List;
 
 /**
@@ -66,6 +65,7 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
             throw new RuntimeException(e);
         }
         sc.stop();
+        ROOT_LOGGER.setLevel(Level.INFO);
     }
 
     public void getJavaRddOfElements(final JavaSparkContext sc, final Graph graph) throws OperationException {

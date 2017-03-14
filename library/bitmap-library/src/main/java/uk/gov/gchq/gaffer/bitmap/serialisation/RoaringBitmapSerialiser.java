@@ -17,11 +17,9 @@ package uk.gov.gchq.gaffer.bitmap.serialisation;
 
 
 import org.roaringbitmap.RoaringBitmap;
-
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -44,7 +42,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
         DataOutputStream out = new DataOutputStream(byteOut);
         try {
             value.serialize(out);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return byteOut.toByteArray();
@@ -58,7 +56,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
         DataInputStream in = new DataInputStream(byteIn);
         try {
             value.deserialize(in);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return value;

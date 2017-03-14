@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key;
 
-public class IteratorException extends RuntimeException {
+public class IteratorException extends AccumuloRuntimeException {
 
     private static final long serialVersionUID = 3033262442319613611L;
 

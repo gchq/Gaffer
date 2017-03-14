@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -33,11 +36,10 @@ import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporter;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporters;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
+import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -53,19 +55,23 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
+import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExporterHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportersHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.UpdateExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.CoreOperationChainOptimiser;
@@ -77,6 +83,7 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,10 +109,12 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new HashMap<>();
+    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
+
+    private JobTracker jobTracker;
 
     public Store() {
         opChainOptimisers.add(new CoreOperationChainOptimiser(this));
@@ -116,9 +125,26 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        this.jobTracker = createJobTracker(properties);
+
         addOpHandlers();
         optimiseSchema();
         validateSchemas();
+    }
+
+    protected JobTracker createJobTracker(final StoreProperties properties) {
+        final String jobTrackerClass = properties.getJobTrackerClass();
+        if (null != jobTrackerClass) {
+            try {
+                final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
+                newJobTracker.initialise(properties.getJobTrackerConfigPath());
+                return newJobTracker;
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -171,14 +197,67 @@ public abstract class Store {
      * @throws OperationException thrown by an operation handler if an operation fails
      */
     public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
-        validateOperationChain(operationChain, user);
+        final Context context = createContext(user);
+        addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        try {
+            final OUTPUT result = _execute(operationChain, context);
+            addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            return result;
+        } catch (final Throwable t) {
+            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            throw t;
+        }
+    }
 
-        OperationChain<OUTPUT> optimisedOperationChain = operationChain;
-        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
-            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+    /**
+     * Executes a given operation chain job and returns the job detail.
+     *
+     * @param operationChain the operation chain to execute.
+     * @param user           the user executing the job
+     * @return the job detail
+     * @throws OperationException thrown if jobs are not configured.
+     */
+    public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
+        if (null == jobTracker) {
+            throw new OperationException("Running jobs has not configured.");
         }
 
-        return handleOperationChain(optimisedOperationChain, createContext(user));
+        final Context context = createContext(user);
+
+        if (isSupported(ExportToGafferResultCache.class)) {
+            boolean hasExport = false;
+            for (final Operation operation : operationChain.getOperations()) {
+                if (operation instanceof ExportToGafferResultCache) {
+                    hasExport = true;
+                    break;
+                }
+            }
+            if (!hasExport) {
+                operationChain.getOperations().add(new ExportToGafferResultCache());
+            }
+        }
+
+        final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
+        new Thread(() -> {
+            try {
+                _execute(operationChain, context);
+                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+            } catch (final Throwable t) {
+                LOGGER.warn("Operation chain job failed to execute", t);
+                addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            }
+        }).start();
+
+        return initialJobDetail;
+    }
+
+    public <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> operationChain, final Context context) throws OperationException {
+        final OperationChain<OUTPUT> optimisedOperationChain = prepareOperationChain(operationChain, context);
+        return handleOperationChain(optimisedOperationChain, context);
+    }
+
+    public JobTracker getJobTracker() {
+        return jobTracker;
     }
 
     /**
@@ -266,6 +345,16 @@ public abstract class Store {
         if (!valid) {
             throw new SchemaException("Schema is not valid. Check the logs for more information.");
         }
+    }
+
+    protected <OUTPUT> OperationChain<OUTPUT> prepareOperationChain(final OperationChain<OUTPUT> operationChain, final Context context) {
+        validateOperationChain(operationChain, context.getUser());
+
+        OperationChain<OUTPUT> optimisedOperationChain = operationChain;
+        for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
+            optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
+        }
+        return optimisedOperationChain;
     }
 
     protected void validateOperationChain(
@@ -363,7 +452,21 @@ public abstract class Store {
         return (OUTPUT) result;
     }
 
-    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws OperationException {
+    private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        if (null != jobTracker) {
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
+            if (null == oldJobDetail) {
+                jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
+            } else {
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+            }
+        }
+        return newJobDetail;
+    }
+
+    protected <OPERATION extends Operation<?, OUTPUT>, OUTPUT> OUTPUT handleOperation(final OPERATION operation, final Context context) throws
+            OperationException {
         final OperationHandler<OPERATION, OUTPUT> handler = getOperationHandler(operation.getClass());
         OUTPUT result;
         if (null != handler) {
@@ -382,7 +485,10 @@ public abstract class Store {
                 op.setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input");
+                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input", e);
+            } catch (final IllegalArgumentException e) {
+                // this is due to get all element operations not allowing seeds.
+                // skip the error and just don't set the seeds
             }
         }
     }
@@ -394,20 +500,6 @@ public abstract class Store {
     }
 
     private void addCoreOpHandlers() {
-        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
-        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
-        addOperationHandler(Validate.class, new ValidateHandler());
-        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
-        addOperationHandler(CountGroups.class, new CountGroupsHandler());
-        addOperationHandler(Limit.class, new LimitHandler());
-
-        // Export
-        addOperationHandler(InitialiseSetExport.class, new InitialiseExportHandler());
-        addOperationHandler(UpdateExport.class, new UpdateExportHandler());
-        addOperationHandler(FetchExport.class, new FetchExportHandler());
-        addOperationHandler(FetchExporter.class, new FetchExporterHandler());
-        addOperationHandler(FetchExporters.class, new FetchExportersHandler());
-
         // Add elements
         addOperationHandler(AddElements.class, getAddElementsHandler());
 
@@ -416,8 +508,10 @@ public abstract class Store {
         addOperationHandler(GetEntities.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetEdges.class, (OperationHandler) getGetElementsHandler());
 
+        // Get Adjacent
         addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
 
+        // Get All Elements
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEntities.class, (OperationHandler) getGetAllElementsHandler());
         addOperationHandler(GetAllEdges.class, (OperationHandler) getGetAllElementsHandler());
@@ -429,20 +523,32 @@ public abstract class Store {
         addOperationHandler(GetRelatedEdges.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetRelatedElements.class, (OperationHandler) getGetElementsHandler());
         addOperationHandler(GetRelatedEntities.class, (OperationHandler) getGetElementsHandler());
+
+        // Export
+        addOperationHandler(ExportToSet.class, new ExportToSetHandler());
+        addOperationHandler(GetSetExport.class, new GetSetExportHandler());
+        addOperationHandler(GetExports.class, new GetExportsHandler());
+
+        // Jobs
+        addOperationHandler(GetJobDetails.class, new GetJobDetailsHandler());
+        addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
+        addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
+
+        // Other
+        addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
+        addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
+        addOperationHandler(Validate.class, new ValidateHandler());
+        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
+        addOperationHandler(CountGroups.class, new CountGroupsHandler());
+        addOperationHandler(Limit.class, new LimitHandler());
     }
 
     private void addConfiguredOperationHandlers() {
-        this.getProperties().whenReady(new Runnable() {
-            @Override
-            public void run() {
-                final OperationDeclarations declarations = Store.this.getProperties().getOperationDeclarations();
-
-                if (null != declarations) {
-                    for (final OperationDeclaration definition : declarations.getOperations()) {
-                        addOperationHandler(definition.getOperation(), definition.getHandler());
-                    }
-                }
+        final OperationDeclarations declarations = getProperties().getOperationDeclarations();
+        if (null != declarations) {
+            for (final OperationDeclaration definition : declarations.getOperations()) {
+                addOperationHandler(definition.getOperation(), definition.getHandler());
             }
-        });
+        }
     }
 }

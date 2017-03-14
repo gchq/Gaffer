@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.bitmap.serialisation.utils;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -45,8 +44,8 @@ public final class RoaringBitmapUtils {
         int cookie;
         try {
             cookie = Integer.reverseBytes(input.readInt());
-        } catch (IOException e) {
-            throw new SerialisationException("I failed to read the bitmap version cookie");
+        } catch (final IOException e) {
+            throw new SerialisationException("I failed to read the bitmap version cookie", e);
         }
 
         if (cookie == VERSION_ZERO_ONE_FIVE_TO_ZERO_THREE_SEVEN_SERIAL_COOKIE) {
@@ -106,8 +105,8 @@ public final class RoaringBitmapUtils {
                 return baos.toByteArray();
             } catch (SerialisationException e) {
                 throw (e);
-            } catch (IOException e) {
-                throw new SerialisationException("IOException: I failed to convert roaring bitmap from pre 0.4.0 version");
+            } catch (final IOException e) {
+                throw new SerialisationException("IOException: I failed to convert roaring bitmap from pre 0.4.0 version", e);
             }
         } else if (cookie == VERSION_ZERO_FOUR_ZERO_TO_SIX_THRIRTY_FIVE_NO_RUNCONTAINER_COOKIE || (cookie & 0xFFFF) == VERSION_ZERO_FIVE_ZERO_TO_SIX_THIRTY_FIVE_COOKIE) {
             return serialisedBitmap;

@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.named.operation.cache.MockNamedOperationCache;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
-
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;

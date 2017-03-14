@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -82,7 +83,9 @@ public class GraphTest {
     @Test
     public void shouldConstructGraphFromSchemaModules() {
         // Given
-        final StoreProperties storeProperties = new StoreProperties(StoreImpl.class);
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(StoreImpl.class.getName());
+
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -213,6 +216,31 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldCallAllGraphHooksBeforeJobExecuted() throws OperationException {
+        // Given
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
+
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema.Builder().build())
+                .addHook(hook1)
+                .addHook(hook2)
+                .build();
+
+        // When
+        graph.executeJob(opChain, user);
+
+        // Then
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).preExecute(opChain, user);
+        inOrder.verify(hook2).preExecute(opChain, user);
+    }
+
+    @Test
     public void shouldCallAllGraphHooksAfterOperationExecuted() throws OperationException {
         // Given
         final Operation operation = mock(Operation.class);
@@ -286,6 +314,44 @@ public class GraphTest {
 
         // When
         final Object actualResult = graph.execute(opChain, user);
+
+        // Then
+        final InOrder inOrder = inOrder(hook1, hook2);
+        inOrder.verify(hook1).postExecute(result1, opChain, user);
+        inOrder.verify(hook2).postExecute(result2, opChain, user);
+        assertSame(actualResult, result3);
+    }
+
+    @Test
+    public void shouldCallAllGraphHooksAfterJobExecuted() throws OperationException {
+        // Given
+        final User user = mock(User.class);
+        final GraphHook hook1 = mock(GraphHook.class);
+        final GraphHook hook2 = mock(GraphHook.class);
+        final Store store = mock(Store.class);
+        final Schema schema = new Schema();
+        final JobDetail result1 = mock(JobDetail.class);
+        final JobDetail result2 = mock(JobDetail.class);
+        final JobDetail result3 = mock(JobDetail.class);
+        final OperationChain opChain = mock(OperationChain.class);
+
+        given(store.getSchema()).willReturn(schema);
+        given(hook1.postExecute(result1, opChain, user)).willReturn(result2);
+        given(hook2.postExecute(result2, opChain, user)).willReturn(result3);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .store(store)
+                .addSchema(schema)
+                .addHook(hook1)
+                .addHook(hook2)
+                .build();
+
+        given(opChain.getOperations()).willReturn(Collections.singletonList(mock(Operation.class)));
+        given(store.executeJob(opChain, user)).willReturn(result1);
+
+        // When
+        final JobDetail actualResult = graph.executeJob(opChain, user);
 
         // Then
         final InOrder inOrder = inOrder(hook1, hook2);

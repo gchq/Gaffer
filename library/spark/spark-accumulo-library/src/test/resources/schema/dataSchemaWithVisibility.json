@@ -1,0 +1,33 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "count": "simpleProperty",
+        "visibility": "string"
+      },
+      "groupBy": [
+        "columnQualifier",
+        "visibility"
+      ]
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "columnQualifier": "colQualProperty",
+        "count": "simpleProperty",
+        "visibility": "string"
+      },
+      "groupBy": [
+        "columnQualifier",
+        "visibility"
+      ]
+    }
+  },
+  "visibilityProperty": "visibility"
+}

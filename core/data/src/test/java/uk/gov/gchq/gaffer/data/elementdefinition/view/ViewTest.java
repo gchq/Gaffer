@@ -195,12 +195,35 @@ public class ViewTest {
         assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
         assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
         assertEquals(1, edgeDef.getTransformer().getFunctions().size());
-        assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
-        assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(0));
-        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1));
-        assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0));
+        assertTrue(edgeDef.getTransformer()
+                          .getFunctions()
+                          .get(0)
+                          .getFunction() instanceof ExampleTransformFunction);
+        assertEquals(2, edgeDef.getTransformer()
+                               .getFunctions()
+                               .get(0)
+                               .getSelection()
+                               .size());
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getSelection()
+                                                      .get(0));
+        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getSelection()
+                                                      .get(1));
+        assertEquals(1, edgeDef.getTransformer()
+                               .getFunctions()
+                               .get(0)
+                               .getProjection()
+                               .size());
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer()
+                                                      .getFunctions()
+                                                      .get(0)
+                                                      .getProjection()
+                                                      .get(0));
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().size());
         assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
@@ -419,8 +442,6 @@ public class ViewTest {
         view.expandGlobalDefinitions();
 
         System.out.println(view);
-
-
     }
 
     @Test

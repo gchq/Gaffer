@@ -1,0 +1,18 @@
+{
+  "edges": {
+    "result": {
+      "source": "jobId",
+      "destination": "exportKey",
+      "directed": "true",
+      "properties": {
+        "visibility": "visibility",
+        "timestamp": "timestamp",
+        "opAuths": "stringSet",
+        "resultClass": "string",
+        "result": "json"
+      }
+    }
+  },
+  "visibilityProperty": "visibility",
+  "timestampProperty": "timestamp"
+}
