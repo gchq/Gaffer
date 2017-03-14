@@ -15,9 +15,14 @@ When you've done these things you can write java applications to load and query 
 
 Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
 
-To use Gaffer on Accumulo the only required dependency is the accumulo-store dependency:
+To use Gaffer the only required dependencies are the Gaffer graph module and a store module which corresponds to the data storage framework to utilise (currently limited to Apache Accumulo):
 
 ```
+<dependency>
+    <groupId>uk.gov.gchq.gaffer.core</groupId>
+    <artifactId>graph</artifactId>
+    <version>${gaffer.version}</version>
+</dependency>
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>accumulo-store</artifactId>
