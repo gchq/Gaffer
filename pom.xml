@@ -904,6 +904,39 @@
             </properties>
         </profile>
         <profile>
+            <id>accumulo-1.7</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <accumulo.version>1.7.2</accumulo.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${compiler.plugin.verson}</version>
+                        <configuration>
+                            <testExcludes>
+                                <exclude>**/BloomFilter18IT.java</exclude>
+                            </testExcludes>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.plugin.version}</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/BloomFilter18IT.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>accumulo-1.8</id>
             <properties>
                 <accumulo.version>1.8.0</accumulo.version>
@@ -916,7 +949,7 @@
                         <version>${compiler.plugin.verson}</version>
                         <configuration>
                             <testExcludes>
-                                <exclude>**/BloomFilterIT.java</exclude>
+                                <exclude>**/BloomFilter17IT.java</exclude>
                             </testExcludes>
                         </configuration>
                     </plugin>
@@ -926,7 +959,7 @@
                         <version>${surefire.plugin.version}</version>
                         <configuration>
                             <excludes>
-                                <exclude>**/BloomFilterIT.java</exclude>
+                                <exclude>**/BloomFilter17IT.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

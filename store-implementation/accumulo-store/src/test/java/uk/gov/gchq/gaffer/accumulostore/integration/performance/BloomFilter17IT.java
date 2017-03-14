@@ -77,8 +77,8 @@ import static org.junit.Assert.assertTrue;
  * than looking up data that is present.
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
-public class BloomFilterIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
+public class BloomFilter17IT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilter17IT.class);
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
