@@ -33,6 +33,7 @@ import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -61,8 +62,12 @@ public final class TableUtils {
      * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
-        final Connector conn = store.getConnection();
-        if (!conn.tableOperations().exists(store.getProperties().getTable())) {
+        final String tableName = store.getProperties().getTable();
+        if (null == tableName) {
+            throw new AccumuloRuntimeException("Table name is required.");
+        }
+        final Connector connector = store.getConnection();
+        if (!connector.tableOperations().exists(tableName)) {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
@@ -85,8 +90,11 @@ public final class TableUtils {
     public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
-        final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
+        if (null == tableName) {
+            throw new AccumuloRuntimeException("Table name is required.");
+        }
+        final Connector connector = store.getConnection();
         if (connector.tableOperations().exists(tableName)) {
             LOGGER.info("Table {} exists, not creating", tableName);
             return;
