@@ -62,8 +62,12 @@ public final class TableUtils {
      * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
-        final Connector conn = store.getConnection();
-        if (!conn.tableOperations().exists(store.getProperties().getTable())) {
+        final String tableName = store.getProperties().getTable();
+        if (null == tableName) {
+            throw new AccumuloRuntimeException("Table name is required.");
+        }
+        final Connector connector = store.getConnection();
+        if (!connector.tableOperations().exists(tableName)) {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
@@ -86,14 +90,14 @@ public final class TableUtils {
     public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
-        final Connector connector = store.getConnection();
         final String tableName = store.getProperties().getTable();
+        if (null == tableName) {
+            throw new AccumuloRuntimeException("Table name is required.");
+        }
+        final Connector connector = store.getConnection();
         if (connector.tableOperations().exists(tableName)) {
             LOGGER.info("Table {} exists, not creating", tableName);
             return;
-        }
-        if (null == tableName) {
-            throw new AccumuloRuntimeException("Table name not specified.");
         }
         try {
             LOGGER.info("Creating table {} as user {}", tableName, connector.whoami());

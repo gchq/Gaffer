@@ -17,11 +17,13 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.conf.Property;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import org.apache.hadoop.io.Text;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
@@ -34,6 +36,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -184,7 +187,57 @@ public class TableUtilsTest {
     }
 
     @Test(expected = AccumuloRuntimeException.class)
-    public void shouldThrowExceptionIfTableNameIsNotSpecified() {
+    public void shouldThrowExceptionIfTableNameIsNotSpecified() throws StoreException {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .type("int", Integer.class)
+                .type("string", String.class)
+                .type("boolean", Boolean.class)
+                .edge("EDGE", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("boolean")
+                        .build())
+                .build();
+
+        final AccumuloProperties properties = new AccumuloProperties();
+        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+
+        final AccumuloStore store = new AccumuloStore();
+        store.initialise(schema, properties);
+
+        // When
+        TableUtils.ensureTableExists(store);
+        fail("The expected exception was not thrown.");
+    }
+
+    @Test(expected = AccumuloRuntimeException.class)
+    public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingTable() throws StoreException, TableExistsException {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .type("int", Integer.class)
+                .type("string", String.class)
+                .type("boolean", Boolean.class)
+                .edge("EDGE", new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("string")
+                        .directed("boolean")
+                        .build())
+                .build();
+
+        final AccumuloProperties properties = new AccumuloProperties();
+        properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
+
+        final AccumuloStore store = new AccumuloStore();
+        store.initialise(schema, properties);
+
+        // When
+        TableUtils.createTable(store);
+        fail("The expected exception was not thrown.");
+    }
+
+    @Test(expected = AccumuloRuntimeException.class)
+    public void shouldThrowExceptionIfTableNameIsNotSpecifiedWhenCreatingAGraph() {
         // Given
         final Schema schema = new Schema.Builder()
                 .type("int", Integer.class)
@@ -201,7 +254,7 @@ public class TableUtilsTest {
         properties.setStoreClass(SingleUseMockAccumuloStore.class.getName());
 
         // When
-        final Graph graph = new Graph.Builder()
+        new Graph.Builder()
                 .addSchema(schema)
                 .storeProperties(properties)
                 .build();
