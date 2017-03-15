@@ -18,24 +18,20 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.Input;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Output;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetJobDetails implements
         Operation,
-        Input<String>,
         Output<JobDetail> {
     private String jobId;
 
-    @Override
-    public String getInput() {
+    public String getJobId() {
         return jobId;
     }
 
-    @Override
-    public void setInput(final String jobId) {
+    public void setJobId(final String jobId) {
         this.jobId = jobId;
     }
 
@@ -45,10 +41,14 @@ public class GetJobDetails implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetJobDetails, Builder>
-            implements Input.Builder<GetJobDetails, String, Builder>,
-            Output.Builder<GetJobDetails, JobDetail, Builder> {
+            implements Output.Builder<GetJobDetails, JobDetail, Builder> {
         public Builder() {
             super(new GetJobDetails());
+        }
+
+        public Builder jobId(final String jobId) {
+            _getOp().setJobId(jobId);
+            return this;
         }
     }
 }

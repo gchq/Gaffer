@@ -19,9 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.IterableInput;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.Output;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -34,8 +33,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class CountGroups implements
         Operation,
-        IterableInput<Element>,
-        Output<GroupCounts> {
+        IterableInputOutput<Element, GroupCounts> {
     private Iterable<Element> input;
     private Integer limit;
 
@@ -71,8 +69,7 @@ public class CountGroups implements
 
     public static class Builder
             extends Operation.BaseBuilder<CountGroups, Builder>
-            implements IterableInput.Builder<CountGroups, Element, Builder>,
-            Output.Builder<CountGroups, GroupCounts, Builder> {
+            implements IterableInputOutput.Builder<CountGroups, Element, GroupCounts, Builder> {
 
         public Builder() {
             super(new CountGroups());

@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Set;
 
 
-public class TypeReferenceImpl {
+public final class TypeReferenceImpl {
+    private TypeReferenceImpl() {
+    }
+
     public static class CountGroups extends TypeReference<GroupCounts> {
     }
 

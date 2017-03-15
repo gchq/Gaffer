@@ -20,12 +20,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.IterableInput;
-import uk.gov.gchq.gaffer.operation.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
 import java.util.Map;
@@ -39,18 +38,18 @@ import java.util.Map;
  */
 public class GetAdjacentEntitySeeds implements
         Operation,
-        IterableInput<EntitySeed>,
-        IterableOutput<EntitySeed>,
-        GraphFilters,
+        IterableInputIterableOutput<EntitySeed, EntitySeed>,
+        SeededGraphFilters,
         Options {
     private View view;
     private Iterable<EntitySeed> input;
     private DirectedType directedType;
     private Map<String, String> options;
+    private IncludeIncomingOutgoingType inOutType;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     public Object[] createInputArray() {
-        return IterableInput.super.createInputArray();
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
     @Override
@@ -102,13 +101,23 @@ public class GetAdjacentEntitySeeds implements
 
     @Override
     public void setOptions(final Map<String, String> options) {
-this.options = options;
+        this.options = options;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAdjacentEntitySeeds, Builder>
-            implements IterableInput.Builder<GetAdjacentEntitySeeds, EntitySeed, Builder>,
-            IterableOutput.Builder<GetAdjacentEntitySeeds, EntitySeed, Builder>,
-            GraphFilters.Builder<GetAdjacentEntitySeeds, Builder> {
+            implements IterableInputIterableOutput.Builder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, Builder>,
+            SeededGraphFilters.Builder<GetAdjacentEntitySeeds, Builder>,
+            Options.Builder<GetAdjacentEntitySeeds, Builder> {
         public Builder() {
             super(new GetAdjacentEntitySeeds());
         }

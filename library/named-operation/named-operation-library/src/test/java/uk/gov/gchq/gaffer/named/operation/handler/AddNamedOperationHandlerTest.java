@@ -130,7 +130,7 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAllowUpdateToNamedOperationIfItCausesRecursion() throws OperationException {
         String innocentOpName = "innocent";
-        OperationChain innocent = new OperationChain.Builder().first(new GetElements<>()).build();
+        OperationChain innocent = new OperationChain.Builder().first(new GetElements()).build();
 
         addNamedOperation.setOperationName(innocentOpName);
         addNamedOperation.setOperationChain(innocent);
@@ -168,7 +168,7 @@ public class AddNamedOperationHandlerTest {
 
             OperationChain parent = new OperationChain.Builder()
                     .first(new NamedOperation.Builder().name("child").description("").build())
-                    .then(new GetElements<>())
+                    .then(new GetElements())
                     .build();
 
             addNamedOperation.setOperationChain(parent);

@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  *
  * @param <OBJ> the type of output objects from the operation.
  */
-public class GenerateObjectsHandler<OBJ> implements OperationHandler<GenerateObjects<Element, OBJ>, CloseableIterable<OBJ>> {
+public class GenerateObjectsHandler<OBJ> implements OperationHandler<GenerateObjects<Element, OBJ>> {
     @Override
     public CloseableIterable<OBJ> doOperation(final GenerateObjects<Element, OBJ> operation,
                                               final Context context, final Store store)

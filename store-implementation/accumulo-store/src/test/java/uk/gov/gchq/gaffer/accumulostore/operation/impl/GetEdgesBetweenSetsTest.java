@@ -47,7 +47,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         final GetEdgesBetweenSets deserialisedOp = serialiser.deserialise(json, GetEdgesBetweenSets.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
@@ -75,7 +75,7 @@ public class GetEdgesBetweenSetsTest implements OperationTest {
         assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesBetweenSets.getDirectedType());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING, getEdgesBetweenSets.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(AccumuloTestData.SEED_A, getEdgesBetweenSets.getSeeds().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, getEdgesBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_B, getEdgesBetweenSets.getInputB().iterator().next());
         assertNotNull(getEdgesBetweenSets.getView());
     }

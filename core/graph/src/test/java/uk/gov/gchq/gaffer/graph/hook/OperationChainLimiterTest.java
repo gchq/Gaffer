@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ public class OperationChainLimiterTest {
     public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetEntities())
+                .first(new GetElements())
                 .build();
         final User user = new User.Builder()
                 .opAuths("User")
@@ -57,8 +57,8 @@ public class OperationChainLimiterTest {
     public void shouldAcceptOperationChainWhenUserHasAuthScoreEqualToChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
-                .then(new GenerateObjects())
+                .first(new GetElements())
+                .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
                 .opAuths("User")
@@ -77,8 +77,8 @@ public class OperationChainLimiterTest {
                 .first(new GetAdjacentEntitySeeds())
                 .then(new GetAdjacentEntitySeeds())
                 .then(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
-                .then(new GenerateObjects())
+                .then(new GetElements())
+                .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
                 .opAuths("User")
@@ -100,8 +100,8 @@ public class OperationChainLimiterTest {
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds())
                 .then(new GetAdjacentEntitySeeds())
-                .then(new GetAdjacentEntitySeeds())
-                .then(new GenerateObjects())
+                .then(new GetElements())
+                .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
                 .opAuths("SuperUser", "User")
@@ -117,8 +117,8 @@ public class OperationChainLimiterTest {
     public void shouldRejectOperationChainWhenUserHasMaxAuthScoreLessThanChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new GenerateObjects())
+                .first(new GetAllElements())
+                .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
                 .opAuths("SuperUser", "User")

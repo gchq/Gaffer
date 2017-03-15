@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
-import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
 
 public class GetJobResults extends GetGafferResultCacheExport {
     @JsonIgnore

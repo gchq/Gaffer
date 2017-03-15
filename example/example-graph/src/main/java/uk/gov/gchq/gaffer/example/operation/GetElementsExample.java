@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
@@ -46,7 +45,7 @@ public class GetElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
         // ---------------------------------------------------------
-        final GetElements<EntitySeed, Element> operation = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
@@ -56,7 +55,7 @@ public class GetElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
         // ---------------------------------------------------------
-        final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
+        final GetElements operation = new GetElements.Builder()
                 .input(new EdgeSeed(1, 2, true))
                 .build();
         // ---------------------------------------------------------
@@ -66,7 +65,7 @@ public class GetElementsExample extends OperationExample {
 
     public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetElements<EdgeSeed, Element> operation = new GetElements.Builder<EdgeSeed, Element>()
+        final GetElements operation = new GetElements.Builder()
                 .input(new EdgeSeed(1, 2, true))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
@@ -90,7 +89,7 @@ public class GetElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
         // ---------------------------------------------------------
-        final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
+        final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
                 .input(new EdgeSeed(2, 3, true))
                 .build();
@@ -101,7 +100,7 @@ public class GetElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
         // ---------------------------------------------------------
-        final GetElements<ElementSeed, Element> operation = new GetElements.Builder<>()
+        final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
                 .input(new EdgeSeed(2, 3, true))
                 .view(new View.Builder()

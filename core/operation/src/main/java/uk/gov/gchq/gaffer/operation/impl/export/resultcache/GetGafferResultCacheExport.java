@@ -16,12 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
+import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetGafferResultCacheExport implements
         Operation,
-        GetExport {
+        GetExport,
+        IterableOutput<Object> {
     private String jobId;
     private String key;
 
@@ -45,9 +50,15 @@ public class GetGafferResultCacheExport implements
         this.jobId = jobId;
     }
 
+    @Override
+    public TypeReference<CloseableIterable<Object>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
+    }
+
     public static class Builder
             extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
-            implements GetExport.Builder<GetGafferResultCacheExport, Builder> {
+            implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
+            IterableOutput.Builder<GetGafferResultCacheExport, Object, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
         }

@@ -39,12 +39,12 @@ public abstract class AbstractGetJavaRDD<I_ITEM> extends AbstractGetSparkRDD<I_I
         return new TypeReferenceSparkImpl.JavaRDDElement();
     }
 
-    protected abstract static class BaseBuilder<OP_TYPE extends AbstractGetJavaRDD<I_ITEM>,
+    protected abstract static class BaseBuilder<OP extends AbstractGetJavaRDD<I_ITEM>,
             I_ITEM,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, I_ITEM, ?>>
-            extends AbstractSeededGraphGet.BaseBuilder<OP_TYPE, I_ITEM, JavaRDD<Element>, CHILD_CLASS> {
+            CHILD_CLASS extends BaseBuilder<OP, I_ITEM, ?>>
+            extends AbstractSeededGraphGet.BaseBuilder<OP, I_ITEM, JavaRDD<Element>, CHILD_CLASS> {
 
-        public BaseBuilder(final OP_TYPE op) {
+        public BaseBuilder(final OP op) {
             super(op);
         }
 
@@ -54,15 +54,15 @@ public abstract class AbstractGetJavaRDD<I_ITEM> extends AbstractGetSparkRDD<I_I
         }
     }
 
-    public static final class Builder<OP_TYPE extends AbstractGetJavaRDD<I_ITEM>, I_ITEM>
-            extends BaseBuilder<OP_TYPE, I_ITEM, Builder<OP_TYPE, I_ITEM>> {
+    public static final class Builder<OP extends AbstractGetJavaRDD<I_ITEM>, I_ITEM>
+            extends BaseBuilder<OP, I_ITEM, Builder<OP, I_ITEM>> {
 
-        public Builder(final OP_TYPE op) {
+        public Builder(final OP op) {
             super(op);
         }
 
         @Override
-        protected Builder<OP_TYPE, I_ITEM> self() {
+        protected Builder<OP, I_ITEM> self() {
             return this;
         }
     }

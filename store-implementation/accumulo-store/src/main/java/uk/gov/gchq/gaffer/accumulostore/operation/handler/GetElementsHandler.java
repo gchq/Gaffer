@@ -31,15 +31,15 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
+public class GetElementsHandler implements OperationHandler<GetElements> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements operation,
                                                   final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
+    public CloseableIterable<Element> doOperation(final GetElements operation,
                                                   final User user,
                                                   final AccumuloStore store) throws OperationException {
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();

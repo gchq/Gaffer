@@ -30,8 +30,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -39,9 +37,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphGet;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -438,7 +433,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final GraphGet<?, Integer> operation = mock(GraphGet.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -467,7 +462,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final GraphGet<?, Integer> operation = mock(GraphGet.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -496,10 +491,10 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final Operation operation = mock(Operation.class);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
-        given(opChain.getOperations()).willReturn(Collections.<Operation>singletonList(operation));
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
         given(store.execute(opChain, user)).willReturn(expectedResult);
 
         // When
@@ -540,27 +535,27 @@ public class GraphTest {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OperationHandler<? extends GetAdjacentEntitySeeds> getAdjacentEntitySeedsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
         }
     }

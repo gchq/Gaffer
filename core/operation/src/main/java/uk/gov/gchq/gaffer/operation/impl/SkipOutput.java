@@ -14,11 +14,28 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.impl;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.Input;
 
-public interface IterableOutput<O_ITEM> extends Output<CloseableIterable<O_ITEM>> {
-    interface Builder<OP extends IterableOutput<O_ITEM>, O_ITEM, B extends Builder<OP, O_ITEM, ?>> extends Output.Builder<OP, CloseableIterable<O_ITEM>, B> {
+public class SkipOutput implements
+        Operation,
+        Input<Object> {
+
+    @Override
+    public Object getInput() {
+        return null;
+    }
+
+    @Override
+    public void setInput(final Object input) {
+        // No action required
+    }
+
+    public static final class Builder extends BaseBuilder<SkipOutput, Builder> {
+        public Builder() {
+            super(new SkipOutput());
+        }
     }
 }

@@ -40,13 +40,13 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends SeededGraphGet<? extends I_ITEM, ?>, I_ITEM>
-        extends AccumuloRetriever<OP_TYPE> {
+public abstract class AccumuloItemRetriever<OP extends SeededGraphGet<? extends I_ITEM, ?>, I_ITEM>
+        extends AccumuloRetriever<OP> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
     private final Iterable<? extends I_ITEM> ids;
 
-    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+    protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
                                     final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);

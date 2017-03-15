@@ -20,9 +20,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.operation.IterableInput;
-import uk.gov.gchq.gaffer.operation.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -34,8 +33,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class GenerateElements<OBJ> implements
         Operation,
-        IterableInput<OBJ>,
-        IterableOutput<Element> {
+        IterableInputIterableOutput<OBJ, Element> {
     private ElementGenerator<OBJ> elementGenerator;
     private Iterable<OBJ> input;
 
@@ -88,8 +86,7 @@ public class GenerateElements<OBJ> implements
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateElements<OBJ>, Builder<OBJ>>
-            implements IterableInput.Builder<GenerateElements<OBJ>, OBJ, Builder<OBJ>>,
-            IterableOutput.Builder<GenerateElements<OBJ>, Element, Builder<OBJ>> {
+            implements IterableInputIterableOutput.Builder<GenerateElements<OBJ>, OBJ, Element, Builder<OBJ>> {
         public Builder() {
             super(new GenerateElements<>());
         }

@@ -58,11 +58,11 @@ public interface IExamplesService {
 
     @GET
     @Path("/graph/doOperation/get/elements/bySeed")
-    GetElements<ElementSeed, Element> getElementsBySeed();
+    GetElements getElementsBySeed();
 
     @GET
     @Path("/graph/doOperation/get/elements/related")
-    GetElements<ElementSeed, Element> getRelatedElements();
+    GetElements getRelatedElements();
 
     @GET
     @Path("/graph/doOperation/get/entities/bySeed")

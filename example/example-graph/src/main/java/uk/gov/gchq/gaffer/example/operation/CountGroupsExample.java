@@ -39,7 +39,7 @@ public class CountGroupsExample extends OperationExample {
     public GroupCounts countAllElementGroups() {
         // ---------------------------------------------------------
         final OperationChain<GroupCounts> opChain = new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build();
         // ---------------------------------------------------------
@@ -50,7 +50,7 @@ public class CountGroupsExample extends OperationExample {
     public GroupCounts countAllElementGroupsWithLimit() {
         // ---------------------------------------------------------
         final OperationChain<GroupCounts> opChain = new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups(5))
                 .build();
         // ---------------------------------------------------------

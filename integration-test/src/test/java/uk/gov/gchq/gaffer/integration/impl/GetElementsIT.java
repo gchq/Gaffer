@@ -133,7 +133,7 @@ public class GetElementsIT extends AbstractStoreIT {
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed
             () throws Exception {
         // Given
-        final GetElements<ElementSeed, Element> op = new GetElements<>();
+        final GetElements op = new GetElements();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -146,7 +146,7 @@ public class GetElementsIT extends AbstractStoreIT {
     public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements
             () throws Exception {
         // Given
-        final GetElements<ElementSeed, Element> op = new GetElements<>();
+        final GetElements op = new GetElements();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, getUser());
@@ -244,8 +244,6 @@ public class GetElementsIT extends AbstractStoreIT {
                                    final Iterable<ElementSeed> seeds) throws IOException, OperationException {
         // Given
         final User user = new User();
-        final GetElements<ElementSeed, Element> op = new GetElements.Builder<>().seedMatching(seedMatching).build();
-        op.setSeeds(seeds);
 
         final View.Builder viewBuilder = new View.Builder();
         if (includeEntities) {
@@ -255,10 +253,12 @@ public class GetElementsIT extends AbstractStoreIT {
             viewBuilder.edge(TestGroups.EDGE);
         }
 
-        op.setDirectedType(directedType);
-        op.setIncludeIncomingOutGoing(inOutType);
-        op.setView(viewBuilder.build());
-
+        final GetElements op = new GetElements.Builder()
+                .input(seeds)
+                .directedType(directedType)
+                .inOutType(inOutType)
+                .view(viewBuilder.build())
+                .seedMatching(seedMatching).build();
 
         // When
         final CloseableIterable<? extends Element> results = graph.execute(op, user);

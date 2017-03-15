@@ -254,11 +254,11 @@ public abstract class AbstractStoreIT {
 
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEntities().values())
+                .input((Iterable) getEntities().values())
                 .build(), getUser());
 
         graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
+                .input((Iterable) getEdges().values())
                 .build(), getUser());
     }
 

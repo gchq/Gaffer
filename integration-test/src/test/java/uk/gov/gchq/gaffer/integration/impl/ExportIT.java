@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
@@ -29,10 +30,11 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.impl.SkipIterableOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.IOException;
 import java.util.Map;
 
@@ -68,16 +70,17 @@ public class ExportIT extends AbstractStoreIT {
     @Test
     public void shouldExportResultsInSet() throws OperationException, IOException {
         // Given
-        final OperationChain<CloseableIterable<?>> exportOpChain = new Builder()
-                .first(new GetEdges.Builder<>()
+        final OperationChain<CloseableIterable<Object>> exportOpChain = new Builder()
+                .first(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new ExportToSet())
-                .then(new GenerateObjects.Builder<Edge, EntitySeed>()
+                .then(new GenerateObjects.Builder<Element, EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetEdges<>())
+                .then(new GetElements())
                 .then(new ExportToSet())
+                .then(new SkipIterableOutput())
                 .then(new GetSetExport())
                 .build();
 

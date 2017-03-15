@@ -50,7 +50,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         final GetEdgesInRanges<Pair<EntitySeed>> deserialisedOp = serialiser.deserialise(json, GetEdgesInRanges.class);
 
         // Then
-        final Iterator itrPairs = deserialisedOp.getSeeds().iterator();
+        final Iterator itrPairs = deserialisedOp.getInput().iterator();
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
@@ -73,7 +73,7 @@ public class GetEdgesInRangesTest implements OperationTest {
         assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesInRanges.getDirectedType());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH, getEdgesInRanges.getIncludeIncomingOutGoing());
         assertEquals("true", getEdgesInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(seed, getEdgesInRanges.getSeeds().iterator().next());
+        assertEquals(seed, getEdgesInRanges.getInput().iterator().next());
         assertNotNull(getEdgesInRanges.getView());
     }
 }

@@ -42,8 +42,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDOperation<?, OUTPUT>>
-        implements OperationHandler<OP_TYPE, OUTPUT> {
+public abstract class AbstractGetRDDHandler<O, OP extends GetSparkRDDOperation<?, O>>
+        implements OperationHandler<OP, O> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
@@ -77,7 +77,7 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
                                                              final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
-        for (final ELEMENT_SEED entitySeed : operation.getSeeds()) {
+        for (final ELEMENT_SEED entitySeed : operation.getInput()) {
             try {
                 ranges.addAll(accumuloStore.getKeyPackage()
                         .getRangeFactory()

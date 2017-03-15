@@ -37,18 +37,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP_TYPE extends GraphGet<?, ?>> implements CloseableIterable<Element> {
+public abstract class AccumuloRetriever<OP extends GraphGet<?, ?>> implements CloseableIterable<Element> {
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final User user;
     protected final RangeFactory rangeFactory;
     protected final IteratorSettingFactory iteratorSettingFactory;
-    protected final OP_TYPE operation;
+    protected final OP operation;
     protected final AccumuloElementConverter elementConverter;
     protected final IteratorSetting[] iteratorSettings;
 
-    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation,
+    protected AccumuloRetriever(final AccumuloStore store, final OP operation,
                                 final User user, final IteratorSetting... iteratorSettings)
             throws StoreException {
         this.store = store;

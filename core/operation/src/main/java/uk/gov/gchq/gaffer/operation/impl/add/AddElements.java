@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.IterableInput;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import java.util.Map;
 
 /**

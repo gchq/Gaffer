@@ -98,7 +98,7 @@ public class RestApiTestUtil {
 
     public static void addElements(final Element... elements) throws IOException {
         executeOperation(new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build());
     }
 

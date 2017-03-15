@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 
-public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds> {
 
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,

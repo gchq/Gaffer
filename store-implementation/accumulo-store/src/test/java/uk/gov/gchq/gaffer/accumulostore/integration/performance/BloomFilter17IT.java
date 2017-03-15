@@ -254,7 +254,7 @@ public class BloomFilter17IT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>()
+        final GetElements<ElementSeed, ?> operation = new GetElements.Builder()
                 .view(view)
                 .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);

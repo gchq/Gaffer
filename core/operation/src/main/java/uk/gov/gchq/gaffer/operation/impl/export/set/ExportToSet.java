@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>ExportToSet</code> Export operation exports results to a Set.
@@ -25,8 +27,11 @@ import uk.gov.gchq.gaffer.operation.export.Export;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-public class ExportToSet implements Operation, Export {
+public class ExportToSet implements
+        Operation,
+        ExportTo {
     private String key;
+    private Object input;
 
     @Override
     public String getKey() {
@@ -38,8 +43,23 @@ public class ExportToSet implements Operation, Export {
         this.key = key;
     }
 
+    @Override
+    public Object getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Object input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<Object> getOutputTypeReference() {
+        return new TypeReferenceImpl.Object();
+    }
+
     public static final class Builder extends Operation.BaseBuilder<ExportToSet, Builder>
-            implements Export.Builder<ExportToSet, Builder> {
+            implements ExportTo.Builder<ExportToSet, Builder> {
         public Builder() {
             super(new ExportToSet());
         }

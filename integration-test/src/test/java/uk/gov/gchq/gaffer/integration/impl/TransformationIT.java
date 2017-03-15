@@ -34,8 +34,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +64,7 @@ public class TransformationIT extends AbstractStoreIT {
         elements.add(sampleEntityWithTransientProperty);
 
         graph.execute(new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build(), getUser());
     }
 
@@ -77,17 +76,21 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEntityPropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .entity(TestGroups.ENTITY_2)
+                        .build())
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (final Entity result : results) {
+        for (final Element result : results) {
             assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -100,17 +103,20 @@ public class TransformationIT extends AbstractStoreIT {
     @Test
     public void shouldNotStoreEdgePropertiesThatAreNotInSchema() throws OperationException {
         // Given
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
+                .view(new View.Builder()
+                        .entity(TestGroups.EDGE)
+                        .build())
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (final Edge result : results) {
+        for (final Element result : results) {
             assertEquals(1L, result.getProperty(TestPropertyNames.COUNT));
             assertNull(result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
@@ -120,7 +126,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEntityProperty() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -135,12 +141,12 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (final Entity result : results) {
+        for (final Element result : results) {
             assertEquals("A1,3", result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -149,7 +155,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldCreateTransientEdgeProperty() throws OperationException {
         // Given
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(SOURCE_1, DEST_1, false))
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -164,10 +170,10 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         assertNotNull(results);
-        for (final Edge result : results) {
+        for (final Element result : results) {
             assertEquals(SOURCE_1 + "," + result.getProperty(TestPropertyNames.INT), result.getProperty(TestPropertyNames.TRANSIENT_1));
         }
     }
@@ -176,7 +182,7 @@ public class TransformationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.TRANSFORMATION)
     public void shouldTransformExistingProperty() throws OperationException {
         // Given
-        final GetEntities<EntitySeed> getEntities = new GetEntities.Builder<EntitySeed>()
+        final GetElements getEntities = new GetElements.Builder()
                 .input(new EntitySeed("A1"))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -190,12 +196,12 @@ public class TransformationIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEntities, getUser()));
 
 
         assertNotNull(results);
         assertEquals(1, results.size());
-        for (final Entity result : results) {
+        for (final Element result : results) {
             assertEquals("A1,3", result.getProperty(TestPropertyNames.STRING));
         }
     }

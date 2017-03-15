@@ -16,16 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.export.ExportOperation;
+import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public abstract class ExportOperationHandler<EXPORT extends ExportOperation<?, ?>, EXPORTER extends Exporter, OUTPUT> implements OperationHandler<EXPORT, OUTPUT> {
+public abstract class ExportOperationHandler<EXPORT extends Export & Operation, EXPORTER extends Exporter> implements OperationHandler<EXPORT> {
     @Override
-    public OUTPUT doOperation(final EXPORT export,
+    public Object doOperation(final EXPORT export,
                               final Context context, final Store store)
             throws OperationException {
         EXPORTER exporter = context.getExporter(getExporterClass());
@@ -44,5 +45,5 @@ public abstract class ExportOperationHandler<EXPORT extends ExportOperation<?, ?
 
     protected abstract EXPORTER createExporter(final EXPORT export, final Context context, final Store store);
 
-    protected abstract OUTPUT doOperation(final EXPORT export, final Context context, final Store store, final EXPORTER exporter) throws OperationException;
+    protected abstract Object doOperation(final EXPORT export, final Context context, final Store store, final EXPORTER exporter) throws OperationException;
 }

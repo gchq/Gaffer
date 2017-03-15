@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -114,12 +114,12 @@ public class GafferResultCacheExporter implements Exporter {
         };
 
         resultCache.execute(new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build(), user);
     }
 
     public CloseableIterable<?> get(final String key) throws OperationException {
-        final GetEdges<EdgeSeed> getEdges = new GetEdges.Builder<EdgeSeed>()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(jobId, key, true))
                 .view(new View.Builder()
                         .edge("result", new ViewElementDefinition.Builder()
@@ -131,23 +131,23 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<Edge> edges = resultCache.execute(getEdges, user);
+        final CloseableIterable<Element> edges = resultCache.execute(getEdges, user);
         if (null == edges) {
             return new WrappedCloseableIterable<>(Collections.emptyList());
         }
         return new TransformJsonResult(edges, jsonSerialiser);
     }
 
-    private static class TransformJsonResult extends TransformIterable<Edge, Object> {
+    private static class TransformJsonResult extends TransformIterable<Element, Object> {
         private final JSONSerialiser jsonSerialiser;
 
-        TransformJsonResult(final Iterable<Edge> input, final JSONSerialiser jsonSerialiser) {
+        TransformJsonResult(final Iterable<Element> input, final JSONSerialiser jsonSerialiser) {
             super(input, new AlwaysValid<>(), false, true);
             this.jsonSerialiser = jsonSerialiser;
         }
 
         @Override
-        protected Object transform(final Edge edge) {
+        protected Object transform(final Element edge) {
             final String resultClassName = (String) edge.getProperty("resultClass");
             final byte[] resultBytes = (byte[]) edge.getProperty("result");
             if (null == resultClassName || null == resultBytes) {

@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.Output;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -82,8 +82,8 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetElements<ElementSeed, Element> getElementsBySeed() {
-        final GetElements<ElementSeed, Element> op = new GetElements<>();
+    public GetElements getElementsBySeed() {
+        final GetElements op = new GetElements();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -99,8 +99,8 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetElements<ElementSeed, Element> getRelatedElements() {
-        final GetElements<ElementSeed, Element> op = new GetElements<>();
+    public GetElements getRelatedElements() {
+        final GetElements op = new GetElements();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));
@@ -189,8 +189,8 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetAllElements<Element> getAllElements() {
-        final GetAllElements<Element> op = new GetAllElements<>();
+    public GetAllElements getAllElements() {
+        final GetAllElements op = new GetAllElements();
         populateOperation(op);
         return op;
     }
@@ -211,7 +211,7 @@ public class ExamplesService implements IExamplesService {
 
     @Override
     public GetElements getElements() {
-        final GetElements<ElementSeed, Element> op = new GetElements<>();
+        final GetElements op = new GetElements();
         final List<ElementSeed> seeds = new ArrayList<>();
         if (hasEntities()) {
             seeds.add(getEntitySeed(1));

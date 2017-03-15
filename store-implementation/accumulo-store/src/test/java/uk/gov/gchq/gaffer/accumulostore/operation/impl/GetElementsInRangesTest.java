@@ -39,7 +39,7 @@ public class GetElementsInRangesTest implements OperationTest {
         final GetElementsInRanges<Pair<EntitySeed>, Edge> deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
-        final Iterator itrPairs = deserialisedOp.getSeeds().iterator();
+        final Iterator itrPairs = deserialisedOp.getInput().iterator();
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());

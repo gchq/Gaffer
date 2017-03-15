@@ -33,7 +33,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets deserialisedOp = serialiser.deserialise(json, GetElementsBetweenSets.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());

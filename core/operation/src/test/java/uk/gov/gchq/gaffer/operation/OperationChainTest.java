@@ -23,11 +23,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -69,14 +67,14 @@ public class OperationChainTest {
         final AddElements addElements = mock(AddElements.class);
         final GetAdjacentEntitySeeds getAdj1 = mock(GetAdjacentEntitySeeds.class);
         final GetAdjacentEntitySeeds getAdj2 = mock(GetAdjacentEntitySeeds.class);
-        final GetElements<EntitySeed, Element> getRelElements = mock(GetElements.class);
+        final GetElements getElements = mock(GetElements.class);
 
         // When
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
                 .then(getAdj2)
-                .then(getRelElements)
+                .then(getElements)
                 .build();
 
         // Then
@@ -84,7 +82,7 @@ public class OperationChainTest {
                         addElements,
                         getAdj1,
                         getAdj2,
-                        getRelElements},
+                        getElements},
                 opChain.getOperationArray());
     }
 
@@ -94,7 +92,7 @@ public class OperationChainTest {
         final AddElements addElements = new AddElements();
         final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
         final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
-        final GetElements<EntitySeed, Element> getRelElements = new GetElements<>();
+        final GetElements getRelElements = new GetElements();
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
@@ -127,10 +125,10 @@ public class OperationChainTest {
     }
 
     @Test
-    public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
+    public void shouldBuildOperationChain_AdjEntitySeedsThenElements() throws SerialisationException {
         // Given
         final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
-        final GetEdges<EntitySeed> getEdges = mock(GetEdges.class);
+        final GetElements getEdges = mock(GetElements.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()

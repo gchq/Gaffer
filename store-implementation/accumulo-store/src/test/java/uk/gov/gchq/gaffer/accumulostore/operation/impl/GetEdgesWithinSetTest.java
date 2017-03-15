@@ -44,7 +44,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
         final GetEdgesWithinSet deserialisedOp = serialiser.deserialise(json, GetEdgesWithinSet.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsA.next());
@@ -65,7 +65,7 @@ public class GetEdgesWithinSetTest implements OperationTest {
                 .build();
         assertEquals(GraphFilters.DirectedType.DIRECTED, getEdgesWithinSet.getDirectedType());
         assertEquals("true", getEdgesWithinSet.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(AccumuloTestData.SEED_A, getEdgesWithinSet.getSeeds().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, getEdgesWithinSet.getInput().iterator().next());
         assertNotNull(getEdgesWithinSet.getView());
     }
 }

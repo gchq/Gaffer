@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Set;
 
 /**
@@ -26,9 +28,12 @@ import java.util.Set;
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
-public class ExportToGafferResultCache implements Operation, Export {
+public class ExportToGafferResultCache implements
+        Operation,
+        ExportTo {
     private String key;
     private Set<String> opAuths;
+    private Object input;
 
     @Override
     public String getKey() {
@@ -48,8 +53,23 @@ public class ExportToGafferResultCache implements Operation, Export {
         this.opAuths = opAuths;
     }
 
+    @Override
+    public Object getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Object input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<Object> getOutputTypeReference() {
+        return new TypeReferenceImpl.Object();
+    }
+
     public static final class Builder extends Operation.BaseBuilder<ExportToGafferResultCache, Builder>
-            implements Export.Builder<ExportToGafferResultCache, Builder> {
+            implements ExportTo.Builder<ExportToGafferResultCache, Builder> {
         public Builder() {
             super(new ExportToGafferResultCache());
         }

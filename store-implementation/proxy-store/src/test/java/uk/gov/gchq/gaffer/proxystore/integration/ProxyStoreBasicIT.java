@@ -122,7 +122,7 @@ public class ProxyStoreBasicIT {
 
 
         // When - Get
-        final CloseableIterable<Element> results = graph.execute(new GetAllElements<>(), USER);
+        final CloseableIterable<Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
@@ -135,7 +135,7 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -165,7 +165,7 @@ public class ProxyStoreBasicIT {
         }
 
         // Get elements
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE)

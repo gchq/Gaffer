@@ -114,7 +114,7 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation) {
+    public CloseableIterable<Element> getAllElements(final GetAllElements operation) {
         return _execute(operation);
     }
 
@@ -129,7 +129,7 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation) {
+    public CloseableIterable<Element> getElements(final GetElements operation) {
         return _execute(operation);
     }
 
@@ -156,11 +156,11 @@ public class OperationService implements IOperationService {
         // no action by default
     }
 
-    protected <OUTPUT> OUTPUT _execute(final Operation<?, OUTPUT> operation) {
+    protected <O> O _execute(final Operation operation) {
         return _execute(new OperationChain<>(operation));
     }
 
-    protected <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> opChain) {
+    protected <O> O _execute(final OperationChain<O> opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 

@@ -136,13 +136,13 @@ public class AccumuloStoreTest {
         final User user = new User();
         elements.add(e);
         final AddElements add = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         store.execute(add, user);
 
         final EntitySeed entitySeed1 = new EntitySeed("1");
 
-        final GetElements<EntitySeed, Element> getBySeed = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getBySeed = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -153,7 +153,7 @@ public class AccumuloStoreTest {
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelated = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -163,7 +163,7 @@ public class AccumuloStoreTest {
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

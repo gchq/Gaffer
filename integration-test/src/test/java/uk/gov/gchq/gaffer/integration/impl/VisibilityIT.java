@@ -73,11 +73,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
@@ -112,11 +112,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
@@ -147,11 +147,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .build();
 
@@ -185,11 +185,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .input(new EntitySeed("B"))
                 .build();
@@ -228,11 +228,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity2);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_VIS_1);
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .input(new EntitySeed("B"))
                 .build();
@@ -273,11 +273,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
 
@@ -306,11 +306,11 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntitySeed, Element> get = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
         final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets

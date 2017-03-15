@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class CountGroupsHandler implements OperationHandler<CountGroups, GroupCounts> {
+public class CountGroupsHandler implements OperationHandler<CountGroups> {
     @Override
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)

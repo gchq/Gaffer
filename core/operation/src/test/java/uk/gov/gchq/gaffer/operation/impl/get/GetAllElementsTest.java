@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -47,7 +46,7 @@ public class GetAllElementsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
+        GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())

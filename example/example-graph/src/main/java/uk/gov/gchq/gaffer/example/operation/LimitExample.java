@@ -39,7 +39,7 @@ public class LimitExample extends OperationExample {
     public Iterable<Element> limitElementsTo3() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new Limit<>(3))
                 .build();
         // ---------------------------------------------------------

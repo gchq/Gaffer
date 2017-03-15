@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetJobDetailsHandler implements OperationHandler<GetJobDetails, JobDetail> {
+public class GetJobDetailsHandler implements OperationHandler<GetJobDetails> {
     @Override
     public JobDetail doOperation(final GetJobDetails operation, final Context context, final Store store) throws OperationException {
         if (null == store.getJobTracker()) {

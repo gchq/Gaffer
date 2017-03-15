@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.hadoop.mapreduce.Partitioner;
-import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.VoidInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -38,7 +38,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see SampleDataForSplitPoints.Builder
  */
-public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> implements VoidInput<String> {
+public class SampleDataForSplitPoints extends MapReduce<Void, String> implements VoidInput<String> {
 
     private String resultingSplitsFilePath;
     private boolean validate = true;
@@ -110,7 +110,7 @@ public class SampleDataForSplitPoints extends MapReduceOperation<Void, String> i
     }
 
     public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends MapReduceOperation.BaseBuilder<SampleDataForSplitPoints, Void, String, CHILD_CLASS> {
+            extends MapReduce.BaseBuilder<SampleDataForSplitPoints, Void, String, CHILD_CLASS> {
         public BaseBuilder() {
             super(new SampleDataForSplitPoints());
         }

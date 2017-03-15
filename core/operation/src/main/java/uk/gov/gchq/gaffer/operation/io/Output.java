@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.io;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-/**
- * A <code>Get</code> operation gets information out of gaffer and applies filtering
- * based on a {@link View}.
- *
- * @param <O> output type
- */
 public interface Output<O> extends Operation {
     default O castToOutputType(final Object result) {
         try {

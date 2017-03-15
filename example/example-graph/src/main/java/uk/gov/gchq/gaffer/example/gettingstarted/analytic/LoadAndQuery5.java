@@ -72,7 +72,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         // [add] add the edges to the graph
         // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, basicUser);
         // ---------------------------------------------------------

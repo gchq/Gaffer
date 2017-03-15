@@ -21,13 +21,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.IterableInput;
-import uk.gov.gchq.gaffer.operation.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -39,8 +38,7 @@ import java.util.Map;
  */
 public class GetElements implements
         Operation,
-        IterableInput<ElementSeed>,
-        IterableOutput<Element>,
+        IterableInputIterableOutput<ElementSeed, Element>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -107,7 +105,7 @@ public class GetElements implements
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInput.super.createInputArray();
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
     @Override
@@ -126,8 +124,7 @@ public class GetElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
-            implements IterableInput.Builder<GetElements, ElementSeed, Builder>,
-            IterableOutput.Builder<GetElements, Element, Builder>,
+            implements IterableInputIterableOutput.Builder<GetElements, ElementSeed, Element, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
             SeedMatching.Builder<GetElements, Builder>,
             Options.Builder<GetElements, Builder> {

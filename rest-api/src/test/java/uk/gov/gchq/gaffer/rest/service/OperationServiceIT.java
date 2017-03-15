@@ -45,7 +45,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperation(new GetAllElements<>());
+        final Response response = RestApiTestUtil.executeOperation(new GetAllElements());
 
         // Then
         final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
@@ -61,7 +61,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -78,7 +78,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -92,7 +92,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -107,7 +107,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);

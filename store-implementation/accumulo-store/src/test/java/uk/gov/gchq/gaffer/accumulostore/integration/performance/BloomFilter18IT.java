@@ -265,7 +265,7 @@ public class BloomFilter18IT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
+        final GetElements<ElementSeed, ?> operation = new GetElements(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);

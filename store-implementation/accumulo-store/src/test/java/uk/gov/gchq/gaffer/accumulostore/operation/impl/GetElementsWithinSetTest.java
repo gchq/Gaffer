@@ -36,7 +36,7 @@ public class GetElementsWithinSetTest implements OperationTest {
         final GetElementsWithinSet deserialisedOp = serialiser.deserialise(json, GetElementsWithinSet.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsA.next());

@@ -43,7 +43,7 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder<>().input(Collections.singletonList(elementSeed1))
+        final GetElements op = new GetElements.Builder().input(Collections.singletonList(elementSeed1))
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -55,13 +55,13 @@ public class GetElementsTest implements OperationTest {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
-        final GetElements op = new GetElements.Builder<>()
+        final GetElements op = new GetElements.Builder()
                 .input(elementSeed1, elementSeed2)
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetElements<?, ?> deserialisedOp = serialiser.deserialise(json, GetElements.class);
+        final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();
@@ -71,7 +71,7 @@ public class GetElementsTest implements OperationTest {
     }
 
     private void builderShouldCreatePopulatedOperationAll() {
-        final GetElements op = new GetElements.Builder<>()
+        final GetElements op = new GetElements.Builder()
                 .input(new EntitySeed("A"))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .view(new View.Builder()
@@ -90,7 +90,7 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
 
         // When
-        final GetElements op = new GetElements.Builder<>()
+        final GetElements op = new GetElements.Builder()
                 .input(elementSeed1, elementSeed2)
                 .build();
 
@@ -100,7 +100,7 @@ public class GetElementsTest implements OperationTest {
 
     private void builderShouldCreatePopulatedOperationIncoming() {
         ElementSeed seed = new EntitySeed("A");
-        GetElements<?, ?> op = new GetElements.Builder<>()
+        GetElements op = new GetElements.Builder()
                 .input(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .view(new View.Builder()

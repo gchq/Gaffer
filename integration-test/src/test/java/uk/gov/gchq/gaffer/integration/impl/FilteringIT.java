@@ -58,12 +58,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
                         .input(seeds)
                         .build();
 
-        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
                 .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -101,12 +101,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
                         .input(seeds)
                         .build();
 
-        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
                 .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -152,12 +152,12 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
                         .input(seeds)
                         .build();
 
-        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
                 .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -213,12 +213,12 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementSeed> seeds = Collections.singletonList((ElementSeed) new EntitySeed("A3"));
 
-        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
                         .input(seeds)
                         .build();
 
-        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
                 .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
@@ -264,12 +264,12 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementSeed> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetElements<ElementSeed, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
                         .input(seeds)
                         .build();
 
-        final GetElements<ElementSeed, Element> getElementsWithFiltering = new GetElements.Builder<>()
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
                 .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()

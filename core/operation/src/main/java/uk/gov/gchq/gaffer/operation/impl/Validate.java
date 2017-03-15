@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.IterableInput;
-import uk.gov.gchq.gaffer.operation.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**

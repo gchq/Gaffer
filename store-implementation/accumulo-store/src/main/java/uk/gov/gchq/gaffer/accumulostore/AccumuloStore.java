@@ -53,26 +53,19 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesInRanges;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -212,7 +205,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+    public <O> O doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
@@ -225,13 +218,9 @@ public class AccumuloStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        addOperationHandler(GetEdgesBetweenSets.class, new GetElementsBetweenSetsHandler());
         addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-        addOperationHandler(GetEdgesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
-        addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-        addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitTable.class, new SplitTableHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
@@ -239,22 +228,22 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+    protected OperationHandler<? extends GetAdjacentEntitySeeds> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
     }
 
@@ -282,6 +271,7 @@ public class AccumuloStore extends Store {
         // too high a latency, etc.
         if (elements != null) {
             for (final Element element : elements) {
+
                 final Pair<Key> keys;
                 try {
                     keys = keyPackage.getKeyConverter().getKeysFromElement(element);

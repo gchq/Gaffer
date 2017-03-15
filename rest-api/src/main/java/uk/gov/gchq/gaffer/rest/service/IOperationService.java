@@ -80,7 +80,7 @@ public interface IOperationService {
     @POST
     @Path("/get/elements/all")
     @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation);
+    CloseableIterable<Element> getAllElements(final GetAllElements operation);
 
     @POST
     @Path("/get/entities/all")
@@ -95,7 +95,7 @@ public interface IOperationService {
     @POST
     @Path("/get/elements")
     @ApiOperation(value = "Gets elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation);
+    CloseableIterable<Element> getElements(final GetElements operation);
 
     @POST
     @Path("/get/entities")

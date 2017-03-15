@@ -21,9 +21,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.operation.IterableInput;
-import uk.gov.gchq.gaffer.operation.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -35,8 +34,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class GenerateObjects<E extends Element, OBJ> implements
         Operation,
-        IterableInput<E>,
-        IterableOutput<OBJ> {
+        IterableInputIterableOutput<E, OBJ> {
     private ElementGenerator<OBJ> elementGenerator;
     private Iterable<E> input;
 
@@ -87,7 +85,7 @@ public class GenerateObjects<E extends Element, OBJ> implements
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInput.super.createInputArray();
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
     @Override
@@ -96,8 +94,7 @@ public class GenerateObjects<E extends Element, OBJ> implements
     }
 
     public static class Builder<E extends Element, OBJ> extends Operation.BaseBuilder<GenerateObjects<E, OBJ>, Builder<E, OBJ>>
-            implements IterableInput.Builder<GenerateObjects<E, OBJ>, E, Builder<E, OBJ>>,
-            IterableOutput.Builder<GenerateObjects<E, OBJ>, OBJ, Builder<E, OBJ>> {
+            implements IterableInputIterableOutput.Builder<GenerateObjects<E, OBJ>, E, OBJ, Builder<E, OBJ>> {
         public Builder() {
             super(new GenerateObjects<>());
         }

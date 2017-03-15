@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2016 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl.export.set;
+package uk.gov.gchq.gaffer.operation.io;
 
-import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface GetExport extends Export {
-    String getJobId();
+public interface InputIterableOutput<I, O_ITEM> extends
+        Input<I>,
+        IterableOutput<O_ITEM> {
 
-    void setJobId(final String jobId);
-
-    interface Builder<OP extends GetExport, B extends Builder<OP, ?>>
-            extends Export.Builder<OP, B> {
-        default B jobId(final String jobId) {
-            _getOp().setJobId(jobId);
-            return _self();
-        }
+    interface Builder<OP extends InputIterableOutput<I, O_ITEM>, I, O_ITEM, B extends Builder<OP, I, O_ITEM, ?>>
+            extends Operation.Builder<OP, B>,
+            Input.Builder<OP, I, B>,
+            IterableOutput.Builder<OP, O_ITEM, B> {
     }
 }

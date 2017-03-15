@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.io;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface Input<I> extends Operation {
-    /**
-     * @return the operation input.
-     */
+public interface InputB<I> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    I getInput();
+    I getInputB();
 
-    /**
-     * @param input the operation input to be set.
-     *              This can happen automatically from a previous operation if this operation is used in an
-     *              {@link OperationChain}.
-     */
-    void setInput(final I input);
+    void setInputB(final I inputB);
 
-    interface Builder<OP extends Input<I>, I, B extends Builder<OP, I, ?>>
+    interface Builder<OP extends InputB<I>, I, B extends Builder<OP, I, ?>>
             extends Operation.Builder<OP, B> {
-        default B input(final I input) {
-            _getOp().setInput(input);
+        default B inputB(final I inputB) {
+            _getOp().setInputB(inputB);
             return _self();
         }
     }

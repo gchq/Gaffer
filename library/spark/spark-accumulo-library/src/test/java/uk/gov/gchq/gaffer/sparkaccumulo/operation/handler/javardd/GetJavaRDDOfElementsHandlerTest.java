@@ -82,7 +82,7 @@ public class GetJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -236,7 +236,7 @@ public class GetJavaRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")

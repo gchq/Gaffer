@@ -512,7 +512,7 @@ public class GetDataFrameOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        graph.execute(new AddElements.Builder().elements(elements).build(), new User());
+        graph.execute(new AddElements.Builder().input(elements).build(), new User());
         return graph;
     }
 
