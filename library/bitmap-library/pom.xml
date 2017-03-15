@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>library</artifactId>
-        <version>0.6.2</version>
+        <version>0.6.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -49,12 +49,6 @@
                                     </include>
                                 </includes>
                             </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>com.fasterxml.jackson</pattern>
-                                    <shadedPattern>uk.gov.gchq.gaffer.shaded.com.fasterxml.jackson</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

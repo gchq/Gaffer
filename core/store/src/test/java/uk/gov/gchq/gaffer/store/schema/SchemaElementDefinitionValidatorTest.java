@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertFalse;
@@ -240,7 +241,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getAggregator()).willReturn(mock(ElementAggregator.class));
 
         // When
-        final boolean isValid = validator.validate(elementDef);
+        final boolean isValid = validator.validate(elementDef, false);
 
         // Then
         assertTrue(isValid);
@@ -271,13 +272,54 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
 
         // When
-        final boolean isValid = validator.validate(elementDef);
+        final boolean isValid = validator.validate(elementDef, true);
 
         // Then
         assertTrue(isValid);
         verify(elementDef).getClass(TestPropertyNames.PROP_1);
         verify(elementDef).getClass(TestPropertyNames.PROP_2);
         verify(function).getInputClasses();
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenNoPropertiesSoAggregatorIsValid() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(null);
+
+        // When
+        final boolean isValid = validator.validate(elementDef, true);
+
+        // Then
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenNoAggregateFunctionAndAggregateFunctionsAreRequired() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        final Map<String, String> propertyMap = mock(Map.class);
+        given(propertyMap.isEmpty()).willReturn(false);
+        given(elementDef.getPropertyMap()).willReturn(propertyMap);
+        given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)));
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(null);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
+
+        // When
+        final boolean isValid = validator.validate(elementDef, true);
+
+        // Then
+        assertFalse(isValid);
     }
 
     @Test
@@ -303,7 +345,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
 
         // When
-        final boolean isValid = validator.validate(elementDef);
+        final boolean isValid = validator.validate(elementDef, true);
 
         // Then
         assertFalse(isValid);

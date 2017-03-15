@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
+import javax.inject.Inject;
 
 /**
  * An implementation of {@link IJobService}. By default it will use a singleton
@@ -43,17 +44,12 @@ import uk.gov.gchq.gaffer.user.User;
  */
 public class JobService implements IJobService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
-    private final GraphFactory graphFactory;
-    private final UserFactory userFactory;
 
-    public JobService() {
-        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
-    }
+    @Inject
+    private GraphFactory graphFactory;
 
-    public JobService(final GraphFactory graphFactory, final UserFactory userFactory) {
-        this.graphFactory = graphFactory;
-        this.userFactory = userFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     @Override
     public JobDetail executeJob(final OperationChain opChain) {
