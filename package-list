@@ -29,6 +29,8 @@ uk.gov.gchq.gaffer.bitmap.serialisation.utils
 uk.gov.gchq.gaffer.commonutil
 uk.gov.gchq.gaffer.commonutil.exception
 uk.gov.gchq.gaffer.commonutil.iterable
+uk.gov.gchq.gaffer.core.exception
+uk.gov.gchq.gaffer.core.exception.serialisation
 uk.gov.gchq.gaffer.data
 uk.gov.gchq.gaffer.data.element
 uk.gov.gchq.gaffer.data.element.function
@@ -98,6 +100,7 @@ uk.gov.gchq.gaffer.rest.application
 uk.gov.gchq.gaffer.rest.example
 uk.gov.gchq.gaffer.rest.factory
 uk.gov.gchq.gaffer.rest.filter
+uk.gov.gchq.gaffer.rest.mapper
 uk.gov.gchq.gaffer.rest.serialisation
 uk.gov.gchq.gaffer.rest.service
 uk.gov.gchq.gaffer.serialisation
