@@ -33,6 +33,7 @@
         <module>named-operation</module>
         <module>job-tracker-library</module>
         <module>bitmap-library</module>
+        <module>cache-library</module>
     </modules>
 
     <profiles>
