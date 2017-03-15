@@ -26,5 +26,17 @@
 
     <artifactId>hazelcast-cache-service</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>cache-service</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.8</version>
+        </dependency>
+    </dependencies>
 
 </project>
