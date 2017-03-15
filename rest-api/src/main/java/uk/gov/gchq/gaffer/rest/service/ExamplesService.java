@@ -44,10 +44,12 @@ import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,15 +61,12 @@ import java.util.Map.Entry;
 
 public class ExamplesService implements IExamplesService {
     public static final String TRANSFORMED_PROPERTIES = "transformedProperties";
-    private final GraphFactory graphFactory;
 
-    public ExamplesService() {
-        this(GraphFactory.createGraphFactory());
-    }
+    @Inject
+    private GraphFactory graphFactory;
 
-    public ExamplesService(final GraphFactory graphFactory) {
-        this.graphFactory = graphFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     @Override
     public OperationChain execute() {

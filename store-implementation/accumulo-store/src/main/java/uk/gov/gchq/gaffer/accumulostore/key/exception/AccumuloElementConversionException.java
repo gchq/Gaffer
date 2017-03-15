@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key.exception;
 
-public class AccumuloElementConversionException extends Exception {
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
+
+public class AccumuloElementConversionException extends AccumuloRuntimeException {
 
     private static final long serialVersionUID = -7168514897597660295L;
 

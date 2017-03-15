@@ -77,8 +77,8 @@ import static org.junit.Assert.assertTrue;
  * than looking up data that is present.
  * This class is based on Accumulo's BloomFilterLayerLookupTest (org.apache.accumulo.core.file.BloomFilterLayerLookupTest).
  */
-public class BloomFilterIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilterIT.class);
+public class BloomFilter18IT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloomFilter18IT.class);
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private RangeFactory byteEntityRangeFactory;
@@ -163,16 +163,20 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
+
         final FileSKVWriter writer = FileOperations.getInstance()
-                .openWriter(filename, fs, conf, accumuloConf);
+                                                   .newWriterBuilder()
+                                                   .forFile(filename, fs, conf)
+                                                   .withTableConfiguration(accumuloConf)
+                                                   .build();
 
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                        .getGroup()
-                        .equals(TestGroups.ENTITY)) {
+                                    .getGroup()
+                                    .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -184,7 +188,12 @@ public class BloomFilterIT {
 
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
-                .openReader(filename, false, fs, conf, accumuloConf);
+                                                     .newReaderBuilder()
+                                                     .forFile(filename, fs, conf)
+                                                     .withTableConfiguration(accumuloConf)
+                                                     .seekToBeginning(false)
+                                                     .build();
+
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
@@ -256,9 +265,7 @@ public class BloomFilterIT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder<>()
-                .view(view)
-                .build();
+        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
             reader.seek(ran, new ArrayList<ByteSequence>(), false);
