@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.export.Export;
 import java.util.Set;
 
 /**

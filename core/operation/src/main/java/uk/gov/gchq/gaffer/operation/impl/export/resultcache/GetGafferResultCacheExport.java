@@ -16,14 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
-import uk.gov.gchq.gaffer.operation.Input;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
 
 public class GetGafferResultCacheExport implements
         Operation,
-        GetExport,
-        Input<String> {
+        GetExport {
     private String jobId;
     private String key;
 
@@ -38,19 +36,18 @@ public class GetGafferResultCacheExport implements
     }
 
     @Override
-    public String getInput() {
+    public String getJobId() {
         return jobId;
     }
 
     @Override
-    public void setInput(final String jobId) {
+    public void setJobId(final String jobId) {
         this.jobId = jobId;
     }
 
     public static class Builder
             extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
-            implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
-            Input.Builder<GetGafferResultCacheExport, String, Builder> {
+            implements GetExport.Builder<GetGafferResultCacheExport, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
         }

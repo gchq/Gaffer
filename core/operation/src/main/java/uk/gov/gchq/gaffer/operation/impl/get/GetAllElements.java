@@ -31,12 +31,10 @@ import java.util.Map;
  * Extends {@link GetAllElements}, but fetches all elements from the graph that are
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
- *
- * @param <E> the element return type
  */
-public class GetAllElements<E extends Element> implements
+public class GetAllElements implements
         Operation,
-        IterableOutput<E>,
+        IterableOutput<Element>,
         GraphFilters,
         Options {
     private View view;
@@ -64,8 +62,8 @@ public class GetAllElements<E extends Element> implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<E>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @Override
@@ -78,12 +76,12 @@ public class GetAllElements<E extends Element> implements
         this.options = options;
     }
 
-    public static class Builder<E extends Element> extends Operation.BaseBuilder<GetAllElements<E>, Builder<E>>
-            implements IterableOutput.Builder<GetAllElements<E>, E, Builder<E>>,
-            GraphFilters.Builder<GetAllElements<E>, Builder<E>>,
-            Options.Builder<GetAllElements<E>, Builder<E>> {
+    public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
+            implements IterableOutput.Builder<GetAllElements, Element, Builder>,
+            GraphFilters.Builder<GetAllElements, Builder>,
+            Options.Builder<GetAllElements, Builder> {
         public Builder() {
-            super(new GetAllElements<>());
+            super(new GetAllElements());
         }
     }
 }

@@ -35,7 +35,7 @@ public class GetSetExportTest implements OperationTest {
         // Given
         final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
-                .input("jobId")
+                .jobId("jobId")
                 .start(0)
                 .end(5)
                 .build();
@@ -46,7 +46,7 @@ public class GetSetExportTest implements OperationTest {
 
         // Then
         assertEquals("key", deserialisedOp.getKey());
-        assertEquals("jobId", deserialisedOp.getInput());
+        assertEquals("jobId", deserialisedOp.getJobId());
         assertEquals(0, deserialisedOp.getStart());
         assertEquals(5, (int) deserialisedOp.getEnd());
     }
@@ -57,14 +57,14 @@ public class GetSetExportTest implements OperationTest {
         // When
         final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
-                .input("jobId")
+                .jobId("jobId")
                 .start(0)
                 .end(5)
                 .build();
 
         // Then
         assertEquals("key", operation.getKey());
-        assertEquals("jobId", operation.getInput());
+        assertEquals("jobId", operation.getJobId());
         assertEquals(0, operation.getStart());
         assertEquals(5, (int) operation.getEnd());
     }

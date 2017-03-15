@@ -17,10 +17,10 @@
 package uk.gov.gchq.gaffer.operation.impl.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import uk.gov.gchq.gaffer.operation.Input;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetExport;
 
 public class GetJobResults extends GetGafferResultCacheExport {
     @JsonIgnore
@@ -38,7 +38,7 @@ public class GetJobResults extends GetGafferResultCacheExport {
 
     public static class Builder
             extends Operation.BaseBuilder<GetJobResults, Builder>
-            implements Input.Builder<GetJobResults, String, Builder> {
+            implements GetExport.Builder<GetJobResults, Builder> {
         public Builder() {
             super(new GetJobResults());
         }

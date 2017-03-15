@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public interface Input<I> {
+public interface Input<I> extends Operation {
     /**
      * @return the operation input.
      */

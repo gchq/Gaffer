@@ -29,7 +29,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Deduplicate.Builder
  */
-public class Deduplicate<T> implements Operation, IterableInput<T>, IterableOutput<T> {
+public class Deduplicate<T> implements
+        Operation,
+        IterableInput<T>,
+        IterableOutput<T> {
     private Iterable<T> input;
 
     @Override

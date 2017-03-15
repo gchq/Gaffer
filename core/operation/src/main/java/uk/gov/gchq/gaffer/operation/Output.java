@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
  *
  * @param <O> output type
  */
-public interface Output<O> {
+public interface Output<O> extends Operation {
     default O castToOutputType(final Object result) {
         try {
             return (O) result;

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
-import uk.gov.gchq.gaffer.operation.Input;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 /**
@@ -27,8 +26,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
  */
 public class GetSetExport implements
         Operation,
-        GetExport,
-        Input<String> {
+        GetExport {
     private String jobId;
     private String key;
     private int start = 0;
@@ -61,19 +59,18 @@ public class GetSetExport implements
     }
 
     @Override
-    public String getInput() {
+    public String getJobId() {
         return jobId;
     }
 
     @Override
-    public void setInput(final String jobId) {
+    public void setJobId(final String jobId) {
         this.jobId = jobId;
     }
 
     public static class Builder
             extends Operation.BaseBuilder<GetSetExport, Builder>
-            implements GetExport.Builder<GetSetExport, Builder>,
-            Input.Builder<GetSetExport, String, Builder> {
+            implements GetExport.Builder<GetSetExport, Builder> {
         public Builder() {
             super(new GetSetExport());
         }

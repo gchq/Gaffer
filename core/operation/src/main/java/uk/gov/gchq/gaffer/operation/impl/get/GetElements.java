@@ -36,14 +36,11 @@ import java.util.Map;
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned.
  * See extensions of {@link GetElements} for further details.
- *
- * @param <I_ITEM> the seed seed type
- * @param <E>      the element return type
  */
-public class GetElements<I_ITEM extends ElementSeed, E extends Element> implements
+public class GetElements implements
         Operation,
-        IterableInput<I_ITEM>,
-        IterableOutput<E>,
+        IterableInput<ElementSeed>,
+        IterableOutput<Element>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -51,7 +48,7 @@ public class GetElements<I_ITEM extends ElementSeed, E extends Element> implemen
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    private Iterable<I_ITEM> input;
+    private Iterable<ElementSeed> input;
     private Map<String, String> options;
 
     /**
@@ -98,12 +95,12 @@ public class GetElements<I_ITEM extends ElementSeed, E extends Element> implemen
     }
 
     @Override
-    public Iterable<I_ITEM> getInput() {
+    public Iterable<ElementSeed> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<I_ITEM> input) {
+    public void setInput(final Iterable<ElementSeed> input) {
         this.input = input;
     }
 
@@ -114,8 +111,8 @@ public class GetElements<I_ITEM extends ElementSeed, E extends Element> implemen
     }
 
     @Override
-    public TypeReference<CloseableIterable<E>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @Override
@@ -128,14 +125,14 @@ public class GetElements<I_ITEM extends ElementSeed, E extends Element> implemen
         this.options = options;
     }
 
-    public static class Builder<I_ITEM extends ElementSeed, E extends Element> extends Operation.BaseBuilder<GetElements<I_ITEM, E>, Builder<I_ITEM, E>>
-            implements IterableInput.Builder<GetElements<I_ITEM, E>, I_ITEM, Builder<I_ITEM, E>>,
-            IterableOutput.Builder<GetElements<I_ITEM, E>, E, Builder<I_ITEM, E>>,
-            SeededGraphFilters.Builder<GetElements<I_ITEM, E>, Builder<I_ITEM, E>>,
-            SeedMatching.Builder<GetElements<I_ITEM, E>, Builder<I_ITEM, E>>,
-            Options.Builder<GetElements<I_ITEM, E>, Builder<I_ITEM, E>> {
+    public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
+            implements IterableInput.Builder<GetElements, ElementSeed, Builder>,
+            IterableOutput.Builder<GetElements, Element, Builder>,
+            SeededGraphFilters.Builder<GetElements, Builder>,
+            SeedMatching.Builder<GetElements, Builder>,
+            Options.Builder<GetElements, Builder> {
         public Builder() {
-            super(new GetElements<>());
+            super(new GetElements());
         }
     }
 }

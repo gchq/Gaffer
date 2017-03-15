@@ -16,10 +16,18 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.export.Export;
 
 public interface GetExport extends Export {
+    String getJobId();
+
+    void setJobId(final String jobId);
+
     interface Builder<OP extends GetExport, B extends Builder<OP, ?>>
             extends Export.Builder<OP, B> {
+        default B jobId(final String jobId) {
+            _getOp().setJobId(jobId);
+            return _self();
+        }
     }
 }

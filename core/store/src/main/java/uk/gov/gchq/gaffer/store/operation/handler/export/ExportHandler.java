@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.operation.handler.export;
 
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.export.ExportTo;
-import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
+import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import java.util.Arrays;

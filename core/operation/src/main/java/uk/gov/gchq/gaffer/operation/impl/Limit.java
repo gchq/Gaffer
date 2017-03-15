@@ -31,7 +31,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Limit.Builder
  */
-public class Limit<T> implements Operation, IterableInput<T>, IterableOutput<T> {
+public class Limit<T> implements
+        Operation,
+        IterableInput<T>,
+        IterableOutput<T> {
     protected Integer resultLimit;
     private Iterable<T> input;
 

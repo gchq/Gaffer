@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl.export;
+package uk.gov.gchq.gaffer.operation.export;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-/**
- * An <code>Exporter</code> can store data of any kind and retrieve it.
- */
-public interface Exporter {
-    void add(String key, Iterable<?> results) throws OperationException;
+public interface Export {
+    String DEFAULT_KEY = "ALL";
 
-    CloseableIterable<?> get(String key) throws OperationException;
+    String getKey();
+
+    void setKey(final String key);
+
+    interface Builder<OP extends Export, B extends Builder<OP, ?>>
+            extends Operation.Builder<OP, B> {
+        default B key(final String key) {
+            _getOp().setKey(key);
+            return _self();
+        }
+    }
 }

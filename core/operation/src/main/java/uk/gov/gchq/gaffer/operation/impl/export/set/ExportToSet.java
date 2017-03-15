@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.export.Export;
 
 /**
  * An <code>ExportToSet</code> Export operation exports results to a Set.
