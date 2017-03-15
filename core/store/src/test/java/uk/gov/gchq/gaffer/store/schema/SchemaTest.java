@@ -206,6 +206,57 @@ public class SchemaTest {
     }
 
     @Test
+    public void shouldReturnTrueWhenSchemaHasNoAggregators() {
+        final Schema schemaWithAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new ExampleAggregateFunction())
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertTrue(schemaWithAggregators.hasAggregators());
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasNoAggregators() {
+        final Schema schemaNoAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertFalse(schemaNoAggregators.hasAggregators());
+    }
+
+    @Test
     public void createProgramaticSchema() {
         schema = createSchema();
     }
