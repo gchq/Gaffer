@@ -60,7 +60,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.ValidateHandler;

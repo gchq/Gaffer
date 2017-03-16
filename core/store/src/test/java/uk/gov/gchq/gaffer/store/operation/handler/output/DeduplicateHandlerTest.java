@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.operation.handler;
+package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.operation.handler.output.DeduplicateHandler;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
