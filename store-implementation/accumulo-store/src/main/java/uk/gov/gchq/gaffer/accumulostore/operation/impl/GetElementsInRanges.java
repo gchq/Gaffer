@@ -16,46 +16,55 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * This returns all data between the provided
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
  */
-public class GetElementsInRanges<I_ITEM extends Pair<? extends ElementSeed>, E extends Element>
+public class GetElementsInRanges
         implements Operation,
+        IterableInputIterableOutput<Pair<ElementSeed>, Element>,
         SeededGraphFilters,
-        IterableInput<I_ITEM>,
-        IterableOutput<E> {
+        Options {
 
-    private Iterable<I_ITEM> input;
+    private Iterable<Pair<ElementSeed>> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
+    private Map<String, String> options;
 
     @Override
-    public Iterable<I_ITEM> getInput() {
+    public Iterable<Pair<ElementSeed>> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<I_ITEM> input) {
+    public void setInput(final Iterable<Pair<ElementSeed>> input) {
         this.input = input;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
-    public TypeReference<CloseableIterable<E>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableElement();
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @Override
@@ -88,11 +97,22 @@ public class GetElementsInRanges<I_ITEM extends Pair<? extends ElementSeed>, E e
         this.directedType = directedType;
     }
 
-    public static class Builder<I_ITEM extends Pair<? extends ElementSeed>, E extends Element>
-            extends Operation.BaseBuilder<GetElementsInRanges<I_ITEM, E>, Builder<I_ITEM, E>>
-            implements IterableInput.Builder<GetElementsInRanges<I_ITEM, E>, I_ITEM, Builder<I_ITEM, E>> {
-        protected Builder() {
-            super(new GetElementsInRanges<>());
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsInRanges, Pair<ElementSeed>, Element, Builder>,
+            SeededGraphFilters.Builder<GetElementsInRanges, Builder>,
+            Options.Builder<GetElementsInRanges, Builder> {
+        public Builder() {
+            super(new GetElementsInRanges());
         }
     }
 }

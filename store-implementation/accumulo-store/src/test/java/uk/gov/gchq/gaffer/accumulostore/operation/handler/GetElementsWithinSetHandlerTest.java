@@ -144,7 +144,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(defaultView).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -176,7 +176,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -205,7 +205,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -234,7 +234,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
@@ -310,7 +310,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements.Builder().elements(data).build(), user);
+            store.execute(new AddElements.Builder().input(data).build(), user);
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

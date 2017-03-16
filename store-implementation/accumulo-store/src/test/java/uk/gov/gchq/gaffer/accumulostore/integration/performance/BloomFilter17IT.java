@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -254,12 +253,12 @@ public class BloomFilter17IT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder()
+        final GetElements operation = new GetElements.Builder()
                 .view(view)
                 .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
-            reader.seek(ran, new ArrayList<ByteSequence>(), false);
+            reader.seek(ran, new ArrayList<>(), false);
         }
     }
 }

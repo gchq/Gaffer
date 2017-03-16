@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -165,18 +164,18 @@ public class BloomFilter18IT {
         }
 
         final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .newWriterBuilder()
-                                                   .forFile(filename, fs, conf)
-                                                   .withTableConfiguration(accumuloConf)
-                                                   .build();
+                .newWriterBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .build();
 
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                                    .getGroup()
-                                    .equals(TestGroups.ENTITY)) {
+                        .getGroup()
+                        .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -188,11 +187,11 @@ public class BloomFilter18IT {
 
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .newReaderBuilder()
-                                                     .forFile(filename, fs, conf)
-                                                     .withTableConfiguration(accumuloConf)
-                                                     .seekToBeginning(false)
-                                                     .build();
+                .newReaderBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .seekToBeginning(false)
+                .build();
 
         try {
             // Calculate random look up rate - run it 3 times and take best
@@ -260,15 +259,15 @@ public class BloomFilter18IT {
     }
 
     private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        final View view = new View.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+        final GetElements operation = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
-
-        final GetElements<ElementSeed, ?> operation = new GetElements(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
-            reader.seek(ran, new ArrayList<ByteSequence>(), false);
+            reader.seek(ran, new ArrayList<>(), false);
         }
     }
 }

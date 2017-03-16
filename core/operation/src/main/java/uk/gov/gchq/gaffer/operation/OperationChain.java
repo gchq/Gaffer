@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
 import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.operation.io.PassthroughInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,11 +209,6 @@ public class OperationChain<OUT> {
             return new OutputBuilder<>(ops);
         }
 
-        public OutputBuilder<OUT> then(final PassthroughInput<? super OUT> op) {
-            ops.add(op);
-            return new OutputBuilder<>(ops);
-        }
-
         public <NEXT_OUT_ITEM> IterableOutputBuilder<NEXT_OUT_ITEM> then(final InputIterableOutput<? super OUT, NEXT_OUT_ITEM> op) {
             ops.add(op);
             return new IterableOutputBuilder<>(ops);
@@ -237,14 +231,14 @@ public class OperationChain<OUT> {
             this.ops = ops;
         }
 
+        public NoOutputBuilder then(final Input<? super Iterable<? super OUT_ITEM>> op) {
+            ops.add(op);
+            return new NoOutputBuilder(ops);
+        }
+
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final InputOutput<? super Iterable<? super OUT_ITEM>, NEXT_OUT> op) {
             ops.add(op);
             return new OutputBuilder<>(ops);
-        }
-
-        public IterableOutputBuilder<OUT_ITEM> then(final PassthroughInput<? super Iterable<? super OUT_ITEM>> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
         }
 
         public <NEXT_OUT> IterableOutputBuilder<NEXT_OUT> then(final InputIterableOutput<? super Iterable<? super OUT_ITEM>, NEXT_OUT> op) {

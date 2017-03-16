@@ -19,9 +19,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
-import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -38,7 +43,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see SampleDataForSplitPoints.Builder
  */
-public class SampleDataForSplitPoints extends MapReduce<Void, String> implements VoidInput<String> {
+public class SampleDataForSplitPoints implements
+        Operation,
+        Output<String>,
+        MapReduce,
+        Options {
 
     private String resultingSplitsFilePath;
     private boolean validate = true;
@@ -50,9 +59,14 @@ public class SampleDataForSplitPoints extends MapReduce<Void, String> implements
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
+    private List<String> inputPaths;
+    private String outputPath;
+    private JobInitialiser jobInitialiser;
+    private Integer numMapTasks;
+    private Map<String, String> options;
 
     public SampleDataForSplitPoints() {
-        super.setNumReduceTasks(1);
+        setNumReduceTasks(1);
     }
 
     public boolean isValidate() {
@@ -93,10 +107,60 @@ public class SampleDataForSplitPoints extends MapReduce<Void, String> implements
     }
 
     @Override
+    public List<String> getInputPaths() {
+        return inputPaths;
+    }
+
+    @Override
+    public void setInputPaths(final List<String> inputPaths) {
+        this.inputPaths = inputPaths;
+    }
+
+    @Override
+    public String getOutputPath() {
+        return outputPath;
+    }
+
+    @Override
+    public void setOutputPath(final String outputPath) {
+        this.outputPath = outputPath;
+    }
+
+    @Override
+    public JobInitialiser getJobInitialiser() {
+        return jobInitialiser;
+    }
+
+    @Override
+    public void setJobInitialiser(final JobInitialiser jobInitialiser) {
+        this.jobInitialiser = jobInitialiser;
+    }
+
+    @Override
+    public Integer getNumMapTasks() {
+        return numMapTasks;
+    }
+
+    @Override
+    public void setNumMapTasks(final Integer numMapTasks) {
+        this.numMapTasks = numMapTasks;
+    }
+
+    @Override
+    public Integer getNumReduceTasks() {
+        return 1;
+    }
+
+    @Override
     public void setNumReduceTasks(final Integer numReduceTasks) {
         if (1 != numReduceTasks) {
             throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
         }
+    }
+
+    @Override
+    public Class<? extends Partitioner> getPartitioner() {
+        return null;
     }
 
     @Override
@@ -105,41 +169,46 @@ public class SampleDataForSplitPoints extends MapReduce<Void, String> implements
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public TypeReference<String> getOutputTypeReference() {
         return new TypeReferenceImpl.String();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends MapReduce.BaseBuilder<SampleDataForSplitPoints, Void, String, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
+            implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,
+            Output.Builder<SampleDataForSplitPoints, String, Builder>,
+            Options.Builder<SampleDataForSplitPoints, Builder> {
+        public Builder() {
             super(new SampleDataForSplitPoints());
         }
 
-        public CHILD_CLASS resultingSplitsFilePath(final String resultingSplitsFilePath) {
-            op.setResultingSplitsFilePath(resultingSplitsFilePath);
-            return self();
+        public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
+            _getOp().setResultingSplitsFilePath(resultingSplitsFilePath);
+            return _self();
         }
 
-        public CHILD_CLASS validate(final boolean validate) {
-            op.setValidate(validate);
-            return self();
+        public Builder validate(final boolean validate) {
+            _getOp().setValidate(validate);
+            return _self();
         }
 
-        public CHILD_CLASS mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
-            op.setMapperGeneratorClassName(mapperGeneratorClass);
-            return self();
+        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+            _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
+            return _self();
         }
 
-        public CHILD_CLASS proportionToSample(final float proportionToSample) {
-            op.setProportionToSample(proportionToSample);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder proportionToSample(final float proportionToSample) {
+            _getOp().setProportionToSample(proportionToSample);
+            return _self();
         }
     }
 }

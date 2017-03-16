@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.GraphGet;
 
 /**
  * The iterator settings factory is designed to enable the AccumuloStore to
@@ -139,7 +138,7 @@ public interface IteratorSettingFactory {
      * filtering {@link uk.gov.gchq.gaffer.data.element.Element}s based on the
      * options defined in the gaffer.accumulostore.operation
      */
-    IteratorSetting getElementPropertyRangeQueryFilter(final GraphGet<?, ?> operation);
+    IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation);
 
     /**
      * Returns the iterator settings for a given iterator name. Allowed iterator

@@ -27,11 +27,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-public class ExportToSet implements
+public class ExportToSet<T> implements
         Operation,
-        ExportTo {
+        ExportTo<T> {
     private String key;
-    private Object input;
+    private T input;
 
     @Override
     public String getKey() {
@@ -44,24 +44,24 @@ public class ExportToSet implements
     }
 
     @Override
-    public Object getInput() {
+    public T getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Object input) {
+    public void setInput(final T input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<T> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static final class Builder extends Operation.BaseBuilder<ExportToSet, Builder>
-            implements ExportTo.Builder<ExportToSet, Builder> {
+    public static final class Builder<T> extends Operation.BaseBuilder<ExportToSet<T>, Builder<T>>
+            implements ExportTo.Builder<ExportToSet<T>, T, Builder<T>> {
         public Builder() {
-            super(new ExportToSet());
+            super(new ExportToSet<>());
         }
     }
 }

@@ -23,11 +23,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public <T extends SeededGraphGet<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    public List<Range> getRange(final ElementSeed elementSeed, final GraphFilters operation)
             throws RangeFactoryException {
         if (elementSeed instanceof EntitySeed) {
             return getRange(((EntitySeed) elementSeed).getVertex(), operation, operation.getView().hasEdges());
@@ -66,7 +66,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
     }
 
     @Override
-    public <T extends SeededGraphGet<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    public Range getRangeFromPair(final Pair<ElementSeed> pairRange, final GraphFilters operation)
             throws RangeFactoryException {
         final ArrayList<Range> ran = new ArrayList<>();
         ran.addAll(getRange(pairRange.getFirst(), operation));
@@ -87,9 +87,9 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         return new Range(min.getStartKey(), max.getEndKey());
     }
 
-    protected abstract <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                               final boolean endKey) throws RangeFactoryException;
+    protected abstract <OP extends SeededGraphFilters> Key getKeyFromEdgeSeed(final EdgeSeed seed, final GraphFilters operation,
+                                                                              final boolean endKey) throws RangeFactoryException;
 
-    protected abstract <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                             final boolean includeEdges) throws RangeFactoryException;
+    protected abstract <OP extends SeededGraphFilters> List<Range> getRange(final Object vertex, final GraphFilters operation,
+                                                                            final boolean includeEdges) throws RangeFactoryException;
 }

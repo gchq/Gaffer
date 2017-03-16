@@ -205,7 +205,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public <O> O doUnhandledOperation(final Operation operation, final Context context) {
+    public Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 

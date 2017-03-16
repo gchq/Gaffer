@@ -22,9 +22,9 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder<>()
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
                 .input(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
-                .seedsB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
+                .inputB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
                 .build();
 
         // When
@@ -48,9 +48,9 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>()
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
                 .input(AccumuloTestData.SEED_B)
-                .addSeedB(AccumuloTestData.SEED_A)
+                .inputB(AccumuloTestData.SEED_A)
                 .directedType(GraphFilters.DirectedType.UNDIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")

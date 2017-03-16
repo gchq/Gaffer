@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.SkipIterableOutput;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.store.Store;
@@ -87,7 +87,7 @@ public class JcsJobTrackerIT {
         // Given
         final OperationChain<JobDetail> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
-                .then(new SkipIterableOutput())
+                .then(new DiscardOutput())
                 .then(new GetJobDetails())
                 .build();
         final User user = new User("user01");

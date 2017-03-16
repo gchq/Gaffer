@@ -14,28 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
 
-public class SkipOutput implements
-        Operation,
-        Input<Object> {
-
+public class DiscardOutputHandler implements OperationHandler<DiscardOutput> {
     @Override
-    public Object getInput() {
+    public Void doOperation(final DiscardOutput operation, final Context context, final Store store)
+            throws OperationException {
         return null;
-    }
-
-    @Override
-    public void setInput(final Object input) {
-        // No action required
-    }
-
-    public static final class Builder extends BaseBuilder<SkipOutput, Builder> {
-        public Builder() {
-            super(new SkipOutput());
-        }
     }
 }

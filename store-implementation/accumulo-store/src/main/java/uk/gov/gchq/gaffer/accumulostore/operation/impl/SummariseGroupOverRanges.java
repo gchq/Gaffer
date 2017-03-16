@@ -16,10 +16,19 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraph;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * A <code>SummariseGroupOverRanges</code> operation will return an
@@ -29,20 +38,85 @@ import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraph;
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
  */
-public class SummariseGroupOverRanges<I_ITEM extends Pair<? extends ElementSeed>, E extends Element> extends GetElementsInRanges<I_ITEM, E> {
-    public abstract static class BaseBuilder<I_ITEM extends Pair<? extends ElementSeed>, E extends Element, CHILD_CLASS extends BaseBuilder<I_ITEM, E, ?>>
-            extends AbstractSeededGraph.BaseBuilder<SummariseGroupOverRanges<I_ITEM, E>, I_ITEM, E, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new SummariseGroupOverRanges<>());
-        }
+public class SummariseGroupOverRanges
+        implements Operation,
+        IterableInputIterableOutput<Pair<ElementSeed>, Element>,
+        SeededGraphFilters,
+        Options {
+
+    private Iterable<Pair<ElementSeed>> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
+    private Map<String, String> options;
+
+    @Override
+    public Iterable<Pair<ElementSeed>> getInput() {
+        return input;
     }
 
-    public static final class Builder<I_ITEM extends Pair<? extends ElementSeed>, E extends Element>
-            extends BaseBuilder<I_ITEM, E, Builder<I_ITEM, E>> {
+    @Override
+    public void setInput(final Iterable<Pair<ElementSeed>> input) {
+        this.input = input;
+    }
 
-        @Override
-        protected Builder<I_ITEM, E> self() {
-            return this;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
+            implements IterableInputIterableOutput.Builder<SummariseGroupOverRanges, Pair<ElementSeed>, Element, Builder>,
+            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
+            Options.Builder<SummariseGroupOverRanges, Builder> {
+        public Builder() {
+            super(new SummariseGroupOverRanges());
         }
     }
 }

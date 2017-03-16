@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
-import uk.gov.gchq.gaffer.operation.impl.SkipIterableOutput;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -80,7 +80,7 @@ public class ExportIT extends AbstractStoreIT {
                         .build())
                 .then(new GetElements())
                 .then(new ExportToSet())
-                .then(new SkipIterableOutput())
+                .then(new DiscardOutput())
                 .then(new GetSetExport())
                 .build();
 

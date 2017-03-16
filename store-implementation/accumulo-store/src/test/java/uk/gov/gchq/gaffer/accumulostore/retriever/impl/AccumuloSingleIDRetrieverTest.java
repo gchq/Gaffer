@@ -102,7 +102,7 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
@@ -130,7 +130,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -158,7 +158,7 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (IteratorSettingException e) {
@@ -186,11 +186,11 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
-        AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        AccumuloSingleIDRetriever<?> retriever = null;
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation, user);
+            retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -220,11 +220,11 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
-        AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        AccumuloSingleIDRetriever<?> retriever = null;
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         operation.setDirectedType(DirectedType.DIRECTED);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation, user);
+            retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -254,11 +254,11 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
-        AccumuloSingleIDRetriever retriever = null;
-        final GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        AccumuloSingleIDRetriever<?> retriever = null;
+        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation, user);
+            retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -287,11 +287,11 @@ public class AccumuloSingleIDRetrieverTest {
         }
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
-        AccumuloSingleIDRetriever retriever = null;
-        GetElements<ElementSeed, ?> operation = new GetElements.Builder().view(view).input(ids).build();
+        AccumuloSingleIDRetriever<?> retriever = null;
+        GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
-            retriever = new AccumuloSingleIDRetriever(store, operation, user);
+            retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
         } catch (IteratorSettingException e) {
             e.printStackTrace();
         }
@@ -330,5 +330,4 @@ public class AccumuloSingleIDRetrieverTest {
             fail("Couldn't add element: " + e);
         }
     }
-
 }

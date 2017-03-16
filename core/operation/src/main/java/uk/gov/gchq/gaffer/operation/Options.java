@@ -85,6 +85,15 @@ public interface Options {
             _getOp().addOption(name, value);
             return _self();
         }
+
+        default B options(final Map<String, String> options) {
+            if (null == _getOp().getOptions()) {
+                _getOp().setOptions(new HashMap<>(options));
+            } else {
+                _getOp().getOptions().putAll(options);
+            }
+            return _self();
+        }
     }
 }
 

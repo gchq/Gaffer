@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Arrays;
 
 public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
@@ -39,9 +40,14 @@ public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
     }
 
     interface Builder<OP extends IterableInputB<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
-            extends InputB.Builder<OP, Iterable<I_ITEM>, B> {
+            extends Operation.Builder<OP, B> {
         default B inputB(final I_ITEM... inputB) {
             return inputB(Lists.newArrayList(inputB));
+        }
+
+        default B inputB(final Iterable<? extends I_ITEM> input) {
+            _getOp().setInputB((Iterable) input);
+            return _self();
         }
     }
 }

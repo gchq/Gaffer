@@ -21,14 +21,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableInputB;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputB;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -39,11 +38,10 @@ import java.util.Map;
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s in set A.
  */
-public class GetElementsBetweenSets<E extends Element> implements
+public class GetElementsBetweenSets implements
         Operation,
-        IterableInput<EntitySeed>,
+        IterableInputIterableOutput<EntitySeed, Element>,
         IterableInputB<EntitySeed>,
-        IterableOutput<E>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -111,12 +109,12 @@ public class GetElementsBetweenSets<E extends Element> implements
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInput.super.createInputArray();
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
     @Override
-    public TypeReference<CloseableIterable<E>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @Override
@@ -139,15 +137,14 @@ public class GetElementsBetweenSets<E extends Element> implements
         this.inputB = inputB;
     }
 
-    public static class Builder<E extends Element> extends Operation.BaseBuilder<GetElementsBetweenSets<E>, Builder<E>>
-            implements IterableInput.Builder<GetElementsBetweenSets<E>, EntitySeed, Builder<E>>,
-            IterableInputB.Builder<GetElementsBetweenSets<E>, EntitySeed, Builder<E>>,
-            IterableOutput.Builder<GetElementsBetweenSets<E>, E, Builder<E>>,
-            SeededGraphFilters.Builder<GetElementsBetweenSets<E>, Builder<E>>,
-            SeedMatching.Builder<GetElementsBetweenSets<E>, Builder<E>>,
-            Options.Builder<GetElementsBetweenSets<E>, Builder<E>> {
+    public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsBetweenSets, EntitySeed, Element, Builder>,
+            IterableInputB.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
+            SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
+            SeedMatching.Builder<GetElementsBetweenSets, Builder>,
+            Options.Builder<GetElementsBetweenSets, Builder> {
         public Builder() {
-            super(new GetElementsBetweenSets<>());
+            super(new GetElementsBetweenSets());
         }
     }
 }

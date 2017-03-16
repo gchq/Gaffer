@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -38,13 +37,8 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements> {
     }
 
     public CloseableIterable<Element> doOperation(final GetAllElements operation, final User user, final AccumuloStore store) throws OperationException {
-        final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
         try {
-            return new AccumuloAllElementsRetriever(store, operation, user, iteratorFactory.getElementPropertyRangeQueryFilter(operation),
-                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            return new AccumuloAllElementsRetriever(store, operation, user);
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

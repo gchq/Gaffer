@@ -23,8 +23,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
@@ -33,11 +36,10 @@ import java.util.Set;
  * This allows queries for all data from between the provided
  * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} pairs.
  */
-public class AccumuloRangeIDRetriever
-        extends AccumuloItemRetriever<SeededGraphGet<Pair<ElementSeed>, ?>, Pair<ElementSeed>> {
+public class AccumuloRangeIDRetriever<OP extends IterableInputIterableOutput<Pair<ElementSeed>, Element> & GraphFilters & Options>
+        extends AccumuloItemRetriever<OP, Pair<ElementSeed>> {
 
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final SeededGraphGet<Pair<ElementSeed>, ?> operation,
-                                    final User user)
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
@@ -59,8 +61,7 @@ public class AccumuloRangeIDRetriever
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final SeededGraphGet<Pair<ElementSeed>, ?> operation,
-                                    final User user,
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
     }

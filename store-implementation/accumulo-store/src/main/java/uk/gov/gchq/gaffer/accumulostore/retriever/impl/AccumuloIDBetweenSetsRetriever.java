@@ -21,7 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.operation.IterableInputB;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
@@ -66,7 +66,7 @@ import java.util.Set;
  * {@link org.apache.hadoop.util.bloom.BloomFilter} is used client-side to
  * further reduce the chances of false positives making it to the user.
  */
-public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
+public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElementsBetweenSets> {
     private Iterable<EntitySeed> seedSetA;
     private Iterable<EntitySeed> seedSetB;
     private Iterator<EntitySeed> seedSetAIter;
@@ -74,14 +74,14 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever {
 
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final IterableInputB<EntitySeed, ?> operation,
+                                          final GetElementsBetweenSets operation,
                                           final User user,
                                           final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
-                                          final IterableInputB<EntitySeed, ?> operation,
+                                          final GetElementsBetweenSets operation,
                                           final User user,
                                           final boolean readEntriesIntoMemory,
                                           final IteratorSetting... iteratorSettings) throws StoreException {

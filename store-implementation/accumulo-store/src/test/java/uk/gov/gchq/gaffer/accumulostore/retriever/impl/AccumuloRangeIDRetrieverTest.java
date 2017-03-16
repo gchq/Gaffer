@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -93,7 +92,7 @@ public class AccumuloRangeIDRetrieverTest {
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
-        final SeededGraphGet<Pair<ElementSeed>, CloseableIterable<Element>> operation = new GetElementsInRanges.Builder<Pair<ElementSeed>, Element>()
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder()
                 .view(defaultView)
                 .input(simpleEntityRanges)
                 .build();

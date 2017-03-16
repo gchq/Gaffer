@@ -36,8 +36,10 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
@@ -47,31 +49,28 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloSetRetriever extends AccumuloRetriever<SeededGraphGet<EntitySeed, ?>> {
+public abstract class AccumuloSetRetriever<OP extends IterableInputIterableOutput<EntitySeed, Element> & GraphFilters & Options>
+        extends AccumuloRetriever<OP> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
-    public AccumuloSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
-                                final User user)
+    public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user)
             throws StoreException {
         this(store, operation, user, false);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
-                                final User user,
+    public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
                                 final boolean readEntriesIntoMemory) throws StoreException {
         super(store, operation, user);
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
-                                final User user,
+    public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
                                 final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
-    public AccumuloSetRetriever(final AccumuloStore store, final SeededGraphGet<EntitySeed, ?> operation,
-                                final User user,
+    public AccumuloSetRetriever(final AccumuloStore store, final OP operation, final User user,
                                 final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
         this.readEntriesIntoMemory = readEntriesIntoMemory;

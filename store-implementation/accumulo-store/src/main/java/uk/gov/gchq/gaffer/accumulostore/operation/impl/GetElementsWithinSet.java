@@ -16,42 +16,102 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraph;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * Retrieves {@link uk.gov.gchq.gaffer.data.element.Edge}s where both ends are in a given
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraph<EntitySeed, E> {
+public class GetElementsWithinSet implements
+        Operation,
+        IterableInputIterableOutput<EntitySeed, Element>,
+        SeededGraphFilters,
+        Options {
+    private View view;
+    private DirectedType directedType;
+    private Iterable<EntitySeed> input;
+    private Map<String, String> options;
+    private IncludeIncomingOutgoingType inOutType;
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<EntitySeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<EntitySeed> input) {
+        this.input = input;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
     @Override
     public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return IncludeIncomingOutgoingType.OUTGOING;
+        return inOutType;
     }
 
     @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!getIncludeIncomingOutGoing().equals(includeIncomingOutGoing)) {
-            throw new IllegalArgumentException(
-                    getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
-        }
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
     }
 
-    public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
-            extends AbstractSeededGraph.BaseBuilder<GetElementsWithinSet<E>, EntitySeed, E, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetElementsWithinSet<>());
-        }
-    }
-
-    public static final class Builder<E extends Element>
-            extends BaseBuilder<E, Builder<E>> {
-
-        @Override
-        protected Builder<E> self() {
-            return this;
+    public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsWithinSet, EntitySeed, Element, Builder>,
+            SeededGraphFilters.Builder<GetElementsWithinSet, Builder>,
+            Options.Builder<GetElementsWithinSet, Builder> {
+        public Builder() {
+            super(new GetElementsWithinSet());
         }
     }
 }

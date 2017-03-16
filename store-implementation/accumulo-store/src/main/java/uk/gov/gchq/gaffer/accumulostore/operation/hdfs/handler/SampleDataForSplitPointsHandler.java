@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints, String> {
+public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints> {
     @Override
     public String doOperation(final SampleDataForSplitPoints operation,
                               final Context context, final Store store)

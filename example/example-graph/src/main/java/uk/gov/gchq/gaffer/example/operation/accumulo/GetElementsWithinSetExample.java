@@ -40,10 +40,8 @@ public class GetElementsWithinSetExample extends OperationExample {
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And3() {
         // ---------------------------------------------------------
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
-                .input(new EntitySeed(3))
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .input(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3))
                 .build();
         // ---------------------------------------------------------
 
@@ -52,10 +50,8 @@ public class GetElementsWithinSetExample extends OperationExample {
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
-                .input(new EntitySeed(3))
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .input(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

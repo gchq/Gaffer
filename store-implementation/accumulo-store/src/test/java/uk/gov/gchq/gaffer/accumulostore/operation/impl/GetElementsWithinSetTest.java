@@ -22,7 +22,7 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder<>()
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
                 .input(Arrays.asList(
                         AccumuloTestData.SEED_SOURCE_1,
                         AccumuloTestData.SEED_DESTINATION_1,
@@ -48,7 +48,7 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().input(AccumuloTestData.SEED_A)
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder().input(AccumuloTestData.SEED_A)
                 .directedType(GraphFilters.DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()

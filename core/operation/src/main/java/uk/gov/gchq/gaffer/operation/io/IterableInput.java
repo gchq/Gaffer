@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Arrays;
 
 public interface IterableInput<I_ITEM> extends Input<Iterable<I_ITEM>> {
@@ -39,9 +40,15 @@ public interface IterableInput<I_ITEM> extends Input<Iterable<I_ITEM>> {
     }
 
     interface Builder<OP extends IterableInput<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
-            extends Input.Builder<OP, Iterable<I_ITEM>, B> {
+            extends Operation.Builder<OP, B> {
+        @SuppressWarnings("unchecked")
         default B input(final I_ITEM... input) {
             return input(Lists.newArrayList(input));
+        }
+
+        default B input(final Iterable<? extends I_ITEM> input) {
+            _getOp().setInput((Iterable) input);
+            return _self();
         }
     }
 }

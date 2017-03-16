@@ -19,15 +19,16 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import java.util.List;
 
 /**
  * The range factory is designed so that a List of Accumulo
  * {@link org.apache.accumulo.core.data.Range}s can be created from just a
- * provided {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} and
- * {@link uk.gov.gchq.gaffer.operation.SeededGraphGet} The created range list should contain
+ * provided {@link ElementSeed} and {@link IterableInput}.
+ * The created range list should contain
  * all the ranges (preferably optimised) necessary to retrieve all desired
  * {@link uk.gov.gchq.gaffer.data.element.Element}s as expressed by the
  * gaffer.accumulostore.operation.
@@ -39,12 +40,11 @@ public interface RangeFactory {
      *
      * @param elementSeed the element seed to get the range for
      * @param operation   the operation
-     * @param <T>         the type of operation
      * @return A List of Ranges that are required to return all elements that
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends SeededGraphGet<?, ?>> List<Range> getRange(final ElementSeed elementSeed, final T operation)
+    List<Range> getRange(final ElementSeed elementSeed, final GraphFilters operation)
             throws RangeFactoryException;
 
     /**
@@ -61,11 +61,10 @@ public interface RangeFactory {
      *
      * @param pairRange the pair of element seeds to get the range for
      * @param operation the operation
-     * @param <T>       the type of operation
      * @return A List of Ranges that are required to return all elements that
      * match the parameters of the query.
      * @throws RangeFactoryException if a range could not be created
      */
-    <T extends SeededGraphGet<?, ?>> Range getRangeFromPair(final Pair<ElementSeed> pairRange, final T operation)
+    Range getRangeFromPair(final Pair<ElementSeed> pairRange, final GraphFilters operation)
             throws RangeFactoryException;
 }

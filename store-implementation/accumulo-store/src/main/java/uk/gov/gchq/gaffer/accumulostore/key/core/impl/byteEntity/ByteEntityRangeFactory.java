@@ -25,8 +25,9 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
@@ -46,8 +47,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends SeededGraphGet<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                      final boolean endKey) throws RangeFactoryException {
+    protected Key getKeyFromEdgeSeed(final EdgeSeed seed, final GraphFilters operation,
+                                     final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
@@ -86,13 +87,14 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends SeededGraphGet<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                    final boolean includeEdgesParam) throws RangeFactoryException {
-        final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
+    protected List<Range> getRange(final Object vertex, final GraphFilters operation,
+                                   final boolean includeEdgesParam) throws RangeFactoryException {
+
+        final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
         final DirectedType directedType = operation.getDirectedType();
         final boolean includeEdges;
         final boolean includeEntities;
-        final boolean seedEqual = operation instanceof SeedMatching
+        final boolean seedEqual = (operation instanceof SeedMatching)
                 && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
         if (seedEqual) {
             includeEdges = false;

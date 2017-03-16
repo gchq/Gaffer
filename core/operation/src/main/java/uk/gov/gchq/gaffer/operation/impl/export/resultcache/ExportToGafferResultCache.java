@@ -28,12 +28,12 @@ import java.util.Set;
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
-public class ExportToGafferResultCache implements
+public class ExportToGafferResultCache<T> implements
         Operation,
-        ExportTo {
+        ExportTo<T> {
     private String key;
     private Set<String> opAuths;
-    private Object input;
+    private T input;
 
     @Override
     public String getKey() {
@@ -54,32 +54,32 @@ public class ExportToGafferResultCache implements
     }
 
     @Override
-    public Object getInput() {
+    public T getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Object input) {
+    public void setInput(final T input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Object> getOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<T> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static final class Builder extends Operation.BaseBuilder<ExportToGafferResultCache, Builder>
-            implements ExportTo.Builder<ExportToGafferResultCache, Builder> {
+    public static final class Builder<T> extends Operation.BaseBuilder<ExportToGafferResultCache<T>, Builder<T>>
+            implements ExportTo.Builder<ExportToGafferResultCache<T>, T, Builder<T>> {
         public Builder() {
-            super(new ExportToGafferResultCache());
+            super(new ExportToGafferResultCache<>());
         }
 
-        public Builder opAuths(final Set<String> opAuths) {
+        public Builder<T> opAuths(final Set<String> opAuths) {
             _getOp().setOpAuths(opAuths);
             return _self();
         }
 
-        public Builder opAuths(final String... opAuths) {
+        public Builder<T> opAuths(final String... opAuths) {
             _getOp().setOpAuths(Sets.newHashSet(opAuths));
             return _self();
         }
