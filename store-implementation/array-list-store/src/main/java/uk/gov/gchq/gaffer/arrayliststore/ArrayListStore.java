@@ -21,12 +21,9 @@ import uk.gov.gchq.gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetElementsHandler;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -68,22 +65,22 @@ public class ArrayListStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementId, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OperationHandler<GetElements> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+    protected OperationHandler<? extends GetAdjacentIds> getAdjacentIdsHandler() {
         return new GetAdjacentIdsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
     }
 
@@ -95,7 +92,7 @@ public class ArrayListStore extends Store {
     }
 
     @Override
-    protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("I do not know how to handle: " + operation.getClass().getSimpleName());
     }
 

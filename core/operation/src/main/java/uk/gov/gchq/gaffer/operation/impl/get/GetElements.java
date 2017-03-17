@@ -16,29 +16,38 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import java.util.List;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
- * Restricts {@link AbstractSeededGraphGetIterable} to take {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s as
+ * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
- * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
- *
- * @param <ID>           the id type
- * @param <ELEMENT_TYPE> the element return type
+ * There are various flags to filter out the elements returned.
+ * See extensions of {@link GetElements} for further details.
  */
-public class GetElements<ID extends ElementId, ELEMENT_TYPE extends Element>
-        extends AbstractSeededGraphGetIterable<ID, ELEMENT_TYPE>
-        implements SeedMatching {
+public class GetElements implements
+        Operation,
+        IterableInputIterableOutput<ElementId, Element>,
+        SeededGraphFilters,
+        SeedMatching,
+        Options {
     private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
+    private View view;
+    private IncludeIncomingOutgoingType inOutType;
+    private DirectedType directedType;
+    private Iterable<ElementId> input;
+    private Map<String, String> options;
 
     /**
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
@@ -53,53 +62,74 @@ public class GetElements<ID extends ElementId, ELEMENT_TYPE extends Element>
         return seedMatching;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public ID[] getSeedArray() {
-        final CloseableIterable<ID> input = getInput();
-        if (null != input) {
-            final List<ID> inputList = Lists.newArrayList(input);
-            return (ID[]) inputList.toArray(new ElementId[inputList.size()]);
-        }
-
-        return null;
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends GetElements<ID, ELEMENT_TYPE>,
-            ID extends ElementId,
-            ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, ID, ELEMENT_TYPE, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<OP_TYPE, ID, ELEMENT_TYPE, CHILD_CLASS> {
-        protected BaseBuilder(final OP_TYPE op) {
-            super(op);
-        }
-
-        protected BaseBuilder() {
-            super((OP_TYPE) new GetElements<ID, ELEMENT_TYPE>());
-        }
-
-        public CHILD_CLASS seedMatching(final SeedMatchingType seedMatching) {
-            op.setSeedMatching(seedMatching);
-            return self();
-        }
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
     }
 
-    public static final class Builder<ID extends ElementId, ELEMENT_TYPE extends Element>
-            extends BaseBuilder<GetElements<ID, ELEMENT_TYPE>, ID, ELEMENT_TYPE, Builder<ID, ELEMENT_TYPE>> {
+    @Override
+    public View getView() {
+        return view;
+    }
 
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<ElementId> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<ElementId> input) {
+        this.input = input;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
+            implements IterableInputIterableOutput.Builder<GetElements, ElementId, Element, Builder>,
+            SeededGraphFilters.Builder<GetElements, Builder>,
+            SeedMatching.Builder<GetElements, Builder>,
+            Options.Builder<GetElements, Builder> {
         public Builder() {
-            super(new GetElements<>());
-        }
-
-        public Builder(final GetElements<ID, ELEMENT_TYPE> op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<ID, ELEMENT_TYPE> self() {
-            return this;
+            super(new GetElements());
         }
     }
 }

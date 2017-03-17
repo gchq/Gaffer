@@ -7,12 +7,13 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
@@ -35,18 +36,21 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 5);
 
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(entity))
+                .input(entity)
                 .build(), user);
 
         // When 1 - before age off
-        final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+        final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY_2)
+                        .build())
                 .build(), user);
 
         // Then 1
-        final List<Entity> results1List = Lists.newArrayList(results1);
+        final List<Element> results1List = Lists.newArrayList(results1);
         assertEquals(1, results1List.size());
-        assertEquals(VERTEX, results1List.get(0).getVertex());
+        assertEquals(VERTEX, ((Entity) results1List.get(0)).getVertex());
 
 
         // Wait until after the age off time
@@ -55,12 +59,15 @@ public class StoreValidationIT extends AbstractStoreIT {
         }
 
         // When 2 - after age off
-        final CloseableIterable<Entity> results2 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+        final CloseableIterable<Element> results2 = graph.execute(new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY_2)
+                        .build())
                 .build(), user);
 
         // Then 2
-        final List<Entity> results2List = Lists.newArrayList(results2);
+        final List<Element> results2List = Lists.newArrayList(results2);
         assertTrue(results2List.isEmpty());
     }
 
@@ -74,17 +81,20 @@ public class StoreValidationIT extends AbstractStoreIT {
 
         // add elements but skip the validation
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(entity))
+                .input(Collections.<Element>singleton(entity))
                 .validate(false)
                 .build(), user);
 
         // When
-        final CloseableIterable<Entity> results1 = graph.execute(new GetEntities.Builder<>()
-                .addSeed(new EntitySeed(VERTEX))
+        final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY_2)
+                        .build())
                 .build(), user);
 
         // Then
-        final List<Entity> results1List = Lists.newArrayList(results1);
+        final List<Element> results1List = Lists.newArrayList(results1);
         assertTrue(results1List.isEmpty());
     }
 }

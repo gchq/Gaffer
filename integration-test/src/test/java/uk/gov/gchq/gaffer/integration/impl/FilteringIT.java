@@ -58,13 +58,13 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
 
-        final GetElements<ElementId, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
-                        .seeds(seeds)
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
+                        .input(seeds)
                         .build();
 
-        final GetElements<ElementId, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -101,13 +101,13 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
 
-        final GetElements<ElementId, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
-                        .seeds(seeds)
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
+                        .input(seeds)
                         .build();
 
-        final GetElements<ElementId, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -152,13 +152,13 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementId> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetElements<ElementId, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
-                        .seeds(seeds)
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
+                        .input(seeds)
                         .build();
 
-        final GetElements<ElementId, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -213,13 +213,13 @@ public class FilteringIT extends AbstractStoreIT {
         // Given
         final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
 
-        final GetElements<ElementId, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
-                        .seeds(seeds)
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
+                        .input(seeds)
                         .build();
 
-        final GetElements<ElementId, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -264,13 +264,13 @@ public class FilteringIT extends AbstractStoreIT {
         final List<ElementId> seeds = Arrays.asList(new EntitySeed("A3"),
                 new EdgeSeed("A5", "B5", false));
 
-        final GetElements<ElementId, Element> getElementsWithoutFiltering =
-                new GetElements.Builder<>()
-                        .seeds(seeds)
+        final GetElements getElementsWithoutFiltering =
+                new GetElements.Builder()
+                        .input(seeds)
                         .build();
 
-        final GetElements<ElementId, Element> getElementsWithFiltering = new GetElements.Builder<>()
-                .seeds(seeds)
+        final GetElements getElementsWithFiltering = new GetElements.Builder()
+                .input(seeds)
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()

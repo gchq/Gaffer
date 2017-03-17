@@ -16,17 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.List;
 
 /**
  * An <code>GenerateObjects</code> operation generates an {@link java.lang.Iterable} of objects from an
@@ -35,9 +32,11 @@ import java.util.List;
  * @param <OBJ> the type of objects in the output iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects.Builder
  */
-public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ>
-        extends AbstractOperation<CloseableIterable<ELEMENT_TYPE>, CloseableIterable<OBJ>> {
+public class GenerateObjects<OBJ> implements
+        Operation,
+        IterableInputIterableOutput<Element, OBJ> {
     private ElementGenerator<OBJ> elementGenerator;
+    private Iterable<Element> input;
 
     public GenerateObjects() {
     }
@@ -64,104 +63,50 @@ public class GenerateObjects<ELEMENT_TYPE extends Element, OBJ>
     }
 
     /**
-     * @return an {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be converted
-     */
-    public CloseableIterable<ELEMENT_TYPE> getElements() {
-        return getInput();
-    }
-
-    @JsonIgnore
-    @Override
-    public CloseableIterable<ELEMENT_TYPE> getInput() {
-        return super.getInput();
-    }
-
-    @JsonProperty
-    @Override
-    public void setInput(final CloseableIterable<ELEMENT_TYPE> input) {
-        super.setInput(input);
-    }
-
-    public void setInput(final Iterable<ELEMENT_TYPE> elements) {
-        super.setInput(new WrappedCloseableIterable<>(elements));
-    }
-
-    /**
+     * Only used for json serialisation
+     *
      * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s into objects
      */
-    // used for json serialisation
     void setElementGenerator(final ElementGenerator<OBJ> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
-    /**
-     * @return a {@link java.util.List} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be converted
-     */
-    @JsonProperty(value = "elements")
-    List<ELEMENT_TYPE> getElementList() {
-        final Iterable<ELEMENT_TYPE> input = getInput();
-        return null != input ? Lists.newArrayList(input) : null;
-    }
-
-    /**
-     * @param elements a {@link java.util.List} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be converted
-     */
-    @JsonProperty(value = "elements")
-    void setElementList(final List<ELEMENT_TYPE> elements) {
-        setInput(new WrappedCloseableIterable<>(elements));
+    @Override
+    public Iterable<Element> getInput() {
+        return input;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public void setInput(final Iterable<Element> input) {
+        this.input = input;
     }
 
-    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, OBJ, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, OBJ, ?>>
-            extends AbstractOperation.BaseBuilder<GenerateObjects<ELEMENT_TYPE, OBJ>,
-            CloseableIterable<ELEMENT_TYPE>,
-            CloseableIterable<OBJ>,
-            CHILD_CLASS> {
-        public BaseBuilder() {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<OBJ>> getOutputTypeReference() {
+        return TypeReferenceImpl.createCloseableIterableT();
+    }
+
+    public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>
+            implements IterableInputIterableOutput.Builder<GenerateObjects<OBJ>, Element, OBJ, Builder<OBJ>> {
+        public Builder() {
             super(new GenerateObjects<>());
-        }
-
-        /**
-         * @param elements the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to set as the input to the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
-         */
-        public CHILD_CLASS elements(final CloseableIterable<ELEMENT_TYPE> elements) {
-            op.setInput(elements);
-            return self();
-        }
-
-        /**
-         * @param elements the {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to set as the input to the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
-         */
-        public CHILD_CLASS elements(final Iterable<ELEMENT_TYPE> elements) {
-            op.setInput(new WrappedCloseableIterable<>(elements));
-            return self();
         }
 
         /**
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
+         * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
          */
-        public CHILD_CLASS generator(final ElementGenerator<OBJ> generator) {
-            op.setElementGenerator(generator);
-            return self();
-        }
-    }
-
-    public static final class Builder<ELEMENT_TYPE extends Element, OBJ>
-            extends BaseBuilder<ELEMENT_TYPE, OBJ, Builder<ELEMENT_TYPE, OBJ>> {
-        @Override
-        protected Builder<ELEMENT_TYPE, OBJ> self() {
-            return this;
+        public Builder<OBJ> generator(final ElementGenerator<OBJ> generator) {
+            _getOp().setElementGenerator(generator);
+            return _self();
         }
     }
 }

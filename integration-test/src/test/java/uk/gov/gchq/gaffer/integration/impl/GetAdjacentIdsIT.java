@@ -97,7 +97,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         }
 
         final GetAdjacentIds operation = new GetAdjacentIds.Builder()
-                .seeds(seeds)
+                .input(seeds)
                 .directedType(directedType)
                 .inOutType(inOutType)
                 .build();

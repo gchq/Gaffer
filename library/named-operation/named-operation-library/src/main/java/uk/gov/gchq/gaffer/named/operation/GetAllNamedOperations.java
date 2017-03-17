@@ -17,26 +17,23 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGetIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 
-public class GetAllNamedOperations extends AbstractSeededGetIterable<Void, NamedOperation> {
+public class GetAllNamedOperations implements
+        Operation,
+        IterableOutput<NamedOperation> {
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public TypeReference<CloseableIterable<NamedOperation>> getOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperation();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGetIterable.BaseBuilder<GetAllNamedOperations, Void, NamedOperation, CHILD_CLASS> {
-        public BaseBuilder() {
+    public static class Builder extends Operation.BaseBuilder<GetAllNamedOperations, Builder>
+            implements IterableOutput.Builder<GetAllNamedOperations, NamedOperation, Builder> {
+        public Builder() {
             super(new GetAllNamedOperations());
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

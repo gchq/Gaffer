@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,15 +52,18 @@ public class ValidateTest implements OperationTest {
             elements.add(elm2);
         }
 
-        final Validate op = new Validate(true);
-        op.setElements(elements);
+        final Validate op = new Validate.Builder()
+                .validate(true)
+                .skipInvalidElements(true)
+                .build();
+        op.setInput(elements);
 
         // When
         byte[] json = serialiser.serialise(op, true);
         final Validate deserialisedOp = serialiser.deserialise(json, Validate.class);
 
         // Then
-        final Iterator<Element> itr = deserialisedOp.getElements().iterator();
+        final Iterator<Element> itr = deserialisedOp.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
         assertEquals("vertex 1", elm1.getVertex());
@@ -84,8 +86,10 @@ public class ValidateTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element edge = new Edge("testGroup");
-        Validate validate = new Validate.Builder().elements(Arrays.asList(edge)).skipInvalidElements(true).option("testOption", "true").build();
-        assertEquals("true", validate.getOption("testOption"));
+        Validate validate = new Validate.Builder()
+                .input(edge)
+                .skipInvalidElements(true)
+                .build();
         assertTrue(validate.isSkipInvalidElements());
         assertEquals(edge, validate.getInput().iterator().next());
     }

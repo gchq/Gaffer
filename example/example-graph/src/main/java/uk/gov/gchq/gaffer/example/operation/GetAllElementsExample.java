@@ -39,7 +39,7 @@ public class GetAllElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getAllElements() {
         // ---------------------------------------------------------
-        final GetAllElements<Element> operation = new GetAllElements<>();
+        final GetAllElements operation = new GetAllElements();
         // ---------------------------------------------------------
 
         return runExample(operation);
@@ -47,7 +47,7 @@ public class GetAllElementsExample extends OperationExample {
 
     public CloseableIterable<Element> getAllElementsWithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetAllElements<Element> operation = new GetAllElements.Builder<>()
+        final GetAllElements operation = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

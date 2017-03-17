@@ -17,10 +17,8 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransform;
@@ -30,7 +28,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         new LoadAndQuery4().run();
     }
 
-    public CloseableIterable<Edge> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -77,7 +75,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
 
         // [add] add the edges to the graph
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, user);
         // ---------------------------------------------------------
@@ -86,10 +84,10 @@ public class LoadAndQuery4 extends LoadAndQuery {
 
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntityId> getRelatedEdges = new GetEdges.Builder<EntityId>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedEdges = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<Element> results = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
         for (final Element e : results) {
@@ -118,11 +116,11 @@ public class LoadAndQuery4 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final GetEdges<EntityId> getRelatedEdgesWithMean = new GetEdges.Builder<EntityId>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedEdgesWithMean = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<Edge> transientResults = graph.execute(getRelatedEdgesWithMean, user);
+        final CloseableIterable<Element> transientResults = graph.execute(getRelatedEdgesWithMean, user);
         // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (final Element e : transientResults) {

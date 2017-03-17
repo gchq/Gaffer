@@ -16,26 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-public class OperationImpl<I, O> extends AbstractOperation<I, O> {
-    @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
-    }
-
-
-    public static final class Builder<I, O>
-            extends AbstractOperation.BaseBuilder<OperationImpl<I, O>, I, O, Builder<I, O>> {
-        public Builder() {
-            super(new OperationImpl<>());
-        }
-
-        @Override
-        protected Builder<I, O> self() {
-            return this;
-        }
-    }
+public class OperationImpl implements Operation {
 }

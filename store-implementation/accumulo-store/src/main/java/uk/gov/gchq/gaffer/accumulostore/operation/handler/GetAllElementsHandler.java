@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloAllElementsRetriever;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -30,21 +29,16 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
+    public CloseableIterable<Element> doOperation(final GetAllElements operation, final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final AccumuloStore store) throws OperationException {
-        final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
+    public CloseableIterable<Element> doOperation(final GetAllElements operation, final User user, final AccumuloStore store) throws OperationException {
         try {
-            return new AccumuloAllElementsRetriever(store, operation, user, iteratorFactory.getElementPropertyRangeQueryFilter(operation),
-                    iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            return new AccumuloAllElementsRetriever(store, operation, user);
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

@@ -100,7 +100,7 @@ public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogL
                     .append(outputs, that.outputs)
                     .append(sketch.getBytes(), that.sketch.getBytes())
                     .isEquals();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.warn("Could not compare HyperLogLogPlus objects using their bytes", e);
             return false;
         }

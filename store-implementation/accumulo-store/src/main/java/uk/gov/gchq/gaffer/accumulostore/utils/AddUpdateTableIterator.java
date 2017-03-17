@@ -32,8 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 
-import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.schemaContainsAggregators;
-
 /**
  * This class is designed to update iterator settings for iterators set on a
  * table.
@@ -136,7 +134,7 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
-            if (schemaContainsAggregators(store.getSchema())) {
+            if (store.getSchema().hasAggregators()) {
                 try {
                     addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
                 } catch (final IteratorSettingException e) {

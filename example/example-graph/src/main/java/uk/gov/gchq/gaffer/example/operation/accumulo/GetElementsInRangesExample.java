@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.example.operation.accumulo;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
+@SuppressWarnings("unchecked")
 public class GetElementsInRangesExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
         new GetElementsInRangesExample().run();
@@ -42,8 +41,8 @@ public class GetElementsInRangesExample extends OperationExample {
 
     public Iterable<Element> getAllElementsInTheRangeFromEntity1toEntity4() {
         // ---------------------------------------------------------
-        final GetElementsInRanges<Pair<EntityId>, Element> operation = new GetElementsInRanges.Builder<Pair<EntityId>, Element>()
-                .addSeed(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder()
+                .input(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
                 .build();
         // ---------------------------------------------------------
 
@@ -52,8 +51,8 @@ public class GetElementsInRangesExample extends OperationExample {
 
     public Iterable<Element> getAllElementsInTheRangeFromEntity4ToEdge4_5() {
         // ---------------------------------------------------------
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>()
-                .addSeed(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder()
+                .input(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))
                 .build();
         // ---------------------------------------------------------
 

@@ -93,10 +93,11 @@ public class GetAllElementsIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
         graph.execute(new AddElements.Builder()
-                .elements(Arrays.asList((Element) edge1, edge2))
-                .build(), getUser());
+                        .input(edge1, edge2)
+                        .build(),
+                getUser());
 
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -120,7 +121,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -140,7 +141,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -163,7 +164,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -214,7 +215,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         if (includeEdges) {
             viewBuilder.edge(TestGroups.EDGE);
         }
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .directedType(directedType)
                 .view(viewBuilder.build())
                 .build();

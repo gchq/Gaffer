@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualNullSafe;
@@ -31,6 +32,7 @@ import org.apache.spark.sql.sources.LessThanOrEqual;
 import org.apache.spark.sql.sources.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.FilterFunction;
@@ -42,8 +44,9 @@ import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -99,16 +102,16 @@ public class FiltersToOperationConverter {
      *
      * @return an operation to return the required data.
      */
-    public AbstractGetRDD<?> getOperation() {
+    public Output<RDD<Element>> getOperation() {
         // Check whether the filters specify any groups
         View derivedView = applyGroupFilters(view);
         if (derivedView == null) {
             return null;
         }
         // Check whether the filters specify a value for the vertex, source or destination.
-        AbstractGetRDD<?> operation = applyVertexSourceDestinationFilters(derivedView);
+        Output<RDD<Element>> operation = applyVertexSourceDestinationFilters(derivedView);
         // Check whether the filters specify a property - if so can ignore groups that don't contain that property
-        derivedView = operation.getView();
+        derivedView = ((GraphFilters) operation).getView();
         operation = applyPropertyFilters(derivedView, operation);
         return operation;
     }
@@ -150,9 +153,9 @@ public class FiltersToOperationConverter {
         return derivedView;
     }
 
-    private AbstractGetRDD<?> applyVertexSourceDestinationFilters(final View view) {
+    private Output<RDD<Element>> applyVertexSourceDestinationFilters(final View view) {
         View clonedView = view.clone();
-        AbstractGetRDD<?> operation = null;
+        Output<RDD<Element>> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
@@ -167,8 +170,11 @@ public class FiltersToOperationConverter {
                     }
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
-                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
-                    operation.setView(clonedView);
+                    operation = new GetRDDOfElements.Builder()
+                            .sparkContext(sqlContext.sparkContext())
+                            .input(new EntitySeed(equalTo.value()))
+                            .view(clonedView)
+                            .build();
                     break;
                 } else if (attribute.equals(SchemaToStructTypeConverter.SRC_COL_NAME)
                         || attribute.equals(SchemaToStructTypeConverter.DST_COL_NAME)) {
@@ -181,21 +187,26 @@ public class FiltersToOperationConverter {
                     }
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
-                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
-                    operation.setView(clonedView);
+                    operation = new GetRDDOfElements.Builder()
+                            .sparkContext(sqlContext.sparkContext())
+                            .input(new EntitySeed(equalTo.value()))
+                            .view(clonedView)
+                            .build();
                     break;
                 }
             }
         }
         if (operation == null) {
             LOGGER.debug("Setting operation to GetRDDOfAllElements");
-            operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            operation.setView(clonedView);
+            operation = new GetRDDOfAllElements.Builder()
+                    .sparkContext(sqlContext.sparkContext())
+                    .view(clonedView)
+                    .build();
         }
         return operation;
     }
 
-    private AbstractGetRDD<?> applyPropertyFilters(final View derivedView, final AbstractGetRDD<?> operation) {
+    private Output<RDD<Element>> applyPropertyFilters(final View derivedView, final Output<RDD<Element>> operation) {
         final List<Set<String>> groupsRelatedToFilters = new ArrayList<>();
         for (final Filter filter : filters) {
             final Set<String> groupsRelatedToFilter = getGroupsFromFilter(filter);
@@ -270,9 +281,9 @@ public class FiltersToOperationConverter {
             }
         }
         if (updated) {
-            operation.setView(builder.build());
+            ((GraphFilters) operation).setView(builder.build());
         } else {
-            operation.setView(derivedView);
+            ((GraphFilters) operation).setView(derivedView);
         }
         return operation;
     }

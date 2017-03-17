@@ -22,12 +22,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import java.util.Collections;
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -43,21 +42,21 @@ public class GetElementsTest implements OperationTest {
         final ElementId elementId1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementId1))
+        final GetElements op = new GetElements.Builder()
+                .input(elementId1)
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
         // Then
-        assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
+        assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithElementIds() throws SerialisationException {
         // Given
-        final ElementId elementId1 = new EntitySeed("identifier");
-        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
-        final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementId1)
-                .addSeed(elementId2)
+        final ElementSeed elementSeed1 = new EntitySeed("identifier");
+        final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
+        final GetElements op = new GetElements.Builder()
+                .input(elementSeed1, elementSeed2)
                 .build();
 
         // When
@@ -65,17 +64,16 @@ public class GetElementsTest implements OperationTest {
         final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
-        assertEquals(elementId1, itr.next());
-        assertEquals(elementId2, itr.next());
+        final Iterator itr = deserialisedOp.getInput().iterator();
+        assertEquals(elementSeed1, itr.next());
+        assertEquals(elementSeed2, itr.next());
         assertFalse(itr.hasNext());
     }
 
     private void builderShouldCreatePopulatedOperationAll() {
-        final GetElements op = new GetElements.Builder<>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
@@ -83,7 +81,6 @@ public class GetElementsTest implements OperationTest {
 
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH,
                 op.getIncludeIncomingOutGoing());
-        assertEquals("true", op.getOption("testOption"));
         assertNotNull(op.getView());
     }
 
@@ -93,30 +90,27 @@ public class GetElementsTest implements OperationTest {
         final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
 
         // When
-        final GetElements op = new GetElements.Builder<>()
-                .addSeed(elementId1)
-                .addSeed(elementId2)
+        final GetElements op = new GetElements.Builder()
+                .input(elementId1, elementId2)
                 .build();
 
         // Then
-        assertEquals(SeedMatching.SeedMatchingType.RELATED, op.getSeedMatching());
+        assertEquals(SeedMatchingType.RELATED, op.getSeedMatching());
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {
-        ElementId seed = new EntitySeed("A");
-        GetElements op = new GetElements.Builder<>()
-                .addSeed(seed)
+        ElementSeed seed = new EntitySeed("A");
+        GetElements op = new GetElements.Builder()
+                .input(seed)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
-                .option("testOption", "true")
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals("true", op.getOption("testOption"));
-        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, op
-                .getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING,
+                op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getSeeds().iterator().next());
+        assertEquals(seed, op.getInput().iterator().next());
     }
 
     @Test

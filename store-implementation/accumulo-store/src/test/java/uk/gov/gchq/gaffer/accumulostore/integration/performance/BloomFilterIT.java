@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -54,7 +53,6 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -165,9 +163,8 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
-        final FileSKVWriter writer = FileOperations.getInstance()
-                .openWriter(filename, fs, conf, accumuloConf);
 
+        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
@@ -185,8 +182,7 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance()
-                .openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
@@ -258,12 +254,12 @@ public class BloomFilterIT {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementId, ?> operation = new GetElements.Builder<>()
+        final GetElements operation = new GetElements.Builder()
                 .view(view)
                 .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
-            reader.seek(ran, new ArrayList<ByteSequence>(), false);
+            reader.seek(ran, new ArrayList<>(), false);
         }
     }
 }

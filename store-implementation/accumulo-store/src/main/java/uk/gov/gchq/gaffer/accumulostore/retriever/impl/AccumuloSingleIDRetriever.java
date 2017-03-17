@@ -22,8 +22,11 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
@@ -32,10 +35,10 @@ import java.util.Set;
  * This allows queries for all data related to the provided
  * {@link ElementId}s.
  */
-public class AccumuloSingleIDRetriever
-        extends AccumuloItemRetriever<SeededGraphGet<? extends ElementId, ?>, ElementId> {
+public class AccumuloSingleIDRetriever<OP extends IterableInputIterableOutput<ElementId, Element> & GraphFilters & Options>
+        extends AccumuloItemRetriever<OP, ElementId> {
 
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final SeededGraphGet<? extends ElementId, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
                                      final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
@@ -58,7 +61,7 @@ public class AccumuloSingleIDRetriever
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloSingleIDRetriever(final AccumuloStore store, final SeededGraphGet<? extends ElementId, ?> operation,
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
                                      final User user,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);

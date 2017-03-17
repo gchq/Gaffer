@@ -20,11 +20,11 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import java.util.Map;
 
@@ -50,9 +50,10 @@ public class GetGafferResultCacheExportExample extends OperationExample {
 
     public CloseableIterable<?> simpleExportAndGet() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToGafferResultCache())
+        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToGafferResultCache<>())
+                .then(new DiscardOutput())
                 .then(new GetGafferResultCacheExport())
                 .build();
         // ---------------------------------------------------------
@@ -63,11 +64,12 @@ public class GetGafferResultCacheExportExample extends OperationExample {
     public JobDetail exportAndGetJobDetails() {
         // ---------------------------------------------------------
         final OperationChain<JobDetail> exportOpChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToGafferResultCache())
+                .first(new GetAllElements())
+                .then(new ExportToGafferResultCache<>())
+                .then(new DiscardOutput())
                 .then(new GetJobDetails())
                 .build();
-        // ---------------------------------------------------------
+        // ---------------------------------------------- -----------
 
         jobDetail = runExample(exportOpChain);
         return jobDetail;
@@ -75,7 +77,7 @@ public class GetGafferResultCacheExportExample extends OperationExample {
 
     public CloseableIterable<?> getExport() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
                 .first(new GetGafferResultCacheExport.Builder()
                         .jobId(jobDetail.getJobId())
                         .build())
@@ -88,14 +90,16 @@ public class GetGafferResultCacheExportExample extends OperationExample {
     public Map<String, CloseableIterable<?>> exportMultipleResultsToGafferResultCacheAndGetAllResults() {
         // ---------------------------------------------------------
         final OperationChain<Map<String, CloseableIterable<?>>> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToGafferResultCache.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToGafferResultCache.Builder<>()
                         .key("edges")
                         .build())
-                .then(new GetAllEntities())
-                .then(new ExportToGafferResultCache.Builder()
+                .then(new DiscardOutput())
+                .then(new GetAllElements())
+                .then(new ExportToGafferResultCache.Builder<>()
                         .key("entities")
                         .build())
+                .then(new DiscardOutput())
                 .then(new GetExports.Builder()
                         .exports(new GetGafferResultCacheExport.Builder()
                                         .key("edges")

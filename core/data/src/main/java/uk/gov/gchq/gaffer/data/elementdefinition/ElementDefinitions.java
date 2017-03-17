@@ -301,7 +301,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                     } else {
                         elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
                     }
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);
                 }
 

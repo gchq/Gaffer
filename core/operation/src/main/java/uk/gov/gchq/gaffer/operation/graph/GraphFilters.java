@@ -16,7 +16,28 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
-public interface GraphFilters {
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.operation.Operation;
+
+public interface GraphFilters extends OperationView {
+    /**
+     * @param edge the {@link Edge} to be validated.
+     * @return true if the {@link Edge} is valid. Otherwise false and a reason should be logged.
+     */
+    default boolean validate(final Edge edge) {
+        return null != edge && validateFlags(edge)
+                && validatePreAggregationFilter(edge)
+                && validatePostAggregationFilter(edge)
+                && validatePostTransformFilter(edge);
+    }
+
+    default boolean validateFlags(final Edge edge) {
+        return null == getDirectedType()
+                || DirectedType.BOTH == getDirectedType()
+                || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
+                || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
+    }
+
     DirectedType getDirectedType();
 
     void setDirectedType(final DirectedType directedType);
@@ -28,5 +49,15 @@ public interface GraphFilters {
      */
     enum DirectedType {
         BOTH, DIRECTED, UNDIRECTED
+    }
+
+    interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
+            Operation.Builder<OP, B>,
+            OperationView.Builder<OP, B> {
+
+        default B directedType(final DirectedType directedType) {
+            _getOp().setDirectedType(directedType);
+            return _self();
+        }
     }
 }

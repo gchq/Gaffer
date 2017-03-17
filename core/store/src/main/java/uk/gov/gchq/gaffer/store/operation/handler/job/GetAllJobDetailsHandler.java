@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetAllJobDetailsHandler implements OperationHandler<GetAllJobDetails, CloseableIterable<JobDetail>> {
+public class GetAllJobDetailsHandler implements OperationHandler<GetAllJobDetails> {
     @Override
     public CloseableIterable<JobDetail> doOperation(final GetAllJobDetails operation, final Context context, final Store store) throws OperationException {
         if (null == store.getJobTracker()) {

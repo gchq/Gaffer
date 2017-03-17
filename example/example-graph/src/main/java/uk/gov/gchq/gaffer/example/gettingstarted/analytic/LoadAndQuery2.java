@@ -17,9 +17,7 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator2;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
@@ -27,7 +25,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public CloseableIterable<Edge> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -74,7 +72,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         // [add] Add the edges to the graph
         // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, user);
         // ---------------------------------------------------------
@@ -83,10 +81,10 @@ public class LoadAndQuery2 extends LoadAndQuery {
 
         // [get simple] Get all the edges related to vertex 1
         // ---------------------------------------------------------
-        final GetEdges<EntityId> getRelatedEdges = new GetEdges.Builder<EntityId>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedEdges = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Edge> allColoursResults = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<Element> allColoursResults = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing vertex 1");
         log("\nNotice that the edges are aggregated within their groups");
@@ -100,11 +98,11 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final View view = new View.Builder()
                 .edge("red")
                 .build();
-        final GetEdges<EntityId> getRelatedRedEdges = new GetEdges.Builder<EntityId>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedRedEdges = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<Edge> redResults = graph.execute(getRelatedRedEdges, user);
+        final CloseableIterable<Element> redResults = graph.execute(getRelatedRedEdges, user);
         // ---------------------------------------------------------
         log("\nAll red edges containing vertex 1\n");
         for (final Element e : redResults) {

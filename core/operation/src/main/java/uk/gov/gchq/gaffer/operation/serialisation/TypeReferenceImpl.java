@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import java.util.Set;
 
 
-public class TypeReferenceImpl {
+public final class TypeReferenceImpl {
+    private TypeReferenceImpl() {
+    }
+
     public static class CountGroups extends TypeReference<GroupCounts> {
     }
 
@@ -47,6 +50,10 @@ public class TypeReferenceImpl {
             TypeReference<CloseableIterable<java.lang.Object>> {
     }
 
+    public static <T> TypeReference<CloseableIterable<T>> createCloseableIterableT() {
+        return (TypeReference) new CloseableIterableObj();
+    }
+
     public static class CloseableIterableElement extends
             TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
     }
@@ -55,10 +62,10 @@ public class TypeReferenceImpl {
             TypeReference<CloseableIterable<EntityId>> {
     }
 
-    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.impl.export.Exporter> {
+    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.export.Exporter> {
     }
 
-    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.impl.export.Exporter>> {
+    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.export.Exporter>> {
     }
 
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
@@ -71,5 +78,8 @@ public class TypeReferenceImpl {
     }
 
     public static class JobDetail extends TypeReference<uk.gov.gchq.gaffer.jobtracker.JobDetail> {
+    }
+
+    public static class JobDetailIterable extends TypeReference<CloseableIterable<uk.gov.gchq.gaffer.jobtracker.JobDetail>> {
     }
 }

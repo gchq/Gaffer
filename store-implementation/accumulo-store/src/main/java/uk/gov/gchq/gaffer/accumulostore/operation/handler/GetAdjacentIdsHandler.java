@@ -28,18 +28,19 @@ import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-import java.util.HashMap;
+import java.util.Collections;
 
-public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> {
+public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds> {
 
     @Override
     public CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
@@ -48,23 +49,27 @@ public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds, C
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
-                                                   final User user,
-                                                   final AccumuloStore store)
+    public CloseableIterable<EntityId> doOperation(final GetAdjacentIds op,
+                                                     final User user,
+                                                     final AccumuloStore store)
             throws OperationException {
-        operation.addOption(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         final AccumuloRetriever<?> edgeRetriever;
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
-            final GetEdges<EntityId> getEdges = new GetEdges<>();
-            getEdges.setOptions(new HashMap<>(operation.getOptions()));
-            getEdges.setView(operation.getView());
-            getEdges.setSeeds(operation.getSeeds());
-            getEdges.setDirectedType(operation.getDirectedType());
-            getEdges.setIncludeIncomingOutGoing(operation.getIncludeIncomingOutGoing());
+            final GetElements getEdges = new GetElements.Builder()
+                    .options(op.getOptions())
+                    .option(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true")
+                    .view(new View.Builder()
+                            .merge(op.getView())
+                            .entities(Collections.emptyMap())
+                            .build())
+                    .input(op.getInput())
+                    .directedType(op.getDirectedType())
+                    .inOutType(op.getIncludeIncomingOutGoing())
+                    .build();
 
-            edgeRetriever = new AccumuloSingleIDRetriever(store, getEdges, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(getEdges.getView(), store),
+            edgeRetriever = new AccumuloSingleIDRetriever<>(store, getEdges, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(getEdges.getView(), store),
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(getEdges.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(getEdges),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(getEdges.getView(), store));

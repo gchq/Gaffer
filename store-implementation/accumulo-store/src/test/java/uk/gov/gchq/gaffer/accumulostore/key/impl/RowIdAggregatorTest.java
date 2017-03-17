@@ -260,7 +260,7 @@ public class RowIdAggregatorTest {
                 fail(e.getMessage());
             }
             final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
-            final SummariseGroupOverRanges summariseGroupOverRanges = new SummariseGroupOverRanges.Builder<>()
+            final SummariseGroupOverRanges summariseGroupOverRanges = new SummariseGroupOverRanges.Builder()
                     .view(new View.Builder()
                             .edge("BasicEdge2")
                             .entity("BasicEntity")

@@ -77,14 +77,14 @@ public class GafferResultCacheExporterTest {
         );
 
         // When
-        exporter.add(results, key);
+        exporter.add(key, results);
 
         // Then
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(store).execute(opChain.capture(), Mockito.eq(user));
         assertEquals(1, opChain.getValue().getOperations().size());
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
-        final List<Element> elements = Lists.newArrayList(addElements.getElements());
+        final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
         final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);
         assertEquals(expectedElements, elements);
@@ -105,7 +105,7 @@ public class GafferResultCacheExporterTest {
         );
 
         // When
-        exporter.add(null, key);
+        exporter.add(key, null);
 
         // Then
         verify(store, never()).execute(Mockito.any(OperationChain.class), Mockito.eq(user));

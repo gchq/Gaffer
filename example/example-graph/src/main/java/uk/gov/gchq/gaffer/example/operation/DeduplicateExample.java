@@ -16,13 +16,12 @@
 package uk.gov.gchq.gaffer.example.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 public class DeduplicateExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -39,23 +38,23 @@ public class DeduplicateExample extends OperationExample {
         withDeduplicateEdgesChain();
     }
 
-    public Iterable<Edge> withoutDeduplicatingEdges() {
+    public CloseableIterable<Element> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
-        final GetEdges<ElementId> operation = new GetEdges.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
+        final GetElements operation = new GetElements.Builder()
+                .input(new EntitySeed(1))
+                .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
         return runExample(operation);
     }
 
-    public Iterable<Edge> withDeduplicateEdgesChain() {
+    public CloseableIterable<Element> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain.Builder()
-                .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(1))
-                        .addSeed(new EntitySeed(2))
+        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1))
+                        .input(new EntitySeed(2))
                         .build())
                 .then(new Deduplicate<>())
                 .build();

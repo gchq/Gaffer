@@ -29,14 +29,14 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation,
+    public CloseableIterable<Element> doOperation(final GetAllElements operation,
                                                   final Context context, final Store store) {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
-    private List<Element> doOperation(final GetAllElements<Element> operation,
+    private List<Element> doOperation(final GetAllElements operation,
                                       final ArrayListStore store) {
         final List<Element> result = new ArrayList<>();
         for (final Entity entity : store.getEntities()) {

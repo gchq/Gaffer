@@ -16,41 +16,72 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.VoidInput;
-import uk.gov.gchq.gaffer.operation.graph.AbstractGraphGetIterable;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
- * Extends {@link GetElements}, but fetches all elements from the graph that are
+ * Extends {@link GetAllElements}, but fetches all elements from the graph that are
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
- *
- * @param <E> the element return type
  */
-public class GetAllElements<E extends Element>
-        extends AbstractGraphGetIterable<Void, E>
-        implements VoidInput<CloseableIterable<E>> {
+public class GetAllElements implements
+        Operation,
+        IterableOutput<Element>,
+        GraphFilters,
+        Options {
+    private View view;
+    private GraphFilters.DirectedType directedType;
+    private Map<String, String> options;
+
     @Override
-    public Void getInput() {
-        return null;
+    public View getView() {
+        return view;
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<E>, E extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, E, ?>>
-            extends AbstractGraphGetIterable.BaseBuilder<OP_TYPE, Void, E, CHILD_CLASS> {
-        public BaseBuilder(final OP_TYPE op) {
-            super(op);
-        }
+    @Override
+    public void setView(final View view) {
+        this.view = view;
     }
 
-    public static final class Builder<E extends Element> extends BaseBuilder<GetAllElements<E>, E, Builder<E>> {
+    @Override
+    public GraphFilters.DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final GraphFilters.DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
+            implements IterableOutput.Builder<GetAllElements, Element, Builder>,
+            GraphFilters.Builder<GetAllElements, Builder>,
+            Options.Builder<GetAllElements, Builder> {
         public Builder() {
-            super(new GetAllElements<>());
-        }
-
-        @Override
-        protected Builder<E> self() {
-            return this;
+            super(new GetAllElements());
         }
     }
 }

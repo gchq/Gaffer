@@ -156,7 +156,7 @@ public class JSONSerialiser {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         try {
             serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint, fieldsToExclude);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
 
@@ -181,7 +181,7 @@ public class JSONSerialiser {
         final ObjectWriter writer = mapper.writer(getFilterProvider(fieldsToExclude));
         try {
             writer.writeValue(jsonGenerator, object);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to serialise object to json: " + e.getMessage(), e);
         }
     }
@@ -196,7 +196,7 @@ public class JSONSerialiser {
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         try {
             return mapper.readValue(bytes, clazz);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -212,7 +212,7 @@ public class JSONSerialiser {
         try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, clazz);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -227,7 +227,7 @@ public class JSONSerialiser {
     public <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
         try {
             return mapper.readValue(bytes, type);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -243,7 +243,7 @@ public class JSONSerialiser {
         try (final InputStream stream2 = stream) {
             final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, type);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

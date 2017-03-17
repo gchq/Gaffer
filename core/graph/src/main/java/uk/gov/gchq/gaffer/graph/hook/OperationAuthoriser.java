@@ -45,7 +45,7 @@ import java.util.Set;
 public class OperationAuthoriser implements GraphHook {
     public static final String AUTH_SEPARATOR = ",";
 
-    private final Map<Class<? extends Operation>, Set<String>> opAuthsMap = new HashMap<>();
+    private final Map<Class<?>, Set<String>> opAuthsMap = new HashMap<>();
     private final Set<String> allOpAuths = new HashSet<>();
 
     /**
@@ -115,7 +115,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param opClass the operation class
      * @param auths   the authorisations
      */
-    public void setOpAuths(final Class<? extends Operation> opClass, final Set<String> auths) {
+    public void setOpAuths(final Class<?> opClass, final Set<String> auths) {
         opAuthsMap.put(opClass, auths);
         allOpAuths.addAll(auths);
     }
@@ -147,7 +147,7 @@ public class OperationAuthoriser implements GraphHook {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;
-            for (final Entry<Class<? extends Operation>, Set<String>> entry : opAuthsMap.entrySet()) {
+            for (final Entry<Class<?>, Set<String>> entry : opAuthsMap.entrySet()) {
                 if (entry.getKey().isAssignableFrom(opClass)) {
                     if (!userOpAuths.containsAll(entry.getValue())) {
                         authorised = false;
@@ -166,9 +166,9 @@ public class OperationAuthoriser implements GraphHook {
 
     private void loadOpAuthMap(final Properties props) {
         for (final String opClassName : props.stringPropertyNames()) {
-            final Class<? extends Operation> opClass;
+            final Class<?> opClass;
             try {
-                opClass = Class.forName(opClassName).asSubclass(Operation.class);
+                opClass = Class.forName(opClassName);
             } catch (ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -187,7 +187,7 @@ public class OperationAuthoriser implements GraphHook {
         if (null != propFileLocation) {
             try {
                 props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
         } else {
@@ -202,7 +202,7 @@ public class OperationAuthoriser implements GraphHook {
         if (null != stream) {
             try {
                 props.load(stream);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Failed to load store properties file : " + e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(stream);

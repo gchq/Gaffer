@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class AddElementsTest implements OperationTest {
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"validate\" : true,%n" +
             "  \"skipInvalidElements\" : false,%n" +
-            "  \"elements\" : [ {%n" +
+            "  \"input\" : [ {%n" +
             "    \"class\" : \"uk.gov.gchq.gaffer.data.element.Entity\",%n" +
             "    \"properties\" : {%n" +
             "      \"property 1\" : \"property 1 value\"%n" +
@@ -91,7 +90,7 @@ public class AddElementsTest implements OperationTest {
         }
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
 
         // When
@@ -109,7 +108,7 @@ public class AddElementsTest implements OperationTest {
         AddElements addElements = serialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
-        final Iterator<Element> itr = addElements.getElements().iterator();
+        final Iterator<Element> itr = addElements.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
         assertEquals("vertex 1", elm1.getVertex());
@@ -130,11 +129,15 @@ public class AddElementsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element element = new Edge("testEdgeGroup");
-        AddElements addElements = new AddElements.Builder().elements(Arrays.asList(element)).skipInvalidElements(true).option("testOption", "true").validate(false).build();
+        AddElements addElements = new AddElements.Builder()
+                .input(element)
+                .skipInvalidElements(true)
+                .option("testOption", "true")
+                .validate(false).build();
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isSkipInvalidElements());
         assertFalse(addElements.isValidate());
-        assertEquals(element, addElements.getElements().iterator().next());
+        assertEquals(element, addElements.getInput().iterator().next());
     }
 
 }

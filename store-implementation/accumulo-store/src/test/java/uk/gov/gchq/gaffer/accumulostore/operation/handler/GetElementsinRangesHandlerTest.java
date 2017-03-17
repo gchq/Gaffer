@@ -103,8 +103,8 @@ public class GetElementsinRangesHandlerTest {
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>().view(defaultView).seeds(simpleEntityRanges).build();
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("1")));
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(defaultView).input(simpleEntityRanges).build();
 
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         CloseableIterable<Element> elementsInRanges = handler.doOperation(operation, user, store);
@@ -114,7 +114,7 @@ public class GetElementsinRangesHandlerTest {
         elementsInRanges.close();
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("08")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("08")));
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
@@ -147,7 +147,7 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>().view(view).seeds(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final CloseableIterable<Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
@@ -199,7 +199,7 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>().view(view).seeds(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -252,7 +252,7 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>().view(view).seeds(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
@@ -288,7 +288,7 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementId>, Element> operation = new GetElementsInRanges.Builder<Pair<ElementId>, Element>().view(view).seeds(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setDirectedType(DirectedType.UNDIRECTED);
@@ -333,7 +333,7 @@ public class GetElementsinRangesHandlerTest {
         }
 
         try {
-            store.execute(new AddElements.Builder().elements(elements).build(), user);
+            store.execute(new AddElements.Builder().input(elements).build(), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

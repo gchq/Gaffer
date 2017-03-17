@@ -23,9 +23,7 @@ import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -35,15 +33,12 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
+import javax.inject.Inject;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -63,18 +58,13 @@ import static uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser.createDefaultM
  */
 public class OperationService implements IOperationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationService.class);
-    private final GraphFactory graphFactory;
-    private final UserFactory userFactory;
     public final ObjectMapper mapper = createDefaultMapper();
 
-    public OperationService() {
-        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
-    }
+    @Inject
+    private GraphFactory graphFactory;
 
-    public OperationService(final GraphFactory graphFactory, final UserFactory userFactory) {
-        this.graphFactory = graphFactory;
-        this.userFactory = userFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     @Override
     public Object execute(final OperationChain opChain) {
@@ -103,7 +93,7 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation) {
+    public CloseableIterable<Object> generateObjects(final GenerateObjects<Object> operation) {
         return _execute(operation);
     }
 
@@ -118,32 +108,12 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation) {
+    public CloseableIterable<Element> getAllElements(final GetAllElements operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Element> getElements(final GetElements<ElementId, Element> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getEntities(final GetEntities<ElementId> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getEdges(final GetEdges<ElementId> operation) {
+    public CloseableIterable<Element> getElements(final GetElements operation) {
         return _execute(operation);
     }
 
@@ -160,11 +130,11 @@ public class OperationService implements IOperationService {
         // no action by default
     }
 
-    protected <OUTPUT> OUTPUT _execute(final Operation<?, OUTPUT> operation) {
+    protected <O> O _execute(final Operation operation) {
         return _execute(new OperationChain<>(operation));
     }
 
-    protected <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> opChain) {
+    protected <O> O _execute(final OperationChain<O> opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
@@ -194,7 +164,7 @@ public class OperationService implements IOperationService {
         } else {
             try {
                 output.write(mapper.writeValueAsString(result));
-            } catch (IOException ioe) {
+            } catch (final IOException ioe) {
                 LOGGER.warn("IOException (chunks)", ioe);
             }
         }

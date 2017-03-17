@@ -74,12 +74,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
@@ -113,12 +113,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
@@ -148,12 +148,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
@@ -186,13 +186,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_DEFAULT);
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("B"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
@@ -229,13 +228,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity2);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, USER_VIS_1);
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("B"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
         final CloseableIterable<Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
@@ -274,12 +272,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("B"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("B"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
@@ -307,12 +305,12 @@ public class VisibilityIT extends AbstractStoreIT {
         elements.add(entity1);
 
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, new User());
 
-        final GetElements<EntityId, Element> get = new GetElements.Builder<EntityId, Element>()
-                .addSeed(new EntitySeed("B"))
+        final GetElements get = new GetElements.Builder()
+                .input(new EntitySeed("B"))
                 .build();
         final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
                 .newHashSet("vis1")));

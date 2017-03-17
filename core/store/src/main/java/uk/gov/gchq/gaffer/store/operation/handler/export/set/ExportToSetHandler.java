@@ -20,9 +20,9 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.export.ExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
-public class ExportToSetHandler extends ExportHandler<ExportToSet, SetExporter> {
+public class ExportToSetHandler extends ExportToHandler<ExportToSet, SetExporter> {
     @Override
     protected Class<SetExporter> getExporterClass() {
         return SetExporter.class;

@@ -21,6 +21,7 @@ import org.apache.hadoop.util.bloom.BloomFilter;
 import org.apache.hadoop.util.bloom.Key;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
@@ -28,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Iterator;
@@ -69,22 +69,22 @@ import java.util.Set;
  * {@link org.apache.hadoop.util.bloom.BloomFilter} to further reduce the
  * chances of false positives making it to the user.
  */
-public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever {
+public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElementsWithinSet> {
     private Iterable<EntityId> seeds;
     private Iterator<EntityId> seedsIter;
 
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final SeededGraphGet<EntityId, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsWithinSet operation,
                                         final User user,
                                         final IteratorSetting... iteratorSettings) throws StoreException {
         this(store, operation, user, false, iteratorSettings);
     }
 
-    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final SeededGraphGet<EntityId, ?> operation,
+    public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsWithinSet operation,
                                         final User user,
                                         final boolean readEntriesIntoMemory, final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, readEntriesIntoMemory, iteratorSettings);
-        setSeeds(operation.getSeeds());
+        setSeeds(operation.getInput());
     }
 
     private void setSeeds(final Iterable<EntityId> seeds) {

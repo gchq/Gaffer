@@ -22,8 +22,8 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsWithinSet op = new GetElementsWithinSet.Builder<>()
-                .seeds(Arrays.asList(
+        final GetElementsWithinSet op = new GetElementsWithinSet.Builder()
+                .input(Arrays.asList(
                         AccumuloTestData.SEED_SOURCE_1,
                         AccumuloTestData.SEED_DESTINATION_1,
                         AccumuloTestData.SEED_SOURCE_2,
@@ -36,7 +36,7 @@ public class GetElementsWithinSetTest implements OperationTest {
         final GetElementsWithinSet deserialisedOp = serialiser.deserialise(json, GetElementsWithinSet.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsA.next());
@@ -48,7 +48,7 @@ public class GetElementsWithinSetTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder<>().addSeed(AccumuloTestData.SEED_A)
+        final GetElementsWithinSet getElementsWithinSet = new GetElementsWithinSet.Builder().input(AccumuloTestData.SEED_A)
                 .directedType(GraphFilters.DirectedType.DIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()

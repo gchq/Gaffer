@@ -33,10 +33,10 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
-public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> {
+public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds> {
     @Override
     public CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
-                                                   final Context context, final Store store)
+                                                     final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
@@ -76,7 +76,7 @@ public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds, C
         boolean matchSource = !edge.isDirected() || !INCOMING.equals(operation.getIncludeIncomingOutGoing());
         boolean matchDestination = !edge.isDirected() || !OUTGOING.equals(operation.getIncludeIncomingOutGoing());
 
-        for (final EntityId seed : operation.getSeeds()) {
+        for (final EntityId seed : operation.getInput()) {
             if (matchSource && edge.getSource().equals(seed.getVertex())) {
                 reuseableTuple[1] = new EntitySeed(edge.getDestination());
                 matchSource = false;

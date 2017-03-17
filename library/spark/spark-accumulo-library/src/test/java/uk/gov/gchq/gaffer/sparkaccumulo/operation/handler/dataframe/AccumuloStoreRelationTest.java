@@ -247,7 +247,7 @@ public class AccumuloStoreRelationTest {
     }
 
     private static void addElements(final Store store) throws OperationException {
-        store.execute(new AddElements.Builder().elements(getElements()).build(), new User());
+        store.execute(new AddElements.Builder().input(getElements()).build(), new User());
     }
 
     private SQLContext getSqlContext(final String appName) {

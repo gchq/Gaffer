@@ -16,9 +16,20 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import uk.gov.gchq.gaffer.accumulostore.operation.AbstractAccumuloTwoSetSeededOperation;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputB;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * Given two sets of {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s, called A and B,
@@ -27,21 +38,113 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
  * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
-public class GetElementsBetweenSets<E extends Element>
-        extends AbstractAccumuloTwoSetSeededOperation<EntityId, E> {
-    public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
-            extends AbstractAccumuloTwoSetSeededOperation.BaseBuilder<GetElementsBetweenSets<E>, EntityId, E, CHILD_CLASS> {
+public class GetElementsBetweenSets implements
+        Operation,
+        IterableInputIterableOutput<EntityId, Element>,
+        IterableInputB<EntityId>,
+        SeededGraphFilters,
+        SeedMatching,
+        Options {
+    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
+    private View view;
+    private IncludeIncomingOutgoingType inOutType;
+    private DirectedType directedType;
+    private Iterable<EntityId> input;
+    private Iterable<EntityId> inputB;
+    private Map<String, String> options;
 
-        public BaseBuilder() {
-            super(new GetElementsBetweenSets<E>());
-        }
+    /**
+     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see SeedMatchingType
+     */
+    public void setSeedMatching(final SeedMatchingType seedMatching) {
+        this.seedMatching = seedMatching;
     }
 
-    public static final class Builder<E extends Element>
-            extends BaseBuilder<E, Builder<E>> {
-        @Override
-        protected Builder<E> self() {
-            return this;
+    public SeedMatchingType getSeedMatching() {
+        return seedMatching;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<EntityId> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<EntityId> input) {
+        this.input = input;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public Iterable<EntityId> getInputB() {
+        return inputB;
+    }
+
+    @Override
+    public void setInputB(final Iterable<EntityId> inputB) {
+        this.inputB = inputB;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsBetweenSets, EntityId, Element, Builder>,
+            IterableInputB.Builder<GetElementsBetweenSets, EntityId, Builder>,
+            SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
+            SeedMatching.Builder<GetElementsBetweenSets, Builder>,
+            Options.Builder<GetElementsBetweenSets, Builder> {
+        public Builder() {
+            super(new GetElementsBetweenSets());
         }
     }
 }

@@ -41,8 +41,8 @@ public class OperationAuthoriserTest {
         // Given
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentIds())
-                .then(new GenerateObjects())
+                .first(new GetElements())
+                .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
                 .opAuths("SuperUser", "ReadUser", "User")
@@ -59,8 +59,7 @@ public class OperationAuthoriserTest {
         // Given
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentIds())
-                .then(new GenerateObjects()) // Requires AdminUser
+                .first(new GetAdjacentIds())  // Requires SuperUser
                 .build();
 
         final User user = new User.Builder()

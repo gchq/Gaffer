@@ -37,7 +37,7 @@ public class GenerateObjectsHandlerTest {
         // Given
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
-        final GenerateObjects<Element, String> operation = mock(GenerateObjects.class);
+        final GenerateObjects<String> operation = mock(GenerateObjects.class);
         final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
         final CloseableIterable<String> objs = mock(CloseableIterable.class);
@@ -46,7 +46,7 @@ public class GenerateObjectsHandlerTest {
         final CloseableIterator<String> objsIter = mock(CloseableIterator.class);
         given(objs.iterator()).willReturn(objsIter);
         given(elementGenerator.getObjects(elements)).willReturn(objs);
-        given(operation.getElements()).willReturn(elements);
+        given(operation.getInput()).willReturn(elements);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When

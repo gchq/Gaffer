@@ -25,7 +25,6 @@ import scala.Tuple2;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
@@ -33,8 +32,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetRDDOfElementsHandler<SEED_TYPE extends ElementId>
-        extends AbstractGetRDDHandler<RDD<Element>, GetRDDOfElements<SEED_TYPE>> {
+public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfElements> {
 
     @Override
     public RDD<Element> doOperation(final GetRDDOfElements operation,

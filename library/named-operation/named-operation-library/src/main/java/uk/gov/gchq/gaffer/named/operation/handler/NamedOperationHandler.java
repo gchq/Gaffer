@@ -17,16 +17,16 @@
 package uk.gov.gchq.gaffer.named.operation.handler;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
-import uk.gov.gchq.gaffer.operation.Get;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Operation Handler for NamedOperation
  */
-public class NamedOperationHandler implements OperationHandler<NamedOperation, Object> {
+public class NamedOperationHandler implements OperationHandler<NamedOperation> {
     private INamedOperationCache cache;
 
     /**
@@ -57,10 +57,10 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
                 throw new OperationException("Cache should be initialised in " +
                         "resources/NamedOperationsDeclarations.json and referenced in store.properties");
             }
-            ExtendedNamedOperation namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
+            NamedOperationDetail namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
             OperationChain<?> operationChain = namedOperation.getOperationChain();
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
-            updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
+            updateOperationInput(operationChain.getOperations().get(0), operation.getInput());
             operationChain = updateView(operation.getView(), operationChain);
             return store._execute(operationChain, context);
         } catch (CacheOperationFailedException e) {
@@ -81,22 +81,22 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      */
     private OperationChain<?> updateView(final View view, final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            if (operation instanceof Get) {
-                final Get get = ((Get) operation);
+            if (operation instanceof OperationView) {
+                final OperationView viewFilters = ((OperationView) operation);
                 final View opView;
-                if (null == get.getView()) {
+                if (null == viewFilters.getView()) {
                     opView = view;
-                } else if (!get.getView().hasGroups()) {
+                } else if (!viewFilters.getView().hasGroups()) {
                     opView = new View.Builder()
                             .merge(view)
-                            .merge(get.getView())
+                            .merge(viewFilters.getView())
                             .build();
                 } else {
-                    opView = get.getView();
+                    opView = viewFilters.getView();
                 }
 
                 opView.expandGlobalDefinitions();
-                get.setView(opView);
+                viewFilters.setView(opView);
             }
         }
         return operationChain;
@@ -109,10 +109,9 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      * @param op    the first operation in a chain
      * @param input the input of the NamedOperation
      */
-    private void updateOperationInput(final Operation op,
-                                      final CloseableIterable<Object> input) {
-        if (null != input && null == op.getInput()) {
-            op.setInput(input);
+    private void updateOperationInput(final Operation op, final Object input) {
+        if (null != input && (op instanceof Input) && null == ((Input) op).getInput()) {
+            ((Input) op).setInput(input);
         }
     }
 
@@ -122,7 +121,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             if (operation instanceof NamedOperation) {
                 final NamedOperation namedOp = ((NamedOperation) operation);
                 OperationChain<?> innerChain = cache.getNamedOperation(namedOp.getOperationName(), user).getOperationChain();
-                updateOperationInput(innerChain.getOperations().get(0), namedOp.getSeeds());
+                updateOperationInput(innerChain.getOperations().get(0), namedOp.getInput());
                 operations.addAll(exposeNamedOperations(innerChain, user, cache));
             } else {
                 operations.add(operation);

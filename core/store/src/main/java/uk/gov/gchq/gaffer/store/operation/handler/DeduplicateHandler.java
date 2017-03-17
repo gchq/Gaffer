@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.Store;
  * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
  * remove duplicate items.
  */
-public class DeduplicateHandler<T> implements OperationHandler<Deduplicate<T>, CloseableIterable<T>> {
+public class DeduplicateHandler<T> implements OperationHandler<Deduplicate<T>> {
     @Override
     public CloseableIterable<T> doOperation(final Deduplicate<T> operation, final Context context, final Store store) throws OperationException {
         return new WrappedCloseableIterable<>(Sets.newLinkedHashSet(operation.getInput()));

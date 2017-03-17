@@ -29,9 +29,11 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
-import uk.gov.gchq.gaffer.spark.operation.GetSparkRDDOperation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.user.User;
@@ -42,15 +44,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDOperation<?, OUTPUT>>
-        implements OperationHandler<OP_TYPE, OUTPUT> {
+public abstract class AbstractGetRDDHandler<OP extends Operation & GraphFilters & Options>
+        implements OperationHandler<OP> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
     public void addIterators(final AccumuloStore accumuloStore,
                              final Configuration conf,
                              final User user,
-                             final SeededGraphGet<?, ?> operation) throws OperationException {
+                             final OP operation) throws OperationException {
         try {
             // Update configuration with instance name, table name, zookeepers, and with view
             accumuloStore.updateConfiguration(conf, operation.getView(), user);
@@ -72,12 +74,13 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
         }
     }
 
-    public <ELEMENT_SEED extends ElementId> void addRanges(final AccumuloStore accumuloStore,
-                                                           final Configuration conf,
-                                                           final GetSparkRDDOperation<ELEMENT_SEED, ?> operation)
+    public <INPUT_OP extends Operation & GraphFilters & Options & IterableInput<ElementId>>
+    void addRanges(final AccumuloStore accumuloStore,
+                   final Configuration conf,
+                   final INPUT_OP operation)
             throws OperationException {
         final List<Range> ranges = new ArrayList<>();
-        for (final ELEMENT_SEED entityId : operation.getSeeds()) {
+        for (final ElementId entityId : operation.getInput()) {
             try {
                 ranges.addAll(accumuloStore.getKeyPackage()
                         .getRangeFactory()
@@ -89,7 +92,7 @@ public abstract class AbstractGetRDDHandler<OUTPUT, OP_TYPE extends GetSparkRDDO
         InputConfigurator.setRanges(AccumuloInputFormat.class, conf, ranges);
     }
 
-    protected Configuration getConfiguration(final GetSparkRDDOperation<?, ?> operation) throws OperationException {
+    protected Configuration getConfiguration(final OP operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
         if (serialisedConf != null) {

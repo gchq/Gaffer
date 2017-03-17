@@ -22,9 +22,9 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder<>()
-                .seeds(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
-                .seedsB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
+                .input(Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1))
+                .inputB(Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2))
                 .build();
 
         // When
@@ -33,12 +33,12 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets deserialisedOp = serialiser.deserialise(json, GetElementsBetweenSets.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
 
-        final Iterator itrSeedsB = deserialisedOp.getSeedsB().iterator();
+        final Iterator itrSeedsB = deserialisedOp.getInputB().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsB.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsB.next());
         assertFalse(itrSeedsB.hasNext());
@@ -48,9 +48,9 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>()
-                .addSeed(AccumuloTestData.SEED_B)
-                .addSeedB(AccumuloTestData.SEED_A)
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_B)
+                .inputB(AccumuloTestData.SEED_A)
                 .directedType(GraphFilters.DirectedType.UNDIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
@@ -62,7 +62,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
-        assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());
     }
 }

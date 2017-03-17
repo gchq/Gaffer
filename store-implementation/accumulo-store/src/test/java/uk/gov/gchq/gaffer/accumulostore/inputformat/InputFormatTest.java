@@ -276,7 +276,7 @@ public class InputFormatTest {
 
     private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements.Builder().elements(data).build(), new User());
+            store.execute(new AddElements.Builder().input(data).build(), new User());
         } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }

@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import javax.inject.Inject;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Collection;
@@ -53,17 +54,11 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
     private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
 
-    private final GraphFactory graphFactory;
-    private final UserFactory userFactory;
+    @Inject
+    private GraphFactory graphFactory;
 
-    public GraphConfigurationService() {
-        this(GraphFactory.createGraphFactory(), UserFactory.createUserFactory());
-    }
-
-    public GraphConfigurationService(final GraphFactory graphFactory, final UserFactory userFactory) {
-        this.graphFactory = graphFactory;
-        this.userFactory = userFactory;
-    }
+    @Inject
+    private UserFactory userFactory;
 
     public static void initialise() {
         // Invoking this method will cause the static lists to be populated.
@@ -89,7 +84,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         final Class<?> clazz;
         try {
             clazz = Class.forName(inputClass);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException("Input class was not recognised: " + inputClass, e);
         }
 
@@ -116,7 +111,7 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         final Class<?> clazz;
         try {
             clazz = Class.forName(className);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new IllegalArgumentException("Class name was not recognised: " + className, e);
         }
 

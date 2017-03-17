@@ -32,13 +32,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
-import uk.gov.gchq.gaffer.operation.AbstractGet;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -50,9 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -74,9 +68,7 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -99,17 +91,16 @@ public class StoreTest {
     private final User user = new User("user01");
     private final Context context = new Context(user);
 
-    private OperationHandler<AddElements, Void> addElementsHandler;
-    private OperationHandler<GetElements<ElementId, Element>, CloseableIterable<Element>> getElementsHandler;
-    private OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getAllElementsHandler;
-    private OperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler;
-    private OperationHandler<Validatable<Integer>, Integer> validatableHandler;
-    private OperationHandler<Validate, CloseableIterable<Element>> validateHandler;
+    private OperationHandler<AddElements> addElementsHandler;
+    private OperationHandler<GetElements> getElementsHandler;
+    private OperationHandler<GetAllElements> getAllElementsHandler;
+    private OperationHandler<GetAdjacentIds> getAdjacentIdsHandler;
+    private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
     private JobTracker jobTracker;
-    private OperationHandler<ExportToGafferResultCache, Object> exportToGafferResultCacheHandler;
-    private OperationHandler<GetGafferResultCacheExport, CloseableIterable<?>> getGafferResultCacheExportHandler;
+    private OperationHandler<ExportToGafferResultCache> exportToGafferResultCacheHandler;
+    private OperationHandler<GetGafferResultCacheExport> getGafferResultCacheExportHandler;
 
     @Before
     public void setup() {
@@ -119,7 +110,6 @@ public class StoreTest {
         getElementsHandler = mock(OperationHandler.class);
         getAllElementsHandler = mock(OperationHandler.class);
         getAdjacentIdsHandler = mock(OperationHandler.class);
-        validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
         exportToGafferResultCacheHandler = mock(OperationHandler.class);
         getGafferResultCacheExportHandler = mock(OperationHandler.class);
@@ -186,7 +176,7 @@ public class StoreTest {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
-        final OperationHandler<AddElements, Void> addElementsHandlerOverridden = mock(OperationHandler.class);
+        final OperationHandler<AddElements> addElementsHandlerOverridden = mock(OperationHandler.class);
         final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
                 .declaration(new OperationDeclaration.Builder()
                         .operation(AddElements.class)
@@ -203,8 +193,6 @@ public class StoreTest {
         assertSame(addElementsHandlerOverridden, store.getOperationHandlerExposed(AddElements.class));
 
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
-        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
-        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEdges.class));
 
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
@@ -268,7 +256,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Operation<String, String> operation = mock(Operation.class);
+        final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
 
         store.initialise(schema, properties);
@@ -312,7 +300,7 @@ public class StoreTest {
         final CloseableIterable<Element> getElementsResult = mock(CloseableIterable.class);
 
         final AddElements addElements1 = new AddElements();
-        final GetElements<ElementId, Element> getElements = new GetElements<>();
+        final GetElements getElements = new GetElements();
         final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
                 .then(getElements)
@@ -337,17 +325,9 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Validatable<Integer> validatable = mock(Validatable.class);
-        final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 26;
-
-        given(validatable.isValidate()).willReturn(true);
-        given(validatable.getOptions()).willReturn(options);
-
-        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
-
+        final int expectedNumberOfOperations = 22;
         store.initialise(schema, properties);
 
         // When
@@ -364,15 +344,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Validatable<Integer> validatable = mock(Validatable.class);
-        final Map<String, String> options = mock(HashMap.class);
-
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 15;
-
-        given(validatable.isValidate()).willReturn(true);
-        given(validatable.getOptions()).willReturn(options);
-        given(validatableHandler.doOperation(validatable, context, store)).willReturn(expectedNumberOfOperations);
         store.initialise(schema, properties);
 
         // WHen
@@ -391,17 +363,11 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Validatable<Integer> validatable = mock(Validatable.class);
-        final Map<String, String> options = mock(HashMap.class);
-
         final StoreImpl store = new StoreImpl();
-
-        given(validatable.isValidate()).willReturn(true);
-        given(validatable.getOptions()).willReturn(options);
         store.initialise(schema, properties);
 
         // When
-        final boolean supported = store.isSupported(AbstractGet.class);
+        final boolean supported = store.isSupported(Operation.class);
 
         // Then
         assertFalse(supported);
@@ -412,13 +378,8 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final Validatable<Integer> validatable = mock(Validatable.class);
-        final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-
-        given(validatable.isValidate()).willReturn(true);
-        given(validatable.getOptions()).willReturn(options);
         store.initialise(schema, properties);
 
         // When
@@ -431,7 +392,7 @@ public class StoreTest {
     @Test
     public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
-        final Operation<?, ?> operation = mock(Operation.class);
+        final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = new OperationChain.Builder()
                 .first(operation)
                 .then(new ExportToGafferResultCache())
@@ -460,7 +421,7 @@ public class StoreTest {
     @Test
     public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
-        final Operation<?, ?> operation = mock(Operation.class);
+        final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
@@ -533,34 +494,33 @@ public class StoreTest {
             addOperationHandler(mock(AddElements.class).getClass(), (OperationHandler) addElementsHandler);
             addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
             addOperationHandler(mock(GetAdjacentIds.class).getClass(), (OperationHandler) getElementsHandler);
-            addOperationHandler(mock(Validatable.class).getClass(), (OperationHandler) validatableHandler);
             addOperationHandler(Validate.class, (OperationHandler) validateHandler);
             addOperationHandler(ExportToGafferResultCache.class, (OperationHandler) exportToGafferResultCacheHandler);
             addOperationHandler(GetGafferResultCacheExport.class, (OperationHandler) getGafferResultCacheExportHandler);
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementId, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+        protected OperationHandler<? extends GetAdjacentIds> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return addElementsHandler;
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             doUnhandledOperationCalls.add(operation);
             return null;
         }

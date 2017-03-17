@@ -16,62 +16,91 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
-import java.util.List;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * Retrieves {@link uk.gov.gchq.gaffer.data.element.Edge}s where both ends are in a given
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<E extends Element> extends AbstractSeededGraphGetIterable<EntityId, E> {
+public class GetElementsWithinSet implements
+        Operation,
+        IterableInputIterableOutput<EntityId, Element>,
+        GraphFilters,
+        Options {
+    private View view;
+    private DirectedType directedType;
+    private Iterable<EntityId> input;
+    private Map<String, String> options;
+
     @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return IncludeIncomingOutgoingType.OUTGOING;
+    public View getView() {
+        return view;
     }
 
     @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!getIncludeIncomingOutGoing().equals(includeIncomingOutGoing)) {
-            throw new IllegalArgumentException(
-                    getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
-        }
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<EntityId> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<EntityId> input) {
+        this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public EntityId[] getSeedArray() {
-        final CloseableIterable<EntityId> input = getInput();
-        if (null != input) {
-            final List<EntityId> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntityId[inputList.size()]);
-        }
-
-        return null;
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
-    public abstract static class BaseBuilder<E extends Element, CHILD_CLASS extends BaseBuilder<E, ?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetElementsWithinSet<E>, EntityId, E, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetElementsWithinSet<>());
-        }
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
-    public static final class Builder<E extends Element>
-            extends BaseBuilder<E, Builder<E>> {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
 
-        @Override
-        protected Builder<E> self() {
-            return this;
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsWithinSet, EntityId, Element, Builder>,
+            GraphFilters.Builder<GetElementsWithinSet, Builder>,
+            Options.Builder<GetElementsWithinSet, Builder> {
+        public Builder() {
+            super(new GetElementsWithinSet());
         }
     }
 }

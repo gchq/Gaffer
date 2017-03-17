@@ -20,10 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.films.data.Certificate;
@@ -42,7 +41,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -65,9 +64,9 @@ public class LoadAndQuery {
             .build();
 
     public static void main(final String[] args) throws OperationException {
-        final CloseableIterable<Entity> results = new LoadAndQuery().run();
+        final CloseableIterable<Element> results = new LoadAndQuery().run();
         final StringBuilder builder = new StringBuilder("Results from query:\n");
-        for (final Entity result : results) {
+        for (final Element result : results) {
             builder.append(result).append("\n");
         }
         results.close();
@@ -91,7 +90,7 @@ public class LoadAndQuery {
      * @return the review entities
      * @throws OperationException if operation chain fails to be executed on the graph
      */
-    public CloseableIterable<Entity> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // Setup graph
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.openStream(getClass(), "/example/films/mockaccumulostore.properties", true))
@@ -103,7 +102,7 @@ public class LoadAndQuery {
         // So the chain operation will generate elements from the domain objects then add these elements to the graph.
         final OperationChain<Void> populateChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<>()
-                        .objects(new SampleData().generate())
+                        .input(new SampleData().generate())
                         .generator(new DataGenerator())
                         .build())
                 .then(new AddElements.Builder()
@@ -117,14 +116,14 @@ public class LoadAndQuery {
         // Run a query on the graph to fetch average star ratings for all films user02 has watched.
         // Create an operation chain.
         // So the chain operation will get the adjacent review entity seeds then get the review entities.
-        final OperationChain<CloseableIterable<Entity>> queryChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<Element>> queryChain = new OperationChain.Builder()
                 .first(new GetAdjacentIds.Builder()
                         .view(new View.Builder()
                                 .edge(Group.VIEWING)
                                 .build())
-                        .addSeed(new EntitySeed("user02"))
+                        .input(new EntitySeed("user02"))
                         .build())
-                .then(new GetEntities.Builder<EntityId>()
+                .then(new GetElements.Builder()
                         .view(new View.Builder()
                                 .entity(Group.REVIEW, new ViewElementDefinition.Builder()
                                         .transientProperty(TransientProperty.FIVE_STAR_RATING, Float.class)

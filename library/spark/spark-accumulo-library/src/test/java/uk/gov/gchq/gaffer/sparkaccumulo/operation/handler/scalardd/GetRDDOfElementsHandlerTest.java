@@ -39,7 +39,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,7 +82,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -100,9 +99,9 @@ public class GetRDDOfElementsHandlerTest {
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
         // Check get correct edges for "1"
-        GetRDDOfElements<EntityId> rddQuery = new GetRDDOfElements.Builder<EntityId>()
+        GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(new EntitySeed("1"))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         RDD<Element> rdd = graph1.execute(rddQuery, user);
@@ -135,9 +134,9 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify entities only
-        rddQuery = new GetRDDOfElements.Builder<EntityId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
                         .build())
@@ -158,9 +157,9 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" when specify edges only
-        rddQuery = new GetRDDOfElements.Builder<EntityId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EntitySeed("1")))
+                .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -182,12 +181,12 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for "1" and "5"
-        Set<EntityId> seeds = new HashSet<>();
+        Set seeds = new HashSet<>();
         seeds.add(new EntitySeed("1"));
         seeds.add(new EntitySeed("5"));
-        rddQuery = new GetRDDOfElements.Builder<EntityId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(seeds)
+                .input(seeds)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);
@@ -255,7 +254,7 @@ public class GetRDDOfElementsHandlerTest {
             elements.add(entity);
         }
         final User user = new User();
-        graph1.execute(new AddElements.Builder().elements(elements).build(), user);
+        graph1.execute(new AddElements.Builder().input(elements).build(), user);
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -271,10 +270,10 @@ public class GetRDDOfElementsHandlerTest {
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
 
-        // Check get correct edges for EdgeId 1 -> B
-        GetRDDOfElements<EdgeId> rddQuery = new GetRDDOfElements.Builder<EdgeId>()
+        // Check get correct edges for EdgeSeed 1 -> B
+        GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -301,9 +300,9 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get entity for 1 when query for 1 -> B and specify entities only
-        rddQuery = new GetRDDOfElements.Builder<EdgeId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .entity(ENTITY_GROUP)
                         .build())
@@ -326,9 +325,9 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B when specify edges only
-        rddQuery = new GetRDDOfElements.Builder<EdgeId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
-                .seeds(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -349,15 +348,12 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         // Check get correct edges for 1 -> B and 5 -> C
-        Set<EdgeId> seeds = new HashSet<>();
-        seeds.add(new EdgeSeed("1", "B", false));
-        seeds.add(new EdgeSeed("5", "C", false));
-        rddQuery = new GetRDDOfElements.Builder<EdgeId>()
+        rddQuery = new GetRDDOfElements.Builder()
                 .sparkContext(sparkContext)
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .seeds(seeds)
+                .input(new EdgeSeed("1", "B", false), new EdgeSeed("5", "C", false))
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);

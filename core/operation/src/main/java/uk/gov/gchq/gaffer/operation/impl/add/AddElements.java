@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractValidatable;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import java.util.Map;
 
 /**
  * An <code>AddElements</code> operation is a {@link uk.gov.gchq.gaffer.operation.Validatable} operation for adding elements.
@@ -32,23 +32,62 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
-public class AddElements extends AbstractValidatable<Void> implements VoidOutput<CloseableIterable<Element>> {
+public class AddElements implements
+        Operation,
+        Validatable,
+        IterableInput<Element>,
+        Options {
+    private boolean validate = true;
+    private boolean skipInvalidElements;
+    private Iterable<Element> elements;
+    private Map<String, String> options;
+
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public boolean isValidate() {
+        return validate;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractValidatable.BaseBuilder<AddElements, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
+    }
+
+    @Override
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
+
+    @Override
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @Override
+    public Iterable<Element> getInput() {
+        return elements;
+    }
+
+    @Override
+    public void setInput(final Iterable<Element> elements) {
+        this.elements = elements;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
+            implements Validatable.Builder<AddElements, Builder>,
+            IterableInput.Builder<AddElements, Element, Builder>,
+            Options.Builder<AddElements, Builder> {
+        public Builder() {
             super(new AddElements());
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

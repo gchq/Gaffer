@@ -17,14 +17,16 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.ValidatedElements;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class AddElementsHandler implements OperationHandler<AddElements, Void> {
+public class AddElementsHandler implements OperationHandler<AddElements> {
     @Override
     public Void doOperation(final AddElements operation,
                             final Context context, final Store store)
@@ -33,10 +35,16 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         return null;
     }
 
-    private void addElements(final AddElements addElementsOperation, final AccumuloStore store)
+    private void addElements(final AddElements operation, final AccumuloStore store)
             throws OperationException {
         try {
-            store.addElements(addElementsOperation.getElements());
+            final Iterable<Element> validatedElements;
+            if (operation.isValidate()) {
+                validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
+            } else {
+                validatedElements = operation.getInput();
+            }
+            store.addElements(validatedElements);
         } catch (final StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }

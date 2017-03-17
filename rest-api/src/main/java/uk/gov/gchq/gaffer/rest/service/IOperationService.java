@@ -20,9 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -30,12 +28,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -65,7 +59,7 @@ public interface IOperationService {
     @POST
     @Path("/generate/objects")
     @ApiOperation(value = "Generate objects from elements", response = Object.class, responseContainer = "List")
-    CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation);
+    CloseableIterable<Object> generateObjects(final GenerateObjects<Object> operation);
 
     @POST
     @Path("/generate/elements")
@@ -80,32 +74,12 @@ public interface IOperationService {
     @POST
     @Path("/get/elements/all")
     @ApiOperation(value = "Gets all elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation);
-
-    @POST
-    @Path("/get/entities/all")
-    @ApiOperation(value = "Gets all entities", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getAllEntities(final GetAllEntities operation);
-
-    @POST
-    @Path("/get/edges/all")
-    @ApiOperation(value = "Gets all edges", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getAllEdges(final GetAllEdges operation);
+    CloseableIterable<Element> getAllElements(final GetAllElements operation);
 
     @POST
     @Path("/get/elements")
     @ApiOperation(value = "Gets elements", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> getElements(final GetElements<ElementId, Element> operation);
-
-    @POST
-    @Path("/get/entities")
-    @ApiOperation(value = "Gets entities", response = Entity.class, responseContainer = "List")
-    CloseableIterable<Entity> getEntities(final GetEntities<ElementId> operation);
-
-    @POST
-    @Path("/get/edges")
-    @ApiOperation(value = "Gets edges", response = Edge.class, responseContainer = "List")
-    CloseableIterable<Edge> getEdges(final GetEdges<ElementId> operation);
+    CloseableIterable<Element> getElements(final GetElements operation);
 
     @PUT
     @Path("/add/elements")

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.store;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.operation.impl.export.Exporter;
+import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;

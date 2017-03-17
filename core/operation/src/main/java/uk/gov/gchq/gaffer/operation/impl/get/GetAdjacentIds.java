@@ -16,70 +16,109 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGetIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 /**
  * An <code>GetAdjacentVertices</code> operation will return the
  * vertices at the opposite end of connected edges to a provided seed vertices
  *
- * @see GetAdjacentIds.Builder
- * @see AbstractSeededGraphGetIterable
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
-public class GetAdjacentIds
-        extends AbstractSeededGraphGetIterable<EntityId, EntityId> {
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
-    @Override
-    public EntityId[] getSeedArray() {
-        final CloseableIterable<EntityId> input = getInput();
-        if (null != input) {
-            final List<EntityId> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntityId[inputList.size()]);
-        }
+public class GetAdjacentIds implements
+        Operation,
+        IterableInputIterableOutput<EntityId, EntityId>,
+        SeededGraphFilters,
+        Options {
+    private View view;
+    private Iterable<EntityId> input;
+    private DirectedType directedType;
+    private Map<String, String> options;
+    private IncludeIncomingOutgoingType inOutType;
 
-        return null;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
+    }
+
+    @Override
+    public View getView() {
+        return view;
     }
 
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
-            super.setView(new View.Builder()
+            this.view = (new View.Builder()
                     .merge(view)
                     .entities(Collections.emptyMap())
                     .build());
         } else {
-            super.setView(view);
+            this.view = view;
         }
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<EntityId> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<EntityId> input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<EntityId>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntityId();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGraphGetIterable.BaseBuilder<GetAdjacentIds, EntityId, EntityId, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetAdjacentIds());
-        }
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
+            implements IterableInputIterableOutput.Builder<GetAdjacentIds, EntityId, EntityId, Builder>,
+            SeededGraphFilters.Builder<GetAdjacentIds, Builder>,
+            Options.Builder<GetAdjacentIds, Builder> {
+        public Builder() {
+            super(new GetAdjacentIds());
         }
     }
 }

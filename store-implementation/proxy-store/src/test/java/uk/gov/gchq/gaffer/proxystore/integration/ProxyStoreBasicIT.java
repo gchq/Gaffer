@@ -123,7 +123,7 @@ public class ProxyStoreBasicIT {
 
 
         // When - Get
-        final CloseableIterable<Element> results = graph.execute(new GetAllElements<>(), USER);
+        final CloseableIterable<Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
@@ -136,11 +136,11 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When
-        final GetElements<EntityId, Element> getElements = new GetElements.Builder<EntityId, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         CloseableIterable<Element> results = graph.execute(getElements, USER);
 
@@ -153,7 +153,7 @@ public class ProxyStoreBasicIT {
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
@@ -166,12 +166,12 @@ public class ProxyStoreBasicIT {
         }
 
         // Get elements
-        final GetElements<EntityId, Element> getElements = new GetElements.Builder<EntityId, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .edge(TestGroups.EDGE)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
         CloseableIterable<Element> results = graph.execute(getElements, USER);
 
@@ -196,7 +196,7 @@ public class ProxyStoreBasicIT {
 
     private void addDefaultElements() throws OperationException {
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         graph.execute(add, USER);
     }

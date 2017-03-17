@@ -45,7 +45,7 @@ public class JavaSerialiser implements Serialisation<Object> {
             out = new ObjectOutputStream(byteOut);
             out.writeObject(object);
             return byteOut.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise given object of class: " + object.getClass().getName() + ", does it implement the serializable interface?", e);
         } finally {
             close(out);
@@ -75,7 +75,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         if (close != null) {
             try {
                 close.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.warn("Resource leak: unable to close stream in JavaSerialiser.class", e);
             }
         }
