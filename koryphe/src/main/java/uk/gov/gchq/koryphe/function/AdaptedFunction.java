@@ -45,6 +45,12 @@ public abstract class AdaptedFunction<I, FI, FO, O> implements Function<I, O> {
         setOutputAdapter(outputAdapter);
     }
 
+    public AdaptedFunction(final Function<FI, FO> function,
+                           final Function<I, FI> inputAdapter,
+                           final Function<FO, O> outputAdapter) {
+        this(function, inputAdapter, (fo, i) -> outputAdapter.apply(fo));
+    }
+
     @Override
     public O apply(I input) {
         return adaptOutput(function.apply(adaptInput(input)), input);

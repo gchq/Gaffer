@@ -38,4 +38,11 @@ public class AdaptedBinaryOperator<T, FT> extends AdaptedBiFunction<T, FT, FT, T
                                  Function<T, FT> reverseOutputAdapter) {
         super(function, inputAdapter, outputAdapter, reverseOutputAdapter);
     }
+
+    public AdaptedBinaryOperator(BinaryOperator<FT> function,
+                                 Function<T, FT> inputAdapter,
+                                 Function<FT, T> outputAdapter,
+                                 Function<T, FT> reverseOutputAdapter) {
+        super(function, inputAdapter, outputAdapter, reverseOutputAdapter);
+    }
 }

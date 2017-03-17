@@ -35,6 +35,13 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
         setReverseOutputAdapter(reverseOutputAdapter);
     }
 
+    public AdaptedBiFunction(BiFunction<FI, FO, FO> function,
+                             Function<I, FI> inputAdapter,
+                             Function<FO, O> outputAdapter,
+                             Function<O, FO> reverseOutputAdapter) {
+        this(function, inputAdapter, (fo, o) -> outputAdapter.apply(fo), reverseOutputAdapter);
+    }
+
     @Override
     public O apply(I input, O state) {
         return adaptOutput(function.apply(adaptInput(input), reverseOutput(state)), state);
