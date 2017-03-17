@@ -18,7 +18,11 @@ package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.function.AggregateFunction;
 import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
+import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.gaffer.function.annotation.Outputs;
 
+@Inputs(RoaringBitmap.class)
+@Outputs(RoaringBitmap.class)
 public class RoaringBitmapAggregator extends SimpleAggregateFunction<RoaringBitmap> {
     private RoaringBitmap result = null;
 
