@@ -19,10 +19,12 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
@@ -31,14 +33,21 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
             .getName();
 
     @Override
-    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GetElementsOperation<?, ?> operation) {
-        final boolean includeEntities = operation.isIncludeEntities();
-        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
-        final IncludeIncomingOutgoingType includeIncomingOutgoingType = operation.getIncludeIncomingOutGoing();
+    public IteratorSetting getEdgeEntityDirectionFilterIteratorSetting(final GraphFilters operation) {
+        final boolean includeEntities = operation.getView().hasEntities();
+        final boolean includeEdges = operation.getView().hasEdges();
+        final DirectedType directedType = operation.getDirectedType();
+        final IncludeIncomingOutgoingType inOutType;
+        if (operation instanceof SeededGraphFilters) {
+            inOutType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
+        } else {
+            inOutType = IncludeIncomingOutgoingType.OUTGOING;
+        }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if (includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
-                && includeEdgeType == IncludeEdgeType.ALL
+        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.BOTH)
+                && includeEdges
+                && (null == directedType || directedType == DirectedType.BOTH)
                 && !deduplicateUndirectedEdges) {
             return null;
         }
@@ -47,23 +56,24 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
                 EDGE_DIRECTED_UNDIRECTED_FILTER)
-                .includeIncomingOutgoing(includeIncomingOutgoingType)
-                .includeEdges(includeEdgeType)
+                .includeIncomingOutgoing(inOutType)
+                .directedType(directedType)
+                .includeEdges(includeEdges)
                 .includeEntities(includeEntities)
                 .deduplicateUndirectedEdges(deduplicateUndirectedEdges)
                 .build();
     }
 
     @Override
-    public IteratorSetting getElementPropertyRangeQueryFilter(final GetElementsOperation<?, ?> operation) {
-        final boolean includeEntities = operation.isIncludeEntities();
-        final IncludeEdgeType includeEdgeType = operation.getIncludeEdges();
-        if (includeEdgeType != IncludeEdgeType.NONE && includeEntities) {
+    public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation) {
+        final boolean includeEntities = operation.getView().hasEntities();
+        final boolean includeEdges = operation.getView().hasEdges();
+        if (includeEdges && includeEntities) {
             return null;
         }
         return new IteratorSettingBuilder(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME, RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR).all()
-                .includeEdges(includeEdgeType)
+                .includeEdges(includeEdges)
                 .includeEntities(includeEntities)
                 .build();
     }

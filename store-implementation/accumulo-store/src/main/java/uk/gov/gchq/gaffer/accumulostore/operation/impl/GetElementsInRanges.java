@@ -16,55 +16,101 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * This returns all data between the provided
- * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s.
+ * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s.
  */
-public class GetElementsInRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
+public class GetElementsInRanges
+        implements Operation,
+        IterableInputIterableOutput<Pair<ElementId>, Element>,
+        SeededGraphFilters,
+        Options {
 
-    public GetElementsInRanges() {
+    private Iterable<Pair<ElementId>> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
+    private Map<String, String> options;
+
+    @Override
+    public Iterable<Pair<ElementId>> getInput() {
+        return input;
     }
 
-    public GetElementsInRanges(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
+    @Override
+    public void setInput(final Iterable<Pair<ElementId>> input) {
+        this.input = input;
     }
 
-    public GetElementsInRanges(final View view) {
-        super(view);
+    @Override
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
-    public GetElementsInRanges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
-    public GetElementsInRanges(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>,
-            ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElementsInRanges, Builder>
+            implements IterableInputIterableOutput.Builder<GetElementsInRanges, Pair<ElementId>, Element, Builder>,
+            SeededGraphFilters.Builder<GetElementsInRanges, Builder>,
+            Options.Builder<GetElementsInRanges, Builder> {
+        public Builder() {
             super(new GetElementsInRanges());
-        }
-    }
-
-    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>,
-            ELEMENT_TYPE extends Element>
-            extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
-
-        @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
-            return this;
         }
     }
 }

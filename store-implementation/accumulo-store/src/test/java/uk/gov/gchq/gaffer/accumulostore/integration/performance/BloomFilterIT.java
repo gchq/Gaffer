@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -54,6 +53,7 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -163,16 +163,15 @@ public class BloomFilterIT {
         if (file.exists()) {
             file.delete();
         }
-        final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .openWriter(filename, fs, conf, accumuloConf);
 
+        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                                    .getGroup()
-                                    .equals(TestGroups.ENTITY)) {
+                        .getGroup()
+                        .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -183,8 +182,7 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;
@@ -216,7 +214,7 @@ public class BloomFilterIT {
     }
 
     private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
-        final EntitySeed[] randomData = new EntitySeed[5000];
+        final EntityId[] randomData = new EntityId[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
@@ -250,16 +248,18 @@ public class BloomFilterIT {
         return causalRate;
     }
 
-    private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
+    private void seek(final FileSKVIterator reader, final EntityId seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
+        final GetElements operation = new GetElements.Builder()
+                .view(view)
+                .build();
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
-            reader.seek(ran, new ArrayList<ByteSequence>(), false);
+            reader.seek(ran, new ArrayList<>(), false);
         }
     }
 }

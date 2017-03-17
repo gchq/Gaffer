@@ -25,8 +25,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetDataFrameOfElementsHandler implements
-        OperationHandler<GetDataFrameOfElements, Dataset<Row>> {
+public class GetDataFrameOfElementsHandler implements OperationHandler<GetDataFrameOfElements> {
 
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context,

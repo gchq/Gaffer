@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
@@ -191,6 +192,57 @@ public class SchemaTest {
 //        assertEquals(1, aggContext.getSelection().size());
 //        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0));
 //    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasNoAggregators() {
+        final Schema schemaWithAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new ExampleAggregateFunction())
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertTrue(schemaWithAggregators.hasAggregators());
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasNoAggregators() {
+        final Schema schemaNoAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertFalse(schemaNoAggregators.hasAggregators());
+    }
 
     @Test
     public void createProgramaticSchema() {

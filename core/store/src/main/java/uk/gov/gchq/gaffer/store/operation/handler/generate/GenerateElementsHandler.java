@@ -32,11 +32,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  *
  * @param <OBJ> the type of input objects from the operation.
  */
-public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateElements<OBJ>, CloseableIterable<Element>> {
+public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateElements<OBJ>> {
     @Override
     public CloseableIterable<Element> doOperation(final GenerateElements<OBJ> operation,
                                                   final Context context, final Store store)
             throws OperationException {
-        return new WrappedCloseableIterable<>(operation.getElementGenerator().getElements(operation.getObjects()));
+        return new WrappedCloseableIterable<>(operation.getElementGenerator().getElements(operation.getInput()));
     }
 }

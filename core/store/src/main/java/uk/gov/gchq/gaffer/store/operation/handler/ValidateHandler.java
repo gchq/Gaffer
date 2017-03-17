@@ -30,13 +30,13 @@ import uk.gov.gchq.gaffer.store.ValidatedElements;
  * The {@link uk.gov.gchq.gaffer.store.schema.Schema} is used to validate the elements.
  * The isSkipInvalidElements flag on {@link Validate} is used to determine what to do with invalid {@link Element}s.
  */
-public class ValidateHandler implements OperationHandler<Validate, Iterable<Element>> {
+public class ValidateHandler implements OperationHandler<Validate> {
     @Override
     public Iterable<Element> doOperation(final Validate operation,
                                          final Context context, final Store store)
             throws OperationException {
-        return null != operation.getElements()
-                ? new ValidatedElements(operation.getElements(), store.getSchema(), operation.isSkipInvalidElements())
+        return null != operation.getInput()
+                ? new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements())
                 : null;
     }
 }

@@ -22,6 +22,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
  * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
-public class Edge extends Element {
+public class Edge extends Element implements EdgeId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
     private static final long serialVersionUID = -5596452468277807842L;
     private Object source;
@@ -141,15 +142,15 @@ public class Edge extends Element {
         return null != edge
                 && (new EqualsBuilder()
                 .appendSuper(super.equals(edge))
+                .append(directed, edge.isDirected())
                 .append(source, edge.getSource())
                 .append(destination, edge.getDestination())
-                .append(directed, edge.isDirected())
                 .isEquals()
                 || new EqualsBuilder()
                 .appendSuper(super.equals(edge))
+                .append(directed, false)
                 .append(source, edge.getDestination())
                 .append(destination, edge.getSource())
-                .append(directed, false)
                 .isEquals()
         );
     }

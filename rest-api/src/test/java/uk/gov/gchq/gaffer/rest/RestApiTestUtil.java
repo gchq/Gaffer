@@ -98,11 +98,11 @@ public class RestApiTestUtil {
 
     public static void addElements(final Element... elements) throws IOException {
         executeOperation(new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build());
     }
 
-    public static Response executeOperation(final Operation<?, ?> operation) throws IOException {
+    public static Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(REST_URI)
                 .path("/graph/doOperation")

@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
@@ -40,7 +39,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -63,13 +61,11 @@ public class GeneratorsIT extends AbstractStoreIT {
     public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
         final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
-                .first(new GetElements.Builder<>()
-                        .addSeed(new EntitySeed(SOURCE_1))
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_1))
                         .build())
-                .then(new GenerateObjects.Builder<Element, DomainObject>()
+                .then(new GenerateObjects.Builder<DomainObject>()
                         .generator(new BasicGenerator())
-                        .outputType(new TypeReference<CloseableIterable<DomainObject>>() {
-                        })
                         .build())
                 .build();
 
@@ -92,10 +88,8 @@ public class GeneratorsIT extends AbstractStoreIT {
         final OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<DomainObject>()
                         .generator(new BasicGenerator())
-                        .objects(Arrays.asList(
-                                new EntityDomainObject(NEW_VERTEX, "1", null),
-                                new EdgeDomainObject(NEW_SOURCE, NEW_DEST, false, 1, 1L)
-                        ))
+                        .input(new EntityDomainObject(NEW_VERTEX, "1", null),
+                                new EdgeDomainObject(NEW_SOURCE, NEW_DEST, false, 1, 1L))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -104,9 +98,8 @@ public class GeneratorsIT extends AbstractStoreIT {
         graph.execute(opChain, getUser());
 
         // Then - check they were added correctly
-        final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder<>()
-                .addSeed(new EntitySeed(NEW_VERTEX))
-                .addSeed(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
+        final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
+                .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));
 
         final Edge expectedEdge = new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);
@@ -118,7 +111,7 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity, expectedEdge));
+        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
+                expectedEntity, expectedEdge}));
     }
 }

@@ -16,103 +16,120 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import java.util.List;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
- * Restricts {@link uk.gov.gchq.gaffer.operation.AbstractGetOperation} to take {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
+ * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
- * There are various flags to filter out the elements returned. See implementations of {@link GetElements} for further details.
- *
- * @param <SEED_TYPE>    the seed seed type
- * @param <ELEMENT_TYPE> the element return type
- * @see uk.gov.gchq.gaffer.operation.GetOperation
+ * There are various flags to filter out the elements returned.
+ * See extensions of {@link GetElements} for further details.
  */
-public class GetElements<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-        extends AbstractGetIterableElementsOperation<SEED_TYPE, ELEMENT_TYPE> {
-    public GetElements() {
-        super();
-    }
+public class GetElements implements
+        Operation,
+        IterableInputIterableOutput<ElementId, Element>,
+        SeededGraphFilters,
+        SeedMatching,
+        Options {
+    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
+    private View view;
+    private IncludeIncomingOutgoingType inOutType;
+    private DirectedType directedType;
+    private Iterable<ElementId> input;
+    private Map<String, String> options;
 
-    public GetElements(final Iterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetElements(final CloseableIterable<SEED_TYPE> seeds) {
-        super(seeds);
-    }
-
-    public GetElements(final View view) {
-        super(view);
-    }
-
-    public GetElements(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElements(final View view, final CloseableIterable<SEED_TYPE> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElements(final GetIterableElementsOperation<SEED_TYPE, ?> operation) {
-        super(operation);
-    }
-
+    /**
+     * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
+     *                     matched to the identifiers in the graph.
+     * @see SeedMatchingType
+     */
     public void setSeedMatching(final SeedMatchingType seedMatching) {
-        super.setSeedMatching(seedMatching);
+        this.seedMatching = seedMatching;
+    }
+
+    public SeedMatchingType getSeedMatching() {
+        return seedMatching;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<ElementId> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<ElementId> input) {
+        this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public SEED_TYPE[] getSeedArray() {
-        final CloseableIterable<SEED_TYPE> input = getInput();
-        if (null != input) {
-            final List<SEED_TYPE> inputList = Lists.newArrayList(input);
-            return (SEED_TYPE[]) inputList.toArray(new ElementSeed[inputList.size()]);
-        }
-
-        return null;
+    public Object[] createInputArray() {
+        return IterableInputIterableOutput.super.createInputArray();
     }
 
-    public abstract static class BaseBuilder<OP_TYPE extends GetElements<SEED_TYPE, ELEMENT_TYPE>,
-            SEED_TYPE extends ElementSeed,
-            ELEMENT_TYPE extends Element,
-            CHILD_CLASS extends BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<OP_TYPE, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
-        protected BaseBuilder(final OP_TYPE op) {
-            super(op);
-        }
-
-        protected BaseBuilder() {
-            super((OP_TYPE) new GetElements<SEED_TYPE, ELEMENT_TYPE>());
-        }
+    @Override
+    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed, ELEMENT_TYPE extends Element>
-            extends BaseBuilder<GetElements<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
 
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
+            implements IterableInputIterableOutput.Builder<GetElements, ElementId, Element, Builder>,
+            SeededGraphFilters.Builder<GetElements, Builder>,
+            SeedMatching.Builder<GetElements, Builder>,
+            Options.Builder<GetElements, Builder> {
         public Builder() {
-            super(new GetElements<SEED_TYPE, ELEMENT_TYPE>());
-        }
-
-        public Builder(final GetElements<SEED_TYPE, ELEMENT_TYPE> op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
-            return this;
+            super(new GetElements());
         }
     }
 }

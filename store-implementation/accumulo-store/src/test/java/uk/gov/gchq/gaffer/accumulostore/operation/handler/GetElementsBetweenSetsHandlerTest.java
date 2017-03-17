@@ -33,12 +33,12 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -56,8 +56,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
-    private final List<EntitySeed> seedsA = Arrays.asList(new EntitySeed("A0"));
-    private final List<EntitySeed> seedsB = Arrays.asList(new EntitySeed("A23"));
+    private final List<EntityId> seedsA = Arrays.asList(new EntitySeed("A0"));
+    private final List<EntityId> inputB = Arrays.asList(new EntitySeed("A23"));
 
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
@@ -133,7 +133,7 @@ public class GetElementsBetweenSetsHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(defaultView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
         //Without query compaction the result size should be 4
@@ -163,7 +163,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .build())
                 .build();
 
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, opView);
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
 
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -177,28 +177,23 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(byteEntityStore);
     }
 
     @Test
     public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final View opView = new View.Builder(defaultView)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
+    private void shouldReturnOnlyEdgesWhenViewContainsNoEntities(final AccumuloStore store) throws OperationException {
+        final View opView = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
                 .build();
 
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, opView);
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
 
-        op.setIncludeEdges(IncludeEdgeType.ALL);
-        op.setIncludeEntities(false);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
@@ -211,17 +206,21 @@ public class GetElementsBetweenSetsHandlerTest {
 
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(byteEntityStore);
     }
 
     @Test
     public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, defaultView);
-        op.setIncludeEdges(IncludeEdgeType.NONE);
+    private void shouldReturnOnlyEntitiesWhenViewContainsNoEdges(final AccumuloStore store) throws OperationException {
+        final View opView = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(opView).build();
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
 
@@ -251,7 +250,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -282,7 +281,7 @@ public class GetElementsBetweenSetsHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsBetweenSets<Element> op = new GetElementsBetweenSets<>(seedsA, seedsB, view);
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(seedsA).inputB(inputB).view(view).build();
         op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsBetweenSetsHandler handler = new GetElementsBetweenSetsHandler();
         final CloseableIterable<Element> elements = handler.doOperation(op, user, store);
@@ -331,7 +330,7 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
-            store.execute(new AddElements(data), user);
+            store.execute(new AddElements.Builder().input(data).build(), user);
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

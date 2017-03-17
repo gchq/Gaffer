@@ -29,30 +29,24 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OperationHandler<GetAllElements> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation,
-                                         final Context context, final Store store) {
+    public CloseableIterable<Element> doOperation(final GetAllElements operation,
+                                                  final Context context, final Store store) {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
-    private List<Element> doOperation(final GetAllElements<Element> operation,
+    private List<Element> doOperation(final GetAllElements operation,
                                       final ArrayListStore store) {
         final List<Element> result = new ArrayList<>();
-        if (operation.isIncludeEntities()) {
-            for (final Entity entity : store.getEntities()) {
-                if (operation.validateFlags(entity) && operation.validate(entity)) {
-                    result.add(entity);
-                }
+        for (final Entity entity : store.getEntities()) {
+            if (operation.validate(entity)) {
+                result.add(entity);
             }
         }
-        if (!IncludeEdgeType.NONE.equals(operation.getIncludeEdges())) {
-            for (final Edge edge : store.getEdges()) {
-                if (operation.validateFlags(edge) && operation.validate(edge)) {
-                    result.add(edge);
-                }
+        for (final Edge edge : store.getEdges()) {
+            if (operation.validate(edge)) {
+                result.add(edge);
             }
         }
 

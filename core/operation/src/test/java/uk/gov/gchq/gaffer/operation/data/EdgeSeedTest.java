@@ -17,6 +17,9 @@
 package uk.gov.gchq.gaffer.operation.data;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
@@ -29,103 +32,103 @@ import static org.mockito.Mockito.mock;
 
 public class EdgeSeedTest {
     @Test
-    public void shouldBeRelatedToEntitySeedWhenSourceEqualsVertex() {
+    public void shouldBeRelatedToEntityIdWhenSourceEqualsVertex() {
         // Given
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
-        final EntitySeed relatedSeed = mock(EntitySeed.class);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
+        final EntityId relatedSeed = mock(EntityId.class);
 
         given(relatedSeed.getVertex()).willReturn(source);
 
         // When
-        final boolean isRelated = seed.isRelated((ElementSeed) relatedSeed).isMatch();
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
 
         // Then
         assertTrue(isRelated);
     }
 
     @Test
-    public void shouldBeRelatedToEntitySeedWhenDestinationEqualsVertex() {
+    public void shouldBeRelatedToEntityIdWhenDestinationEqualsVertex() {
         // Given
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
-        final EntitySeed relatedSeed = mock(EntitySeed.class);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
+        final EntityId relatedSeed = mock(EntityId.class);
 
         given(relatedSeed.getVertex()).willReturn(destination);
 
         // When
-        final boolean isRelated = seed.isRelated((ElementSeed) relatedSeed).isMatch();
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
 
         // Then
         assertTrue(isRelated);
     }
 
     @Test
-    public void shouldBeRelatedToEntitySeedWhenSourceAndVertexAreNull() {
+    public void shouldBeRelatedToEntityIdWhenSourceAndVertexAreNull() {
         // Given
         final String source = null;
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
-        final EntitySeed relatedSeed = mock(EntitySeed.class);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
+        final EntityId relatedSeed = mock(EntityId.class);
 
         given(relatedSeed.getVertex()).willReturn(source);
 
         // When
-        final boolean isRelated = seed.isRelated((ElementSeed) relatedSeed).isMatch();
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
 
         // Then
         assertTrue(isRelated);
     }
 
     @Test
-    public void shouldBeRelatedToEntitySeedWhenDestinationAndVertexAreNull() {
+    public void shouldBeRelatedToEntityIdWhenDestinationAndVertexAreNull() {
         // Given
         final String source = "source";
         final String destination = null;
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
-        final EntitySeed relatedSeed = mock(EntitySeed.class);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
+        final EntityId relatedSeed = mock(EntityId.class);
 
         given(relatedSeed.getVertex()).willReturn(source);
 
         // When
-        final boolean isRelated = seed.isRelated((ElementSeed) relatedSeed).isMatch();
+        final boolean isRelated = seed.isRelated((ElementId) relatedSeed).isMatch();
 
         // Then
         assertTrue(isRelated);
     }
 
     @Test
-    public void shouldNotBeRelatedToEntitySeedWhenIdentifierNotEqualToSourceOrDestination() {
+    public void shouldNotBeRelatedToEntityIdWhenIdentifierNotEqualToSourceOrDestination() {
         // Given
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
-        final EntitySeed unrelatedSeed = mock(EntitySeed.class);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
+        final EntityId unrelatedSeed = mock(EntityId.class);
 
         given(unrelatedSeed.getVertex()).willReturn("other identifier");
 
         // When
-        final boolean isRelated = seed.isRelated((ElementSeed) unrelatedSeed).isMatch();
+        final boolean isRelated = seed.isRelated((ElementId) unrelatedSeed).isMatch();
 
         // Then
         assertFalse(isRelated);
     }
 
     @Test
-    public void shouldBeRelatedToEdgeSeed() {
+    public void shouldBeRelatedToEdgeId() {
         // Given
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, directed);
-        final EdgeSeed seed2 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed1 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed2 = new EdgeSeed(source, destination, directed);
 
         // When
         final boolean isRelated = seed1.isRelated(seed2).isMatch();
@@ -140,8 +143,8 @@ public class EdgeSeedTest {
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, directed);
-        final EdgeSeed seed2 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed1 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed2 = new EdgeSeed(source, destination, directed);
 
         // When
         final boolean isEqual = seed1.equals(seed2);
@@ -157,8 +160,8 @@ public class EdgeSeedTest {
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, directed);
-        final EdgeSeed seed2 = new EdgeSeed("different source", destination, directed);
+        final EdgeId seed1 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed2 = new EdgeSeed("different source", destination, directed);
 
         // When
         final boolean isEqual = seed1.equals(seed2);
@@ -174,8 +177,8 @@ public class EdgeSeedTest {
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, directed);
-        final EdgeSeed seed2 = new EdgeSeed(source, "different destination", directed);
+        final EdgeId seed1 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed2 = new EdgeSeed(source, "different destination", directed);
 
         // When
         final boolean isEqual = seed1.equals(seed2);
@@ -190,8 +193,8 @@ public class EdgeSeedTest {
         final String source = "source";
         final String destination = "destination";
         final boolean directed = true;
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, directed);
-        final EdgeSeed seed2 = new EdgeSeed(source, destination, false);
+        final EdgeId seed1 = new EdgeSeed(source, destination, directed);
+        final EdgeId seed2 = new EdgeSeed(source, destination, false);
 
         // When
         final boolean isEqual = seed1.equals(seed2);
@@ -205,8 +208,8 @@ public class EdgeSeedTest {
         // Given
         final String source = "source";
         final String destination = "destination";
-        final EdgeSeed seed1 = new EdgeSeed(source, destination, false);
-        final EdgeSeed seed2 = new EdgeSeed(destination, source, false);
+        final EdgeId seed1 = new EdgeSeed(source, destination, false);
+        final EdgeId seed2 = new EdgeSeed(destination, source, false);
 
         // When
         final boolean isEqual = seed1.equals(seed2);
@@ -222,12 +225,12 @@ public class EdgeSeedTest {
         final Long source = 1L;
         final Integer destination = 2;
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
         final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
         final byte[] bytes = serialiser.serialise(seed);
-        final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
+        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertEquals(seed, seedDeserialised);
@@ -245,19 +248,19 @@ public class EdgeSeedTest {
         destination.setType("destinationType");
         destination.setValue("destinationValue");
         final boolean directed = true;
-        final EdgeSeed seed = new EdgeSeed(source, destination, directed);
+        final EdgeId seed = new EdgeSeed(source, destination, directed);
         final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
         final byte[] bytes = serialiser.serialise(seed);
-        final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
+        final EdgeId seedDeserialised = serialiser.deserialise(bytes, EdgeId.class);
 
         // Then
         assertTrue(seedDeserialised.getSource() instanceof CustomVertex);
         assertTrue(seedDeserialised.getDestination() instanceof CustomVertex);
         assertEquals("sourceType", ((CustomVertex) seedDeserialised.getSource()).getType());
-        assertEquals("sourceValue", ((CustomVertex)seedDeserialised.getSource()).getValue());
-        assertEquals("destinationType", ((CustomVertex)seedDeserialised.getDestination()).getType());
+        assertEquals("sourceValue", ((CustomVertex) seedDeserialised.getSource()).getValue());
+        assertEquals("destinationType", ((CustomVertex) seedDeserialised.getDestination()).getType());
         assertEquals("destinationValue", ((CustomVertex) seedDeserialised.getDestination()).getValue());
     }
 }

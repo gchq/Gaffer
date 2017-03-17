@@ -30,28 +30,27 @@ import org.slf4j.LoggerFactory;
 public class SchemaElementDefinitionValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaElementDefinitionValidator.class);
 
-    public boolean validate(final SchemaElementDefinition elementDef) {
-        // TODO: fix this
+    /**
+     * Checks each identifier and property has a type associated with it.
+     * Checks all {@link uk.gov.gchq.gaffer.function.FilterFunction}s and {@link uk.gov.gchq.gaffer.function.AggregateFunction}s defined are
+     * compatible with the identifiers and properties - this is done by comparing the function input and output types with
+     * the identifier and property types.
+     *
+     * @param elementDef          the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
+     * @param requiresAggregators true if aggregators are required
+     * @return true if the element definition is valid, otherwise false and an error is logged
+     */
+    public boolean validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+        //TODO: fix
         return true;
-    }
-//        /**
-//         * Checks each identifier and property has a type associated with it.
-//         * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BinaryOperator}s defined are
-//         * compatible with the identifiers and properties - this is done by comparing the function input and output types with
-//         * the identifier and property types.
-//         *
-//         * @param elementDef the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
-//         * @return true if the element definition is valid, otherwise false and an error is logged
-//         */
-//    public boolean validate(final SchemaElementDefinition elementDef) {
-//        final ElementFilter validator = elementDef.getPredicates();
+//        final ElementFilter validator = elementDef.getValidator();
 //        final ElementAggregator aggregator = elementDef.getAggregator();
 //        return validateComponentTypes(elementDef)
-//                && validateAggregator(aggregator, elementDef)
+//                && validateAggregator(aggregator, elementDef, requiresAggregators)
 //                && validateFunctionArgumentTypes(validator, elementDef)
 //                && validateFunctionArgumentTypes(aggregator, elementDef);
-//    }
-//
+    }
+
 //    protected boolean validateComponentTypes(final SchemaElementDefinition elementDef) {
 //        for (final IdentifierType idType : elementDef.getIdentifiers()) {
 //            try {
@@ -199,28 +198,37 @@ public class SchemaElementDefinitionValidator {
 //    }
 //
 //
-//    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
+//    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+//        if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
+//            // if no properties then no aggregation is necessary
+//            return true;
+//        }
+//
 //        if (null == aggregator || null == aggregator.getFunctions()) {
+//            if (requiresAggregators) {
+//                LOGGER.error("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
+//                return false;
+//            }
+//
 //            // if aggregate functions are not defined then it is valid
 //            return true;
 //        }
 //
 //        // if aggregate functions are defined then check all properties are aggregated
 //        final Set<String> aggregatedProperties = new HashSet<>();
-//        // TODO: fix this
-////        if (aggregator.getFunctions() != null) {
-////            for (final PassThroughFunctionContext<String, AggregateFunction> context : aggregator.getFunctions()) {
-////                final List<String> selection = context.getSelection();
-////                if (selection != null) {
-////                    for (final String key : selection) {
-////                        final IdentifierType idType = IdentifierType.fromName(key);
-////                        if (null == idType) {
-////                            aggregatedProperties.add(key);
-////                        }
-////                    }
-////                }
-////            }
-////        }
+//        if (aggregator.getFunctions() != null) {
+//            for (final PassThroughFunctionContext<String, AggregateFunction> context : aggregator.getFunctions()) {
+//                final List<String> selection = context.getSelection();
+//                if (selection != null) {
+//                    for (final String key : selection) {
+//                        final IdentifierType idType = IdentifierType.fromName(key);
+//                        if (null == idType) {
+//                            aggregatedProperties.add(key);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 //
 //        final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
 //        propertyNamesTmp.removeAll(aggregatedProperties);
@@ -228,7 +236,7 @@ public class SchemaElementDefinitionValidator {
 //            return true;
 //        }
 //
-//        LOGGER.error("no aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. This framework requires that either all of the defined properties have a function associated with them, or none of them do.");
+//        LOGGER.error("no aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
 //        return false;
 //    }
 }

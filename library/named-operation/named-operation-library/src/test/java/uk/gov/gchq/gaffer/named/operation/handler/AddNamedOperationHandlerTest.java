@@ -23,15 +23,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.MockNamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
@@ -46,7 +45,9 @@ public class AddNamedOperationHandlerTest {
             .build());
 
     private Store store = Mockito.mock(Store.class);
-    private NamedOperation operation = new NamedOperation(OPERATION_NAME, "a named operation");
+    private NamedOperation operation = new NamedOperation.Builder<>()
+            .name(OPERATION_NAME)
+            .build();
     private AddNamedOperation addNamedOperation = new AddNamedOperation.Builder()
             .overwrite(false)
             .build();
@@ -93,10 +94,12 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAddNamedOperationIfItContainsAnOperationWhichReferencesTheParent() throws CacheOperationFailedException, OperationException {
 
-        NamedOperation op = new NamedOperation("parent", "this is the parent which has not yet been created");
+        NamedOperation op = new NamedOperation.Builder<>()
+                .name("parent")
+                .build();
         OperationChain opChain = new OperationChain.Builder().first(op).build();
 
-        ExtendedNamedOperation child = new ExtendedNamedOperation.Builder().
+        NamedOperationDetail child = new NamedOperationDetail.Builder().
                 operationChain(opChain)
                 .operationName(OPERATION_NAME)
                 .build();
@@ -114,7 +117,9 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAllowNamedOperationToBeAddedContainingANamedOperationThatDoesNotExist() throws OperationException {
 
-        NamedOperation op = new NamedOperation("parent", "this is the parent which has not yet been created");
+        NamedOperation op = new NamedOperation.Builder<>()
+                .name("parent")
+                .build();
         OperationChain opChain = new OperationChain.Builder().first(op).build();
 
         addNamedOperation.setOperationChain(opChain);
@@ -127,7 +132,7 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAllowUpdateToNamedOperationIfItCausesRecursion() throws OperationException {
         String innocentOpName = "innocent";
-        OperationChain innocent = new OperationChain.Builder().first(new GetElements<>()).build();
+        OperationChain innocent = new OperationChain.Builder().first(new GetElements()).build();
 
         addNamedOperation.setOperationName(innocentOpName);
         addNamedOperation.setOperationChain(innocent);
@@ -135,7 +140,7 @@ public class AddNamedOperationHandlerTest {
         handler.doOperation(addNamedOperation, context, store);
 
         OperationChain parent = new OperationChain.Builder()
-                .first(new NamedOperation(innocentOpName, "call down to currently innocent named op"))
+                .first(new NamedOperation.Builder().name(innocentOpName).build())
                 .build();
 
         addNamedOperation.setOperationChain(parent);
@@ -144,7 +149,7 @@ public class AddNamedOperationHandlerTest {
         handler.doOperation(addNamedOperation, context, store);
 
         OperationChain recursive = new OperationChain.Builder()
-                .first(new NamedOperation(OPERATION_NAME, ""))
+                .first(new NamedOperation.Builder().name(OPERATION_NAME).build())
                 .build();
 
         addNamedOperation.setOperationName(innocentOpName);
@@ -164,8 +169,8 @@ public class AddNamedOperationHandlerTest {
             handler.doOperation(addNamedOperation, context, store);
 
             OperationChain parent = new OperationChain.Builder()
-                    .first(new NamedOperation("child", ""))
-                    .then(new GetElements<>())
+                    .first(new NamedOperation.Builder().name("child").build())
+                    .then(new GetElements())
                     .build();
 
             addNamedOperation.setOperationChain(parent);
@@ -174,9 +179,9 @@ public class AddNamedOperationHandlerTest {
 
             OperationChain grandparent = new OperationChain.Builder()
                     .first(new AddElements())
-                    .then(new NamedOperation("parent", ""))
-                    .then(new NamedOperation("child", ""))
-                    .then(new GetEntities<>())
+                    .then(new NamedOperation.Builder().name("parent").build())
+                    .then(new NamedOperation.Builder().name("child").build())
+                    .then(new GetElements())
                     .build();
 
             addNamedOperation.setOperationChain(grandparent);
@@ -192,8 +197,8 @@ public class AddNamedOperationHandlerTest {
     }
 
     private boolean cacheContains(String opName) {
-        Iterable<NamedOperation> ops = handler.getCache().getAllNamedOperations(context.getUser(), true);
-        for (NamedOperation op : ops) {
+        Iterable<NamedOperationDetail> ops = handler.getCache().getAllNamedOperations(context.getUser());
+        for (NamedOperationDetail op : ops) {
             if (op.getOperationName().equals(opName)) {
                 return true;
             }

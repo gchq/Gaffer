@@ -20,14 +20,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -37,16 +36,15 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-//@RunWith(MockitoJUnitRunner.class)
 public class OperationChainTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws SerialisationException {
         // Given
-        final OperationChain<Object> opChain = new Builder()
-                .first(new OperationImpl<>())
-                .then(new OperationImpl<>())
+        final OperationChain opChain = new Builder()
+                .first(new OperationImpl())
+                .then(new OperationImpl())
                 .build();
 
         // When
@@ -68,16 +66,16 @@ public class OperationChainTest {
     public void shouldBuildOperationChain() {
         // Given
         final AddElements addElements = mock(AddElements.class);
-        final GetElements getAdj1 = mock(GetElements.class);
-        final GetElements getAdj2 = mock(GetElements.class);
-        final GetElements<EntitySeed, Element> getRelElements = mock(GetElements.class);
+        final GetAdjacentIds getAdj1 = mock(GetAdjacentIds.class);
+        final GetAdjacentIds getAdj2 = mock(GetAdjacentIds.class);
+        final GetElements getElements = mock(GetElements.class);
 
         // When
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
                 .then(getAdj2)
-                .then(getRelElements)
+                .then(getElements)
                 .build();
 
         // Then
@@ -85,7 +83,7 @@ public class OperationChainTest {
                         addElements,
                         getAdj1,
                         getAdj2,
-                        getRelElements},
+                        getElements},
                 opChain.getOperationArray());
     }
 
@@ -93,9 +91,9 @@ public class OperationChainTest {
     public void shouldReturnReadableStringForToString() {
         // Given
         final AddElements addElements = new AddElements();
-        final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
-        final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
-        final GetElements<EntitySeed, Element> getRelElements = new GetElements<>();
+        final GetAdjacentIds getAdj1 = new GetAdjacentIds();
+        final GetAdjacentIds getAdj2 = new GetAdjacentIds();
+        final GetElements getRelElements = new GetElements();
         final OperationChain<CloseableIterable<Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
@@ -108,40 +106,40 @@ public class OperationChainTest {
 
         // Then
         final String expectedToString =
-                "OperationChain[AddElements->GetAdjacentEntitySeeds->GetAdjacentEntitySeeds->GetElements]";
+                "OperationChain[AddElements->GetAdjacentIds->GetAdjacentIds->GetElements]";
         assertEquals(expectedToString, toString);
     }
 
     @Test
     public void shouldBuildOperationChainWithSingleOperation() throws SerialisationException {
         // Given
-        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
+        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
-                .first(getAdjacentEntitySeeds)
+                .first(getAdjacentIds)
                 .build();
 
         // Then
         assertEquals(1, opChain.getOperations().size());
-        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+        assertSame(getAdjacentIds, opChain.getOperations().get(0));
     }
 
     @Test
-    public void shouldBuildOperationChain_AdjEntitySeedsThenRelatedEdges() throws SerialisationException {
+    public void shouldBuildOperationChain_AdjEntitySeedsThenElements() throws SerialisationException {
         // Given
-        final GetAdjacentEntitySeeds getAdjacentEntitySeeds = mock(GetAdjacentEntitySeeds.class);
-        final GetEdges<EntitySeed> getEdges = mock(GetEdges.class);
+        final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
+        final GetElements getEdges = mock(GetElements.class);
 
         // When
         final OperationChain opChain = new OperationChain.Builder()
-                .first(getAdjacentEntitySeeds)
+                .first(getAdjacentIds)
                 .then(getEdges)
                 .build();
 
         // Then
         assertEquals(2, opChain.getOperations().size());
-        assertSame(getAdjacentEntitySeeds, opChain.getOperations().get(0));
+        assertSame(getAdjacentIds, opChain.getOperations().get(0));
         assertSame(getEdges, opChain.getOperations().get(1));
     }
 
@@ -149,7 +147,7 @@ public class OperationChainTest {
     public void shouldDetermineOperationChainOutputType() {
         // Given
         final Operation operation1 = mock(Operation.class);
-        final Operation operation2 = mock(Operation.class);
+        final GetElements operation2 = mock(GetElements.class);
         final TypeReference typeRef = mock(TypeReference.class);
 
         given(operation2.getOutputTypeReference()).willReturn(typeRef);

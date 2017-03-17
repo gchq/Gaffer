@@ -126,9 +126,18 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @JsonIgnore
+    public boolean hasEntities() {
+        return null != entities && !entities.isEmpty();
+    }
+
+    @JsonIgnore
+    public boolean hasEdges() {
+        return null != edges && !edges.isEmpty();
+    }
+
+    @JsonIgnore
     public boolean hasGroups() {
-        return (null != entities && !entities.isEmpty())
-                || (null != edges && !edges.isEmpty());
+        return hasEntities() || hasEdges();
     }
 
     public Map<String, EDGE_DEF> getEdges() {

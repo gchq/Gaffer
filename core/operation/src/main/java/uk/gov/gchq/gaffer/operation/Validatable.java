@@ -16,17 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
-
 /**
  * A <code>Validatable</code> operation defines an operation with an iterable of {@link uk.gov.gchq.gaffer.data.element.Element}s
  * that can optionally be validated before being processed.
  * <p>
- *
- * @param <OUTPUT> the output type
  */
-public interface Validatable<OUTPUT> extends Operation<CloseableIterable<Element>, OUTPUT> {
+public interface Validatable {
     /**
      * @return true if invalid elements should be skipped. Otherwise false if the operation should fail.
      */
@@ -48,14 +43,25 @@ public interface Validatable<OUTPUT> extends Operation<CloseableIterable<Element
      */
     void setValidate(final boolean validate);
 
-    /**
-     * @return the input {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s in the operation.
-     */
-    CloseableIterable<Element> getElements();
+    interface Builder<OP extends Validatable, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
+        /**
+         * @param skipInvalidElements the skipInvalidElements flag to set on the operation
+         * @return this Builder
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setSkipInvalidElements(boolean)
+         */
+        default B skipInvalidElements(final boolean skipInvalidElements) {
+            _getOp().setSkipInvalidElements(skipInvalidElements);
+            return _self();
+        }
 
-    /**
-     * @param elements the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be set as the
-     *                 input for the operation.
-     */
-    void setElements(final CloseableIterable<Element> elements);
+        /**
+         * @param validate the validate flag to set on the operation
+         * @return this Builder
+         * @see uk.gov.gchq.gaffer.operation.Validatable#setValidate(boolean)
+         */
+        default B validate(final boolean validate) {
+            _getOp().setValidate(validate);
+            return _self();
+        }
+    }
 }

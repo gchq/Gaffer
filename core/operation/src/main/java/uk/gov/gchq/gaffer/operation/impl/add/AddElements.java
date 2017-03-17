@@ -16,12 +16,12 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractValidatable;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import java.util.Map;
 
 /**
  * An <code>AddElements</code> operation is a {@link uk.gov.gchq.gaffer.operation.Validatable} operation for adding elements.
@@ -32,51 +32,62 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see uk.gov.gchq.gaffer.operation.impl.add.AddElements.Builder
  */
-public class AddElements extends AbstractValidatable<Void> implements VoidOutput<CloseableIterable<Element>> {
-    /**
-     * Constructs an <code>AddElements</code> with no {@link uk.gov.gchq.gaffer.data.element.Element}s to add. This could be used
-     * in an operation chain where the elements are provided by the previous operation.
-     */
-    public AddElements() {
-        super();
-    }
+public class AddElements implements
+        Operation,
+        Validatable,
+        IterableInput<Element>,
+        Options {
+    private boolean validate = true;
+    private boolean skipInvalidElements;
+    private Iterable<Element> elements;
+    private Map<String, String> options;
 
-    /**
-     * Constructs an <code>AddElements</code> with the given {@link CloseableIterable} of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     *
-     * @param elements the {@link CloseableIterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     */
-    public AddElements(final CloseableIterable<Element> elements) {
-        super(elements);
-    }
-
-    /**
-     * Constructs an <code>AddElements</code> with the given {@link java.lang.Iterable} of
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     *
-     * @param elements the {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to be added.
-     */
-    public AddElements(final Iterable<Element> elements) {
-        super(elements);
+    @Override
+    public boolean isValidate() {
+        return validate;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractValidatable.BaseBuilder<AddElements, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
+
+    @Override
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @Override
+    public Iterable<Element> getInput() {
+        return elements;
+    }
+
+    @Override
+    public void setInput(final Iterable<Element> elements) {
+        this.elements = elements;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
+            implements Validatable.Builder<AddElements, Builder>,
+            IterableInput.Builder<AddElements, Element, Builder>,
+            Options.Builder<AddElements, Builder> {
+        public Builder() {
             super(new AddElements());
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

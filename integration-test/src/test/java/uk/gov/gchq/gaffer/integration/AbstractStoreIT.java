@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.function.aggregate.Max;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.function.aggregate.Sum;
@@ -107,8 +109,8 @@ public abstract class AbstractStoreIT {
     private static StoreProperties storeProperties;
     private static String singleTestMethod;
 
-    private final Map<EntitySeed, Entity> entities = createEntities();
-    private final Map<EdgeSeed, Edge> edges = createEdges();
+    private final Map<EntityId, Entity> entities = createEntities();
+    private final Map<EdgeId, Edge> edges = createEdges();
 
     @Rule
     public TestName name = new TestName();
@@ -249,19 +251,19 @@ public abstract class AbstractStoreIT {
 
     public void addDefaultElements() throws OperationException {
         graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEntities().values())
+                .input((Iterable) getEntities().values())
                 .build(), getUser());
 
         graph.execute(new AddElements.Builder()
-                .elements((Iterable) getEdges().values())
+                .input((Iterable) getEdges().values())
                 .build(), getUser());
     }
 
-    public Map<EntitySeed, Entity> getEntities() {
+    public Map<EntityId, Entity> getEntities() {
         return entities;
     }
 
-    public Map<EdgeSeed, Edge> getEdges() {
+    public Map<EdgeId, Edge> getEdges() {
         return edges;
     }
 
@@ -273,12 +275,12 @@ public abstract class AbstractStoreIT {
         return edges.get(new EdgeSeed(source, dest, isDirected));
     }
 
-    protected Map<EdgeSeed, Edge> createEdges() {
+    protected Map<EdgeId, Edge> createEdges() {
         return createDefaultEdges();
     }
 
-    public static Map<EdgeSeed, Edge> createDefaultEdges() {
-        final Map<EdgeSeed, Edge> edges = new HashMap<>();
+    public static Map<EdgeId, Edge> createDefaultEdges() {
+        final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
                 final Edge edge = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, false);
@@ -301,12 +303,12 @@ public abstract class AbstractStoreIT {
         return edges;
     }
 
-    protected Map<EntitySeed, Entity> createEntities() {
+    protected Map<EntityId, Entity> createEntities() {
         return createDefaultEntities();
     }
 
-    public static Map<EntitySeed, Entity> createDefaultEntities() {
-        final Map<EntitySeed, Entity> entities = new HashMap<>();
+    public static Map<EntityId, Entity> createDefaultEntities() {
+        final Map<EntityId, Entity> entities = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
                 final Entity entity = new Entity(TestGroups.ENTITY, VERTEX_PREFIXES[j] + i);
@@ -334,11 +336,11 @@ public abstract class AbstractStoreIT {
         return entities;
     }
 
-    protected static void addToMap(final Edge element, final Map<EdgeSeed, Edge> edges) {
+    protected static void addToMap(final Edge element, final Map<EdgeId, Edge> edges) {
         edges.put(ElementSeed.createSeed(element), element);
     }
 
-    protected static void addToMap(final Entity element, final Map<EntitySeed, Entity> entities) {
+    protected static void addToMap(final Entity element, final Map<EntityId, Entity> entities) {
         entities.put(ElementSeed.createSeed(element), element);
     }
 

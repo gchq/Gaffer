@@ -30,8 +30,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import java.util.function.Predicate;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -41,6 +39,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,8 +78,8 @@ public class AccumuloStoreRelationTest {
 
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
-        final List<ConsumerFunctionContext<String, Predicate>> filters = new ArrayList<>();
-        filters.add(new ConsumerFunctionContext<>(new IsMoreThan(5, false), new ArrayList<>(Arrays.asList("property1"))));
+        final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
+        filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), "property1"));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP, new ViewElementDefinition.Builder()
                         .postAggregationFilterFunctions(filters)
@@ -89,7 +88,7 @@ public class AccumuloStoreRelationTest {
 
         final Predicate<Element> returnElement = (Element element) ->
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
-                && ((Integer) element.getProperty("property1")) > 5;
+                        && ((Integer) element.getProperty("property1")) > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
     }
 
@@ -247,7 +246,7 @@ public class AccumuloStoreRelationTest {
     }
 
     private static void addElements(final Store store) throws OperationException {
-        store.execute(new AddElements(getElements()), new User());
+        store.execute(new AddElements.Builder().input(getElements()).build(), new User());
     }
 
     private SQLContext getSqlContext(final String appName) {

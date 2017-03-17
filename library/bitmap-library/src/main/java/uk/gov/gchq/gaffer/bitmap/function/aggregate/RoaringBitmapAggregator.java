@@ -16,36 +16,12 @@
 package uk.gov.gchq.gaffer.bitmap.function.aggregate;
 
 import org.roaringbitmap.RoaringBitmap;
-import java.util.function.BinaryOperator;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 public class RoaringBitmapAggregator extends KorypheBinaryOperator<RoaringBitmap> {
-    private RoaringBitmap result = null;
-
     @Override
-    public Object apply(final RoaringBitmap input) {
-        if (null == input) {
-            return;
-        }
-        if (null == result) {
-            result = input.clone();
-            return;
-        }
-        result.or(input);
-    }
-
-    @Override
-    protected RoaringBitmap _state() {
-        return result;
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public AggregateFunction statelessClone() {
-        return new RoaringBitmapAggregator();
+    protected RoaringBitmap _apply(final RoaringBitmap a, final RoaringBitmap b) {
+        a.or(b);
+        return a;
     }
 }

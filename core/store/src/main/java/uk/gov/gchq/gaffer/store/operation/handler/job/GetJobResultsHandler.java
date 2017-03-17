@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class GetJobResultsHandler implements OperationHandler<GetJobResults, CloseableIterable<?>> {
+public class GetJobResultsHandler implements OperationHandler<GetJobResults> {
     @Override
     public CloseableIterable<?> doOperation(final GetJobResults operation, final Context context, final Store store) throws OperationException {
         if (!store.isSupported(GetGafferResultCacheExport.class)) {
@@ -35,7 +35,7 @@ public class GetJobResultsHandler implements OperationHandler<GetJobResults, Clo
         // Delegates the operation to the GetGafferResultCacheExport operation handler.
         return store._execute(new OperationChain<>(new GetGafferResultCacheExport.Builder()
                 .jobId(operation.getJobId())
-                .key(operation.getKey())
+                .key(operation.getKeyOrDefault())
                 .build()), context);
     }
 }

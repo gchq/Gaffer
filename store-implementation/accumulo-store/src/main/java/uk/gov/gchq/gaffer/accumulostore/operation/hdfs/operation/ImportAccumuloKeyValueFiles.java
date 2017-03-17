@@ -16,14 +16,16 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import java.util.Map;
 
-public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void> implements VoidOutput<String> {
+public class ImportAccumuloKeyValueFiles implements
+        Operation,
+        Options {
     private String failurePath;
     private String inputPath;
+    private Map<String, String> options;
 
     public String getInputPath() {
         return inputPath;
@@ -42,31 +44,30 @@ public class ImportAccumuloKeyValueFiles extends AbstractOperation<String, Void>
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<ImportAccumuloKeyValueFiles, String, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+
+    public static class Builder extends Operation.BaseBuilder<ImportAccumuloKeyValueFiles, Builder>
+            implements Options.Builder<ImportAccumuloKeyValueFiles, Builder> {
+        public Builder() {
             super(new ImportAccumuloKeyValueFiles());
         }
 
-        public CHILD_CLASS inputPath(final String inputPath) {
-            op.setInputPath(inputPath);
-            return self();
+        public Builder inputPath(final String inputPath) {
+            _getOp().setInputPath(inputPath);
+            return _self();
         }
 
-        public CHILD_CLASS failurePath(final String failurePath) {
-            op.setFailurePath(failurePath);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder failurePath(final String failurePath) {
+            _getOp().setFailurePath(failurePath);
+            return _self();
         }
     }
 }

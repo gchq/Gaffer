@@ -24,15 +24,15 @@ import uk.gov.gchq.gaffer.store.Store;
 /**
  * An <code>OperationHandler</code> defines how to handle a specific {@link uk.gov.gchq.gaffer.operation.Operation}.
  */
-public interface OperationHandler<OPERATION extends Operation<?, ?>, OUTPUT> {
+public interface OperationHandler<OP extends Operation> {
     /**
      * Execute the given {@link uk.gov.gchq.gaffer.operation.Operation}.
      *
      * @param operation the {@link Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
-     * @return the OUTPUT for the operation.
+     * @return the O for the operation.
      * @throws OperationException thrown if the operation fails
      */
-    OUTPUT doOperation(final OPERATION operation, final Context context, final Store store) throws OperationException;
+    Object doOperation(final OP operation, final Context context, final Store store) throws OperationException;
 }

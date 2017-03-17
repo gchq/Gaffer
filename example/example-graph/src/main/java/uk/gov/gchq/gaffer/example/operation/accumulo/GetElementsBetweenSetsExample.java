@@ -40,10 +40,9 @@ public class GetElementsBetweenSetsExample extends OperationExample {
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And4() {
         // ---------------------------------------------------------
-        final GetElementsBetweenSets<Element> operation = new GetElementsBetweenSets.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeedB(new EntitySeed(2))
-                .addSeedB(new EntitySeed(4))
+        final GetElementsBetweenSets operation = new GetElementsBetweenSets.Builder()
+                .input(new EntitySeed(1))
+                .inputB(new EntitySeed(2), new EntitySeed(4))
                 .build();
         // ---------------------------------------------------------
 
@@ -52,10 +51,9 @@ public class GetElementsBetweenSetsExample extends OperationExample {
 
     public Iterable<Element> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetElementsBetweenSets<Element> operation = new GetElementsBetweenSets.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeedB(new EntitySeed(2))
-                .addSeedB(new EntitySeed(4))
+        final GetElementsBetweenSets operation = new GetElementsBetweenSets.Builder()
+                .input(new EntitySeed(1))
+                .inputB(new EntitySeed(2), new EntitySeed(4))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

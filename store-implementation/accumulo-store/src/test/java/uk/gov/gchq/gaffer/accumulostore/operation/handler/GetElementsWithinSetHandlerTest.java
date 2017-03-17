@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -72,7 +72,7 @@ public class GetElementsWithinSetHandlerTest {
     private static Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
     private static Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
     private static Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    final Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
+    final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
     private User user = new User();
 
@@ -145,7 +145,7 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -177,7 +177,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -188,20 +188,17 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final View view = new View.Builder(defaultView)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
+    private void shouldReturnOnlyEdgesWhenViewContainsNoEntities(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
@@ -209,8 +206,7 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
-        operation.setIncludeEntities(false);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
 
@@ -224,18 +220,22 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.setIncludeEdges(IncludeEdgeType.NONE);
+    private void shouldReturnOnlyEntitiesWhenViewContainsNoEdges(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
@@ -311,7 +311,7 @@ public class GetElementsWithinSetHandlerTest {
 
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data), user);
+            store.execute(new AddElements.Builder().input(data).build(), user);
         } catch (OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

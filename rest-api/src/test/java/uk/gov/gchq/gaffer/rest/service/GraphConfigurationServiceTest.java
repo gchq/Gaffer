@@ -19,7 +19,10 @@ package uk.gov.gchq.gaffer.rest.service;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.koryphe.predicate.IsA;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -30,6 +33,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.predicate.IsA;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -49,14 +53,22 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GraphConfigurationServiceTest {
+
+    @InjectMocks
     private GraphConfigurationService service;
+
+    @Mock
+    private GraphFactory graphFactory;
+
+    @Mock
+    private UserFactory userFactory;
+
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
     public void setup() {
-        final UserFactory userFactory = mock(UserFactory.class);
-        final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(STORE_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
@@ -71,7 +83,6 @@ public class GraphConfigurationServiceTest {
         given(userFactory.createUser()).willReturn(new User());
 
         given(graph.getStoreTraits()).willReturn(traits);
-        service = new GraphConfigurationService(graphFactory, userFactory);
     }
 
     @Test

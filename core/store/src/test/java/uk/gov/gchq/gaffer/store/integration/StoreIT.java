@@ -19,14 +19,10 @@ package uk.gov.gchq.gaffer.store.integration;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -86,27 +82,27 @@ public class StoreIT {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OperationHandler<GetElements> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OperationHandler<? extends GetAdjacentIds> getAdjacentIdsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
         }
 

@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import com.google.common.collect.Sets;
 import org.apache.accumulo.core.client.BatchScanner;
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
@@ -42,35 +42,18 @@ import java.util.Set;
 /**
  * This allows queries for all elements.
  */
-public class AccumuloAllElementsRetriever extends AccumuloSingleIDRetriever {
+public class AccumuloAllElementsRetriever extends AccumuloRetriever<GetAllElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAllElementsRetriever.class);
 
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,
+    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements operation,
                                         final User user)
             throws IteratorSettingException, StoreException {
-        this(store, operation, user,
+        super(store, operation, user,
+                store.getKeyPackage().getIteratorFactory().getElementPropertyRangeQueryFilter(operation),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
-    }
-
-    /**
-     * Use of the varargs parameter here will mean the usual default iterators
-     * wont be applied, (Edge Direction,Edge/Entity TypeDefinition and View Filtering) To
-     * apply them pass them directly to the varargs via calling your
-     * keyPackage.getIteratorFactory() and either
-     * getElementFilterIteratorSetting and/Or
-     * getEdgeEntityDirectionFilterIteratorSetting
-     *
-     * @param store            the accumulo store
-     * @param operation        the get all elements operation
-     * @param user             the user executing the operation
-     * @param iteratorSettings the iterator settings
-     * @throws StoreException if any store issues occur
-     */
-    public AccumuloAllElementsRetriever(final AccumuloStore store, final GetAllElements<?> operation,
-                                        final User user,
-                                        final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, iteratorSettings);
+                store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
+                store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),
+                store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
     }
 
     @Override

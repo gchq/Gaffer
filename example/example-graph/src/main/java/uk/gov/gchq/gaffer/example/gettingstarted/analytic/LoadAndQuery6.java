@@ -16,19 +16,18 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 
@@ -66,7 +65,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(dataGenerator)
-                        .objects(data)
+                        .input(data)
                         .build())
                 .then(new AddElements())
                 .build();
@@ -76,20 +75,20 @@ public class LoadAndQuery6 extends LoadAndQuery {
 
 
         // [get] Create and execute an operation chain consisting of 3 operations:
-        //GetAdjacentEntitySeeds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
+        //GetAdjacentIds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
         //GetRelatedEdges - get outbound edges
         //GenerateObjects - convert the edges back into comma separated strings
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<String>> opChain =
                 new OperationChain.Builder()
-                        .first(new GetAdjacentEntitySeeds.Builder()
-                                .addSeed(new EntitySeed("1"))
+                        .first(new GetAdjacentIds.Builder()
+                                .input(new EntitySeed("1"))
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GetEdges.Builder<EntitySeed>()
+                        .then(new GetElements.Builder()
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GenerateObjects.Builder<Edge, String>()
+                        .then(new GenerateObjects.Builder<String>()
                                 .generator(dataGenerator)
                                 .build())
                         .build();

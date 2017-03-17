@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 public class GetSetExportHandler extends GetExportHandler<GetSetExport, SetExporter> {
     @Override
     protected CloseableIterable<?> getExport(final GetSetExport export, final SetExporter exporter) throws OperationException {
-        return exporter.get(export.getKey(), export.getStart(), export.getEnd());
+        return exporter.get(export.getKeyOrDefault(), export.getStart(), export.getEnd());
     }
 
     @Override

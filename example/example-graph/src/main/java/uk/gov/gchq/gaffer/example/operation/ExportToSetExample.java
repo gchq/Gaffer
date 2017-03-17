@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.example.operation;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import java.util.Map;
 
 public class ExportToSetExample extends OperationExample {
@@ -43,9 +43,10 @@ public class ExportToSetExample extends OperationExample {
 
     public CloseableIterable<?> simpleExportAndGet() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToSet())
+        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToSet<>())
+                .then(new DiscardOutput())
                 .then(new GetSetExport())
                 .build();
         // ---------------------------------------------------------
@@ -55,9 +56,10 @@ public class ExportToSetExample extends OperationExample {
 
     public CloseableIterable<?> simpleExportAndGetWithPagination() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToSet())
+        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToSet<>())
+                .then(new DiscardOutput())
                 .then(new GetSetExport.Builder()
                         .start(2)
                         .end(4)
@@ -72,14 +74,16 @@ public class ExportToSetExample extends OperationExample {
     public Map<String, CloseableIterable<?>> exportMultipleResultsToSetAndGetAllResults() {
         // ---------------------------------------------------------
         final OperationChain<Map<String, CloseableIterable<?>>> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
-                .then(new ExportToSet.Builder()
+                .first(new GetAllElements())
+                .then(new ExportToSet.Builder<>()
                         .key("edges")
                         .build())
-                .then(new GetAllEntities())
-                .then(new ExportToSet.Builder()
+                .then(new DiscardOutput())
+                .then(new GetAllElements())
+                .then(new ExportToSet.Builder<>()
                         .key("entities")
                         .build())
+                .then(new DiscardOutput())
                 .then(new GetExports.Builder()
                         .exports(new GetSetExport.Builder()
                                         .key("edges")
