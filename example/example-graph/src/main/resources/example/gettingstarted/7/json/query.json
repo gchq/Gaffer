@@ -1,7 +1,7 @@
 {
   "operations": [
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
       "view": {
         "edges": {
           "data": {
@@ -37,7 +37,7 @@
         "edgeIdentifierToExtract": "DESTINATION"
       }
     }, {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
       "view": {
         "edges": {
           "data": {

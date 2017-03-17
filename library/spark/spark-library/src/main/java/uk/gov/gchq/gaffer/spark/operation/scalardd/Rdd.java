@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-package uk.gov.gchq.gaffer.spark.operation;
+import org.apache.spark.SparkContext;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-import uk.gov.gchq.gaffer.operation.graph.AbstractSeededGraphGet;
+public interface Rdd {
+    SparkContext getSparkContext();
 
-public abstract class AbstractGetSparkRDD<I_ITEM, RDD>
-        extends AbstractSeededGraphGet<I_ITEM, RDD> implements GetSparkRDDOperation<I_ITEM, RDD> {
-    // Empty marker class
+    void setSparkContext(final SparkContext sparkContext);
+
+    interface Builder<OP extends Rdd,
+            B extends Builder<OP, ?>>
+            extends Operation.Builder<OP, B> {
+        default B sparkContext(final SparkContext sparkContext) {
+            _getOp().setSparkContext(sparkContext);
+            return _self();
+        }
+    }
 }

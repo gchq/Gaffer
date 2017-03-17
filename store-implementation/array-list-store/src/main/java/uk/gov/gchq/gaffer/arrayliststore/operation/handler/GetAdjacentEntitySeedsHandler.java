@@ -35,7 +35,7 @@ import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncom
 public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds> {
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final Context context, final Store store)
+                                                     final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }

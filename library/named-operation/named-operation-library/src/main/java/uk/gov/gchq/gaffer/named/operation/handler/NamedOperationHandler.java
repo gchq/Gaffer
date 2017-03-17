@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.WithView;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -36,7 +37,7 @@ import java.util.List;
 /**
  * Operation Handler for NamedOperation
  */
-public class NamedOperationHandler implements OperationHandler<NamedOperation, Object> {
+public class NamedOperationHandler implements OperationHandler<NamedOperation> {
     private INamedOperationCache cache;
 
     /**
@@ -80,8 +81,8 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      */
     private OperationChain<?> updateView(final View view, final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            if (operation instanceof WithView) {
-                final WithView viewFilters = ((WithView) operation);
+            if (operation instanceof OperationView) {
+                final OperationView viewFilters = ((OperationView) operation);
                 final View opView;
                 if (null == viewFilters.getView()) {
                     opView = view;
@@ -108,9 +109,9 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      * @param op    the first operation in a chain
      * @param input the input of the NamedOperation
      */
-    private void updateOperationInput(final Operation op, final Iterable<Object> input) {
-        if (null != input && null == op.getInput()) {
-            op.setInput(input);
+    private void updateOperationInput(final Operation op, final Object input) {
+        if (null != input && (op instanceof Input) && null == ((Input) op).getInput()) {
+            ((Input) op).setInput(input);
         }
     }
 

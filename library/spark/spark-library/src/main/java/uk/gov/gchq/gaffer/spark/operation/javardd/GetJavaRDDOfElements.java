@@ -15,50 +15,112 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import java.util.Map;
 
-public class GetJavaRDDOfElements<I_ITEM extends ElementSeed> extends AbstractGetJavaRDD<I_ITEM> {
+public class GetJavaRDDOfElements implements
+        Operation,
+        IterableInputOutput<ElementSeed, JavaRDD<Element>>,
+        SeededGraphFilters,
+        JavaRdd,
+        Options {
+
+    private Map<String, String> options;
+    private JavaSparkContext sparkContext;
+    private Iterable<ElementSeed> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
 
     public GetJavaRDDOfElements() {
     }
 
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final Iterable<I_ITEM> seeds) {
-        this(sparkContext, new WrappedCloseableIterable<>(seeds));
-    }
-
-    public GetJavaRDDOfElements(final JavaSparkContext sparkContext, final CloseableIterable<I_ITEM> seeds) {
+    public GetJavaRDDOfElements(final JavaSparkContext sparkContext) {
         setJavaSparkContext(sparkContext);
-        setInput(seeds);
     }
 
-    public abstract static class BaseBuilder<I_ITEM extends ElementSeed, CHILD_CLASS extends BaseBuilder<I_ITEM, ?>>
-            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfElements<I_ITEM>, I_ITEM, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetJavaRDDOfElements<I_ITEM>());
-        }
-
-        public BaseBuilder(final GetJavaRDDOfElements<I_ITEM> op) {
-            super(op);
-        }
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public static final class Builder<I_ITEM extends ElementSeed>
-            extends BaseBuilder<I_ITEM, Builder<I_ITEM>> {
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
 
+    @Override
+    public TypeReference<JavaRDD<Element>> getOutputTypeReference() {
+        return new TypeReferenceSparkImpl.JavaRDDElement();
+    }
+
+    @Override
+    public JavaSparkContext getJavaSparkContext() {
+        return sparkContext;
+    }
+
+    @Override
+    public void setJavaSparkContext(final JavaSparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
+
+    @Override
+    public Iterable<ElementSeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<ElementSeed> input) {
+        this.input = input;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
+            implements IterableInputOutput.Builder<GetJavaRDDOfElements, ElementSeed, JavaRDD<Element>, Builder>,
+            SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
+            JavaRdd.Builder<GetJavaRDDOfElements, Builder>,
+            Options.Builder<GetJavaRDDOfElements, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetJavaRDDOfElements<I_ITEM> op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
+            super(new GetJavaRDDOfElements());
         }
     }
 }

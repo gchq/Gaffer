@@ -16,42 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.graph;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface GraphFilters {
-    /**
-     * @return the {@link View} for the operation.
-     * @see View
-     */
-    View getView();
-
-    /**
-     * @param view the {@link View} for the operation.
-     * @see View
-     */
-    void setView(final View view);
-
-    /**
-     * @param element the {@link Element} to be validated.
-     * @return true if the {@link Element} is valid. Otherwise false and a reason should be logged.
-     * <p>
-     * If the element class is known then validate(Entity) or validate(Edge) should be called instead to avoid
-     * unnecessary use of <code>instanceof</code>.
-     * @see GraphFilters#validate(Entity)
-     * @see GraphFilters#validate(Edge)
-     */
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
-    default boolean validate(final Element element) {
-        return null != element
-                && element instanceof Edge ? validate((Edge) element) : validate((Entity) element);
-    }
-
+public interface GraphFilters extends OperationView {
     /**
      * @param edge the {@link Edge} to be validated.
      * @return true if the {@link Edge} is valid. Otherwise false and a reason should be logged.
@@ -63,60 +31,10 @@ public interface GraphFilters {
                 && validatePostTransformFilter(edge);
     }
 
-    /**
-     * @param entity the {@link Entity} to be validated.
-     * @return true if the {@link Entity} is valid. Otherwise false and a reason should be logged.
-     */
-    default boolean validate(final Entity entity) {
-        return null != entity && validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
-    }
-
     default boolean validateFlags(final Edge edge) {
         return DirectedType.BOTH == getDirectedType()
                 || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
                 || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
-    }
-
-    /**
-     * Validates an element against the pre aggregation contained in the operation View.
-     *
-     * @param element the element to validate
-     * @return true if the element is validate
-     */
-    default boolean validatePreAggregationFilter(final Element element) {
-        if (null == getView()) {
-            return false;
-        }
-        final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
-    }
-
-    /**
-     * Validates an element against the post aggregation filters contained in the operation View.
-     *
-     * @param element the element to validate
-     * @return true if the element is validate
-     */
-    default boolean validatePostAggregationFilter(final Element element) {
-        if (null == getView()) {
-            return false;
-        }
-        final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
-    }
-
-    /**
-     * Validates an element against the post transform filters contained in the operation View.
-     *
-     * @param element the element to validate
-     * @return true if the element is validate
-     */
-    default boolean validatePostTransformFilter(final Element element) {
-        if (null == getView()) {
-            return false;
-        }
-        final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
     }
 
     DirectedType getDirectedType();
@@ -132,11 +50,9 @@ public interface GraphFilters {
         BOTH, DIRECTED, UNDIRECTED
     }
 
-    interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {
-        default B view(final View view) {
-            _getOp().setView(view);
-            return _self();
-        }
+    interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
+            Operation.Builder<OP, B>,
+            OperationView.Builder<OP, B> {
 
         default B directedType(final DirectedType directedType) {
             _getOp().setDirectedType(directedType);

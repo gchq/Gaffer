@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator15;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
@@ -61,7 +61,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator15())
-                        .objects(DataUtils.loadData(getData()))
+                        .input(DataUtils.loadData(getData()))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -71,8 +71,8 @@ public class LoadAndQuery15 extends LoadAndQuery {
 
         // [job] create an operation chain to be executed as a job
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Edge>> job = new OperationChain.Builder()
-                .first(new GetEdges.Builder<EntitySeed>()
+        final OperationChain<CloseableIterable<Element>> job = new OperationChain.Builder()
+                .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .build())
                 .build();

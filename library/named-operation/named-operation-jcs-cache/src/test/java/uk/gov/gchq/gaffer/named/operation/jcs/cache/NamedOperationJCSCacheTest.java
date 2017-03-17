@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +49,7 @@ public class NamedOperationJCSCacheTest {
     private User advancedUser = new User.Builder().opAuths(GAFFER_USER, ADVANCED_GAFFER_USER).userId("456").build();
     private OperationChain standardOpChain = new OperationChain.Builder().first(new AddElements()).build();
     private OperationChain alternativeOpChain = new OperationChain.Builder().
-            first(new GetEntities.Builder<>().build())
+            first(new GetElements.Builder().build())
             .build();
     private static final String OPERATION_NAME = "New operation";
     private NamedOperationJCSCache cache = new NamedOperationJCSCache();

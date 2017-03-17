@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         new LoadAndQuery5().run();
     }
 
-    public CloseableIterable<Edge> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User basicUser = new User("basicUser");
@@ -82,10 +82,10 @@ public class LoadAndQuery5 extends LoadAndQuery {
         log("\nNow run a simple query to get edges\n");
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Edge> resultsWithBasicUser = graph.execute(getEdges, basicUser);
+        final CloseableIterable<Element> resultsWithBasicUser = graph.execute(getEdges, basicUser);
         // ---------------------------------------------------------
         for (final Element e : resultsWithBasicUser) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
@@ -101,11 +101,11 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .dataAuth("public")
                 .build();
 
-        final GetEdges<EntitySeed> getPublicRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetElements getPublicRelatedEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
 
-        final CloseableIterable<Edge> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
+        final CloseableIterable<Element> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         // ---------------------------------------------------------
         for (final Element e : publicResults) {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
@@ -120,11 +120,11 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .dataAuth("private")
                 .build();
 
-        final GetEdges<EntitySeed> getPrivateRelatedEdges = new GetEdges.Builder<EntitySeed>()
+        final GetElements getPrivateRelatedEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
 
-        final CloseableIterable<Edge> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
+        final CloseableIterable<Element> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         // ---------------------------------------------------------
         for (final Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());

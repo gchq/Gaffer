@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.export;
+package uk.gov.gchq.gaffer.operation.io;
 
-import uk.gov.gchq.gaffer.operation.io.Passthrough;
-
-public interface ExportTo<T> extends
-        Export,
-        Passthrough<T> {
-    interface Builder<OP extends ExportTo<T>, T, B extends Builder<OP, T, ?>>
-            extends Export.Builder<OP, B>,
-            Passthrough.Builder<OP, T, B> {
+public interface Passthrough<T> extends
+        InputOutput<T, T> {
+    interface Builder<OP extends Passthrough<T>, T, B extends Builder<OP, T, ?>>
+            extends InputOutput.Builder<OP, T, T, B> {
     }
 }

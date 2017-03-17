@@ -19,7 +19,9 @@ import com.yahoo.sketches.theta.CompactSketch;
 import com.yahoo.sketches.theta.Intersection;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator13;
@@ -28,10 +30,9 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 
 public class LoadAndQuery13 extends LoadAndQuery {
@@ -43,7 +44,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
         new LoadAndQuery13().run();
     }
 
-    public Iterable<Entity> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -79,9 +80,9 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         // [get entities] Get the entities for separate days
         // ---------------------------------------------------------
-        final GetAllEntities get = new GetAllEntities();
-        final Iterable<Entity> entities = graph.execute(get, user);
-        for (final Entity entity : entities) {
+        final GetAllElements get = new GetAllElements();
+        final CloseableIterable<Element> entities = graph.execute(get, user);
+        for (final Element entity : entities) {
             log("GET_ENTITIES", entity.toString());
         }
         // ---------------------------------------------------------
@@ -89,12 +90,12 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         // [get estimate separate days] Get the estimates out of the sketches for the separate days
         // ---------------------------------------------------------
-        final GetAllEntities getAllEntities2 = new GetAllEntities();
-        final Iterable<Entity> allEntities2 = graph.execute(getAllEntities2, user);
-        final Iterator<Entity> it = allEntities2.iterator();
-        final Entity entityDay1 = it.next();
+        final GetAllElements getAllEntities2 = new GetAllElements();
+        final CloseableIterable<Element> allEntities2 = graph.execute(getAllEntities2, user);
+        final CloseableIterator<Element> it = allEntities2.iterator();
+        final Element entityDay1 = it.next();
         final CompactSketch sketchDay1 = ((Union) entityDay1.getProperty("size")).getResult();
-        final Entity entityDay2 = it.next();
+        final Element entityDay2 = it.next();
         final CompactSketch sketchDay2 = ((Union) entityDay2.getProperty("size")).getResult();
         final double estimateDay1 = sketchDay1.getEstimate();
         final double estimateDay2 = sketchDay2.getEstimate();
@@ -117,14 +118,14 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         // [get union across all days] Get the total number edges across the two days
         // ---------------------------------------------------------
-        final GetAllEntities getAllEntities = new GetAllEntities.Builder()
+        final GetAllElements getAllEntities = new GetAllElements.Builder()
                 .view(new View.Builder().entity("size", new ViewElementDefinition.Builder()
                         .groupBy() // set the group by properties to 'none'
                         .build())
                         .build())
                 .build();
-        final Iterable<Entity> allEntities = graph.execute(getAllEntities, user);
-        final Entity entity = allEntities.iterator().next();
+        final CloseableIterable<Element> allEntities = graph.execute(getAllEntities, user);
+        final Element entity = allEntities.iterator().next();
         final double unionSizeEstimate = ((Union) entity.getProperty("size")).getResult().getEstimate();
         // ---------------------------------------------------------
         log("\nThe estimate of the number of edges across the different days");

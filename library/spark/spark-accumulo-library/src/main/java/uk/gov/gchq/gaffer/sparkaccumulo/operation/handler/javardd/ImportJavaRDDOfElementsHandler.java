@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements, Void> {
+public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJavaRDDOfElements> {
 
     private static final String OUTPUT_PATH = "outputPath";
     private static final String FAILURE_PATH = "failurePath";
@@ -54,8 +54,13 @@ public class ImportJavaRDDOfElementsHandler implements OperationHandler<ImportJa
         final Broadcast<AccumuloElementConverter> broadcast = operation.getJavaSparkContext().broadcast(store.getKeyPackage().getKeyConverter());
         final ElementConverterFunction func = new ElementConverterFunction(broadcast);
         final JavaPairRDD<Key, Value> rdd = operation.getInput().flatMapToPair(func);
-        final ImportKeyValueJavaPairRDDToAccumulo op = new ImportKeyValueJavaPairRDDToAccumulo.Builder().seeds(rdd).failurePath(failurePath).outputPath(outputPath).build();
-        store._execute(new OperationChain<>(op), context);
+        final ImportKeyValueJavaPairRDDToAccumulo op =
+                new ImportKeyValueJavaPairRDDToAccumulo.Builder()
+                        .input(rdd)
+                        .failurePath(failurePath)
+                        .outputPath(outputPath)
+                        .build();
+        store._execute(new OperationChain(op), context);
     }
 }
 

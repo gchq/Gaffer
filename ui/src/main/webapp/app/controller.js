@@ -201,7 +201,7 @@ angular.module('app').controller('AppController',
             } catch(err) {
                jsonVertex = vertex;
             }
-            operation.seeds.push({
+            operation.input.push({
                       "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
                       "vertex": jsonVertex
                    });
@@ -324,7 +324,7 @@ angular.module('app').controller('AppController',
     var createOperation = function() {
         return {
             class: "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
-            seeds: [],
+            input: [],
             view: {
                 entities: {},
                 edges: {}

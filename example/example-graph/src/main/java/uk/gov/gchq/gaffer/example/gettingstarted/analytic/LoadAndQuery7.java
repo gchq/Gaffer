@@ -16,9 +16,10 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.AlwaysValid;
 import uk.gov.gchq.gaffer.data.IsEdgeValidator;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -32,12 +33,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 
 public class LoadAndQuery7 extends LoadAndQuery {
@@ -49,7 +51,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         new LoadAndQuery7().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -115,26 +117,27 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // Finally finish off by returning all the edges in the export.
         // ---------------------------------------------------------
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetEdges.Builder<EntitySeed>()
+                .first(new GetElements.Builder()
                         .input(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new ExportToSet())
-                .then(new GenerateObjects<Edge, EntitySeed>(destVerticesExtractor))
-                .then(new GetEdges.Builder<EntitySeed>()
+                .then(new ExportToSet<>())
+                .then(new GenerateObjects<>(destVerticesExtractor))
+                .then(new GetElements.Builder()
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
-                .then(new ExportToSet())
+                .then(new ExportToSet<>())
+                .then(new DiscardOutput())
                 .then(new GetSetExport())
                 .build();
 
-        final Iterable<Edge> subGraph = (Iterable<Edge>) graph.execute(opChain, user);
+        final CloseableIterable<Element> subGraph = (CloseableIterable<Element>) graph.execute(opChain, user);
         // ---------------------------------------------------------
 
         log("\nSub graph:");
-        for (final Edge edge : subGraph) {
+        for (final Element edge : subGraph) {
             log("SUB_GRAPH", edge.toString());
         }
 

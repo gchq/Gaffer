@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -28,7 +27,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 
@@ -86,10 +85,10 @@ public class LoadAndQuery6 extends LoadAndQuery {
                                 .input(new EntitySeed("1"))
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GetEdges.Builder<EntitySeed>()
+                        .then(new GetElements.Builder()
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GenerateObjects.Builder<Edge, String>()
+                        .then(new GenerateObjects.Builder<String>()
                                 .generator(dataGenerator)
                                 .build())
                         .build();

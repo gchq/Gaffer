@@ -42,7 +42,7 @@ public class GenerateObjectsExample extends OperationExample {
     public CloseableIterable<String> generateStringsFromElements() {
         // ---------------------------------------------------------
         final GenerateObjects<String> operation = new GenerateObjects.Builder<String>()
-                .elements(Arrays.asList(
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -63,7 +63,7 @@ public class GenerateObjectsExample extends OperationExample {
     public CloseableIterable<Object> generateDomainObjectsFromElements() {
         // ---------------------------------------------------------
         final GenerateObjects<Object> operation = new GenerateObjects.Builder<>()
-                .elements(Arrays.asList(
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)

@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
-public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation, Void> {
+public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
     private INamedOperationCache cache;
 
     /**
@@ -43,6 +43,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
      * ExtendedNamedOperation is built using the fields on the AddNamedOperation. The operation name and operation chain
      * fields must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
      * thrown. The handler then adds/overwrites the NamedOperation according toa an overwrite flag.
+     *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
@@ -90,7 +91,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     }
 
     private void validate(final User user, final List<String> parentOperations, final OperationChain<?> operationChain, final INamedOperationCache cache) throws CacheOperationFailedException, OperationException {
-        for (final Operation op: operationChain.getOperations()) {
+        for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
                 if (parentOperations.contains(((NamedOperation) op).getOperationName())) {
                     throw new OperationException("The Operation Chain must not be recursive");

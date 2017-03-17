@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements, Void> {
+public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfElements> {
     private static final String OUTPUT_PATH = "outputPath";
     private static final String FAILURE_PATH = "failurePath";
     private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
@@ -56,7 +56,7 @@ public class ImportRDDOfElementsHandler implements OperationHandler<ImportRDDOfE
         final RDD<Tuple2<Key, Value>> rdd = operation.getInput().flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo op =
                 new ImportKeyValuePairRDDToAccumulo.Builder()
-                        .seeds(rdd)
+                        .input(rdd)
                         .failurePath(failurePath)
                         .outputPath(outputPath)
                         .build();

@@ -26,15 +26,13 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetRDDOfElementsHandler<I_ITEM extends ElementSeed>
-        extends AbstractGetRDDHandler<RDD<Element>, GetRDDOfElements<I_ITEM>> {
+public class GetRDDOfElementsHandler extends AbstractGetRDDHandler<GetRDDOfElements> {
 
     @Override
     public RDD<Element> doOperation(final GetRDDOfElements operation,

@@ -13,30 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.spark.operation.javardd;
 
-package uk.gov.gchq.gaffer.named.operation;
-
-
+import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.operation.Operation;
 
-public class DeleteNamedOperation implements Operation {
-    private String operationName;
+public interface JavaRdd {
+    JavaSparkContext getJavaSparkContext();
 
-    public String getOperationName() {
-        return operationName;
-    }
+    void setJavaSparkContext(final JavaSparkContext sparkContext);
 
-    public void setOperationName(final String operationName) {
-        this.operationName = operationName;
-    }
-
-    public static class Builder extends Operation.BaseBuilder<DeleteNamedOperation, Builder> {
-        public Builder() {
-            super(new DeleteNamedOperation());
-        }
-
-        public Builder name(final String name) {
-            _getOp().setOperationName(name);
+    interface Builder<OP extends JavaRdd,
+            B extends Builder<OP, ?>>
+            extends Operation.Builder<OP, B> {
+        default B javaSparkContext(final JavaSparkContext sparkContext) {
+            _getOp().setJavaSparkContext(sparkContext);
             return _self();
         }
     }

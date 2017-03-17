@@ -43,7 +43,7 @@ public class GenerateElementsExample extends OperationExample {
     public CloseableIterable<Element> generateElementsFromStrings() {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
-                .objects(Arrays.asList("1,1", "1,2,1"))
+                .input(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -54,7 +54,7 @@ public class GenerateElementsExample extends OperationExample {
     public CloseableIterable<Element> generateElementsFromDomainObjects() {
         // ---------------------------------------------------------
         final GenerateElements<Object> operation = new GenerateElements.Builder<>()
-                .objects(Arrays.asList(
+                .input(Arrays.asList(
                         new DomainObject1(1, 1),
                         new DomainObject2(1, 2, 1)))
                 .generator(new DomainObjectGenerator())

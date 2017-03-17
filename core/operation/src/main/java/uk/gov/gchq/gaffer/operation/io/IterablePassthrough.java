@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.spark.operation;
+package uk.gov.gchq.gaffer.operation.io;
 
-import uk.gov.gchq.gaffer.operation.SeededGraphGet;
-
-/**
- * Marker interface denoting operations which generate Spark RDDs from Accumulo.
- *
- * @param <I_ITEM>   the seed type of the operation. This must be JSON serialisable.
- * @param <RDD> the type of RDD to return
- */
-public interface GetSparkRDDOperation<I_ITEM, RDD> extends SeededGraphGet<I_ITEM, RDD> {
-    // Marker interface
+public interface IterablePassthrough<T> extends
+        IterableInputIterableOutput<T, T> {
+    interface Builder<OP extends IterablePassthrough<T>, T, B extends Builder<OP, T, ?>>
+            extends IterableInputIterableOutput.Builder<OP, T, T, B> {
+    }
 }

@@ -21,13 +21,15 @@ import com.google.common.collect.Iterables;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class LoadAndQuery9Test {
         final LoadAndQuery9 query = new LoadAndQuery9();
 
         // When
-        final Iterable<Entity> results = query.run();
+        final CloseableIterable<Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -59,7 +61,7 @@ public class LoadAndQuery9Test {
         final User user = new User("user01");
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final GetAllEntities getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllEntities.class);
+        final GetAllElements getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllElements.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -69,13 +71,13 @@ public class LoadAndQuery9Test {
 
         // When
         graph.execute(addOpChain, user); // Execute the add operation chain on the graph
-        final Iterable<Entity> results = graph.execute(getRelatedEdges, user); // Execute the query operation on the graph.
+        final CloseableIterable<Element> results = graph.execute(getRelatedEdges, user); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Entity> resultsItr) {
+    private void verifyResults(final CloseableIterable<Element> resultsItr) {
         final Map<String, Entity> expectedResults = new HashMap<>();
         expectedResults.put("1", new Entity.Builder()
                 .group(CARDINALITY)
@@ -121,11 +123,11 @@ public class LoadAndQuery9Test {
                 .build());
 
         assertEquals(expectedResults.size(), Iterables.size(resultsItr));
-        for (Entity entity : resultsItr) {
+        for (Element entity : resultsItr) {
             System.out.println(entity);
             // HyperLogLogPlus has not overridden the equals method so this is a work around to check the cardinality values are the same.
             entity.putProperty(HLLP, ((HyperLogLogPlus) entity.getProperty(HLLP)).cardinality());
-            assertEquals(expectedResults.get(entity.getVertex().toString()), entity);
+            assertEquals(expectedResults.get(((Entity) entity).getVertex().toString()), entity);
         }
     }
 }

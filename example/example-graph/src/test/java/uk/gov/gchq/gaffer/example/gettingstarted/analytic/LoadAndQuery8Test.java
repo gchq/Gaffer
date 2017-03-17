@@ -20,13 +20,15 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class LoadAndQuery8Test {
         final LoadAndQuery8 query = new LoadAndQuery8();
 
         // When
-        final Iterable<Edge> results = query.run();
+        final CloseableIterable<Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -64,7 +66,7 @@ public class LoadAndQuery8Test {
 
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final GetAllEdges getAllEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllEdges.class);
+        final GetAllElements getAllEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllElements.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -74,13 +76,13 @@ public class LoadAndQuery8Test {
 
         // When
         graph.execute(addOpChain, publicUser); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
+        final CloseableIterable<Element> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Edge> resultsItr) {
+    private void verifyResults(final CloseableIterable<Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("1")
@@ -104,7 +106,7 @@ public class LoadAndQuery8Test {
                         .build()
         };
 
-        final List<Edge> results = Lists.newArrayList(resultsItr);
+        final List<Element> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.length, results.size());
         assertThat(results, IsCollectionContaining.hasItems(expectedResults));
     }

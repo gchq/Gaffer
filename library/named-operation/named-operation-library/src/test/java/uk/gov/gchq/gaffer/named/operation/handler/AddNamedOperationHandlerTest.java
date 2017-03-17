@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
@@ -46,7 +45,7 @@ public class AddNamedOperationHandlerTest {
             .build());
 
     private Store store = Mockito.mock(Store.class);
-    private NamedOperation operation = new NamedOperation.Builder()
+    private NamedOperation operation = new NamedOperation.Builder<>()
             .name(OPERATION_NAME)
             .description("a named operation")
             .build();
@@ -96,7 +95,10 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAddNamedOperationIfItContainsAnOperationWhichReferencesTheParent() throws CacheOperationFailedException, OperationException {
 
-        NamedOperation op = new NamedOperation.Builder().name("parent").description("this is the parent which has not yet been created").build();
+        NamedOperation op = new NamedOperation.Builder<>()
+                .name("parent")
+                .description("this is the parent which has not yet been created")
+                .build();
         OperationChain opChain = new OperationChain.Builder().first(op).build();
 
         ExtendedNamedOperation child = new ExtendedNamedOperation.Builder().
@@ -117,7 +119,10 @@ public class AddNamedOperationHandlerTest {
     @Test
     public void shouldNotAllowNamedOperationToBeAddedContainingANamedOperationThatDoesNotExist() throws OperationException {
 
-        NamedOperation op = new NamedOperation.Builder().name("parent").description("this is the parent which has not yet been created").build();
+        NamedOperation op = new NamedOperation.Builder<>()
+                .name("parent")
+                .description("this is the parent which has not yet been created")
+                .build();
         OperationChain opChain = new OperationChain.Builder().first(op).build();
 
         addNamedOperation.setOperationChain(opChain);
@@ -179,7 +184,7 @@ public class AddNamedOperationHandlerTest {
                     .first(new AddElements())
                     .then(new NamedOperation.Builder().name("parent").description("").build())
                     .then(new NamedOperation.Builder().name("child").description("").build())
-                    .then(new GetEntities<>())
+                    .then(new GetElements())
                     .build();
 
             addNamedOperation.setOperationChain(grandparent);

@@ -21,17 +21,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractSeededGet;
-import uk.gov.gchq.gaffer.operation.WithView;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.io.Serializable;
 
-public class NamedOperation extends AbstractSeededGet<Object, Object> implements WithView, Serializable {
+public class NamedOperation<I_ITEM, O_ITEM> implements
+        IterableInputIterableOutput<I_ITEM, O_ITEM>,
+        OperationView,
+        Serializable {
     private static final long serialVersionUID = -356445124131310528L;
     private View view;
     private String operationName;
     private String description;
+    private Iterable<I_ITEM> input;
 
     public NamedOperation() {
     }
@@ -68,6 +74,18 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
         this.description = description;
     }
 
+
+    @Override
+    public Iterable<I_ITEM> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<I_ITEM> input) {
+        this.input = input;
+    }
+
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -103,40 +121,24 @@ public class NamedOperation extends AbstractSeededGet<Object, Object> implements
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
+    public TypeReference<CloseableIterable<O_ITEM>> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.CloseableIterableObj();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractSeededGet.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new NamedOperation());
+    public static class Builder<I_ITEM, O_ITEM> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>>
+            implements IterableInputIterableOutput.Builder<NamedOperation<I_ITEM, O_ITEM>, I_ITEM, O_ITEM, Builder<I_ITEM, O_ITEM>> {
+        public Builder() {
+            super(new NamedOperation<>());
         }
 
-        /**
-         * @param view the view to set on the operation
-         * @return this Builder
-         */
-        public CHILD_CLASS view(final View view) {
-            op.setView(view);
-            return self();
+        public Builder<I_ITEM, O_ITEM> name(final String name) {
+            _getOp().setOperationName(name);
+            return _self();
         }
 
-        public CHILD_CLASS name(final String name) {
-            getOp().setOperationName(name);
-            return self();
-        }
-
-        public CHILD_CLASS description(final String description) {
-            getOp().setDescription(description);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder<I_ITEM, O_ITEM> description(final String description) {
+            _getOp().setDescription(description);
+            return _self();
         }
     }
 }

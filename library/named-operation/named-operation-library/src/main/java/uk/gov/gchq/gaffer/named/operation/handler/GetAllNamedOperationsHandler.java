@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 /**
  * Operation Handler for GetAllNamedOperations
  */
-public class GetAllNamedOperationsHandler implements OperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperation>> {
+public class GetAllNamedOperationsHandler implements OperationHandler<GetAllNamedOperations> {
     public INamedOperationCache cache;
 
     /**

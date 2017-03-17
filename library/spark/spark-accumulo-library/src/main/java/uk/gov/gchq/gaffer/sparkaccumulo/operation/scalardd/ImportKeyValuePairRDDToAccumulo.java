@@ -15,24 +15,24 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.scalardd;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.rdd.RDD;
 import scala.Tuple2;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import java.util.Map;
 
-public class ImportKeyValuePairRDDToAccumulo extends AbstractOperation<RDD<Tuple2<Key, Value>>, Void> implements VoidOutput<RDD<Tuple2<Key, Value>>> {
+public class ImportKeyValuePairRDDToAccumulo implements
+        Operation,
+        Input<RDD<Tuple2<Key, Value>>>,
+        Options {
 
+    private RDD<Tuple2<Key, Value>> input;
     private String outputPath;
-
     private String failurePath;
-
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
-    }
+    private Map<String, String> options;
 
     public String getOutputPath() {
         return outputPath;
@@ -50,28 +50,41 @@ public class ImportKeyValuePairRDDToAccumulo extends AbstractOperation<RDD<Tuple
         return failurePath;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<ImportKeyValuePairRDDToAccumulo, RDD<Tuple2<Key, Value>>, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public RDD<Tuple2<Key, Value>> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final RDD<Tuple2<Key, Value>> input) {
+        this.input = input;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<ImportKeyValuePairRDDToAccumulo, Builder>
+            implements Input.Builder<ImportKeyValuePairRDDToAccumulo, RDD<Tuple2<Key, Value>>, Builder>,
+            Options.Builder<ImportKeyValuePairRDDToAccumulo, Builder> {
+        public Builder() {
             super(new ImportKeyValuePairRDDToAccumulo());
         }
 
-        public CHILD_CLASS outputPath(final String outputPath) {
-            op.setOutputPath(outputPath);
-            return self();
+        public Builder outputPath(final String outputPath) {
+            _getOp().setOutputPath(outputPath);
+            return _self();
         }
 
-        public CHILD_CLASS failurePath(final String failurePath) {
-            op.setFailurePath(failurePath);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder failurePath(final String failurePath) {
+            _getOp().setFailurePath(failurePath);
+            return _self();
         }
     }
-
 }

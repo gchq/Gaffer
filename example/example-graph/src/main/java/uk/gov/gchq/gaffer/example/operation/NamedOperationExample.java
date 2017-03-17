@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import java.util.Collections;
 
 public class NamedOperationExample extends OperationExample {
     public static void main(final String[] args) {
@@ -77,13 +76,14 @@ public class NamedOperationExample extends OperationExample {
 
     public Iterable<EntitySeed> runNamedOperation() {
         // ---------------------------------------------------------
-        final NamedOperation operation = new NamedOperation.Builder()
-                .name("2-hop")
-                .input(Collections.singletonList(new EntitySeed(2)))
-                .build();
+        final NamedOperation<EntitySeed, EntitySeed> operation =
+                new NamedOperation.Builder<EntitySeed, EntitySeed>()
+                        .name("2-hop")
+                        .input(new EntitySeed(2))
+                        .build();
         // ---------------------------------------------------------
 
-        return (Iterable) runExample(operation);
+        return runExample(operation);
     }
 
     public void deleteNamedOperation() {

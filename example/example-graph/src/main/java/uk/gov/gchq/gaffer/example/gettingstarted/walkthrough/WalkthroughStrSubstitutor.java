@@ -46,11 +46,9 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.ExportTo;
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
@@ -202,7 +200,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("PROPERTIES_JAVADOC", getJavaDocLink(Properties.class));
         params.put("ADD_ELEMENTS_JAVADOC", getJavaDocLink(AddElements.class));
         params.put("OPERATION_JAVADOC", getJavaDocLink(Operation.class));
-        params.put("GET_RELATED_EDGES_JAVADOC", getJavaDocLink(GetEdges.class));
+        params.put("GET_RELATED_EDGES_JAVADOC", getJavaDocLink(GetElements.class));
         params.put("VIEW_JAVADOC", getJavaDocLink(View.class));
         params.put("SUM_JAVADOC", getJavaDocLink(Sum.class));
         params.put("EXISTS_JAVADOC", getJavaDocLink(Exists.class));
@@ -214,8 +212,6 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentEntitySeeds.class));
         params.put("GENERATE_OBJECTS_JAVADOC", getJavaDocLink(GenerateObjects.class));
         params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntitySeedExtractor.class));
-        params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(GetExport.class));
-        params.put("UPDATE_EXPORT_JAVADOC", getJavaDocLink(ExportTo.class));
 
         params.put("EXAMPLES_LINK", getGitHubPackageLink("Examples", LoadAndQuery.class.getPackage().getName(), EXAMPLE_GRAPH_MODULE_PATH));
 

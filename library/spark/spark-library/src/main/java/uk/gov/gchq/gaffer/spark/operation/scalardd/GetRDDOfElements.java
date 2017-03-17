@@ -15,55 +15,112 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import java.util.Map;
 
-public class GetRDDOfElements<I_ITEM extends ElementSeed> extends AbstractGetRDD<I_ITEM> {
+public class GetRDDOfElements implements
+        Operation,
+        IterableInputOutput<ElementSeed, RDD<Element>>,
+        SeededGraphFilters,
+        Rdd,
+        Options {
+
+    private Map<String, String> options;
+    private SparkContext sparkContext;
+    private Iterable<ElementSeed> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
 
     public GetRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<I_ITEM> seeds) {
-        this(sparkContext, new WrappedCloseableIterable<>(seeds));
-    }
-
-    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<I_ITEM> seeds) {
+    public GetRDDOfElements(final SparkContext sparkContext) {
         setSparkContext(sparkContext);
-        setInput(new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final I_ITEM seed) {
-        this(sparkContext, Collections.singleton(seed));
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public abstract static class BaseBuilder<I_ITEM extends ElementSeed, CHILD_CLASS extends BaseBuilder<I_ITEM, ?>>
-            extends AbstractGetRDD.BaseBuilder<GetRDDOfElements<I_ITEM>, I_ITEM, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetRDDOfElements<I_ITEM>());
-        }
-
-        public BaseBuilder(final GetRDDOfElements<I_ITEM> op) {
-            super(op);
-        }
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
-    public static final class Builder<I_ITEM extends ElementSeed>
-            extends BaseBuilder<I_ITEM, Builder<I_ITEM>> {
+    @Override
+    public TypeReference<RDD<Element>> getOutputTypeReference() {
+        return new TypeReferenceSparkImpl.RDDElement();
+    }
 
+    @Override
+    public SparkContext getSparkContext() {
+        return sparkContext;
+    }
+
+    @Override
+    public void setSparkContext(final SparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
+
+    @Override
+    public Iterable<ElementSeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<ElementSeed> input) {
+        this.input = input;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
+            implements IterableInputOutput.Builder<GetRDDOfElements, ElementSeed, RDD<Element>, Builder>,
+            SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
+            Rdd.Builder<GetRDDOfElements, Builder>,
+            Options.Builder<GetRDDOfElements, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetRDDOfElements<I_ITEM> op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<I_ITEM> self() {
-            return this;
+            super(new GetRDDOfElements());
         }
     }
 }
