@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -48,7 +47,7 @@ public class GetElementsTest implements OperationTest {
                 .build();
 
         // Then
-        assertEquals(SeedMatching.SeedMatchingType.EQUAL, op.getSeedMatching());
+        assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithElementSeeds() throws SerialisationException {
@@ -95,7 +94,7 @@ public class GetElementsTest implements OperationTest {
                 .build();
 
         // Then
-        assertEquals(SeedMatching.SeedMatchingType.RELATED, op.getSeedMatching());
+        assertEquals(SeedMatchingType.RELATED, op.getSeedMatching());
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {

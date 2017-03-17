@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
@@ -70,16 +70,22 @@ public class ExportIT extends AbstractStoreIT {
     @Test
     public void shouldExportResultsInSet() throws OperationException, IOException {
         // Given
+        final View edgesView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
         final OperationChain<CloseableIterable<Object>> exportOpChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_DIR_0))
+                        .view(edgesView)
                         .build())
-                .then(new ExportToSet())
+                .then(new ExportToSet<>())
                 .then(new GenerateObjects.Builder<EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetElements())
-                .then(new ExportToSet())
+                .then(new GetElements.Builder()
+                        .view(edgesView)
+                        .build())
+                .then(new ExportToSet<>())
                 .then(new DiscardOutput())
                 .then(new GetSetExport())
                 .build();

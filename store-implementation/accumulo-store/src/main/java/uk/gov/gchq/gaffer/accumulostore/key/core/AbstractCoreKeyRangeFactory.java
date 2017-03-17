@@ -43,7 +43,8 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
             final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
             final List<Range> ranges = new ArrayList<>();
             if (operation.getView().hasEdges()
-                    && (GraphFilters.DirectedType.BOTH == operation.getDirectedType()
+                    && (null == operation.getDirectedType()
+                    || GraphFilters.DirectedType.BOTH == operation.getDirectedType()
                     || (GraphFilters.DirectedType.DIRECTED == operation.getDirectedType() && edgeSeed.isDirected())
                     || (GraphFilters.DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeSeed.isDirected()))) {
                 // Get Edges with the given EdgeSeed - This is applicable for
@@ -54,7 +55,7 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
 
             // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
             final boolean doRelated = !(operation instanceof SeedMatching)
-                    || SeedMatching.SeedMatchingType.RELATED.equals(((SeedMatching) operation).getSeedMatching());
+                    || !SeedMatching.SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
             if (doRelated && operation.getView().hasEntities()) {
                 // Get Entities related to EdgeSeeds
                 ranges.addAll(getRange(edgeSeed.getSource(), operation, false));

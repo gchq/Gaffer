@@ -44,7 +44,7 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements> {
                 result.add(entity);
             }
         }
-        for (final Element edge : store.getEdges()) {
+        for (final Edge edge : store.getEdges()) {
             if (operation.validate(edge)) {
                 result.add(edge);
             }

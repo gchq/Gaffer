@@ -42,7 +42,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
         new LoadAndQuery15().run();
     }
 
-    public CloseableIterable<?> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -116,7 +116,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
             log("JOB_RESULTS", result.toString());
         }
 
-        return jobResults;
+        return (CloseableIterable) jobResults;
     }
 
     private void waitUntilJobHashFinished(final User user, final Graph graph, final JobDetail initialJobDetail) throws OperationException {

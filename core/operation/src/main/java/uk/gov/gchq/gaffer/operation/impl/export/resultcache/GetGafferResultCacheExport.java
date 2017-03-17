@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -28,7 +29,7 @@ public class GetGafferResultCacheExport implements
         GetExport,
         IterableOutput<Object> {
     private String jobId;
-    private String key;
+    private String key = Export.DEFAULT_KEY;
 
     @Override
     public String getKey() {

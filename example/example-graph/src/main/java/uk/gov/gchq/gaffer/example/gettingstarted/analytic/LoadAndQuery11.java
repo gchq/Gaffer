@@ -19,7 +19,6 @@ import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator11;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -71,7 +70,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
         log("Added an edge A-B 1000 times, each time with a DoublesUnion containing a normally distributed"
-            + " (mean 0, standard deviation 1) random double.");
+                + " (mean 0, standard deviation 1) random double.");
 
 
         // [get] Get all edges

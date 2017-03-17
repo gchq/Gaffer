@@ -25,23 +25,22 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class ExtendedNamedOperation extends NamedOperation {
+public final class NamedOperationDetail implements Serializable {
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = "UTF-8";
+    private String operationName;
+    private String description;
     private String creatorId;
-    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private String operations;
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
 
-    public ExtendedNamedOperation() {
-    }
-
-    private ExtendedNamedOperation(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
-        super(operationName, description);
+    private NamedOperationDetail(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
         if (operations == null || null == operations.getOperations() || operations.getOperations().isEmpty()) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
@@ -49,6 +48,8 @@ public class ExtendedNamedOperation extends NamedOperation {
             throw new IllegalArgumentException("Operation Name must not be empty");
         }
 
+        this.operationName = operationName;
+        this.description = description;
         this.creatorId = userId;
         try {
             this.operations = new String(SERIALISER.serialise(operations), Charset.forName(CHARSET_NAME));
@@ -67,8 +68,12 @@ public class ExtendedNamedOperation extends NamedOperation {
         }
     }
 
-    public NamedOperation getBasic() {
-        return new NamedOperation(getOperationName(), getDescription());
+    public String getOperationName() {
+        return operationName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getOperations() {
@@ -97,7 +102,7 @@ public class ExtendedNamedOperation extends NamedOperation {
             return false;
         }
 
-        final ExtendedNamedOperation op = (ExtendedNamedOperation) o;
+        final NamedOperationDetail op = (NamedOperationDetail) o;
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
@@ -134,17 +139,19 @@ public class ExtendedNamedOperation extends NamedOperation {
         return hasAccess(user, readAccessRoles);
     }
 
+    public boolean hasWriteAccess(final User user) {
+        return hasAccess(user, writeAccessRoles);
+    }
+
     private boolean hasAccess(final User user, final List<String> roles) {
-        for (final String role : roles) {
-            if (user.getOpAuths().contains(role)) {
-                return true;
+        if (null != roles) {
+            for (final String role : roles) {
+                if (user.getOpAuths().contains(role)) {
+                    return true;
+                }
             }
         }
         return user.getUserId().equals(creatorId);
-    }
-
-    public boolean hasWriteAccess(final User user) {
-        return hasAccess(user, writeAccessRoles);
     }
 
     public static final class Builder {
@@ -185,8 +192,8 @@ public class ExtendedNamedOperation extends NamedOperation {
             return this;
         }
 
-        public ExtendedNamedOperation build() {
-            return new ExtendedNamedOperation(operationName, description, creatorId, opChain, readers, writers);
+        public NamedOperationDetail build() {
+            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers);
         }
     }
 

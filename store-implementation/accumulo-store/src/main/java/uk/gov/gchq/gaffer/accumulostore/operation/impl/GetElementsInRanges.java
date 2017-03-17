@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -56,7 +55,6 @@ public class GetElementsInRanges
         this.input = input;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
         return IterableInputIterableOutput.super.createInputArray();

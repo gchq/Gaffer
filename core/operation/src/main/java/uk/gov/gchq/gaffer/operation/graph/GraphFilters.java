@@ -32,7 +32,8 @@ public interface GraphFilters extends OperationView {
     }
 
     default boolean validateFlags(final Edge edge) {
-        return DirectedType.BOTH == getDirectedType()
+        return null == getDirectedType()
+                || DirectedType.BOTH == getDirectedType()
                 || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
                 || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
     }

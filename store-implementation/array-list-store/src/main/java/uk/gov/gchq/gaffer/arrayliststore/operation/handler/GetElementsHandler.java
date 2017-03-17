@@ -50,28 +50,32 @@ public class GetElementsHandler implements OperationHandler<GetElements> {
     private List<Element> doOperation(final GetElements operation, final ArrayListStore store) {
         final ArrayList<Element> result = new ArrayList<>();
         if (null != operation.getInput()) {
-            for (final Entity entity : store.getEntities()) {
-                if (operation.validate(entity)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(entity), operation.getInput(), operation.getDirectedType())) {
-                            result.add(entity);
-                        }
-                    } else {
-                        if (isSeedRelated(ElementSeed.createSeed(entity), operation.getInput()).isMatch()) {
-                            result.add(entity);
+            if (operation.getView().hasEntities()) {
+                for (final Entity entity : store.getEntities()) {
+                    if (operation.validate(entity)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(ElementSeed.createSeed(entity), operation.getInput(), operation.getDirectedType())) {
+                                result.add(entity);
+                            }
+                        } else {
+                            if (isSeedRelated(ElementSeed.createSeed(entity), operation.getInput()).isMatch()) {
+                                result.add(entity);
+                            }
                         }
                     }
                 }
             }
-            for (final Edge edge : store.getEdges()) {
-                if (operation.validate(edge)) {
-                    if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
-                        if (isSeedEqual(ElementSeed.createSeed(edge), operation.getInput(), operation.getDirectedType())) {
-                            result.add(edge);
-                        }
-                    } else {
-                        if (isSeedRelated(operation, edge)) {
-                            result.add(edge);
+            if (operation.getView().hasEdges()) {
+                for (final Edge edge : store.getEdges()) {
+                    if (operation.validate(edge)) {
+                        if (operation.getSeedMatching() == SeedMatchingType.EQUAL) {
+                            if (isSeedEqual(ElementSeed.createSeed(edge), operation.getInput(), operation.getDirectedType())) {
+                                result.add(edge);
+                            }
+                        } else {
+                            if (isSeedRelated(operation, edge)) {
+                                result.add(edge);
+                            }
                         }
                     }
                 }
@@ -86,8 +90,8 @@ public class GetElementsHandler implements OperationHandler<GetElements> {
         final DirectedType directedType = operation.getDirectedType();
         final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
 
-        if (DirectedType.BOTH == directedType) {
-            if (IncludeIncomingOutgoingType.BOTH == inOutType) {
+        if (null == directedType || DirectedType.BOTH == directedType) {
+            if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType) {
                 return seedMatches.isMatch();
             }
             if (IncludeIncomingOutgoingType.INCOMING == inOutType) {
@@ -108,7 +112,7 @@ public class GetElementsHandler implements OperationHandler<GetElements> {
             if (!edge.isDirected()) {
                 return false;
             }
-            if (IncludeIncomingOutgoingType.BOTH == inOutType) {
+            if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType) {
                 return seedMatches.isMatch();
             }
             if (IncludeIncomingOutgoingType.INCOMING == inOutType) {
@@ -123,7 +127,7 @@ public class GetElementsHandler implements OperationHandler<GetElements> {
             if (edge.isDirected()) {
                 return false;
             }
-            if (IncludeIncomingOutgoingType.BOTH == inOutType) {
+            if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType) {
                 return seedMatches.isMatch();
             }
             if (IncludeIncomingOutgoingType.INCOMING == inOutType) {

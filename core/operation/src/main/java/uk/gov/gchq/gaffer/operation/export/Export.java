@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface Export {
@@ -23,7 +24,17 @@ public interface Export {
 
     String getKey();
 
-    void setKey(final String key);
+    @JsonIgnore
+    default String getKeyOrDefault() {
+        final String key = getKey();
+        if (null == key) {
+            return Export.DEFAULT_KEY;
+        } else {
+            return key;
+        }
+    }
+
+    void setKey(String key);
 
     interface Builder<OP extends Export, B extends Builder<OP, ?>>
             extends Operation.Builder<OP, B> {

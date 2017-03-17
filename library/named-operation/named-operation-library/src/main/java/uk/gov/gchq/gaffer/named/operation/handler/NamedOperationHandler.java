@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.named.operation.handler;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -57,7 +57,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation> {
                 throw new OperationException("Cache should be initialised in " +
                         "resources/NamedOperationsDeclarations.json and referenced in store.properties");
             }
-            ExtendedNamedOperation namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
+            NamedOperationDetail namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
             OperationChain<?> operationChain = namedOperation.getOperationChain();
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
             updateOperationInput(operationChain.getOperations().get(0), operation.getInput());

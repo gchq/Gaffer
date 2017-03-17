@@ -44,8 +44,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -199,15 +197,8 @@ public class AccumuloIDWithinSetRetrieverTest {
                     .view(defaultView)
                     .input(seeds)
                     .build();
-            op.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
             final Set<Element> results = returnElementsFromOperation(store, op, new User(), true);
             assertEquals(expectedResults, results);
-
-            // Set set edges only option, and query for the set {C,D}.
-            op.setIncludeIncomingOutGoing(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING);
-            final Set<Element> incomingResults = returnElementsFromOperation(store, op, new User(), false);
-            assertEquals(expectedResults, incomingResults);
-
         } catch (StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }

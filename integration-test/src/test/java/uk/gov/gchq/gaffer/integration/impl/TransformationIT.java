@@ -106,7 +106,7 @@ public class TransformationIT extends AbstractStoreIT {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(VERTEX + SOURCE, VERTEX + DEST, true))
                 .view(new View.Builder()
-                        .entity(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE)
                         .build())
                 .build();
 

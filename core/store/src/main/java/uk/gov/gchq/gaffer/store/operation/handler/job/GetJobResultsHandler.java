@@ -35,7 +35,7 @@ public class GetJobResultsHandler implements OperationHandler<GetJobResults> {
         // Delegates the operation to the GetGafferResultCacheExport operation handler.
         return store._execute(new OperationChain<>(new GetGafferResultCacheExport.Builder()
                 .jobId(operation.getJobId())
-                .key(operation.getKey())
+                .key(operation.getKeyOrDefault())
                 .build()), context);
     }
 }

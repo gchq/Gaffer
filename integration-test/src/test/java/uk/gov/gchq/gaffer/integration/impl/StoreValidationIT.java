@@ -36,14 +36,14 @@ public class StoreValidationIT extends AbstractStoreIT {
         entity.putProperty(TestPropertyNames.INT, 5);
 
         graph.execute(new AddElements.Builder()
-                .input(Collections.<Element>singleton(entity))
+                .input(entity)
                 .build(), user);
 
         // When 1 - before age off
         final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
+                        .entity(TestGroups.ENTITY_2)
                         .build())
                 .build(), user);
 
@@ -62,7 +62,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         final CloseableIterable<Element> results2 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
+                        .entity(TestGroups.ENTITY_2)
                         .build())
                 .build(), user);
 
@@ -89,7 +89,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
+                        .entity(TestGroups.ENTITY_2)
                         .build())
                 .build(), user);
 

@@ -47,7 +47,7 @@ public class LoadAndQuery15Test {
         final LoadAndQuery15 query = new LoadAndQuery15();
 
         // When
-        final CloseableIterable results = query.run();
+        final CloseableIterable<Element> results = query.run();
 
         // Then
         verifyResults(results);

@@ -190,8 +190,7 @@ public class VisibilityIT extends AbstractStoreIT {
         graph.execute(addElements, USER_DEFAULT);
 
         final GetElements get = new GetElements.Builder()
-                .input(new EntitySeed("A"))
-                .input(new EntitySeed("B"))
+                .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
         final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
@@ -233,8 +232,7 @@ public class VisibilityIT extends AbstractStoreIT {
         graph.execute(addElements, USER_VIS_1);
 
         final GetElements get = new GetElements.Builder()
-                .input(new EntitySeed("A"))
-                .input(new EntitySeed("B"))
+                .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
         final CloseableIterable<Element> userVis1Iterable = graph.execute(get, USER_VIS_1);

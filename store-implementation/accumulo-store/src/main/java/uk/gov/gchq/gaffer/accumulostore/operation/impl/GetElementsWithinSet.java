@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
@@ -37,13 +37,12 @@ import java.util.Map;
 public class GetElementsWithinSet implements
         Operation,
         IterableInputIterableOutput<EntitySeed, Element>,
-        SeededGraphFilters,
+        GraphFilters,
         Options {
     private View view;
     private DirectedType directedType;
     private Iterable<EntitySeed> input;
     private Map<String, String> options;
-    private IncludeIncomingOutgoingType inOutType;
 
     @Override
     public View getView() {
@@ -96,19 +95,9 @@ public class GetElementsWithinSet implements
         this.options = options;
     }
 
-    @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return inOutType;
-    }
-
-    @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
-        this.inOutType = inOutType;
-    }
-
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
             implements IterableInputIterableOutput.Builder<GetElementsWithinSet, EntitySeed, Element, Builder>,
-            SeededGraphFilters.Builder<GetElementsWithinSet, Builder>,
+            GraphFilters.Builder<GetElementsWithinSet, Builder>,
             Options.Builder<GetElementsWithinSet, Builder> {
         public Builder() {
             super(new GetElementsWithinSet());

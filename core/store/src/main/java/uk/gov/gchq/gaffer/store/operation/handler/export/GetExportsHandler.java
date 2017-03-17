@@ -34,7 +34,7 @@ public class GetExportsHandler implements OperationHandler<GetExports> {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
         for (final GetExport getExport : getExports.getGetExports()) {
             final CloseableIterable<?> export = (CloseableIterable<?>) store._execute(new OperationChain((Operation) getExport), context);
-            exports.put(getExport.getClass().getName() + ": " + getExport.getKey(), export);
+            exports.put(getExport.getClass().getName() + ": " + getExport.getKeyOrDefault(), export);
         }
 
         return exports;

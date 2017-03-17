@@ -23,7 +23,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.operation.Operation;
-import java.util.Arrays;
 
 public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
@@ -36,7 +35,7 @@ public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonSetter("inputB")
     default void setInputB(I_ITEM[] inputB) {
-        setInputB(Arrays.asList(inputB));
+        setInputB(Lists.newArrayList(inputB));
     }
 
     interface Builder<OP extends IterableInputB<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>

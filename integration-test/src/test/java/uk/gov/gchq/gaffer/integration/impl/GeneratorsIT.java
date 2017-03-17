@@ -99,8 +99,7 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         // Then - check they were added correctly
         final List<Element> results = Lists.newArrayList(graph.execute(new GetElements.Builder()
-                .input(new EntitySeed(NEW_VERTEX))
-                .input(new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
+                .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));
 
         final Edge expectedEdge = new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);

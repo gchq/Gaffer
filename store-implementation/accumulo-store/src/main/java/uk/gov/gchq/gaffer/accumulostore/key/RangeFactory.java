@@ -21,13 +21,12 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import java.util.List;
 
 /**
  * The range factory is designed so that a List of Accumulo
  * {@link org.apache.accumulo.core.data.Range}s can be created from just a
- * provided {@link ElementSeed} and {@link IterableInput}.
+ * provided {@link ElementSeed} and {@link GraphFilters}.
  * The created range list should contain
  * all the ranges (preferably optimised) necessary to retrieve all desired
  * {@link uk.gov.gchq.gaffer.data.element.Element}s as expressed by the

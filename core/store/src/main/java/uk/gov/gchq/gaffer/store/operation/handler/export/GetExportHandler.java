@@ -35,6 +35,6 @@ public abstract class GetExportHandler<EXPORT extends GetExport & Operation, EXP
     }
 
     protected CloseableIterable<?> getExport(final EXPORT export, final EXPORTER exporter) throws OperationException {
-        return exporter.get(export.getKey());
+        return exporter.get(export.getKeyOrDefault());
     }
 }

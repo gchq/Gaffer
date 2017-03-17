@@ -37,17 +37,17 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
         final DirectedType directedType = operation.getDirectedType();
-        final IncludeIncomingOutgoingType includeIncomingOutgoingType;
+        final IncludeIncomingOutgoingType inOutType;
         if (operation instanceof SeededGraphFilters) {
-            includeIncomingOutgoingType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
+            inOutType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
         } else {
-            includeIncomingOutgoingType = IncludeIncomingOutgoingType.OUTGOING;
+            inOutType = IncludeIncomingOutgoingType.OUTGOING;
         }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if (includeIncomingOutgoingType == IncludeIncomingOutgoingType.BOTH
+        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.BOTH)
                 && includeEdges
-                && directedType == DirectedType.BOTH
+                && (null == directedType || directedType == DirectedType.BOTH)
                 && !deduplicateUndirectedEdges) {
             return null;
         }
@@ -56,7 +56,7 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME,
                 EDGE_DIRECTED_UNDIRECTED_FILTER)
-                .includeIncomingOutgoing(includeIncomingOutgoingType)
+                .includeIncomingOutgoing(inOutType)
                 .directedType(directedType)
                 .includeEdges(includeEdges)
                 .includeEntities(includeEntities)

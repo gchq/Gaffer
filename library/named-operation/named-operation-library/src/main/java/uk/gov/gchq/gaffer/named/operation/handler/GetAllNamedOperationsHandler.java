@@ -20,7 +20,7 @@ package uk.gov.gchq.gaffer.named.operation.handler;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -45,12 +45,12 @@ public class GetAllNamedOperationsHandler implements OperationHandler<GetAllName
      * @throws OperationException thrown if the cache has not been initialized in the operation declarations file
      */
     @Override
-    public CloseableIterable<NamedOperation> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
         if (cache == null) {
             throw new OperationException("Cache should be initialised in " +
                     "resources/NamedOperationsDeclarations.json and referenced in store.properties");
         }
-        return cache.getAllNamedOperations(context.getUser(), true);
+        return cache.getAllNamedOperations(context.getUser());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

@@ -102,26 +102,32 @@ public class GetElementsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetElements() throws Exception {
+        final List<DirectedType> directedTypes = Lists.newArrayList(DirectedType.values());
+        directedTypes.add(null);
+
+        final List<IncludeIncomingOutgoingType> inOutTypes = Lists.newArrayList(IncludeIncomingOutgoingType.values());
+        inOutTypes.add(null);
+
         for (final boolean includeEntities : Arrays.asList(true, false)) {
             for (final boolean includeEdges : Arrays.asList(true, false)) {
                 if (!includeEntities && !includeEdges) {
                     // Cannot query for nothing!
                     continue;
                 }
-                for (final DirectedType directedType : DirectedType.values()) {
-                    for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
+                for (final DirectedType directedType : directedTypes) {
+                    for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
                         } catch (AssertionError e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
-                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name() + ", inOutType=" + inOutType, e);
+                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
                         } catch (AssertionError e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
-                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name() + ", inOutType=" + inOutType, e);
+                                    + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
                     }
                 }
@@ -130,8 +136,7 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed
-            () throws Exception {
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetElementsBySeed() throws Exception {
         // Given
         final GetElements op = new GetElements();
 
@@ -143,8 +148,7 @@ public class GetElementsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements
-            () throws Exception {
+    public void shouldReturnEmptyIteratorIfNoSeedsProvidedForGetRelatedElements() throws Exception {
         // Given
         final GetElements op = new GetElements();
 
@@ -208,12 +212,12 @@ public class GetElementsIT extends AbstractStoreIT {
                 final EdgeSeed seed = new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true);
                 seedTerms.add(seed);
 
-                if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
                     final EdgeSeed seedSourceDestDir2 = new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true);
                     seedTerms.add(seedSourceDestDir2);
                 }
 
-                if (IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
                     final EdgeSeed seedSourceDestDir3 = new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true);
                     seedTerms.add(seedSourceDestDir3);
                 }
@@ -297,8 +301,7 @@ public class GetElementsIT extends AbstractStoreIT {
         assertEquals(new HashSet<>(expectedElements), Sets.newHashSet(results));
     }
 
-    private static List<Element> getElements(
-            final List<ElementSeed> seeds) {
+    private static List<Element> getElements(final List<ElementSeed> seeds) {
         final List<Element> elements = new ArrayList<>(seeds.size());
         for (final ElementSeed seed : seeds) {
             if (seed instanceof EntitySeed) {
