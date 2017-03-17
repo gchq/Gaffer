@@ -80,7 +80,11 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         // [get entities] Get the entities for separate days
         // ---------------------------------------------------------
-        final GetAllElements get = new GetAllElements();
+        final GetAllElements get = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity("size")
+                        .build())
+                .build();
         final CloseableIterable<Element> entities = graph.execute(get, user);
         for (final Element entity : entities) {
             log("GET_ENTITIES", entity.toString());
@@ -90,7 +94,11 @@ public class LoadAndQuery13 extends LoadAndQuery {
 
         // [get estimate separate days] Get the estimates out of the sketches for the separate days
         // ---------------------------------------------------------
-        final GetAllElements getAllEntities2 = new GetAllElements();
+        final GetAllElements getAllEntities2 = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity("size")
+                        .build())
+                .build();
         final CloseableIterable<Element> allEntities2 = graph.execute(getAllEntities2, user);
         final CloseableIterator<Element> it = allEntities2.iterator();
         final Element entityDay1 = it.next();
@@ -119,9 +127,10 @@ public class LoadAndQuery13 extends LoadAndQuery {
         // [get union across all days] Get the total number edges across the two days
         // ---------------------------------------------------------
         final GetAllElements getAllEntities = new GetAllElements.Builder()
-                .view(new View.Builder().entity("size", new ViewElementDefinition.Builder()
-                        .groupBy() // set the group by properties to 'none'
-                        .build())
+                .view(new View.Builder()
+                        .entity("size", new ViewElementDefinition.Builder()
+                                .groupBy() // set the group by properties to 'none'
+                                .build())
                         .build())
                 .build();
         final CloseableIterable<Element> allEntities = graph.execute(getAllEntities, user);

@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -176,22 +176,22 @@ public final class Graph {
     private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
 
-            if (operation instanceof GraphFilters) {
-                final GraphFilters graphFilters = ((GraphFilters) operation);
+            if (operation instanceof OperationView) {
+                final OperationView operationView = ((OperationView) operation);
                 final View opView;
-                if (null == graphFilters.getView()) {
+                if (null == operationView.getView()) {
                     opView = view;
-                } else if (!graphFilters.getView().hasGroups()) {
+                } else if (!operationView.getView().hasGroups()) {
                     opView = new View.Builder()
                             .merge(view)
-                            .merge(graphFilters.getView())
+                            .merge(operationView.getView())
                             .build();
                 } else {
-                    opView = graphFilters.getView();
+                    opView = operationView.getView();
                 }
 
                 opView.expandGlobalDefinitions();
-                graphFilters.setView(opView);
+                operationView.setView(opView);
             }
         }
     }

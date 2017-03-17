@@ -46,6 +46,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -212,6 +214,8 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentEntitySeeds.class));
         params.put("GENERATE_OBJECTS_JAVADOC", getJavaDocLink(GenerateObjects.class));
         params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntitySeedExtractor.class));
+        params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(GetSetExport.class));
+        params.put("EXPORT_TO_SET_JAVADOC", getJavaDocLink(ExportToSet.class));
 
         params.put("EXAMPLES_LINK", getGitHubPackageLink("Examples", LoadAndQuery.class.getPackage().getName(), EXAMPLE_GRAPH_MODULE_PATH));
 

@@ -6,7 +6,7 @@ This example extends the previous operation chain example and demonstrates how a
 
 The schema and data is the same as the previous example. We start by loading the data into the graph as we have done previously.
 
-The operation chain is built up using several ${GET_RELATED_EDGES_JAVADOC} operations. In between each of these operations we cache the results in memory using a LinkedHashSet (so this is only applicable to small subgraphs) by executing the ${UPDATE_EXPORT_JAVADOC} operation.
+The operation chain is built up using several ${GET_RELATED_EDGES_JAVADOC} operations. In between each of these operations we cache the results in memory using a LinkedHashSet (so this is only applicable to small subgraphs) by executing the ${EXPORT_TO_SET_JAVADOC} operation.
 In order to chain the get related edges operations together we also have to extract the destination vertex of each edge first using an ${ENTITY_SEED_EXTRACTOR_JAVADOC}:
 
 ${EXTRACTOR_SNIPPET}
