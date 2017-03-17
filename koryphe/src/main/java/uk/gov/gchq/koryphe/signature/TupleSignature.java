@@ -17,7 +17,7 @@
 package uk.gov.gchq.koryphe.signature;
 
 /**
- * An <code>IterableSignature</code> is the type metadata for an {@link Iterable} of values.
+ * An <code>TupleSignature</code> is the type metadata for a tuple of values.
  */
 public class TupleSignature extends Signature {
     private final Class[] classes;
@@ -30,23 +30,17 @@ public class TupleSignature extends Signature {
         for (Class clazz : classes) {
             types[i++] = new SingletonSignature(clazz);
         }
-
     }
 
     @Override
-    public boolean assignable(final Object argument, final boolean reverse) {
-        if (!(argument instanceof Object[])) {
-            return false;
-        }
-
-        final Object[] arguments = ((Object[]) argument);
+    public boolean assignable(final boolean reverse, final Class<?>... arguments) {
         if (types.length != arguments.length) {
             return false;
         }
 
         int i = 0;
-        for (Object type : arguments) {
-            boolean compatible = types[i].assignable(type, reverse);
+        for (Class type : arguments) {
+            boolean compatible = types[i].assignable(reverse, type);
             i++;
             if (!compatible) {
                 return false;

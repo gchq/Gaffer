@@ -20,7 +20,7 @@ package uk.gov.gchq.koryphe.signature;
  * A <code>SingletonSignature</code> is the type metadata for a single instance of a specific type.
  */
 public class SingletonSignature extends Signature {
-    private Class type;
+    private Class<?> type;
 
     /**
      * Create a <code>SingletonSignature</code> with the given {@link Class}.
@@ -32,20 +32,14 @@ public class SingletonSignature extends Signature {
     }
 
     @Override
-    public boolean assignable(final Object argument, final boolean reverse) {
-        if ((argument instanceof Object[])) {
-            final Object[] arguments = ((Object[]) argument);
-            return 1 == arguments.length && assignable(arguments[0], reverse);
-        }
-
-        if (argument instanceof Class) {
-            if (reverse) {
-                return type == null ? false : ((Class) argument).isAssignableFrom(type);
-            } else {
-                return type == null ? false : type.isAssignableFrom((Class) argument);
-            }
-        } else {
+    public boolean assignable(final boolean reverse, final Class<?>... arguments) {
+        if (type == null || arguments.length != 1) {
             return false;
+        }
+        if (reverse) {
+            return arguments[0].isAssignableFrom(type);
+        } else {
+            return type.isAssignableFrom(arguments[0]);
         }
     }
 

@@ -65,7 +65,7 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(new Class[]{Double.class, Object.class}, true));
+        assertTrue(input.assignable(Double.class, Object.class));
         assertTrue(output.assignableTo(String.class));
     }
 
@@ -75,7 +75,7 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(new Class[]{Double.class, Object.class, Integer.class}, true));
+        assertTrue(input.assignable(Double.class, Object.class, Integer.class));
         assertTrue(output.assignableTo(String.class));
     }
 
@@ -85,7 +85,7 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(new Class[]{Double.class, Object.class}, true));
+        assertTrue(input.assignable(Double.class, Object.class));
         assertTrue(output.assignableTo(String.class));
     }
 
@@ -95,7 +95,7 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(new Class[]{Integer.class, Double.class, Object.class}, true));
+        assertTrue(input.assignable(Integer.class, Double.class, Object.class));
         assertTrue(output.assignableTo(String.class));
     }
 
@@ -106,7 +106,7 @@ public class SignatureTest {
         Predicate predicate = new MockPredicate();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(new Class[]{Double.class}, true));
+        assertTrue(input.assignable(Double.class));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class SignatureTest {
         Predicate predicate = new MockPredicate1();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(new Class[]{Double.class}, true));
+        assertTrue(input.assignable(Double.class));
     }
 
     @Test
@@ -122,6 +122,6 @@ public class SignatureTest {
         Predicate predicate = new MockPredicate2();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(new Class[]{Double.class, Integer.class}, true));
+        assertTrue(input.assignable(Double.class, Integer.class));
     }
 }

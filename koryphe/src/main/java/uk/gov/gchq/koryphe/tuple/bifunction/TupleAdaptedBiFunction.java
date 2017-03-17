@@ -14,49 +14,35 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.koryphe.tuple.binaryoperator;
+package uk.gov.gchq.koryphe.tuple.bifunction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import uk.gov.gchq.koryphe.binaryoperator.AdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.bifunction.AdaptedBiFunction;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.TupleInputAdapter;
 import uk.gov.gchq.koryphe.tuple.TupleOutputAdapter;
 import uk.gov.gchq.koryphe.tuple.TupleReverseOutputAdapter;
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
 
 /**
- * A <code>TupleAdaptedBinaryOperator</code> aggregates {@link Tuple}s by applying a
- * {@link BinaryOperator} to aggregate the tuple values. Projects aggregated values into a
+ * A <code>TupleAdaptedBiFunction</code> aggregates {@link Tuple}s by applying a
+ * {@link BiFunction} to aggregate the tuple values. Projects aggregated values into a
  * single output {@link Tuple}, which will be the second tuple supplied as input.
  *
  * @param <R> The type of reference used by tuples.
  */
-public class TupleAdaptedBinaryOperator<R, FT> extends AdaptedBinaryOperator<Tuple<R>, FT> {
-    public TupleAdaptedBinaryOperator() {
+public class TupleAdaptedBiFunction<R, FI, FO> extends AdaptedBiFunction<Tuple<R>, FI, FO, Tuple<R>> {
+    public TupleAdaptedBiFunction() {
         setInputAdapter(new TupleInputAdapter<>());
         setOutputAdapter(new TupleOutputAdapter<>());
         setReverseOutputAdapter(new TupleReverseOutputAdapter<>());
     }
 
     @SafeVarargs
-    public TupleAdaptedBinaryOperator(BinaryOperator<FT> function, R... selection) {
+    public TupleAdaptedBiFunction(BiFunction<FI, FO, FO> function, R... selection) {
         this();
         setFunction(function);
         setSelection(selection);
-    }
-
-    /**
-     * Aggregate a group of input tuples to produce an output tuple.
-     *
-     * @param group Input tuples.
-     * @return Output tuple.
-     */
-    public Tuple<R> applyGroup(final Iterable<Tuple<R>> group) {
-        Tuple<R> state = null;
-        for (Tuple<R> input : group) {
-            state = apply(input, state);
-        }
-        return state;
     }
 
     public R[] getSelection() {
@@ -72,19 +58,19 @@ public class TupleAdaptedBinaryOperator<R, FT> extends AdaptedBinaryOperator<Tup
 
     @JsonIgnore
     @Override
-    public TupleInputAdapter<R, FT> getInputAdapter() {
-        return (TupleInputAdapter<R, FT>) super.getInputAdapter();
+    public TupleInputAdapter<R, FI> getInputAdapter() {
+        return (TupleInputAdapter<R, FI>) super.getInputAdapter();
     }
 
     @JsonIgnore
     @Override
-    public TupleOutputAdapter<R, FT> getOutputAdapter() {
-        return (TupleOutputAdapter<R, FT>) super.getOutputAdapter();
+    public TupleOutputAdapter<R, FO> getOutputAdapter() {
+        return (TupleOutputAdapter<R, FO>) super.getOutputAdapter();
     }
 
     @JsonIgnore
     @Override
-    public TupleReverseOutputAdapter<R, FT> getReverseOutputAdapter() {
-        return (TupleReverseOutputAdapter<R, FT>) super.getReverseOutputAdapter();
+    public TupleReverseOutputAdapter<R, FO> getReverseOutputAdapter() {
+        return (TupleReverseOutputAdapter<R, FO>) super.getReverseOutputAdapter();
     }
 }

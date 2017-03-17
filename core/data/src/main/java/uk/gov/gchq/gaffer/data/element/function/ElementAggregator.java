@@ -20,10 +20,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.composite.Composite;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
-public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<String, ?>> implements BinaryOperator<Tuple<String>> {
+public class ElementAggregator extends Composite<TupleAdaptedBiFunction<String, ?, ?>> implements BinaryOperator<Tuple<String>> {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
     private final PropertiesTuple stateTuple = new PropertiesTuple();
 
@@ -54,7 +55,7 @@ public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<Stri
     @Override
     public Tuple<String> apply(final Tuple<String> input, final Tuple<String> state) {
         Tuple<String> result = state;
-        for (TupleAdaptedBinaryOperator<String, ?> function : getFunctions()) {
+        for (TupleAdaptedBiFunction<String, ?, ?> function : getFunctions()) {
             result = function.apply(input, result);
         }
         return result;
@@ -62,7 +63,7 @@ public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<Stri
 
     public static class Builder {
         private final ElementAggregator aggregator;
-        private TupleAdaptedBinaryOperator<String, Object> currentFunction = new TupleAdaptedBinaryOperator<>();
+        private TupleAdaptedBiFunction<String, Object, Object> currentFunction = new TupleAdaptedBiFunction<>();
         private boolean selected;
         private boolean executed;
 
@@ -77,7 +78,7 @@ public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<Stri
         public Builder select(final String... selection) {
             if (selected) {
                 aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBinaryOperator<>();
+                currentFunction = new TupleAdaptedBiFunction<>();
                 selected = false;
             }
             currentFunction.setSelection(selection);
@@ -85,10 +86,10 @@ public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<Stri
             return this;
         }
 
-        public Builder execute(final BinaryOperator function) {
+        public Builder execute(final BiFunction function) {
             if (executed) {
                 aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBinaryOperator<>();
+                currentFunction = new TupleAdaptedBiFunction<>();
                 executed = false;
             }
             currentFunction.setFunction(function);
@@ -99,7 +100,7 @@ public class ElementAggregator extends Composite<TupleAdaptedBinaryOperator<Stri
         public ElementAggregator build() {
             if (executed || selected) {
                 aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBinaryOperator<>();
+                currentFunction = new TupleAdaptedBiFunction<>();
                 selected = false;
                 executed = false;
             }

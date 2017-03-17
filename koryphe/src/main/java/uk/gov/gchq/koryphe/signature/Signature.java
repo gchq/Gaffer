@@ -37,8 +37,8 @@ public abstract class Signature {
      * @param arguments Class or Tuple of classes to test.
      * @return True if the arguments can be assigned to this signature.
      */
-    public boolean assignableFrom(final Object arguments) {
-        return assignable(arguments, false);
+    public boolean assignableFrom(final Class... arguments) {
+        return assignable(false, arguments);
     }
 
     /**
@@ -47,18 +47,22 @@ public abstract class Signature {
      * @param arguments Class or Tuple of classes to test with.
      * @return True if this signature can be assigned to the arguments.
      */
-    public boolean assignableTo(final Object arguments) {
-        return assignable(arguments, true);
+    public boolean assignableTo(final Class... arguments) {
+        return assignable(true, arguments);
     }
 
     /**
      * Tests whether this <code>Signature</code> is compatible with the types supplied.
      *
-     * @param arguments Class or Tuple of classes to test.
      * @param to        If the test should be performed as an assignableTo.
+     * @param arguments Class or Tuple of classes to test.
      * @return True if this signature is compatible with the supplied types.
      */
-    public abstract boolean assignable(final Object arguments, final boolean to);
+    public abstract boolean assignable(final boolean to, final Class<?>... arguments);
+
+    public boolean assignable(final Class<?>... arguments) {
+        return assignable(true, arguments);
+    }
 
     public abstract Class[] getClasses();
 

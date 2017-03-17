@@ -36,14 +36,10 @@ public class TupleAdaptedPredicate<R, FI> extends AdaptedPredicate<Tuple<R>, FI>
         setInputAdapter(new TupleInputAdapter<>());
     }
 
-    public TupleAdaptedPredicate(Predicate<FI> function) {
-        this();
-        setFunction(function);
-    }
-
     @SafeVarargs
     public TupleAdaptedPredicate(Predicate<FI> function, R... selection) {
-        this(function);
+        this();
+        setFunction(function);
         setSelection(selection);
     }
 
