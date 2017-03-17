@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import uk.gov.gchq.gaffer.operation.io.IterableOutput;
-import uk.gov.gchq.gaffer.operation.io.IterablePassthrough;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutputT;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class Limit<T> implements
         Operation,
-        IterablePassthrough<T> {
+        IterableInputOutputT<T> {
     protected Integer resultLimit;
     private Iterable<T> input;
 

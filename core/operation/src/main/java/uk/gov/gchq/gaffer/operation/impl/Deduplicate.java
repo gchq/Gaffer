@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterablePassthrough;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutputT;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class Deduplicate<T> implements
         Operation,
-        IterablePassthrough<T> {
+        IterableInputOutputT<T> {
     private Iterable<T> input;
 
     @Override
@@ -50,7 +50,7 @@ public class Deduplicate<T> implements
 
     public static final class Builder<T>
             extends Operation.BaseBuilder<Deduplicate<T>, Builder<T>>
-            implements IterablePassthrough.Builder<Deduplicate<T>, T, Builder<T>> {
+            implements IterableInputOutputT.Builder<Deduplicate<T>, T, Builder<T>> {
         public Builder() {
             super(new Deduplicate<>());
         }

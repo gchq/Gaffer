@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
 import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.operation.io.Passthrough;
+import uk.gov.gchq.gaffer.operation.io.InputOutputT;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,7 +200,7 @@ public class OperationChain<OUT> {
             this.ops = ops;
         }
 
-        public OutputBuilder<OUT> then(final Passthrough<OUT> op) {
+        public OutputBuilder<OUT> then(final InputOutputT<OUT> op) {
             ops.add(op);
             return new OutputBuilder<>(ops);
         }
@@ -237,7 +237,7 @@ public class OperationChain<OUT> {
             this.ops = ops;
         }
 
-        public IterableOutputBuilder<OUT_ITEM> then(final Passthrough<Iterable<? super OUT_ITEM>> op) {
+        public IterableOutputBuilder<OUT_ITEM> then(final InputOutputT<Iterable<? super OUT_ITEM>> op) {
             ops.add(op);
             return new IterableOutputBuilder<>(ops);
         }

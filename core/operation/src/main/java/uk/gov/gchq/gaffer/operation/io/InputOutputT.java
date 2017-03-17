@@ -16,9 +16,9 @@
 
 package uk.gov.gchq.gaffer.operation.io;
 
-public interface IterablePassthrough<T> extends
-        IterableInputIterableOutput<T, T> {
-    interface Builder<OP extends IterablePassthrough<T>, T, B extends Builder<OP, T, ?>>
-            extends IterableInputIterableOutput.Builder<OP, T, T, B> {
+public interface InputOutputT<T> extends
+        InputOutput<T, T> {
+    interface Builder<OP extends InputOutputT<T>, T, B extends Builder<OP, T, ?>>
+            extends InputOutput.Builder<OP, T, T, B> {
     }
 }
