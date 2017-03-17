@@ -29,8 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -45,8 +43,7 @@ import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +61,8 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEdges.Builder<>()
-                        .input(new EntitySeed(1))
-                        .input(new EntitySeed(2))
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -75,7 +71,7 @@ public class ArrayListStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .then(new GenerateObjects.Builder<Edge, SimpleEdgeDataObject>()
+                .then(new GenerateObjects.Builder<SimpleEdgeDataObject>()
                         .generator(new SimpleEdgeGenerator())
                         .build())
                 .build();
@@ -123,7 +119,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEntities.Builder<>()
+                .first(new GetElements.Builder()
                         .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -133,7 +129,7 @@ public class ArrayListStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .then(new GenerateObjects.Builder<Entity, SimpleEntityDataObject>()
+                .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
                         .generator(new SimpleEntityGenerator())
                         .build())
                 .build();
@@ -171,7 +167,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEntities.Builder()
+                .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -181,7 +177,7 @@ public class ArrayListStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .then(new GenerateObjects.Builder<Entity, SimpleEntityDataObject>()
+                .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
                         .generator(new SimpleEntityGenerator())
                         .build())
                 .build();
@@ -215,7 +211,7 @@ public class ArrayListStoreTest {
 
         //set up the operation to fetch the edges
         final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEdges.Builder()
+                .first(new GetElements.Builder()
                         .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
                                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
@@ -225,7 +221,7 @@ public class ArrayListStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .then(new GenerateObjects.Builder<Edge, SimpleEdgeDataObject>()
+                .then(new GenerateObjects.Builder<SimpleEdgeDataObject>()
                         .generator(new SimpleEdgeGenerator())
                         .build())
                 .build();
@@ -256,19 +252,19 @@ public class ArrayListStoreTest {
     }
 
     @Test
-    public void shouldAddAndGetEdgesThenEntities() throws OperationException {
+    public void shouldAddAndGetElementsThenEntities() throws OperationException {
         final Graph graph = createGraph();
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
         final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
-                .first(new GetEdges.Builder<>()
+                .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .build())
-                .then(new GenerateObjects.Builder<Edge, EntitySeed>()
+                .then(new GenerateObjects.Builder<EntitySeed>()
                         .generator(new EntitySeedExtractor(IdentifierType.DESTINATION))
                         .build())
-                .then(new GetEntities.Builder()
+                .then(new GetElements.Builder()
                         .view(new View.Builder()
                                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
@@ -277,7 +273,7 @@ public class ArrayListStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .then(new GenerateObjects.Builder<Entity, SimpleEntityDataObject>()
+                .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
                         .generator(new SimpleEntityGenerator())
                         .build())
                 .build();
@@ -312,7 +308,7 @@ public class ArrayListStoreTest {
     private void addElementsToGraph(final Graph graph) throws OperationException {
         final OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<>()
-                        .objects(getDomainObjects())
+                        .input(getDomainObjects())
                         .generator(new SimpleGenerator())
                         .build())
                 .then(new AddElements())

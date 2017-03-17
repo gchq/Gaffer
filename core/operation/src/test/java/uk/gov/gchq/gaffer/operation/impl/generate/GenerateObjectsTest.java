@@ -53,14 +53,14 @@ public class GenerateObjectsTest implements OperationTest {
             elements.add(elm2);
         }
 
-        final GenerateObjects<Element, String> op = new GenerateObjects.Builder<Element, String>()
+        final GenerateObjects<String> op = new GenerateObjects.Builder<String>()
                 .input(elements)
                 .generator(new ElementGeneratorImpl())
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GenerateObjects<Element, ?> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
+        final GenerateObjects<?> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
 
         // Then
         final Iterator<Element> itr = deserialisedOp.getInput().iterator();
@@ -86,7 +86,7 @@ public class GenerateObjectsTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         Element entity = new Entity("testEntityGroup", "A");
-        GenerateObjects<?, ?> generateObjects = new GenerateObjects.Builder<Element, String>()
+        GenerateObjects<?> generateObjects = new GenerateObjects.Builder<String>()
                 .input(entity)
                 .generator(new ElementGeneratorImpl())
                 .build();

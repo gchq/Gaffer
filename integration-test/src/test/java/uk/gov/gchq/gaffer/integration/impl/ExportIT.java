@@ -75,7 +75,7 @@ public class ExportIT extends AbstractStoreIT {
                         .input(new EntitySeed(SOURCE_DIR_0))
                         .build())
                 .then(new ExportToSet())
-                .then(new GenerateObjects.Builder<Element, EntitySeed>()
+                .then(new GenerateObjects.Builder<EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
                 .then(new GetElements())

@@ -16,19 +16,13 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -65,22 +59,6 @@ public interface IExamplesService {
     GetElements getRelatedElements();
 
     @GET
-    @Path("/graph/doOperation/get/entities/bySeed")
-    GetEntities<ElementSeed> getEntitiesBySeed();
-
-    @GET
-    @Path("/graph/doOperation/get/entities/related")
-    GetEntities<ElementSeed> getRelatedEntities();
-
-    @GET
-    @Path("/graph/doOperation/get/edges/bySeed")
-    GetEdges<ElementSeed> getEdgesBySeed();
-
-    @GET
-    @Path("/graph/doOperation/get/edges/related")
-    GetEdges<ElementSeed> getRelatedEdges();
-
-    @GET
     @Path("/graph/doOperation/get/entitySeeds/adjacent")
     GetAdjacentEntitySeeds getAdjacentEntitySeeds();
 
@@ -89,24 +67,8 @@ public interface IExamplesService {
     GetAllElements getAllElements();
 
     @GET
-    @Path("/graph/doOperation/get/entities/all")
-    GetAllEntities getAllEntities();
-
-    @GET
-    @Path("/graph/doOperation/get/edges/all")
-    GetAllEdges getAllEdges();
-
-    @GET
     @Path("/graph/doOperation/get/elements")
     GetElements getElements();
-
-    @GET
-    @Path("/graph/doOperation/get/entities")
-    GetEntities getEntities();
-
-    @GET
-    @Path("/graph/doOperation/get/edges")
-    GetEdges getEdges();
 
     @GET
     @Path("/graph/doOperation/add/elements")

@@ -152,7 +152,7 @@ public class ProxyStoreBasicIT {
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
@@ -195,7 +195,7 @@ public class ProxyStoreBasicIT {
 
     private void addDefaultElements() throws OperationException {
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         graph.execute(add, USER);
     }

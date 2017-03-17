@@ -32,11 +32,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  * @param <OBJ> the type of objects in the output iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects.Builder
  */
-public class GenerateObjects<E extends Element, OBJ> implements
+public class GenerateObjects<OBJ> implements
         Operation,
-        IterableInputIterableOutput<E, OBJ> {
+        IterableInputIterableOutput<Element, OBJ> {
     private ElementGenerator<OBJ> elementGenerator;
-    private Iterable<E> input;
+    private Iterable<Element> input;
 
     public GenerateObjects() {
     }
@@ -73,12 +73,12 @@ public class GenerateObjects<E extends Element, OBJ> implements
     }
 
     @Override
-    public Iterable<E> getInput() {
+    public Iterable<Element> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<E> input) {
+    public void setInput(final Iterable<Element> input) {
         this.input = input;
     }
 
@@ -93,8 +93,8 @@ public class GenerateObjects<E extends Element, OBJ> implements
         return TypeReferenceImpl.createCloseableIterableT();
     }
 
-    public static class Builder<E extends Element, OBJ> extends Operation.BaseBuilder<GenerateObjects<E, OBJ>, Builder<E, OBJ>>
-            implements IterableInputIterableOutput.Builder<GenerateObjects<E, OBJ>, E, OBJ, Builder<E, OBJ>> {
+    public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>
+            implements IterableInputIterableOutput.Builder<GenerateObjects<OBJ>, Element, OBJ, Builder<OBJ>> {
         public Builder() {
             super(new GenerateObjects<>());
         }
@@ -104,7 +104,7 @@ public class GenerateObjects<E extends Element, OBJ> implements
          * @return this Builder
          * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
          */
-        public Builder<E, OBJ> generator(final ElementGenerator<OBJ> generator) {
+        public Builder<OBJ> generator(final ElementGenerator<OBJ> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

@@ -102,7 +102,7 @@ public class RestApiTestUtil {
                 .build());
     }
 
-    public static Response executeOperation(final Operation<?, ?> operation) throws IOException {
+    public static Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(REST_URI)
                 .path("/graph/doOperation")

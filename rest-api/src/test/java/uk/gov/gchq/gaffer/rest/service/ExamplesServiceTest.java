@@ -96,38 +96,8 @@ public class ExamplesServiceTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetEntitiesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEntitiesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetEdgesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEdgesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEdges());
-    }
-
-    @Test
     public void shouldSerialiseAndDeserialiseGetAllElements() throws IOException {
         shouldSerialiseAndDeserialiseOperation(service.getAllElements());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEdges());
     }
 
     @Test

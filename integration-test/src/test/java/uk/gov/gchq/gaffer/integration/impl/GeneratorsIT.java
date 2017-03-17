@@ -64,7 +64,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_1))
                         .build())
-                .then(new GenerateObjects.Builder<Element, DomainObject>()
+                .then(new GenerateObjects.Builder<DomainObject>()
                         .generator(new BasicGenerator())
                         .build())
                 .build();
