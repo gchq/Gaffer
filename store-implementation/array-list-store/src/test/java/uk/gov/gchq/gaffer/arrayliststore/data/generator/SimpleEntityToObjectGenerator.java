@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.example;
+package uk.gov.gchq.gaffer.arrayliststore.data.generator;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEntityDataObject;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
-public class ExampleDomainObjectGenerator implements OneToOneObjectGenerator<ExampleDomainObject> {
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
+public class SimpleEntityToObjectGenerator implements OneToOneObjectGenerator<SimpleEntityDataObject> {
     @Override
-    public ExampleDomainObject _apply(final Element element) {
-        if (element instanceof Entity) {
-            return new ExampleDomainObject(element.getGroup(), ((Entity) element).getVertex());
-        }
-
-        return new ExampleDomainObject(element.getGroup(),
-                ((Edge) element).getSource(), ((Edge) element).getDestination(), ((Edge) element).isDirected());
+    public SimpleEntityDataObject _apply(final Element element) {
+        final Entity entity = (Entity) element;
+        int id = (Integer) entity.getVertex();
+        final Integer visibility = (Integer) entity.getProperty(TestPropertyNames.INT);
+        final String properties = (String) entity.getProperty(TestPropertyNames.STRING);
+        return new SimpleEntityDataObject(id, visibility, properties);
     }
 }

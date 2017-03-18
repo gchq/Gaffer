@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.integration.generators;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
-import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
 
 /**
@@ -30,25 +30,16 @@ import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
  * of {@link EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
-public class BasicGenerator extends OneToOneElementGenerator<DomainObject> {
-    private final BasicEntityGenerator entityGenerator = new BasicEntityGenerator();
-    private final BasicEdgeGenerator edgeGenerator = new BasicEdgeGenerator();
+public class BasicObjectGenerator implements OneToOneObjectGenerator<DomainObject> {
+    private final EntityToObjectGenerator entityGenerator = new EntityToObjectGenerator();
+    private final EdgeToObjectGenerator edgeGenerator = new EdgeToObjectGenerator();
 
     @Override
-    public Element getElement(final DomainObject domainObject) {
-        if (domainObject instanceof EntityDomainObject) {
-            return entityGenerator.getElement((EntityDomainObject) domainObject);
-        }
-
-        return edgeGenerator.getElement((EdgeDomainObject) domainObject);
-    }
-
-    @Override
-    public DomainObject getObject(final Element element) {
+    public DomainObject _apply(final Element element) {
         if (element instanceof Entity) {
-            return entityGenerator.getObject(element);
+            return entityGenerator._apply(element);
         }
 
-        return edgeGenerator.getObject(element);
+        return edgeGenerator._apply(element);
     }
 }

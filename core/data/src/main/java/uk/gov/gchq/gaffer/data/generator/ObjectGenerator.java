@@ -16,11 +16,19 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import uk.gov.gchq.gaffer.data.element.Element;
+import java.util.function.Function;
 
-public class ElementGeneratorImpl implements ElementGenerator<String> {
-    @Override
-    public Iterable<Element> apply(final Iterable<String> domainObjects) {
-        return null;
-    }
+/**
+ * An <code>ObjectGenerator</code> converts {@link Element}s into domain objects.
+ * <p>
+ * Implementations should be JSON serialisable.
+ *
+ * @param <OBJ> the type of domain object
+ */
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
+public interface ObjectGenerator<OBJ> extends Function<Iterable<Element>, Iterable<OBJ>> {
 }

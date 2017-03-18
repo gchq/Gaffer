@@ -17,7 +17,7 @@
     {
       "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
       "elementGenerator": {
-        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6"
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.ObjectGenerator6"
       }
     }
   ]

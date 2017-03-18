@@ -24,9 +24,9 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import java.util.Arrays;
 
-public class DataGenerator9 extends OneToManyElementGenerator<String> {
+public class DataGenerator9 implements OneToManyElementGenerator<String> {
     @Override
-    public Iterable<Element> getElements(final String line) {
+    public Iterable<Element> _apply(final String line) {
         final String[] t = line.split(",");
         final Edge edge = new Edge.Builder()
                 .group(t[0])
@@ -54,10 +54,5 @@ public class DataGenerator9 extends OneToManyElementGenerator<String> {
                 .property("hllp", hllp)
                 .property("count", 1)
                 .build();
-    }
-
-    @Override
-    public Iterable<String> getObjects(final Iterable<Element> elements) {
-        throw new UnsupportedOperationException();
     }
 }

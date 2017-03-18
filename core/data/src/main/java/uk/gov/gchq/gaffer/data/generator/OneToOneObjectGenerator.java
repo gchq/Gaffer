@@ -16,11 +16,23 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
-public class ElementGeneratorImpl implements ElementGenerator<String> {
+public interface OneToOneObjectGenerator<OBJ> extends ObjectGenerator<OBJ> {
     @Override
-    public Iterable<Element> apply(final Iterable<String> domainObjects) {
-        return null;
+    default Iterable<OBJ> apply(final Iterable<Element> elements) {
+        return new TransformIterable<Element, OBJ>(elements) {
+            @Override
+            protected OBJ transform(final Element element) {
+                return _apply(element);
+            }
+        };
     }
+
+    /**
+     * @param element the element to convert
+     * @return the generated domain object
+     */
+    OBJ _apply(final Element element);
 }

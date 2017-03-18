@@ -132,9 +132,9 @@ public class GenerateElementsExample extends OperationExample {
         }
     }
 
-    public static class DomainObjectGenerator extends OneToOneElementGenerator<Object> {
+    public static class DomainObjectGenerator implements OneToOneElementGenerator<Object> {
         @Override
-        public Element getElement(final Object domainObject) {
+        public Element _apply(final Object domainObject) {
             if (domainObject instanceof DomainObject1) {
                 final DomainObject1 obj1 = (DomainObject1) domainObject;
                 return new Entity.Builder()
@@ -154,11 +154,6 @@ public class GenerateElementsExample extends OperationExample {
             } else {
                 throw new IllegalArgumentException("Unsupported domain object");
             }
-        }
-
-        @Override
-        public Object getObject(final Element element) {
-            throw new UnsupportedOperationException("Getting objects is not supported");
         }
     }
 }

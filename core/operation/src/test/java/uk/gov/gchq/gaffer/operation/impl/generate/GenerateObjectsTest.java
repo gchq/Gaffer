@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.ElementGeneratorImpl;
+import uk.gov.gchq.gaffer.data.generator.ObjectGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -55,12 +55,12 @@ public class GenerateObjectsTest implements OperationTest {
 
         final GenerateObjects<String> op = new GenerateObjects.Builder<String>()
                 .input(elements)
-                .generator(new ElementGeneratorImpl())
+                .generator(new ObjectGeneratorImpl())
                 .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GenerateObjects<?> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
+        final GenerateObjects<String> deserialisedOp = serialiser.deserialise(json, GenerateObjects.class);
 
         // Then
         final Iterator<Element> itr = deserialisedOp.getInput().iterator();
@@ -79,7 +79,7 @@ public class GenerateObjectsTest implements OperationTest {
 
         assertFalse(itr.hasNext());
 
-        assertTrue(deserialisedOp.getElementGenerator() instanceof ElementGeneratorImpl);
+        assertTrue(deserialisedOp.getElementGenerator() instanceof ObjectGeneratorImpl);
     }
 
     @Test
@@ -88,9 +88,9 @@ public class GenerateObjectsTest implements OperationTest {
         Element entity = new Entity("testEntityGroup", "A");
         GenerateObjects<?> generateObjects = new GenerateObjects.Builder<String>()
                 .input(entity)
-                .generator(new ElementGeneratorImpl())
+                .generator(new ObjectGeneratorImpl())
                 .build();
         assertEquals(entity, generateObjects.getInput().iterator().next());
-        assertEquals(ElementGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
+        assertEquals(ObjectGeneratorImpl.class, generateObjects.getElementGenerator().getClass());
     }
 }

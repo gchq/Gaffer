@@ -50,7 +50,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final List<Element> elements = new ArrayList<>();
         final DataGenerator2 dataGenerator = new DataGenerator2();
         for (final String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator.getElement(s));
+            elements.add(dataGenerator._apply(s));
         }
         // ---------------------------------------------------------
         log("Elements generated from the data file.");

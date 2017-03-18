@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -53,7 +54,8 @@ import java.util.function.Predicate;
 public class GraphConfigurationService implements IGraphConfigurationService {
     private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(Predicate.class);
     private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(Function.class);
-    private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
+    private static final Set<Class> ELEMENT_GENERATORS = getSubClasses(ElementGenerator.class);
+    private static final Set<Class> OBJECT_GENERATORS = getSubClasses(ObjectGenerator.class);
 
     @Inject
     private GraphFactory graphFactory;
@@ -140,8 +142,13 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     }
 
     @Override
-    public Set<Class> getGenerators() {
-        return GENERATORS;
+    public Set<Class> getElementGenerators() {
+        return ELEMENT_GENERATORS;
+    }
+
+    @Override
+    public Set<Class> getObjectGenerators() {
+        return OBJECT_GENERATORS;
     }
 
     @Override

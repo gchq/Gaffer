@@ -160,9 +160,18 @@ public class GraphConfigurationServiceTest {
     }
 
     @Test
-    public void shouldGetGenerators() throws IOException {
+    public void shouldGetElementGenerators() throws IOException {
         // When
-        final Set<Class> classes = service.getGenerators();
+        final Set<Class> classes = service.getElementGenerators();
+
+        // Then
+        assertTrue(classes.size() > 0);
+    }
+
+    @Test
+    public void shouldGetObjectGenerators() throws IOException {
+        // When
+        final Set<Class> classes = service.getObjectGenerators();
 
         // Then
         assertTrue(classes.size() > 0);

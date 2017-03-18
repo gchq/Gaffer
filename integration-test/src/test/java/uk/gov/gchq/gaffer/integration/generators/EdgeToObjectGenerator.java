@@ -15,27 +15,35 @@
  */
 package uk.gov.gchq.gaffer.integration.generators;
 
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 
 /**
- * Implementation of {@link uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator} to translate between integration test 'edge'
+ * Implementation of {@link OneToOneElementGenerator} to translate between integration test 'edge'
  * object, and a Gaffer framework edge.
  * <br>
  * Allows translation of one domain object to one graph object only, where the domain object being translated is an instance
- * of {@link uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
+ * of {@link EdgeDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
-public class BasicEdgeGenerator implements OneToOneElementGenerator<EdgeDomainObject> {
+public class EdgeToObjectGenerator implements OneToOneObjectGenerator<EdgeDomainObject> {
     @Override
-    public Element _apply(final EdgeDomainObject domainObject) {
-        final Edge edge = new Edge(TestGroups.EDGE, domainObject.getSource(), domainObject.getDestination(), domainObject.getDirected());
-        edge.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
-        edge.putProperty(TestPropertyNames.COUNT, 1L);
-        return edge;
+    public EdgeDomainObject _apply(final Element element) {
+        if (element instanceof Edge) {
+            final Edge edge = ((Edge) element);
+            final EdgeDomainObject basicEdge = new EdgeDomainObject();
+            basicEdge.setSource((String) edge.getSource());
+            basicEdge.setDestination((String) edge.getDestination());
+            basicEdge.setDirected(edge.isDirected());
+            basicEdge.setCount((Long) edge.getProperty(TestPropertyNames.COUNT));
+            basicEdge.setIntProperty((Integer) edge.getProperty(TestPropertyNames.INT));
+            return basicEdge;
+        }
+
+        throw new IllegalArgumentException("Entities cannot be handled with this generator.");
     }
 }

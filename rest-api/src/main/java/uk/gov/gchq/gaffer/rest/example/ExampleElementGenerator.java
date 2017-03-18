@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.example.films.generator;
+package uk.gov.gchq.gaffer.rest.example;
 
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.example.films.data.Review;
-import uk.gov.gchq.gaffer.example.films.data.schema.Group;
-import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 
-public class ReviewGenerator implements OneToOneElementGenerator<Review> {
+public class ExampleElementGenerator implements OneToOneElementGenerator<ExampleDomainObject> {
     @Override
-    public Element _apply(final Review review) {
-        final Entity entity = new Entity(Group.REVIEW, review.getFilmId());
-        entity.putProperty(Property.USER_ID, review.getUserId());
-        entity.putProperty(Property.RATING, (long) review.getRating());
-        entity.putProperty(Property.COUNT, 1);
+    public Element _apply(final ExampleDomainObject obj) {
+        if (obj.getIds().length > 1) {
+            final Edge edge = new Edge(obj.getType());
+            edge.setSource(obj.getIds()[0]);
+            edge.setDestination(obj.getIds()[1]);
+            if (obj.getIds().length > 2) {
+                edge.setDirected(Boolean.TRUE.equals(obj.getIds()[2]));
+            }
 
+            return edge;
+        }
+
+        final Entity entity = new Entity(obj.getType());
+        entity.setVertex(obj.getIds()[0]);
         return entity;
     }
 }

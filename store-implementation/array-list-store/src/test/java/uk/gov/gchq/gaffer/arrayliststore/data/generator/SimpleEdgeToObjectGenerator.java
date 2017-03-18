@@ -16,19 +16,19 @@
 
 package uk.gov.gchq.gaffer.arrayliststore.data.generator;
 
-import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEntityDataObject;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
-public class SimpleEntityGenerator implements OneToOneElementGenerator<SimpleEntityDataObject> {
-    public Element _apply(final SimpleEntityDataObject simpleDataObject) {
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex(simpleDataObject.getId());
-        entity.putProperty(TestPropertyNames.INT, simpleDataObject.getVisibility());
-        entity.putProperty(TestPropertyNames.STRING, simpleDataObject.getProperties());
-        return entity;
+public class SimpleEdgeToObjectGenerator implements OneToOneObjectGenerator<SimpleEdgeDataObject> {
+    public SimpleEdgeDataObject _apply(final Element element) {
+        final Edge edge = (Edge) element;
+        int left = (Integer) edge.getDestination();
+        int right = (Integer) edge.getSource();
+        final Integer visibility = (Integer) edge.getProperty(TestPropertyNames.INT);
+        final String properties = (String) edge.getProperty(TestPropertyNames.STRING);
+        return new SimpleEdgeDataObject(left, right, visibility, properties);
     }
 }

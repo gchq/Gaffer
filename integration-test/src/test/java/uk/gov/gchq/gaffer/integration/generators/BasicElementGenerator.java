@@ -15,27 +15,30 @@
  */
 package uk.gov.gchq.gaffer.integration.generators;
 
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
+import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
 
 /**
- * Implementation of {@link uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator} to translate between integration test 'edge'
+ * Implementation of {@link OneToOneElementGenerator} to translate between integration test 'edge'
  * object, and a Gaffer framework edge.
  * <br>
  * Allows translation of one domain object to one graph object only, where the domain object being translated is an instance
- * of {@link uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
+ * of {@link EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
-public class BasicEdgeGenerator implements OneToOneElementGenerator<EdgeDomainObject> {
+public class BasicElementGenerator implements OneToOneElementGenerator<DomainObject> {
+    private final BasicEntityGenerator entityGenerator = new BasicEntityGenerator();
+    private final BasicEdgeGenerator edgeGenerator = new BasicEdgeGenerator();
+
     @Override
-    public Element _apply(final EdgeDomainObject domainObject) {
-        final Edge edge = new Edge(TestGroups.EDGE, domainObject.getSource(), domainObject.getDestination(), domainObject.getDirected());
-        edge.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
-        edge.putProperty(TestPropertyNames.COUNT, 1L);
-        return edge;
+    public Element _apply(final DomainObject domainObject) {
+        if (domainObject instanceof EntityDomainObject) {
+            return entityGenerator._apply((EntityDomainObject) domainObject);
+        }
+
+        return edgeGenerator._apply((EdgeDomainObject) domainObject);
     }
 }

@@ -49,7 +49,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final List<Element> elements = new ArrayList<>();
         final DataGenerator5 dataGenerator = new DataGenerator5();
         for (final String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator.getElement(s));
+            elements.add(dataGenerator._apply(s));
         }
         // ---------------------------------------------------------
         log("Elements generated from the data file.");

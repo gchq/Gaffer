@@ -37,6 +37,6 @@ public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateEl
     public CloseableIterable<Element> doOperation(final GenerateElements<OBJ> operation,
                                                   final Context context, final Store store)
             throws OperationException {
-        return new WrappedCloseableIterable<>(operation.getElementGenerator().getElements(operation.getInput()));
+        return new WrappedCloseableIterable<>(operation.getElementGenerator().apply(operation.getInput()));
     }
 }

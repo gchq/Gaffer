@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEntityDataObject;
-import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleEdgeGenerator;
-import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleEntityGenerator;
-import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleGenerator;
+import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleEdgeToObjectGenerator;
+import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleElementGenerator;
+import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleEntityToObjectGenerator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -73,7 +73,7 @@ public class ArrayListStoreTest {
                                 .build())
                         .build())
                 .then(new GenerateObjects.Builder<SimpleEdgeDataObject>()
-                        .generator(new SimpleEdgeGenerator())
+                        .generator(new SimpleEdgeToObjectGenerator())
                         .build())
                 .build();
 
@@ -131,7 +131,7 @@ public class ArrayListStoreTest {
                                 .build())
                         .build())
                 .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
-                        .generator(new SimpleEntityGenerator())
+                        .generator(new SimpleEntityToObjectGenerator())
                         .build())
                 .build();
 
@@ -179,7 +179,7 @@ public class ArrayListStoreTest {
                                 .build())
                         .build())
                 .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
-                        .generator(new SimpleEntityGenerator())
+                        .generator(new SimpleEntityToObjectGenerator())
                         .build())
                 .build();
 
@@ -223,7 +223,7 @@ public class ArrayListStoreTest {
                                 .build())
                         .build())
                 .then(new GenerateObjects.Builder<SimpleEdgeDataObject>()
-                        .generator(new SimpleEdgeGenerator())
+                        .generator(new SimpleEdgeToObjectGenerator())
                         .build())
                 .build();
 
@@ -275,7 +275,7 @@ public class ArrayListStoreTest {
                                 .build())
                         .build())
                 .then(new GenerateObjects.Builder<SimpleEntityDataObject>()
-                        .generator(new SimpleEntityGenerator())
+                        .generator(new SimpleEntityToObjectGenerator())
                         .build())
                 .build();
 
@@ -310,7 +310,7 @@ public class ArrayListStoreTest {
         final OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<>()
                         .input(getDomainObjects())
-                        .generator(new SimpleGenerator())
+                        .generator(new SimpleElementGenerator())
                         .build())
                 .then(new AddElements())
                 .build();

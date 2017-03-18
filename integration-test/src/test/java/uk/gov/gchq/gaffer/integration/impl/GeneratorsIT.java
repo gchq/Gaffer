@@ -29,7 +29,8 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
-import uk.gov.gchq.gaffer.integration.generators.BasicGenerator;
+import uk.gov.gchq.gaffer.integration.generators.BasicElementGenerator;
+import uk.gov.gchq.gaffer.integration.generators.BasicObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -65,7 +66,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                         .input(new EntitySeed(SOURCE_1))
                         .build())
                 .then(new GenerateObjects.Builder<DomainObject>()
-                        .generator(new BasicGenerator())
+                        .generator(new BasicObjectGenerator())
                         .build())
                 .build();
 
@@ -87,7 +88,7 @@ public class GeneratorsIT extends AbstractStoreIT {
         // Given
         final OperationChain<Void> opChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<DomainObject>()
-                        .generator(new BasicGenerator())
+                        .generator(new BasicElementGenerator())
                         .input(new EntityDomainObject(NEW_VERTEX, "1", null),
                                 new EdgeDomainObject(NEW_SOURCE, NEW_DEST, false, 1, 1L))
                         .build())

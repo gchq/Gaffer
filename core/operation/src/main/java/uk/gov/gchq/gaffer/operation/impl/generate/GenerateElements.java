@@ -16,13 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.function.Function;
 
 /**
  * An <code>GenerateElements</code> operation generates an {@link CloseableIterable} of
@@ -34,7 +35,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 public class GenerateElements<OBJ> implements
         Operation,
         IterableInputIterableOutput<OBJ, Element> {
-    private ElementGenerator<OBJ> elementGenerator;
+    private Function<Iterable<OBJ>, Iterable<Element>> elementGenerator;
     private Iterable<OBJ> input;
 
     public GenerateElements() {
@@ -48,7 +49,7 @@ public class GenerateElements<OBJ> implements
      * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
      */
-    public GenerateElements(final ElementGenerator<OBJ> elementGenerator) {
+    public GenerateElements(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -56,7 +57,8 @@ public class GenerateElements<OBJ> implements
      * @return an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
      * {@link uk.gov.gchq.gaffer.data.element.Element}s
      */
-    public ElementGenerator<OBJ> getElementGenerator() {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public Function<Iterable<OBJ>, Iterable<Element>> getElementGenerator() {
         return elementGenerator;
     }
 
@@ -66,7 +68,7 @@ public class GenerateElements<OBJ> implements
      * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert objects into
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s
      */
-    void setElementGenerator(final ElementGenerator<OBJ> elementGenerator) {
+    void setElementGenerator(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -94,9 +96,8 @@ public class GenerateElements<OBJ> implements
         /**
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements#setElementGenerator(uk.gov.gchq.gaffer.data.generator.ElementGenerator)
          */
-        public Builder<OBJ> generator(final ElementGenerator<OBJ> generator) {
+        public Builder<OBJ> generator(final Function<Iterable<OBJ>, Iterable<Element>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

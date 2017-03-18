@@ -18,36 +18,23 @@ package uk.gov.gchq.gaffer.arrayliststore.data.generator;
 
 import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEntityDataObject;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-public class SimpleGenerator extends OneToOneElementGenerator<Object> {
+public class SimpleElementGenerator implements OneToOneElementGenerator<Object> {
     private final SimpleEntityGenerator entityConverter = new SimpleEntityGenerator();
     private final SimpleEdgeGenerator edgeConverter = new SimpleEdgeGenerator();
 
-    public Element getElement(final Object obj) {
+    @Override
+    public Element _apply(final Object obj) {
         if (obj instanceof SimpleEntityDataObject) {
-            return entityConverter.getElement(((SimpleEntityDataObject) obj));
+            return entityConverter._apply(((SimpleEntityDataObject) obj));
         }
 
         if (obj instanceof SimpleEdgeDataObject) {
-            return edgeConverter.getElement(((SimpleEdgeDataObject) obj));
+            return edgeConverter._apply(((SimpleEdgeDataObject) obj));
         }
 
         throw new IllegalArgumentException("This converter can only handle objects of type SimpleEntityDataObject and SimpleEdgeDataObject");
-    }
-
-    public Object getObject(final Element element) {
-        if (TestGroups.ENTITY.equals(element.getGroup())) {
-            return entityConverter.getObject(element);
-        }
-
-        if (TestGroups.EDGE.equals(element.getGroup())) {
-            return edgeConverter.getObject(element);
-        }
-
-        throw new IllegalArgumentException("This converter can only handle elements with group  "
-                + TestGroups.ENTITY + ", or " + TestGroups.EDGE);
     }
 }

@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 
-public class ElementGeneratorImpl implements ElementGenerator<String> {
+public class ObjectGeneratorImpl implements ObjectGenerator<String> {
     @Override
-    public Iterable<Element> apply(final Iterable<String> domainObjects) {
+    public Iterable<String> apply(final Iterable<Element> elements) {
         return null;
     }
 }

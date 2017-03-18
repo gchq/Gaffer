@@ -16,28 +16,22 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.generator;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
-public class DataGenerator14 implements OneToOneElementGenerator<String> {
+public class ObjectGenerator6 implements OneToOneObjectGenerator<String> {
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public Element _apply(final String line) {
-        final String[] t = line.split(",");
-        final Edge.Builder builder = new Edge.Builder()
-                .group(t[2])
-                .source(t[0])
-                .dest(t[1])
-                .directed(false)
-                .property("count", 1);
-
-        if ("yellow".equals(t[2])) {
-            builder.property("score", t[3]);
-        } else if ("green".equals(t[2])) {
-            builder.directed(true);
+    public String _apply(final Element element) {
+        if (element instanceof Entity) {
+            throw new UnsupportedOperationException();
+        } else {
+            final Edge edge = ((Edge) element);
+            return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");
         }
-
-        return builder.build();
     }
 }

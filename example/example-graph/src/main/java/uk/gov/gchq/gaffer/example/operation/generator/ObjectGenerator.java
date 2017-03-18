@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.example;
+package uk.gov.gchq.gaffer.example.operation.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -22,15 +22,17 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
-public class ExampleDomainObjectGenerator implements OneToOneObjectGenerator<ExampleDomainObject> {
+public class ObjectGenerator implements OneToOneObjectGenerator<String> {
+
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public ExampleDomainObject _apply(final Element element) {
+    public String _apply(final Element element) {
         if (element instanceof Entity) {
-            return new ExampleDomainObject(element.getGroup(), ((Entity) element).getVertex());
+            final Entity entity = ((Entity) element);
+            return entity.getVertex() + "," + entity.getProperty("count");
+        } else {
+            final Edge edge = ((Edge) element);
+            return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");
         }
-
-        return new ExampleDomainObject(element.getGroup(),
-                ((Edge) element).getSource(), ((Edge) element).getDestination(), ((Edge) element).isDirected());
     }
 }

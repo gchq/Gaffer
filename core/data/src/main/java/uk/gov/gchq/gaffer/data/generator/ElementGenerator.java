@@ -20,25 +20,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import uk.gov.gchq.gaffer.data.element.Element;
+import java.util.function.Function;
 
 /**
- * An <code>ElementGenerator</code> converts domain objects to {@link uk.gov.gchq.gaffer.data.element.Element}s and vice versa.
+ * An <code>ElementGenerator</code> converts domain objects to {@link uk.gov.gchq.gaffer.data.element.Element}s.
  * <p>
  * Implementations should be JSON serialisable.
  *
  * @param <OBJ> the type of domain object
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
-public interface ElementGenerator<OBJ> {
-    /**
-     * @param domainObjects an {@link java.lang.Iterable} of domain objects to convert
-     * @return an {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}
-     */
-    Iterable<Element> getElements(final Iterable<OBJ> domainObjects);
-
-    /**
-     * @param elements an {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to convert
-     * @return an {@link java.lang.Iterable} of domain objects
-     */
-    Iterable<OBJ> getObjects(final Iterable<Element> elements);
+public interface ElementGenerator<OBJ> extends Function<Iterable<OBJ>, Iterable<Element>> {
 }
