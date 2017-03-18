@@ -35,12 +35,12 @@ public class SingletonSignature extends Signature {
     public ValidationResult assignable(final boolean reverse, final Class<?>... arguments) {
         final ValidationResult result = new ValidationResult();
         if (type == null) {
-            result.addError("Type could not be extracted from function " + input.getClass());
+            result.addError("Type could not be extracted from function " + input.getClass().getName());
             return result;
         }
 
         if (arguments.length != 1 || null == arguments[0]) {
-            result.addError("Incompatible number of types. " + input.getClass() + ": [" + type
+            result.addError("Incompatible number of types. " + input.getClass().getName() + ": [" + type
                     + "], arguments: " + Arrays.toString(arguments));
             return result;
         }
@@ -53,7 +53,7 @@ public class SingletonSignature extends Signature {
         }
 
         if (!isAssignable) {
-            result.addError("Incompatible types. " + input.getClass() + ": [" + type
+            result.addError("Incompatible types. " + input.getClass().getName() + ": [" + type
                     + "], arguments: " + Arrays.toString(arguments));
         }
         return result;
