@@ -18,10 +18,9 @@ package uk.gov.gchq.gaffer.function.aggregate;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
-import java.util.function.BinaryOperator;
 
 /**
- * An <code>FreqMapAggregator</code> is a {@link BinaryOperator} that takes in
+ * An <code>FreqMapAggregator</code> is a {@link KorypheBinaryOperator} that takes in
  * {@link FreqMap}s and merges the frequencies together.
  */
 public class FreqMapAggregator extends KorypheBinaryOperator<FreqMap> {

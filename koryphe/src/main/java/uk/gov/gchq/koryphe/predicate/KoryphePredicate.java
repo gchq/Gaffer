@@ -15,14 +15,13 @@
  */
 package uk.gov.gchq.koryphe.predicate;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public abstract class KoryphePredicate<T> implements IKoryphePredicate<T> {
+    @SuppressFBWarnings(value = "BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS", justification = "the method classEquals does the check")
     @Override
     public boolean equals(final Object other) {
-        return this == other || classEquals(other);
-    }
-
-    protected boolean classEquals(final Object other) {
-        return null != other && getClass().equals(other.getClass());
+        return this == other || (null != other && getClass().equals(other.getClass()));
     }
 
     @Override

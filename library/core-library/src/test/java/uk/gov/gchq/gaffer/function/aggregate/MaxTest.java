@@ -48,14 +48,14 @@ public class MaxTest extends BiFunctionTest {
         assertEquals(1, state);
 
         // When 2
-        state = max.apply(state, 3);
+        state = max.apply(3, state);
 
         // Then 2
         assertTrue(state instanceof Integer);
         assertEquals(3, state);
 
         // When 3
-        state = max.apply(state, 2);
+        state = max.apply(2, state);
 
         // Then 3
         assertTrue(state instanceof Integer);
@@ -68,21 +68,21 @@ public class MaxTest extends BiFunctionTest {
         final Max max = new Max();
 
         // When 1
-        state = max.apply(state, 2l);
+        state = max.apply(2l, state);
 
         // Then 1
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
         // When 2
-        state = max.apply(state, 1l);
+        state = max.apply(1l, state);
 
         // Then 2
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
         // When 3
-        state = max.apply(state, 3l);
+        state = max.apply(3l, state);
 
         // Then 3
         assertTrue(state instanceof Long);
@@ -95,21 +95,21 @@ public class MaxTest extends BiFunctionTest {
         final Max max = new Max();
 
         // When 1
-        state = max.apply(state, 1.1d);
+        state = max.apply(1.1d, state);
 
         // Then 1
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
         // When 2
-        state = max.apply(state, 2.1d);
+        state = max.apply(2.1d, state);
 
         // Then 2
         assertTrue(state instanceof Double);
         assertEquals(2.1d, state);
 
         // When 3
-        state = max.apply(state, 1.5d);
+        state = max.apply(1.5d, state);
 
         // Then 3
         assertTrue(state instanceof Double);

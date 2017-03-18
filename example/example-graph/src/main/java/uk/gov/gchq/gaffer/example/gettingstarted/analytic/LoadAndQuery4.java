@@ -101,8 +101,8 @@ public class LoadAndQuery4 extends LoadAndQuery {
         // ---------------------------------------------------------
         final ElementTransformer mean = new ElementTransformer.Builder()
                 .select("thing", "count")
-                .project("mean")
                 .execute(new MeanTransform())
+                .project("mean")
                 .build();
         // ---------------------------------------------------------
 

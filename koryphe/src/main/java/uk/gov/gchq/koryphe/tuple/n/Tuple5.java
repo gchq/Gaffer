@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.koryphe.tuple.n;
 
-import uk.gov.gchq.koryphe.tuple.ArrayTuple;
-
 /**
- * An {@link ArrayTuple} containing 5 entries.
+ * An {@link TupleN} containing 5 entries.
  *
  * @param <A> Type of the entry at index 0.
  * @param <B> Type of the entry at index 1.

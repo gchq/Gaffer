@@ -23,7 +23,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.function.Predicate;
 
 /**
- * A {@link Predicate} that returns the inverse of the wrapped predicate.
+ * A {@link Predicate} that returns the inverse of the wrapped function.
  *
  * @param <I> Type of input to be validated
  */

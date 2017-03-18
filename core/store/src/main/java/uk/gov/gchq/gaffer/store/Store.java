@@ -73,6 +73,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -324,7 +325,7 @@ public abstract class Store {
     }
 
     public void validateSchemas() {
-        boolean valid = schema.validate();
+        final ValidationResult validationResult = schema.validate();
 
         final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
         schemaElements.putAll(getSchema().getEdges());
@@ -334,16 +335,14 @@ public abstract class Store {
                 Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
                 Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
                 if (null == serialisation) {
-                    valid = false;
-                    LOGGER.error("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                    validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
                 } else if (!serialisation.canHandle(propertyClass)) {
-                    valid = false;
-                    LOGGER.error("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+                    validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
                 }
             }
         }
-        if (!valid) {
-            throw new SchemaException("Schema is not valid. Check the logs for more information.");
+        if (!validationResult.isValid()) {
+            throw new SchemaException("Schema is not valid. " + validationResult.getErrorString());
         }
     }
 
@@ -370,10 +369,11 @@ public abstract class Store {
             } else {
                 opView = null;
             }
-            if (!viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED))) {
+            final ValidationResult validationResult = viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED));
+            if (!validationResult.isValid()) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()
-                        + " is not valid. See the logs for more information.");
+                        + " is not valid. " + validationResult.getErrorString());
             }
         }
     }

@@ -30,9 +30,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -93,7 +94,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * @param requiresAggregators true if aggregators are required
      * @return true if the element definition is valid, otherwise false.
      */
-    public boolean validate(final boolean requiresAggregators) {
+    public ValidationResult validate(final boolean requiresAggregators) {
         return elementDefValidator.validate(this, requiresAggregators);
     }
 
@@ -233,7 +234,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return new TransformIterable<String, TypeDefinition>(getPropertyMap().values()) {
             @Override
             public void close() {
-
             }
 
             @Override
@@ -308,7 +308,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
             aggregator.getFunctions().add(
-                    new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), key));
+                    new TupleAdaptedBiFunction<>(type.getAggregateFunction(), key));
         }
     }
 
@@ -425,6 +425,16 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
                 getElementDef().validator = new ElementFilter();
             }
             getElementDef().validator.getFunctions().addAll(predicates);
+            return self();
+        }
+
+        @JsonIgnore
+        @SafeVarargs
+        public final CHILD_CLASS validateFunctions(final TupleAdaptedPredicate<String, Tuple<String>>... predicates) {
+            if (null == getElementDef().validator) {
+                getElementDef().validator = new ElementFilter();
+            }
+            Collections.addAll(getElementDef().validator.getFunctions(), predicates);
             return self();
         }
 

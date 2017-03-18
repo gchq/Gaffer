@@ -39,7 +39,7 @@ public class TupleAdaptedBiFunction<R, FI, FO> extends AdaptedBiFunction<Tuple<R
     }
 
     @SafeVarargs
-    public TupleAdaptedBiFunction(BiFunction<FI, FO, FO> function, R... selection) {
+    public TupleAdaptedBiFunction(final BiFunction<FI, FO, FO> function, final R... selection) {
         this();
         setFunction(function);
         setSelection(selection);

@@ -52,7 +52,7 @@ public abstract class AdaptedFunction<I, FI, FO, O> implements Function<I, O> {
     }
 
     @Override
-    public O apply(I input) {
+    public O apply(final I input) {
         return adaptOutput(function.apply(adaptInput(input)), input);
     }
 
@@ -63,7 +63,7 @@ public abstract class AdaptedFunction<I, FI, FO, O> implements Function<I, O> {
      * @param input Input to be transformed
      * @return Transformed input
      */
-    protected FI adaptInput(I input) {
+    protected FI adaptInput(final I input) {
         return inputAdapter == null ? (FI) input : inputAdapter.apply(input);
     }
 
@@ -72,9 +72,10 @@ public abstract class AdaptedFunction<I, FI, FO, O> implements Function<I, O> {
      * method assumes no transformation is required and simply casts the output to the transformed type.
      *
      * @param output Output to be transformed
+     * @param state  state of function - this will be the input value
      * @return Transformed output
      */
-    protected O adaptOutput(FO output, I state) {
+    protected O adaptOutput(final FO output, final I state) {
         return outputAdapter == null ? (O) output : outputAdapter.apply(output, state);
     }
 
@@ -91,7 +92,7 @@ public abstract class AdaptedFunction<I, FI, FO, O> implements Function<I, O> {
         return function;
     }
 
-    public void setFunction(Function<FI, FO> function) {
+    public void setFunction(final Function<FI, FO> function) {
         this.function = function;
     }
 

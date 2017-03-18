@@ -25,9 +25,9 @@ public class StringConcatTest extends BinaryOperatorTest {
         function.setSeparator(";");
 
         // When
-        state = function.apply(state, "1");
-        state = function.apply(state, "2");
-        function.apply(state, null);
+        state = function.apply("1", state);
+        state = function.apply("2", state);
+        function.apply(null, state);
 
         // Then
         assertEquals("1;2", state);

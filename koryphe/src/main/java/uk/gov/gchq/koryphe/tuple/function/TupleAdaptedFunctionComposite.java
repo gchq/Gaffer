@@ -14,31 +14,33 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.element.function;
+package uk.gov.gchq.koryphe.tuple.function;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
-import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
+import uk.gov.gchq.koryphe.composite.Composite;
+import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.function.Function;
 
-public class ElementTransformer extends TupleAdaptedFunctionComposite {
-
-    private final ElementTuple elementTuple = new ElementTuple();
-
-    public Element apply(final Element element) {
-        elementTuple.setElement(element);
-        apply(elementTuple);
-        return element;
+public class TupleAdaptedFunctionComposite
+        extends Composite<TupleAdaptedFunction<String, ?, ?>>
+        implements Function<Tuple<String>, Tuple<String>> {
+    @Override
+    public Tuple<String> apply(final Tuple<String> input) {
+        Tuple<String> result = input;
+        for (final TupleAdaptedFunction<String, ?, ?> function : getFunctions()) {
+            // Assume the output of one is the input of the next
+            result = function.apply(result);
+        }
+        return result;
     }
 
     public static class Builder {
-        private final ElementTransformer transformer;
+        private final TupleAdaptedFunctionComposite transformer;
 
         public Builder() {
-            this(new ElementTransformer());
+            this(new TupleAdaptedFunctionComposite());
         }
 
-        private Builder(final ElementTransformer transformer) {
+        private Builder(final TupleAdaptedFunctionComposite transformer) {
             this.transformer = transformer;
         }
 
@@ -48,16 +50,16 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite {
             return new SelectedBuilder(transformer, current);
         }
 
-        public ElementTransformer build() {
+        public TupleAdaptedFunctionComposite build() {
             return transformer;
         }
     }
 
     public static final class SelectedBuilder {
-        private final ElementTransformer transformer;
+        private final TupleAdaptedFunctionComposite transformer;
         private final TupleAdaptedFunction<String, Object, Object> current;
 
-        private SelectedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+        private SelectedBuilder(final TupleAdaptedFunctionComposite transformer, final TupleAdaptedFunction<String, Object, Object> current) {
             this.transformer = transformer;
             this.current = current;
         }
@@ -69,10 +71,10 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite {
     }
 
     public static final class ExecutedBuilder {
-        private final ElementTransformer transformer;
+        private final TupleAdaptedFunctionComposite transformer;
         private final TupleAdaptedFunction<String, Object, Object> current;
 
-        private ExecutedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+        private ExecutedBuilder(final TupleAdaptedFunctionComposite transformer, final TupleAdaptedFunction<String, Object, Object> current) {
             this.transformer = transformer;
             this.current = current;
         }

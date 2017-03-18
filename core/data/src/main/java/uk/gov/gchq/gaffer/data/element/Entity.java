@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -52,7 +51,6 @@ public class Entity extends Element implements EntityId {
         this.vertex = vertex;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
         return vertex;
     }

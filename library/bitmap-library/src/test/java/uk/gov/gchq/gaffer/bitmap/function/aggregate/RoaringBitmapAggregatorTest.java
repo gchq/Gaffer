@@ -82,7 +82,7 @@ public class RoaringBitmapAggregatorTest {
         inputBitmap2.add(input4);
         inputs[2] = input3;
         inputs[3] = input4;
-        state = roaringBitmapAggregator.apply(state, inputBitmap2);
+        state = roaringBitmapAggregator.apply(inputBitmap2, state);
 
         RoaringBitmap inputBitmap3 = new RoaringBitmap();
         int input5 = 23615002;
@@ -91,7 +91,7 @@ public class RoaringBitmapAggregatorTest {
         inputBitmap3.add(input6);
         inputs[4] = input5;
         inputs[5] = input6;
-        state = roaringBitmapAggregator.apply(state, inputBitmap3);
+        state = roaringBitmapAggregator.apply(inputBitmap3, state);
 
         Arrays.sort(inputs);
         int outPutBitmapSize = state.getCardinality();

@@ -41,21 +41,21 @@ public class ProductTest extends BinaryOperatorTest {
         final Product product = new Product();
 
         // When 1
-        state = product.apply(state, 2);
+        state = product.apply(2, state);
 
         // Then 1
         assertTrue(state instanceof Integer);
         assertEquals(2, state);
 
         // When 2
-        state = product.apply(state, 3);
+        state = product.apply(3, state);
 
         // Then 2
         assertTrue(state instanceof Integer);
         assertEquals(6, state);
 
         // When 3
-        state = product.apply(state, 8);
+        state = product.apply(8, state);
 
         // Then 3
         assertTrue(state instanceof Integer);
@@ -68,7 +68,7 @@ public class ProductTest extends BinaryOperatorTest {
         final Product product = new Product();
 
         // When 1
-        state = product.apply(state, 2);
+        state = product.apply(2, state);
 
         // Then 1
         assertTrue(state instanceof Integer);
@@ -76,7 +76,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 2
         try {
-            state = product.apply(state, 2.7d);
+            state = product.apply(2.7d, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -87,7 +87,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 3
         try {
-            state = product.apply(state, 1l);
+            state = product.apply(1l, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -103,21 +103,21 @@ public class ProductTest extends BinaryOperatorTest {
         final Product product = new Product();
 
         // When 1
-        state = product.apply(state, 2l);
+        state = product.apply(2l, state);
 
         // Then 1
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
         // When 2
-        state = product.apply(state, 1l);
+        state = product.apply(1l, state);
 
         // Then 2
         assertTrue(state instanceof Long);
         assertEquals(2l, state);
 
         // When 3
-        state = product.apply(state, 3l);
+        state = product.apply(3l, state);
 
         // Then 3
         assertTrue(state instanceof Long);
@@ -132,7 +132,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 1
         try {
-            state = product.apply(state, 1);
+            state = product.apply(1, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -141,7 +141,7 @@ public class ProductTest extends BinaryOperatorTest {
         assertEquals(1l, state);
 
         // When 2
-        state = product.apply(state, 3l);
+        state = product.apply(3l, state);
 
         // Then 2
         assertTrue(state instanceof Long);
@@ -149,7 +149,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 3
         try {
-            state = product.apply(state, 2.5d);
+            state = product.apply(2.5d, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -165,21 +165,21 @@ public class ProductTest extends BinaryOperatorTest {
         final Product product = new Product();
 
         // When 1
-        state = product.apply(state, 1.2d);
+        state = product.apply(1.2d, state);
 
         // Then 1
         assertTrue(state instanceof Double);
         assertEquals(1.2d, state);
 
         // When 2
-        state = product.apply(state, 2.5d);
+        state = product.apply(2.5d, state);
 
         // Then 2
         assertTrue(state instanceof Double);
         assertEquals(3.0d, state);
 
         // When 3
-        state = product.apply(state, 1.5d);
+        state = product.apply(1.5d, state);
 
         // Then 3
         assertTrue(state instanceof Double);
@@ -194,7 +194,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 1
         try {
-            state = product.apply(state, 1);
+            state = product.apply(1, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -204,7 +204,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 2
         try {
-            state = product.apply(state, 3l);
+            state = product.apply(3l, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -213,7 +213,7 @@ public class ProductTest extends BinaryOperatorTest {
         assertEquals(1d, state);
 
         // When 3
-        state = product.apply(state, 2.1d);
+        state = product.apply(2.1d, state);
 
         // Then 3
         assertTrue(state instanceof Double);
@@ -227,7 +227,7 @@ public class ProductTest extends BinaryOperatorTest {
         state = 1;
 
         // When 1
-        state = product.apply(state, 2);
+        state = product.apply(2, state);
 
         // Then 1
         assertTrue(state instanceof Integer);
@@ -235,7 +235,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 2
         try {
-            state = product.apply(state, 3l);
+            state = product.apply(3l, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -246,7 +246,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 3
         try {
-            state = product.apply(state, 2.1d);
+            state = product.apply(2.1d, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -263,7 +263,7 @@ public class ProductTest extends BinaryOperatorTest {
         state = 1l;
 
         // When 1
-        state = product.apply(state, 2l);
+        state = product.apply(2l, state);
 
         // Then 1
         assertTrue(state instanceof Long);
@@ -271,7 +271,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 2
         try {
-            state = product.apply(state, 3);
+            state = product.apply(3, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -282,7 +282,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 3
         try {
-            state = product.apply(state, 2.1d);
+            state = product.apply(2.1d, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -299,7 +299,7 @@ public class ProductTest extends BinaryOperatorTest {
         state = 1d;
 
         // When 1
-        state = product.apply(state, 1.1d);
+        state = product.apply(1.1d, state);
 
         // Then 1
         assertTrue(state instanceof Double);
@@ -307,7 +307,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 2
         try {
-            state = product.apply(state, 2);
+            state = product.apply(2, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -318,7 +318,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // When 3
         try {
-            state = product.apply(state, 1l);
+            state = product.apply(1l, state);
             fail();
         } catch (ClassCastException cce) {
         }
@@ -339,8 +339,7 @@ public class ProductTest extends BinaryOperatorTest {
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.function.aggregate.Product\",%n" +
-                "  \"mode\" : \"AUTO\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.function.aggregate.Product\"%n" +
                 "}"), json);
 
         // When 2

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2017 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.koryphe.bifunction;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -25,25 +40,25 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
     public AdaptedBiFunction() {
     }
 
-    public AdaptedBiFunction(BiFunction<FI, FO, FO> function,
-                             Function<I, FI> inputAdapter,
-                             BiFunction<FO, O, O> outputAdapter,
-                             Function<O, FO> reverseOutputAdapter) {
+    public AdaptedBiFunction(final BiFunction<FI, FO, FO> function,
+                             final Function<I, FI> inputAdapter,
+                             final BiFunction<FO, O, O> outputAdapter,
+                             final Function<O, FO> reverseOutputAdapter) {
         setFunction(function);
         setInputAdapter(inputAdapter);
         setOutputAdapter(outputAdapter);
         setReverseOutputAdapter(reverseOutputAdapter);
     }
 
-    public AdaptedBiFunction(BiFunction<FI, FO, FO> function,
-                             Function<I, FI> inputAdapter,
-                             Function<FO, O> outputAdapter,
-                             Function<O, FO> reverseOutputAdapter) {
+    public AdaptedBiFunction(final BiFunction<FI, FO, FO> function,
+                             final Function<I, FI> inputAdapter,
+                             final Function<FO, O> outputAdapter,
+                             final Function<O, FO> reverseOutputAdapter) {
         this(function, inputAdapter, (fo, o) -> outputAdapter.apply(fo), reverseOutputAdapter);
     }
 
     @Override
-    public O apply(I input, O state) {
+    public O apply(final I input, final O state) {
         return adaptOutput(function.apply(adaptInput(input), reverseOutput(state)), state);
     }
 
@@ -54,7 +69,7 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
      * @param input Input to be transformed
      * @return Transformed input
      */
-    protected FI adaptInput(I input) {
+    protected FI adaptInput(final I input) {
         return inputAdapter == null ? (FI) input : inputAdapter.apply(input);
     }
 
@@ -62,10 +77,11 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
      * Adapt the output value from the type produced by the function. If no output adapter has been specified, this
      * method assumes no transformation is required and simply casts the output to the transformed type.
      *
-     * @param output Output to be transformed
+     * @param output the output to be transformed
+     * @param state  the state of the transformation
      * @return Transformed output
      */
-    protected O adaptOutput(FO output, O state) {
+    protected O adaptOutput(final FO output, final O state) {
         return outputAdapter == null ? (O) output : outputAdapter.apply(output, state);
     }
 
@@ -82,7 +98,7 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
         return function;
     }
 
-    public void setFunction(BiFunction<FI, FO, FO> function) {
+    public void setFunction(final BiFunction<FI, FO, FO> function) {
         this.function = function;
     }
 
@@ -98,11 +114,11 @@ public class AdaptedBiFunction<I, FI, FO, O> implements BiFunction<I, O, O> {
         return reverseOutputAdapter;
     }
 
-    public void setReverseOutputAdapter(Function<O, FO> outputReverse) {
+    public void setReverseOutputAdapter(final Function<O, FO> outputReverse) {
         this.reverseOutputAdapter = outputReverse;
     }
 
-    private FO reverseOutput(O input) {
+    private FO reverseOutput(final O input) {
         return reverseOutputAdapter == null ? (FO) input : reverseOutputAdapter.apply(input);
     }
 }

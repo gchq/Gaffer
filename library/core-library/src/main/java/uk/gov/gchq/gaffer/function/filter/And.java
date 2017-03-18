@@ -32,7 +32,8 @@ public final class And<I> extends Composite<Predicate<I>> implements IKoryphePre
         super();
     }
 
-    public And(Predicate<I>... predicates) {
+    @SafeVarargs
+    public And(final Predicate<I>... predicates) {
         super(Lists.newArrayList(predicates));
     }
 
@@ -42,7 +43,7 @@ public final class And<I> extends Composite<Predicate<I>> implements IKoryphePre
 
     @Override
     public boolean test(final I input) {
-        for (Predicate<I> predicate : getFunctions()) {
+        for (final Predicate<I> predicate : getFunctions()) {
             if (!predicate.test(input)) {
                 return false;
             }

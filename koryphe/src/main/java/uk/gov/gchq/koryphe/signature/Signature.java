@@ -17,6 +17,7 @@
 package uk.gov.gchq.koryphe.signature;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -24,6 +25,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -35,9 +37,9 @@ public abstract class Signature {
      * Tests whether the supplied types can be assigned to this <code>Signature</code>.
      *
      * @param arguments Class or Tuple of classes to test.
-     * @return True if the arguments can be assigned to this signature.
+     * @return ValidationResult containing the an isValid flag and errors messages.
      */
-    public boolean assignableFrom(final Class... arguments) {
+    public ValidationResult assignableFrom(final Class... arguments) {
         return assignable(false, arguments);
     }
 
@@ -45,9 +47,9 @@ public abstract class Signature {
      * Tests whether this <code>Signature</code> can be assigned to the supplied types.
      *
      * @param arguments Class or Tuple of classes to test with.
-     * @return True if this signature can be assigned to the arguments.
+     * @return ValidationResult containing the an isValid flag and errors messages.
      */
-    public boolean assignableTo(final Class... arguments) {
+    public ValidationResult assignableTo(final Class... arguments) {
         return assignable(true, arguments);
     }
 
@@ -56,12 +58,12 @@ public abstract class Signature {
      *
      * @param to        If the test should be performed as an assignableTo.
      * @param arguments Class or Tuple of classes to test.
-     * @return True if this signature is compatible with the supplied types.
+     * @return ValidationResult containing the an isValid flag and errors messages.
      */
-    public abstract boolean assignable(final boolean to, final Class<?>... arguments);
+    public abstract ValidationResult assignable(final boolean to, final Class<?>... arguments);
 
-    public boolean assignable(final Class<?>... arguments) {
-        return assignable(true, arguments);
+    public ValidationResult assignable(final Class<?>... arguments) {
+        return assignable(false, arguments);
     }
 
     public abstract Class[] getClasses();
@@ -87,6 +89,19 @@ public abstract class Signature {
     }
 
     /**
+     * Get the input signature of a BiFunction.
+     *
+     * @param function BiFunction.
+     * @param <F>      the type of the BiFunction
+     * @param <I>      the first input type of the BiFunction
+     * @param <O>      the second input type and output type of the BiFunction
+     * @return Input signature
+     */
+    public static <F extends BiFunction<I, O, O>, I, O> Signature getInputSignature(final F function) {
+        return createSignatureFromTypeVariable(function, BiFunction.class, 0);
+    }
+
+    /**
      * Get the output signature of a function.
      *
      * @param function Function.
@@ -97,31 +112,46 @@ public abstract class Signature {
     }
 
     /**
+     * Get the output signature of a function.
+     *
+     * @param function BiFunction.
+     * @param <F>      the type of the BiFunction
+     * @param <I>      the first input type of the BiFunction
+     * @param <O>      the second input type and output type of the BiFunction
+     * @return Output signature
+     */
+    public static <F extends BiFunction<I, O, O>, I, O> Signature getOutputSignature(final F function) {
+        return createSignatureFromTypeVariable(function, BiFunction.class, 2);
+    }
+
+    /**
      * Create a <code>Signature</code> for the type variable at the given index.
      *
-     * @param function          Function to create signature for.
+     * @param input             Function to create signature for.
+     * @param functionClass     The input class
      * @param typeVariableIndex 0 for I or 1 for O.
      * @return Signature of the type variable.
      */
-    protected static Signature createSignatureFromTypeVariable(final Object function, final Class functionClass, final int typeVariableIndex) {
+    protected static Signature createSignatureFromTypeVariable(final Object input, final Class functionClass, final int typeVariableIndex) {
         TypeVariable<?> tv = functionClass.getTypeParameters()[typeVariableIndex];
-        final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(function.getClass(), functionClass);
+        final Map<TypeVariable<?>, Type> typeArgs = TypeUtils.getTypeArguments(input.getClass(), functionClass);
         Type type = typeArgs.get(tv);
-        return createSignature(type, typeArgs);
+        return createSignature(input, type, typeArgs);
     }
 
     /**
      * Create a <code>Signature</code> for the supplied {@link Type}. This could be a singleton or
-     * iterable.
+     * tuple.
      *
-     * @param type Type to create a signature for.
+     * @param input the input function
+     * @param type  Type to create a signature for.
      * @return Signature of supplied type.
      */
-    protected static Signature createSignature(final Type type) {
-        return createSignature(type, Collections.emptyMap());
+    protected static Signature createSignature(final Object input, final Type type) {
+        return createSignature(input, type, Collections.emptyMap());
     }
 
-    protected static Signature createSignature(final Type type, final Map<TypeVariable<?>, Type> typeArgs) {
+    protected static Signature createSignature(final Object input, final Type type, final Map<TypeVariable<?>, Type> typeArgs) {
         final Class clazz = getTypeClass(type, typeArgs);
 
         if (Tuple.class.isAssignableFrom(clazz)) {
@@ -130,14 +160,14 @@ public abstract class Signature {
             Collection<? extends Type> types = TypeUtils.getTypeArguments(type, clazz).values();
             Class[] classes = new Class[types.size()];
             int i = 0;
-            for (TypeVariable tupleType : tupleTypes) {
+            for (final TypeVariable tupleType : tupleTypes) {
                 classes[i++] = getTypeClass(classTypeArgs.get(tupleType), typeArgs);
             }
 
-            return new TupleSignature(classes);
+            return new TupleSignature(input, classes);
         }
 
-        return new SingletonSignature(clazz);
+        return new SingletonSignature(input, clazz);
     }
 
     protected static Class getTypeClass(final Type type, final Map<TypeVariable<?>, Type> typeArgs) {

@@ -15,11 +15,11 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
-import java.util.function.BinaryOperator;
 
 /**
- * An <code>NumericAggregateFunction</code> is a {@link BinaryOperator} that takes in
+ * An <code>NumericAggregateFunction</code> is a {@link KorypheBinaryOperator} that takes in
  * {@link Number}s of the same type and processes the number in some way. To implement this class just
  * implement the init methods and aggregate methods for the different number types.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
@@ -28,6 +28,7 @@ import java.util.function.BinaryOperator;
  * @see NumericAggregateFunction
  */
 public abstract class NumericAggregateFunction extends KorypheBinaryOperator<Number> {
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Assume both inputs are the same type")
     @Override
     public Number _apply(final Number a, final Number b) {
         if (a instanceof Integer) {

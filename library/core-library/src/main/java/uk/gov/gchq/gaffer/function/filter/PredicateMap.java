@@ -81,7 +81,7 @@ public class PredicateMap<T> extends KoryphePredicate<Map<?, T>> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

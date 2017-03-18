@@ -14,48 +14,50 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data.element.function;
+package uk.gov.gchq.koryphe.tuple.predicate;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
+import uk.gov.gchq.koryphe.composite.Composite;
+import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.function.Predicate;
 
-public class ElementFilter extends TupleAdaptedPredicateComposite {
-    private final ElementTuple elementTuple = new ElementTuple();
-
-    public boolean test(final Element element) {
-        elementTuple.setElement(element);
-        return test(elementTuple);
+public class TupleAdaptedPredicateComposite extends Composite<TupleAdaptedPredicate<String, ?>> implements Predicate<Tuple<String>> {
+    @Override
+    public boolean test(final Tuple<String> input) {
+        for (final TupleAdaptedPredicate<String, ?> predicate : getFunctions()) {
+            if (!predicate.test(input)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static class Builder {
-        private final ElementFilter filter;
+        private final TupleAdaptedPredicateComposite composite;
 
         public Builder() {
-            this(new ElementFilter());
+            this(new TupleAdaptedPredicateComposite());
         }
 
-        private Builder(final ElementFilter filter) {
-            this.filter = filter;
+        private Builder(final TupleAdaptedPredicateComposite composite) {
+            this.composite = composite;
         }
 
         public SelectedBuilder select(final String... selection) {
             final TupleAdaptedPredicate<String, Object> current = new TupleAdaptedPredicate<>();
             current.setSelection(selection);
-            return new SelectedBuilder(filter, current);
+            return new SelectedBuilder(composite, current);
         }
 
-        public ElementFilter build() {
-            return filter;
+        public TupleAdaptedPredicateComposite build() {
+            return composite;
         }
     }
 
     public static final class SelectedBuilder {
-        private final ElementFilter filter;
+        private final TupleAdaptedPredicateComposite filter;
         private final TupleAdaptedPredicate<String, Object> current;
 
-        private SelectedBuilder(final ElementFilter filter, final TupleAdaptedPredicate<String, Object> current) {
+        private SelectedBuilder(final TupleAdaptedPredicateComposite filter, final TupleAdaptedPredicate<String, Object> current) {
             this.filter = filter;
             this.current = current;
         }

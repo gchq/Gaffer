@@ -18,19 +18,21 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.koryphe.composite.Composite;
-import uk.gov.gchq.koryphe.tuple.Tuple;
 import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunctionComposite;
 import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 
-public class ElementAggregator extends Composite<TupleAdaptedBiFunction<String, ?, ?>> implements BinaryOperator<Tuple<String>> {
+public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
     private final PropertiesTuple stateTuple = new PropertiesTuple();
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
      * Aggregation requires elements to have the same identifiers and group.
+     *
+     * @param element the element to aggregated
+     * @param state   the other element to aggregate. This is normally the 'state' where the aggregated results will be set.
+     * @return Element - the aggregated element
      */
     public Element apply(final Element element, final Element state) {
         if (null == state) {
@@ -52,59 +54,41 @@ public class ElementAggregator extends Composite<TupleAdaptedBiFunction<String, 
         return state;
     }
 
-    @Override
-    public Tuple<String> apply(final Tuple<String> input, final Tuple<String> state) {
-        Tuple<String> result = state;
-        for (TupleAdaptedBiFunction<String, ?, ?> function : getFunctions()) {
-            result = function.apply(input, result);
-        }
-        return result;
-    }
-
     public static class Builder {
         private final ElementAggregator aggregator;
-        private TupleAdaptedBiFunction<String, Object, Object> currentFunction = new TupleAdaptedBiFunction<>();
-        private boolean selected;
-        private boolean executed;
 
         public Builder() {
             this(new ElementAggregator());
         }
 
-        public Builder(final ElementAggregator aggregator) {
+        private Builder(final ElementAggregator aggregator) {
             this.aggregator = aggregator;
         }
 
-        public Builder select(final String... selection) {
-            if (selected) {
-                aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBiFunction<>();
-                selected = false;
-            }
-            currentFunction.setSelection(selection);
-            selected = true;
-            return this;
-        }
-
-        public Builder execute(final BiFunction function) {
-            if (executed) {
-                aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBiFunction<>();
-                executed = false;
-            }
-            currentFunction.setFunction(function);
-            executed = true;
-            return this;
+        public SelectedBuilder select(final String... selection) {
+            final TupleAdaptedBiFunction<String, Object, Object> current = new TupleAdaptedBiFunction<>();
+            current.setSelection(selection);
+            return new SelectedBuilder(aggregator, current);
         }
 
         public ElementAggregator build() {
-            if (executed || selected) {
-                aggregator.getFunctions().add(currentFunction);
-                currentFunction = new TupleAdaptedBiFunction<>();
-                selected = false;
-                executed = false;
-            }
             return aggregator;
+        }
+    }
+
+    public static final class SelectedBuilder {
+        private final ElementAggregator aggregator;
+        private final TupleAdaptedBiFunction<String, Object, Object> current;
+
+        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBiFunction<String, Object, Object> current) {
+            this.aggregator = aggregator;
+            this.current = current;
+        }
+
+        public Builder execute(final BiFunction function) {
+            current.setFunction(function);
+            aggregator.getFunctions().add(current);
+            return new Builder(aggregator);
         }
     }
 }

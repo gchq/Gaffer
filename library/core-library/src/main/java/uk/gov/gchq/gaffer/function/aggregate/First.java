@@ -16,10 +16,9 @@
 package uk.gov.gchq.gaffer.function.aggregate;
 
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
-import java.util.function.BinaryOperator;
 
 /**
- * An <code>First</code> is a {@link BinaryOperator} that assumes the
+ * An <code>First</code> is a {@link KorypheBinaryOperator} that assumes the
  * value will never change and just returns the first non null value it gets.
  */
 public class First extends KorypheBinaryOperator<Object> {

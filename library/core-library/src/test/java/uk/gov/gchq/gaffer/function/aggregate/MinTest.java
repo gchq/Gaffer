@@ -41,21 +41,21 @@ public class MinTest extends BiFunctionTest {
         final Min min = new Min();
 
         // When 1
-        state = min.apply(state, 1);
+        state = min.apply(1, state);
 
         // Then 1
         assertTrue(state instanceof Integer);
         assertEquals(1, state);
 
         // When 2
-        state = min.apply(state, 2);
+        state = min.apply(2, state);
 
         // Then 2
         assertTrue(state instanceof Integer);
         assertEquals(1, state);
 
         // When 3
-        state = min.apply(state, 3);
+        state = min.apply(3, state);
 
         // Then 3
         assertTrue(state instanceof Integer);
@@ -68,21 +68,21 @@ public class MinTest extends BiFunctionTest {
         final Min min = new Min();
 
         // When 1
-        state = min.apply(state, 1l);
+        state = min.apply(1l, state);
 
         // Then 1
         assertTrue(state instanceof Long);
         assertEquals(1l, state);
 
         // When 2
-        state = min.apply(state, 2l);
+        state = min.apply(2l, state);
 
         // Then 2
         assertTrue(state instanceof Long);
         assertEquals(1l, state);
 
         // When 3
-        state = min.apply(state, 3l);
+        state = min.apply(3l, state);
 
         // Then 3
         assertTrue(state instanceof Long);
@@ -96,21 +96,21 @@ public class MinTest extends BiFunctionTest {
 
 
         // When 1
-        state = min.apply(state, 2.1d);
+        state = min.apply(2.1d, state);
 
         // Then 1
         assertTrue(state instanceof Double);
         assertEquals(2.1d, state);
 
         // When 2
-        state = min.apply(state, 1.1d);
+        state = min.apply(1.1d, state);
 
         // Then 2
         assertTrue(state instanceof Double);
         assertEquals(1.1d, state);
 
         // When 3
-        state = min.apply(state, 3.1d);
+        state = min.apply(3.1d, state);
 
         // Then 3
         assertTrue(state instanceof Double);
@@ -123,18 +123,18 @@ public class MinTest extends BiFunctionTest {
         final Min min = new Min();
 
         // When 1
-        state = min.apply(state, 5);
+        state = min.apply(5, state);
 
         // When 2
         try {
-            state = min.apply(state, 2l);
+            state = min.apply(2l, state);
             fail();
         } catch (ClassCastException cce) {
         }
 
         // When 3
         try {
-            state = min.apply(state, 2.1d);
+            state = min.apply(2.1d, state);
             fail();
         } catch (ClassCastException cce) {
         }

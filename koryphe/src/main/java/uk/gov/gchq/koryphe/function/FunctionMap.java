@@ -49,8 +49,8 @@ public class FunctionMap<K, I, O> implements Function<Map<K, I>, Map<K, O>> {
         if (input == null) {
             return null;
         } else {
-            Map<K, O> transformed = new HashMap<>(input.size());
-            for (Map.Entry<K, I> entry : input.entrySet()) {
+            final Map<K, O> transformed = new HashMap<>(input.size());
+            for (final Map.Entry<K, I> entry : input.entrySet()) {
                 transformed.put(entry.getKey(), function.apply(entry.getValue()));
             }
             return transformed;

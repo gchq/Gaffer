@@ -24,7 +24,7 @@ import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.function.Predicate;
 
 /**
- * A {@link Predicate} that returns the inverse of the wrapped predicate.
+ * A {@link Predicate} that returns the inverse of the wrapped function.
  *
  * @param <I> Type of input to be validated
  */
@@ -58,7 +58,7 @@ public final class Not<I> extends KoryphePredicate<I> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

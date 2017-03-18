@@ -37,7 +37,7 @@ public class TupleAdaptedPredicate<R, FI> extends AdaptedPredicate<Tuple<R>, FI>
     }
 
     @SafeVarargs
-    public TupleAdaptedPredicate(Predicate<FI> function, R... selection) {
+    public TupleAdaptedPredicate(final Predicate<FI> function, final R... selection) {
         this();
         setFunction(function);
         setSelection(selection);
@@ -56,57 +56,5 @@ public class TupleAdaptedPredicate<R, FI> extends AdaptedPredicate<Tuple<R>, FI>
     @Override
     public TupleInputAdapter<R, FI> getInputAdapter() {
         return (TupleInputAdapter<R, FI>) super.getInputAdapter();
-    }
-
-    public static class Builder<R, FI> {
-        private boolean selected = false;
-
-        private final TupleAdaptedPredicate<R, FI> tuplePredicate;
-        private boolean executed = false;
-
-        public Builder() {
-            this(new TupleAdaptedPredicate<>());
-        }
-
-        protected Builder(final TupleAdaptedPredicate<R, FI> tuplePredicate) {
-            this.tuplePredicate = tuplePredicate;
-        }
-
-        public Builder execute(final Predicate<FI> function) {
-            if (!executed) {
-                tuplePredicate.setFunction(function);
-                executed = true;
-            } else {
-                throw new IllegalStateException("Function has already been set");
-            }
-            return this;
-        }
-
-        @SafeVarargs
-        public final Builder<R, FI> select(final R... selection) {
-            if (!selected) {
-                tuplePredicate.setSelection(selection);
-                selected = true;
-            } else {
-                throw new IllegalStateException("Selection has already been set");
-            }
-            return this;
-        }
-
-        public TupleAdaptedPredicate<R, FI> build() {
-            return getTuplePredicate();
-        }
-
-        protected boolean isExecuted() {
-            return executed;
-        }
-
-        protected boolean isSelected() {
-            return selected;
-        }
-
-        protected TupleAdaptedPredicate<R, FI> getTuplePredicate() {
-            return tuplePredicate;
-        }
     }
 }

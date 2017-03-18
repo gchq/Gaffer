@@ -16,31 +16,47 @@
 
 package uk.gov.gchq.koryphe.signature;
 
+import uk.gov.gchq.koryphe.ValidationResult;
+import java.util.Arrays;
+
 /**
  * A <code>SingletonSignature</code> is the type metadata for a single instance of a specific type.
  */
 public class SingletonSignature extends Signature {
+    private final Object input;
     private Class<?> type;
 
-    /**
-     * Create a <code>SingletonSignature</code> with the given {@link Class}.
-     *
-     * @param type Class to test for.
-     */
-    SingletonSignature(final Class type) {
+    SingletonSignature(final Object input, final Class type) {
+        this.input = input;
         this.type = type;
     }
 
     @Override
-    public boolean assignable(final boolean reverse, final Class<?>... arguments) {
-        if (type == null || arguments.length != 1) {
-            return false;
+    public ValidationResult assignable(final boolean reverse, final Class<?>... arguments) {
+        final ValidationResult result = new ValidationResult();
+        if (type == null) {
+            result.addError("Type could not be extracted from function " + input.getClass());
+            return result;
         }
+
+        if (arguments.length != 1 || null == arguments[0]) {
+            result.addError("Incompatible number of types. " + input.getClass() + ": [" + type
+                    + "], arguments: " + Arrays.toString(arguments));
+            return result;
+        }
+
+        final boolean isAssignable;
         if (reverse) {
-            return arguments[0].isAssignableFrom(type);
+            isAssignable = arguments[0].isAssignableFrom(type);
         } else {
-            return type.isAssignableFrom(arguments[0]);
+            isAssignable = type.isAssignableFrom(arguments[0]);
         }
+
+        if (!isAssignable) {
+            result.addError("Incompatible types. " + input.getClass() + ": [" + type
+                    + "], arguments: " + Arrays.toString(arguments));
+        }
+        return result;
     }
 
     @Override

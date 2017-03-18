@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.signature.Signature;
 import javax.inject.Inject;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -92,11 +93,10 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         for (final Class functionClass : FILTER_FUNCTIONS) {
             try {
                 final Predicate function = (Predicate) functionClass.newInstance();
-                //TODO:fix this
-//                final Class<?>[] inputs = function.getInputClasses();
-//                if (inputs.length == 1 && inputs[0].isAssignableFrom(clazz)) {
-//                    classes.add(functionClass);
-//                }
+                final Signature signature = Signature.getInputSignature(function);
+                if (signature.assignable(clazz).isValid()) {
+                    classes.add(functionClass);
+                }
             } catch (final Exception e) {
                 // just add the function.
                 classes.add(functionClass);

@@ -17,6 +17,7 @@
 package uk.gov.gchq.koryphe.tuple;
 
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 
 /**
@@ -30,6 +31,7 @@ public class TupleOutputAdapter<R, FO> implements BiFunction<FO, Tuple<R>, Tuple
      * Create a new <code>TupleMask</code>.
      */
     public TupleOutputAdapter() {
+        projection = (R[]) new Object[0];
     }
 
     /**
@@ -39,7 +41,7 @@ public class TupleOutputAdapter<R, FO> implements BiFunction<FO, Tuple<R>, Tuple
      */
     @SafeVarargs
     public TupleOutputAdapter(final R... projection) {
-        this.projection = projection;
+        setProjection(projection);
     }
 
     @Override
@@ -69,13 +71,17 @@ public class TupleOutputAdapter<R, FO> implements BiFunction<FO, Tuple<R>, Tuple
      */
     @SafeVarargs
     public final void setProjection(final R... projection) {
-        this.projection = projection;
+        if (null == projection) {
+            this.projection = (R[]) new Object[0];
+        } else {
+            this.projection = projection;
+        }
     }
 
     /**
      * @return Field references.
      */
     public R[] getProjection() {
-        return projection;
+        return Arrays.copyOf(projection, projection.length);
     }
 }

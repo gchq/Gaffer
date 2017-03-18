@@ -16,41 +16,46 @@
 
 package uk.gov.gchq.koryphe.signature;
 
+import uk.gov.gchq.koryphe.ValidationResult;
+import java.util.Arrays;
+
 /**
  * An <code>TupleSignature</code> is the type metadata for a tuple of values.
  */
 public class TupleSignature extends Signature {
+    private final Object input;
     private final Class[] classes;
-    private final Signature[] types;
+    private final SingletonSignature[] types;
 
-    TupleSignature(final Class[] classes) {
+    TupleSignature(final Object input, final Class[] classes) {
+        this.input = input;
         this.classes = classes;
-        types = new Signature[classes.length];
+        types = new SingletonSignature[classes.length];
         int i = 0;
-        for (Class clazz : classes) {
-            types[i++] = new SingletonSignature(clazz);
+        for (final Class clazz : classes) {
+            types[i++] = new SingletonSignature(input, clazz);
         }
     }
 
     @Override
-    public boolean assignable(final boolean reverse, final Class<?>... arguments) {
+    public ValidationResult assignable(final boolean reverse, final Class<?>... arguments) {
+        final ValidationResult result = new ValidationResult();
         if (types.length != arguments.length) {
-            return false;
+            result.addError("Incompatible number of types. " + input.getClass() + ": " + Arrays.toString(types)
+                    + ", arguments: " + Arrays.toString(arguments));
+            return result;
         }
 
         int i = 0;
-        for (Class type : arguments) {
-            boolean compatible = types[i].assignable(reverse, type);
+        for (final Class type : arguments) {
+            result.add(types[i].assignable(reverse, type));
             i++;
-            if (!compatible) {
-                return false;
-            }
         }
-        return true;
+        return result;
     }
 
     @Override
     public Class[] getClasses() {
-        return classes;
+        return Arrays.copyOf(classes, classes.length);
     }
 }

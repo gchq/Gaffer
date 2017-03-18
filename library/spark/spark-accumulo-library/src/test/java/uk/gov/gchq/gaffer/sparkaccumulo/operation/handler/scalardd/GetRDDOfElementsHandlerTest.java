@@ -48,8 +48,8 @@ import static org.junit.Assert.fail;
 
 public class GetRDDOfElementsHandlerTest {
 
-    private final static String ENTITY_GROUP = "BasicEntity";
-    private final static String EDGE_GROUP = "BasicEdge";
+    private static final String ENTITY_GROUP = "BasicEntity";
+    private static final String EDGE_GROUP = "BasicEdge";
 
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {

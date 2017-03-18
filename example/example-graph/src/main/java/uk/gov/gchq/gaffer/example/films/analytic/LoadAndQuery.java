@@ -134,8 +134,8 @@ public class LoadAndQuery {
                                         .groupBy() // grouping by nothing will cause all properties to be aggregated
                                         .transformer(new ElementTransformer.Builder()
                                                 .select(Property.RATING, Property.COUNT)
-                                                .project(TransientProperty.FIVE_STAR_RATING)
                                                 .execute(new StarRatingTransform())
+                                                .project(TransientProperty.FIVE_STAR_RATING)
                                                 .build())
                                         .build())
                                 .build())

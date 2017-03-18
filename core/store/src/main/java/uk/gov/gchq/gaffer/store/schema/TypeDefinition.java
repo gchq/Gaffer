@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.util.List;
-import java.util.function.BinaryOperator;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 /**
@@ -41,7 +41,7 @@ public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
     private List<Predicate> validateFunctions;
-    private BinaryOperator aggregateFunction;
+    private BiFunction aggregateFunction;
     private String description;
 
     public TypeDefinition() {
@@ -121,11 +121,11 @@ public class TypeDefinition {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public BinaryOperator<?> getAggregateFunction() {
+    public BiFunction getAggregateFunction() {
         return aggregateFunction;
     }
 
-    public void setAggregateFunction(final BinaryOperator aggregateFunction) {
+    public <F extends BiFunction<I, O, O>, I, O> void setAggregateFunction(final F aggregateFunction) {
         this.aggregateFunction = aggregateFunction;
     }
 
@@ -241,7 +241,7 @@ public class TypeDefinition {
             return validateFunctions(Lists.newArrayList(validateFunctions));
         }
 
-        public Builder aggregateFunction(final BinaryOperator aggregateFunction) {
+        public <F extends BiFunction<I, O, O>, I, O> Builder aggregateFunction(final F aggregateFunction) {
             type.setAggregateFunction(aggregateFunction);
             return this;
         }

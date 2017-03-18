@@ -81,7 +81,7 @@ public class AreIn extends KoryphePredicate<Collection<?>> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

@@ -89,11 +89,10 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        Properties state = null;
+        Properties state;
         try {
-            final Properties firstPropertySet = elementConverter.getPropertiesFromValue(group, firstValue);
             final ElementAggregator aggregator = schema.getElement(group).getAggregator();
-            state = aggregator.apply(firstPropertySet, state);
+            state = elementConverter.getPropertiesFromValue(group, firstValue);
             while (iter.hasNext()) {
                 state = aggregator.apply(elementConverter.getPropertiesFromValue(group, iter.next()), state);
             }

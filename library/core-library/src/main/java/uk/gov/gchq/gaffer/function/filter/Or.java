@@ -32,7 +32,8 @@ public final class Or<I> extends Composite<Predicate<I>> implements IKoryphePred
         super();
     }
 
-    public Or(Predicate<I>... predicates) {
+    @SafeVarargs
+    public Or(final Predicate<I>... predicates) {
         super(Lists.newArrayList(predicates));
     }
 
@@ -42,7 +43,7 @@ public final class Or<I> extends Composite<Predicate<I>> implements IKoryphePred
 
     @Override
     public boolean test(final I input) {
-        for (Predicate<I> validator : getFunctions()) {
+        for (final Predicate<I> validator : getFunctions()) {
             if (validator.test(input)) {
                 return true;
             }

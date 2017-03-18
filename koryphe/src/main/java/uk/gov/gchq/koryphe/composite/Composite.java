@@ -16,14 +16,14 @@
 
 package uk.gov.gchq.koryphe.composite;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
- * A <code>CompositeFunction</code> is a {@link List} of {@link Function}s that combine to make a composite
+ * A <code>CompositeFunction</code> is a {@link List} of functions that combine to make a composite
  * function.
  *
  * @param <F> The type of Function
@@ -35,10 +35,11 @@ public abstract class Composite<F> {
         this(new ArrayList<>());
     }
 
-    public Composite(List<F> functions) {
+    public Composite(final List<F> functions) {
         this.functions = functions;
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public List<F> getFunctions() {
         return functions;
     }

@@ -82,7 +82,7 @@ public class IsLessThan extends KoryphePredicate<Comparable> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

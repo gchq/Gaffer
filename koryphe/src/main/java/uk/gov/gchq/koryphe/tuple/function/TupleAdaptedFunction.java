@@ -35,7 +35,7 @@ public class TupleAdaptedFunction<R, FI, FO> extends AdaptedFunction<Tuple<R>, F
         setOutputAdapter(new TupleOutputAdapter<>());
     }
 
-    public TupleAdaptedFunction(Function<FI, FO> function) {
+    public TupleAdaptedFunction(final Function<FI, FO> function) {
         this();
         setFunction(function);
     }

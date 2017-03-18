@@ -64,16 +64,16 @@ public class AgeOff extends KoryphePredicate<Long> {
     }
 
     @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
+    public boolean equals(final Object o) {
+        if (this == o) {
             return true;
         }
 
-        if (!classEquals(other)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
-        final AgeOff otherPredicate = (AgeOff) other;
+        final AgeOff otherPredicate = (AgeOff) o;
         return new EqualsBuilder()
                 .append(ageOffTime, otherPredicate.ageOffTime)
                 .isEquals();

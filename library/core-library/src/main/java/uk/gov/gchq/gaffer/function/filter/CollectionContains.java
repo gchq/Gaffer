@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -26,7 +25,6 @@ import java.util.Collection;
  * An <code>CollectionContains</code> is a {@link java.util.function.Predicate}
  * that checks whether a {@link java.util.Collection} contains a provided value.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class CollectionContains extends KoryphePredicate<Collection<?>> {
     private Object value;
 
@@ -57,7 +55,7 @@ public class CollectionContains extends KoryphePredicate<Collection<?>> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

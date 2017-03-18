@@ -52,7 +52,7 @@ public class BiFunctionMap<K, I, O> implements BiFunction<Map<K, I>, Map<K, O>, 
             return state;
         } else {
             Map<K, O> output = state == null ? new HashMap<>() : state;
-            for (Map.Entry<K, I> entry : input.entrySet()) {
+            for (final Map.Entry<K, I> entry : input.entrySet()) {
                 O currentState = output.get(entry.getKey());
                 output.put(entry.getKey(), function.apply(entry.getValue(), currentState));
             }

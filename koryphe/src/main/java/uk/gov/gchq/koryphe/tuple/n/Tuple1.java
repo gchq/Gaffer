@@ -16,14 +16,12 @@
 
 package uk.gov.gchq.koryphe.tuple.n;
 
-import uk.gov.gchq.koryphe.tuple.ArrayTuple;
-
 /**
- * An {@link ArrayTuple} containing 2 entries.
+ * An {@link TupleN} containing 2 entries.
  *
  * @param <A> Type of the entry at index 0.
  */
-public class Tuple1<A> extends ArrayTuple {
+public class Tuple1<A> extends TupleN {
     public Tuple1() {
         super(1);
     }

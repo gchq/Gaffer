@@ -16,14 +16,15 @@
 
 package uk.gov.gchq.koryphe.tuple;
 
+import uk.gov.gchq.koryphe.tuple.n.Tuple5;
 import java.util.Iterator;
 
-public class ReferenceArrayTuple<R> implements Tuple<Integer> {
+public class ReferenceArrayTuple<R> extends Tuple5 {
     private final R[] fields;
     private final Tuple<R> tuple;
 
     @SafeVarargs
-    public ReferenceArrayTuple(Tuple<R> tuple, final R... fields) {
+    public ReferenceArrayTuple(final Tuple<R> tuple, final R... fields) {
         this.tuple = tuple;
         this.fields = fields;
     }

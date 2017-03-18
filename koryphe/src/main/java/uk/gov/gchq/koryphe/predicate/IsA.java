@@ -16,17 +16,14 @@
 
 package uk.gov.gchq.koryphe.predicate;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import java.util.function.Predicate;
 
 /**
- * An <code>IsA</code> {@link Predicate} tests whether an input {@link Object} is an
+ * An <code>IsA</code> {@link java.util.function.Predicate} tests whether an input {@link Object} is an
  * instance of a given control {@link Class}.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public class IsA extends KoryphePredicate<Object> {
     private Class<?> type;
 
@@ -89,7 +86,7 @@ public class IsA extends KoryphePredicate<Object> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

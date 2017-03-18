@@ -61,10 +61,10 @@ import static org.junit.Assert.fail;
  */
 public class GetDataFrameOfElementsHandlerTest {
 
-    final static String ENTITY_GROUP = "BasicEntity";
-    final static String EDGE_GROUP = "BasicEdge";
-    final static String EDGE_GROUP2 = "BasicEdge2";
-    private final static int NUM_ELEMENTS = 10;
+    static final String ENTITY_GROUP = "BasicEntity";
+    static final String EDGE_GROUP = "BasicEdge";
+    static final String EDGE_GROUP2 = "BasicEdge2";
+    private static final int NUM_ELEMENTS = 10;
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {

@@ -17,6 +17,7 @@
 package uk.gov.gchq.koryphe.tuple;
 
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -30,6 +31,7 @@ public class TupleInputAdapter<R, FI> implements Function<Tuple<R>, FI> {
      * Create a new <code>TupleMask</code>.
      */
     public TupleInputAdapter() {
+        selection = (R[]) new Object[0];
     }
 
     /**
@@ -37,8 +39,9 @@ public class TupleInputAdapter<R, FI> implements Function<Tuple<R>, FI> {
      *
      * @param selection Field references.
      */
+    @SafeVarargs
     public TupleInputAdapter(final R... selection) {
-        this.selection = selection;
+        setSelection(selection);
     }
 
     @Override
@@ -60,7 +63,7 @@ public class TupleInputAdapter<R, FI> implements Function<Tuple<R>, FI> {
      * @return Field references.
      */
     public R[] getSelection() {
-        return selection;
+        return Arrays.copyOf(selection, selection.length);
     }
 
     /**
@@ -69,6 +72,10 @@ public class TupleInputAdapter<R, FI> implements Function<Tuple<R>, FI> {
      * @param selection Field references.
      */
     public void setSelection(final R... selection) {
-        this.selection = selection;
+        if (null == selection) {
+            this.selection = (R[]) new Object[0];
+        } else {
+            this.selection = selection;
+        }
     }
 }

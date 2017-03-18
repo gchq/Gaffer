@@ -17,10 +17,9 @@ package uk.gov.gchq.gaffer.function.aggregate;
 
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Collection;
-import java.util.function.BinaryOperator;
 
 /**
- * An <code>CollectionConcat</code> is a {@link BinaryOperator} that concatenates
+ * An <code>CollectionConcat</code> is a {@link KorypheBinaryOperator} that concatenates
  * {@link Collection}s together.
  */
 public class CollectionConcat<T> extends KorypheBinaryOperator<Collection<T>> {

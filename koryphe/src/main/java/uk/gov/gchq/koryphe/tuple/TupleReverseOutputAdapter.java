@@ -17,6 +17,7 @@
 package uk.gov.gchq.koryphe.tuple;
 
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -30,6 +31,7 @@ public class TupleReverseOutputAdapter<R, FO> implements Function<Tuple<R>, FO> 
      * Create a new <code>TupleMask</code>.
      */
     public TupleReverseOutputAdapter() {
+        projection = (R[]) new Object[0];
     }
 
     /**
@@ -39,7 +41,7 @@ public class TupleReverseOutputAdapter<R, FO> implements Function<Tuple<R>, FO> 
      */
     @SafeVarargs
     public TupleReverseOutputAdapter(final R... projection) {
-        this.projection = projection;
+        setProjection(projection);
     }
 
     @Override
@@ -63,13 +65,17 @@ public class TupleReverseOutputAdapter<R, FO> implements Function<Tuple<R>, FO> 
      */
     @SafeVarargs
     public final void setProjection(final R... projection) {
-        this.projection = projection;
+        if (null == projection) {
+            this.projection = (R[]) new Object[0];
+        } else {
+            this.projection = projection;
+        }
     }
 
     /**
      * @return Field references.
      */
     public R[] getProjection() {
-        return projection;
+        return Arrays.copyOf(projection, projection.length);
     }
 }

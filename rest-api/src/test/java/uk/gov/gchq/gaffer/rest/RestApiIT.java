@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class RestApiIT extends AbstractRestApiIT {
 
-    private final static Client client = ClientBuilder.newClient();
+    private static final Client client = ClientBuilder.newClient();
 
     @Test
     public void shouldReturnOkStatusMessage() {

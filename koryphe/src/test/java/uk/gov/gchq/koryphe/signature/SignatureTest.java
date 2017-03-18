@@ -34,19 +34,19 @@ import static org.junit.Assert.assertTrue;
 public class SignatureTest {
     @Test
     public void shouldCheckSingletonSignature() {
-        Signature signature = Signature.createSignature(Number.class);
+        Signature signature = Signature.createSignature(1, Number.class);
 
         assertTrue(signature instanceof SingletonSignature);
 
         // exact matches should work
-        assertTrue(signature.assignableFrom(Number.class));
-        assertTrue(signature.assignableTo(Number.class));
+        assertTrue(signature.assignableFrom(Number.class).isValid());
+        assertTrue(signature.assignableTo(Number.class).isValid());
 
         // class hierarchy should work
-        assertTrue(signature.assignableFrom(Integer.class)); // Cast Integer to Number is OK.
-        assertFalse(signature.assignableFrom(Object.class)); // Cast Object to Number is not.
-        assertFalse(signature.assignableTo(Integer.class)); // Cast Number to Integer is not.
-        assertTrue(signature.assignableTo(Object.class)); // Cast Number to Object is OK.
+        assertTrue(signature.assignableFrom(Integer.class).isValid()); // Cast Integer to Number is OK.
+        assertFalse(signature.assignableFrom(Object.class).isValid()); // Cast Object to Number is not.
+        assertFalse(signature.assignableTo(Integer.class).isValid()); // Cast Number to Integer is not.
+        assertTrue(signature.assignableTo(Object.class).isValid()); // Cast Number to Object is OK.
     }
 
     @Test
@@ -55,8 +55,12 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignableTo(Object.class));
-        assertTrue(output.assignableTo(String.class));
+        assertTrue(input.assignable(Object.class).isValid());
+        assertTrue(input.assignable(String.class).isValid());
+        assertTrue(output.assignable(String.class).isValid());
+
+        assertFalse(input.assignable(Object.class, Long.class).isValid());
+        assertFalse(output.assignable(Long.class).isValid());
     }
 
     @Test
@@ -65,8 +69,11 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(Double.class, Object.class));
-        assertTrue(output.assignableTo(String.class));
+        assertTrue(input.assignable(Double.class, Object.class).isValid());
+        assertTrue(output.assignable(String.class).isValid());
+
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(output.assignable(Double.class, Object.class).isValid());
     }
 
     @Test
@@ -75,8 +82,12 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(Double.class, Object.class, Integer.class));
-        assertTrue(output.assignableTo(String.class));
+        assertTrue(input.assignable(Double.class, Object.class, Integer.class).isValid());
+        assertTrue(input.assignable(Double.class, String.class, Integer.class).isValid());
+        assertTrue(output.assignable(String.class).isValid());
+
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(output.assignable(Double.class, Object.class, Integer.class).isValid());
     }
 
     @Test
@@ -85,8 +96,12 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(Double.class, Object.class));
-        assertTrue(output.assignableTo(String.class));
+        assertTrue(input.assignable(Double.class, Object.class).isValid());
+        assertTrue(input.assignable(Double.class, Long.class).isValid());
+        assertTrue(output.assignable(String.class).isValid());
+
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(output.assignable(Integer.class, Double.class, Object.class).isValid());
     }
 
     @Test
@@ -95,18 +110,21 @@ public class SignatureTest {
         final Signature input = Signature.getInputSignature(function);
         final Signature output = Signature.getOutputSignature(function);
 
-        assertTrue(input.assignable(Integer.class, Double.class, Object.class));
-        assertTrue(output.assignableTo(String.class));
-    }
+        assertTrue(input.assignable(Integer.class, Double.class, Object.class).isValid());
+        assertTrue(output.assignable(String.class).isValid());
 
-    //TODO: add iterable signature tests
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(output.assignable(Integer.class, Double.class, Object.class).isValid());
+    }
 
     @Test
     public void shouldCheckPredicateTypes() {
         Predicate predicate = new MockPredicate();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(Double.class));
+        assertTrue(input.assignable(Double.class).isValid());
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(input.assignable(Double.class, Double.class).isValid());
     }
 
     @Test
@@ -114,7 +132,9 @@ public class SignatureTest {
         Predicate predicate = new MockPredicate1();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(Double.class));
+        assertTrue(input.assignable(Double.class).isValid());
+        assertFalse(input.assignable(String.class).isValid());
+        assertFalse(input.assignable(Double.class, Integer.class).isValid());
     }
 
     @Test
@@ -122,6 +142,8 @@ public class SignatureTest {
         Predicate predicate = new MockPredicate2();
         final Signature input = Signature.getInputSignature(predicate);
 
-        assertTrue(input.assignable(Double.class, Integer.class));
+        assertTrue(input.assignable(Double.class, Integer.class).isValid());
+        assertFalse(input.assignable(String.class, Integer.class).isValid());
+        assertFalse(input.assignable(Double.class, Integer.class, Integer.class).isValid());
     }
 }

@@ -40,7 +40,7 @@ public class AdaptedPredicate<I, FI> implements Predicate<I> {
     }
 
     @Override
-    public boolean test(I input) {
+    public boolean test(final I input) {
         return null == function || function.test(adaptInput(input));
     }
 
@@ -51,7 +51,7 @@ public class AdaptedPredicate<I, FI> implements Predicate<I> {
      * @param input Input to be transformed
      * @return Transformed input
      */
-    protected FI adaptInput(I input) {
+    protected FI adaptInput(final I input) {
         return inputAdapter == null ? (FI) input : inputAdapter.apply(input);
     }
 
@@ -60,7 +60,7 @@ public class AdaptedPredicate<I, FI> implements Predicate<I> {
         return function;
     }
 
-    public void setFunction(Predicate<FI> function) {
+    public void setFunction(final Predicate<FI> function) {
         this.function = function;
     }
 

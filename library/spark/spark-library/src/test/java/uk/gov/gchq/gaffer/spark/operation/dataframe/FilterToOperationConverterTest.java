@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -214,13 +215,13 @@ public class FilterToOperationConverterTest {
         List<TupleAdaptedPredicate<String, ?>> entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
-        assertEquals(new ArrayList<>(Collections.singleton("property1")), entityPostAggFilters.get(0).getSelection());
-        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0));
+        assertArrayEquals(new String[]{"property1"}, entityPostAggFilters.get(0).getSelection());
+        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getFunction());
         for (final String edgeGroup : EDGE_GROUPS) {
             final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
-            assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
+            assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
             assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
         }
 
@@ -235,12 +236,12 @@ public class FilterToOperationConverterTest {
         entityPostAggFilters = opView
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
-        assertEquals(new ArrayList<>(Collections.singleton("property4")), entityPostAggFilters.get(0).getSelection());
+        assertArrayEquals(new String[]{"property4"}, entityPostAggFilters.get(0).getSelection());
         assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getFunction());
         List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(1, edgePostAggFilters.size());
-        assertEquals(new ArrayList<>(Collections.singleton("property4")), edgePostAggFilters.get(0).getSelection());
+        assertArrayEquals(new String[]{"property4"}, edgePostAggFilters.get(0).getSelection());
         assertEquals(new IsLessThan(8L, false), edgePostAggFilters.get(0).getFunction());
 
         // And
@@ -413,7 +414,7 @@ public class FilterToOperationConverterTest {
             final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
-            assertEquals(new ArrayList<>(Collections.singleton("property1")), edgePostAggFilters.get(0).getSelection());
+            assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
             assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
         }
 

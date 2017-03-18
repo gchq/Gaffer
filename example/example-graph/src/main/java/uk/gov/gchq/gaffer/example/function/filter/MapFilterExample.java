@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.example.function.filter;
 
-import uk.gov.gchq.gaffer.function.filter.PredicateMap;
 import uk.gov.gchq.gaffer.function.filter.Exists;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.gaffer.function.filter.PredicateMap;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import java.util.Date;
 import java.util.HashMap;

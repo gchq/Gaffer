@@ -66,7 +66,7 @@ public class StoreIT {
         assertFalse(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE_2));
         assertFalse(testStore.getSchema().getEntities().containsKey(TestGroups.ENTITY_2));
 
-        assertTrue(testStore.getSchema().validate());
+        assertTrue(testStore.getSchema().validate().isValid());
     }
 
     private class TestStore extends Store {

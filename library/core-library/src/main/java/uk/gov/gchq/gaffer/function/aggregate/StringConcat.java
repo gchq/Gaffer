@@ -19,10 +19,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
-import java.util.function.BinaryOperator;
 
 /**
- * An <code>StringConcat</code> is a {@link BinaryOperator} that takes in
+ * An <code>StringConcat</code> is a {@link KorypheBinaryOperator} that takes in
  * {@link String}s and concatenates them together. The default separator is a comma, you can set a custom
  * separator using setSeparator(String).
  */
@@ -49,7 +48,7 @@ public class StringConcat extends KorypheBinaryOperator<String> {
             return true;
         }
 
-        if (!classEquals(o)) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 

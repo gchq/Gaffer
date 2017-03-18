@@ -32,17 +32,17 @@ public class AdaptedBinaryOperator<T, FT> extends AdaptedBiFunction<T, FT, FT, T
     public AdaptedBinaryOperator() {
     }
 
-    public AdaptedBinaryOperator(BinaryOperator<FT> function,
-                                 Function<T, FT> inputAdapter,
-                                 BiFunction<FT, T, T> outputAdapter,
-                                 Function<T, FT> reverseOutputAdapter) {
+    public AdaptedBinaryOperator(final BinaryOperator<FT> function,
+                                 final Function<T, FT> inputAdapter,
+                                 final BiFunction<FT, T, T> outputAdapter,
+                                 final Function<T, FT> reverseOutputAdapter) {
         super(function, inputAdapter, outputAdapter, reverseOutputAdapter);
     }
 
-    public AdaptedBinaryOperator(BinaryOperator<FT> function,
-                                 Function<T, FT> inputAdapter,
-                                 Function<FT, T> outputAdapter,
-                                 Function<T, FT> reverseOutputAdapter) {
+    public AdaptedBinaryOperator(final BinaryOperator<FT> function,
+                                 final Function<T, FT> inputAdapter,
+                                 final Function<FT, T> outputAdapter,
+                                 final  Function<T, FT> reverseOutputAdapter) {
         super(function, inputAdapter, outputAdapter, reverseOutputAdapter);
     }
 }

@@ -66,6 +66,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -237,8 +238,10 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl(viewValidator);
 
         op.setView(view);
-        given(schema.validate()).willReturn(true);
-        given(viewValidator.validate(view, schema, true)).willReturn(false);
+        given(schema.validate()).willReturn(new ValidationResult());
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError("error");
+        given(viewValidator.validate(view, schema, true)).willReturn(validationResult);
         store.initialise(schema, properties);
 
         // When / Then
@@ -461,7 +464,7 @@ public class StoreTest {
 
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
-        given(schema.validate()).willReturn(true);
+        given(schema.validate()).willReturn(new ValidationResult());
         given(schema.getVertexSerialiser()).willReturn(mock(Serialisation.class));
         return schema;
     }

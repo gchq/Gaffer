@@ -20,10 +20,10 @@ import uk.gov.gchq.koryphe.composite.Composite;
 import java.util.function.Predicate;
 
 
-public class PredicateComposite<T> extends Composite<Predicate> implements Predicate<T> {
+public class PredicateComposite<T> extends Composite<Predicate<T>> implements Predicate<T> {
     @Override
     public boolean test(final T input) {
-        for (Predicate<T> predicate : getFunctions()) {
+        for (final Predicate<T> predicate : getFunctions()) {
             if (!predicate.test(input)) {
                 return false;
             }
