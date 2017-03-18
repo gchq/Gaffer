@@ -91,6 +91,7 @@ public class GetElementsTest implements OperationTest {
         // When
         final GetElements op = new GetElements.Builder()
                 .input(elementSeed1, elementSeed2)
+                .seedMatching(SeedMatchingType.RELATED)
                 .build();
 
         // Then

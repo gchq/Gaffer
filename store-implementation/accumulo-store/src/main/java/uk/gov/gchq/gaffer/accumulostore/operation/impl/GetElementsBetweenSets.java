@@ -45,7 +45,7 @@ public class GetElementsBetweenSets implements
         SeededGraphFilters,
         SeedMatching,
         Options {
-    private SeedMatchingType seedMatching = SeedMatchingType.RELATED;
+    private SeedMatchingType seedMatching;
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
