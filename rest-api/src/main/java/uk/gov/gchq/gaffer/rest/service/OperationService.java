@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -98,7 +97,7 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> generateElements(final GenerateElements<ElementId> operation) {
+    public CloseableIterable<Element> generateElements(final GenerateElements<Object> operation) {
         return _execute(operation);
     }
 

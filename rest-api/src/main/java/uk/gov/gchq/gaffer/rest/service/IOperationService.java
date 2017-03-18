@@ -21,7 +21,6 @@ import io.swagger.annotations.ApiOperation;
 import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -64,7 +63,7 @@ public interface IOperationService {
     @POST
     @Path("/generate/elements")
     @ApiOperation(value = "Generate elements from objects", response = Element.class, responseContainer = "List")
-    CloseableIterable<Element> generateElements(final GenerateElements<ElementId> operation);
+    CloseableIterable<Element> generateElements(final GenerateElements<Object> operation);
 
     @POST
     @Path("/get/entityIds/adjacent")
