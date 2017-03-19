@@ -1,0 +1,37 @@
+{
+  "edges": {
+    "black": {
+      "description": "A simple black undirected edge.",
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "false",
+      "properties": {
+        "count": "count.int"
+      }
+    },
+    "red": {
+      "description": "A red undirected edge.",
+      "parents": ["black"]
+    },
+    "yellow": {
+      "description": "A yellow undirected edge.",
+      "parents": ["black"],
+      "properties": {
+        "score": "score.int"
+      },
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.IsXLessThanY"
+          },
+          "selection": ["count", "score"]
+        }
+      ]
+    },
+    "green": {
+      "description": "A green directed edge.",
+      "parents": ["black"],
+      "directed": "true"
+    }
+  }
+}

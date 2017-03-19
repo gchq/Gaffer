@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="panelHeading">
+        <h3>Settings</h3>
+    </div>
+
+    <div class="form-group">
+        <label for="resturl">Rest api url:</label>
+        <input type="text" ng-blur="rawData.loadSchema()" class="form-control"
+               ng-model="settings.restUrl"
+               id="resturl">
+
+        <label for="resultLimit">Default result limit:</label>
+        <input type="text" class="form-control" ng-model="settings.resultLimit"
+               id="resultLimit">
+    </div>
+</div>

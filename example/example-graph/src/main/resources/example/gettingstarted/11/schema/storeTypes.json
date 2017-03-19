@@ -1,0 +1,10 @@
+{
+  "types": {
+    "doubles.union": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate.DoublesUnionAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesUnionSerialiser"
+    }
+  }
+}

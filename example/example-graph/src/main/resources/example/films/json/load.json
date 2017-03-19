@@ -1,0 +1,123 @@
+{
+  "operations": [
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
+      "elementGenerator": {
+        "class": "uk.gov.gchq.gaffer.example.films.generator.DataGenerator"
+      },
+      "objects": [
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmA",
+          "userId": "user01",
+          "startTime": 1401000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmB",
+          "userId": "user01",
+          "startTime": 1402000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmA",
+          "userId": "user02",
+          "startTime": 1401000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmC",
+          "userId": "user02",
+          "startTime": 1405000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmC",
+          "userId": "user02",
+          "startTime": 1407000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmA",
+          "userId": "user03",
+          "startTime": 1408000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
+          "filmId": "filmB",
+          "userId": "user03",
+          "startTime": 1409000000000
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Review",
+          "filmId": "filmA",
+          "userId": "user01",
+          "rating": 70
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Review",
+          "filmId": "filmB",
+          "userId": "user01",
+          "rating": 80
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Review",
+          "filmId": "filmA",
+          "userId": "user02",
+          "rating": 65
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Review",
+          "filmId": "filmC",
+          "userId": "user02",
+          "rating": 95
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Review",
+          "filmId": "filmA",
+          "userId": "user03",
+          "rating": 30
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Person",
+          "userId": "user01",
+          "name": "User 01",
+          "age": 10
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Person",
+          "userId": "user02",
+          "name": "User 02",
+          "age": 30
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Person",
+          "userId": "user03",
+          "name": "User 03",
+          "age": 50
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Film",
+          "filmId": "filmA",
+          "name": "Film A",
+          "certificate": "U"
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Film",
+          "filmId": "filmB",
+          "name": "Film B",
+          "certificate": "PG"
+        },
+        {
+          "class": "uk.gov.gchq.gaffer.example.films.data.Film",
+          "filmId": "filmC",
+          "name": "Film C",
+          "certificate": "_15"
+        }
+      ]
+    },
+    {
+      "class": "uk.gov.gchq.gaffer.operation.impl.add.AddElements"
+    }
+  ]
+}

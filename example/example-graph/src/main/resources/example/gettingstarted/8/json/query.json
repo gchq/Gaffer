@@ -1,0 +1,43 @@
+{
+  "view": {
+    "edges": {
+      "data": {
+        "groupBy": [],
+        "transientProperties": {},
+        "preAggregationFilterFunctions": [
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+              "orEqualTo": true,
+              "value": {
+                "java.util.Date": 1451606400000
+              }
+            },
+            "selection": [
+              "startDate"
+            ]
+          },
+          {
+            "function": {
+              "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
+              "orEqualTo": true,
+              "value": {
+                "java.util.Date": 1451692800000
+              }
+            },
+            "selection": [
+              "endDate"
+            ]
+          }
+        ]
+      }
+    },
+    "entities": {}
+  },
+  "includeEntities": false,
+  "includeEdges": "ALL",
+  "includeIncomingOutGoing": "OUTGOING",
+  "seedMatching": "EQUAL",
+  "populateProperties": true,
+  "deduplicate": false
+}

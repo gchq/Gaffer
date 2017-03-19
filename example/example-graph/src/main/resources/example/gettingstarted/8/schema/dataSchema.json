@@ -1,0 +1,20 @@
+{
+  "edges": {
+    "data": {
+      "source": "vertex",
+      "destination": "vertex",
+      "directed": "true",
+      "properties": {
+        "startDate": "date.earliest",
+        "endDate": "date.latest",
+        "count": "count.long",
+        "visibility": "visibility"
+      },
+      "groupBy": [
+        "startDate",
+        "endDate"
+      ]
+    }
+  },
+  "visibilityProperty": "visibility"
+}

@@ -1,0 +1,38 @@
+{
+  "types": {
+    "id.string": {
+      "description": "ID/Vertex type description",
+      "class": "java.lang.String"
+    },
+    "directed.true": {
+      "class": "java.lang.Boolean",
+      "description": "Directed true type description",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+          }
+        }
+      ]
+    },
+    "prop.string": {
+      "description": "String type description",
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
+          }
+        }
+      ]
+    },
+    "prop.date": {
+      "description": "Date type description",
+      "class": "java.util.Date"
+    },
+    "timestamp": {
+      "description": "Timestamp type description",
+      "class": "java.lang.Long"
+    }
+  }
+}
