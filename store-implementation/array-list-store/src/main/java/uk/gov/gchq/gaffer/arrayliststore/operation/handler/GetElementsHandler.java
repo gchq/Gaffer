@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +40,7 @@ import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
-public class GetElementsHandler implements OperationHandler<GetElements> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<Element>> {
     @Override
     public CloseableIterable<Element> doOperation(final GetElements operation,
                                                   final Context context, final Store store)

@@ -15,6 +15,9 @@
  */
 package uk.gov.gchq.gaffer.integration.store;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -27,6 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
@@ -65,17 +69,17 @@ public class TestStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
         return null;
     }
 
     @Override
-    protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
         return null;
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentIds> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
         return null;
     }
 

@@ -18,15 +18,14 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class NamedOperation<I_ITEM, O_ITEM> implements
-        IterableInputIterableOutput<I_ITEM, O_ITEM>,
+public class NamedOperation<I_ITEM, O> implements
+        IterableInputOutput<I_ITEM, O>,
         OperationView {
     private View view;
     private Iterable<I_ITEM> input;
@@ -61,17 +60,17 @@ public class NamedOperation<I_ITEM, O_ITEM> implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<O_ITEM>> getOutputTypeReference() {
-        return (TypeReference) new TypeReferenceImpl.CloseableIterableObj();
+    public TypeReference<O> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static class Builder<I_ITEM, O_ITEM> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O_ITEM>, Builder<I_ITEM, O_ITEM>>
-            implements IterableInputIterableOutput.Builder<NamedOperation<I_ITEM, O_ITEM>, I_ITEM, O_ITEM, Builder<I_ITEM, O_ITEM>> {
+    public static class Builder<I_ITEM, O> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
+            implements IterableInputOutput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, O, Builder<I_ITEM, O>> {
         public Builder() {
             super(new NamedOperation<>());
         }
 
-        public Builder<I_ITEM, O_ITEM> name(final String name) {
+        public Builder<I_ITEM, O> name(final String name) {
             _getOp().setOperationName(name);
             return _self();
         }

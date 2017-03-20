@@ -16,23 +16,23 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
 /**
- * An <code>OperationHandler</code> defines how to handle a specific {@link uk.gov.gchq.gaffer.operation.Operation}.
+ * An <code>OutputOperationHandler</code> defines how to handle a specific {@link Output} operations.
  */
-public interface OperationHandler<OP extends Operation> {
+public interface OutputOperationHandler<OP extends Output<O>, O> extends OperationHandler<OP> {
     /**
-     * Execute the given {@link uk.gov.gchq.gaffer.operation.Operation}.
+     * Execute the given {@link Output} operation.
      *
-     * @param operation the {@link Operation} to be executed
+     * @param operation the {@link Output} operation to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
-     * @return the output for the operation or null.
+     * @return the output for the operation.
      * @throws OperationException thrown if the operation fails
      */
-    Object doOperation(final OP operation, final Context context, final Store store) throws OperationException;
+    O doOperation(final OP operation, final Context context, final Store store) throws OperationException;
 }

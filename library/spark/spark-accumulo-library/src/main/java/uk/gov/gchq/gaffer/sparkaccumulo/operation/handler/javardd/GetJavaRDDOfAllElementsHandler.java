@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfAllElements> {
+public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfAllElements, JavaRDD<Element>> {
 
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
