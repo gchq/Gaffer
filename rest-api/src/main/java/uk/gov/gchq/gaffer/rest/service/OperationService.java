@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -98,7 +97,7 @@ public class OperationService implements IOperationService {
     }
 
     @Override
-    public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
+    public CloseableIterable<Element> generateElements(final GenerateElements<Object> operation) {
         return _execute(operation);
     }
 
