@@ -37,35 +37,57 @@ public class CacheServiceLoaderTest {
 
     @Test
     public void shouldLoadHashMapServiceIfNoSystemVariableIsSpecified() {
+
+        // given
         CacheServiceLoader.initialise();
+
+        // when
         ICacheService service = CacheServiceLoader.getService();
+
+        // then
         assert(service instanceof HashMapCacheService);
     }
 
     @Test
     public void shouldLoadServiceFromSystemVariable() {
+
+        // given
         System.setProperty(CacheSystemProperty.CACHE_SERVICE_CLASS, MockCacheService.class.getName());
         CacheServiceLoader.initialise();
+
+        // when
         ICacheService service = CacheServiceLoader.getService();
 
+        // then
         assert(service instanceof MockCacheService);
     }
 
     @Test
     public void shouldThrowAnExceptionWhenSystemVariableMisconfigured() {
+
+        // given
         String invalidClassName = "invalid.cache.name";
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(invalidClassName);
+
+        // when
         System.setProperty(CacheSystemProperty.CACHE_SERVICE_CLASS, invalidClassName);
         CacheServiceLoader.initialise();
+
+        // then Exception is thrown
     }
 
     @Test
     public void shouldUseTheSameServiceAcrossDifferentComponents() {
+
+        // given
         CacheServiceLoader.initialise();
+
+        // when
         ICacheService component1Service = CacheServiceLoader.getService();
         ICacheService component2Service = CacheServiceLoader.getService();
 
+        // then
         Assert.assertEquals(component1Service, component2Service);
     }
 }
