@@ -24,10 +24,6 @@ import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
-    Iterable<? extends I_ITEM> getInput();
-
-    void setInput(final Iterable<? extends I_ITEM> input);
-
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("input")
