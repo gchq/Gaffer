@@ -21,10 +21,12 @@ import uk.gov.gchq.gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetElementsHandler;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -33,6 +35,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -64,18 +67,19 @@ public class ArrayListStore extends Store {
         return false;
     }
 
+
     @Override
-    protected OperationHandler<GetElements> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds> getAdjacentEntitySeedsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 

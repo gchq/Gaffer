@@ -25,12 +25,12 @@ import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
  * Operation Handler for GetAllNamedOperations
  */
-public class GetAllNamedOperationsHandler implements OperationHandler<GetAllNamedOperations> {
+public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
     public INamedOperationCache cache;
 
     /**

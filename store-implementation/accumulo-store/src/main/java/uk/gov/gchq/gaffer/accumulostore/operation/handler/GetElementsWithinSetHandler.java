@@ -27,10 +27,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsWithinSetHandler implements OperationHandler<GetElementsWithinSet> {
+public class GetElementsWithinSetHandler implements OutputOperationHandler<GetElementsWithinSet, CloseableIterable<Element>> {
 
     @Override
     public CloseableIterable<Element> doOperation(final GetElementsWithinSet operation,

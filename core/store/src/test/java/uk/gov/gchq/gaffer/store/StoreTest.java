@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -53,6 +54,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
@@ -92,9 +94,9 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements> addElementsHandler;
-    private OperationHandler<GetElements> getElementsHandler;
-    private OperationHandler<GetAllElements> getAllElementsHandler;
-    private OperationHandler<GetAdjacentEntitySeeds> getAdjacentEntitySeedsHandler;
+    private OutputOperationHandler<GetElements,CloseableIterable<Element>> getElementsHandler;
+    private OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getAllElementsHandler;
+    private OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler;
     private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
@@ -107,9 +109,9 @@ public class StoreTest {
         schemaOptimiser = mock(SchemaOptimiser.class);
 
         addElementsHandler = mock(OperationHandler.class);
-        getElementsHandler = mock(OperationHandler.class);
-        getAllElementsHandler = mock(OperationHandler.class);
-        getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
+        getElementsHandler = mock(OutputOperationHandler.class);
+        getAllElementsHandler = mock(OutputOperationHandler.class);
+        getAdjacentEntitySeedsHandler = mock(OutputOperationHandler.class);
         validateHandler = mock(OperationHandler.class);
         exportToGafferResultCacheHandler = mock(OperationHandler.class);
         getGafferResultCacheExportHandler = mock(OperationHandler.class);
@@ -500,22 +502,22 @@ public class StoreTest {
         }
 
         @Override
-        protected OperationHandler<GetElements> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OperationHandler<GetAllElements> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds> getAdjacentEntitySeedsHandler() {
+        protected OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
             return getAdjacentEntitySeedsHandler;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
+        protected OperationHandler<AddElements> getAddElementsHandler() {
             return addElementsHandler;
         }
 

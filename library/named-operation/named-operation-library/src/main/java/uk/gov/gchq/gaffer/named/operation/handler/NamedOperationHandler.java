@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Operation Handler for NamedOperation
  */
-public class NamedOperationHandler implements OperationHandler<NamedOperation> {
+public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
     private INamedOperationCache cache;
 
     /**

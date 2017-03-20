@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
@@ -66,7 +67,7 @@ public class NamedOperationExample extends OperationExample {
         runExampleNoResult(operation);
     }
 
-    public CloseableIterable<NamedOperation> getAllNamedOperations() {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations() {
         // ---------------------------------------------------------
         final GetAllNamedOperations operation = new GetAllNamedOperations();
         // ---------------------------------------------------------
@@ -74,10 +75,10 @@ public class NamedOperationExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<EntitySeed> runNamedOperation() {
+    public CloseableIterable<EntitySeed> runNamedOperation() {
         // ---------------------------------------------------------
-        final NamedOperation<EntitySeed, EntitySeed> operation =
-                new NamedOperation.Builder<EntitySeed, EntitySeed>()
+        final NamedOperation<EntitySeed, CloseableIterable<EntitySeed>> operation =
+                new NamedOperation.Builder<EntitySeed, CloseableIterable<EntitySeed>>()
                         .name("2-hop")
                         .input(new EntitySeed(2))
                         .build();

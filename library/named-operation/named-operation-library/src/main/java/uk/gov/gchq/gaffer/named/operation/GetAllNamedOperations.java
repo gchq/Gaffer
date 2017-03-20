@@ -24,14 +24,14 @@ import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 
 public class GetAllNamedOperations implements
         Operation,
-        IterableOutput<NamedOperation> {
+        IterableOutput<NamedOperationDetail> {
     @Override
-    public TypeReference<CloseableIterable<NamedOperation>> getOutputTypeReference() {
-        return new NamedOperationTypeReference.IterableNamedOperation();
+    public TypeReference<CloseableIterable<NamedOperationDetail>> getOutputTypeReference() {
+        return new NamedOperationTypeReference.IterableNamedOperationDetail();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllNamedOperations, Builder>
-            implements IterableOutput.Builder<GetAllNamedOperations, NamedOperation, Builder> {
+            implements IterableOutput.Builder<GetAllNamedOperations, NamedOperationDetail, Builder> {
         public Builder() {
             super(new GetAllNamedOperations());
         }

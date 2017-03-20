@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 /**
  * An <code>GenerateElementsHandler</code> handles {@link uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements} operations.
@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  *
  * @param <OBJ> the type of input objects from the operation.
  */
-public class GenerateElementsHandler<OBJ> implements OperationHandler<GenerateElements<OBJ>> {
+public class GenerateElementsHandler<OBJ> implements OutputOperationHandler<GenerateElements<OBJ>, CloseableIterable<Element>> {
     @Override
     public CloseableIterable<Element> doOperation(final GenerateElements<OBJ> operation,
                                                   final Context context, final Store store)
