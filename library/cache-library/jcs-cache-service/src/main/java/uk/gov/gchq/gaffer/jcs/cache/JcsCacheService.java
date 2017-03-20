@@ -48,11 +48,10 @@ public class JcsCacheService implements ICacheService {
                 manager.configure(cacheProperties);
                 return;
             } catch (IOException e) {
-                LOGGER.error("Failed to create properties file using file path " + configFile, e);
-                LOGGER.error("Using default as backup");
+                throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);
             }
         }
-
+        LOGGER.warn("No config file configured. Using default.");
         manager.configure();
 
     }
