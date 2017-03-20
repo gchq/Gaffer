@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import javax.servlet.ServletContextEvent;
@@ -31,7 +30,7 @@ public final class CacheServiceLoader implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
 
-    static {
+    static void initialise() {
         String cacheClass = System.getProperty(CacheSystemProperty.CACHE_SERVICE_CLASS);
 
         if (cacheClass == null) {
@@ -42,10 +41,10 @@ public final class CacheServiceLoader implements ServletContextListener {
             service = Class.forName(cacheClass).asSubclass(ICacheService.class).newInstance();
 
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            LOGGER.error("Failed to instantiate " + cacheClass, e);
-            LOGGER.error("Using default cache - not distributed or indexed on disk");
-            service = new HashMapCacheService();
+            throw new IllegalArgumentException("Failed to instantiate cache using class " + cacheClass, e);
         }
+
+        service.initialise();
     }
 
     public static ICacheService getService() {
@@ -59,7 +58,7 @@ public final class CacheServiceLoader implements ServletContextListener {
 
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
-        service.initialise();
+        initialise();
     }
 
     @Override
