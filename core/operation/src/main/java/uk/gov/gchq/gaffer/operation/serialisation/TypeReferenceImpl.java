@@ -47,19 +47,32 @@ public final class TypeReferenceImpl {
     }
 
     public static class CloseableIterableObj extends
-            TypeReference<CloseableIterable<java.lang.Object>> {
+            TypeReference<CloseableIterable<?>> {
     }
 
-    public static <T> TypeReference<CloseableIterable<T>> createCloseableIterableT() {
+    public static class IterableObj extends
+            TypeReference<Iterable<?>> {
+    }
+
+    public static <T> TypeReference<Iterable<? extends T>> createIterableT() {
+        return (TypeReference) new IterableObj();
+    }
+
+    public static <T> TypeReference<CloseableIterable<? extends T>> createCloseableIterableT() {
         return (TypeReference) new CloseableIterableObj();
     }
 
+    public static class IterableElement extends
+            TypeReference<Iterable<? extends uk.gov.gchq.gaffer.data.element.Element>> {
+    }
+
+
     public static class CloseableIterableElement extends
-            TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
+            TypeReference<CloseableIterable<? extends uk.gov.gchq.gaffer.data.element.Element>> {
     }
 
     public static class CloseableIterableEntitySeed extends
-            TypeReference<CloseableIterable<EntitySeed>> {
+            TypeReference<CloseableIterable<? extends EntitySeed>> {
     }
 
     public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.export.Exporter> {

@@ -24,20 +24,22 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.Map;
 
 public class GetJavaRDDOfElements implements
         Operation,
-        IterableInputOutput<ElementSeed, JavaRDD<Element>>,
+        InputOutput<Iterable<? extends ElementSeed>, JavaRDD<Element>>,
+        MultiInput<ElementSeed>,
         SeededGraphFilters,
         JavaRdd,
         Options {
 
     private Map<String, String> options;
     private JavaSparkContext sparkContext;
-    private Iterable<ElementSeed> input;
+    private Iterable<? extends ElementSeed> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
@@ -75,12 +77,12 @@ public class GetJavaRDDOfElements implements
     }
 
     @Override
-    public Iterable<ElementSeed> getInput() {
+    public Iterable<? extends ElementSeed> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<ElementSeed> input) {
+    public void setInput(final Iterable<? extends ElementSeed> input) {
         this.input = input;
     }
 
@@ -115,7 +117,8 @@ public class GetJavaRDDOfElements implements
     }
 
     public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
-            implements IterableInputOutput.Builder<GetJavaRDDOfElements, ElementSeed, JavaRDD<Element>, Builder>,
+            implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementSeed>, JavaRDD<Element>, Builder>,
+            MultiInput.Builder<GetJavaRDDOfElements, ElementSeed, Builder>,
             SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
             JavaRdd.Builder<GetJavaRDDOfElements, Builder>,
             Options.Builder<GetJavaRDDOfElements, Builder> {

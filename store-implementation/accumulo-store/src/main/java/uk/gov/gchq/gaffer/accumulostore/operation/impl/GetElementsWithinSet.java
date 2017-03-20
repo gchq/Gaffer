@@ -25,7 +25,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -36,12 +37,13 @@ import java.util.Map;
  **/
 public class GetElementsWithinSet implements
         Operation,
-        IterableInputIterableOutput<EntitySeed, Element>,
+        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>>,
+        MultiInput<EntitySeed>,
         GraphFilters,
         Options {
     private View view;
     private DirectedType directedType;
-    private Iterable<EntitySeed> input;
+    private Iterable<? extends EntitySeed> input;
     private Map<String, String> options;
 
     @Override
@@ -65,23 +67,23 @@ public class GetElementsWithinSet implements
     }
 
     @Override
-    public Iterable<EntitySeed> getInput() {
+    public Iterable<? extends EntitySeed> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<EntitySeed> input) {
+    public void setInput(final Iterable<? extends EntitySeed> input) {
         this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInputIterableOutput.super.createInputArray();
+        return MultiInput.super.createInputArray();
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
     }
 
@@ -96,7 +98,8 @@ public class GetElementsWithinSet implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
-            implements IterableInputIterableOutput.Builder<GetElementsWithinSet, EntitySeed, Element, Builder>,
+            implements InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElementsWithinSet, EntitySeed, Builder>,
             GraphFilters.Builder<GetElementsWithinSet, Builder>,
             Options.Builder<GetElementsWithinSet, Builder> {
         public Builder() {

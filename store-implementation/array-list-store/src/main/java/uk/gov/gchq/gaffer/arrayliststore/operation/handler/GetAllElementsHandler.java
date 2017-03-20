@@ -29,10 +29,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements operation,
-                                                  final Context context, final Store store) {
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
+                                                            final Context context, final Store store) {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 

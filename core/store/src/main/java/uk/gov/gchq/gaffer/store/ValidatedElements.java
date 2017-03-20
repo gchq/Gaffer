@@ -39,12 +39,12 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param elements    the input {@link Iterable} of {@link Element}s
-     * @param schema  the {@link Schema} containing the
+     * @param schema      the {@link Schema} containing the
      *                    {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
-    public ValidatedElements(final Iterable<Element> elements, final Schema schema, final boolean skipInvalid) {
-        super(elements, new ElementValidator(schema), skipInvalid);
+    public ValidatedElements(final Iterable<? extends Element> elements, final Schema schema, final boolean skipInvalid) {
+        super((Iterable) elements, new ElementValidator(schema), skipInvalid);
     }
 
     /**
@@ -58,8 +58,8 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
      *                    {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
-    public ValidatedElements(final Iterable<Element> elements, final View view, final boolean skipInvalid) {
-        super(elements, new ElementValidator(view), skipInvalid);
+    public ValidatedElements(final Iterable<? extends Element> elements, final View view, final boolean skipInvalid) {
+        super((Iterable) elements, new ElementValidator(view), skipInvalid);
     }
 
     @Override

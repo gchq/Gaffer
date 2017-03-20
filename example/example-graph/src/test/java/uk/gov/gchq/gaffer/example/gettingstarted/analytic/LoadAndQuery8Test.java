@@ -50,7 +50,7 @@ public class LoadAndQuery8Test {
         final LoadAndQuery8 query = new LoadAndQuery8();
 
         // When
-        final CloseableIterable<Element> results = query.run();
+        final CloseableIterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -76,13 +76,13 @@ public class LoadAndQuery8Test {
 
         // When
         graph.execute(addOpChain, publicUser); // Execute the add operation chain on the graph
-        final CloseableIterable<Element> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<Element> resultsItr) {
+    private void verifyResults(final CloseableIterable<? extends Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("1")

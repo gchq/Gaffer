@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.accumulostore.operation.MultiInputB;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -26,8 +27,8 @@ import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputB;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -40,8 +41,9 @@ import java.util.Map;
  */
 public class GetElementsBetweenSets implements
         Operation,
-        IterableInputIterableOutput<EntitySeed, Element>,
-        IterableInputB<EntitySeed>,
+        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>>,
+        MultiInput<EntitySeed>,
+        MultiInputB<EntitySeed>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -49,8 +51,8 @@ public class GetElementsBetweenSets implements
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    private Iterable<EntitySeed> input;
-    private Iterable<EntitySeed> inputB;
+    private Iterable<? extends EntitySeed> input;
+    private Iterable<? extends EntitySeed> inputB;
     private Map<String, String> options;
 
     /**
@@ -97,23 +99,29 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public Iterable<EntitySeed> getInput() {
+    public Iterable<? extends EntitySeed> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<EntitySeed> input) {
+    public void setInput(final Iterable<? extends EntitySeed> input) {
         this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInputIterableOutput.super.createInputArray();
+        return MultiInput.super.createInputArray();
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputBArray() {
+        return MultiInputB.super.createInputBArray();
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
     }
 
@@ -128,18 +136,19 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public Iterable<EntitySeed> getInputB() {
+    public Iterable<? extends EntitySeed> getInputB() {
         return inputB;
     }
 
     @Override
-    public void setInputB(final Iterable<EntitySeed> inputB) {
+    public void setInputB(final Iterable<? extends EntitySeed> inputB) {
         this.inputB = inputB;
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
-            implements IterableInputIterableOutput.Builder<GetElementsBetweenSets, EntitySeed, Element, Builder>,
-            IterableInputB.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
+            implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
+            MultiInputB.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
             SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
             SeedMatching.Builder<GetElementsBetweenSets, Builder>,
             Options.Builder<GetElementsBetweenSets, Builder> {

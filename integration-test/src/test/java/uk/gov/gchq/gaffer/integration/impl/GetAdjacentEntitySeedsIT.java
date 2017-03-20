@@ -102,7 +102,7 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<EntitySeed> results = graph.execute(operation, user);
+        final CloseableIterable<? extends EntitySeed> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();

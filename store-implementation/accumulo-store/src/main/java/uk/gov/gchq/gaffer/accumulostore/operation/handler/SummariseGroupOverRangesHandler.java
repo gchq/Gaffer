@@ -30,18 +30,18 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class SummariseGroupOverRangesHandler implements OutputOperationHandler<SummariseGroupOverRanges, CloseableIterable<Element>> {
+public class SummariseGroupOverRangesHandler implements OutputOperationHandler<SummariseGroupOverRanges, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<Element> doOperation(final SummariseGroupOverRanges operation,
-                                                  final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final SummariseGroupOverRanges operation,
-                                                  final User user,
-                                                  final AccumuloStore store) throws OperationException {
+    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+                                                            final User user,
+                                                            final AccumuloStore store) throws OperationException {
         final int numEdgeGroups = operation.getView().getEdgeGroups().size();
         final int numEntityGroups = operation.getView().getEntityGroups().size();
         if ((numEdgeGroups + numEntityGroups) != 1) {

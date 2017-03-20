@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.io;
+package uk.gov.gchq.gaffer.accumulostore.operation;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface IterableInputOutput<I_ITEM, O> extends
-        IterableInput<I_ITEM>,
-        Output<O> {
+public interface InputB<I> {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    I getInputB();
 
-    interface Builder<OP extends IterableInputOutput<I_ITEM, O>, I_ITEM, O, B extends Builder<OP, I_ITEM, O, ?>>
-            extends Operation.Builder<OP, B>,
-            IterableInput.Builder<OP, I_ITEM, B>,
-            Output.Builder<OP, O, B> {
+    void setInputB(final I inputB);
+
+    interface Builder<OP extends InputB<I>, I, B extends Builder<OP, I, ?>>
+            extends Operation.Builder<OP, B> {
+        default B inputB(final I inputB) {
+            _getOp().setInputB(inputB);
+            return _self();
+        }
     }
 }

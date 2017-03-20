@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -40,7 +39,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         new LoadAndQuery6().run();
     }
 
-    public CloseableIterable<String> run() throws OperationException {
+    public Iterable<? extends String> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -79,7 +78,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         //GetRelatedEdges - get outbound edges
         //GenerateObjects - convert the edges back into comma separated strings
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<String>> opChain =
+        final OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
                         .first(new GetAdjacentEntitySeeds.Builder()
                                 .input(new EntitySeed("1"))
@@ -93,7 +92,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
                                 .build())
                         .build();
 
-        final CloseableIterable<String> results = graph.execute(opChain, user);
+        final Iterable<? extends String> results = graph.execute(opChain, user);
         // ---------------------------------------------------------
 
         log("\nFiltered edges converted back into comma separated strings. The counts have been aggregated\n");

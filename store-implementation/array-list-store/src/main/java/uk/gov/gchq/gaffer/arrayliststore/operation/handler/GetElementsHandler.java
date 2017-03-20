@@ -39,10 +39,10 @@ import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements operation,
-                                                  final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
@@ -140,7 +140,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return false;
     }
 
-    private Matches isSeedRelated(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds) {
+    private Matches isSeedRelated(final ElementSeed elementSeed, final Iterable<? extends ElementSeed> seeds) {
         Set<Matches> matchesSet = new HashSet<>();
         for (final ElementSeed seed : seeds) {
             final Matches isRelatedMatch = elementSeed.isRelated(seed);
@@ -162,7 +162,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return Matches.NONE;
     }
 
-    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<ElementSeed> seeds, final DirectedType includeEdges) {
+    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<? extends ElementSeed> seeds, final DirectedType includeEdges) {
         for (final ElementSeed seed : seeds) {
             if (elementSeed.equals(seed)) {
                 if (elementSeed instanceof EdgeSeed

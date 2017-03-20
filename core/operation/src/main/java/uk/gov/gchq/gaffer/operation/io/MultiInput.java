@@ -22,30 +22,34 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
+public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
+    Iterable<? extends I_ITEM> getInput();
+
+    void setInput(final Iterable<? extends I_ITEM> input);
+
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    @JsonGetter("inputB")
-    default Object[] createInputBArray() {
-        return null != getInputB() ? Iterables.toArray(getInputB(), Object.class) : null;
+    @JsonGetter("input")
+    default Object[] createInputArray() {
+        return null != getInput() ? Iterables.toArray(getInput(), Object.class) : null;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    @JsonSetter("inputB")
-    default void setInputB(I_ITEM[] inputB) {
-        setInputB(Lists.newArrayList(inputB));
+    @JsonSetter("input")
+    default void setInput(I_ITEM[] input) {
+        setInput(Lists.newArrayList(input));
     }
 
-    interface Builder<OP extends IterableInputB<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
-            extends Operation.Builder<OP, B> {
-        default B inputB(final I_ITEM... inputB) {
-            return inputB(Lists.newArrayList(inputB));
+    interface Builder<OP extends MultiInput<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
+            extends Input.Builder<OP, Iterable<? extends I_ITEM>, B> {
+        @SuppressWarnings("unchecked")
+        default B input(final I_ITEM... input) {
+            return input(Lists.newArrayList(input));
         }
 
-        default B inputB(final Iterable<? extends I_ITEM> input) {
-            _getOp().setInputB((Iterable) input);
+        default B input(final Iterable<? extends I_ITEM> input) {
+            _getOp().setInput((Iterable) input);
             return _self();
         }
     }

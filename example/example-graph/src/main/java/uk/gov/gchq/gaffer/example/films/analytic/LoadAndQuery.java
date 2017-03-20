@@ -64,7 +64,7 @@ public class LoadAndQuery {
             .build();
 
     public static void main(final String[] args) throws OperationException {
-        final CloseableIterable<Element> results = new LoadAndQuery().run();
+        final CloseableIterable<? extends Element> results = new LoadAndQuery().run();
         final StringBuilder builder = new StringBuilder("Results from query:\n");
         for (final Element result : results) {
             builder.append(result).append("\n");
@@ -90,7 +90,7 @@ public class LoadAndQuery {
      * @return the review entities
      * @throws OperationException if operation chain fails to be executed on the graph
      */
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // Setup graph
         final Graph graph = new Graph.Builder()
                 .storeProperties(StreamUtil.openStream(getClass(), "/example/films/mockaccumulostore.properties", true))
@@ -116,7 +116,7 @@ public class LoadAndQuery {
         // Run a query on the graph to fetch average star ratings for all films user02 has watched.
         // Create an operation chain.
         // So the chain operation will get the adjacent review entity seeds then get the review entities.
-        final OperationChain<CloseableIterable<Element>> queryChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<? extends Element>> queryChain = new OperationChain.Builder()
                 .first(new GetAdjacentEntitySeeds.Builder()
                         .view(new View.Builder()
                                 .edge(Group.VIEWING)

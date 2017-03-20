@@ -32,10 +32,10 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
-public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> {
     @Override
-    public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                                     final Context context, final Store store)
+    public CloseableIterable<? extends EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+                                                               final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }

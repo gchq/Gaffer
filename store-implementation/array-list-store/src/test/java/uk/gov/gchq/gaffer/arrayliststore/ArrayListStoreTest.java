@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.arrayliststore.data.generator.SimpleGenerator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -60,7 +59,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the edges
-        final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1), new EntitySeed(2))
                         .view(new View.Builder()
@@ -77,7 +76,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final CloseableIterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
+        final Iterable<? extends SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -109,7 +108,6 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("142", obj.getProperties());
         }
-        results.close();
     }
 
     @Test
@@ -118,7 +116,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
@@ -135,7 +133,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final Iterable<? extends SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -157,7 +155,6 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("Orange", obj.getProperties());
         }
-        results.close();
     }
 
     @Test
@@ -166,7 +163,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .view(new View.Builder()
@@ -184,7 +181,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final Iterable<? extends SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -201,7 +198,6 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("Red", obj.getProperties());
         }
-        results.close();
     }
 
     @Test
@@ -210,7 +206,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the edges
-        final OperationChain<CloseableIterable<SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends SimpleEdgeDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EdgeSeed(2, 1, false))
                         .view(new View.Builder()
@@ -228,7 +224,7 @@ public class ArrayListStoreTest {
 
 
         //now do the hop
-        final CloseableIterable<SimpleEdgeDataObject> results = graph.execute(opChain, new User());
+        final Iterable<? extends SimpleEdgeDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -248,7 +244,6 @@ public class ArrayListStoreTest {
             assertEquals(1, obj.getVisibility());
             assertEquals("121", obj.getProperties());
         }
-        results.close();
     }
 
     @Test
@@ -257,7 +252,7 @@ public class ArrayListStoreTest {
         addElementsToGraph(graph);
 
         //set up the operation to fetch the entities
-        final OperationChain<CloseableIterable<SimpleEntityDataObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends SimpleEntityDataObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .build())
@@ -279,7 +274,7 @@ public class ArrayListStoreTest {
                 .build();
 
         //now do the hop
-        final CloseableIterable<SimpleEntityDataObject> results = graph.execute(opChain, new User());
+        final Iterable<? extends SimpleEntityDataObject> results = graph.execute(opChain, new User());
 
         //check the results by converting our edges back into SimpleDataObjects
         if (!results.iterator().hasNext()) {
@@ -295,7 +290,6 @@ public class ArrayListStoreTest {
             assertEquals(1, resultList.get(0).getVisibility());
             assertEquals("Red", resultList.get(0).getProperties());
         }
-        results.close();
     }
 
     private Graph createGraph() {

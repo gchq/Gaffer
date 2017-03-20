@@ -34,11 +34,11 @@ public interface ElementGenerator<OBJ> {
      * @param domainObjects an {@link java.lang.Iterable} of domain objects to convert
      * @return an {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}
      */
-    Iterable<Element> getElements(final Iterable<OBJ> domainObjects);
+    Iterable<Element> getElements(final Iterable<? extends OBJ> domainObjects);
 
     /**
      * @param elements an {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s to convert
      * @return an {@link java.lang.Iterable} of domain objects
      */
-    Iterable<OBJ> getObjects(final Iterable<Element> elements);
+    Iterable<OBJ> getObjects(final Iterable<? extends Element> elements);
 }

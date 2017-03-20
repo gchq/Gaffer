@@ -39,7 +39,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         new LoadAndQuery2().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -84,7 +84,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
         final GetElements getRelatedEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Element> allColoursResults = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<? extends Element> allColoursResults = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing vertex 1");
         log("\nNotice that the edges are aggregated within their groups");
@@ -102,7 +102,7 @@ public class LoadAndQuery2 extends LoadAndQuery {
                 .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<Element> redResults = graph.execute(getRelatedRedEdges, user);
+        final CloseableIterable<? extends Element> redResults = graph.execute(getRelatedRedEdges, user);
         // ---------------------------------------------------------
         log("\nAll red edges containing vertex 1\n");
         for (final Element e : redResults) {

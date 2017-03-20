@@ -38,7 +38,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -87,7 +87,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
                         .edge("data")
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(query, user);
+        final CloseableIterable<? extends Element> results = graph.execute(query, user);
         // ---------------------------------------------------------
         log("All edges containing the vertex 1. The counts have been aggregated.");
         for (final Element e : results) {

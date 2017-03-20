@@ -17,12 +17,11 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -37,11 +36,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 public class Validate implements
         Operation,
         Validatable,
-        IterableInput<Element>,
-        IterableOutput<Element> {
+        InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,
+        MultiInput<Element> {
     private boolean validate = true;
     private boolean skipInvalidElements;
-    private Iterable<Element> input;
+    private Iterable<? extends Element> input;
 
     @Override
     public boolean isSkipInvalidElements() {
@@ -64,25 +63,25 @@ public class Validate implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     @Override
-    public Iterable<Element> getInput() {
+    public Iterable<? extends Element> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<Element> input) {
+    public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
     }
 
     public static final class Builder
             extends Operation.BaseBuilder<Validate, Builder>
             implements Validatable.Builder<Validate, Builder>,
-            IterableInput.Builder<Validate, Element, Builder>,
-            IterableOutput.Builder<Validate, Element, Builder> {
+            InputOutput.Builder<Validate, Iterable<? extends Element>, Iterable<? extends Element>, Builder>,
+            MultiInput.Builder<Validate, Element, Builder> {
         public Builder() {
             super(new Validate());
         }

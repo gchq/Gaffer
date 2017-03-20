@@ -39,7 +39,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsFromVertex2() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
                 .input(new EntitySeed(2))
@@ -49,7 +49,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
                 .input(new EntitySeed(2))
@@ -60,7 +60,7 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
                 .input(new EntitySeed(2))

@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.operation.handler.generate;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -38,7 +37,7 @@ public class GenerateObjectsHandlerTest {
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
         final GenerateObjects<String> operation = mock(GenerateObjects.class);
-        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
+        final CloseableIterable elements = mock(CloseableIterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
         final CloseableIterable<String> objs = mock(CloseableIterable.class);
         final Context context = new Context();
@@ -50,7 +49,7 @@ public class GenerateObjectsHandlerTest {
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final CloseableIterable<String> result = handler.doOperation(operation, context, store);
+        final Iterable<? extends String> result = handler.doOperation(operation, context, store);
 
         // Then
         assertSame(objsIter, result.iterator());

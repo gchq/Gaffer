@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
@@ -73,7 +72,7 @@ public class ExportIT extends AbstractStoreIT {
         final View edgesView = new View.Builder()
                 .edge(TestGroups.EDGE)
                 .build();
-        final OperationChain<CloseableIterable<Object>> exportOpChain = new Builder()
+        final OperationChain<Iterable<?>> exportOpChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_DIR_0))
                         .view(edgesView)
@@ -91,7 +90,7 @@ public class ExportIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<?> export = graph.execute(exportOpChain, getUser());
+        final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
         assertEquals(2, Lists.newArrayList(export).size());

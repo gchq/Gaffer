@@ -70,8 +70,8 @@ import java.util.Set;
  * chances of false positives making it to the user.
  */
 public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElementsWithinSet> {
-    private Iterable<EntitySeed> seeds;
-    private Iterator<EntitySeed> seedsIter;
+    private Iterable<? extends EntitySeed> seeds;
+    private Iterator<? extends EntitySeed> seedsIter;
 
 
     public AccumuloIDWithinSetRetriever(final AccumuloStore store, final GetElementsWithinSet operation,
@@ -87,7 +87,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
         setSeeds(operation.getInput());
     }
 
-    private void setSeeds(final Iterable<EntitySeed> seeds) {
+    private void setSeeds(final Iterable<? extends EntitySeed> seeds) {
         this.seeds = seeds;
     }
 

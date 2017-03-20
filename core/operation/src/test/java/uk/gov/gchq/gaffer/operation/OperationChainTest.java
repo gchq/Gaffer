@@ -19,14 +19,26 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.CountGroups;
+import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -64,25 +76,62 @@ public class OperationChainTest {
     @Test
     public void shouldBuildOperationChain() {
         // Given
-        final AddElements addElements = mock(AddElements.class);
+        final AddElements addElements1 = mock(AddElements.class);
+        final AddElements addElements2 = mock(AddElements.class);
         final GetAdjacentEntitySeeds getAdj1 = mock(GetAdjacentEntitySeeds.class);
         final GetAdjacentEntitySeeds getAdj2 = mock(GetAdjacentEntitySeeds.class);
-        final GetElements getElements = mock(GetElements.class);
+        final GetAdjacentEntitySeeds getAdj3 = mock(GetAdjacentEntitySeeds.class);
+        final GetElements getElements1 = mock(GetElements.class);
+        final GetElements getElements2 = mock(GetElements.class);
+        final GetAllElements getAllElements = mock(GetAllElements.class);
+        final DiscardOutput discardOutput = mock(DiscardOutput.class);
+        final GetJobDetails getJobDetails = mock(GetJobDetails.class);
+        final GenerateObjects<EntitySeed> generateEntitySeeds = mock(GenerateObjects.class);
+        final Limit<Element> limit = mock(Limit.class);
+        final Deduplicate<Element> deduplicate = mock(Deduplicate.class);
+        final CountGroups countGroups = mock(CountGroups.class);
+        final ExportToSet<GroupCounts> exportToSet = mock(ExportToSet.class);
+        final ExportToGafferResultCache<CloseableIterable<? extends Element>> exportToGafferCache = mock(ExportToGafferResultCache.class);
 
         // When
-        final OperationChain<CloseableIterable<Element>> opChain = new Builder()
-                .first(addElements)
+        final OperationChain<JobDetail> opChain = new Builder()
+                .first(addElements1)
                 .then(getAdj1)
                 .then(getAdj2)
-                .then(getElements)
+                .then(getElements1)
+                .then(generateEntitySeeds)
+                .then(getAdj3)
+                .then(getElements2)
+                .then(deduplicate)
+                .then(limit)
+                .then(countGroups)
+                .then(exportToSet)
+                .then(discardOutput)
+                .then(getAllElements)
+                .then(exportToGafferCache)
+                .then(addElements2)
+                .then(getJobDetails)
                 .build();
 
         // Then
         assertArrayEquals(new Operation[]{
-                        addElements,
+                        addElements1,
                         getAdj1,
                         getAdj2,
-                        getElements},
+                        getElements1,
+                        generateEntitySeeds,
+                        getAdj3,
+                        getElements2,
+                        deduplicate,
+                        limit,
+                        countGroups,
+                        exportToSet,
+                        discardOutput,
+                        getAllElements,
+                        exportToGafferCache,
+                        addElements2,
+                        getJobDetails
+                },
                 opChain.getOperationArray());
     }
 
@@ -93,7 +142,7 @@ public class OperationChainTest {
         final GetAdjacentEntitySeeds getAdj1 = new GetAdjacentEntitySeeds();
         final GetAdjacentEntitySeeds getAdj2 = new GetAdjacentEntitySeeds();
         final GetElements getRelElements = new GetElements();
-        final OperationChain<CloseableIterable<Element>> opChain = new Builder()
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new Builder()
                 .first(addElements)
                 .then(getAdj1)
                 .then(getAdj2)

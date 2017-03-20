@@ -16,9 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,9 +28,9 @@ import uk.gov.gchq.gaffer.store.Store;
  * {@link uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable} so the data is
  * not stored in memory.
  */
-public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, CloseableIterable<T>> {
+public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Iterable<? extends T>> {
     @Override
-    public CloseableIterable<T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends T> doOperation(final Limit<T> operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
@@ -41,10 +39,6 @@ public class LimitHandler<T> implements OutputOperationHandler<Limit<T>, Closeab
             return new LimitedCloseableIterable<>(operation.getInput(), 0, operation.getResultLimit());
         }
 
-        if (operation.getInput() instanceof CloseableIterable) {
-            return (CloseableIterable<T>) operation.getInput();
-        }
-
-        return new WrappedCloseableIterable<>(operation.getInput());
+        return operation.getInput();
     }
 }

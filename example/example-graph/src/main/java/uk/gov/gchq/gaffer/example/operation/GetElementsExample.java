@@ -43,7 +43,7 @@ public class GetElementsExample extends OperationExample {
         getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
+    public CloseableIterable<? extends Element> getEntitiesAndEdgesThatAreRelatedToVertex2() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
@@ -53,7 +53,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
+    public CloseableIterable<? extends Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EdgeSeed(1, 2, true))
@@ -63,7 +63,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
+    public CloseableIterable<? extends Element> getAllEntitiesAndEdgesThatAreRelatedToEdge1to2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EdgeSeed(1, 2, true))
@@ -87,7 +87,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
+    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
@@ -98,7 +98,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
+    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
