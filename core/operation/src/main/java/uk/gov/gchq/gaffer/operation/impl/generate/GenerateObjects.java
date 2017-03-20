@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableInput;
 import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
