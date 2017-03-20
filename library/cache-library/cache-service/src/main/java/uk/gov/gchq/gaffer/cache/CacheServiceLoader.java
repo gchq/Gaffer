@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.cache;
 
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public final class CacheServiceLoader implements ServletContextListener {
         try {
             service = Class.forName(cacheClass).asSubclass(ICacheService.class).newInstance();
 
-        } catch(InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             LOGGER.error("Failed to instantiate " + cacheClass, e);
             LOGGER.error("Using default cache - not distributed or indexed on disk");
             service = new HashMapCacheService();
@@ -57,12 +58,12 @@ public final class CacheServiceLoader implements ServletContextListener {
 
 
     @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
+    public void contextInitialized(final ServletContextEvent servletContextEvent) {
         service.initialise();
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        service.shutDown();
+    public void contextDestroyed(final ServletContextEvent servletContextEvent) {
+        service.shutdown();
     }
 }
