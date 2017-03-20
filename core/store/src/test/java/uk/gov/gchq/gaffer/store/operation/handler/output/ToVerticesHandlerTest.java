@@ -19,34 +19,41 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ToListHandlerTest {
+public class ToVerticesHandlerTest {
 
     @Test
-    public void shouldConvertIterableToList() throws OperationException {
+    public void shouldConvertElementSeedsToVertices() throws OperationException {
         // Given
-        final List<Integer> originalList = Arrays.asList(1, 2, 3);
+        final Object vertex1 = "vertex1";
+        final Object vertex2 = "vertex2";
 
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(originalList);
-        final ToListHandler handler = new ToListHandler();
-        final ToList<Integer> operation = mock(ToList.class);
+        final List<ElementId> elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
 
-        given(operation.getInput()).willReturn(originalResults);
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(elementIds);
 
         //When
-        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertEquals(originalList, results);
+        assertThat(results, containsInAnyOrder(vertex1, vertex2));
     }
-
 }

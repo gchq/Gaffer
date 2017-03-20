@@ -17,11 +17,12 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
@@ -29,14 +30,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class DeduplicateHandlerTest {
+public class ToSetHandlerTest {
 
     @Test
-    public void shouldDeduplicateResults() throws OperationException {
+    public void shouldConvertIterableToSet() throws OperationException {
         // Given
         final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
-        final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
-        final Deduplicate<Integer> operation = mock(Deduplicate.class);
+        final ToSetHandler<Integer> handler = new ToSetHandler<>();
+        final ToSet<Integer> operation = mock(ToSet.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
@@ -44,15 +45,15 @@ public class DeduplicateHandlerTest {
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Lists.newArrayList(results));
+        assertEquals(Sets.newHashSet(originalResults), Sets.newHashSet(results));
     }
 
     @Test
-    public void shouldDeduplicateResultsAndMaintainOrder() throws OperationException {
+    public void shouldConvertIterableToSetAndMaintainOrder() throws OperationException {
         // Given
         final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
-        final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
-        final Deduplicate<Integer> operation = mock(Deduplicate.class);
+        final ToSetHandler<Integer> handler = new ToSetHandler<>();
+        final ToSet<Integer> operation = mock(ToSet.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
@@ -60,6 +61,6 @@ public class DeduplicateHandlerTest {
         final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
-        assertEquals(Arrays.asList(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), Lists.newArrayList(results));
+        assertEquals(Sets.newHashSet(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), Sets.newHashSet(results));
     }
 }

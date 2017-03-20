@@ -15,21 +15,22 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * A <code>ToStreamHandler</code> handles for {@link ToStream} operations.
  * Simply wraps the operation input items into a {@link java.util.stream.Stream}
  * for further processing.
  */
-public class ToStreamHandler<T> implements OperationHandler<ToStream<T>, Stream<T>> {
+public class ToStreamHandler<T> implements OutputOperationHandler<ToStream<T>, Stream<T>> {
     @Override
     public Stream<T> doOperation(final ToStream<T> operation, final Context context, final Store store) throws OperationException {
-        return StreamSupport.stream(operation.getInput(), false);
+        return Streams.toStream(operation.getInput());
     }
 }

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutputT;
+import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.List;
 
 /**
- * A <code>Deduplicate</code> operation takes in an {@link Iterable} of items
- * and removes duplicates.
+ * A <code>ToList</code> operation takes in an {@link Iterable} of items
+ * and converts them to a {@link java.util.List}.
  *
- * @see Deduplicate.Builder
+ * @see ToList.Builder
  */
-public class Deduplicate<T> implements
+public class ToList<T> implements
         Operation,
-        IterableInputOutputT<T> {
+        IterableInputOutput<T, List<T>> {
     private Iterable<T> input;
 
     @Override
@@ -44,15 +44,15 @@ public class Deduplicate<T> implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<T>> getOutputTypeReference() {
-        return TypeReferenceImpl.createCloseableIterableT();
+    public TypeReference<List<T>> getOutputTypeReference() {
+        return new TypeReferenceImpl.List();
     }
 
     public static final class Builder<T>
-            extends Operation.BaseBuilder<Deduplicate<T>, Builder<T>>
-            implements IterableInputOutputT.Builder<Deduplicate<T>, T, Builder<T>> {
+            extends BaseBuilder<ToList<T>, Builder<T>>
+            implements IterableInputOutput.Builder<ToList<T>, T, List<T>, Builder<T>> {
         public Builder() {
-            super(new Deduplicate<>());
+            super(new ToList<>());
         }
     }
 }

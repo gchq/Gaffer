@@ -90,9 +90,11 @@ public class ProxyStore extends Store {
         LOGGER.info("Delegate REST API status: " + status.get("description"));
     }
 
+    @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations(), null));
+        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
+        }, null));
     }
 
     @Override

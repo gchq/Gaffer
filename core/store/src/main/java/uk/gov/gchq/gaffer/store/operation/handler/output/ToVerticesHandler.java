@@ -15,5 +15,23 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-public class ToVerticesHandler {
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+
+public class ToVerticesHandler implements OutputOperationHandler<ToVertices, CloseableIterable<Object>> {
+    @Override
+    public CloseableIterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
+        return Streams.toStream(operation.getInput())
+                      .filter(EntityId.class::isInstance)
+                      .map(EntityId.class::cast)
+                      .map(EntityId::getVertex)
+                      .collect(GafferCollectors.toCloseableIterable());
+    }
 }

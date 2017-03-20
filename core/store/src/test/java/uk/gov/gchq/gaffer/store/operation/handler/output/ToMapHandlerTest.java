@@ -29,10 +29,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class ToListHandlerTest {
+public class ToMapHandlerTest {
 
     @Test
-    public void shouldConvertIterableToList() throws OperationException {
+    public void shouldConvertIterableToObjects() throws OperationException {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 

@@ -16,23 +16,23 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * An <code>DeduplicateHandler</code> handles for {@link Deduplicate} operations.
+ * An <code>ToSetHandler</code> handles for {@link uk.gov.gchq.gaffer.operation.impl.output.ToSet} operations.
  * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
  * remove duplicate items.
  */
-public class DeduplicateHandler<T> implements OutputOperationHandler<Deduplicate<T>, CloseableIterable<T>> {
+public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<T>> {
     @Override
-    public CloseableIterable<T> doOperation(final Deduplicate<T> operation, final Context context, final Store store) throws OperationException {
-        return new WrappedCloseableIterable<>(Sets.newLinkedHashSet(operation.getInput()));
+    public Set<T> doOperation(final ToSet<T> operation, final Context context, final Store store) throws OperationException {
+        return Streams.toStream(operation.getInput()).collect(Collectors.toSet());
     }
 }

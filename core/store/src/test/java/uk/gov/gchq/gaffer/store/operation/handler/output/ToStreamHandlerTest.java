@@ -19,6 +19,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.mock;
 public class ToStreamHandlerTest {
 
     @Test
-    public void shouldConvertIterableToStream() {
+    public void shouldConvertIterableToStream() throws OperationException {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 

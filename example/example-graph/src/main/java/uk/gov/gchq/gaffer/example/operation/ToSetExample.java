@@ -20,16 +20,17 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import java.util.Set;
 
-public class DeduplicateExample extends OperationExample {
+public class ToSetExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
-        new DeduplicateExample().run();
+        new ToSetExample().run();
     }
 
-    public DeduplicateExample() {
-        super(Deduplicate.class, "Note - deduplication is done using an in memory HashSet, so it is not advised for a large number of results.");
+    public ToSetExample() {
+        super(ToSet.class, "Note - conversion into a Set is done using an in memory HashSet, so it is not advised for a large number of results.");
     }
 
     @Override
@@ -49,14 +50,14 @@ public class DeduplicateExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> withDeduplicateEdgesChain() {
+    public Set<Element> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Set<Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .input(new EntitySeed(2))
                         .build())
-                .then(new Deduplicate<>())
+                .then(new ToSet<>())
                 .build();
         // ---------------------------------------------------------
 
