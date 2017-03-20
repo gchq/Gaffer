@@ -38,6 +38,11 @@ public class HashMapCache <K, V> implements ICache <K, V> {
     }
 
     @Override
+    public void remove(final K key) {
+        cache.remove(key);
+    }
+
+    @Override
     public Collection<V> getAllValues() {
         return cache.values();
     }

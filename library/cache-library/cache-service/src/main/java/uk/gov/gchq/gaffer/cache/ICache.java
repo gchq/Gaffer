@@ -22,9 +22,11 @@ import java.util.Set;
 
 public interface ICache <K, V> {
 
-    V get(K key);
+    V get(final K key);
 
-    void put(K key, V value);
+    void put(final K key, final V value);
+
+    void remove(final K key);
 
     Collection<V> getAllValues();
 

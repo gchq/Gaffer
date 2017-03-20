@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.jcs.cache;
 
-
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
@@ -53,6 +52,11 @@ public class JcsCache <K, V> implements ICache <K, V> {
         } catch (CacheException e) {
             throw new IllegalArgumentException("Failed to add item to cache", e);
         }
+    }
+
+    @Override
+    public void remove(final K key) {
+        cache.remove(key, groupName);
     }
 
     @Override

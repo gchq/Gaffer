@@ -40,6 +40,11 @@ public class HazelcastCache <K, V> implements ICache <K, V> {
     }
 
     @Override
+    public void remove(final K key) {
+        distributedMap.remove(key);
+    }
+
+    @Override
     public Collection<V> getAllValues() {
         return distributedMap.values();
     }
