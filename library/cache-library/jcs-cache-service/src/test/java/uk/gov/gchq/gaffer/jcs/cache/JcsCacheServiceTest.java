@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.jcs.cache;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,8 @@ import java.io.File;
 public class JcsCacheServiceTest {
 
     private JcsCacheService service = new JcsCacheService();
-    private static final String CACHE_NAME = "test";
+    private static final String TEST_REGION = "test";
+    private static final String ALTERNATIVE_TEST_REGION = "alternativeTest";
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -41,7 +43,7 @@ public class JcsCacheServiceTest {
     @Test
     public void shouldUseDefaultConfigFileIfNoneIsSpecified() {
         service.initialise();
-        ICache<String, Integer> cache = service.getCache(CACHE_NAME);
+        ICache<String, Integer> cache = service.getCache(TEST_REGION);
         cache.put("test", 1);
         cache.clear();
         // no exception thrown
@@ -61,13 +63,54 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldUseSystemVariableToConfigureJCS() {
+        // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
-
         System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, filePath);
-
         service.initialise();
-        ICache<String, Integer> cache = service.getCache("alternativeTest");
+        // when
+        ICache<String, Integer> cache = service.getCache(ALTERNATIVE_TEST_REGION);
         cache.put("test", 1);
         cache.clear();
+
+        // then no exception
+    }
+
+    @Test
+    public void shouldReUseCacheIfOneExists() {
+
+        // given
+        service.initialise();
+        ICache<String, Integer> cache = service.getCache(TEST_REGION);
+        cache.put("key", 1);
+
+        // when
+        ICache<String, Integer> sameCache = service.getCache(TEST_REGION);
+
+        // then
+        Assert.assertEquals(1, sameCache.size());
+        Assert.assertEquals(new Integer(1), sameCache.get("key"));
+
+        cache.clear();
+
+    }
+
+    @Test
+    public void shouldShareCachesBetweenServices() {
+
+        // given
+        service.initialise();
+        JcsCacheService service1 = new JcsCacheService();
+        service1.initialise();
+
+        // when
+        ICache<String, Integer> cache = service1.getCache(TEST_REGION);
+        cache.put("Test", 2);
+
+        // then
+        Assert.assertEquals(1, service.getCache(TEST_REGION).size());
+        Assert.assertEquals(2, service.getCache(TEST_REGION).get("Test"));
+
+        cache.clear();
+
     }
 }
