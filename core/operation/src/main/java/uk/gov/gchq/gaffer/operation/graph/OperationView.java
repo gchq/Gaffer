@@ -68,7 +68,10 @@ public interface OperationView {
      * @return true if the {@link Entity} is valid. Otherwise false and a reason should be logged.
      */
     default boolean validate(final Entity entity) {
-        return null != entity && validatePreAggregationFilter(entity) && validatePostAggregationFilter(entity) && validatePostTransformFilter(entity);
+        return null != entity
+                && validatePreAggregationFilter(entity)
+                && validatePostAggregationFilter(entity)
+                && validatePostTransformFilter(entity);
     }
 
     /**

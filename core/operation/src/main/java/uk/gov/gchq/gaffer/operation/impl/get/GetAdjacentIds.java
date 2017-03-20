@@ -59,10 +59,10 @@ public class GetAdjacentIds implements
     @Override
     public void setView(final View view) {
         if (null != view && view.hasEntities()) {
-            this.view = (new View.Builder()
+            this.view = new View.Builder()
                     .merge(view)
                     .entities(Collections.emptyMap())
-                    .build());
+                    .build();
         } else {
             this.view = view;
         }

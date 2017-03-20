@@ -36,11 +36,11 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 
-public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> {
 
     @Override
     public CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
@@ -50,8 +50,8 @@ public class GetAdjacentIdsHandler implements OperationHandler<GetAdjacentIds> {
     }
 
     public CloseableIterable<EntityId> doOperation(final GetAdjacentIds op,
-                                                     final User user,
-                                                     final AccumuloStore store)
+                                                   final User user,
+                                                   final AccumuloStore store)
             throws OperationException {
 
         final AccumuloRetriever<?> edgeRetriever;

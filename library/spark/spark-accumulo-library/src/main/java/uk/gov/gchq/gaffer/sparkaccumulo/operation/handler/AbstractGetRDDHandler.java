@@ -34,8 +34,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -44,8 +45,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractGetRDDHandler<OP extends Operation & GraphFilters & Options>
-        implements OperationHandler<OP> {
+public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters & Options, O>
+        implements OutputOperationHandler<OP, O> {
 
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
 
