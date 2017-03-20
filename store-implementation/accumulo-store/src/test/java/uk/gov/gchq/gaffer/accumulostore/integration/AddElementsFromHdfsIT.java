@@ -170,7 +170,7 @@ public class AddElementsFromHdfsIT {
                 .build(), new User());
 
         // Then
-        final CloseableIterable<Element> elements = graph.execute(new GetAllElements<>(), new User());
+        final CloseableIterable<Element> elements = graph.execute(new GetAllElements(), new User());
         final List<Element> elementList = Lists.newArrayList(elements);
         assertEquals(NUM_ENTITIES, elementList.size());
         for (int i = 0; i < NUM_ENTITIES; i++) {
@@ -222,16 +222,11 @@ public class AddElementsFromHdfsIT {
         }
     }
 
-    public static final class ExampleGenerator extends OneToOneElementGenerator<String> {
+    public static final class ExampleGenerator implements OneToOneElementGenerator<String> {
         @Override
-        public Element getElement(final String domainObject) {
+        public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
             return new Entity(parts[0], parts[1]);
-        }
-
-        @Override
-        public String getObject(final Element element) {
-            return null;
         }
     }
 }

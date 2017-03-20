@@ -20,12 +20,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 
 public class ElementGeneratorImpl implements ElementGenerator<String> {
     @Override
-    public Iterable<Element> getElements(final Iterable<String> domainObjects) {
-        return null;
-    }
-
-    @Override
-    public Iterable<String> getObjects(final Iterable<Element> elements) {
+    public Iterable<Element> apply(final Iterable<String> domainObjects) {
         return null;
     }
 }

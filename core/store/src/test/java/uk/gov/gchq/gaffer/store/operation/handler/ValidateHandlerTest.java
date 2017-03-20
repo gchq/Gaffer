@@ -44,7 +44,7 @@ public class ValidateHandlerTest {
         final ValidateHandler handler = new ValidateHandler();
         final Store store = mock(Store.class);
         final Validate validate = mock(Validate.class);
-        given(validate.getElements()).willReturn(null);
+        given(validate.getInput()).willReturn(null);
         final Context context = new Context();
 
         // When
@@ -65,14 +65,14 @@ public class ValidateHandlerTest {
         final Schema schema = mock(Schema.class);
         final Context context = new Context();
 
-        given(validate.getElements()).willReturn(elements);
+        given(validate.getInput()).willReturn(elements);
         given(validate.isSkipInvalidElements()).willReturn(false);
         given(store.getSchema()).willReturn(schema);
         final String group = "group";
         given(elm1.getGroup()).willReturn(group);
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter validator = mock(ElementFilter.class);
-        given(validator.filter(elm1)).willReturn(true);
+        given(validator.test(elm1)).willReturn(true);
         given(elementDef.getValidator(true)).willReturn(validator);
         given(schema.getElement(group)).willReturn(elementDef);
 

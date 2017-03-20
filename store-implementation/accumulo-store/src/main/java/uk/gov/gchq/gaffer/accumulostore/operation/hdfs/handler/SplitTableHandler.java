@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class SplitTableHandler implements OperationHandler<SplitTable, Void> {
+public class SplitTableHandler implements OperationHandler<SplitTable> {
     @Override
     public Void doOperation(final SplitTable operation,
                             final Context context, final Store store) throws OperationException {

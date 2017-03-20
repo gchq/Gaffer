@@ -217,7 +217,7 @@ public class TransformOneToManyIterableTest {
         /**
          * Converts to upper case and splits on commas.
          *
-         * @param item the INPUT item to be transformed
+         * @param item the I item to be transformed
          * @return the upper case and split on commas output.
          */
         @Override

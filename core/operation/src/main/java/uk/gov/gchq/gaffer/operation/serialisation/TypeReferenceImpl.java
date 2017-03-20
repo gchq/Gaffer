@@ -19,12 +19,15 @@ package uk.gov.gchq.gaffer.operation.serialisation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Set;
 
 
-public class TypeReferenceImpl {
+public final class TypeReferenceImpl {
+    private TypeReferenceImpl() {
+    }
+
     public static class CountGroups extends TypeReference<GroupCounts> {
     }
 
@@ -47,18 +50,22 @@ public class TypeReferenceImpl {
             TypeReference<CloseableIterable<java.lang.Object>> {
     }
 
+    public static <T> TypeReference<CloseableIterable<T>> createCloseableIterableT() {
+        return (TypeReference) new CloseableIterableObj();
+    }
+
     public static class CloseableIterableElement extends
             TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
     }
 
-    public static class CloseableIterableEntitySeed extends
-            TypeReference<CloseableIterable<EntitySeed>> {
+    public static class CloseableIterableEntityId extends
+            TypeReference<CloseableIterable<EntityId>> {
     }
 
-    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.impl.export.Exporter> {
+    public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.export.Exporter> {
     }
 
-    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.impl.export.Exporter>> {
+    public static class MapExporter extends TypeReference<java.util.LinkedHashMap<java.lang.String, uk.gov.gchq.gaffer.operation.export.Exporter>> {
     }
 
     public static class Map extends TypeReference<java.util.LinkedHashMap> {
@@ -71,5 +78,8 @@ public class TypeReferenceImpl {
     }
 
     public static class JobDetail extends TypeReference<uk.gov.gchq.gaffer.jobtracker.JobDetail> {
+    }
+
+    public static class JobDetailIterable extends TypeReference<CloseableIterable<uk.gov.gchq.gaffer.jobtracker.JobDetail>> {
     }
 }

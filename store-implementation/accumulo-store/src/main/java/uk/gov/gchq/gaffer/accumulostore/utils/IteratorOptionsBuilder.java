@@ -24,7 +24,7 @@ public class IteratorOptionsBuilder {
 
     private static final String VIEW_DESCRIPTION = "Required: The json serialised form of a view";
     private static final String SCHEMA_DESCRIPTION = "Required: The json serialised form of the schema";
-    private static final String ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION = "Required: The element coverter class to be used for key/value conversion";
+    private static final String ACCUMULO_ELEMENT_CONVERTER_CLASS_DESCRIPTION = "Required: The element converter class to be used for key/value conversion";
 
     public IteratorOptions options;
     public Map<String, String> namedOptions = new HashMap<String, String>();

@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.example.function.filter;
 import uk.gov.gchq.gaffer.function.filter.MultiRegex;
 import java.util.regex.Pattern;
 
-public class MultiRegexExample extends FilterFunctionExample {
+public class MultiRegexExample extends PredicateExample {
     public static void main(final String[] args) {
         new MultiRegexExample().run();
     }

@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
-import org.apache.hadoop.io.Text;
-
 public final class AccumuloStoreConstants {
     //Iterator names
     public static final String VALIDATOR_ITERATOR_NAME = "Validator";
@@ -39,8 +37,7 @@ public final class AccumuloStoreConstants {
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";
     public static final String INCLUDE_ENTITIES = "Include_All_Entities";
-    public static final String INCLUDE_ALL_EDGES = "Include_All_Edges";
-    public static final String NO_EDGES = "No_Edges";
+    public static final String INCLUDE_EDGES = "Include_All_Edges";
     public static final String DIRECTED_EDGE_ONLY = "Directed_Edges_Only";
     public static final String UNDIRECTED_EDGE_ONLY = "Undirected_Edges_Only";
     public static final String INCOMING_EDGE_ONLY = "Incoming_Edges_Only";
@@ -69,8 +66,6 @@ public final class AccumuloStoreConstants {
     public static final int COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY = 36;
     // Applied only during scans.
     public static final int ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY = 37;
-    // Applied only during scans.
-    public static final int TRANSFORM_PRIORITY = 50;
 
     // Operations options
     public static final String OPERATION_HDFS_USE_ACCUMULO_PARTITIONER = "accumulostore.operation.hdfs.use_accumulo_partitioner";
@@ -80,11 +75,6 @@ public final class AccumuloStoreConstants {
     public static final String OPERATION_BULK_IMPORT_MIN_REDUCERS = "accumulostore.operation.bulk_import.min_reducers";
     public static final String ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT = "accumulostore.operation.hdfs.skip_import";
     public static final String OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE = "accumulostore.operation.return_matched_id_as_edge_source";
-
-    // Store factory constants
-    public static final String GAFFER_UTILS_TABLE = "gafferStoreUtils";
-    public static final Text SCHEMA_KEY = new Text("schema");
-    public static final Text KEY_PACKAGE_KEY = new Text("keyPackage");
 
     // General use constants
     public static final byte[] EMPTY_BYTES = new byte[0];

@@ -16,15 +16,15 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator1;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
-    public CloseableIterable<Edge> run() throws OperationException {
+    public CloseableIterable<Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -50,7 +50,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         final List<Element> elements = new ArrayList<>();
         final DataGenerator1 dataGenerator = new DataGenerator1();
         for (final String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator.getElement(s));
+            elements.add(dataGenerator._apply(s));
         }
         // ---------------------------------------------------------
         log("Elements generated from the data file.");
@@ -72,7 +72,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         // [add] Add the edges to the graph
         // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, user);
         // ---------------------------------------------------------
@@ -81,10 +81,13 @@ public class LoadAndQuery1 extends LoadAndQuery {
 
         // [get] Get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> query = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements query = new GetElements.Builder()
+                .input(new EntitySeed("1"))
+                .view(new View.Builder()
+                        .edge("data")
+                        .build())
                 .build();
-        final CloseableIterable<Edge> results = graph.execute(query, user);
+        final CloseableIterable<Element> results = graph.execute(query, user);
         // ---------------------------------------------------------
         log("All edges containing the vertex 1. The counts have been aggregated.");
         for (final Element e : results) {

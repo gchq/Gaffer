@@ -19,8 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,10 +31,9 @@ import java.util.Set;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class AreInTest extends FilterFunctionTest {
+public class AreInTest extends PredicateTest {
     private static final String VALUE1 = "value1";
     private static final String VALUE2 = "value2";
 
@@ -55,7 +54,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn();
 
         // When
-        boolean accepted = filter.isValid((Collection) null);
+        boolean accepted = filter.test((Collection) null);
 
         // Then
         assertTrue(accepted);
@@ -67,7 +66,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn();
 
         // When
-        boolean accepted = filter.isValid(list);
+        boolean accepted = filter.test(list);
 
         // Then
         assertTrue(accepted);
@@ -79,7 +78,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1, VALUE2);
 
         // When
-        boolean accepted = filter.isValid(list);
+        boolean accepted = filter.test(list);
 
         // Then
         assertTrue(accepted);
@@ -91,7 +90,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1, VALUE2);
 
         // When
-        boolean accepted = filter.isValid(set);
+        boolean accepted = filter.test(set);
 
         // Then
         assertTrue(accepted);
@@ -103,7 +102,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(list);
+        boolean accepted = filter.test(list);
 
         // Then
         assertFalse(accepted);
@@ -115,7 +114,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(set);
+        boolean accepted = filter.test(set);
 
         // Then
         assertFalse(accepted);
@@ -127,7 +126,7 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(new ArrayList<>());
+        boolean accepted = filter.test(new ArrayList<>());
 
         // Then
         assertTrue(accepted);
@@ -139,23 +138,10 @@ public class AreInTest extends FilterFunctionTest {
         final AreIn filter = new AreIn(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(new HashSet<>());
+        boolean accepted = filter.test(new HashSet<>());
 
         // Then
         assertTrue(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final AreIn filter = new AreIn(VALUE1);
-
-        // When
-        final AreIn clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertArrayEquals(Collections.singleton(VALUE1).toArray(), clonedFilter.getValues().toArray());
     }
 
     @Test
@@ -182,7 +168,7 @@ public class AreInTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<AreIn> getFunctionClass() {
+    protected Class<AreIn> getPredicateClass() {
         return AreIn.class;
     }
 

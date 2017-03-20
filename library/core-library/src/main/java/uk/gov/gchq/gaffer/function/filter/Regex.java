@@ -20,12 +20,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.regex.Pattern;
 
-@Inputs(String.class)
-public class Regex extends SimpleFilterFunction<String> {
+public class Regex extends KoryphePredicate<String> {
     private Pattern controlValue;
 
     public Regex() {
@@ -51,14 +49,9 @@ public class Regex extends SimpleFilterFunction<String> {
     }
 
     @Override
-    public boolean isValid(final String input) {
+    public boolean test(final String input) {
         return !(null == input || input.getClass() != String.class)
                 && controlValue.matcher(input).matches();
-    }
-
-    @Override
-    public Regex statelessClone() {
-        return new Regex(controlValue);
     }
 
     @Override
@@ -67,14 +60,12 @@ public class Regex extends SimpleFilterFunction<String> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final Regex regex = (Regex) o;
-
         return new EqualsBuilder()
-                .append(inputs, regex.inputs)
                 .append(controlValue.toString(), regex.controlValue.toString())
                 .isEquals();
     }
@@ -82,7 +73,6 @@ public class Regex extends SimpleFilterFunction<String> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 // Pattern does not override hashCode()
                 .append(controlValue.toString())
                 .toHashCode();
@@ -91,7 +81,6 @@ public class Regex extends SimpleFilterFunction<String> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 // Pattern does not override equals()
                 .append("controlValue", controlValue.toString())
                 .toString();

@@ -16,8 +16,9 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.function.filter.IsXLessThanY;
+import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
-public class IsXLessThanYExample extends FilterFunctionExample {
+public class IsXLessThanYExample extends PredicateExample {
     public static void main(final String[] args) {
         new IsXLessThanYExample().run();
     }
@@ -36,17 +37,17 @@ public class IsXLessThanYExample extends FilterFunctionExample {
         // ---------------------------------------------------------
 
         runExample(function,
-                new Comparable[]{1, 5},
-                new Comparable[]{5, 5},
-                new Comparable[]{10, 5},
-                new Comparable[]{1L, 5},
-                new Comparable[]{1L, 5L},
-                new Comparable[]{5L, 5L},
-                new Comparable[]{10L, 5L},
-                new Comparable[]{1, 5L},
-                new Comparable[]{"bcd", "cde"},
-                new Comparable[]{"bcd", "abc"},
-                new Comparable[]{"1", 5}
+                new Tuple2<>(1, 5),
+                new Tuple2<>(5, 5),
+                new Tuple2<>(10, 5),
+                new Tuple2<>(1L, 5),
+                new Tuple2<>(1L, 5L),
+                new Tuple2<>(5L, 5L),
+                new Tuple2<>(10L, 5L),
+                new Tuple2<>(1, 5L),
+                new Tuple2<>("bcd", "cde"),
+                new Tuple2<>("bcd", "abc"),
+                new Tuple2<>("1", 5)
         );
     }
 }

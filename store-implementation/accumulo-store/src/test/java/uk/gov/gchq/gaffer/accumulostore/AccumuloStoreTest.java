@@ -33,13 +33,9 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesInRanges;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -47,6 +43,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
@@ -136,34 +133,34 @@ public class AccumuloStoreTest {
         final User user = new User();
         elements.add(e);
         final AddElements add = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         store.execute(add, user);
 
-        final EntitySeed entitySeed1 = new EntitySeed("1");
+        final EntityId entityId1 = new EntitySeed("1");
 
-        final GetElements<EntitySeed, Element> getBySeed = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getBySeed = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .input(entityId1)
                 .build();
         final CloseableIterable<Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
         assertThat(results, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelated = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(entitySeed1)
+                .input(entityId1)
                 .build();
         CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
         assertThat(relatedResults, IsCollectionContaining.hasItem(e));
 
-        final GetElements<EntitySeed, Element> getRelatedWithPostAggregationFilter = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -176,7 +173,7 @@ public class AccumuloStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .addSeed(entitySeed1)
+                .input(entityId1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));
@@ -195,21 +192,15 @@ public class AccumuloStoreTest {
     public void testStoreReturnsHandlersForRegisteredOperations(MockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
-
         assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
-        assertTrue(store.getOperationHandlerExposed(GetEdgesBetweenSets.class) instanceof GetElementsBetweenSetsHandler);
         assertTrue(store.getOperationHandlerExposed(GetElementsBetweenSets.class) instanceof GetElementsBetweenSetsHandler);
         assertTrue(store.getOperationHandlerExposed(GetElementsInRanges.class) instanceof GetElementsInRangesHandler);
-        assertTrue(store.getOperationHandlerExposed(GetEdgesInRanges.class) instanceof GetElementsInRangesHandler);
-        assertTrue(store.getOperationHandlerExposed(GetEntitiesInRanges.class) instanceof GetElementsInRangesHandler);
         assertTrue(store.getOperationHandlerExposed(GetElementsWithinSet.class) instanceof GetElementsWithinSetHandler);
-        assertTrue(store.getOperationHandlerExposed(GetEdgesWithinSet.class) instanceof GetElementsWithinSetHandler);
         assertTrue(store.getOperationHandlerExposed(SplitTable.class) instanceof SplitTableHandler);
         assertTrue(store.getOperationHandlerExposed(SampleDataForSplitPoints.class) instanceof SampleDataForSplitPointsHandler);
         assertTrue(store.getOperationHandlerExposed(ImportAccumuloKeyValueFiles.class) instanceof ImportAccumuloKeyValueFilesHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
-
     }
 
     @Test

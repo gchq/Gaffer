@@ -28,7 +28,7 @@ To do this we create an ${ELEMENT_TRANSFORMER_JAVADOC}:
 
 ${TRANSFORM_SNIPPET}
 
-This `select`s the `”count”` and `”thing”` properties and maps, or `projects`, them into the `”mean”` property. The ${FUNCTION_JAVADOC} that does the mapping is a ${TRANSFORM_FUNCTION_JAVADOC}; in this case a ${MEAN_TRANSFORM_LINK}.
+This `select`s the `”count”` and `”thing”` properties and maps, or `projects`, them into the `”mean”` property. The ${FUNCTION_JAVADOC} that does the mapping is a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html); in this case a ${MEAN_TRANSFORM_LINK}.
 
 We add the new `”mean”` property to the result Edge set using a `View` and then execute the operation.
 

@@ -80,7 +80,7 @@ ${STORE_TYPES_JSON}
 The StoreTypes file is specific to a particular Store. In our example we are using an in-memory 'Mock' Accumulo Store. In simple terms, data in Accumulo is stored in rows as keys and values where the key has multiple parts.
 It describes how the data types are mapped into the database that backs the Gaffer Store you've chosen.
 
-In our StoreTypes file we supply an ${AGGREGATE_FUNCTION} for the count.int type. Gaffer allows Edges of the same Group to be aggregated at query time.
+In our StoreTypes file we supply an [BinaryOperator](https://docs.oracle.com/javase/8/docs/api/java/util/function/BinaryOperator.html) to aggregate the count.int type. Gaffer allows Edges of the same Group to be aggregated at query time.
 
 If you run this example you'll see that the last thing that's printed to the console is:
 
@@ -90,7 +90,7 @@ ${GET_RELATED_EDGES_RESULT}
 
 You can see that the counts have been aggregated. If you look in the data file, the pair '1,2' appears 3 times. When we generated the Edges we added a count for each of these and set it to 1 so we had 3 Edges from 1 to 2, each with a count of 1.
 
-We've used the ${SUM_JAVADOC} Aggregate Function in the DataSchema for the `”count”` property so when we query for them these three Edges with counts of 1 are returned as a single Edge with a count of 3.
+We've used the ${SUM_JAVADOC} BinaryOperator in the Schema for the `”count”` property so when we query for them these three Edges with counts of 1 are returned as a single Edge with a count of 3.
 
 ##### The StoreProperties
 

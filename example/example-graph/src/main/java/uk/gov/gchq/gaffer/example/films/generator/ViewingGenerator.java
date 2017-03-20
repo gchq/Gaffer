@@ -23,24 +23,13 @@ import uk.gov.gchq.gaffer.example.films.data.Viewing;
 import uk.gov.gchq.gaffer.example.films.data.schema.Group;
 import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 
-public class ViewingGenerator extends OneToOneElementGenerator<Viewing> {
+public class ViewingGenerator implements OneToOneElementGenerator<Viewing> {
     @Override
-    public Element getElement(final Viewing viewing) {
+    public Element _apply(final Viewing viewing) {
         final Edge edge = new Edge(Group.VIEWING, viewing.getUserId(), viewing.getFilmId(), true);
         edge.putProperty(Property.START_TIME, viewing.getStartTime());
         edge.putProperty(Property.COUNT, 1);
 
         return edge;
-    }
-
-    @Override
-    public Viewing getObject(final Element element) {
-        if (Group.VIEWING.equals(element.getGroup()) && element instanceof Edge) {
-            return new Viewing(((Edge) element).getDestination().toString(),
-                    ((Edge) element).getSource().toString(),
-                    (Long) element.getProperty(Property.START_TIME));
-        }
-
-        throw new UnsupportedOperationException("Cannot generate Viewing object from " + element);
     }
 }

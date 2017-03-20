@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<ImportAccumuloKeyValueFiles, Void> {
+public class ImportAccumuloKeyValueFilesHandler implements OperationHandler<ImportAccumuloKeyValueFiles> {
     @Override
     public Void doOperation(final ImportAccumuloKeyValueFiles operation,
                             final Context context, final Store store)

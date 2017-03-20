@@ -23,24 +23,13 @@ import uk.gov.gchq.gaffer.example.films.data.Person;
 import uk.gov.gchq.gaffer.example.films.data.schema.Group;
 import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 
-public class PersonGenerator extends OneToOneElementGenerator<Person> {
+public class PersonGenerator implements OneToOneElementGenerator<Person> {
     @Override
-    public Element getElement(final Person person) {
+    public Element _apply(final Person person) {
         final Entity entity = new Entity(Group.PERSON, person.getUserId());
         entity.putProperty(Property.NAME, person.getName());
         entity.putProperty(Property.AGE, person.getAge());
 
         return entity;
-    }
-
-    @Override
-    public Person getObject(final Element element) {
-        if (Group.PERSON.equals(element.getGroup()) && element instanceof Entity) {
-            return new Person(((Entity) element).getVertex().toString(),
-                    element.getProperty(Property.NAME).toString(),
-                    (Integer) element.getProperty(Property.AGE));
-        }
-
-        throw new UnsupportedOperationException("Cannot generate Person object from " + element);
     }
 }

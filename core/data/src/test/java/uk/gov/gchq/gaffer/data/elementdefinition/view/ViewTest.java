@@ -109,8 +109,8 @@ public class ViewTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .postTransformFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_3)
@@ -181,32 +181,32 @@ public class ViewTest {
         assertNull(entityDef.getTransformer());
         assertEquals(2, entityDef.getPreAggregationFilter().getFunctions().size());
         assertTrue(entityDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
-        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(1).getSelection().get(0));
-        assertEquals(1, entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(0).getSelection()[0]);
+        assertEquals(TestPropertyNames.PROP_1, entityDef.getPreAggregationFilter().getFunctions().get(1).getSelection()[0]);
+        assertEquals(1, entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection().length);
+        assertEquals(IdentifierType.VERTEX.name(), entityDef.getPostAggregationFilter().getFunctions().get(0).getSelection()[0]);
 
         final ViewElementDefinition edgeDef = deserialisedView.getEdge(TestGroups.EDGE);
         assertEquals(1, edgeDef.getTransientProperties().size());
         assertEquals(String.class, edgeDef.getTransientPropertyMap().get(TestPropertyNames.PROP_3));
         assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().size());
         assertTrue(edgeDef.getPreAggregationFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getPreAggregationFilter().getFunctions().get(0).getSelection()[0]);
         assertEquals(1, edgeDef.getTransformer().getFunctions().size());
         assertTrue(edgeDef.getTransformer().getFunctions().get(0).getFunction() instanceof ExampleTransformFunction);
-        assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(0));
-        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection().get(1));
-        assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().size());
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection().get(0));
+        assertEquals(2, edgeDef.getTransformer().getFunctions().get(0).getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, edgeDef.getTransformer().getFunctions().get(0).getSelection()[0]);
+        assertEquals(TestPropertyNames.PROP_2, edgeDef.getTransformer().getFunctions().get(0).getSelection()[1]);
+        assertEquals(1, edgeDef.getTransformer().getFunctions().get(0).getProjection().length);
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getTransformer().getFunctions().get(0).getProjection()[0]);
         assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().size());
         assertTrue(edgeDef.getPostTransformFilter().getFunctions().get(0).getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().get(0));
-        assertEquals(1, edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection().size());
-        assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection().get(0));
+        assertEquals(1, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection().length);
+        assertEquals(TestPropertyNames.PROP_3, edgeDef.getPostTransformFilter().getFunctions().get(0).getSelection()[0]);
+        assertEquals(1, edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection().length);
+        assertEquals(IdentifierType.SOURCE.name(), edgeDef.getPostAggregationFilter().getFunctions().get(0).getSelection()[0]);
     }
 
     @Test
@@ -363,67 +363,6 @@ public class ViewTest {
     }
 
     @Test
-    public void test() {
-        String json = "{\n" +
-                "      \"edges\": {\n" +
-                "         \"edge\": {\n" +
-                "            \"transientProperties\": {},\n" +
-                "            \"preAggregationFilterFunctions\": [\n" +
-                "               {\n" +
-                "                  \"function\": {\n" +
-                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
-                "                  },\n" +
-                "                  \"selection\": [\n" +
-                "                     \"count\"\n" +
-                "                  ]\n" +
-                "               }\n" +
-                "            ]\n" +
-                "         }\n" +
-                "      },\n" +
-                "      \"entities\": {\n" +
-                "         \"entity\": {\n" +
-                "            \"transientProperties\": {},\n" +
-                "            \"preAggregationFilterFunctions\": [\n" +
-                "               {\n" +
-                "                  \"function\": {\n" +
-                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
-                "                  },\n" +
-                "                  \"selection\": [\n" +
-                "                     \"count\"\n" +
-                "                  ]\n" +
-                "               }\n" +
-                "            ]\n" +
-                "         }\n" +
-                "      },\n" +
-                "      \"globalElements\": [\n" +
-                "         {\n" +
-                "            \"groupBy\": [],\n" +
-                "            \"transientProperties\": {},\n" +
-                "\"preAggregationFilterFunctions\": [\n" +
-                "               {\n" +
-                "                \"function\":\n" +
-                "                {\n" +
-                "                     \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"\n" +
-                "                },\n" +
-                "                \"selection\": [\"count2\"]\n" +
-                "               }\n" +
-                "             ]\n" +
-                "         }\n" +
-                "      ]\n" +
-                "   }";
-
-        final View view = new View.Builder()
-                .json(json.getBytes())
-                .build();
-
-        view.expandGlobalDefinitions();
-
-        System.out.println(view);
-
-
-    }
-
-    @Test
     public void shouldCreateAnIdenticalObjectWhenCloned() {
         // Given
         final ViewElementDefinition edgeDef1 = new ViewElementDefinition();
@@ -539,8 +478,8 @@ public class ViewTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .postTransformFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_3)

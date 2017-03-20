@@ -17,8 +17,9 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 
 import uk.gov.gchq.gaffer.function.filter.AreEqual;
+import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
-public class AreEqualExample extends FilterFunctionExample {
+public class AreEqualExample extends PredicateExample {
     public static void main(final String[] args) {
         new AreEqualExample().run();
     }
@@ -37,9 +38,9 @@ public class AreEqualExample extends FilterFunctionExample {
         // ---------------------------------------------------------
 
         runExample(function,
-                new Object[]{1, 1.0},
-                new Object[]{2.5, 2.5},
-                new Object[]{"", null},
-                new Object[]{"abc", "abc"});
+                new Tuple2<>(1, 1.0),
+                new Tuple2<>(2.5, 2.5),
+                new Tuple2<>("", null),
+                new Tuple2<>("abc", "abc"));
     }
 }

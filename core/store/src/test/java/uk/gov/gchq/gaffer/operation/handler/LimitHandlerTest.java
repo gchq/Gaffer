@@ -39,7 +39,7 @@ public class LimitHandlerTest {
         final Integer resultLimit = expectedResult.size();
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
-                .limitResults(resultLimit)
+                .resultLimit(resultLimit)
                 .build();
 
         final LimitHandler<Integer> handler = new LimitHandler<>();
@@ -61,7 +61,7 @@ public class LimitHandlerTest {
         final Integer resultLimit = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
-                .limitResults(resultLimit)
+                .resultLimit(resultLimit)
                 .build();
 
         final LimitHandler<Integer> handler = new LimitHandler<>();

@@ -31,9 +31,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
       ]
     }

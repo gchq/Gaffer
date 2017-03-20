@@ -20,7 +20,9 @@ import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -44,7 +46,7 @@ public class LoadAndQuery7Test {
         final LoadAndQuery7 query = new LoadAndQuery7();
 
         // When
-        final Iterable<Edge> results = query.run();
+        final CloseableIterable<Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -56,7 +58,7 @@ public class LoadAndQuery7Test {
         final User user01 = new User("user01");
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final OperationChain<Iterable<Edge>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
+        final OperationChain<CloseableIterable<Element>> queryOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), OperationChain.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -66,13 +68,13 @@ public class LoadAndQuery7Test {
 
         // When
         graph.execute(addOpChain, user01); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
+        final CloseableIterable<Element> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Edge> resultsItr) {
+    private void verifyResults(final CloseableIterable<Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("1")
@@ -90,7 +92,7 @@ public class LoadAndQuery7Test {
                         .build()
         };
 
-        final List<Edge> results = Lists.newArrayList(resultsItr);
+        final List<Element> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.length, results.size());
         assertThat(results, IsCollectionContaining.hasItems(expectedResults));
     }

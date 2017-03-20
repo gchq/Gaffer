@@ -16,7 +16,9 @@
 
 package uk.gov.gchq.gaffer.accumulostore.key.exception;
 
-public class RangeFactoryException extends Exception {
+import uk.gov.gchq.gaffer.accumulostore.key.AccumuloException;
+
+public class RangeFactoryException extends AccumuloException {
     private static final long serialVersionUID = 7169995709221692952L;
 
     public RangeFactoryException(final String message, final Throwable e) {

@@ -21,8 +21,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
 import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
@@ -42,7 +44,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperation(new GetAllElements<>());
+        final Response response = RestApiTestUtil.executeOperation(new GetAllElements());
 
         // Then
         final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
@@ -58,7 +60,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -75,7 +77,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -89,7 +91,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -104,12 +106,38 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
         assertEquals(0, results.size());
     }
+
+    @Test
+    public void shouldThrowErrorOnAddElements() throws IOException {
+        // Given
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+
+        // When
+        final Response response = RestApiTestUtil.executeOperationChain(new OperationChain.Builder()
+                .first(new AddElements.Builder()
+                        .input(new Entity("wrong_group", "object"))
+                        .build())
+                .build());
+
+        System.out.println(response.readEntity(String.class));
+
+        assertEquals(500, response.getStatus());
+    }
+
+    @Test
+    public void shouldThrowErrorOnEmptyOperationChain() throws IOException {
+        // When
+        final Response response = RestApiTestUtil.executeOperationChain(new OperationChain());
+
+        assertEquals(500, response.getStatus());
+    }
+
 
     private List<Element> readChunkedElements(final Response response) {
         return readChunkedResults(response, new GenericType<ChunkedInput<Element>>() {
@@ -127,7 +155,8 @@ public class OperationServiceIT extends AbstractRestApiIT {
     }
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
-        assertEquals(2, (int) groupCounts.getEntityGroups().get(TestGroups.ENTITY));
+        assertEquals(2, (int) groupCounts.getEntityGroups()
+                .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

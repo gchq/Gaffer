@@ -19,10 +19,9 @@ import org.apache.avro.mapred.AvroKey;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.MapContext;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * An <code>AvroMapperGenerator</code> is an {@link MapperGenerator} that
@@ -30,12 +29,12 @@ import java.util.List;
  */
 public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, NullWritable> {
     private final List<OBJ> singleItemList = new ArrayList<>(1);
-    private ElementGenerator<OBJ> elementGenerator;
+    private Function<Iterable<OBJ>, Iterable<Element>> elementGenerator;
 
     public AvroMapperGenerator() {
     }
 
-    public AvroMapperGenerator(final ElementGenerator<OBJ> elementGenerator) {
+    public AvroMapperGenerator(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -43,14 +42,14 @@ public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, N
     public Iterable<Element> getElements(final AvroKey<OBJ> keyIn, final NullWritable valueIn, final MapContext<AvroKey<OBJ>, NullWritable, ?, ?> context) {
         singleItemList.clear();
         singleItemList.add(keyIn.datum());
-        return elementGenerator.getElements(singleItemList);
+        return elementGenerator.apply(singleItemList);
     }
 
-    public ElementGenerator<OBJ> getElementGenerator() {
+    public Function<Iterable<OBJ>, Iterable<Element>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final OneToOneElementGenerator<OBJ> elementGenerator) {
+    public void setElementGenerator(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 }

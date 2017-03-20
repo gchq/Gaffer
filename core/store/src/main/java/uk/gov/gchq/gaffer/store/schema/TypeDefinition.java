@@ -20,19 +20,17 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * A <code>TypeDefinition</code> contains the an object's java class along with how to validate and aggregate the object.
@@ -42,8 +40,8 @@ import java.util.List;
 public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
-    private ElementFilter validator;
-    private AggregateFunction aggregateFunction;
+    private List<Predicate> validateFunctions;
+    private BiFunction aggregateFunction;
     private String description;
 
     public TypeDefinition() {
@@ -72,33 +70,13 @@ public class TypeDefinition {
         this.clazz = null != classType ? Class.forName(classType) : null;
     }
 
-    @JsonIgnore
-    public ElementFilter getValidator() {
-        return validator;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public List<Predicate> getValidateFunctions() {
+        return validateFunctions;
     }
 
-    @JsonSetter("validator")
-    public void setValidator(final ElementFilter validator) {
-        this.validator = validator;
-    }
-
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "null is only returned when the validator is null")
-    @JsonGetter("validateFunctions")
-    public ConsumerFunctionContext<String, FilterFunction>[] getOriginalValidateFunctions() {
-        if (null != validator) {
-            final List<ConsumerFunctionContext<String, FilterFunction>> functions = validator.getFunctions();
-            return functions.toArray(new ConsumerFunctionContext[functions.size()]);
-        }
-
-        return null;
-    }
-
-    @JsonSetter("validateFunctions")
-    public void addValidateFunctions(final ConsumerFunctionContext<String, FilterFunction>... functions) {
-        if (null == validator) {
-            validator = new ElementFilter();
-        }
-        validator.addFunctions(Arrays.asList(functions));
+    public void setValidateFunctions(final List<Predicate> validateFunctions) {
+        this.validateFunctions = validateFunctions;
     }
 
     /**
@@ -142,11 +120,12 @@ public class TypeDefinition {
         }
     }
 
-    public AggregateFunction getAggregateFunction() {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public BiFunction getAggregateFunction() {
         return aggregateFunction;
     }
 
-    public void setAggregateFunction(final AggregateFunction aggregateFunction) {
+    public <F extends BiFunction<I, O, O>, I, O> void setAggregateFunction(final F aggregateFunction) {
         this.aggregateFunction = aggregateFunction;
     }
 
@@ -175,10 +154,10 @@ public class TypeDefinition {
             }
         }
 
-        if (null == validator) {
-            validator = type.getValidator();
-        } else if (null != type.getValidator() && null != type.getValidator().getFunctions()) {
-            validator.addFunctions(type.getValidator().getFunctions());
+        if (null == validateFunctions) {
+            validateFunctions = type.getValidateFunctions();
+        } else if (null != type.getValidateFunctions()) {
+            validateFunctions.addAll(type.getValidateFunctions());
         }
 
         if (null == aggregateFunction) {
@@ -199,7 +178,7 @@ public class TypeDefinition {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("clazz", clazz)
-                .append("validator", validator)
+                .append("validateFunctions", validateFunctions)
                 .append("serialiser", serialiser)
                 .append("aggregateFunction", aggregateFunction)
                 .append("description", description)
@@ -219,7 +198,7 @@ public class TypeDefinition {
 
         return new EqualsBuilder()
                 .append(clazz, that.clazz)
-                .append(validator, that.validator)
+                .append(validateFunctions, that.validateFunctions)
                 .append(serialiser, that.serialiser)
                 .append(aggregateFunction, that.aggregateFunction)
                 .append(description, that.description)
@@ -230,7 +209,7 @@ public class TypeDefinition {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(clazz)
-                .append(validator)
+                .append(validateFunctions)
                 .append(serialiser)
                 .append(aggregateFunction)
                 .append(description)
@@ -253,12 +232,16 @@ public class TypeDefinition {
             return this;
         }
 
-        public Builder validator(final ElementFilter validator) {
-            type.setValidator(validator);
+        public Builder validateFunctions(final List<Predicate> validateFunctions) {
+            type.setValidateFunctions(validateFunctions);
             return this;
         }
 
-        public Builder aggregateFunction(final AggregateFunction aggregateFunction) {
+        public Builder validateFunctions(final Predicate... validateFunctions) {
+            return validateFunctions(Lists.newArrayList(validateFunctions));
+        }
+
+        public <F extends BiFunction<I, O, O>, I, O> Builder aggregateFunction(final F aggregateFunction) {
             type.setAggregateFunction(aggregateFunction);
             return this;
         }

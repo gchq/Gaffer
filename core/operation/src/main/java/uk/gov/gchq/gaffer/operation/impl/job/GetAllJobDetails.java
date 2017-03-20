@@ -19,32 +19,22 @@ package uk.gov.gchq.gaffer.operation.impl.job;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidInput;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetAllJobDetails extends AbstractOperation<Void, CloseableIterable<JobDetail>> implements VoidInput<CloseableIterable<JobDetail>> {
+public class GetAllJobDetails implements
+        Operation,
+        IterableOutput<JobDetail> {
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.JobDetail();
+    public TypeReference<CloseableIterable<JobDetail>> getOutputTypeReference() {
+        return new TypeReferenceImpl.JobDetailIterable();
     }
 
-    @Override
-    public void setInput(final Void input) {
-        // Ignore the input
-    }
-
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>> extends AbstractOperation.BaseBuilder<GetAllJobDetails, Void, CloseableIterable<JobDetail>, CHILD_CLASS> {
-
-        public BaseBuilder() {
+    public static class Builder extends Operation.BaseBuilder<GetAllJobDetails, Builder>
+            implements IterableOutput.Builder<GetAllJobDetails, JobDetail, Builder> {
+        public Builder() {
             super(new GetAllJobDetails());
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

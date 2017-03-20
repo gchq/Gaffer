@@ -13,12 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.spark.operation.javardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import java.util.Map;
 
-public class GetJavaRDDOfAllElements extends AbstractGetJavaRDD<Void> {
+public class GetJavaRDDOfAllElements implements
+        Operation,
+        Output<JavaRDD<Element>>,
+        GraphFilters,
+        JavaRdd,
+        Options {
+
+    private Map<String, String> options;
+    private JavaSparkContext sparkContext;
+    private View view;
+    private DirectedType directedType;
 
     public GetJavaRDDOfAllElements() {
     }
@@ -27,30 +46,58 @@ public class GetJavaRDDOfAllElements extends AbstractGetJavaRDD<Void> {
         setJavaSparkContext(sparkContext);
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetJavaRDD.BaseBuilder<GetJavaRDDOfAllElements, Void, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetJavaRDDOfAllElements());
-        }
-
-        public BaseBuilder(final GetJavaRDDOfAllElements op) {
-            super(op);
-        }
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
 
+    @Override
+    public TypeReference<JavaRDD<Element>> getOutputTypeReference() {
+        return new TypeReferenceSparkImpl.JavaRDDElement();
+    }
+
+    @Override
+    public JavaSparkContext getJavaSparkContext() {
+        return sparkContext;
+    }
+
+    @Override
+    public void setJavaSparkContext(final JavaSparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends BaseBuilder<GetJavaRDDOfAllElements, Builder>
+            implements Output.Builder<GetJavaRDDOfAllElements, JavaRDD<Element>, Builder>,
+            GraphFilters.Builder<GetJavaRDDOfAllElements, Builder>,
+            JavaRdd.Builder<GetJavaRDDOfAllElements, Builder>,
+            Options.Builder<GetJavaRDDOfAllElements, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetJavaRDDOfAllElements op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
+            super(new GetJavaRDDOfAllElements());
         }
     }
 }

@@ -18,6 +18,10 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -25,6 +29,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -32,15 +37,23 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import java.io.IOException;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class ExamplesServiceTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @InjectMocks
     private ExamplesService service;
+
+    @Mock
+    private GraphFactory graphFactory;
+
+    @Mock
+    private UserFactory userFactory;
 
     private Schema schema;
 
@@ -61,13 +74,10 @@ public class ExamplesServiceTest {
                         .build())
                 .build();
 
-        final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
-
-        service = new ExamplesService(graphFactory);
     }
 
     @Test
@@ -86,38 +96,8 @@ public class ExamplesServiceTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetEntitiesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEntitiesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetEdgesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEdgesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEdges());
-    }
-
-    @Test
     public void shouldSerialiseAndDeserialiseGetAllElements() throws IOException {
         shouldSerialiseAndDeserialiseOperation(service.getAllElements());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEdges());
     }
 
     @Test
@@ -150,8 +130,7 @@ public class ExamplesServiceTest {
         assertNotNull(view);
 
         final ViewValidator viewValidator = new ViewValidator();
-        final boolean validate = viewValidator.validate(view, schema, false);
-        assertTrue(validate);
+        assertTrue(viewValidator.validate(view, schema, false).isValid());
     }
 
     private void shouldSerialiseAndDeserialiseOperation(Operation operation) throws IOException {

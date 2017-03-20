@@ -15,9 +15,29 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import java.util.Map;
 
-public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
+public class GetRDDOfAllElements implements
+        Operation,
+        Output<RDD<Element>>,
+        GraphFilters,
+        Rdd,
+        Options {
+
+    private Map<String, String> options;
+    private SparkContext sparkContext;
+    private View view;
+    private DirectedType directedType;
 
     public GetRDDOfAllElements() {
     }
@@ -26,29 +46,58 @@ public class GetRDDOfAllElements extends AbstractGetRDD<Void> {
         setSparkContext(sparkContext);
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetRDD.BaseBuilder<GetRDDOfAllElements, Void, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetRDDOfAllElements());
-        }
-
-        public BaseBuilder(final GetRDDOfAllElements op) {
-            super(op);
-        }
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public TypeReference<RDD<Element>> getOutputTypeReference() {
+        return new TypeReferenceSparkImpl.RDDElement();
+    }
+
+    @Override
+    public SparkContext getSparkContext() {
+        return sparkContext;
+    }
+
+    @Override
+    public void setSparkContext(final SparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetRDDOfAllElements, Builder>
+            implements Output.Builder<GetRDDOfAllElements, RDD<Element>, Builder>,
+            GraphFilters.Builder<GetRDDOfAllElements, Builder>,
+            Rdd.Builder<GetRDDOfAllElements, Builder>,
+            Options.Builder<GetRDDOfAllElements, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetRDDOfAllElements op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
+            super(new GetRDDOfAllElements());
         }
     }
 }

@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -100,43 +101,53 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
-     * Validates the schema to ensure all element definitions are valid.
-     * Throws a SchemaException if it is not valid.
+     * Checks the schema has aggregators.
      *
-     * @return true if valid, otherwise false.
-     * @throws SchemaException if validation fails then a SchemaException is thrown.
+     * @return {@code true} if the schema contains aggregators, otherwise {@code false}
      */
-    public boolean validate() throws SchemaException {
-        for (final String edgeGroup : getEdgeGroups()) {
-            if (null != getEntity(edgeGroup)) {
-                LOGGER.warn("Groups must not be shared between Entity definitions and Edge definitions."
-                        + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
-                return false;
+    public boolean hasAggregators() {
+        boolean schemaContainsAggregators = false;
+
+        for (final TypeDefinition type : types.values()) {
+            if (null != type.getAggregateFunction()) {
+                schemaContainsAggregators = true;
             }
         }
 
+        return schemaContainsAggregators;
+    }
+
+    /**
+     * Validates the schema to ensure all element definitions are valid.
+     * Throws a SchemaException if it is not valid.
+     *
+     * @return ValidationResult the validation result
+     * @throws SchemaException if validation fails then a SchemaException is thrown.
+     */
+    public ValidationResult validate() throws SchemaException {
+        final ValidationResult result = new ValidationResult();
+        for (final String edgeGroup : getEdgeGroups()) {
+            if (null != getEntity(edgeGroup)) {
+                result.addError("Groups must not be shared between Entity definitions and Edge definitions."
+                        + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
+            }
+        }
+
+        final boolean hasAggregators = hasAggregators();
         for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
-
-            if (!elementDefEntry.getValue().validate()) {
-                LOGGER.warn("VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
+            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
         }
 
         for (final Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
-
-            if (!elementDefEntry.getValue().validate()) {
-                LOGGER.warn("VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
+            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
-        return true;
+        return result;
     }
 
     public Map<String, TypeDefinition> getTypes() {

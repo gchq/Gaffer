@@ -18,6 +18,12 @@ package uk.gov.gchq.gaffer.rest.factory;
 import uk.gov.gchq.gaffer.user.User;
 
 public class UnknownUserFactory implements UserFactory {
+
+    public UnknownUserFactory() {
+        // User factories should be constructed via the createGraphFactory static method,
+        // public constructor is required only by HK2
+    }
+
     @Override
     public User createUser() {
         return new User();

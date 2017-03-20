@@ -1,5 +1,5 @@
 {
-  "elements": [
+  "input": [
     {
       "class": "uk.gov.gchq.gaffer.data.element.Edge",
       "properties": {

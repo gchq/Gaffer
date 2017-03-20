@@ -19,19 +19,12 @@ package uk.gov.gchq.gaffer.arrayliststore.data.generator;
 import uk.gov.gchq.gaffer.arrayliststore.data.SimpleEdgeDataObject;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.AlwaysValid;
-import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-public class SimpleEdgeGenerator extends OneToOneElementGenerator<SimpleEdgeDataObject> {
-
-    public SimpleEdgeGenerator() {
-        super(new IsEdgeValidator(), new AlwaysValid<SimpleEdgeDataObject>(), false);
-    }
-
-    public Element getElement(final SimpleEdgeDataObject simpleDataObject) {
+public class SimpleEdgeGenerator implements OneToOneElementGenerator<SimpleEdgeDataObject> {
+    public Element _apply(final SimpleEdgeDataObject simpleDataObject) {
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setSource(simpleDataObject.getRight());
         edge.setDestination(simpleDataObject.getLeft());
@@ -39,14 +32,5 @@ public class SimpleEdgeGenerator extends OneToOneElementGenerator<SimpleEdgeData
         edge.putProperty(TestPropertyNames.INT, simpleDataObject.getVisibility());
         edge.putProperty(TestPropertyNames.STRING, simpleDataObject.getProperties());
         return edge;
-    }
-
-    public SimpleEdgeDataObject getObject(final Element element) {
-        final Edge edge = (Edge) element;
-        int left = (Integer) edge.getDestination();
-        int right = (Integer) edge.getSource();
-        final Integer visibility = (Integer) edge.getProperty(TestPropertyNames.INT);
-        final String properties = (String) edge.getProperty(TestPropertyNames.STRING);
-        return new SimpleEdgeDataObject(left, right, visibility, properties);
     }
 }

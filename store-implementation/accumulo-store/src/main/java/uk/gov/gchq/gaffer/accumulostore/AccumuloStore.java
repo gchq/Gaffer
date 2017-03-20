@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
@@ -53,26 +53,23 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesInRanges;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
+import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -81,6 +78,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
@@ -210,7 +208,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+    public Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
@@ -223,13 +221,9 @@ public class AccumuloStore extends Store {
     @Override
     protected void addAdditionalOperationHandlers() {
         addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        addOperationHandler(GetEdgesBetweenSets.class, new GetElementsBetweenSetsHandler());
         addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-        addOperationHandler(GetEdgesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
-        addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
         addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-        addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
         addOperationHandler(SplitTable.class, new SplitTableHandler());
         addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
         addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
@@ -237,22 +231,22 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return new GetAdjacentEntitySeedsHandler();
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+        return new GetAdjacentIdsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
     }
 
@@ -278,46 +272,51 @@ public class AccumuloStore extends Store {
         // BatchWriter.as
         // The BatchWriter takes care of batching them up, sending them without
         // too high a latency, etc.
-        for (final Element element : elements) {
-            final Pair<Key> keys;
-            try {
-                keys = keyPackage.getKeyConverter().getKeysFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                        + " when trying to insert elements", e);
-                continue;
-            }
-            final Value value;
-            try {
-                value = keyPackage.getKeyConverter().getValueFromElement(element);
-            } catch (final AccumuloElementConversionException e) {
-                LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
-                        + " when trying to insert elements", e);
-                continue;
-            }
-            final Mutation m = new Mutation(keys.getFirst().getRow());
-            m.put(keys.getFirst().getColumnFamily(), keys.getFirst().getColumnQualifier(),
-                    new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
-            try {
-                writer.addMutation(m);
-            } catch (final MutationsRejectedException e) {
-                LOGGER.error("Failed to create an accumulo key mutation", e);
-                continue;
-            }
-            // If the GraphElement is a Vertex then there will only be 1 key,
-            // and the second will be null.
-            // If the GraphElement is an Edge then there will be 2 keys.
-            if (keys.getSecond() != null) {
-                final Mutation m2 = new Mutation(keys.getSecond().getRow());
-                m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
-                        new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
-                        value);
+        if (elements != null) {
+            for (final Element element : elements) {
+
+                final Pair<Key> keys;
                 try {
-                    writer.addMutation(m2);
+                    keys = keyPackage.getKeyConverter().getKeysFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
+                            + " when trying to insert elements");
+                    continue;
+                }
+                final Value value;
+                try {
+                    value = keyPackage.getKeyConverter().getValueFromElement(element);
+                } catch (final AccumuloElementConversionException e) {
+                    LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
+                            + " when trying to insert elements");
+                    continue;
+                }
+                final Mutation m = new Mutation(keys.getFirst().getRow());
+                m.put(keys.getFirst().getColumnFamily(), keys.getFirst().getColumnQualifier(),
+                        new ColumnVisibility(keys.getFirst().getColumnVisibility()), keys.getFirst().getTimestamp(), value);
+                try {
+                    writer.addMutation(m);
                 } catch (final MutationsRejectedException e) {
-                    LOGGER.error("Failed to create an accumulo key mutation", e);
+                    LOGGER.error("Failed to create an accumulo key mutation");
+                    continue;
+                }
+                // If the GraphElement is a Vertex then there will only be 1 key,
+                // and the second will be null.
+                // If the GraphElement is an Edge then there will be 2 keys.
+                if (keys.getSecond() != null) {
+                    final Mutation m2 = new Mutation(keys.getSecond().getRow());
+                    m2.put(keys.getSecond().getColumnFamily(), keys.getSecond().getColumnQualifier(),
+                            new ColumnVisibility(keys.getSecond().getColumnVisibility()), keys.getSecond().getTimestamp(),
+                            value);
+                    try {
+                        writer.addMutation(m2);
+                    } catch (final MutationsRejectedException e) {
+                        LOGGER.error("Failed to create an accumulo key mutation");
+                    }
                 }
             }
+        } else {
+            throw new GafferRuntimeException("Could not find any elements to add to graph.", Status.BAD_REQUEST);
         }
         try {
             writer.close();

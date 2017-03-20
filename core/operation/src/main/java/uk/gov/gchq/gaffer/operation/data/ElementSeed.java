@@ -16,82 +16,31 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
- * An <code>ElementSeed</code> contains the identifiers for an {@link uk.gov.gchq.gaffer.data.element.Entity} or
+ * An <code>ElementId</code> contains the identifiers for an {@link uk.gov.gchq.gaffer.data.element.Entity} or
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
- *
- * @see EntitySeed
- * @see EdgeSeed
  */
-@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
-public abstract class ElementSeed {
-    /**
-     * @param that the {@link ElementSeed} to compare
-     * @return An instance of {@link Matches} to describe how the seeds are related.
-     * @see EntitySeed#isRelated(ElementSeed)
-     * @see EdgeSeed#isRelated(ElementSeed)
-     */
-    public abstract Matches isRelated(ElementSeed that);
-
+public abstract class ElementSeed implements ElementId {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
-    public static ElementSeed createSeed(final Element element) {
-        if (element instanceof Entity) {
-            return createSeed((Entity) element);
+    public static ElementSeed createSeed(final ElementId elementId) {
+        if (elementId instanceof EntityId) {
+            return createSeed((EntityId) elementId);
         }
 
-        return createSeed((Edge) element);
+        return createSeed((EdgeId) elementId);
     }
 
-    public static EntitySeed createSeed(final Entity entity) {
-        return new EntitySeed(entity.getVertex());
+    public static EntitySeed createSeed(final EntityId entityId) {
+        return new EntitySeed(entityId.getVertex());
     }
 
-    public static EdgeSeed createSeed(final Edge edge) {
-        return new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-    }
-
-    @JsonGetter("class")
-    String getClassName() {
-        return getClass().getName();
-    }
-
-    @JsonSetter("class")
-    void setClassName(final String className) {
-        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
-    }
-
-    public enum Matches {
-        BOTH,
-        VERTEX,
-        SOURCE,
-        DESTINATION,
-        NONE;
-
-        public boolean isIdentifier() {
-            return this == VERTEX;
-        }
-
-        public boolean isSource() {
-            return this == BOTH || this == SOURCE;
-        }
-
-        public boolean isDestination() {
-            return this == BOTH || this == DESTINATION;
-        }
-
-        public boolean isMatch() {
-            return this != NONE;
-        }
+    public static EdgeSeed createSeed(final EdgeId edgeId) {
+        return new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
     }
 }

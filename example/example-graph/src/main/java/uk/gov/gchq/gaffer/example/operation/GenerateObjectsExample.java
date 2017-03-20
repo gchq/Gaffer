@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.example.operation.generator.DataGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
+import uk.gov.gchq.gaffer.example.operation.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import java.util.Arrays;
 
@@ -41,8 +41,8 @@ public class GenerateObjectsExample extends OperationExample {
 
     public CloseableIterable<String> generateStringsFromElements() {
         // ---------------------------------------------------------
-        final GenerateObjects<Element, String> operation = new GenerateObjects.Builder<Element, String>()
-                .elements(Arrays.asList(
+        final GenerateObjects<String> operation = new GenerateObjects.Builder<String>()
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -53,7 +53,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .source(5).dest(6).directed(true)
                                 .property("count", 1)
                                 .build()))
-                .generator(new DataGenerator())
+                .generator(new ObjectGenerator())
                 .build();
         // ---------------------------------------------------------
 
@@ -62,8 +62,8 @@ public class GenerateObjectsExample extends OperationExample {
 
     public CloseableIterable<Object> generateDomainObjectsFromElements() {
         // ---------------------------------------------------------
-        final GenerateObjects<Element, Object> operation = new GenerateObjects.Builder<>()
-                .elements(Arrays.asList(
+        final GenerateObjects<Object> operation = new GenerateObjects.Builder<>()
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -166,15 +166,10 @@ public class GenerateObjectsExample extends OperationExample {
         }
     }
 
-    public static class DomainObjectGenerator extends OneToOneElementGenerator<Object> {
-        @Override
-        public Element getElement(final Object domainObject) {
-            throw new UnsupportedOperationException("Getting objects is not supported");
-        }
-
+    public static class DomainObjectGenerator implements OneToOneObjectGenerator<Object> {
         @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
         @Override
-        public Object getObject(final Element element) {
+        public Object _apply(final Element element) {
             if (element instanceof Entity) {
                 return new DomainObject1((int) ((Entity) element).getVertex(), (int) element.getProperty("count"));
             } else {

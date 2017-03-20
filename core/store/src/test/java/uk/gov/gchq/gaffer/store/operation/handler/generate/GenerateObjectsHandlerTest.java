@@ -20,7 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.store.Context;
@@ -37,16 +37,16 @@ public class GenerateObjectsHandlerTest {
         // Given
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
-        final GenerateObjects<Element, String> operation = mock(GenerateObjects.class);
+        final GenerateObjects<String> operation = mock(GenerateObjects.class);
         final CloseableIterable<Element> elements = mock(CloseableIterable.class);
-        final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
+        final ObjectGenerator<String> elementGenerator = mock(ObjectGenerator.class);
         final CloseableIterable<String> objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
         final CloseableIterator<String> objsIter = mock(CloseableIterator.class);
         given(objs.iterator()).willReturn(objsIter);
-        given(elementGenerator.getObjects(elements)).willReturn(objs);
-        given(operation.getElements()).willReturn(elements);
+        given(elementGenerator.apply(elements)).willReturn(objs);
+        given(operation.getInput()).willReturn(elements);
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
