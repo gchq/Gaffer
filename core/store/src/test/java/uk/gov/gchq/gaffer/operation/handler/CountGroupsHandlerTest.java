@@ -65,7 +65,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Context context = new Context();
 
         given(countGroups.getLimit()).willReturn(null);
@@ -92,7 +92,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Integer limit = 10;
         final Context context = new Context();
 
@@ -120,7 +120,7 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Integer limit = 3;
         final Context context = new Context();
 

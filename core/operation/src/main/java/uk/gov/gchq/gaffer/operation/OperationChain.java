@@ -22,15 +22,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.io.Input;
-import uk.gov.gchq.gaffer.operation.io.InputIterableOutput;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
-import uk.gov.gchq.gaffer.operation.io.InputOutputT;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.ArrayList;
@@ -150,10 +143,6 @@ public class OperationChain<OUT> {
         public <NEXT_OUT> OutputBuilder<NEXT_OUT> first(final Output<NEXT_OUT> op) {
             return new OutputBuilder<>(op);
         }
-
-        public <NEXT_OUT_ITEM> IterableOutputBuilder<NEXT_OUT_ITEM> first(final IterableOutput<NEXT_OUT_ITEM> op) {
-            return new IterableOutputBuilder<>(op);
-        }
     }
 
     public static final class NoOutputBuilder {
@@ -178,11 +167,6 @@ public class OperationChain<OUT> {
             return new OutputBuilder<>(ops);
         }
 
-        public <NEXT_OUT_ITEM> IterableOutputBuilder<NEXT_OUT_ITEM> then(final IterableOutput<NEXT_OUT_ITEM> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
-        }
-
         public OperationChain<Void> build() {
             return new OperationChain<>(ops);
         }
@@ -200,11 +184,6 @@ public class OperationChain<OUT> {
             this.ops = ops;
         }
 
-        public OutputBuilder<OUT> then(final InputOutputT<OUT> op) {
-            ops.add(op);
-            return new OutputBuilder<>(ops);
-        }
-
         public NoOutputBuilder then(final Input<? super OUT> op) {
             ops.add(op);
             return new NoOutputBuilder(ops);
@@ -215,64 +194,7 @@ public class OperationChain<OUT> {
             return new OutputBuilder<>(ops);
         }
 
-        public <NEXT_OUT_ITEM> IterableOutputBuilder<NEXT_OUT_ITEM> then(final InputIterableOutput<? super OUT, NEXT_OUT_ITEM> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
-        }
-
         public OperationChain<OUT> build() {
-            return new OperationChain<>(ops);
-        }
-    }
-
-    public static final class IterableOutputBuilder<OUT_ITEM> {
-        private final List<Operation> ops;
-
-        private IterableOutputBuilder(final IterableOutput<OUT_ITEM> op) {
-            this(new ArrayList<>());
-            ops.add(op);
-        }
-
-        private IterableOutputBuilder(final List<Operation> ops) {
-            this.ops = ops;
-        }
-
-        public IterableOutputBuilder<OUT_ITEM> then(final InputOutputT<Iterable<? super OUT_ITEM>> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
-        }
-
-        public NoOutputBuilder then(final Input<? super Iterable<? super OUT_ITEM>> op) {
-            ops.add(op);
-            return new NoOutputBuilder(ops);
-        }
-
-        public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final InputOutput<? super Iterable<? super OUT_ITEM>, NEXT_OUT> op) {
-            ops.add(op);
-            return new OutputBuilder<>(ops);
-        }
-
-        public <NEXT_OUT> IterableOutputBuilder<NEXT_OUT> then(final InputIterableOutput<? super Iterable<? super OUT_ITEM>, NEXT_OUT> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
-        }
-
-        public NoOutputBuilder then(final IterableInput<? super OUT_ITEM> op) {
-            ops.add(op);
-            return new NoOutputBuilder(ops);
-        }
-
-        public <NEXT_OUT> OutputBuilder<NEXT_OUT> then(final IterableInputOutput<? super OUT_ITEM, NEXT_OUT> op) {
-            ops.add(op);
-            return new OutputBuilder<>(ops);
-        }
-
-        public <NEXT_OUT> IterableOutputBuilder<NEXT_OUT> then(final IterableInputIterableOutput<? super OUT_ITEM, NEXT_OUT> op) {
-            ops.add(op);
-            return new IterableOutputBuilder<>(ops);
-        }
-
-        public OperationChain<CloseableIterable<OUT_ITEM>> build() {
             return new OperationChain<>(ops);
         }
     }

@@ -82,7 +82,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -121,7 +121,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -156,7 +156,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -194,7 +194,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graph.execute(get, USER_DEFAULT);
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, USER_DEFAULT);
 
         final List<Element> results = Lists.newArrayList(iterable);
 
@@ -236,8 +236,8 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("A"), new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
-        final CloseableIterable<Element> userVis2Iterable = graph.execute(get, USER_VIS_2);
+        final CloseableIterable<? extends Element> userVis1Iterable = graph.execute(get, USER_VIS_1);
+        final CloseableIterable<? extends Element> userVis2Iterable = graph.execute(get, USER_VIS_2);
 
         final List<Element> userVis1Results = Lists.newArrayList(userVis1Iterable);
         final List<Element> userVis2Results = Lists.newArrayList(userVis2Iterable);
@@ -280,7 +280,7 @@ public class VisibilityIT extends AbstractStoreIT {
                 .input(new EntitySeed("B"))
                 .build();
 
-        final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
                 .newHashSet("vis1", "vis2")));
 
         final List<Element> results = Lists.newArrayList(iterable);
@@ -312,7 +312,7 @@ public class VisibilityIT extends AbstractStoreIT {
         final GetElements get = new GetElements.Builder()
                 .input(new EntitySeed("B"))
                 .build();
-        final CloseableIterable<Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
+        final CloseableIterable<? extends Element> iterable = graph.execute(get, new User(User.UNKNOWN_USER_ID, Sets
                 .newHashSet("vis1")));
 
         final List<Element> results = Lists.newArrayList(iterable);

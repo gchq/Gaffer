@@ -30,5 +30,5 @@ import java.util.function.Function;
  * @param <OBJ> the type of domain object
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY, property = "class")
-public interface ObjectGenerator<OBJ> extends Function<Iterable<Element>, Iterable<OBJ>> {
+public interface ObjectGenerator<OBJ> extends Function<Iterable<? extends Element>, Iterable<? extends OBJ>> {
 }

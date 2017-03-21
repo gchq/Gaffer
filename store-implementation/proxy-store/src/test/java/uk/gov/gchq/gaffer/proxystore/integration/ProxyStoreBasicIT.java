@@ -123,11 +123,11 @@ public class ProxyStoreBasicIT {
 
 
         // When - Get
-        final CloseableIterable<Element> results = graph.execute(new GetAllElements(), USER);
+        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
-        assertThat(results, hasItems(DEFAULT_ELEMENTS));
+        assertThat((CloseableIterable<Element>) results, hasItems(DEFAULT_ELEMENTS));
     }
 
     @Test
@@ -142,11 +142,11 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertEquals(1, Iterables.size(results));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
     }
 
     @Test
@@ -173,12 +173,12 @@ public class ProxyStoreBasicIT {
                         .build())
                 .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertEquals(2, Iterables.size(results));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
     }
 
     @Test

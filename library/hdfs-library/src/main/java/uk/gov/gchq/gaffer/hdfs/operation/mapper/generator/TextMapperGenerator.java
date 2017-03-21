@@ -29,27 +29,27 @@ import java.util.function.Function;
  */
 public class TextMapperGenerator implements MapperGenerator<LongWritable, Text> {
     private final List<String> singleItemList = new ArrayList<>(1);
-    private Function<Iterable<String>, Iterable<Element>> elementGenerator;
+    private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
 
     public TextMapperGenerator() {
     }
 
-    public TextMapperGenerator(final Function<Iterable<String>, Iterable<Element>> elementGenerator) {
+    public TextMapperGenerator(final Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @Override
-    public Iterable<Element> getElements(final LongWritable keyIn, final Text valueIn, final MapContext<LongWritable, Text, ?, ?> context) {
+    public Iterable<? extends Element> getElements(final LongWritable keyIn, final Text valueIn, final MapContext<LongWritable, Text, ?, ?> context) {
         singleItemList.clear();
         singleItemList.add(valueIn.toString());
         return elementGenerator.apply(singleItemList);
     }
 
-    public Function<Iterable<String>, Iterable<Element>> getElementGenerator() {
+    public Function<Iterable<? extends String>, Iterable<? extends Element>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final Function<Iterable<String>, Iterable<Element>> elementGenerator) {
+    public void setElementGenerator(final Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 }

@@ -273,17 +273,17 @@ public class ProxyStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return null;
     }
 
     @Override
-    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
         return null;
     }
 

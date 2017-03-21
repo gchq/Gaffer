@@ -24,20 +24,22 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.Map;
 
 public class GetRDDOfElements implements
         Operation,
-        IterableInputOutput<ElementId, RDD<Element>>,
+        InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
+        MultiInput<ElementId>,
         SeededGraphFilters,
         Rdd,
         Options {
 
     private Map<String, String> options;
     private SparkContext sparkContext;
-    private Iterable<ElementId> input;
+    private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
@@ -75,12 +77,12 @@ public class GetRDDOfElements implements
     }
 
     @Override
-    public Iterable<ElementId> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<ElementId> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
@@ -115,7 +117,8 @@ public class GetRDDOfElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
-            implements IterableInputOutput.Builder<GetRDDOfElements, ElementId, RDD<Element>, Builder>,
+            implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
+            MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
             Rdd.Builder<GetRDDOfElements, Builder>,
             Options.Builder<GetRDDOfElements, Builder> {

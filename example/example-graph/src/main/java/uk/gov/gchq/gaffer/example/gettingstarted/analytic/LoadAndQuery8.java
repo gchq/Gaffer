@@ -55,7 +55,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         new LoadAndQuery8().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user who can see public and private data
         // ---------------------------------------------------------
         final User user = new User.Builder()
@@ -93,7 +93,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         // ---------------------------------------------------------
         final GetAllElements allEdgesOperation = new GetAllElements();
 
-        final CloseableIterable<Element> edges = graph.execute(allEdgesOperation, user);
+        final CloseableIterable<? extends Element> edges = graph.execute(allEdgesOperation, user);
         // ---------------------------------------------------------
         log("\nAll edges in daily time buckets:");
         for (final Element edge : edges) {
@@ -112,7 +112,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final CloseableIterable<Element> edgesSummarised = graph.execute(edgesSummarisedOperation, user);
+        final CloseableIterable<? extends Element> edgesSummarised = graph.execute(edgesSummarisedOperation, user);
         // ---------------------------------------------------------
         log("\nAll edges summarised:");
         for (final Element edge : edgesSummarised) {
@@ -139,7 +139,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final CloseableIterable<Element> edgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, user);
+        final CloseableIterable<? extends Element> edgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, user);
         // ---------------------------------------------------------
         log("\nEdges in 2 day time window:");
         for (final Element edge : edgesSummarisedInTimeWindow) {
@@ -152,7 +152,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
                 .userId("public user")
                 .dataAuths("public")
                 .build();
-        final CloseableIterable<Element> publicEdgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, publicUser);
+        final CloseableIterable<? extends Element> publicEdgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, publicUser);
         log("\nPublic edges in 2 day time window:");
         for (final Element edge : publicEdgesSummarisedInTimeWindow) {
             log("GET_PUBLIC_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());

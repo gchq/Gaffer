@@ -60,7 +60,7 @@ public class JcsJobTrackerIT {
     @Test
     public void shouldAddJobIdToJobTrackerWhenExecuteJob() throws OperationException, IOException, InterruptedException {
         // Given
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain<>(new GetAllElements());
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain<>(new GetAllElements());
         final User user = new User("user01");
 
         // When

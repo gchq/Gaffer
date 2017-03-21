@@ -33,12 +33,12 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP extends IterableOutput<Element> & GraphFilters> implements CloseableIterable<Element> {
+public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> implements CloseableIterable<Element> {
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;

@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class GetAllElements implements
         Operation,
-        IterableOutput<Element>,
+        Output<CloseableIterable<? extends Element>>,
         GraphFilters,
         Options {
     private View view;
@@ -62,7 +62,7 @@ public class GetAllElements implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
     }
 
@@ -77,7 +77,7 @@ public class GetAllElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
-            implements IterableOutput.Builder<GetAllElements, Element, Builder>,
+            implements Output.Builder<GetAllElements, CloseableIterable<? extends Element>, Builder>,
             GraphFilters.Builder<GetAllElements, Builder>,
             Options.Builder<GetAllElements, Builder> {
         public Builder() {

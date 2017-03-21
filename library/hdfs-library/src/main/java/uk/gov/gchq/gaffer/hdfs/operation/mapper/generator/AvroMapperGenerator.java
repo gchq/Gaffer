@@ -29,27 +29,27 @@ import java.util.function.Function;
  */
 public class AvroMapperGenerator<OBJ> implements MapperGenerator<AvroKey<OBJ>, NullWritable> {
     private final List<OBJ> singleItemList = new ArrayList<>(1);
-    private Function<Iterable<OBJ>, Iterable<Element>> elementGenerator;
+    private Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator;
 
     public AvroMapperGenerator() {
     }
 
-    public AvroMapperGenerator(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
+    public AvroMapperGenerator(final Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @Override
-    public Iterable<Element> getElements(final AvroKey<OBJ> keyIn, final NullWritable valueIn, final MapContext<AvroKey<OBJ>, NullWritable, ?, ?> context) {
+    public Iterable<? extends Element> getElements(final AvroKey<OBJ> keyIn, final NullWritable valueIn, final MapContext<AvroKey<OBJ>, NullWritable, ?, ?> context) {
         singleItemList.clear();
         singleItemList.add(keyIn.datum());
         return elementGenerator.apply(singleItemList);
     }
 
-    public Function<Iterable<OBJ>, Iterable<Element>> getElementGenerator() {
+    public Function<Iterable<? extends OBJ>, Iterable<? extends Element>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final Function<Iterable<OBJ>, Iterable<Element>> elementGenerator) {
+    public void setElementGenerator(final Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 }

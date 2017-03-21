@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import java.util.Map;
 
 /**
@@ -35,11 +35,11 @@ import java.util.Map;
 public class AddElements implements
         Operation,
         Validatable,
-        IterableInput<Element>,
+        MultiInput<Element>,
         Options {
     private boolean validate = true;
     private boolean skipInvalidElements;
-    private Iterable<Element> elements;
+    private Iterable<? extends Element> elements;
     private Map<String, String> options;
 
     @Override
@@ -63,12 +63,12 @@ public class AddElements implements
     }
 
     @Override
-    public Iterable<Element> getInput() {
+    public Iterable<? extends Element> getInput() {
         return elements;
     }
 
     @Override
-    public void setInput(final Iterable<Element> elements) {
+    public void setInput(final Iterable<? extends Element> elements) {
         this.elements = elements;
     }
 
@@ -84,7 +84,7 @@ public class AddElements implements
 
     public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
             implements Validatable.Builder<AddElements, Builder>,
-            IterableInput.Builder<AddElements, Element, Builder>,
+            MultiInput.Builder<AddElements, Element, Builder>,
             Options.Builder<AddElements, Builder> {
         public Builder() {
             super(new AddElements());

@@ -131,7 +131,7 @@ public class GafferResultCacheExporter implements Exporter {
                         .build())
                 .build();
 
-        final CloseableIterable<Element> edges = resultCache.execute(getEdges, user);
+        final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, user);
         if (null == edges) {
             return new WrappedCloseableIterable<>(Collections.emptyList());
         }
@@ -141,7 +141,7 @@ public class GafferResultCacheExporter implements Exporter {
     private static class TransformJsonResult extends TransformIterable<Element, Object> {
         private final JSONSerialiser jsonSerialiser;
 
-        TransformJsonResult(final Iterable<Element> input, final JSONSerialiser jsonSerialiser) {
+        TransformJsonResult(final Iterable<? extends Element> input, final JSONSerialiser jsonSerialiser) {
             super(input, new AlwaysValid<>(), false, true);
             this.jsonSerialiser = jsonSerialiser;
         }

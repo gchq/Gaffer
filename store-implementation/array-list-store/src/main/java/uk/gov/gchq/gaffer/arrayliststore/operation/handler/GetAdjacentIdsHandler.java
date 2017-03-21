@@ -33,10 +33,10 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
-public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
     @Override
-    public CloseableIterable<EntityId> doOperation(final GetAdjacentIds operation,
-                                                   final Context context, final Store store)
+    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
+                                                             final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }

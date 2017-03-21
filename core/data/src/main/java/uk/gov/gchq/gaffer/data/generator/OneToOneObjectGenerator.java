@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 
 public interface OneToOneObjectGenerator<OBJ> extends ObjectGenerator<OBJ> {
     @Override
-    default Iterable<OBJ> apply(final Iterable<Element> elements) {
+    default Iterable<? extends OBJ> apply(final Iterable<? extends Element> elements) {
         return new TransformIterable<Element, OBJ>(elements) {
             @Override
             protected OBJ transform(final Element element) {

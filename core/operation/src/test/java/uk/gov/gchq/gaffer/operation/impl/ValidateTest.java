@@ -63,7 +63,7 @@ public class ValidateTest implements OperationTest {
         final Validate deserialisedOp = serialiser.deserialise(json, Validate.class);
 
         // Then
-        final Iterator<Element> itr = deserialisedOp.getInput().iterator();
+        final Iterator<? extends Element> itr = deserialisedOp.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
         assertEquals("vertex 1", elm1.getVertex());

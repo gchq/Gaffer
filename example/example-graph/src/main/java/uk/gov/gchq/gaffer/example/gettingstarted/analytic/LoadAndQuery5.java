@@ -37,7 +37,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         new LoadAndQuery5().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User basicUser = new User("basicUser");
@@ -84,7 +84,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Element> resultsWithBasicUser = graph.execute(getEdges, basicUser);
+        final CloseableIterable<? extends Element> resultsWithBasicUser = graph.execute(getEdges, basicUser);
         // ---------------------------------------------------------
         for (final Element e : resultsWithBasicUser) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
@@ -104,7 +104,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .input(new EntitySeed("1"))
                 .build();
 
-        final CloseableIterable<Element> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
+        final CloseableIterable<? extends Element> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         // ---------------------------------------------------------
         for (final Element e : publicResults) {
             log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
@@ -123,7 +123,7 @@ public class LoadAndQuery5 extends LoadAndQuery {
                 .input(new EntitySeed("1"))
                 .build();
 
-        final CloseableIterable<Element> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
+        final CloseableIterable<? extends Element> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         // ---------------------------------------------------------
         for (final Element e : privateResults) {
             log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());

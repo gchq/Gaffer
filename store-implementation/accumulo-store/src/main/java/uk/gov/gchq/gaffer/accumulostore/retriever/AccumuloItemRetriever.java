@@ -28,13 +28,14 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
@@ -43,22 +44,22 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP extends IterableOutput<Element> & GraphFilters & Options, I_ITEM>
+public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options, I_ITEM>
         extends AccumuloRetriever<OP> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private final Iterable<I_ITEM> ids;
+    private final Iterable<? extends I_ITEM> ids;
 
     protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
                                     final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
-        this.ids = operation instanceof IterableInput ? ((IterableInput<I_ITEM>) operation).getInput() : null;
+        this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
     }
 
     @Override
     public CloseableIterator<Element> iterator() {
-        final Iterator<I_ITEM> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
         }
@@ -76,13 +77,13 @@ public abstract class AccumuloItemRetriever<OP extends IterableOutput<Element> &
     protected abstract void addToRanges(final I_ITEM seed, final Set<Range> ranges) throws RangeFactoryException;
 
     protected class ElementIterator implements CloseableIterator<Element> {
-        private final Iterator<I_ITEM> idsIterator;
+        private final Iterator<? extends I_ITEM> idsIterator;
         private int count;
         private BatchScanner scanner;
         private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
 
-        protected ElementIterator(final Iterator<I_ITEM> idIterator) throws RetrieverException {
+        protected ElementIterator(final Iterator<? extends I_ITEM> idIterator) throws RetrieverException {
             idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();

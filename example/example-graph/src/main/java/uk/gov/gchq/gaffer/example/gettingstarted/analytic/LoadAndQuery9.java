@@ -45,7 +45,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         new LoadAndQuery9().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -77,7 +77,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
 
         // [get] Get all edges
         // ---------------------------------------------------------
-        final CloseableIterable<Element> edges = graph.execute(new GetAllElements(), user);
+        final CloseableIterable<? extends Element> edges = graph.execute(new GetAllElements(), user);
         // ---------------------------------------------------------
         log("\nAll edges:");
         for (final Element edge : edges) {
@@ -94,7 +94,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
                                 .build())
                         .build();
         // ---------------------------------------------------------
-        final CloseableIterable<Element> allCardinalities = graph.execute(getAllCardinalities, user);
+        final CloseableIterable<? extends Element> allCardinalities = graph.execute(getAllCardinalities, user);
         log("\nAll cardinalities");
         for (final Element cardinality : allCardinalities) {
             final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();
@@ -112,7 +112,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
                                 .build())
                         .build();
         // ---------------------------------------------------------
-        final CloseableIterable<Element> allSummarisedCardinalities = graph.execute(getAllSummarisedCardinalities, user);
+        final CloseableIterable<? extends Element> allSummarisedCardinalities = graph.execute(getAllSummarisedCardinalities, user);
         log("\nAll summarised cardinalities");
         for (final Element cardinality : allSummarisedCardinalities) {
             final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();

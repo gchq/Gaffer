@@ -170,7 +170,7 @@ public class AddElementsFromHdfsIT {
                 .build(), new User());
 
         // Then
-        final CloseableIterable<Element> elements = graph.execute(new GetAllElements(), new User());
+        final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
         final List<Element> elementList = Lists.newArrayList(elements);
         assertEquals(NUM_ENTITIES, elementList.size());
         for (int i = 0; i < NUM_ENTITIES; i++) {

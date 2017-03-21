@@ -407,14 +407,14 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}
      */
-    protected abstract OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler();
+    protected abstract OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}. All Stores must implement this.
      *
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAllElements}
      */
-    protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler();
+    protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
@@ -422,7 +422,7 @@ public abstract class Store {
      *
      * @return the implementation of the handler for {@link GetAdjacentIds}
      */
-    protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler();
+    protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}. All Stores must implement this.

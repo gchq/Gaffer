@@ -50,7 +50,7 @@ public class ExportToGafferResultCacheExample extends OperationExample {
 
     public CloseableIterable<?> simpleExportAndGet() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToGafferResultCache<>())
                 .then(new DiscardOutput())
@@ -77,7 +77,7 @@ public class ExportToGafferResultCacheExample extends OperationExample {
 
     public CloseableIterable<?> getExport() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetGafferResultCacheExport.Builder()
                         .jobId(jobDetail.getJobId())
                         .build())

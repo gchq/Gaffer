@@ -48,7 +48,7 @@ public class LoadAndQuery5Test {
         final LoadAndQuery5 query = new LoadAndQuery5();
 
         // When
-        final CloseableIterable<Element> results = query.run();
+        final CloseableIterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -75,13 +75,13 @@ public class LoadAndQuery5Test {
 
         // When
         graph.execute(addElements, basicUser); // Execute the add operation chain on the graph
-        final CloseableIterable<Element> results = graph.execute(getRelatedEdges, publicUser); // Execute the query operation on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(getRelatedEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<Element> resultsItr) {
+    private void verifyResults(final CloseableIterable<? extends Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .group(GROUP)

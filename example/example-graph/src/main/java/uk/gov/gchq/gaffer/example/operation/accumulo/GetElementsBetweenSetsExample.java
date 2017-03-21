@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.example.operation.accumulo;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -38,7 +39,7 @@ public class GetElementsBetweenSetsExample extends OperationExample {
         getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2();
     }
 
-    public Iterable<Element> getElementsWithinSetOfVertices1And2And4() {
+    public CloseableIterable<? extends Element> getElementsWithinSetOfVertices1And2And4() {
         // ---------------------------------------------------------
         final GetElementsBetweenSets operation = new GetElementsBetweenSets.Builder()
                 .input(new EntitySeed(1))
@@ -49,7 +50,7 @@ public class GetElementsBetweenSetsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<Element> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
+    public CloseableIterable<? extends Element> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
         // ---------------------------------------------------------
         final GetElementsBetweenSets operation = new GetElementsBetweenSets.Builder()
                 .input(new EntitySeed(1))
