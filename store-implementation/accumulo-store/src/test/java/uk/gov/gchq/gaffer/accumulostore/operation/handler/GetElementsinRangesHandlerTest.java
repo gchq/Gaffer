@@ -34,11 +34,11 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -104,10 +104,10 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(defaultView).input(simpleEntityRanges).build();
 
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        CloseableIterable<Element> elementsInRanges = handler.doOperation(operation, user, store);
+        CloseableIterable<? extends Element> elementsInRanges = handler.doOperation(operation, user, store);
         final int elementsInRangesCount = Iterables.size(elementsInRanges);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
         assertEquals(1000 * 3, elementsInRangesCount);
@@ -115,7 +115,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
         assertEquals(800 * 3, count);
@@ -147,9 +147,9 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final CloseableIterable<Element> elementsInRange = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : elementsInRange) {
             //Make sure every element has been summarised
@@ -162,7 +162,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
             //Make sure every element has been summarised
@@ -199,12 +199,12 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final CloseableIterable<Element> rangeElements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> rangeElements = handler.doOperation(operation, user, store);
         int count = 0;
         for (final Element elm : rangeElements) {
             //Make sure every element has been summarised
@@ -216,7 +216,7 @@ public class GetElementsinRangesHandlerTest {
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
         simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
             //Make sure every element has been summarised
@@ -252,12 +252,12 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //There should be no incoming edges to the provided range
         assertEquals(0, count);
@@ -288,12 +288,12 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges<Pair<ElementSeed>, Element> operation = new GetElementsInRanges<>(view, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
 
         //All Edges stored should be outgoing from our provided seeds.
-        operation.setIncludeEdges(IncludeEdgeType.UNDIRECTED);
+        operation.setDirectedType(DirectedType.UNDIRECTED);
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //There should be no incoming edges to the provided range
         assertEquals(0, count);
@@ -333,7 +333,7 @@ public class GetElementsinRangesHandlerTest {
         }
 
         try {
-            store.execute(new AddElements(elements), user);
+            store.execute(new AddElements.Builder().input(elements).build(), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

@@ -40,7 +40,7 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
      * Constructs an <code>OneToOneElementGenerator</code> that doesn't validate the any elements or objects.
      */
     public OneToOneElementGenerator() {
-        this(new AlwaysValid<Element>(), new AlwaysValid<OBJ>(), false);
+        this(new AlwaysValid<>(), new AlwaysValid<>(), false);
     }
 
     /**
@@ -104,7 +104,7 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
      * @see uk.gov.gchq.gaffer.data.generator.ElementGenerator#getElements(java.lang.Iterable)
      */
     @Override
-    public Iterable<Element> getElements(final Iterable<OBJ> domainObjects) {
+    public Iterable<Element> getElements(final Iterable<? extends OBJ> domainObjects) {
         return new TransformIterable<OBJ, Element>(domainObjects, objValidator, skipInvalid) {
             @Override
             protected Element transform(final OBJ item) {
@@ -120,7 +120,7 @@ public abstract class OneToOneElementGenerator<OBJ> implements ElementGenerator<
      * @see uk.gov.gchq.gaffer.data.generator.ElementGenerator#getObjects(java.lang.Iterable)
      */
     @Override
-    public Iterable<OBJ> getObjects(final Iterable<Element> elements) {
+    public Iterable<OBJ> getObjects(final Iterable<? extends Element> elements) {
         return new TransformIterable<Element, OBJ>(elements, elementValidator, skipInvalid) {
             @Override
             protected OBJ transform(final Element item) {

@@ -15,15 +15,23 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import java.util.Map;
 
-public class ImportKeyValueJavaPairRDDToAccumulo extends AbstractOperation<JavaPairRDD<Key, Value>, Void> implements VoidOutput<JavaPairRDD<Key, Value>> {
+public class ImportKeyValueJavaPairRDDToAccumulo implements
+        Operation,
+        Input<JavaPairRDD<Key, Value>>,
+        Options {
+
+    private String outputPath;
+    private String failurePath;
+    private JavaPairRDD<Key, Value> input;
+    private Map<String, String> options;
 
     public String getOutputPath() {
         return outputPath;
@@ -31,14 +39,6 @@ public class ImportKeyValueJavaPairRDDToAccumulo extends AbstractOperation<JavaP
 
     public void setOutputPath(final String outputPath) {
         this.outputPath = outputPath;
-    }
-
-    private String outputPath;
-
-    private String failurePath;
-
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
     }
 
     public String getFailurePath() {
@@ -49,29 +49,41 @@ public class ImportKeyValueJavaPairRDDToAccumulo extends AbstractOperation<JavaP
         this.failurePath = failurePath;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<ImportKeyValueJavaPairRDDToAccumulo, JavaPairRDD<Key, Value>, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public JavaPairRDD<Key, Value> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final JavaPairRDD<Key, Value> input) {
+        this.input = input;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<ImportKeyValueJavaPairRDDToAccumulo, Builder>
+            implements Input.Builder<ImportKeyValueJavaPairRDDToAccumulo, JavaPairRDD<Key, Value>, Builder>,
+            Options.Builder<ImportKeyValueJavaPairRDDToAccumulo, Builder> {
+        public Builder() {
             super(new ImportKeyValueJavaPairRDDToAccumulo());
         }
 
-        public CHILD_CLASS outputPath(final String outputPath) {
-            op.setOutputPath(outputPath);
-            return self();
+        public Builder outputPath(final String outputPath) {
+            _getOp().setOutputPath(outputPath);
+            return _self();
         }
 
-        public CHILD_CLASS failurePath(final String failurePath) {
-            op.setFailurePath(failurePath);
-            return self();
-        }
-
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder failurePath(final String failurePath) {
+            _getOp().setFailurePath(failurePath);
+            return _self();
         }
     }
-
 }

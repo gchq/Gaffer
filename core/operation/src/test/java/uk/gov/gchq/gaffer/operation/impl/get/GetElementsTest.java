@@ -20,13 +20,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import java.util.Arrays;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -43,50 +42,44 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder<>().seeds(Collections.singletonList(elementSeed1))
-                                                          .seedMatching(SeedMatchingType.EQUAL)
-                                                          .build();
+        final GetElements op = new GetElements.Builder().input(Collections.singletonList(elementSeed1))
+                .seedMatching(SeedMatchingType.EQUAL)
+                .build();
 
         // Then
-        assertEquals(GetOperation.SeedMatchingType.EQUAL, op.getSeedMatching());
+        assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithElementSeeds() throws SerialisationException {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
-        final GetElements op = new GetElements(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElements op = new GetElements.Builder()
+                .input(elementSeed1, elementSeed2)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
         final GetElements deserialisedOp = serialiser.deserialise(json, GetElements.class);
 
         // Then
-        final Iterator itr = deserialisedOp.getSeeds().iterator();
+        final Iterator itr = deserialisedOp.getInput().iterator();
         assertEquals(elementSeed1, itr.next());
         assertEquals(elementSeed2, itr.next());
         assertFalse(itr.hasNext());
     }
 
     private void builderShouldCreatePopulatedOperationAll() {
-        final GetElements op = new GetElements.Builder<>()
-                .addSeed(new EntitySeed("A"))
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
-                .includeEntities(false)
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
-                .option("testOption", "true")
-                .populateProperties(false)
+        final GetElements op = new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
 
-        assertFalse(op.isIncludeEntities());
-        assertFalse(op.isPopulateProperties());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.BOTH,
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH,
                 op.getIncludeIncomingOutGoing());
-        assertEquals(GetOperation.IncludeEdgeType.ALL, op.getIncludeEdges());
-        assertEquals("true", op.getOption("testOption"));
         assertNotNull(op.getView());
     }
 
@@ -96,33 +89,28 @@ public class GetElementsTest implements OperationTest {
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
 
         // When
-        final GetElements op = new GetElements(Arrays.asList(elementSeed1, elementSeed2));
+        final GetElements op = new GetElements.Builder()
+                .input(elementSeed1, elementSeed2)
+                .seedMatching(SeedMatchingType.RELATED)
+                .build();
 
         // Then
-        assertEquals(GetOperation.SeedMatchingType.RELATED, op.getSeedMatching());
+        assertEquals(SeedMatchingType.RELATED, op.getSeedMatching());
     }
 
     private void builderShouldCreatePopulatedOperationIncoming() {
         ElementSeed seed = new EntitySeed("A");
-        GetElements op = new GetElements.Builder<>()
-                .addSeed(seed)
-                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
-                .includeEntities(false)
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
-                .option("testOption", "true").populateProperties(false)
+        GetElements op = new GetElements.Builder()
+                .input(seed)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals("true", op.getOption("testOption"));
-        assertFalse(op.isPopulateProperties());
-        assertFalse(op.isIncludeEntities());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, op
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, op
                 .getIncludeIncomingOutGoing());
-        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, op
-                .getIncludeEdges());
         assertNotNull(op.getView());
-        assertEquals(seed, op.getSeeds().iterator().next());
+        assertEquals(seed, op.getInput().iterator().next());
     }
 
     @Test

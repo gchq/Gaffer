@@ -15,55 +15,115 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import java.util.Map;
 
-public class GetRDDOfElements<SEED_TYPE extends ElementSeed> extends AbstractGetRDD<SEED_TYPE> {
+public class GetRDDOfElements implements
+        Operation,
+        InputOutput<Iterable<? extends ElementSeed>, RDD<Element>>,
+        MultiInput<ElementSeed>,
+        SeededGraphFilters,
+        Rdd,
+        Options {
+
+    private Map<String, String> options;
+    private SparkContext sparkContext;
+    private Iterable<? extends ElementSeed> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
 
     public GetRDDOfElements() {
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final Iterable<SEED_TYPE> seeds) {
-        this(sparkContext, new WrappedCloseableIterable<>(seeds));
-    }
-
-    public GetRDDOfElements(final SparkContext sparkContext, final CloseableIterable<SEED_TYPE> seeds) {
+    public GetRDDOfElements(final SparkContext sparkContext) {
         setSparkContext(sparkContext);
-        setInput(new WrappedCloseableIterable<>(seeds));
     }
 
-    public GetRDDOfElements(final SparkContext sparkContext, final SEED_TYPE seed) {
-        this(sparkContext, Collections.singleton(seed));
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends ElementSeed, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ?>>
-            extends AbstractGetRDD.BaseBuilder<GetRDDOfElements<SEED_TYPE>, SEED_TYPE, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetRDDOfElements<SEED_TYPE>());
-        }
-
-        public BaseBuilder(final GetRDDOfElements<SEED_TYPE> op) {
-            super(op);
-        }
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
-    public static final class Builder<SEED_TYPE extends ElementSeed>
-            extends BaseBuilder<SEED_TYPE, Builder<SEED_TYPE>> {
+    @Override
+    public TypeReference<RDD<Element>> getOutputTypeReference() {
+        return new TypeReferenceSparkImpl.RDDElement();
+    }
 
+    @Override
+    public SparkContext getSparkContext() {
+        return sparkContext;
+    }
+
+    @Override
+    public void setSparkContext(final SparkContext sparkContext) {
+        this.sparkContext = sparkContext;
+    }
+
+    @Override
+    public Iterable<? extends ElementSeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends ElementSeed> input) {
+        this.input = input;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
+            implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementSeed>, RDD<Element>, Builder>,
+            MultiInput.Builder<GetRDDOfElements, ElementSeed, Builder>,
+            SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
+            Rdd.Builder<GetRDDOfElements, Builder>,
+            Options.Builder<GetRDDOfElements, Builder> {
         public Builder() {
-        }
-
-        public Builder(final GetRDDOfElements<SEED_TYPE> op) {
-            super(op);
-        }
-
-        @Override
-        protected Builder<SEED_TYPE> self() {
-            return this;
+            super(new GetRDDOfElements());
         }
     }
 }

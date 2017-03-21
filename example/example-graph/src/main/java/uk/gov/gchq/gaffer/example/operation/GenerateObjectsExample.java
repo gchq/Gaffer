@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.example.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -39,10 +38,10 @@ public class GenerateObjectsExample extends OperationExample {
         generateDomainObjectsFromElements();
     }
 
-    public CloseableIterable<String> generateStringsFromElements() {
+    public Iterable<? extends String> generateStringsFromElements() {
         // ---------------------------------------------------------
-        final GenerateObjects<Element, String> operation = new GenerateObjects.Builder<Element, String>()
-                .elements(Arrays.asList(
+        final GenerateObjects<String> operation = new GenerateObjects.Builder<String>()
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
@@ -60,10 +59,10 @@ public class GenerateObjectsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Object> generateDomainObjectsFromElements() {
+    public Iterable<?> generateDomainObjectsFromElements() {
         // ---------------------------------------------------------
-        final GenerateObjects<Element, Object> operation = new GenerateObjects.Builder<>()
-                .elements(Arrays.asList(
+        final GenerateObjects<Object> operation = new GenerateObjects.Builder<>()
+                .input(Arrays.asList(
                         new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)

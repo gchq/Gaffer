@@ -48,7 +48,7 @@ public class CountGroupsHandlerTest {
         final CountGroups countGroups = mock(CountGroups.class);
         final Context context = new Context();
 
-        given(countGroups.getElements()).willReturn(null);
+        given(countGroups.getInput()).willReturn(null);
 
         // When
         final GroupCounts counts = handler.doOperation(countGroups, context, store);
@@ -65,11 +65,11 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Context context = new Context();
 
         given(countGroups.getLimit()).willReturn(null);
-        given(countGroups.getElements()).willReturn(elements);
+        given(countGroups.getInput()).willReturn(elements);
 
         // When
         final GroupCounts counts = handler.doOperation(countGroups, context, store);
@@ -92,12 +92,12 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Integer limit = 10;
         final Context context = new Context();
 
         given(countGroups.getLimit()).willReturn(limit);
-        given(countGroups.getElements()).willReturn(elements);
+        given(countGroups.getInput()).willReturn(elements);
 
         // When
         final GroupCounts counts = handler.doOperation(countGroups, context, store);
@@ -120,12 +120,12 @@ public class CountGroupsHandlerTest {
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
         final CountGroups countGroups = mock(CountGroups.class);
-        final CloseableIterable<Element> elements = getElements();
+        final CloseableIterable elements = getElements();
         final Integer limit = 3;
         final Context context = new Context();
 
         given(countGroups.getLimit()).willReturn(limit);
-        given(countGroups.getElements()).willReturn(elements);
+        given(countGroups.getInput()).willReturn(elements);
 
         // When
         final GroupCounts counts = handler.doOperation(countGroups, context, store);

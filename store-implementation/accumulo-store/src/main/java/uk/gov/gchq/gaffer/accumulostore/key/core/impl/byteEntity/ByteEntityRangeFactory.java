@@ -24,16 +24,19 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -44,8 +47,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                    final boolean endKey) throws RangeFactoryException {
+    protected Key getKeyFromEdgeSeed(final EdgeSeed seed, final GraphFilters operation,
+                                     final boolean endKey) throws RangeFactoryException {
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
@@ -84,17 +87,21 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                  final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
-        final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
-        final IncludeEdgeType includeEdges;
+    protected List<Range> getRange(final Object vertex, final GraphFilters operation,
+                                   final boolean includeEdgesParam) throws RangeFactoryException {
+
+        final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
+        final DirectedType directedType = operation.getDirectedType();
+        final boolean includeEdges;
         final boolean includeEntities;
-        if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching())) {
-            includeEdges = IncludeEdgeType.NONE;
+        final boolean seedEqual = (operation instanceof SeedMatching)
+                && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
+        if (seedEqual) {
+            includeEdges = false;
             includeEntities = true;
         } else {
             includeEdges = includeEdgesParam;
-            includeEntities = operation.isIncludeEntities();
+            includeEntities = operation.getView().hasEntities();
         }
 
         byte[] serialisedVertex;
@@ -104,17 +111,17 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
 
-        if (!includeEntities && includeEdges == IncludeEdgeType.NONE) {
+        if (!includeEntities && !includeEdges) {
             throw new IllegalArgumentException("Need to include either Entities or Edges or both when getting Range");
         }
 
-        if (includeEdges == IncludeEdgeType.NONE) {
+        if (!includeEdges) {
             // return only entities
             return Collections.singletonList(
                     new Range(getEntityKey(serialisedVertex, false), true, getEntityKey(serialisedVertex, true), true));
         } else {
             if (includeEntities) {
-                if (includeEdges == IncludeEdgeType.DIRECTED) {
+                if (directedType == DirectedType.DIRECTED) {
                     // return onlyDirectedEdges and entities
                     if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                         return Arrays.asList(
@@ -129,7 +136,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                         return Collections.singletonList(new Range(getEntityKey(serialisedVertex, false), false,
                                 getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), false));
                     }
-                } else if (includeEdges == IncludeEdgeType.UNDIRECTED) {
+                } else if (directedType == DirectedType.UNDIRECTED) {
                     // return only undirectedEdges and entities
                     // Entity only range and undirected only range
                     return Arrays.asList(
@@ -156,7 +163,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                                 getUnDirectedEdgeKey(serialisedVertex, true), true));
                     }
                 }
-            } else if (includeEdges == IncludeEdgeType.DIRECTED) {
+            } else if (directedType == DirectedType.DIRECTED) {
                 if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                     return Collections
                             .singletonList(new Range(getDirectedEdgeKeyDestinationFirst(serialisedVertex, false), true,
@@ -168,7 +175,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                     return Collections.singletonList(new Range(getDirectedEdgeKeySourceFirst(serialisedVertex, false),
                             true, getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), true));
                 }
-            } else if (includeEdges == IncludeEdgeType.UNDIRECTED) {
+            } else if (directedType == DirectedType.UNDIRECTED) {
                 return Collections.singletonList(new Range(getUnDirectedEdgeKey(serialisedVertex, false), true,
                         getUnDirectedEdgeKey(serialisedVertex, true), true));
             } else {

@@ -145,7 +145,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
-        if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
+        if (options.containsKey(AccumuloStoreConstants.INCLUDE_EDGES)) {
             edges = true;
         }
         if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
@@ -164,12 +164,11 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
-                .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_EDGES, "Optional: Set if edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")
                 .build();
     }
-
 }

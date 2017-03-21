@@ -16,84 +16,94 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import java.util.List;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * Retrieves {@link uk.gov.gchq.gaffer.data.element.Edge}s where both ends are in a given
  * set and/or {@link uk.gov.gchq.gaffer.data.element.Entity}s where the vertex is in the
  * set.
  **/
-public class GetElementsWithinSet<ELEMENT_TYPE extends Element> extends AbstractGetIterableElementsOperation<EntitySeed, ELEMENT_TYPE> {
+public class GetElementsWithinSet implements
+        Operation,
+        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>>,
+        MultiInput<EntitySeed>,
+        GraphFilters,
+        Options {
+    private View view;
+    private DirectedType directedType;
+    private Iterable<? extends EntitySeed> input;
+    private Map<String, String> options;
 
-    public GetElementsWithinSet() {
-    }
-
-    public GetElementsWithinSet(final Iterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetElementsWithinSet(final View view) {
-        super(view);
-    }
-
-    public GetElementsWithinSet(final View view, final Iterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetElementsWithinSet(final GetIterableElementsOperation<EntitySeed, ?> operation) {
-        super(operation);
+    @Override
+    public View getView() {
+        return view;
     }
 
     @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return IncludeIncomingOutgoingType.OUTGOING;
+    public void setView(final View view) {
+        this.view = view;
     }
 
     @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!getIncludeIncomingOutGoing().equals(includeIncomingOutGoing)) {
-            throw new IllegalArgumentException(
-                    getClass().getSimpleName() + " you cannot change the IncludeIncomingOutgoingType on this operation");
-        }
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<? extends EntitySeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends EntitySeed> input) {
+        this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
     @Override
-    public EntitySeed[] getSeedArray() {
-        final CloseableIterable<EntitySeed> input = getInput();
-        if (null != input) {
-            final List<EntitySeed> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntitySeed[inputList.size()]);
-        }
-
-        return null;
+    public Object[] createInputArray() {
+        return MultiInput.super.createInputArray();
     }
 
-    public abstract static class BaseBuilder<ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetElementsWithinSet<ELEMENT_TYPE>, EntitySeed, ELEMENT_TYPE, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetElementsWithinSet<ELEMENT_TYPE>());
-        }
+    @Override
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
-    public static final class Builder<ELEMENT_TYPE extends Element>
-            extends BaseBuilder<ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
 
-        @Override
-        protected Builder self() {
-            return this;
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetElementsWithinSet, Builder>
+            implements InputOutput.Builder<GetElementsWithinSet, Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElementsWithinSet, EntitySeed, Builder>,
+            GraphFilters.Builder<GetElementsWithinSet, Builder>,
+            Options.Builder<GetElementsWithinSet, Builder> {
+        public Builder() {
+            super(new GetElementsWithinSet());
         }
     }
 }

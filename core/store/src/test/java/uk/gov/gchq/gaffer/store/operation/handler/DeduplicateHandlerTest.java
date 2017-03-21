@@ -34,14 +34,14 @@ public class DeduplicateHandlerTest {
     @Test
     public void shouldDeduplicateResults() throws OperationException {
         // Given
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
+        final CloseableIterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
         final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
         final Deduplicate<Integer> operation = mock(Deduplicate.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
         // When
-        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<? extends Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), Lists.newArrayList(results));
@@ -50,14 +50,14 @@ public class DeduplicateHandlerTest {
     @Test
     public void shouldDeduplicateResultsAndMaintainOrder() throws OperationException {
         // Given
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
+        final CloseableIterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
         final DeduplicateHandler<Integer> handler = new DeduplicateHandler<>();
         final Deduplicate<Integer> operation = mock(Deduplicate.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
         // When
-        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<? extends Integer> results = handler.doOperation(operation, new Context(), null);
 
         // Then
         assertEquals(Arrays.asList(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), Lists.newArrayList(results));

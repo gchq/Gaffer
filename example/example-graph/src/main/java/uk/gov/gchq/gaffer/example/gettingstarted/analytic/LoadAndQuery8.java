@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -28,7 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,7 +55,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         new LoadAndQuery8().run();
     }
 
-    public Iterable<Edge> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user who can see public and private data
         // ---------------------------------------------------------
         final User user = new User.Builder()
@@ -79,7 +80,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator8())
-                        .objects(DataUtils.loadData(getData()))
+                        .input(DataUtils.loadData(getData()))
                         .build())
                 .then(new AddElements())
                 .build();
@@ -90,12 +91,12 @@ public class LoadAndQuery8 extends LoadAndQuery {
 
         // [get] Get all edges
         // ---------------------------------------------------------
-        final GetAllEdges allEdgesOperation = new GetAllEdges();
+        final GetAllElements allEdgesOperation = new GetAllElements();
 
-        final Iterable<Edge> edges = graph.execute(allEdgesOperation, user);
+        final CloseableIterable<? extends Element> edges = graph.execute(allEdgesOperation, user);
         // ---------------------------------------------------------
         log("\nAll edges in daily time buckets:");
-        for (final Edge edge : edges) {
+        for (final Element edge : edges) {
             log("GET_ALL_EDGES_RESULT", edge.toString());
         }
 
@@ -103,7 +104,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         // [get all edges summarised] Get all edges summarised (merge all time windows together)
         // This is achieved by overriding the 'groupBy' start and end time properties.
         // ---------------------------------------------------------
-        final GetAllEdges edgesSummarisedOperation = new GetAllEdges.Builder()
+        final GetAllElements edgesSummarisedOperation = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge("data", new ViewElementDefinition.Builder()
                                 .groupBy() // set the group by properties to 'none'
@@ -111,10 +112,10 @@ public class LoadAndQuery8 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final Iterable<Edge> edgesSummarised = graph.execute(edgesSummarisedOperation, user);
+        final CloseableIterable<? extends Element> edgesSummarised = graph.execute(edgesSummarisedOperation, user);
         // ---------------------------------------------------------
         log("\nAll edges summarised:");
-        for (final Edge edge : edgesSummarised) {
+        for (final Element edge : edgesSummarised) {
             log("GET_ALL_EDGES_SUMMARISED_RESULT", edge.toString());
         }
 
@@ -123,7 +124,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         // This is achieved by overriding the 'groupBy' start and end time properties
         // and providing a filter.
         // ---------------------------------------------------------
-        final GetAllEdges edgesSummarisedInTimeWindowOperation = new GetAllEdges.Builder()
+        final GetAllElements edgesSummarisedInTimeWindowOperation = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge("data", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -138,10 +139,10 @@ public class LoadAndQuery8 extends LoadAndQuery {
                         .build())
                 .build();
 
-        final Iterable<Edge> edgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, user);
+        final CloseableIterable<? extends Element> edgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, user);
         // ---------------------------------------------------------
         log("\nEdges in 2 day time window:");
-        for (final Edge edge : edgesSummarisedInTimeWindow) {
+        for (final Element edge : edgesSummarisedInTimeWindow) {
             log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());
         }
 
@@ -151,9 +152,9 @@ public class LoadAndQuery8 extends LoadAndQuery {
                 .userId("public user")
                 .dataAuths("public")
                 .build();
-        final Iterable<Edge> publicEdgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, publicUser);
+        final CloseableIterable<? extends Element> publicEdgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, publicUser);
         log("\nPublic edges in 2 day time window:");
-        for (final Edge edge : publicEdgesSummarisedInTimeWindow) {
+        for (final Element edge : publicEdgesSummarisedInTimeWindow) {
             log("GET_PUBLIC_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());
         }
 

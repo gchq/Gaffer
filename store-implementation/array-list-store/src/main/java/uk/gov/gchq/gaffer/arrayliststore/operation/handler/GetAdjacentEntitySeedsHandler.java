@@ -25,17 +25,17 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType.INCOMING;
-import static uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType.OUTGOING;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
+import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
-public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
+public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> {
     @Override
-    public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                            final Context context, final Store store)
+    public CloseableIterable<? extends EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+                                                               final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
@@ -75,7 +75,7 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
         boolean matchSource = !edge.isDirected() || !INCOMING.equals(operation.getIncludeIncomingOutGoing());
         boolean matchDestination = !edge.isDirected() || !OUTGOING.equals(operation.getIncludeIncomingOutGoing());
 
-        for (final EntitySeed seed : operation.getSeeds()) {
+        for (final EntitySeed seed : operation.getInput()) {
             if (matchSource && edge.getSource().equals(seed.getVertex())) {
                 reuseableTuple[1] = new EntitySeed(edge.getDestination());
                 matchSource = false;

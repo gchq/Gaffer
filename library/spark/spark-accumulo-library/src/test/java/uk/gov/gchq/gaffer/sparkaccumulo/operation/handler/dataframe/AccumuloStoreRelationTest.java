@@ -89,7 +89,7 @@ public class AccumuloStoreRelationTest {
 
         final Predicate<Element> returnElement = (Element element) ->
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
-                && ((Integer) element.getProperty("property1")) > 5;
+                        && ((Integer) element.getProperty("property1")) > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
     }
 
@@ -247,7 +247,7 @@ public class AccumuloStoreRelationTest {
     }
 
     private static void addElements(final Store store) throws OperationException {
-        store.execute(new AddElements(getElements()), new User());
+        store.execute(new AddElements.Builder().input(getElements()).build(), new User());
     }
 
     private SQLContext getSqlContext(final String appName) {

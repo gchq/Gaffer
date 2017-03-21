@@ -20,9 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
@@ -47,45 +48,45 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
     }
 
     @Test
-    public void shouldGetEntitySeedsForBothDirections() throws Exception {
-        final List<String> expectedSeeds = Arrays.asList(
-                DEST_1, SOURCE_2, DEST_3, SOURCE_3,
-                DEST_DIR + "1", SOURCE_DIR_2, DEST_DIR_3, SOURCE_DIR_3,
-                "A1",
-                "B1",
-                "C1",
-                "D1");
+    public void shouldGetEntitySeeds() throws Exception {
+        for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
+            for (final DirectedType directedType : DirectedType.values()) {
+                final List<String> expectedSeeds = new ArrayList<>();
 
-        shouldGetEntitySeeds(expectedSeeds, GetOperation.IncludeIncomingOutgoingType.BOTH);
+                if (DirectedType.DIRECTED != directedType) {
+                    expectedSeeds.add(DEST_1);
+                    expectedSeeds.add(SOURCE_2);
+                    expectedSeeds.add(DEST_3);
+                    expectedSeeds.add(SOURCE_3);
+                    expectedSeeds.add("A1");
+                    expectedSeeds.add("B1");
+                    expectedSeeds.add("C1");
+                    expectedSeeds.add("D1");
+                }
+
+                if (IncludeIncomingOutgoingType.INCOMING != inOutType) {
+                    if (DirectedType.UNDIRECTED != directedType) {
+                        expectedSeeds.add(DEST_DIR + "1");
+                        expectedSeeds.add(DEST_DIR_3);
+                    }
+                }
+
+                if (IncludeIncomingOutgoingType.OUTGOING != inOutType) {
+                    if (DirectedType.UNDIRECTED != directedType) {
+                        expectedSeeds.add(SOURCE_DIR_2);
+                        expectedSeeds.add(SOURCE_DIR_3);
+                    }
+                }
+
+                shouldGetEntitySeeds(expectedSeeds, inOutType, directedType);
+            }
+        }
     }
 
-    @Test
-    public void shouldGetEntitySeedsForOutgoingDirection() throws Exception {
-        final List<String> expectedSeeds = Arrays.asList(
-                DEST_1, SOURCE_2, DEST_3, SOURCE_3,
-                DEST_DIR + "1", DEST_DIR_3,
-                "A1",
-                "B1",
-                "C1",
-                "D1");
-
-        shouldGetEntitySeeds(expectedSeeds, GetOperation.IncludeIncomingOutgoingType.OUTGOING);
-    }
-
-    @Test
-    public void shouldGetEntitySeedsForIncomingDirection() throws Exception {
-        final List<String> expectedSeeds = Arrays.asList(
-                DEST_1, SOURCE_2, DEST_3, SOURCE_3,
-                SOURCE_DIR_2, SOURCE_DIR_3,
-                "A1",
-                "B1",
-                "C1",
-                "D1");
-
-        shouldGetEntitySeeds(expectedSeeds, GetOperation.IncludeIncomingOutgoingType.INCOMING);
-    }
-
-    private void shouldGetEntitySeeds(final List<String> expectedResultSeeds, final GetOperation.IncludeIncomingOutgoingType inOutType)
+    private void shouldGetEntitySeeds(final List<String> expectedResultSeeds,
+                                      final IncludeIncomingOutgoingType inOutType,
+                                      final DirectedType directedType
+    )
             throws IOException, OperationException {
         // Given
         final User user = new User();
@@ -95,14 +96,13 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         }
 
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .seeds(seeds)
-                .includeEntities(true)
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+                .input(seeds)
+                .directedType(directedType)
                 .inOutType(inOutType)
                 .build();
 
         // When
-        final CloseableIterable<EntitySeed> results = graph.execute(operation, user);
+        final CloseableIterable<? extends EntitySeed> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();
@@ -111,6 +111,6 @@ public class GetAdjacentEntitySeedsIT extends AbstractStoreIT {
         }
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
-        assertArrayEquals("Expected: " + expectedResultSeeds + ", but got: " + resultSeeds, expectedResultSeeds.toArray(), resultSeeds.toArray());
+        assertArrayEquals("InOut=" + inOutType + ", directedType=" + directedType + ". Expected: " + expectedResultSeeds + ", but got: " + resultSeeds, expectedResultSeeds.toArray(), resultSeeds.toArray());
     }
 }

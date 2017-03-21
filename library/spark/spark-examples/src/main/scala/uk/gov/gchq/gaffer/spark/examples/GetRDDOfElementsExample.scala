@@ -18,17 +18,18 @@ package uk.gov.gchq.gaffer.spark.examples
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
 import uk.gov.gchq.gaffer.data.element.Element
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View
 import uk.gov.gchq.gaffer.example.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph
 import uk.gov.gchq.gaffer.operation.OperationException
-import uk.gov.gchq.gaffer.operation.data.{EdgeSeed, ElementSeed}
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements
 import uk.gov.gchq.gaffer.user.User
 
 /**
  * An example showing how the {@link GetRDDOfElements} operation is used from Scala.
  */
-class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElements[ElementSeed]]) {
+class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElements]) {
   private lazy val ROOT_LOGGER = Logger.getRootLogger
 
   override def runExamples() {
@@ -64,18 +65,16 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     log("#### get RDD of elements\n")
     printGraph()
     ROOT_LOGGER.setLevel(Level.OFF)
-    val operation = new GetRDDOfElements.Builder[EdgeSeed]()
-      .addSeed(new EdgeSeed(1, 2, true))
-      .addSeed(new EdgeSeed(2, 3, true))
+    val operation = new GetRDDOfElements.Builder()
+      .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
       .sparkContext(sc)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements = rdd.collect()
     ROOT_LOGGER.setLevel(Level.INFO)
     printScala(
-      """val operation = new GetRDDOfElements.Builder[EdgeSeed]()
-        |    .addSeed(new EdgeSeed(1, 2, true))
-        |    .addSeed(new EdgeSeed(2, 3, true))
+      """val operation = new GetRDDOfElements.Builder()
+        |    .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
         |    .sparkContext(sc)
         |    .build()
         |val rdd = graph.execute(operation, new User(\"user01\"))
@@ -104,20 +103,22 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
     log("#### get RDD of elements returning edges only\n")
     printGraph()
     ROOT_LOGGER.setLevel(Level.OFF)
-    val operation = new GetRDDOfElements.Builder[ElementSeed]()
-      .addSeed(new EdgeSeed(1, 2, true))
-      .addSeed(new EdgeSeed(2, 3, true))
-      .includeEntities(false)
+    val operation = new GetRDDOfElements.Builder()
+      .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
+      .view(new View.Builder()
+        .edge("edge")
+        .build)
       .sparkContext(sc)
       .build
     val rdd = graph.execute(operation, new User("user01"))
     val elements: Array[Element] = rdd.collect
     ROOT_LOGGER.setLevel(Level.INFO)
     printScala(
-      """val operation = new GetRDDOfElements.Builder[EdgeSeed]()
-        |    .addSeed(new EdgeSeed(1, 2, true))
-        |    .addSeed(new EdgeSeed(2, 3, true))
-        |    .includeEntities(false)
+      """val operation = new GetRDDOfElements.Builder()
+        |    .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
+        |    .view(new View.Builder()
+        |                .edge("edge")
+        |                .build())
         |    .sparkContext(sc)
         |    .build()
         |val rdd = graph.execute(operation, new User(\"user01\"))

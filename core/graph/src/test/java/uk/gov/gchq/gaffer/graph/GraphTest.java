@@ -42,7 +42,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -53,6 +52,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -441,7 +441,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -470,7 +470,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -484,6 +484,33 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    @Test
+    public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet
+            () throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final View opView = mock(View.class);
+        final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+        final User user = new User();
+        final int expectedResult = 5;
+        final Operation operation = mock(Operation.class);
+
+        final OperationChain<Integer> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(store.execute(opChain, user)).willReturn(expectedResult);
+
+        // When
+        int result = graph.execute(opChain, user);
+
+        // Then
+        assertEquals(expectedResult, result);
+        verify(store).execute(opChain, user);
     }
 
     @Test
@@ -555,27 +582,27 @@ public class GraphTest {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OutputOperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
         }
     }

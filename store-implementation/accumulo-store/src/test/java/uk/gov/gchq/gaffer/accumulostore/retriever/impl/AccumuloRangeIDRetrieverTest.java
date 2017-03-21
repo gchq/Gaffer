@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -90,10 +89,13 @@ public class AccumuloRangeIDRetrieverTest {
     private void shouldRetieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
         // Create set to query for
         final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0000"), new EntitySeed("0999")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner
-        final GetElementsOperation<Pair<ElementSeed>, CloseableIterable<Element>> operation = new GetElementsInRanges<>(defaultView, simpleEntityRanges);
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder()
+                .view(defaultView)
+                .input(simpleEntityRanges)
+                .build();
         try {
             final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());
             assertEquals(numEntries, Iterables.size(retriever));
@@ -117,7 +119,9 @@ public class AccumuloRangeIDRetrieverTest {
         }
         try {
             final User user = new User();
-            store.execute(new AddElements(elements), user);
+            store.execute(new AddElements.Builder()
+                    .input(elements)
+                    .build(), user);
         } catch (OperationException e) {
             fail("Couldn't add element: " + e);
         }

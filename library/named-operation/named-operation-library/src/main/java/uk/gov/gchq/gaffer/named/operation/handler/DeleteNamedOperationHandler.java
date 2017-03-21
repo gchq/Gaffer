@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 /**
  * Operation Handler for DeleteNamedOperation.
  */
-public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamedOperation, Void> {
+public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamedOperation> {
     private INamedOperationCache cache;
 
     /**

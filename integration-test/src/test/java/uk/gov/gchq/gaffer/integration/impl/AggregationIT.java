@@ -33,16 +33,13 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -66,16 +63,16 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Add duplicate elements
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(getEntity(AGGREGATED_SOURCE)))
+                .input(getEntity(AGGREGATED_SOURCE))
                 .build(), getUser());
 
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false)))
+                .input(getEdge(AGGREGATED_SOURCE, AGGREGATED_DEST, false))
                 .build(), getUser());
 
         // Edge with existing ids but directed
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)))
+                .input(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true))
                 .build(), getUser());
     }
 
@@ -83,8 +80,8 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
-        final GetElements<ElementSeed, Element> getElements = new GetElements.Builder<>()
-                .addSeed(new EntitySeed(AGGREGATED_SOURCE))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(AGGREGATED_SOURCE))
                 .build();
 
         // When
@@ -120,12 +117,15 @@ public class AggregationIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.STORE_AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
-        final GetEdges<EntitySeed> getEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(NON_AGGREGATED_SOURCE))
+        final GetElements getEdges = new GetElements.Builder()
+                .input(new EntitySeed(NON_AGGREGATED_SOURCE))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
+        final List<Element> results = Lists.newArrayList(graph.execute(getEdges, getUser()));
 
         // Then
         assertNotNull(results);
@@ -148,10 +148,10 @@ public class AggregationIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
         graph.execute(new AddElements.Builder()
-                .elements(Arrays.asList((Element) edge1, edge2))
+                .input(edge1, edge2)
                 .build(), getUser());
 
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .groupBy()

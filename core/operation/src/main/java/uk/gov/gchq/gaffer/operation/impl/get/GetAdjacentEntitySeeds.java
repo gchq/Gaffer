@@ -16,91 +16,113 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetIterableElementsOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * An <code>GetAdjacentEntitySeeds</code> operation will return the
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s at the opposite end of connected edges to a seed
  * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
- * Seed matching is always RELATED.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
- * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
-public class GetAdjacentEntitySeeds extends AbstractGetIterableElementsOperation<EntitySeed, EntitySeed> {
-    public GetAdjacentEntitySeeds() {
-    }
-
-    public GetAdjacentEntitySeeds(final Iterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final CloseableIterable<EntitySeed> seeds) {
-        super(seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final View view) {
-        super(view);
-    }
-
-    public GetAdjacentEntitySeeds(final View view, final Iterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final View view, final CloseableIterable<EntitySeed> seeds) {
-        super(view, seeds);
-    }
-
-    public GetAdjacentEntitySeeds(final GetIterableElementsOperation<EntitySeed, ?> operation) {
-        super(operation);
-    }
-
-    @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.RELATED;
-    }
+public class GetAdjacentEntitySeeds implements
+        Operation,
+        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends EntitySeed>>,
+        MultiInput<EntitySeed>,
+        SeededGraphFilters,
+        Options {
+    private View view;
+    private Iterable<? extends EntitySeed> input;
+    private DirectedType directedType;
+    private Map<String, String> options;
+    private IncludeIncomingOutgoingType inOutType;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
-    @JsonGetter(value = "seeds")
-    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "if the iterable is null then the array should be null")
-    @Override
-    public EntitySeed[] getSeedArray() {
-        final CloseableIterable<EntitySeed> input = getInput();
-        if (null != input) {
-            final List<EntitySeed> inputList = Lists.newArrayList(input);
-            return inputList.toArray(new EntitySeed[inputList.size()]);
-        }
-
-        return null;
+    public Object[] createInputArray() {
+        return MultiInput.super.createInputArray();
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        if (null != view && view.hasEntities()) {
+            this.view = new View.Builder()
+                    .merge(view)
+                    .entities(Collections.emptyMap())
+                    .build();
+        } else {
+            this.view = view;
+        }
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Iterable<? extends EntitySeed> getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final Iterable<? extends EntitySeed> input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<? extends EntitySeed>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<GetAdjacentEntitySeeds, EntitySeed, EntitySeed, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new GetAdjacentEntitySeeds());
-        }
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
+
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetAdjacentEntitySeeds, Builder>
+            implements InputOutput.Builder<GetAdjacentEntitySeeds, Iterable<? extends EntitySeed>, CloseableIterable<? extends EntitySeed>, Builder>,
+            MultiInput.Builder<GetAdjacentEntitySeeds, EntitySeed, Builder>,
+            SeededGraphFilters.Builder<GetAdjacentEntitySeeds, Builder>,
+            Options.Builder<GetAdjacentEntitySeeds, Builder> {
+        public Builder() {
+            super(new GetAdjacentEntitySeeds());
         }
     }
 }

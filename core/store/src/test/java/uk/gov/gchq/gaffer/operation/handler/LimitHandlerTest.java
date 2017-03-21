@@ -39,13 +39,13 @@ public class LimitHandlerTest {
         final Integer resultLimit = expectedResult.size();
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
-                .limitResults(resultLimit)
+                .resultLimit(resultLimit)
                 .build();
 
         final LimitHandler<Integer> handler = new LimitHandler<>();
 
         // When
-        final Iterable<Integer> result = handler.doOperation(limit, null, null);
+        final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
         assertTrue(result instanceof LimitedCloseableIterable);
@@ -61,13 +61,13 @@ public class LimitHandlerTest {
         final Integer resultLimit = null;
         final Limit<Integer> limit = new Limit.Builder<Integer>()
                 .input(input)
-                .limitResults(resultLimit)
+                .resultLimit(resultLimit)
                 .build();
 
         final LimitHandler<Integer> handler = new LimitHandler<>();
 
         // When
-        final Iterable<Integer> result = handler.doOperation(limit, null, null);
+        final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
         assertSame(input, result);

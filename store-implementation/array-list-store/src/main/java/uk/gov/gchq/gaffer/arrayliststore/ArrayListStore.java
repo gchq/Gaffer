@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.arrayliststore;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.arrayliststore.operation.handler.GetAllElementsHandler;
@@ -25,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -35,12 +35,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 
 
@@ -52,7 +53,7 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
  * stored in lists they are not serialised and not indexed, so look ups require full scans.
  */
 public class ArrayListStore extends Store {
-    private static final Set<StoreTrait> TRAITS = new HashSet<>(Collections.singletonList(PRE_AGGREGATION_FILTERING));
+    private static final Set<StoreTrait> TRAITS = Sets.newHashSet(PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING);
     private final List<Entity> entities = new ArrayList<>();
     private final List<Edge> edges = new ArrayList<>();
 
@@ -66,23 +67,24 @@ public class ArrayListStore extends Store {
         return false;
     }
 
+
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+    protected OutputOperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler() {
         return new GetAdjacentEntitySeedsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
     }
 
@@ -94,7 +96,7 @@ public class ArrayListStore extends Store {
     }
 
     @Override
-    protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("I do not know how to handle: " + operation.getClass().getSimpleName());
     }
 

@@ -17,8 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -29,33 +30,54 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Limit.Builder
  */
-public class Limit<T> extends AbstractGetIterableOperation<T, T> {
+public class Limit<T> implements
+        Operation,
+        InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
+        MultiInput<T> {
+    protected Integer resultLimit;
+    private Iterable<? extends T> input;
+
+    public Limit() {
+    }
+
+    public Limit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
+    public Integer getResultLimit() {
+        return resultLimit;
+    }
+
+    public void setResultLimit(final Integer resultLimit) {
+        this.resultLimit = resultLimit;
+    }
+
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public Iterable<? extends T> getInput() {
+        return input;
     }
 
-    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>> extends AbstractGetIterableOperation.BaseBuilder<Limit<T>, T, T, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            super(new Limit<T>());
-        }
-
-        /**
-         * @param input the input to set on the operation
-         * @return this Builder
-         * @see uk.gov.gchq.gaffer.operation.Operation#setInput(Object)
-         */
-        public CHILD_CLASS input(final Iterable<T> input) {
-            return input(new WrappedCloseableIterable<>(input));
-        }
+    @Override
+    public void setInput(final Iterable<? extends T> input) {
+        this.input = input;
     }
 
-    public static final class Builder<T> extends BaseBuilder<T, Builder<T>> {
+    @Override
+    public TypeReference<Iterable<? extends T>> getOutputTypeReference() {
+        return TypeReferenceImpl.createIterableT();
+    }
 
-        @Override
-        protected Builder<T> self() {
-            return this;
+    public static final class Builder<T>
+            extends Operation.BaseBuilder<Limit<T>, Builder<T>>
+            implements InputOutput.Builder<Limit<T>, Iterable<? extends T>, Iterable<? extends T>, Builder<T>>,
+            MultiInput.Builder<Limit<T>, T, Builder<T>> {
+        public Builder() {
+            super(new Limit<>());
+        }
+
+        public Builder<T> resultLimit(final Integer resultLimit) {
+            _getOp().setResultLimit(resultLimit);
+            return _self();
         }
     }
 }

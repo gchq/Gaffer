@@ -19,9 +19,10 @@ import org.apache.hadoop.conf.Configuration;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
+import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.AccumuloKeyRangePartitioner;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -30,21 +31,21 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<T extends VoidOutput<?>> implements OperationHandler<T, Void> {
+public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<OP extends Operation & Options> implements OperationHandler<OP> {
 
-    protected abstract void prepareKeyValues(final T operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException;
+    protected abstract void prepareKeyValues(final OP operation, final AccumuloKeyRangePartitioner partitioner) throws OperationException;
 
-    protected abstract String getFailurePath(final T operation);
+    protected abstract String getFailurePath(final OP operation);
 
-    protected abstract String getOutputPath(final T operation);
+    protected abstract String getOutputPath(final OP operation);
 
     @Override
-    public Void doOperation(final T operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final OP operation, final Context context, final Store store) throws OperationException {
         doOperation(operation, context, (AccumuloStore) store);
         return null;
     }
 
-    public void doOperation(final T operation, final Context context, final AccumuloStore store) throws OperationException {
+    public void doOperation(final OP operation, final Context context, final AccumuloStore store) throws OperationException {
         final String outputPath = getOutputPath(operation);
         if (null == outputPath || outputPath.isEmpty()) {
             throw new OperationException("Option outputPath must be set for this option to be run against the accumulostore");
@@ -64,7 +65,7 @@ public abstract class AbstractImportKeyValuePairRDDToAccumuloHandler<T extends V
         store._execute(new OperationChain<>(importAccumuloKeyValueFiles), context);
     }
 
-    protected Configuration getConfiguration(final T operation) throws OperationException {
+    protected Configuration getConfiguration(final OP operation) throws OperationException {
         final Configuration conf = new Configuration();
         final String serialisedConf = operation.getOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY);
         if (serialisedConf != null) {

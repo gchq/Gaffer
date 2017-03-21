@@ -29,12 +29,12 @@ import java.util.NoSuchElementException;
  * This class is very similar to {@link uk.gov.gchq.gaffer.data.TransformOneToManyIterable} except that this class transforms one to many
  * items.
  *
- * @param <INPUT>  The input iterable type.
- * @param <OUTPUT> the output iterable type.
+ * @param <I> The input iterable type.
+ * @param <O> the output iterable type.
  */
-public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements CloseableIterable<OUTPUT> {
-    private final Iterable<INPUT> input;
-    private final Validator<INPUT> validator;
+public abstract class TransformOneToManyIterable<I, O> implements CloseableIterable<O> {
+    private final Iterable<? extends I> input;
+    private final Validator<I> validator;
     private final boolean skipInvalid;
     private final boolean autoClose;
 
@@ -43,7 +43,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      *
      * @param input the input {@link Iterable}
      */
-    public TransformOneToManyIterable(final Iterable<INPUT> input) {
+    public TransformOneToManyIterable(final Iterable<I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -54,7 +54,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      * @param input     the input {@link Iterable}
      * @param validator the {@link Validator}
      */
-    public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator) {
+    public TransformOneToManyIterable(final Iterable<I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 
@@ -66,7 +66,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, false);
     }
 
@@ -78,7 +78,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
@@ -93,13 +93,13 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
     }
 
     /**
-     * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
+     * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
-    public CloseableIterator<OUTPUT> iterator() {
-        return new CloseableIterator<OUTPUT>() {
-            private final Iterator<INPUT> inputItr = input.iterator();
+    public CloseableIterator<O> iterator() {
+        return new CloseableIterator<O>() {
+            private final Iterator<? extends I> inputItr = input.iterator();
 
-            private Iterator<OUTPUT> nextElements;
+            private Iterator<O> nextElements;
             private Boolean hasNext;
 
             @Override
@@ -113,9 +113,9 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
             public boolean hasNext() {
                 if (null == hasNext) {
                     if (inputItr.hasNext()) {
-                        final INPUT possibleNext = inputItr.next();
+                        final I possibleNext = inputItr.next();
                         if (validator.validate(possibleNext)) {
-                            final Iterable<OUTPUT> nextElementsIterable = transform(possibleNext);
+                            final Iterable<O> nextElementsIterable = transform(possibleNext);
                             if (null != nextElementsIterable) {
                                 nextElements = nextElementsIterable.iterator();
                                 if (nextElements.hasNext()) {
@@ -147,14 +147,14 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
             }
 
             @Override
-            public OUTPUT next() {
+            public O next() {
                 if (!_hasNext()) {
                     if (!hasNext()) {
                         throw new NoSuchElementException("Reached the end of the iterator");
                     }
                 }
 
-                final OUTPUT elementToReturn = nextElements.next();
+                final O elementToReturn = nextElements.next();
                 if (!nextElements.hasNext()) {
                     nextElements = null;
                     hasNext = null;
@@ -175,21 +175,21 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
     }
 
     /**
-     * Transforms the INPUT item into an OUTPUT iterable.
+     * Transforms the I item into an O iterable.
      *
-     * @param item the INPUT item to be transformed
-     * @return the transformed OUTPUT iterable
+     * @param item the I item to be transformed
+     * @return the transformed O iterable
      */
-    protected abstract Iterable<OUTPUT> transform(final INPUT item);
+    protected abstract Iterable<O> transform(final I item);
 
     /**
      * Handles an invalid item. Simply throws an {@link IllegalArgumentException} explaining that the item is
      * invalid. Override this method to handle invalid items differently.
      *
-     * @param item the invalid INPUT item
+     * @param item the invalid I item
      * @throws IllegalArgumentException always thrown unless this method is overridden.
      */
-    protected void handleInvalidItem(final INPUT item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final I item) throws IllegalArgumentException {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }

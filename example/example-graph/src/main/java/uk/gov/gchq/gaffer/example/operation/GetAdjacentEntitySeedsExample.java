@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 
 public class GetAdjacentEntitySeedsExample extends OperationExample {
@@ -39,20 +39,20 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1();
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsFromVertex2() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsFromVertex2() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
         // ---------------------------------------------------------
@@ -60,10 +60,10 @@ public class GetAdjacentEntitySeedsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
+    public CloseableIterable<? extends EntitySeed> getAdjacentEntitySeedsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetAdjacentEntitySeeds operation = new GetAdjacentEntitySeeds.Builder()
-                .addSeed(new EntitySeed(2))
+                .input(new EntitySeed(2))
                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()

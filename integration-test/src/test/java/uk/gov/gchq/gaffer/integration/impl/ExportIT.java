@@ -20,8 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
@@ -29,10 +29,11 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.IOException;
 import java.util.Map;
 
@@ -68,21 +69,28 @@ public class ExportIT extends AbstractStoreIT {
     @Test
     public void shouldExportResultsInSet() throws OperationException, IOException {
         // Given
-        final OperationChain<CloseableIterable<?>> exportOpChain = new Builder()
-                .first(new GetEdges.Builder<>()
-                        .addSeed(new EntitySeed(SOURCE_DIR_0))
+        final View edgesView = new View.Builder()
+                .edge(TestGroups.EDGE)
+                .build();
+        final OperationChain<Iterable<?>> exportOpChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(SOURCE_DIR_0))
+                        .view(edgesView)
                         .build())
-                .then(new ExportToSet())
-                .then(new GenerateObjects.Builder<Edge, EntitySeed>()
+                .then(new ExportToSet<>())
+                .then(new GenerateObjects.Builder<EntitySeed>()
                         .generator(new EntitySeedExtractor())
                         .build())
-                .then(new GetEdges<>())
-                .then(new ExportToSet())
+                .then(new GetElements.Builder()
+                        .view(edgesView)
+                        .build())
+                .then(new ExportToSet<>())
+                .then(new DiscardOutput())
                 .then(new GetSetExport())
                 .build();
 
         // When
-        final CloseableIterable<?> export = graph.execute(exportOpChain, getUser());
+        final Iterable<?> export = graph.execute(exportOpChain, getUser());
 
         // Then
         assertEquals(2, Lists.newArrayList(export).size());

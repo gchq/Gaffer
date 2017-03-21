@@ -19,8 +19,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.user.User;
@@ -40,8 +41,9 @@ public class GetJobResultsExample extends OperationExample {
     public void runExamples() {
         try {
             final OperationChain<JobDetail> opChain = new OperationChain.Builder()
-                    .first(new GetAllEdges())
-                    .then(new ExportToGafferResultCache())
+                    .first(new GetAllElements())
+                    .then(new ExportToGafferResultCache<>())
+                    .then(new DiscardOutput())
                     .then(new GetJobDetails())
                     .build();
             final JobDetail jobDetails = getGraph().execute(opChain, new User("user01"));

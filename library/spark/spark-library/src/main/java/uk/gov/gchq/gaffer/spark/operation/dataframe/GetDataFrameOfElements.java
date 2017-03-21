@@ -19,10 +19,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
-import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An <code>Operation</code> that returns an Apache Spark <code>DataFrame</code> (i.e. a {@link Dataset} of
@@ -38,10 +43,17 @@ import java.util.List;
  * The schema of the <code>Dataframe</code> is formed of all properties from the first group, followed by all
  * properties from the second group, with the exception of properties already found in the first group, etc.
  */
-public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<Row>> {
+public class GetDataFrameOfElements implements
+        Operation,
+        Output<Dataset<Row>>,
+        GraphFilters,
+        Options {
 
     private SQLContext sqlContext;
     private List<Converter> converters;
+    private Map<String, String> options;
+    private View view;
+    private DirectedType directedType;
 
     public GetDataFrameOfElements() {
     }
@@ -70,43 +82,56 @@ public class GetDataFrameOfElements extends AbstractGetOperation<Void, Dataset<R
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    @Override
+    public TypeReference<Dataset<Row>> getOutputTypeReference() {
         return new TypeReferenceSparkImpl.DataSetRow();
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<GetDataFrameOfElements, Void, Dataset<Row>, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            this(new GetDataFrameOfElements());
-        }
-
-        public BaseBuilder(final GetDataFrameOfElements op) {
-            super(op);
-        }
-
-        public CHILD_CLASS sqlContext(final SQLContext sqlContext) {
-            op.setSqlContext(sqlContext);
-            return self();
-        }
-
-        public CHILD_CLASS converters(final List<Converter> converters) {
-            op.setConverters(converters);
-            return self();
-        }
+    @Override
+    public View getView() {
+        return view;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<GetDataFrameOfElements, Builder>
+            implements Output.Builder<GetDataFrameOfElements, Dataset<Row>, Builder>,
+            Options.Builder<GetDataFrameOfElements, Builder>,
+            GraphFilters.Builder<GetDataFrameOfElements, Builder> {
         public Builder() {
+            super(new GetDataFrameOfElements());
         }
 
-        public Builder(final GetDataFrameOfElements op) {
-            super(op);
+        public Builder sqlContext(final SQLContext sqlContext) {
+            _getOp().setSqlContext(sqlContext);
+            return _self();
         }
 
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder converters(final List<Converter> converters) {
+            _getOp().setConverters(converters);
+            return _self();
         }
     }
 }

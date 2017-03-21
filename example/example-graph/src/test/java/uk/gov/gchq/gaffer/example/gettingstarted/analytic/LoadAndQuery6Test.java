@@ -42,7 +42,7 @@ public class LoadAndQuery6Test {
         final LoadAndQuery6 query = new LoadAndQuery6();
 
         // When
-        final CloseableIterable<String> results = query.run();
+        final Iterable<? extends String> results = query.run();
 
         // Then
         verifyResults(results);
@@ -65,13 +65,13 @@ public class LoadAndQuery6Test {
 
         // When
         graph.execute(addOpChain, user01); // Execute the add operation chain on the graph
-        final CloseableIterable<String> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
+        final Iterable<? extends String> results = graph.execute(queryOpChain, user01); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<String> resultsItr) {
+    private void verifyResults(final Iterable<? extends String> resultsItr) {
         final String[] expectedResults = {
                 "2,3,1",
                 "3,1,1",

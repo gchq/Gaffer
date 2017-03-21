@@ -76,7 +76,7 @@ public class ExportToGafferResultCacheHandlerTest {
     public void shouldHandleOperationByDelegatingToAnExistingExporter() throws OperationException {
         // Given
         final List<?> results = Arrays.asList(1, 2, 3);
-        final ExportToGafferResultCache export = new ExportToGafferResultCache.Builder()
+        final ExportToGafferResultCache export = new ExportToGafferResultCache.Builder<>()
                 .key("key")
                 .input(results)
                 .build();
@@ -108,7 +108,7 @@ public class ExportToGafferResultCacheHandlerTest {
     public void shouldHandleOperationByDelegatingToAnNewExporter() throws OperationException {
         // Given
         final List<?> results = Arrays.asList(1, 2, 3);
-        final ExportToGafferResultCache export = new ExportToGafferResultCache.Builder()
+        final ExportToGafferResultCache export = new ExportToGafferResultCache.Builder<>()
                 .key("key")
                 .input(results)
                 .build();
