@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
@@ -38,7 +37,7 @@ public class ToStreamHandlerTest {
         // Given
         final List<Integer> originalList = Arrays.asList(1, 2, 3);
 
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(originalList);
+        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(originalList);
         final ToStreamHandler<Integer> handler = new ToStreamHandler();
         final ToStream operation = mock(ToStream.class);
 

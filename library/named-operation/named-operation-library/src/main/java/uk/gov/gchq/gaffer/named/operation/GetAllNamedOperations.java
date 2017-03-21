@@ -20,18 +20,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.serialisation.NamedOperationTypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 
 public class GetAllNamedOperations implements
         Operation,
-        IterableOutput<NamedOperationDetail> {
+        Output<CloseableIterable<NamedOperationDetail>> {
     @Override
     public TypeReference<CloseableIterable<NamedOperationDetail>> getOutputTypeReference() {
         return new NamedOperationTypeReference.IterableNamedOperationDetail();
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAllNamedOperations, Builder>
-            implements IterableOutput.Builder<GetAllNamedOperations, NamedOperationDetail, Builder> {
+            implements Output.Builder<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>, Builder> {
         public Builder() {
             super(new GetAllNamedOperations());
         }

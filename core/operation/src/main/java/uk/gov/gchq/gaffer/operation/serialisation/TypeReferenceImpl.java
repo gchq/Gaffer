@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 
 
@@ -47,19 +46,32 @@ public final class TypeReferenceImpl {
     }
 
     public static class CloseableIterableObj extends
-            TypeReference<CloseableIterable<java.lang.Object>> {
+            TypeReference<CloseableIterable<?>> {
     }
 
-    public static <T> TypeReference<CloseableIterable<T>> createCloseableIterableT() {
+    public static class IterableObj extends
+            TypeReference<Iterable<?>> {
+    }
+
+    public static <T> TypeReference<Iterable<? extends T>> createIterableT() {
+        return (TypeReference) new IterableObj();
+    }
+
+    public static <T> TypeReference<CloseableIterable<? extends T>> createCloseableIterableT() {
         return (TypeReference) new CloseableIterableObj();
     }
 
+    public static class IterableElement extends
+            TypeReference<Iterable<? extends uk.gov.gchq.gaffer.data.element.Element>> {
+    }
+
+
     public static class CloseableIterableElement extends
-            TypeReference<CloseableIterable<uk.gov.gchq.gaffer.data.element.Element>> {
+            TypeReference<CloseableIterable<? extends uk.gov.gchq.gaffer.data.element.Element>> {
     }
 
     public static class CloseableIterableEntityId extends
-            TypeReference<CloseableIterable<EntityId>> {
+            TypeReference<CloseableIterable<? extends EntityId>> {
     }
 
     public static class CloseableIterableEntitySeed extends
@@ -97,5 +109,11 @@ public final class TypeReferenceImpl {
     }
 
     public static class Set<T> extends TypeReference<java.util.Set<T>> {
+    }
+
+    public static class IterableEntitySeed extends TypeReference<Iterable<? extends EntitySeed>> {
+    }
+
+    public static class IterableMap extends TypeReference<Iterable<java.util.Map<java.lang.String, java.lang.Object>>> {
     }
 }

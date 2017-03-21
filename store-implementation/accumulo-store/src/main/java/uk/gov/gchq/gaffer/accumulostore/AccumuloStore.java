@@ -231,17 +231,17 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<?extends EntityId>> getAdjacentIdsHandler() {
         return new GetAdjacentIdsHandler();
     }
 
@@ -261,11 +261,11 @@ public class AccumuloStore extends Store {
      * @param elements the elements to be added
      * @throws StoreException failure to insert the elements into a table
      */
-    public void addElements(final Iterable<Element> elements) throws StoreException {
+    public void addElements(final Iterable<? extends Element> elements) throws StoreException {
         insertGraphElements(elements);
     }
 
-    protected void insertGraphElements(final Iterable<Element> elements) throws StoreException {
+    protected void insertGraphElements(final Iterable<? extends Element> elements) throws StoreException {
         // Create BatchWriter
         final BatchWriter writer = TableUtils.createBatchWriter(this);
         // Loop through elements, convert to mutations, and add to

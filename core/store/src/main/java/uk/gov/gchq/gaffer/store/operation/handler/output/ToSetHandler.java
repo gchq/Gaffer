@@ -30,9 +30,13 @@ import java.util.stream.Collectors;
  * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
  * remove duplicate items.
  */
-public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<T>> {
+public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? extends T>> {
     @Override
     public Set<T> doOperation(final ToSet<T> operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return Streams.toStream(operation.getInput()).collect(Collectors.toSet());
     }
 }

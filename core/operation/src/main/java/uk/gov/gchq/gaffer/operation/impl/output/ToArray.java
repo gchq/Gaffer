@@ -17,21 +17,23 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class ToArray<T> implements
         Operation,
-        IterableInputOutput<T, T[]> {
-    private Iterable<T> input;
+        InputOutput<Iterable<? extends T>, T[]>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
@@ -42,7 +44,8 @@ public class ToArray<T> implements
 
     public static final class Builder<T>
             extends BaseBuilder<ToArray<T>, ToArray.Builder<T>>
-            implements IterableInputOutput.Builder<ToArray<T>, T, T[], ToArray.Builder<T>> {
+            implements InputOutput.Builder<ToArray<T>, Iterable<? extends T>, T[], Builder<T>>,
+            MultiInput.Builder<ToArray<T>, T, Builder<T>> {
         public Builder() {
             super(new ToArray<>());
         }

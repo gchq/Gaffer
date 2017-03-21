@@ -37,7 +37,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     }
 
     private void addElements(final AddElements operation, final ArrayListStore store) {
-        final Iterable<Element> validatedElements;
+        final Iterable<? extends Element> validatedElements;
         if (operation.isValidate()) {
             validatedElements = new ValidatedElements(operation.getInput(), store.getSchema(), operation.isSkipInvalidElements());
         } else {
@@ -49,7 +49,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final class ElementCleaner extends TransformIterable<Element, Element> {
         private final Store store;
 
-        private ElementCleaner(final Iterable<Element> input, final Store store) {
+        private ElementCleaner(final Iterable<? extends Element> input, final Store store) {
             super(input);
             this.store = store;
         }

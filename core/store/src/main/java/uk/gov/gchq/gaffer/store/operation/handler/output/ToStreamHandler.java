@@ -28,9 +28,9 @@ import java.util.stream.Stream;
  * Simply wraps the operation input items into a {@link java.util.stream.Stream}
  * for further processing.
  */
-public class ToStreamHandler<T> implements OutputOperationHandler<ToStream<T>, Stream<T>> {
+public class ToStreamHandler<T> implements OutputOperationHandler<ToStream<T>, Stream<? extends T>> {
     @Override
-    public Stream<T> doOperation(final ToStream<T> operation, final Context context, final Store store) throws OperationException {
+    public Stream<? extends T> doOperation(final ToStream<T> operation, final Context context, final Store store) throws OperationException {
         return Streams.toStream(operation.getInput());
     }
 }

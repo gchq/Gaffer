@@ -21,13 +21,13 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.Export;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class GetGafferResultCacheExport implements
         Operation,
         GetExport,
-        IterableOutput<Object> {
+        Output<CloseableIterable<?>> {
     private String jobId;
     private String key = Export.DEFAULT_KEY;
 
@@ -52,14 +52,14 @@ public class GetGafferResultCacheExport implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<Object>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<?>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableObj();
     }
 
     public static class Builder
             extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
             implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
-            IterableOutput.Builder<GetGafferResultCacheExport, Object, Builder> {
+            Output.Builder<GetGafferResultCacheExport, CloseableIterable<?>, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
         }

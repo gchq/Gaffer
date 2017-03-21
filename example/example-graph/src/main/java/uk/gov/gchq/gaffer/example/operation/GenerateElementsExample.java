@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -40,7 +39,7 @@ public class GenerateElementsExample extends OperationExample {
         generateElementsFromDomainObjects();
     }
 
-    public CloseableIterable<Element> generateElementsFromStrings() {
+    public Iterable<? extends Element> generateElementsFromStrings() {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
                 .input(Arrays.asList("1,1", "1,2,1"))
@@ -51,7 +50,7 @@ public class GenerateElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> generateElementsFromDomainObjects() {
+    public Iterable<? extends Element> generateElementsFromDomainObjects() {
         // ---------------------------------------------------------
         final GenerateElements<Object> operation = new GenerateElements.Builder<>()
                 .input(Arrays.asList(

@@ -22,9 +22,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface IterableInput<I_ITEM> extends Input<Iterable<I_ITEM>> {
+public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If input is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("input")
@@ -38,8 +37,8 @@ public interface IterableInput<I_ITEM> extends Input<Iterable<I_ITEM>> {
         setInput(Lists.newArrayList(input));
     }
 
-    interface Builder<OP extends IterableInput<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
-            extends Operation.Builder<OP, B> {
+    interface Builder<OP extends MultiInput<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
+            extends Input.Builder<OP, Iterable<? extends I_ITEM>, B> {
         @SuppressWarnings("unchecked")
         default B input(final I_ITEM... input) {
             return input(Lists.newArrayList(input));

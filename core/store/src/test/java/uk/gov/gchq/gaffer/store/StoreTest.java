@@ -95,9 +95,9 @@ public class StoreTest {
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements> addElementsHandler;
-    private OutputOperationHandler<GetElements, CloseableIterable<Element>> getElementsHandler;
-    private OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getAllElementsHandler;
-    private OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler;
+    private OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
+    private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
+    private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
     private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
@@ -302,11 +302,11 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
-        final CloseableIterable<Element> getElementsResult = mock(CloseableIterable.class);
+        final CloseableIterable getElementsResult = mock(CloseableIterable.class);
 
         final AddElements addElements1 = new AddElements();
         final GetElements getElements = new GetElements();
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(addElements1)
                 .then(getElements)
                 .build();
@@ -319,7 +319,7 @@ public class StoreTest {
         store.initialise(schema, properties);
 
         // When
-        final CloseableIterable<Element> result = store.execute(opChain, user);
+        final CloseableIterable<? extends Element> result = store.execute(opChain, user);
 
         // Then
         assertSame(getElementsResult, result);
@@ -505,17 +505,17 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetElements, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
             return getElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAllElements, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
             return getAllElementsHandler;
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<EntityId>> getAdjacentIdsHandler() {
+        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
             return getAdjacentIdsHandler;
         }
 

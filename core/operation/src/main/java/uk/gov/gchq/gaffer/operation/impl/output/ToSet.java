@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Set;
 
@@ -31,27 +32,29 @@ import java.util.Set;
  */
 public class ToSet<T> implements
         Operation,
-        IterableInputOutput<T, Set<T>> {
-    private Iterable<T> input;
+        InputOutput<Iterable<? extends T>, Set<? extends T>>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Set<T>> getOutputTypeReference() {
+    public TypeReference<Set<? extends T>> getOutputTypeReference() {
         return new TypeReferenceImpl.Set();
     }
 
     public static final class Builder<T>
-            extends BaseBuilder<ToSet<T>, ToSet.Builder<T>>
-            implements IterableInputOutput.Builder<ToSet<T>, T, Set<T>, ToSet.Builder<T>> {
+            extends BaseBuilder<ToSet<T>, Builder<T>>
+            implements InputOutput.Builder<ToSet<T>, Iterable<? extends T>, Set<? extends T>, Builder<T>>,
+            MultiInput.Builder<ToSet<T>, T, Builder<T>> {
         public Builder() {
             super(new ToSet<>());
         }

@@ -16,10 +16,8 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
@@ -35,7 +33,7 @@ public class ToSetHandlerTest {
     @Test
     public void shouldConvertIterableToSet() throws OperationException {
         // Given
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
+        final Iterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(1, 2, 2, 2, 3, 4, 1, 5, 6, 7, 8, 5, 9, 1, 6, 8, 2, 10));
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
         final ToSet<Integer> operation = mock(ToSet.class);
 
@@ -51,7 +49,7 @@ public class ToSetHandlerTest {
     @Test
     public void shouldConvertIterableToSetAndMaintainOrder() throws OperationException {
         // Given
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
+        final Iterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(10, 9, 8, 10, 7, 8, 7, 6, 6, 5, 6, 9, 4, 5, 3, 4, 2, 2, 2, 1, 1));
         final ToSetHandler<Integer> handler = new ToSetHandler<>();
         final ToSet<Integer> operation = mock(ToSet.class);
 

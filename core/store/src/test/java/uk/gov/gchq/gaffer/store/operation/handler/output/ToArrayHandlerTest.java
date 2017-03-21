@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
@@ -35,7 +34,7 @@ public class ToArrayHandlerTest {
         // Given
         final Integer[] originalArray = new Integer[]{1, 2, 3};
 
-        final CloseableIterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<Integer> handler = new ToArrayHandler();
         final ToArray operation = mock(ToArray.class);
 

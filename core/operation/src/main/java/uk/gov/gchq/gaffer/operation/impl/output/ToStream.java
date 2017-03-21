@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.stream.Stream;
 
@@ -30,28 +31,29 @@ import java.util.stream.Stream;
  */
 public class ToStream<T> implements
         Operation,
-        IterableInputOutput<T, Stream<T>> {
-    private Iterable<T> input;
+        InputOutput<Iterable<? extends T>, Stream<? extends T>>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
-
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<Stream<T>> getOutputTypeReference() {
+    public TypeReference<Stream<? extends T>> getOutputTypeReference() {
         return new TypeReferenceImpl.Stream();
     }
 
     public static final class Builder<T>
             extends BaseBuilder<ToStream<T>, Builder<T>>
-            implements IterableInputOutput.Builder<ToStream<T>, T, Stream<T>, Builder<T>> {
+            implements InputOutput.Builder<ToStream<T>, Iterable<? extends T>, Stream<? extends T>, Builder<T>>,
+            MultiInput.Builder<ToStream<T>, T, Builder<T>> {
         public Builder() {
             super(new ToStream<>());
         }

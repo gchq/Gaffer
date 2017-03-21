@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.io;
+package uk.gov.gchq.gaffer.accumulostore.operation;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -22,9 +22,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import uk.gov.gchq.gaffer.operation.Operation;
 
-public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
+public interface MultiInputB<I_ITEM> extends InputB<Iterable<? extends I_ITEM>> {
     @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS", justification = "If inputB is null then null should be returned")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("inputB")
@@ -38,14 +37,15 @@ public interface IterableInputB<I_ITEM> extends InputB<Iterable<I_ITEM>> {
         setInputB(Lists.newArrayList(inputB));
     }
 
-    interface Builder<OP extends IterableInputB<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
-            extends Operation.Builder<OP, B> {
+    interface Builder<OP extends MultiInputB<I_ITEM>, I_ITEM, B extends Builder<OP, I_ITEM, ?>>
+            extends InputB.Builder<OP, Iterable<? extends I_ITEM>, B> {
+        @SuppressWarnings("unchecked")
         default B inputB(final I_ITEM... inputB) {
             return inputB(Lists.newArrayList(inputB));
         }
 
-        default B inputB(final Iterable<? extends I_ITEM> input) {
-            _getOp().setInputB((Iterable) input);
+        default B inputB(final Iterable<? extends I_ITEM> inputB) {
+            _getOp().setInputB((Iterable) inputB);
             return _self();
         }
     }

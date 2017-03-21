@@ -41,9 +41,9 @@ public class ExportToSetExample extends OperationExample {
         exportMultipleResultsToSetAndGetAllResults();
     }
 
-    public CloseableIterable<?> simpleExportAndGet() {
+    public Iterable<?> simpleExportAndGet() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToSet<>())
                 .then(new DiscardOutput())
@@ -54,9 +54,9 @@ public class ExportToSetExample extends OperationExample {
         return runExample(opChain);
     }
 
-    public CloseableIterable<?> simpleExportAndGetWithPagination() {
+    public Iterable<?> simpleExportAndGetWithPagination() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Object>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToSet<>())
                 .then(new DiscardOutput())

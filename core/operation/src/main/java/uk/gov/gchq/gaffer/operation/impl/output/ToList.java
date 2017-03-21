@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
@@ -30,27 +31,29 @@ import java.util.List;
  */
 public class ToList<T> implements
         Operation,
-        IterableInputOutput<T, List<T>> {
-    private Iterable<T> input;
+        InputOutput<Iterable<? extends T>, List<? extends T>>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<List<T>> getOutputTypeReference() {
+    public TypeReference<List<? extends T>> getOutputTypeReference() {
         return new TypeReferenceImpl.List();
     }
 
     public static final class Builder<T>
             extends BaseBuilder<ToList<T>, Builder<T>>
-            implements IterableInputOutput.Builder<ToList<T>, T, List<T>, Builder<T>> {
+            implements InputOutput.Builder<ToList<T>, Iterable<? extends T>, List<? extends T>, Builder<T>>,
+            MultiInput.Builder<ToList<T>, T, Builder<T>> {
         public Builder() {
             super(new ToList<>());
         }

@@ -67,11 +67,10 @@ import java.util.Set;
  * further reduce the chances of false positives making it to the user.
  */
 public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElementsBetweenSets> {
-    private Iterable<EntityId> seedSetA;
-    private Iterable<EntityId> seedSetB;
-    private Iterator<EntityId> seedSetAIter;
-    private Iterator<EntityId> seedSetBIter;
-
+    private Iterable<? extends EntityId> seedSetA;
+    private Iterable<? extends EntityId> seedSetB;
+    private Iterator<? extends EntityId> seedSetAIter;
+    private Iterator<? extends EntityId> seedSetBIter;
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
                                           final GetElementsBetweenSets operation,
@@ -89,7 +88,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
         setSeeds(operation.getInput(), operation.getInputB());
     }
 
-    private void setSeeds(final Iterable<EntityId> setA, final Iterable<EntityId> setB) {
+    private void setSeeds(final Iterable<? extends EntityId> setA, final Iterable<? extends EntityId> setB) {
         this.seedSetA = setA;
         this.seedSetB = setB;
     }

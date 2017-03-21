@@ -17,10 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.GetExport;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -32,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 public class GetSetExport implements
         Operation,
         GetExport,
-        IterableOutput<Object> {
+        Output<Iterable<?>> {
     private String jobId;
     private String key;
     private int start = 0;
@@ -75,14 +74,14 @@ public class GetSetExport implements
     }
 
     @Override
-    public TypeReference<CloseableIterable<Object>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public TypeReference<Iterable<?>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObj();
     }
 
     public static class Builder
             extends Operation.BaseBuilder<GetSetExport, Builder>
             implements GetExport.Builder<GetSetExport, Builder>,
-            IterableOutput.Builder<GetSetExport, Object, Builder> {
+            Output.Builder<GetSetExport, Iterable<?>, Builder> {
         public Builder() {
             super(new GetSetExport());
         }

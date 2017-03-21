@@ -29,11 +29,11 @@ import java.util.NoSuchElementException;
  * This class is very similar to {@link uk.gov.gchq.gaffer.data.TransformOneToManyIterable} except that this class transforms one to many
  * items.
  *
- * @param <I>  The input iterable type.
+ * @param <I> The input iterable type.
  * @param <O> the output iterable type.
  */
 public abstract class TransformOneToManyIterable<I, O> implements CloseableIterable<O> {
-    private final Iterable<I> input;
+    private final Iterable<? extends I> input;
     private final Validator<I> validator;
     private final boolean skipInvalid;
     private final boolean autoClose;
@@ -43,7 +43,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      *
      * @param input the input {@link Iterable}
      */
-    public TransformOneToManyIterable(final Iterable<I> input) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -54,7 +54,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param input     the input {@link Iterable}
      * @param validator the {@link Validator}
      */
-    public TransformOneToManyIterable(final Iterable<I> input, final Validator<I> validator) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 
@@ -66,7 +66,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformOneToManyIterable(final Iterable<I> input, final Validator<I> validator, final boolean skipInvalid) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, false);
     }
 
@@ -78,7 +78,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformOneToManyIterable(final Iterable<I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
@@ -97,7 +97,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      */
     public CloseableIterator<O> iterator() {
         return new CloseableIterator<O>() {
-            private final Iterator<I> inputItr = input.iterator();
+            private final Iterator<? extends I> inputItr = input.iterator();
 
             private Iterator<O> nextElements;
             private Boolean hasNext;

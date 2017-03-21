@@ -147,11 +147,11 @@ public class GetElementsWithinSetHandlerTest {
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
         assertEquals(5, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
         elements.close();
     }
 
@@ -179,11 +179,11 @@ public class GetElementsWithinSetHandlerTest {
                 .build();
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
         elements.close();
     }
 
@@ -208,14 +208,14 @@ public class GetElementsWithinSetHandlerTest {
                 .build();
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         final Collection<Element> forTest = new LinkedList<>();
         Iterables.addAll(forTest, elements);
 
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
         elements.close();
     }
 
@@ -238,11 +238,11 @@ public class GetElementsWithinSetHandlerTest {
         final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
         elements.close();
     }
 

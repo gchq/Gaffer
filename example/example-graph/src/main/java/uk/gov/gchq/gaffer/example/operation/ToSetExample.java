@@ -25,12 +25,12 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import java.util.Set;
 
 public class ToSetExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
-        new ToSetExample().run();
-    }
-
     public ToSetExample() {
         super(ToSet.class, "Note - conversion into a Set is done using an in memory HashSet, so it is not advised for a large number of results.");
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        new ToSetExample().run();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ToSetExample extends OperationExample {
         withDeduplicateEdgesChain();
     }
 
-    public CloseableIterable<Element> withoutDeduplicatingEdges() {
+    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(1))
@@ -50,9 +50,9 @@ public class ToSetExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Set<Element> withDeduplicateEdgesChain() {
+    public Set<? extends Element> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
-        final OperationChain<Set<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .input(new EntitySeed(2))

@@ -40,7 +40,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When 1 - before age off
-        final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -59,7 +59,7 @@ public class StoreValidationIT extends AbstractStoreIT {
         }
 
         // When 2 - after age off
-        final CloseableIterable<Element> results2 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results2 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)
@@ -86,7 +86,7 @@ public class StoreValidationIT extends AbstractStoreIT {
                 .build(), user);
 
         // When
-        final CloseableIterable<Element> results1 = graph.execute(new GetElements.Builder()
+        final CloseableIterable<? extends Element> results1 = graph.execute(new GetElements.Builder()
                 .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY_2)

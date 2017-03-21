@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -50,7 +49,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         new LoadAndQuery7().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public Iterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -111,14 +110,14 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // previous edges.
         // Finally finish off by returning all the edges in the export.
         // ---------------------------------------------------------
-        final OperationChain opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<?>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(seeds)
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
                         .build())
                 .then(new ExportToSet<>())
-                .then(new GenerateObjects<>(destVerticesExtractor))
+                .then(new GenerateObjects<EntityId>(destVerticesExtractor))
                 .then(new GetElements.Builder()
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)
@@ -128,7 +127,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
                 .then(new GetSetExport())
                 .build();
 
-        final CloseableIterable<Element> subGraph = (CloseableIterable<Element>) graph.execute(opChain, user);
+        final Iterable<? extends Element> subGraph = (Iterable<? extends Element>) graph.execute(opChain, user);
         // ---------------------------------------------------------
 
         log("\nSub graph:");

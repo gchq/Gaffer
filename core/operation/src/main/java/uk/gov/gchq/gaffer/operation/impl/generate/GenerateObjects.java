@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.function.Function;
 
@@ -34,9 +34,10 @@ import java.util.function.Function;
  */
 public class GenerateObjects<OBJ> implements
         Operation,
-        IterableInputIterableOutput<Element, OBJ> {
-    private Function<Iterable<Element>, Iterable<OBJ>> elementGenerator;
-    private Iterable<Element> input;
+        InputOutput<Iterable<? extends Element>, Iterable<? extends OBJ>>,
+        MultiInput<Element> {
+    private Function<Iterable<? extends Element>, Iterable<? extends OBJ>> elementGenerator;
+    private Iterable<? extends Element> input;
 
     public GenerateObjects() {
     }
@@ -50,7 +51,7 @@ public class GenerateObjects<OBJ> implements
      * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s into objects
      */
-    public GenerateObjects(final Function<Iterable<Element>, Iterable<OBJ>> elementGenerator) {
+    public GenerateObjects(final Function<Iterable<? extends Element>, Iterable<? extends OBJ>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -59,7 +60,7 @@ public class GenerateObjects<OBJ> implements
      * {@link uk.gov.gchq.gaffer.data.element.Element}s into objects
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<Element>, Iterable<OBJ>> getElementGenerator() {
+    public Function<Iterable<? extends Element>, Iterable<? extends OBJ>> getElementGenerator() {
         return elementGenerator;
     }
 
@@ -69,33 +70,34 @@ public class GenerateObjects<OBJ> implements
      * @param elementGenerator an {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to convert
      *                         {@link uk.gov.gchq.gaffer.data.element.Element}s into objects
      */
-    void setElementGenerator(final Function<Iterable<Element>, Iterable<OBJ>> elementGenerator) {
+    void setElementGenerator(final Function<Iterable<? extends Element>, Iterable<? extends OBJ>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @Override
-    public Iterable<Element> getInput() {
+    public Iterable<? extends Element> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<Element> input) {
+    public void setInput(final Iterable<? extends Element> input) {
         this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInputIterableOutput.super.createInputArray();
+        return MultiInput.super.createInputArray();
     }
 
     @Override
-    public TypeReference<CloseableIterable<OBJ>> getOutputTypeReference() {
-        return TypeReferenceImpl.createCloseableIterableT();
+    public TypeReference<Iterable<? extends OBJ>> getOutputTypeReference() {
+        return TypeReferenceImpl.createIterableT();
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateObjects<OBJ>, Builder<OBJ>>
-            implements IterableInputIterableOutput.Builder<GenerateObjects<OBJ>, Element, OBJ, Builder<OBJ>> {
+            implements InputOutput.Builder<GenerateObjects<OBJ>, Iterable<? extends Element>, Iterable<? extends OBJ>, Builder<OBJ>>,
+            MultiInput.Builder<GenerateObjects<OBJ>, Element, Builder<OBJ>> {
         public Builder() {
             super(new GenerateObjects<>());
         }
@@ -104,7 +106,7 @@ public class GenerateObjects<OBJ> implements
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
          */
-        public Builder<OBJ> generator(final Function<Iterable<Element>, Iterable<OBJ>> generator) {
+        public Builder<OBJ> generator(final Function<Iterable<? extends Element>, Iterable<? extends OBJ>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

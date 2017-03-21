@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<T>> {
+public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<? extends T>> {
     @Override
     public List<T> doOperation(final ToList<T> operation, final Context context, final Store store) throws OperationException {
         return Streams.toStream(operation.getInput())

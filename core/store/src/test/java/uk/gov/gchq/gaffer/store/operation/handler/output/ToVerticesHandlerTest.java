@@ -17,13 +17,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
@@ -31,7 +26,6 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -43,7 +37,7 @@ public class ToVerticesHandlerTest {
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final List<ElementId> elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
+        final List elementIds = Arrays.asList(new EntitySeed(vertex1), new EntitySeed(vertex2));
 
         final ToVerticesHandler handler = new ToVerticesHandler();
         final ToVertices operation = mock(ToVertices.class);

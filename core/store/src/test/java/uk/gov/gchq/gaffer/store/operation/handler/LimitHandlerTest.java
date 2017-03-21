@@ -44,7 +44,7 @@ public class LimitHandlerTest {
         final LimitHandler<Integer> handler = new LimitHandler<>();
 
         // When
-        final Iterable<Integer> result = handler.doOperation(limit, null, null);
+        final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
         assertTrue(result instanceof LimitedCloseableIterable);
@@ -66,7 +66,7 @@ public class LimitHandlerTest {
         final LimitHandler<Integer> handler = new LimitHandler<>();
 
         // When
-        final Iterable<Integer> result = handler.doOperation(limit, null, null);
+        final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
 
         // Then
         assertSame(input, result);

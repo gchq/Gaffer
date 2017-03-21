@@ -16,35 +16,37 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 public class ToEntitySeeds implements
         Operation,
-        IterableInputIterableOutput<Object, EntitySeed> {
-    private Iterable<Object> input;
+        InputOutput<Iterable<? extends Object>, Iterable<? extends EntitySeed>>,
+        MultiInput<Object> {
+    private Iterable<? extends Object> input;
 
     @Override
-    public Iterable<Object> getInput() {
+    public Iterable<? extends Object> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<Object> input) {
+    public void setInput(final Iterable<? extends Object> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<EntitySeed>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableEntitySeed();
+    public TypeReference<Iterable<? extends EntitySeed>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableEntitySeed();
     }
 
     public static final class Builder
             extends BaseBuilder<ToEntitySeeds, ToEntitySeeds.Builder>
-            implements IterableInputIterableOutput.Builder<ToEntitySeeds, Object, EntitySeed, ToEntitySeeds.Builder> {
+            implements InputOutput.Builder<ToEntitySeeds, Iterable<? extends Object>, Iterable<? extends EntitySeed>, Builder>,
+            MultiInput.Builder<ToEntitySeeds, Object, Builder> {
         public Builder() {
             super(new ToEntitySeeds());
         }

@@ -49,7 +49,7 @@ public class LoadAndQuery9Test {
         final LoadAndQuery9 query = new LoadAndQuery9();
 
         // When
-        final CloseableIterable<Element> results = query.run();
+        final CloseableIterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -71,13 +71,13 @@ public class LoadAndQuery9Test {
 
         // When
         graph.execute(addOpChain, user); // Execute the add operation chain on the graph
-        final CloseableIterable<Element> results = graph.execute(getRelatedEdges, user); // Execute the query operation on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(getRelatedEdges, user); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<Element> resultsItr) {
+    private void verifyResults(final CloseableIterable<? extends Element> resultsItr) {
         final Map<String, Entity> expectedResults = new HashMap<>();
         expectedResults.put("1", new Entity.Builder()
                 .group(CARDINALITY)

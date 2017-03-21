@@ -16,10 +16,10 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -28,28 +28,30 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class ToVertices implements
         Operation,
-        IterableInputIterableOutput<ElementId, Object> {
-    private Iterable<ElementId> input;
+        InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
+        MultiInput<ElementId> {
 
+    private Iterable<? extends ElementId> input;
 
     @Override
-    public Iterable<ElementId> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<ElementId> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<Object>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableObj();
+    public TypeReference<Iterable<? extends Object>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObj();
     }
 
     public static final class Builder
             extends BaseBuilder<ToVertices, ToVertices.Builder>
-            implements IterableInputIterableOutput.Builder<ToVertices, ElementId, Object, ToVertices.Builder> {
+            implements InputOutput.Builder<ToVertices, Iterable<? extends ElementId>, Iterable<? extends Object>, Builder>,
+            MultiInput.Builder<ToVertices, ElementId, Builder> {
         public Builder() {
             super(new ToVertices());
         }

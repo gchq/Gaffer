@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 
 public class ObjectGeneratorImpl implements ObjectGenerator<String> {
     @Override
-    public Iterable<String> apply(final Iterable<Element> elements) {
+    public Iterable<String> apply(final Iterable<? extends Element> elements) {
         return null;
     }
 }

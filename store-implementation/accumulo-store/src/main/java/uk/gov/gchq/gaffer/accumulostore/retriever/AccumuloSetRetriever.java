@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -39,7 +40,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
@@ -49,7 +50,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloSetRetriever<OP extends IterableInputIterableOutput<EntityId, Element> & GraphFilters & Options>
+public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters & Options>
         extends AccumuloRetriever<OP> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
@@ -110,7 +111,7 @@ public abstract class AccumuloSetRetriever<OP extends IterableInputIterableOutpu
 
     protected abstract AbstractElementIteratorFromBatches createElementIteratorFromBatches() throws RetrieverException;
 
-    protected Set<Object> extractVertices(final Iterator<EntityId> seeds) {
+    protected Set<Object> extractVertices(final Iterator<? extends EntityId> seeds) {
         final Set<Object> vertices = new HashSet<>();
         while (seeds.hasNext()) {
             vertices.add(seeds.next().getVertex());
@@ -119,19 +120,19 @@ public abstract class AccumuloSetRetriever<OP extends IterableInputIterableOutpu
         return vertices;
     }
 
-    protected void addToBloomFilter(final Iterable<Object> vertices, final BloomFilter filter)
+    protected void addToBloomFilter(final Iterable<? extends Object> vertices, final BloomFilter filter)
             throws RetrieverException {
         addToBloomFilter(vertices.iterator(), filter);
     }
 
-    protected void addToBloomFilter(final Iterator<Object> vertices, final BloomFilter filter)
+    protected void addToBloomFilter(final Iterator<? extends Object> vertices, final BloomFilter filter)
             throws RetrieverException {
         while (vertices.hasNext()) {
             addToBloomFilter(vertices.next(), filter);
         }
     }
 
-    protected void addToBloomFilter(final Iterator<EntityId> seeds, final BloomFilter filter1,
+    protected void addToBloomFilter(final Iterator<? extends EntityId> seeds, final BloomFilter filter1,
                                     final BloomFilter filter2) throws RetrieverException {
         while (seeds.hasNext()) {
             addToBloomFilter(seeds.next(), filter1, filter2);
@@ -245,7 +246,7 @@ public abstract class AccumuloSetRetriever<OP extends IterableInputIterableOutpu
     }
 
     protected abstract class AbstractElementIteratorFromBatches implements CloseableIterator<Element> {
-        protected Iterator<EntityId> idsAIterator;
+        protected Iterator<? extends EntityId> idsAIterator;
         // The Bloom filter that is maintained client-side
         // as a secondary defeat of false positives.
         protected BloomFilter clientSideFilter;

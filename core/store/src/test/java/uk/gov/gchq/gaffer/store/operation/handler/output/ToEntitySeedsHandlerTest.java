@@ -17,22 +17,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -45,14 +37,14 @@ public class ToEntitySeedsHandlerTest {
         final Object vertex1 = "vertex1";
         final Object vertex2 = "vertex2";
 
-        final CloseableIterable<Object> originalResults = new WrappedCloseableIterable<>(Arrays.asList(vertex1, vertex2));
+        final Iterable originalResults = new WrappedCloseableIterable<>(Arrays.asList(vertex1, vertex2));
         final ToEntitySeedsHandler handler = new ToEntitySeedsHandler();
         final ToEntitySeeds operation = mock(ToEntitySeeds.class);
 
         given(operation.getInput()).willReturn(originalResults);
 
         //When
-        final CloseableIterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<EntitySeed> results = handler.doOperation(operation, new Context(), null);
 
         //Then
         assertThat(results, containsInAnyOrder(new EntitySeed(vertex1), new EntitySeed(vertex2)));

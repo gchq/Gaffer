@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
@@ -24,9 +23,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Map;
 
-public class ToMapHandler implements OutputOperationHandler<ToMap, CloseableIterable<Map<String, Object>>> {
+public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<Map<String, Object>>> {
     @Override
-    public CloseableIterable<Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
-        return new WrappedCloseableIterable<>(operation.getElementGenerator().apply(operation.getInput()));
+    public Iterable<Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
+        return new WrappedCloseableIterable<>(operation.getElementGenerator()
+                                                       .apply(operation.getInput()));
     }
 }
