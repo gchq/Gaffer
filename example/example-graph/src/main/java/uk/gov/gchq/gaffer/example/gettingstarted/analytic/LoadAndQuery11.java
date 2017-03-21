@@ -41,7 +41,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         new LoadAndQuery11().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -75,7 +75,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
 
         // [get] Get all edges
         // ---------------------------------------------------------
-        CloseableIterable<Element> allEdges = graph.execute(new GetAllElements(), user);
+        CloseableIterable<? extends Element> allEdges = graph.execute(new GetAllElements(), user);
         // ---------------------------------------------------------
         log("\nAll edges:");
         for (final Element edge : allEdges) {
@@ -88,7 +88,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", false))
                 .build();
-        final CloseableIterable<Element> edges = graph.execute(query, user);
+        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();
         final DoublesUnion doublesUnion = (DoublesUnion) edge.getProperty("doublesUnion");
         final double[] quantiles = doublesUnion.getResult().getQuantiles(new double[]{0.25D, 0.5D, 0.75D});
@@ -105,7 +105,7 @@ public class LoadAndQuery11 extends LoadAndQuery {
         final GetElements query2 = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", false))
                 .build();
-        final CloseableIterable<Element> edges2 = graph.execute(query2, user);
+        final CloseableIterable<? extends Element> edges2 = graph.execute(query2, user);
         final Element edge2 = edges2.iterator().next();
         final DoublesSketch doublesSketch2 = ((DoublesUnion) edge2.getProperty("doublesUnion")).getResult();
         final double[] cdf = doublesSketch2.getCDF(new double[]{0.0D, 1.0D, 2.0D});

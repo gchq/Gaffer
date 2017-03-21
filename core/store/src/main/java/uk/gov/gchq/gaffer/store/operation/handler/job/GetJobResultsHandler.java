@@ -25,9 +25,9 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-public class GetJobResultsHandler implements OutputOperationHandler<GetJobResults, CloseableIterable<Object>> {
+public class GetJobResultsHandler implements OutputOperationHandler<GetJobResults, CloseableIterable<?>> {
     @Override
-    public CloseableIterable<Object> doOperation(final GetJobResults operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<?> doOperation(final GetJobResults operation, final Context context, final Store store) throws OperationException {
         if (!store.isSupported(GetGafferResultCacheExport.class)) {
             throw new OperationException("Getting job results is not supported as the " + GetGafferResultCacheExport.class.getSimpleName() + " operation has not been configured for this Gaffer graph.");
         }

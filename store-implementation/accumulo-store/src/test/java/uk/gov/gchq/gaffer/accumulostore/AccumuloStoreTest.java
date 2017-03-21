@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,14 +62,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandle
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -122,7 +118,6 @@ public class AccumuloStoreTest {
     }
 
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(AccumuloStore store) throws OperationException {
-        final List<Element> elements = new ArrayList<>();
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -131,24 +126,22 @@ public class AccumuloStoreTest {
         e.putProperty(TestPropertyNames.COUNT, 1);
 
         final User user = new User();
-        elements.add(e);
         final AddElements add = new AddElements.Builder()
-                .input(elements)
+                .input(e)
                 .build();
         store.execute(add, user);
 
         final EntityId entityId1 = new EntitySeed("1");
-
         final GetElements getBySeed = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
                 .input(entityId1)
                 .build();
-        final CloseableIterable<Element> results = store.execute(getBySeed, user);
+        final CloseableIterable<? extends Element> results = store.execute(getBySeed, user);
 
         assertEquals(1, Iterables.size(results));
-        assertThat(results, IsCollectionContaining.hasItem(e));
+        assertTrue(Iterables.contains(results, e));
 
         final GetElements getRelated = new GetElements.Builder()
                 .view(new View.Builder()
@@ -156,9 +149,9 @@ public class AccumuloStoreTest {
                         .build())
                 .input(entityId1)
                 .build();
-        CloseableIterable<Element> relatedResults = store.execute(getRelated, user);
+        CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
-        assertThat(relatedResults, IsCollectionContaining.hasItem(e));
+        assertTrue(Iterables.contains(relatedResults, e));
 
         final GetElements getRelatedWithPostAggregationFilter = new GetElements.Builder()
                 .view(new View.Builder()

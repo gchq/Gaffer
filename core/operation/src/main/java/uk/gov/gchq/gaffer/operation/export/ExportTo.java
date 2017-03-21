@@ -16,13 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.export;
 
-import uk.gov.gchq.gaffer.operation.io.InputOutputT;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 
 public interface ExportTo<T> extends
         Export,
-        InputOutputT<T> {
+        InputOutput<T, T> {
     interface Builder<OP extends ExportTo<T>, T, B extends Builder<OP, T, ?>>
             extends Export.Builder<OP, B>,
-            InputOutputT.Builder<OP, T, B> {
+            InputOutput.Builder<OP, T, T, B> {
     }
 }

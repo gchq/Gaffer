@@ -38,7 +38,7 @@ public class DeduplicateExample extends OperationExample {
         withDeduplicateEdgesChain();
     }
 
-    public CloseableIterable<Element> withoutDeduplicatingEdges() {
+    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(1))
@@ -49,9 +49,9 @@ public class DeduplicateExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> withDeduplicateEdgesChain() {
+    public Iterable<? extends Element> withDeduplicateEdgesChain() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .input(new EntitySeed(2))

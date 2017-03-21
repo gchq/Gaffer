@@ -40,7 +40,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
         new LoadAndQuery10().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -74,7 +74,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
 
         // [get] Get all edges
         // ---------------------------------------------------------
-        Iterable<Element> allEdges = graph.execute(new GetAllElements(), user);
+        final CloseableIterable<? extends Element> allEdges = graph.execute(new GetAllElements(), user);
         // ---------------------------------------------------------
         log("\nAll edges:");
         for (final Element edge : allEdges) {
@@ -87,7 +87,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
         final GetElements query = new GetElements.Builder()
                 .input(new EdgeSeed("A", "B", false))
                 .build();
-        final Iterable<Element> edges = graph.execute(query, user);
+        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();
         final LongsSketch longsSketch = (LongsSketch) edge.getProperty("longsSketch");
         final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)

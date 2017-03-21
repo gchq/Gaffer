@@ -85,7 +85,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
                         .entity("size")
                         .build())
                 .build();
-        final CloseableIterable<Element> entities = graph.execute(get, user);
+        final CloseableIterable<? extends Element> entities = graph.execute(get, user);
         for (final Element entity : entities) {
             log("GET_ENTITIES", entity.toString());
         }
@@ -99,8 +99,8 @@ public class LoadAndQuery13 extends LoadAndQuery {
                         .entity("size")
                         .build())
                 .build();
-        final CloseableIterable<Element> allEntities2 = graph.execute(getAllEntities2, user);
-        final CloseableIterator<Element> it = allEntities2.iterator();
+        final CloseableIterable<? extends Element> allEntities2 = graph.execute(getAllEntities2, user);
+        final CloseableIterator<? extends Element> it = allEntities2.iterator();
         final Element entityDay1 = it.next();
         final CompactSketch sketchDay1 = ((Union) entityDay1.getProperty("size")).getResult();
         final Element entityDay2 = it.next();
@@ -133,7 +133,7 @@ public class LoadAndQuery13 extends LoadAndQuery {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> allEntities = graph.execute(getAllEntities, user);
+        final CloseableIterable<? extends Element> allEntities = graph.execute(getAllEntities, user);
         final Element entity = allEntities.iterator().next();
         final double unionSizeEstimate = ((Union) entity.getProperty("size")).getResult().getEstimate();
         // ---------------------------------------------------------

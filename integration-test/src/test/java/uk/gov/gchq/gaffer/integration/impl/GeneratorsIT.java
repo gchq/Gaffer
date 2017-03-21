@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -60,7 +59,7 @@ public class GeneratorsIT extends AbstractStoreIT {
     @Test
     public void shouldConvertToDomainObjects() throws OperationException, UnsupportedEncodingException {
         // Given
-        final OperationChain<CloseableIterable<DomainObject>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends DomainObject>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(SOURCE_1))
                         .build())

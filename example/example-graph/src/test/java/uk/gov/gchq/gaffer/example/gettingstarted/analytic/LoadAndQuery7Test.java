@@ -46,7 +46,7 @@ public class LoadAndQuery7Test {
         final LoadAndQuery7 query = new LoadAndQuery7();
 
         // When
-        final CloseableIterable<Element> results = query.run();
+        final Iterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -74,7 +74,7 @@ public class LoadAndQuery7Test {
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<Element> resultsItr) {
+    private void verifyResults(final Iterable<? extends Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("1")

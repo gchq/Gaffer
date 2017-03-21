@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -32,11 +30,11 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  *
  * @param <OBJ> the type of input objects from the operation.
  */
-public class GenerateElementsHandler<OBJ> implements OutputOperationHandler<GenerateElements<OBJ>, CloseableIterable<Element>> {
+public class GenerateElementsHandler<OBJ> implements OutputOperationHandler<GenerateElements<OBJ>, Iterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GenerateElements<OBJ> operation,
-                                                  final Context context, final Store store)
+    public Iterable<? extends Element> doOperation(final GenerateElements<OBJ> operation,
+                                                   final Context context, final Store store)
             throws OperationException {
-        return new WrappedCloseableIterable<>(operation.getElementGenerator().getElements(operation.getInput()));
+        return operation.getElementGenerator().getElements(operation.getInput());
     }
 }

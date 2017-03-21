@@ -24,7 +24,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Collections;
 import java.util.Map;
@@ -37,18 +38,19 @@ import java.util.Map;
  */
 public class GetAdjacentIds implements
         Operation,
-        IterableInputIterableOutput<EntityId, EntityId>,
+        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
+        MultiInput<EntityId>,
         SeededGraphFilters,
         Options {
     private View view;
-    private Iterable<EntityId> input;
+    private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
     private IncludeIncomingOutgoingType inOutType;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     public Object[] createInputArray() {
-        return IterableInputIterableOutput.super.createInputArray();
+        return MultiInput.super.createInputArray();
     }
 
     @Override
@@ -79,17 +81,17 @@ public class GetAdjacentIds implements
     }
 
     @Override
-    public Iterable<EntityId> getInput() {
+    public Iterable<? extends EntityId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<EntityId> input) {
+    public void setInput(final Iterable<? extends EntityId> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<EntityId>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends EntityId>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableEntityId();
     }
 
@@ -114,7 +116,8 @@ public class GetAdjacentIds implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
-            implements IterableInputIterableOutput.Builder<GetAdjacentIds, EntityId, EntityId, Builder>,
+            implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
+            MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,
             SeededGraphFilters.Builder<GetAdjacentIds, Builder>,
             Options.Builder<GetAdjacentIds, Builder> {
         public Builder() {

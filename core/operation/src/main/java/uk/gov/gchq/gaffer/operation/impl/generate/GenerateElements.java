@@ -17,25 +17,26 @@
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
- * An <code>GenerateElements</code> operation generates an {@link CloseableIterable} of
- * {@link uk.gov.gchq.gaffer.data.element.Element}s from an {@link CloseableIterable} of objects.
+ * An <code>GenerateElements</code> operation generates an {@link Iterable} of
+ * {@link uk.gov.gchq.gaffer.data.element.Element}s from an {@link Iterable} of objects.
  *
  * @param <OBJ> the type of objects in the input iterable.
  * @see uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements.Builder
  */
 public class GenerateElements<OBJ> implements
         Operation,
-        IterableInputIterableOutput<OBJ, Element> {
+        InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
+        MultiInput<OBJ> {
     private ElementGenerator<OBJ> elementGenerator;
-    private Iterable<OBJ> input;
+    private Iterable<? extends OBJ> input;
 
     public GenerateElements() {
     }
@@ -71,22 +72,23 @@ public class GenerateElements<OBJ> implements
     }
 
     @Override
-    public Iterable<OBJ> getInput() {
+    public Iterable<? extends OBJ> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<OBJ> input) {
+    public void setInput(final Iterable<? extends OBJ> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableElement();
+    public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableElement();
     }
 
     public static class Builder<OBJ> extends Operation.BaseBuilder<GenerateElements<OBJ>, Builder<OBJ>>
-            implements IterableInputIterableOutput.Builder<GenerateElements<OBJ>, OBJ, Element, Builder<OBJ>> {
+            implements InputOutput.Builder<GenerateElements<OBJ>, Iterable<? extends OBJ>, Iterable<? extends Element>, Builder<OBJ>>,
+            MultiInput.Builder<GenerateElements<OBJ>, OBJ, Builder<OBJ>> {
         public Builder() {
             super(new GenerateElements<>());
         }

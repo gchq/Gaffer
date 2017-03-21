@@ -42,7 +42,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
         new LoadAndQuery15().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -71,7 +71,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
 
         // [job] create an operation chain to be executed as a job
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Element>> job = new OperationChain.Builder()
+        final OperationChain<CloseableIterable<? extends Element>> job = new OperationChain.Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed("1"))
                         .build())

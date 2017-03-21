@@ -45,7 +45,7 @@ public class LoadAndQueryTest {
         final LoadAndQuery query = new LoadAndQuery();
 
         // When
-        final CloseableIterable<Element> results = query.run();
+        final CloseableIterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -75,13 +75,13 @@ public class LoadAndQueryTest {
 
         // When
         graph.execute(populateChain, user); // Execute the populate operation chain on the graph
-        final CloseableIterable<Element> results = graph.execute(queryChain, user); // Execute the query operation chain on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(queryChain, user); // Execute the query operation chain on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final CloseableIterable<Element> resultsItr) {
+    private void verifyResults(final CloseableIterable<? extends Element> resultsItr) {
         final List<Entity> expectedResults = new ArrayList<>();
         final Entity entity = new Entity(Group.REVIEW, "filmA");
         entity.putProperty(Property.USER_ID, "user01,user03");

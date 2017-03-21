@@ -103,7 +103,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                 .build();
 
         // When
-        final CloseableIterable<EntityId> results = graph.execute(operation, user);
+        final CloseableIterable<? extends EntityId> results = graph.execute(operation, user);
 
         // Then
         List<String> resultSeeds = new ArrayList<>();

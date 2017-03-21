@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
+import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -75,7 +75,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters 
         }
     }
 
-    public <INPUT_OP extends Operation & GraphFilters & Options & IterableInput<ElementId>>
+    public <INPUT_OP extends Operation & GraphFilters & Options & Input<Iterable<? extends ElementId>>>
     void addRanges(final AccumuloStore accumuloStore,
                    final Configuration conf,
                    final INPUT_OP operation)

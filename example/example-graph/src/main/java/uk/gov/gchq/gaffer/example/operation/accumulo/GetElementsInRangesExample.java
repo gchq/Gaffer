@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.example.operation.accumulo;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,7 +40,7 @@ public class GetElementsInRangesExample extends OperationExample {
         getAllElementsInTheRangeFromEntity4ToEdge4_5();
     }
 
-    public Iterable<Element> getAllElementsInTheRangeFromEntity1toEntity4() {
+    public CloseableIterable<? extends Element> getAllElementsInTheRangeFromEntity1toEntity4() {
         // ---------------------------------------------------------
         final GetElementsInRanges operation = new GetElementsInRanges.Builder()
                 .input(new Pair<>(new EntitySeed(1), new EntitySeed(4)))
@@ -49,7 +50,7 @@ public class GetElementsInRangesExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<Element> getAllElementsInTheRangeFromEntity4ToEdge4_5() {
+    public CloseableIterable<? extends Element> getAllElementsInTheRangeFromEntity4ToEdge4_5() {
         // ---------------------------------------------------------
         final GetElementsInRanges operation = new GetElementsInRanges.Builder()
                 .input(new Pair<>(new EntitySeed(4), new EdgeSeed(4, 5, true)))

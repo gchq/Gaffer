@@ -40,7 +40,7 @@ public class GenerateElementsHandlerTest {
         final GenerateElements<String> operation = mock(GenerateElements.class);
         final CloseableIterable<Element> elements = mock(CloseableIterable.class);
         final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
-        final CloseableIterable<String> objs = mock(CloseableIterable.class);
+        final CloseableIterable objs = mock(CloseableIterable.class);
         final Context context = new Context();
 
         final CloseableIterator<Element> elementsIter = mock(CloseableIterator.class);
@@ -50,7 +50,7 @@ public class GenerateElementsHandlerTest {
         given(operation.getElementGenerator()).willReturn(elementGenerator);
 
         // When
-        final CloseableIterable<Element> result = handler.doOperation(operation, context, store);
+        final Iterable<? extends Element> result = handler.doOperation(operation, context, store);
 
         // Then
         assertSame(elementsIter, result.iterator());

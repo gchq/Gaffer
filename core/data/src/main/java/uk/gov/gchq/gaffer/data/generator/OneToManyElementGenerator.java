@@ -38,7 +38,7 @@ public abstract class OneToManyElementGenerator<OBJ> implements ElementGenerator
      * Constructs an <code>OneToManyElementGenerator</code> that doesn't validate the any elements or objects.
      */
     public OneToManyElementGenerator() {
-        this(new AlwaysValid<OBJ>(), false);
+        this(new AlwaysValid<>(), false);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class OneToManyElementGenerator<OBJ> implements ElementGenerator
      * @see ElementGenerator#getElements(Iterable)
      */
     @Override
-    public Iterable<Element> getElements(final Iterable<OBJ> domainObjects) {
+    public Iterable<Element> getElements(final Iterable<? extends OBJ> domainObjects) {
         return new TransformOneToManyIterable<OBJ, Element>(domainObjects, objValidator, skipInvalid) {
             @Override
             protected Iterable<Element> transform(final OBJ item) {

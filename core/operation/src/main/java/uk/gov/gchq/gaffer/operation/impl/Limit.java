@@ -17,11 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInput;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutputT;
-import uk.gov.gchq.gaffer.operation.io.IterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -34,9 +32,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class Limit<T> implements
         Operation,
-        IterableInputOutputT<T> {
+        InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
+        MultiInput<T> {
     protected Integer resultLimit;
-    private Iterable<T> input;
+    private Iterable<? extends T> input;
 
     public Limit() {
     }
@@ -54,23 +53,24 @@ public class Limit<T> implements
     }
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<T>> getOutputTypeReference() {
-        return TypeReferenceImpl.createCloseableIterableT();
+    public TypeReference<Iterable<? extends T>> getOutputTypeReference() {
+        return TypeReferenceImpl.createIterableT();
     }
 
     public static final class Builder<T>
             extends Operation.BaseBuilder<Limit<T>, Builder<T>>
-            implements IterableInput.Builder<Limit<T>, T, Builder<T>>, IterableOutput.Builder<Limit<T>, T, Builder<T>> {
+            implements InputOutput.Builder<Limit<T>, Iterable<? extends T>, Iterable<? extends T>, Builder<T>>,
+            MultiInput.Builder<Limit<T>, T, Builder<T>> {
         public Builder() {
             super(new Limit<>());
         }

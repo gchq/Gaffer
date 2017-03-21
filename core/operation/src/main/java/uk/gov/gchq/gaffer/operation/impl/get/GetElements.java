@@ -26,7 +26,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.io.IterableInputIterableOutput;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
@@ -38,7 +39,8 @@ import java.util.Map;
  */
 public class GetElements implements
         Operation,
-        IterableInputIterableOutput<ElementId, Element>,
+        InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
+        MultiInput<ElementId>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -46,7 +48,7 @@ public class GetElements implements
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    private Iterable<ElementId> input;
+    private Iterable<? extends ElementId> input;
     private Map<String, String> options;
 
     /**
@@ -93,23 +95,23 @@ public class GetElements implements
     }
 
     @Override
-    public Iterable<ElementId> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<ElementId> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     @Override
     public Object[] createInputArray() {
-        return IterableInputIterableOutput.super.createInputArray();
+        return MultiInput.super.createInputArray();
     }
 
     @Override
-    public TypeReference<CloseableIterable<Element>> getOutputTypeReference() {
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.CloseableIterableElement();
     }
 
@@ -124,7 +126,8 @@ public class GetElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
-            implements IterableInputIterableOutput.Builder<GetElements, ElementId, Element, Builder>,
+            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
             SeedMatching.Builder<GetElements, Builder>,
             Options.Builder<GetElements, Builder> {

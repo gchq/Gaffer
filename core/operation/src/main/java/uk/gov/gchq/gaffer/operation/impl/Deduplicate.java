@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.io.IterableInputOutputT;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
@@ -30,27 +30,29 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class Deduplicate<T> implements
         Operation,
-        IterableInputOutputT<T> {
-    private Iterable<T> input;
+        InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
     @Override
-    public Iterable<T> getInput() {
+    public Iterable<? extends T> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<T> input) {
+    public void setInput(final Iterable<? extends T> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<T>> getOutputTypeReference() {
-        return TypeReferenceImpl.createCloseableIterableT();
+    public TypeReference<Iterable<? extends T>> getOutputTypeReference() {
+        return TypeReferenceImpl.createIterableT();
     }
 
     public static final class Builder<T>
             extends Operation.BaseBuilder<Deduplicate<T>, Builder<T>>
-            implements IterableInputOutputT.Builder<Deduplicate<T>, T, Builder<T>> {
+            implements InputOutput.Builder<Deduplicate<T>, Iterable<? extends T>, Iterable<? extends T>, Builder<T>>,
+            MultiInput.Builder<Deduplicate<T>, T, Builder<T>> {
         public Builder() {
             super(new Deduplicate<>());
         }

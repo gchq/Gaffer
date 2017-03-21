@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId.Matches;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -40,10 +40,10 @@ import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
-public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements operation,
-                                                  final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
@@ -141,7 +141,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return false;
     }
 
-    private Matches isSeedRelated(final ElementId elementId, final Iterable<ElementId> seeds) {
+    private Matches isSeedRelated(final ElementSeed elementId, final Iterable<? extends ElementId> seeds) {
         Set<Matches> matchesSet = new HashSet<>();
         for (final ElementId seed : seeds) {
             final Matches isRelatedMatch = elementId.isRelated(seed);
@@ -163,12 +163,12 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return Matches.NONE;
     }
 
-    private boolean isSeedEqual(final ElementId elementId, final Iterable<ElementId> seeds, final DirectedType includeEdges) {
+    private boolean isSeedEqual(final ElementId elementId, final Iterable<? extends ElementId> seeds, final DirectedType includeEdges) {
         for (final ElementId seed : seeds) {
-            if (elementId.isEqual(seed)) {
-                if (elementId instanceof EdgeId
-                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeId) elementId).isDirected())
-                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeId) elementId).isDirected()))) {
+            if (elementId.equals(seed)) {
+                if (elementId instanceof EdgeSeed
+                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeSeed) elementId).isDirected())
+                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeSeed) elementId).isDirected()))) {
                     continue;
                 }
 

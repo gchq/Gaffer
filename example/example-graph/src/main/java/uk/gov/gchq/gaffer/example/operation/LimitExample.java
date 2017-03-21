@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -36,9 +35,9 @@ public class LimitExample extends OperationExample {
         limitElementsTo3();
     }
 
-    public Iterable<Element> limitElementsTo3() {
+    public Iterable<? extends Element> limitElementsTo3() {
         // ---------------------------------------------------------
-        final OperationChain<CloseableIterable<Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new Limit<>(3))
                 .build();

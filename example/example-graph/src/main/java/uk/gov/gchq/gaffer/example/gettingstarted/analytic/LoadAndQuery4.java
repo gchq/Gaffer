@@ -42,7 +42,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         new LoadAndQuery4().run();
     }
 
-    public CloseableIterable<Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -87,7 +87,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final GetElements getRelatedEdges = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<? extends Element> results = graph.execute(getRelatedEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1. The counts and 'things' have been aggregated\n");
         for (final Element e : results) {
@@ -120,7 +120,7 @@ public class LoadAndQuery4 extends LoadAndQuery {
                 .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<Element> transientResults = graph.execute(getRelatedEdgesWithMean, user);
+        final CloseableIterable<? extends Element> transientResults = graph.execute(getRelatedEdgesWithMean, user);
         // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (final Element e : transientResults) {

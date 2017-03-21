@@ -108,7 +108,7 @@ public class AddElementsTest implements OperationTest {
         AddElements addElements = serialiser.deserialise(ADD_ELEMENTS_JSON.getBytes(), AddElements.class);
 
         // Then
-        final Iterator<Element> itr = addElements.getInput().iterator();
+        final Iterator<? extends Element> itr = addElements.getInput().iterator();
 
         final Entity elm1 = (Entity) itr.next();
         assertEquals("vertex 1", elm1.getVertex());
