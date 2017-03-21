@@ -31,6 +31,10 @@ import java.util.stream.Stream;
 public class ToStreamHandler<T> implements OutputOperationHandler<ToStream<T>, Stream<? extends T>> {
     @Override
     public Stream<? extends T> doOperation(final ToStream<T> operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return Streams.toStream(operation.getInput());
     }
 }

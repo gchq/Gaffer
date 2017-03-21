@@ -27,6 +27,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
     @Override
     public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return Streams.toStream(operation.getInput())
                       .filter(EntityId.class::isInstance)
                       .map(EntityId.class::cast)

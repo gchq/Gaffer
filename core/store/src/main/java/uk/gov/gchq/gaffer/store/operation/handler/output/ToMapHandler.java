@@ -26,6 +26,10 @@ import java.util.Map;
 public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<Map<String, Object>>> {
     @Override
     public Iterable<Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return new WrappedCloseableIterable<>(operation.getElementGenerator()
                                                        .apply(operation.getInput()));
     }

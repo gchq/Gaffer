@@ -23,10 +23,15 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.List;
 
 public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]> {
     @Override
     public T[] doOperation(final ToArray<T> operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return toArray(operation.getInput());
     }
 
@@ -35,7 +40,12 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
     }
 
     private <T> T[] toArray(final Iterable<T> iterable) {
-        return toArray(Lists.newArrayList(iterable), iterable.iterator().next().getClass());
+        final List<T> list = Lists.newArrayList(iterable);
+        Class<?> clazz = Object.class;
+        if (!list.isEmpty()) {
+            clazz = list.get(0).getClass();
+        }
+        return toArray(Lists.newArrayList(iterable), clazz);
     }
 
     private <T> T[] toArray(final Collection<T> collection, final T[] array) {

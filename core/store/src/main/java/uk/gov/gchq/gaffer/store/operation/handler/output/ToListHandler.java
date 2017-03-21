@@ -27,6 +27,10 @@ import java.util.stream.Collectors;
 public class ToListHandler<T> implements OutputOperationHandler<ToList<T>, List<? extends T>> {
     @Override
     public List<T> doOperation(final ToList<T> operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return Streams.toStream(operation.getInput())
                       .collect(Collectors.toList());
     }

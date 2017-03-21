@@ -27,6 +27,10 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
     @Override
     public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
+        if (null == operation.getInput()) {
+            return null;
+        }
+
         return Streams.toStream(operation.getInput())
                       .map(EntitySeed::new)
                       .collect(GafferCollectors.toCloseableIterable());
