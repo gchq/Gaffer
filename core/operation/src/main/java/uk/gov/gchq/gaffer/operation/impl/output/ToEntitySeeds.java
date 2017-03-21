@@ -44,7 +44,7 @@ public class ToEntitySeeds implements
     }
 
     public static final class Builder
-            extends BaseBuilder<ToEntitySeeds, ToEntitySeeds.Builder>
+            extends BaseBuilder<ToEntitySeeds, Builder>
             implements InputOutput.Builder<ToEntitySeeds, Iterable<? extends Object>, Iterable<? extends EntitySeed>, Builder>,
             MultiInput.Builder<ToEntitySeeds, Object, Builder> {
         public Builder() {

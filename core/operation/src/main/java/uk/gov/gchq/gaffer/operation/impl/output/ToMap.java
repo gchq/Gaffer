@@ -64,7 +64,7 @@ public class ToMap implements
         return new TypeReferenceImpl.IterableMap();
     }
 
-    public static final class Builder extends BaseBuilder<ToMap, ToMap.Builder>
+    public static final class Builder extends BaseBuilder<ToMap, Builder>
             implements InputOutput.Builder<ToMap, Iterable<? extends Element>, Iterable<Map<String, Object>>, Builder>,
             MultiInput.Builder<ToMap, Element, Builder> {
         public Builder() {

@@ -49,7 +49,7 @@ public class ToVertices implements
     }
 
     public static final class Builder
-            extends BaseBuilder<ToVertices, ToVertices.Builder>
+            extends BaseBuilder<ToVertices, Builder>
             implements InputOutput.Builder<ToVertices, Iterable<? extends ElementId>, Iterable<? extends Object>, Builder>,
             MultiInput.Builder<ToVertices, ElementId, Builder> {
         public Builder() {
