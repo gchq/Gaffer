@@ -25,27 +25,34 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * A <code>ToMap</code> operation takes in an {@link java.lang.Iterable} of items
+ * and uses a {@link uk.gov.gchq.gaffer.data.generator.MapGenerator} to convert
+ * each item into a {@link java.util.Map} of key-value pairs.
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToMap.Builder
+ */
 public class ToMap implements
         Operation,
-        InputOutput<Iterable<? extends Element>, Iterable<Map<String, Object>>>,
+        InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {
 
-    private Function<Iterable<? extends Element>, Iterable<Map<String, Object>>> elementGenerator;
+    private Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator;
     private Iterable<? extends Element> input;
 
     public ToMap() {
     }
 
-    public ToMap(final Function<Iterable<? extends Element>, Iterable<Map<String, Object>>> elementGenerator) {
+    public ToMap(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<? extends Element>, Iterable<Map<String, Object>>> getElementGenerator() {
+    public Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> getElementGenerator() {
         return elementGenerator;
     }
 
-    void setElementGenerator(final Function<Iterable<? extends Element>, Iterable<Map<String, Object>>> elementGenerator) {
+    void setElementGenerator(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -60,12 +67,12 @@ public class ToMap implements
     }
 
     @Override
-    public TypeReference<Iterable<Map<String, Object>>> getOutputTypeReference() {
+    public TypeReference<Iterable<? extends Map<String, Object>>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableMap();
     }
 
     public static final class Builder extends BaseBuilder<ToMap, Builder>
-            implements InputOutput.Builder<ToMap, Iterable<? extends Element>, Iterable<Map<String, Object>>, Builder>,
+            implements InputOutput.Builder<ToMap, Iterable<? extends Element>, Iterable<? extends Map<String, Object>>, Builder>,
             MultiInput.Builder<ToMap, Element, Builder> {
         public Builder() {
             super(new ToMap());
@@ -75,7 +82,7 @@ public class ToMap implements
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
          */
-        public ToMap.Builder generator(final Function<Iterable<? extends Element>, Iterable<Map<String, Object>>> generator) {
+        public ToMap.Builder generator(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

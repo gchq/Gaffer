@@ -23,8 +23,11 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
- * A <code>ToVertices</code> converts {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s
- * into vertices.
+ * A <code>ToVertices</code> takes an {@link java.lang.Iterable} of
+ * {@link uk.gov.gchq.gaffer.data.element.id.ElementId}s and converts them into
+ * vertices.
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToVertices.Builder
  */
 public class ToVertices implements
         Operation,
@@ -32,6 +35,7 @@ public class ToVertices implements
         MultiInput<ElementId> {
 
     private Iterable<? extends ElementId> input;
+    private EdgeVertices edgeVertices = EdgeVertices.NONE;
 
     @Override
     public Iterable<? extends ElementId> getInput() {
@@ -48,12 +52,32 @@ public class ToVertices implements
         return new TypeReferenceImpl.IterableObj();
     }
 
+    public EdgeVertices getEdgeVertices() {
+        return edgeVertices;
+    }
+
+    public void setEdgeVertices(final EdgeVertices edgeVertices) {
+        this.edgeVertices = edgeVertices;
+    }
+
+    public enum EdgeVertices {
+        NONE,
+        SOURCE,
+        DESTINATION,
+        BOTH;
+    }
+
     public static final class Builder
             extends BaseBuilder<ToVertices, Builder>
             implements InputOutput.Builder<ToVertices, Iterable<? extends ElementId>, Iterable<? extends Object>, Builder>,
             MultiInput.Builder<ToVertices, ElementId, Builder> {
         public Builder() {
             super(new ToVertices());
+        }
+
+        public Builder edgeVertices(final EdgeVertices edgeVertices) {
+            _getOp().setEdgeVertices(edgeVertices);
+            return _self();
         }
     }
 }

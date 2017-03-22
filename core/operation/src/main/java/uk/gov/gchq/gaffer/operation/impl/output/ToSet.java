@@ -24,11 +24,11 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Set;
 
 /**
- * A <code>ToSet</code> operation takes in an {@link Iterable} of items
+ * A <code>ToSet</code> operation takes in an {@link java.lang.Iterable} of items
  * and converts them to a {@link java.util.Set}, removing duplicates in the
  * process.
  *
- * @see ToSet.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToSet.Builder
  */
 public class ToSet<T> implements
         Operation,

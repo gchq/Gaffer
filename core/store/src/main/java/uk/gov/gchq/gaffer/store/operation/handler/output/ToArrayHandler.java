@@ -29,7 +29,7 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
     @Override
     public T[] doOperation(final ToArray<T> operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
-            return null;
+            return (T[]) new Object[]{};
         }
 
         return toArray(operation.getInput());

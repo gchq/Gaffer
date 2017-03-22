@@ -21,6 +21,12 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+/**
+ * A <code>ToArray</code> operation takes in an {@link java.lang.Iterable} of
+ * items and converts them into an array.
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToArray.Builder
+ */
 public class ToArray<T> implements
         Operation,
         InputOutput<Iterable<? extends T>, T[]>,

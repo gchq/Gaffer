@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -33,6 +34,10 @@ import java.util.stream.Collector;
  */
 public final class GafferCollectors {
 
+    private GafferCollectors() {
+        // Empty
+    }
+
     /**
      * Returns a {@link java.util.stream.Collector} that accumulates the input
      * elements into a {@link java.util.List}, before wrapping the list in a
@@ -46,6 +51,19 @@ public final class GafferCollectors {
         return new GafferCollectorImpl<>(ArrayList::new, List::add,
                 (left, right) -> { left.addAll(right); return left; },
                 list -> new WrappedCloseableIterable<T>(list));
+    }
+
+    /**
+     * Returns a {@link java.util.stream.Collector} that accumulates the input
+     * elements into a {@link java.util.LinkedHashSet}.
+     *
+     * @param <T> the type of the input elements
+     * @return a {@link java.util.stream.Collector} which collects all the input
+     * elements into a {@link java.util.LinkedHashSet}
+     */
+    public static <T> Collector<T, ?, Set<T>> toLinkedHashSet() {
+        return new GafferCollectorImpl<>((Supplier<Set<T>>) LinkedHashSet::new, Set::add,
+                (left, right) -> { left.addAll(right); return left; }, set -> set);
     }
 
     /**
@@ -100,9 +118,5 @@ public final class GafferCollectors {
         public Set<Characteristics> characteristics() {
             return new HashSet<>();
         }
-    }
-
-    private GafferCollectors() {
-        // Empty
     }
 }

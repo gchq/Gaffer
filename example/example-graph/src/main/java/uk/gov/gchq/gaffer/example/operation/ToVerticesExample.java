@@ -15,49 +15,35 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import java.util.Set;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 
-public class ToSetExample extends OperationExample {
-    public ToSetExample() {
-        super(ToSet.class, "Note - conversion into a Set is done using an in memory LinkedHashSet, so it is not advised for a large number of results.");
+public class ToVerticesExample extends OperationExample {
+    public ToVerticesExample() {
+        super(ToVertices.class, "Note - conversion into a vertices is done using in memory Streams, so it is not advised for a large number of results.");
     }
 
     public static void main(final String[] args) throws OperationException {
-        new ToSetExample().run();
+        new ToVerticesExample().run();
     }
 
     @Override
     public void runExamples() {
-        withoutDeduplicatingEdges();
-        withDeduplicateEdgesChain();
+        toVerticesExample();
     }
 
-    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
+    public Iterable<?> toVerticesExample() {
         // ---------------------------------------------------------
-        final GetElements operation = new GetElements.Builder()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
-                .build();
-        // ---------------------------------------------------------
-
-        return runExample(operation);
-    }
-
-    public Set<? extends Element> withDeduplicateEdgesChain() {
-        // ---------------------------------------------------------
-        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<?>> opChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .input(new EntitySeed(2))
                         .build())
-                .then(new ToSet<>())
+                .then(new ToVertices())
                 .build();
         // ---------------------------------------------------------
 

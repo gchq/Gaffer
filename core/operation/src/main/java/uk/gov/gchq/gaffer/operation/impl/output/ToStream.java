@@ -24,10 +24,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.stream.Stream;
 
 /**
- * A <code>ToStream</code> operation takes in an {@link Iterable} of items
- * and converts them to a {@link java.util.stream.Stream}.
+ * A <code>ToStream</code> operation takes in an {@link java.lang.Iterable} of
+ * items and converts them to a {@link java.util.stream.Stream}.
  *
- * @see ToStream.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToStream.Builder
  */
 public class ToStream<T> implements
         Operation,

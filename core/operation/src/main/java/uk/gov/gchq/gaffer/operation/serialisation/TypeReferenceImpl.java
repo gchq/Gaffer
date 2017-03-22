@@ -114,6 +114,6 @@ public final class TypeReferenceImpl {
     public static class IterableEntitySeed extends TypeReference<Iterable<? extends EntitySeed>> {
     }
 
-    public static class IterableMap extends TypeReference<Iterable<java.util.Map<java.lang.String, java.lang.Object>>> {
+    public static class IterableMap extends TypeReference<Iterable<? extends java.util.Map<java.lang.String, java.lang.Object>>> {
     }
 }

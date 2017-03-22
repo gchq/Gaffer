@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -36,13 +39,35 @@ public class ToVerticesTest implements OperationTest {
 
     @Test
     @Override
-    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
+    public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException {
         // Given
-        final GetAllElements op = new GetAllElements();
+        final ToVertices op = new ToVertices.Builder()
+                .input(new EntitySeed("2"))
+                .edgeVertices(EdgeVertices.BOTH)
+                .build();
+
+        final ObjectMapper mapper = JSONSerialiser.createDefaultMapper();
+
+        System.out.println(mapper.writeValueAsString(op));
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GetAllElements deserialisedOp = serialiser.deserialise(json, GetAllElements.class);
+        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
+
+        // Then
+        assertNotNull(deserialisedOp);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialiseOperationWithMissingEdgeVertices() throws SerialisationException, JsonProcessingException {
+        // Given
+        final ToVertices op = new ToVertices.Builder()
+                .input(new EntitySeed("2"))
+                .build();
+
+        // When
+        byte[] json = serialiser.serialise(op, true);
+        final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -54,10 +79,12 @@ public class ToVerticesTest implements OperationTest {
         // Given
         final ToVertices toVertices = new ToVertices.Builder()
                 .input(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2))
+                .edgeVertices(EdgeVertices.BOTH)
                 .build();
 
         // Then
         assertThat(toVertices.getInput(), is(notNullValue()));
         assertThat(toVertices.getInput(), iterableWithSize(2));
+        assertThat(toVertices.getEdgeVertices(), is(EdgeVertices.BOTH));
     }
 }

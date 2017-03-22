@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
@@ -23,12 +24,11 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
- * An <code>ToSetHandler</code> handles for {@link uk.gov.gchq.gaffer.operation.impl.output.ToSet} operations.
- * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
- * remove duplicate items.
+ * An <code>ToSetHandler</code> handles for {@link uk.gov.gchq.gaffer.operation.impl.output.ToSet}
+ * operations. Adds all the operation input items into a {@link java.util.LinkedHashSet}
+ * to remove duplicate items.
  */
 public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? extends T>> {
     @Override
@@ -37,6 +37,7 @@ public class ToSetHandler<T> implements OutputOperationHandler<ToSet<T>, Set<? e
             return null;
         }
 
-        return Streams.toStream(operation.getInput()).collect(Collectors.toSet());
+        return Streams.toStream(operation.getInput())
+                      .collect(GafferCollectors.toLinkedHashSet());
     }
 }

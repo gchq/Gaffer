@@ -16,12 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 public interface OperationTest {
     @Test
-    void shouldSerialiseAndDeserialiseOperation() throws SerialisationException;
+    void shouldSerialiseAndDeserialiseOperation() throws SerialisationException, JsonProcessingException;
 
     @Test
     void builderShouldCreatePopulatedOperation();

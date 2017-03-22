@@ -15,49 +15,44 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import java.util.Set;
+import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
+import java.util.Map;
 
-public class ToSetExample extends OperationExample {
-    public ToSetExample() {
-        super(ToSet.class, "Note - conversion into a Set is done using an in memory LinkedHashSet, so it is not advised for a large number of results.");
+public class ToMapExample extends OperationExample {
+    public ToMapExample() {
+        super(ToMap.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new ToSetExample().run();
+        new ToMapExample().run();
     }
 
     @Override
     public void runExamples() {
-        withoutDeduplicatingEdges();
-        withDeduplicateEdgesChain();
+        toMapExample();
     }
 
-    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
+    public Iterable<? extends Map<String, Object>> toMapExample() {
         // ---------------------------------------------------------
-        final GetElements operation = new GetElements.Builder()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
-                .build();
-        // ---------------------------------------------------------
-
-        return runExample(operation);
-    }
-
-    public Set<? extends Element> withDeduplicateEdgesChain() {
-        // ---------------------------------------------------------
-        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Iterable<? extends Map<String, Object>>> opChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .input(new EntitySeed(2))
                         .build())
-                .then(new ToSet<>())
+                .then(new ToMap.Builder()
+                        .generator(new MapGenerator.Builder()
+                                .group("group")
+                                .vertex("vertex")
+                                .source("source")
+                                .destination("destination")
+                                .build())
+                        .build())
                 .build();
         // ---------------------------------------------------------
 

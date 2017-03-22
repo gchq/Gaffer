@@ -24,10 +24,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 
 /**
- * A <code>ToList</code> operation takes in an {@link Iterable} of items
+ * A <code>ToList</code> operation takes in an {@link java.lang.Iterable} of items
  * and converts them to a {@link java.util.List}.
  *
- * @see ToList.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToList.Builder
  */
 public class ToList<T> implements
         Operation,

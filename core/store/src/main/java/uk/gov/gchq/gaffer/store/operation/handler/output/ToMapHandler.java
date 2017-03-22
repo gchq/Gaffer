@@ -23,9 +23,9 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Map;
 
-public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<Map<String, Object>>> {
+public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<? extends Map<String, Object>>> {
     @Override
-    public Iterable<Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
+    public Iterable<? extends Map<String, Object>> doOperation(final ToMap operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
