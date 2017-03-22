@@ -21,13 +21,16 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
+import uk.gov.gchq.koryphe.predicate.IsA;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -117,45 +120,44 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(0, validator.getFunctions().size());
     }
 
-    //TODO: fix this
-//    @Test
-//    public void shouldReturnFullValidator() {
-//        // Given
-//        final T elementDef = createBuilder()
-//                .property("property", PROPERTY_STRING_TYPE)
-//                .build();
-//
-//        setupSchema(elementDef);
-//
-//        // When
-//        final ElementFilter validator = elementDef.getPredicates();
-//
-//        // Then
-//        int numFunctions = 2;
-//        if (elementDef instanceof SchemaEdgeDefinition) {
-//            numFunctions = 4;
-//        }
-//        assertEquals(numFunctions, validator.getFunctions().size());
-//        if (elementDef instanceof SchemaEdgeDefinition) {
-//            assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
-//            assertEquals(Collections.singletonList(IdentifierType.SOURCE.name()),
-//                    validator.getFunctions().get(0).getSelection());
-//
-//            assertEquals(Date.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
-//            assertEquals(Collections.singletonList(IdentifierType.DESTINATION.name()),
-//                    validator.getFunctions().get(1).getSelection());
-//
-//            assertEquals(Boolean.class.getName(), ((IsA) validator.getFunctions().get(2).getFunction()).getType());
-//            assertEquals(Collections.singletonList(IdentifierType.DIRECTED.name()),
-//                    validator.getFunctions().get(2).getSelection());
-//        } else {
-//            assertEquals(Collections.singletonList(IdentifierType.VERTEX.name()),
-//                    validator.getFunctions().get(0).getSelection());
-//        }
-//        assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(numFunctions - 1).getFunction()).getType());
-//        assertEquals(Collections.singletonList("property"),
-//                validator.getFunctions().get(numFunctions - 1).getSelection());
-//    }
+    @Test
+    public void shouldReturnFullValidator() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property", PROPERTY_STRING_TYPE)
+                .build();
+
+        setupSchema(elementDef);
+
+        // When
+        final ElementFilter validator = elementDef.getValidator();
+
+        // Then
+        int numFunctions = 2;
+        if (elementDef instanceof SchemaEdgeDefinition) {
+            numFunctions = 4;
+        }
+        assertEquals(numFunctions, validator.getFunctions().size());
+        if (elementDef instanceof SchemaEdgeDefinition) {
+            assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
+            assertArrayEquals(new String[]{IdentifierType.SOURCE.name()},
+                    validator.getFunctions().get(0).getSelection());
+
+            assertEquals(Date.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
+            assertArrayEquals(new String[]{IdentifierType.DESTINATION.name()},
+                    validator.getFunctions().get(1).getSelection());
+
+            assertEquals(Boolean.class.getName(), ((IsA) validator.getFunctions().get(2).getFunction()).getType());
+            assertArrayEquals(new String[]{IdentifierType.DIRECTED.name()},
+                    validator.getFunctions().get(2).getSelection());
+        } else {
+            assertArrayEquals(new String[]{IdentifierType.VERTEX.name()},
+                    validator.getFunctions().get(0).getSelection());
+        }
+        assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(numFunctions - 1).getFunction()).getType());
+        assertArrayEquals(new String[]{"property"},
+                validator.getFunctions().get(numFunctions - 1).getSelection());
+    }
 
 
     @Test
@@ -178,25 +180,24 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertSame(validator, elementDef.getOriginalValidator());
     }
 
-    //TODO: fix this
-//    @Test
-//    public void shouldReturnFullAggregator() {
-//        // Given
-//        final T elementDef = createBuilder()
-//                .property("property", PROPERTY_STRING_TYPE)
-//                .build();
-//
-//        setupSchema(elementDef);
-//
-//        // When
-//        final ElementAggregator aggregator = elementDef.getAggregator();
-//
-//        // Then
-//        assertEquals(1, aggregator.getFunctions().size());
-//        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
-//        assertEquals(Collections.singletonList("property"),
-//                aggregator.getFunctions().get(0).getSelection());
-//    }
+    @Test
+    public void shouldReturnFullAggregator() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property", PROPERTY_STRING_TYPE)
+                .build();
+
+        setupSchema(elementDef);
+
+        // When
+        final ElementAggregator aggregator = elementDef.getAggregator();
+
+        // Then
+        assertEquals(1, aggregator.getFunctions().size());
+        assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
+        assertEquals(new String[]{"property"},
+                aggregator.getFunctions().get(0).getSelection());
+    }
 
     @Test
     public void shouldMergeDifferentSchemaElementDefinitions() {
