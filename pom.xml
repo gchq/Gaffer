@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.3-SNAPSHOT</version>
+    <version>0.6.4-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -904,39 +904,6 @@
             </properties>
         </profile>
         <profile>
-            <id>accumulo-1.7</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <accumulo.version>1.7.2</accumulo.version>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${compiler.plugin.verson}</version>
-                        <configuration>
-                            <testExcludes>
-                                <exclude>**/BloomFilter18IT.java</exclude>
-                            </testExcludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${surefire.plugin.version}</version>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/BloomFilter18IT.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>accumulo-1.8</id>
             <properties>
                 <accumulo.version>1.8.0</accumulo.version>
@@ -949,7 +916,7 @@
                         <version>${compiler.plugin.verson}</version>
                         <configuration>
                             <testExcludes>
-                                <exclude>**/BloomFilter17IT.java</exclude>
+                                <exclude>**/BloomFilterIT.java</exclude>
                             </testExcludes>
                         </configuration>
                     </plugin>
@@ -959,9 +926,28 @@
                         <version>${surefire.plugin.version}</version>
                         <configuration>
                             <excludes>
-                                <exclude>**/BloomFilter17IT.java</exclude>
+                                <exclude>**/BloomFilterIT.java</exclude>
                             </excludes>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>add-test-source</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>compat-1.8/test/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

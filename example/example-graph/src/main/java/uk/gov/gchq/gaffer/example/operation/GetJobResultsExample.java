@@ -33,7 +33,7 @@ public class GetJobResultsExample extends OperationExample {
     }
 
     public GetJobResultsExample() {
-        super(GetJobDetails.class);
+        super(GetJobResults.class);
     }
 
     @Override
