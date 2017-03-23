@@ -32,7 +32,7 @@ public class HyperLogLogPlusSerialiser implements Serialisation<HyperLogLogPlus>
     public byte[] serialise(final HyperLogLogPlus value) throws SerialisationException {
         try {
             return value.getBytes();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to get bytes from HyperLogLogPlus sketch", e);
         }
     }
@@ -41,7 +41,7 @@ public class HyperLogLogPlusSerialiser implements Serialisation<HyperLogLogPlus>
     public HyperLogLogPlus deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return HyperLogLogPlus.Builder.build(bytes);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException("Failed to create HyperLogLogPlus sketch from given bytes", e);
         }
     }

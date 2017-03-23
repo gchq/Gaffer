@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
@@ -57,7 +58,11 @@ public class GetAdjacentEntitySeedsHandler implements OperationHandler<GetAdjace
             if (IncludeEdgeType.NONE == operation.getIncludeEdges()) {
                 operation.setIncludeEdges(IncludeEdgeType.ALL);
             }
-            edgeRetriever = new AccumuloSingleIDRetriever(store, operation, user);
+            final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
+            edgeRetriever = new AccumuloSingleIDRetriever(store, operation, user,  iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
+                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

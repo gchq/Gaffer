@@ -50,6 +50,7 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
       }
     }
     sc.stop()
+    ROOT_LOGGER.setLevel(Level.INFO)
   }
 
   @throws[OperationException]

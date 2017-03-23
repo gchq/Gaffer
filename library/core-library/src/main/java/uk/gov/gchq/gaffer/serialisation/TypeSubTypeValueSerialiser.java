@@ -45,7 +45,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
         if (type != null) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(type.getBytes(CommonConstants.UTF_8)));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Type from TypeSubTypeValue Object", e);
             }
         }
@@ -53,7 +53,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
         if (subType != null) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(subType.getBytes(CommonConstants.UTF_8)));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the SubType from TypeSubTypeValue Object", e);
             }
         }
@@ -61,7 +61,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
         if (value != null) {
             try {
                 out.write(ByteArrayEscapeUtils.escape(value.getBytes(CommonConstants.UTF_8)));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SerialisationException("Failed to serialise the Value from TypeSubTypeValue Object", e);
             }
         }

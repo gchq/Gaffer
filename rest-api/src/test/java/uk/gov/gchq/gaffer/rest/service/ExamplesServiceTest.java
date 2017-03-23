@@ -18,13 +18,18 @@ package uk.gov.gchq.gaffer.rest.service;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.rest.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
+import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -37,10 +42,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class ExamplesServiceTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
-    private SimpleExamplesService service;
+
+    @InjectMocks
+    private ExamplesService service;
+
+    @Mock
+    private GraphFactory graphFactory;
+
+    @Mock
+    private UserFactory userFactory;
 
     private Schema schema;
 
@@ -61,13 +74,10 @@ public class ExamplesServiceTest {
                         .build())
                 .build();
 
-        final GraphFactory graphFactory = mock(GraphFactory.class);
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         given(graphFactory.getGraph()).willReturn(graph);
-
-        service = new SimpleExamplesService(graphFactory);
     }
 
     @Test
@@ -132,19 +142,6 @@ public class ExamplesServiceTest {
 
     @Test
     public void shouldSerialiseAndDeserialiseOperationChain() throws IOException {
-        //Given
-        final OperationChain opChain = service.execute();
-
-        // When
-        byte[] bytes = serialiser.serialise(opChain);
-        final OperationChain deserialisedOp = serialiser.deserialise(bytes, opChain.getClass());
-
-        // Then
-        assertNotNull(deserialisedOp);
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseOperationChainAsync() throws IOException {
         //Given
         final OperationChain opChain = service.execute();
 

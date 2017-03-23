@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.store;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -27,6 +29,9 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.jobtracker.JobDetail;
+import uk.gov.gchq.gaffer.jobtracker.JobStatus;
+import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -38,11 +43,10 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporter;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExporters;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
-import uk.gov.gchq.gaffer.operation.impl.export.initialise.InitialiseSetExport;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
+import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
+import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
@@ -55,13 +59,12 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExporterHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.FetchExportersHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.InitialiseExportHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.export.UpdateExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.ExportToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.set.GetSetExportHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
+import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
+import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -75,6 +78,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -84,14 +88,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
-    private final User user = new User();
+    private final User user = new User("user01");
     private final Context context = new Context(user);
 
     private OperationHandler<AddElements, Void> addElementsHandler;
@@ -102,6 +107,9 @@ public class StoreTest {
     private OperationHandler<Validate, CloseableIterable<Element>> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
+    private JobTracker jobTracker;
+    private OperationHandler<ExportToGafferResultCache, Object> exportToGafferResultCacheHandler;
+    private OperationHandler<GetGafferResultCacheExport, CloseableIterable<?>> getGafferResultCacheExportHandler;
 
     @Before
     public void setup() {
@@ -113,7 +121,9 @@ public class StoreTest {
         getAdjacentEntitySeedsHandler = mock(OperationHandler.class);
         validatableHandler = mock(OperationHandler.class);
         validateHandler = mock(OperationHandler.class);
-
+        exportToGafferResultCacheHandler = mock(OperationHandler.class);
+        getGafferResultCacheExportHandler = mock(OperationHandler.class);
+        jobTracker = mock(JobTracker.class);
         schema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
@@ -176,13 +186,21 @@ public class StoreTest {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
+        final OperationHandler<AddElements, Void> addElementsHandlerOverridden = mock(OperationHandler.class);
+        final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
+                .declaration(new OperationDeclaration.Builder()
+                        .operation(AddElements.class)
+                        .handler(addElementsHandlerOverridden)
+                        .build())
+                .build();
+        given(properties.getOperationDeclarations()).willReturn(opDeclarations);
 
         // When
         store.initialise(schema, properties);
 
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
-        assertSame(addElementsHandler, store.getOperationHandlerExposed(AddElements.class));
+        assertSame(addElementsHandlerOverridden, store.getOperationHandlerExposed(AddElements.class));
 
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
         assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllEntities.class));
@@ -194,11 +212,8 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(CountGroups.class) instanceof CountGroupsHandler);
         assertTrue(store.getOperationHandlerExposed(Deduplicate.class) instanceof DeduplicateHandler);
 
-        assertTrue(store.getOperationHandlerExposed(InitialiseSetExport.class) instanceof InitialiseExportHandler);
-        assertTrue(store.getOperationHandlerExposed(UpdateExport.class) instanceof UpdateExportHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExport.class) instanceof FetchExportHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExporter.class) instanceof FetchExporterHandler);
-        assertTrue(store.getOperationHandlerExposed(FetchExporters.class) instanceof FetchExportersHandler);
+        assertTrue(store.getOperationHandlerExposed(ExportToSet.class) instanceof ExportToSetHandler);
+        assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
@@ -326,7 +341,7 @@ public class StoreTest {
         final Map<String, String> options = mock(HashMap.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 29; // this includes the deprecated Get operations
+        final int expectedNumberOfOperations = 32; // this includes the deprecated Get operations
 
         given(validatable.isValidate()).willReturn(true);
         given(validatable.getOptions()).willReturn(options);
@@ -413,6 +428,76 @@ public class StoreTest {
         assertFalse(supported);
     }
 
+    @Test
+    public void shouldExecuteOperationChainJob() throws OperationException, ExecutionException, InterruptedException, StoreException {
+        // Given
+        final Operation<?, ?> operation = mock(Operation.class);
+        final OperationChain<?> opChain = new OperationChain.Builder()
+                .first(operation)
+                .then(new ExportToGafferResultCache())
+                .build();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise(schema, properties);
+
+        // When
+        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+
+        // Then
+        Thread.sleep(1000);
+        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
+        assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
+        assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
+
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), Mockito.eq(store));
+        assertSame(user, contextCaptor.getValue().getUser());
+    }
+
+    @Test
+    public void shouldExecuteOperationChainJobAndExportResults() throws OperationException, ExecutionException, InterruptedException, StoreException {
+        // Given
+        final Operation<?, ?> operation = mock(Operation.class);
+        final OperationChain<?> opChain = new OperationChain<>(operation);
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise(schema, properties);
+
+        // When
+        final JobDetail resultJobDetail = store.executeJob(opChain, user);
+
+        // Then
+        Thread.sleep(1000);
+        final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
+        assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
+        assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
+
+        final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), Mockito.eq(store));
+        assertSame(user, contextCaptor.getValue().getUser());
+    }
+
+    @Test
+    public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        final Store store = new StoreImpl();
+        final Schema schema = new Schema();
+        store.initialise(schema, properties);
+        // When
+        final JobTracker resultJobTracker = store.getJobTracker();
+
+        // Then
+        assertSame(jobTracker, resultJobTracker);
+    }
+
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(true);
@@ -450,6 +535,8 @@ public class StoreTest {
             addOperationHandler(mock(GetAdjacentEntitySeeds.class).getClass(), (OperationHandler) getElementsHandler);
             addOperationHandler(mock(Validatable.class).getClass(), (OperationHandler) validatableHandler);
             addOperationHandler(Validate.class, (OperationHandler) validateHandler);
+            addOperationHandler(ExportToGafferResultCache.class, (OperationHandler) exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, (OperationHandler) getGafferResultCacheExportHandler);
         }
 
         @Override
@@ -503,6 +590,15 @@ public class StoreTest {
         @Override
         public void optimiseSchema() {
             schemaOptimiser.optimise(getSchema(), hasTrait(StoreTrait.ORDERED));
+        }
+
+        @Override
+        protected JobTracker createJobTracker(final StoreProperties properties) {
+            if ("jobTrackerClass".equals(properties.getJobTrackerClass())) {
+                return jobTracker;
+            }
+
+            return null;
         }
     }
 }

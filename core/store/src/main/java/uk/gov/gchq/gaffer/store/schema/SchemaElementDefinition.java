@@ -89,10 +89,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * Uses the element definition validator to validate the element definition.
      *
+     * @param requiresAggregators true if aggregators are required
      * @return true if the element definition is valid, otherwise false.
      */
-    public boolean validate() {
-        return elementDefValidator.validate(this);
+    public boolean validate(final boolean requiresAggregators) {
+        return elementDefValidator.validate(this, requiresAggregators);
     }
 
     public Set<String> getProperties() {

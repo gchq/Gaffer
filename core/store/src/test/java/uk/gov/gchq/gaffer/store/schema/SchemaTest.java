@@ -42,8 +42,10 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -201,6 +203,57 @@ public class SchemaTest {
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().size());
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0));
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasNoAggregators() {
+        final Schema schemaWithAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .aggregateFunction(new ExampleAggregateFunction())
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertTrue(schemaWithAggregators.hasAggregators());
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasNoAggregators() {
+        final Schema schemaNoAggregators = new Schema.Builder()
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .description(STRING_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .description(INTEGER_TYPE_DESCRIPTION)
+                        .build())
+                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
+                        .clazz(Long.class)
+                        .description(TIMESTAMP_TYPE_DESCRIPTION)
+                        .build())
+                .visibilityProperty(TestPropertyNames.VISIBILITY)
+                .timestampProperty(TestPropertyNames.TIMESTAMP)
+                .build();
+        assertFalse(schemaNoAggregators.hasAggregators());
     }
 
     @Test
@@ -820,6 +873,20 @@ public class SchemaTest {
         // Then - no description fields or new lines
         assertFalse(compactJson.contains("description"));
         assertFalse(compactJson.contains(String.format("%n")));
+    }
+
+    @Test
+    public void shouldGetAllGroups() {
+        // Given - schema loaded from file
+
+        // When
+        final Set<String> groups = schema.getGroups();
+
+        // Then
+        final Set<String> allGroups = new HashSet<>(schema.getEntityGroups());
+        allGroups.addAll(schema.getEdgeGroups());
+
+        assertEquals(allGroups, groups);
     }
 
     private class SerialisationImpl implements Serialisation<Object> {

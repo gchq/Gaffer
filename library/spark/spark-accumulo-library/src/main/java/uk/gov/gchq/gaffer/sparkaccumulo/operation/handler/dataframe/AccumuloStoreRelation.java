@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,11 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.spark.operation.dataframe.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
+import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.user.User;
@@ -69,15 +73,6 @@ import java.util.Map;
 public class AccumuloStoreRelation extends BaseRelation implements TableScan, PrunedScan, PrunedFilteredScan {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStoreRelation.class);
-
-    enum EntityOrEdge {
-        ENTITY, EDGE
-    }
-
-    public static final String GROUP = "group";
-    public static final String VERTEX_COL_NAME = "vertex";
-    public static final String SRC_COL_NAME = "src";
-    public static final String DST_COL_NAME = "dst";
 
     private final SQLContext sqlContext;
     private final LinkedHashSet<String> groups;

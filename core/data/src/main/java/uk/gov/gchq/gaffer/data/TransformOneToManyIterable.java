@@ -36,6 +36,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
     private final Iterable<INPUT> input;
     private final Validator<INPUT> validator;
     private final boolean skipInvalid;
+    private final boolean autoClose;
 
     /**
      * Constructs an <code>TransformOneToManyIterable</code> with the given input {@link Iterable} and no validation.
@@ -43,7 +44,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
      * @param input the input {@link Iterable}
      */
     public TransformOneToManyIterable(final Iterable<INPUT> input) {
-        this(input, new AlwaysValid<INPUT>(), false);
+        this(input, new AlwaysValid<>(), false);
     }
 
     /**
@@ -69,10 +70,19 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
         this(input, validator, skipInvalid, false);
     }
 
+    /**
+     * Constructs an <code>TransformOneToManyIterable</code> with the given inputs
+     *
+     * @param input       the input {@link Iterable}
+     * @param validator   the {@link Validator}
+     * @param skipInvalid if true invalid items should be skipped
+     * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
+     */
     public TransformOneToManyIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
         this.input = input;
         this.validator = validator;
         this.skipInvalid = skipInvalid;
+        this.autoClose = autoClose;
     }
 
     @Override
@@ -129,7 +139,7 @@ public abstract class TransformOneToManyIterable<INPUT, OUTPUT> implements Close
                 }
 
                 final boolean hasNextResult = _hasNext();
-                if (!hasNextResult) {
+                if (autoClose && !hasNextResult) {
                     close();
                 }
 

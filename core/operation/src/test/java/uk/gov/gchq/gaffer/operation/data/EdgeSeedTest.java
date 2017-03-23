@@ -201,6 +201,22 @@ public class EdgeSeedTest {
     }
 
     @Test
+    public void shouldBeEqualWhenUndirectedAndSourceAndDestinationFlipped() {
+        // Given
+        final String source = "source";
+        final String destination = "destination";
+        final EdgeSeed seed1 = new EdgeSeed(source, destination, false);
+        final EdgeSeed seed2 = new EdgeSeed(destination, source, false);
+
+        // When
+        final boolean isEqual = seed1.equals(seed2);
+
+        // Then
+        assertTrue(isEqual);
+        assertEquals(seed1.hashCode(), seed2.hashCode());
+    }
+
+    @Test
     public void shouldSerialiseAndDeserialiseIntegersAndLongs() throws SerialisationException {
         // Given
         final Long source = 1L;
@@ -208,10 +224,10 @@ public class EdgeSeedTest {
         final boolean directed = true;
         final EdgeSeed seed = new EdgeSeed(source, destination, directed);
         final JSONSerialiser serialiser = new JSONSerialiser();
+
         // When
         final byte[] bytes = serialiser.serialise(seed);
         final EdgeSeed seedDeserialised = serialiser.deserialise(bytes, EdgeSeed.class);
-
 
         // Then
         assertEquals(seed, seedDeserialised);

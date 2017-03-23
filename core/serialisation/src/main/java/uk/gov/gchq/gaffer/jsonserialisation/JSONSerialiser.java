@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.jsonserialisation;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -31,7 +32,7 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import sun.misc.IOUtils;
+import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.jackson.CloseableIterableDeserializer;
@@ -65,6 +66,30 @@ public class JSONSerialiser {
      */
     public JSONSerialiser(final ObjectMapper mapper) {
         this.mapper = mapper;
+    }
+
+    public static JSONSerialiser fromClass(final String className) {
+        if (null == className || className.isEmpty()) {
+            return new JSONSerialiser();
+        }
+
+        try {
+            return fromClass(Class.forName(className).asSubclass(JSONSerialiser.class));
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + className);
+        }
+    }
+
+    public static JSONSerialiser fromClass(final Class<? extends JSONSerialiser> clazz) {
+        if (null == clazz) {
+            return new JSONSerialiser();
+        }
+
+        try {
+            return clazz.newInstance();
+        } catch (final InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException("Could not create instance of json serialiser from class: " + clazz.getName());
+        }
     }
 
     public static ObjectMapper createDefaultMapper() {
@@ -131,7 +156,7 @@ public class JSONSerialiser {
         final ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder();
         try {
             serialise(object, JSON_FACTORY.createGenerator(byteArrayBuilder, JsonEncoding.UTF8), prettyPrint, fieldsToExclude);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
 
@@ -156,7 +181,7 @@ public class JSONSerialiser {
         final ObjectWriter writer = mapper.writer(getFilterProvider(fieldsToExclude));
         try {
             writer.writeValue(jsonGenerator, object);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to serialise object to json: " + e.getMessage(), e);
         }
     }
@@ -171,7 +196,7 @@ public class JSONSerialiser {
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         try {
             return mapper.readValue(bytes, clazz);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -185,9 +210,9 @@ public class JSONSerialiser {
      */
     public <T> T deserialise(final InputStream stream, final Class<T> clazz) throws SerialisationException {
         try (final InputStream stream2 = stream) {
-            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
+            final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, clazz);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -202,7 +227,7 @@ public class JSONSerialiser {
     public <T> T deserialise(final byte[] bytes, final TypeReference<T> type) throws SerialisationException {
         try {
             return mapper.readValue(bytes, type);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -216,13 +241,14 @@ public class JSONSerialiser {
      */
     public <T> T deserialise(final InputStream stream, final TypeReference<T> type) throws SerialisationException {
         try (final InputStream stream2 = stream) {
-            final byte[] bytes = IOUtils.readFully(stream2, stream.available(), true);
+            final byte[] bytes = IOUtils.toByteArray(stream2);
             return deserialise(bytes, type);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
+    @JsonIgnore
     public ObjectMapper getMapper() {
         return mapper;
     }

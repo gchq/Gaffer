@@ -65,6 +65,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
             throw new RuntimeException(e);
         }
         sc.stop();
+        ROOT_LOGGER.setLevel(Level.INFO);
     }
 
     public void getDataFrameOfElementsWithEntityGroup(final SQLContext sqlc, final Graph graph) throws OperationException {

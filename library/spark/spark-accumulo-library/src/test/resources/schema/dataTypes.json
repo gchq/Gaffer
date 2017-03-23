@@ -14,6 +14,16 @@
     },
     "timestamp": {
       "class": "java.lang.Integer"
+    },
+    "string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "function": {
+            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          }
+        }
+      ]
     }
   }
 }

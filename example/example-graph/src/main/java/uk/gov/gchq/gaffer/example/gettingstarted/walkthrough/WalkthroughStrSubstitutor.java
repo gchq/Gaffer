@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.walkthrough;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
-import sun.misc.IOUtils;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
@@ -46,8 +46,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.export.FetchExport;
-import uk.gov.gchq.gaffer.operation.impl.export.UpdateExport;
+import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
@@ -161,7 +161,20 @@ public abstract class WalkthroughStrSubstitutor {
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get intersection"));
         params.put("UNION_ACROSS_DAYS_SNIPPET",
                 JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get union across all days"));
-
+        params.put("JOB_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "job"));
+        params.put("EXECUTE_JOB_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "execute job"));
+        params.put("JOB_DETAILS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "job details"));
+        params.put("ALL_JOB_DETAILS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "all job details"));
+        params.put("GET_JOB_RESULTS_SNIPPET",
+                JavaSourceUtil.getJavaSnippet(example.getClass(), EXAMPLE_GRAPH_MODULE_PATH, "get job results"));
+        params.put("RESULT_CACHE_EXPORT_OPERATIONS",
+                "\n```json\n" + getResource("ResultCacheExportOperations.json", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
+        params.put("CACHE_STORE_PROPERTIES",
+                "\n```\n" + getResource("cache-store.properties", exampleClass).replaceAll("#.*\\n", "") + "\n```\n");
         try {
             example.run();
         } catch (final OperationException e) {
@@ -201,8 +214,8 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentEntitySeeds.class));
         params.put("GENERATE_OBJECTS_JAVADOC", getJavaDocLink(GenerateObjects.class));
         params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntitySeedExtractor.class));
-        params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(FetchExport.class));
-        params.put("UPDATE_EXPORT_JAVADOC", getJavaDocLink(UpdateExport.class));
+        params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(GetExport.class));
+        params.put("UPDATE_EXPORT_JAVADOC", getJavaDocLink(Export.class));
 
         params.put("EXAMPLES_LINK", getGitHubPackageLink("Examples", LoadAndQuery.class.getPackage().getName(), EXAMPLE_GRAPH_MODULE_PATH));
 
@@ -228,7 +241,7 @@ public abstract class WalkthroughStrSubstitutor {
             if (null == stream) {
                 resource = "";
             } else {
-                resource = new String(IOUtils.readFully(stream, stream.available(), true), CommonConstants.UTF_8);
+                resource = new String(IOUtils.toByteArray(stream), CommonConstants.UTF_8);
             }
         } catch (final IOException e) {
             throw new RuntimeException(e);

@@ -164,7 +164,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     try {
                         currentPropLength = CompactRawSerialisationUtils.readLong(length);
                     } catch (final SerialisationException e) {
-                        throw new AccumuloElementConversionException("Exception reading length of property");
+                        throw new AccumuloElementConversionException("Exception reading length of property", e);
                     }
                     lastDelimiter += numBytesForLength;
                     if (currentPropLength > 0) {
@@ -354,7 +354,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 try {
                     currentPropLength = CompactRawSerialisationUtils.readLong(length);
                 } catch (final SerialisationException e) {
-                    throw new AccumuloElementConversionException("Exception reading length of property");
+                    throw new AccumuloElementConversionException("Exception reading length of property", e);
                 }
                 lastDelimiter += numBytesForLength;
                 if (currentPropLength > 0) {
@@ -394,7 +394,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             try {
                 currentPropLength = CompactRawSerialisationUtils.readLong(length);
             } catch (final SerialisationException e) {
-                throw new AccumuloElementConversionException("Exception reading length of property");
+                throw new AccumuloElementConversionException("Exception reading length of property", e);
             }
 
             lastDelimiter += numBytesForLength;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
-import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd.AbstractGetRDDHandler;
+import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
@@ -51,7 +51,7 @@ public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
         final Configuration conf = getConfiguration(operation);
         // Use batch scan option when performing seeded operation
         InputConfigurator.setBatchScan(AccumuloInputFormat.class, conf, true);
-        addIterators(accumuloStore, conf, operation);
+        addIterators(accumuloStore, conf, context.getUser(), operation);
         addRanges(accumuloStore, conf, operation);
         final JavaPairRDD<Element, NullWritable> pairRDD = sparkContext.newAPIHadoopRDD(conf,
                 ElementInputFormat.class,

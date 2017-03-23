@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>spark</artifactId>
-        <version>0.6.2-SNAPSHOT</version>
+        <version>0.6.4-SNAPSHOT</version>
     </parent>
     <artifactId>spark-library</artifactId>
 
@@ -35,13 +35,13 @@
             <artifactId>core-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>sketches-library</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- External libraries -->
-        <dependency>
-            <groupId>com.clearspring.analytics</groupId>
-            <artifactId>stream</artifactId>
-            <version>${clearspring.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>

@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.GetElementsOperation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -89,14 +90,14 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator");
+                LOGGER.error(e.getMessage() + " returning empty iterator", e);
                 return new EmptyCloseableIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator");
+                LOGGER.error(e.getMessage() + " returning empty iterator", e);
                 return new EmptyCloseableIterator<>();
             }
         }
@@ -158,16 +159,8 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
         private Element nextElm;
 
         protected void initialise(final BloomFilter filter) throws RetrieverException {
-            IteratorSetting elementFilter = null;
             IteratorSetting bloomFilter = null;
-            try {
-                elementFilter = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store);
-            } catch (final IteratorSettingException e) {
-                LOGGER.error(
-                        "Failed to apply the element filter to the retriever, creating the gaffer.accumulostore.retriever without the element filter",
-                        e);
-            }
-
+            IteratorSetting[] iteratorSettings1 = Arrays.copyOf(iteratorSettings, iteratorSettings.length + 1);
             try {
                 bloomFilter = iteratorSettingFactory.getBloomFilterIteratorSetting(filter);
             } catch (final IteratorSettingException e) {
@@ -175,10 +168,9 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
                         "Failed to apply the bloom filter to the retriever, creating the gaffer.accumulostore.retriever without bloom filter",
                         e);
             }
+            iteratorSettings1[iteratorSettings.length] = bloomFilter;
             try {
-                parentRetriever = new AccumuloSingleIDRetriever(store, operation, user,
-                        iteratorSettingFactory.getEdgeEntityDirectionFilterIteratorSetting(operation), elementFilter,
-                        bloomFilter);
+                parentRetriever = new AccumuloSingleIDRetriever(store, operation, user, iteratorSettings1);
             } catch (final StoreException e) {
                 throw new RetrieverException(e.getMessage(), e);
             }
@@ -353,34 +345,13 @@ public abstract class AccumuloSetRetriever extends AccumuloRetriever<GetElements
 
             try {
                 scanner = getScanner(ranges);
-            } catch (TableNotFoundException | StoreException e) {
+            } catch (final TableNotFoundException | StoreException e) {
                 throw new RetrieverException(e);
             }
             try {
                 scanner.addScanIterator(iteratorSettingFactory.getBloomFilterIteratorSetting(filter));
             } catch (final IteratorSettingException e) {
                 LOGGER.error("Failed to apply the bloom filter iterator setting continuing without bloom filter", e);
-            }
-            final IteratorSetting edgeEntitySetting = iteratorSettingFactory
-                    .getEdgeEntityDirectionFilterIteratorSetting(operation);
-            if (edgeEntitySetting != null) {
-                scanner.addScanIterator(edgeEntitySetting);
-            }
-            IteratorSetting elementFilterSetting = null;
-            try {
-                elementFilterSetting = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(),
-                        store);
-            } catch (final IteratorSettingException e) {
-                LOGGER.error("Error creating filter iterator continuing query without filter");
-            }
-            try {
-                elementFilterSetting = iteratorSettingFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(),
-                        store);
-            } catch (final IteratorSettingException e) {
-                LOGGER.error("Error creating filter iterator continuing query without filter");
-            }
-            if (elementFilterSetting != null) {
-                scanner.addScanIterator(elementFilterSetting);
             }
             scannerIterator = scanner.iterator();
         }

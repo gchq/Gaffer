@@ -49,14 +49,15 @@ public class SchemaElementDefinitionValidator {
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
-     * @param elementDef the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
+     * @param elementDef          the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
+     * @param requiresAggregators true if aggregators are required
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public boolean validate(final SchemaElementDefinition elementDef) {
+    public boolean validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
         return validateComponentTypes(elementDef)
-                && validateAggregator(aggregator, elementDef)
+                && validateAggregator(aggregator, elementDef, requiresAggregators)
                 && validateFunctionArgumentTypes(validator, elementDef)
                 && validateFunctionArgumentTypes(aggregator, elementDef);
     }
@@ -69,7 +70,7 @@ public class SchemaElementDefinitionValidator {
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
+                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found", e);
                 return false;
             }
         }
@@ -86,7 +87,7 @@ public class SchemaElementDefinitionValidator {
                     return false;
                 }
             } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
+                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found", e);
                 return false;
             }
         }
@@ -208,8 +209,18 @@ public class SchemaElementDefinitionValidator {
     }
 
 
-    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
+    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+        if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
+            // if no properties then no aggregation is necessary
+            return true;
+        }
+
         if (null == aggregator || null == aggregator.getFunctions()) {
+            if (requiresAggregators) {
+                LOGGER.error("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
+                return false;
+            }
+
             // if aggregate functions are not defined then it is valid
             return true;
         }
@@ -236,7 +247,7 @@ public class SchemaElementDefinitionValidator {
             return true;
         }
 
-        LOGGER.error("no aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. This framework requires that either all of the defined properties have a function associated with them, or none of them do.");
+        LOGGER.error("no aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
         return false;
     }
 }

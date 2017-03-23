@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.proxystore;
 
 import org.apache.commons.lang.StringUtils;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,12 +31,14 @@ public class ProxyProperties extends StoreProperties {
     public static final String GAFFER_CONTEXT_ROOT = "gaffer.context-root";
     public static final String CONNECT_TIMEOUT = "gaffer.connect-timeout";
     public static final String READ_TIMEOUT = "gaffer.read-timeout";
+    public static final String JSON_SERIALISER_CLASS = "gaffer.jsonserialiser.class";
 
     public static final String DEFAULT_GAFFER_HOST = "localhost";
     public static final String DEFAULT_GAFFER_CONTEXT_ROOT = "/rest/v1";
     public static final int DEFAULT_GAFFER_PORT = 8080;
     public static final int DEFAULT_CONNECT_TIMEOUT = 10000;
     public static final int DEFAULT_READ_TIMEOUT = 10000;
+    public static final String DEFAULT_JSON_SERIALISER_CLASS = JSONSerialiser.class.getName();
 
     public ProxyProperties() {
     }
@@ -47,10 +49,6 @@ public class ProxyProperties extends StoreProperties {
 
     public ProxyProperties(final Properties props) {
         super(props);
-    }
-
-    public ProxyProperties(final Class<? extends Store> storeClass) {
-        super(storeClass);
     }
 
     public int getConnectTimeout() {
@@ -108,11 +106,27 @@ public class ProxyProperties extends StoreProperties {
         set(GAFFER_CONTEXT_ROOT, gafferContextRoot);
     }
 
+    public JSONSerialiser getJsonSerialiser() {
+        return JSONSerialiser.fromClass(getJsonSerialiserClass());
+    }
+
+    public String getJsonSerialiserClass() {
+        return get(JSON_SERIALISER_CLASS, DEFAULT_JSON_SERIALISER_CLASS);
+    }
+
+    public void setJsonSerialiserClass(final String jsonSerialiserClass) {
+        set(JSON_SERIALISER_CLASS, jsonSerialiserClass);
+    }
+
     public URL getGafferUrl() {
         return getGafferUrl(null);
     }
 
     public URL getGafferUrl(final String suffix) {
+        return getGafferUrl("http", suffix);
+    }
+
+    public URL getGafferUrl(final String protocol, final String suffix) {
         final String urlSuffix;
         if (StringUtils.isNotEmpty(suffix)) {
             urlSuffix = prepend("/", suffix);
@@ -123,16 +137,16 @@ public class ProxyProperties extends StoreProperties {
         try {
             String contextRoot = prepend("/", getGafferContextRoot());
             contextRoot = removeSuffix("/", contextRoot);
-            return new URL("http", getGafferHost(), getGafferPort(),
+            return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Could not create Gaffer URL from host (" + getGafferHost()
                     + "), port (" + getGafferPort()
-                    + ") and context root (" + getGafferContextRoot() + ")");
+                    + ") and context root (" + getGafferContextRoot() + ")", e);
         }
     }
 
-    private String removeSuffix(final String suffix, final String string) {
+    protected String removeSuffix(final String suffix, final String string) {
         if (string.endsWith(suffix)) {
             return string.substring(0, string.length() - suffix.length() - 1);
         }
@@ -140,7 +154,7 @@ public class ProxyProperties extends StoreProperties {
         return string;
     }
 
-    private String prepend(final String prefix, final String string) {
+    protected String prepend(final String prefix, final String string) {
         if (!string.startsWith(prefix)) {
             return prefix + string;
         }

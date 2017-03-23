@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloIDBetweenSetsRetriever;
@@ -43,8 +44,11 @@ public class GetElementsBetweenSetsHandler
                                          final User user, final AccumuloStore store)
             throws OperationException {
         try {
-            return new AccumuloIDBetweenSetsRetriever(store, operation, user,
-                    store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
+            return new AccumuloIDBetweenSetsRetriever(store, operation, user, iteratorFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
+                    iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
+                    iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

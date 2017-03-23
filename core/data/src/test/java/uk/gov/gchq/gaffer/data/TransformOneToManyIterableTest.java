@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,6 +34,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransformOneToManyIterableTest {
@@ -160,7 +165,47 @@ public class TransformOneToManyIterableTest {
         }
     }
 
+    @Test
+    public void shouldAutoCloseIterator() {
+        // Given
+        final boolean autoClose = true;
+        final CloseableIterable<String> items = mock(CloseableIterable.class);
+        final CloseableIterator<String> itemsIterator = mock(CloseableIterator.class);
+        given(items.iterator()).willReturn(itemsIterator);
+        given(itemsIterator.hasNext()).willReturn(false);
+
+        final TransformOneToManyIterableImpl iterable = new TransformOneToManyIterableImpl(items, autoClose);
+
+        // When
+        Lists.newArrayList(iterable);
+
+        // Then
+        verify(itemsIterator, times(1)).close();
+    }
+
+    @Test
+    public void shouldNotAutoCloseIterator() {
+        // Given
+        final boolean autoClose = false;
+        final CloseableIterable<String> items = mock(CloseableIterable.class);
+        final CloseableIterator<String> itemsIterator = mock(CloseableIterator.class);
+        given(items.iterator()).willReturn(itemsIterator);
+        given(itemsIterator.hasNext()).willReturn(false);
+
+        final TransformOneToManyIterableImpl iterable = new TransformOneToManyIterableImpl(items, autoClose);
+
+        // When
+        Lists.newArrayList(iterable);
+
+        // Then
+        verify(itemsIterator, never()).close();
+    }
+
     private class TransformOneToManyIterableImpl extends TransformOneToManyIterable<String, String> {
+        public TransformOneToManyIterableImpl(final Iterable<String> input, final boolean autoClose) {
+            super(input, new AlwaysValid<>(), false, autoClose);
+        }
+
         public TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);
         }

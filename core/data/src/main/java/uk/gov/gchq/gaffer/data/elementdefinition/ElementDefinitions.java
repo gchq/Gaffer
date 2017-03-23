@@ -102,12 +102,33 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @JsonIgnore
     public Set<String> getEdgeGroups() {
-        return null != edges ? edges.keySet() : new HashSet<String>(0);
+        return null != edges ? edges.keySet() : Collections.EMPTY_SET;
     }
 
     @JsonIgnore
     public Set<String> getEntityGroups() {
-        return null != entities ? entities.keySet() : new HashSet<String>(0);
+        return null != entities ? entities.keySet() : Collections.EMPTY_SET;
+    }
+
+    /**
+     * Returns a new hash set with all entity and edge groups.
+     *
+     * @return a new hash set with all entity and edge groups.
+     */
+    @JsonIgnore
+    public Set<String> getGroups() {
+        final Set<String> entityGroups = getEntityGroups();
+        final Set<String> edgeGroups = getEdgeGroups();
+        final Set<String> groups = new HashSet<>(entityGroups.size() + edgeGroups.size());
+        groups.addAll(entityGroups);
+        groups.addAll(edgeGroups);
+        return groups;
+    }
+
+    @JsonIgnore
+    public boolean hasGroups() {
+        return (null != entities && !entities.isEmpty())
+                || (null != edges && !edges.isEmpty());
     }
 
     public Map<String, EDGE_DEF> getEdges() {
@@ -271,7 +292,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                     } else {
                         elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
                     }
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);
                 }
 
