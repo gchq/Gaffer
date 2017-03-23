@@ -20,7 +20,9 @@ import com.google.common.collect.Lists;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -32,6 +34,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.hbasestore.SingleUseHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -52,6 +55,7 @@ import static org.junit.Assert.fail;
 public class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 10;
+    public static final int DUPLICATES = 4;
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -62,6 +66,16 @@ public class AddElementsFromHdfsIT {
     public String failureDir;
     public String splitsDir;
     public String splitsFile;
+
+    @BeforeClass
+    public static void beforeClass() {
+        SingleUseHBaseStore.setDropTable(true);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        SingleUseHBaseStore.setDropTable(false);
+    }
 
     @Before
     public void setup() {
@@ -126,6 +140,8 @@ public class AddElementsFromHdfsIT {
         for (int i = 0; i < NUM_ENTITIES; i++) {
             assertEquals(TestGroups.ENTITY, elementList.get(i).getGroup());
             assertEquals(VERTEX_ID_PREFIX + i, ((Entity) elementList.get(i)).getVertex());
+            System.out.println(elementList.get(i));
+            assertEquals(DUPLICATES, elementList.get(i).getProperty("count"));
         }
     }
 
@@ -136,7 +152,7 @@ public class AddElementsFromHdfsIT {
         fs.mkdirs(inputPath);
 
         try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(inputFilePath, true)))) {
-            for (int duplicates = 0; duplicates < 4; duplicates++) {
+            for (int duplicates = 0; duplicates < DUPLICATES; duplicates++) {
                 for (int i = 0; i < NUM_ENTITIES; i++) {
                     writer.write(TestGroups.ENTITY + "," + VERTEX_ID_PREFIX + i + "\n");
                 }
@@ -170,7 +186,11 @@ public class AddElementsFromHdfsIT {
         @Override
         public Element getElement(final String domainObject) {
             final String[] parts = domainObject.split(",");
-            return new Entity(parts[0], parts[1]);
+            return new Entity.Builder()
+                    .group(parts[0])
+                    .vertex(parts[1])
+                    .property("count", 1)
+                    .build();
         }
 
         @Override

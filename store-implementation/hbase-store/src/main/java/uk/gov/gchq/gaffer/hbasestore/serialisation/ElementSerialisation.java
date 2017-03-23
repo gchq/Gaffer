@@ -219,38 +219,6 @@ public class ElementSerialisation {
         return HBaseStoreConstants.EMPTY_BYTES;
     }
 
-    public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
-            throws SerialisationException {
-        final Properties properties = new Properties();
-
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
-
-        if (null != schema.getVisibilityProperty()) {
-            final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
-            if (null != propertyDef) {
-                final Serialisation serialiser = propertyDef.getSerialiser();
-                try {
-                    if (columnVisibility == null || columnVisibility.length == 0) {
-                        final Object value = serialiser.deserialiseEmptyBytes();
-                        if (value != null) {
-                            properties.put(schema.getVisibilityProperty(), value);
-                        }
-                    } else {
-                        properties.put(schema.getVisibilityProperty(),
-                                serialiser.deserialise(columnVisibility));
-                    }
-                } catch (final SerialisationException e) {
-                    throw new SerialisationException(e.getMessage(), e);
-                }
-            }
-        }
-
-        return properties;
-    }
-
     public byte[] buildColumnQualifier(final Element element) throws SerialisationException {
         return buildColumnQualifier(element.getGroup(), element.getProperties());
     }
@@ -465,16 +433,6 @@ public class ElementSerialisation {
                 getPropertiesFromColumnQualifier(element.getGroup(), CellUtil.cloneQualifier(cell)));
         element.copyProperties(
                 getPropertiesFromValue(element.getGroup(), CellUtil.cloneValue(cell)));
-
-//        final List<Tag> visibilityTags = new ArrayList<>();
-//        VisibilityUtils.extractVisibilityTags(cell, visibilityTags);
-//        byte[] visibility = null;
-//        for (Tag visibilityTag : visibilityTags) {
-//            visibility = visibilityTag.getValue();
-//            break;
-//        }
-//        element.copyProperties(
-//                getPropertiesFromColumnVisibility(element.getGroup(), visibility));
         element.copyProperties(
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
@@ -534,8 +492,6 @@ public class ElementSerialisation {
 
     protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
-                // TODO visibility should not need to be stored in the value
-                //&& !propertyName.equals(schema.getVisibilityProperty())
                 && !propertyName.equals(schema.getTimestampProperty());
     }
 
@@ -608,6 +564,7 @@ public class ElementSerialisation {
         final Pair<byte[]> row = getRowKeys(element);
         final byte[] cq = buildColumnQualifier(element);
         final long ts = buildTimestamp(element.getProperties());
+
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(buildColumnVisibility(element));
         final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);

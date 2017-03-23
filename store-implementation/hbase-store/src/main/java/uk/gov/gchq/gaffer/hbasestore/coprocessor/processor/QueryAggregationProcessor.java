@@ -50,48 +50,43 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
             return elementCells;
         }
 
-        try {
-            final List<LazyElementCell> output = new ArrayList<>();
-            ElementAggregator aggregator = null;
-            String group = null;
-            LazyElementCell firstElementCell = null;
-            for (final LazyElementCell elementCell : elementCells) {
-                if (elementCell.isDeleted()) {
-                    continue;
-                }
+        final List<LazyElementCell> output = new ArrayList<>();
+        ElementAggregator aggregator = null;
+        LazyElementCell firstElementCell = null;
+        for (final LazyElementCell elementCell : elementCells) {
+            if (elementCell.isDeleted()) {
+                continue;
+            }
 
-                if (null == firstElementCell) {
+            if (null == firstElementCell) {
+                firstElementCell = elementCell;
+            } else {
+                final String group = elementCell.getGroup();
+                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
+                final Set<String> groupBy = view.getElementGroupBy(group);
+                if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
+                    completeAggregator(firstElementCell, aggregator, output);
                     firstElementCell = elementCell;
+                    aggregator = null;
                 } else {
-                    group = elementCell.getGroup();
-                    final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
-                    final Set<String> groupBy = view.getElementGroupBy(group);
-                    if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
-                        completeAggregator(firstElementCell, group, aggregator, output);
-                        firstElementCell = elementCell;
-                        aggregator = null;
-                    } else {
-                        if (null == aggregator) {
-                            aggregator = schema.getElement(group).getAggregator();
-                            final Properties properties = firstElementCell.getElement().getProperties();
-                            properties.remove(groupBy);
-                            aggregator.aggregate(properties);
-                        }
-
-                        final Properties properties = elementCell.getElement().getProperties();
+                    if (null == aggregator) {
+                        aggregator = schema.getElement(group).getAggregator();
+                        final Properties properties = firstElementCell.getElement().getProperties();
                         properties.remove(groupBy);
                         aggregator.aggregate(properties);
                     }
+
+                    final Properties properties = elementCell.getElement().getProperties();
+                    properties.remove(groupBy);
+                    aggregator.aggregate(properties);
                 }
             }
-            completeAggregator(firstElementCell, group, aggregator, output);
-            return output;
-        } catch (SerialisationException e) {
-            throw new RuntimeException(e);
         }
+        completeAggregator(firstElementCell, aggregator, output);
+        return output;
     }
 
-    private void completeAggregator(final LazyElementCell elementCell, final String group, final ElementAggregator aggregator, final List<LazyElementCell> output) {
+    private void completeAggregator(final LazyElementCell elementCell, final ElementAggregator aggregator, final List<LazyElementCell> output) {
         if (null == aggregator) {
             if (null != elementCell) {
                 output.add(elementCell);
@@ -122,7 +117,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
-    private boolean compareGroupByKeys(final Cell left, final Cell right, final String group, final Set<String> schemaGroupBy, final Set<String> groupBy) throws SerialisationException {
+    private boolean compareGroupByKeys(final Cell left, final Cell right, final String group, final Set<String> schemaGroupBy, final Set<String> groupBy) {
         if (null != groupBy && groupBy.isEmpty()) {
             return true;
         }
@@ -135,9 +130,13 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
             return false;
         }
 
-        final byte[] groupByPropBytesLeft = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(left), groupBy.size());
-        final byte[] groupByPropBytesRight = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(right), groupBy.size());
-        return ByteUtils.areKeyBytesEqual(groupByPropBytesLeft, groupByPropBytesRight);
+        try {
+            final byte[] groupByPropBytesLeft = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(left), groupBy.size());
+            final byte[] groupByPropBytesRight = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(right), groupBy.size());
+            return ByteUtils.areKeyBytesEqual(groupByPropBytesLeft, groupByPropBytesRight);
+        } catch (final SerialisationException e) {
+            throw new RuntimeException("Unable to serialise properties into bytes", e);
+        }
     }
 
 }

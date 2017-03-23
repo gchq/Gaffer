@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 add_labels ['public', 'private', 'vis1', 'vis2']
-set_auths <USER>,['public', 'private', 'vis1', 'vis2']
+set_auths '<USER>',['public', 'private', 'vis1', 'vis2']

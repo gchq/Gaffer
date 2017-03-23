@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.hbasestore.utils.GroupComparatorUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class StoreAggregationProcessor implements GafferScannerProcessor {
     private final ElementSerialisation serialisation;
@@ -44,42 +45,39 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
             return elementCells;
         }
 
-        try {
-            final List<LazyElementCell> output = new ArrayList<>();
-            ElementAggregator aggregator = null;
-            String group = null;
-            LazyElementCell firstElementCell = null;
-            for (final LazyElementCell elementCell : elementCells) {
-                if (elementCell.isDeleted()) {
-                    continue;
-                }
+        final List<LazyElementCell> output = new ArrayList<>();
+        ElementAggregator aggregator = null;
+        LazyElementCell firstElementCell = null;
+        for (final LazyElementCell elementCell : elementCells) {
+            if (elementCell.isDeleted()) {
+                continue;
+            }
 
-                if (null == firstElementCell) {
-                    firstElementCell = elementCell;
-                } else if (!GroupComparatorUtils.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
-                    completeAggregator(firstElementCell, aggregator, output);
-                    firstElementCell = elementCell;
-                    aggregator = null;
-                } else {
-                    if (null == aggregator) {
-                        group = firstElementCell.getGroup();
-                        aggregator = schema.getElement(group).getAggregator();
-
-                        final Properties properties = firstElementCell.getElement().getProperties();
-                        aggregator.aggregate(properties);
-                    }
-
-                    final byte[] value = CellUtil.cloneValue(elementCell.getCell());
-                    final Properties properties = serialisation.getPropertiesFromValue(group, value);
+            if (null == firstElementCell) {
+                firstElementCell = elementCell;
+            } else if (!GroupComparatorUtils.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
+                completeAggregator(firstElementCell, aggregator, output);
+                firstElementCell = elementCell;
+                aggregator = null;
+            } else {
+                final String group = firstElementCell.getGroup();
+                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
+                if (null == aggregator) {
+                    aggregator = schema.getElement(group).getAggregator();
+                    final Properties properties = firstElementCell.getElement().getProperties();
+                    properties.remove(schemaGroupBy);
                     aggregator.aggregate(properties);
                 }
+
+                final Properties properties = elementCell.getElement().getProperties();
+                properties.remove(schemaGroupBy);
+                aggregator.aggregate(properties);
             }
-            completeAggregator(firstElementCell, aggregator, output);
-            return output;
-        } catch (SerialisationException e) {
-            throw new RuntimeException(e);
         }
+        completeAggregator(firstElementCell, aggregator, output);
+        return output;
     }
+
 
     private void completeAggregator(final LazyElementCell elementCell, final ElementAggregator aggregator, final List<LazyElementCell> output) {
         if (null == aggregator) {
@@ -89,15 +87,14 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
         } else {
             try {
                 final Cell firstCell = elementCell.getCell();
-                final byte[] rowId = CellUtil.cloneRow(firstCell);
                 final Element element = elementCell.getElement();
                 aggregator.state(element);
 
                 final Cell aggregatedCell = CellUtil.createCell(
-                        rowId,
+                        CellUtil.cloneRow(firstCell),
                         CellUtil.cloneFamily(firstCell),
                         CellUtil.cloneQualifier(firstCell),
-                        serialisation.buildTimestamp(element.getProperties()),
+                        serialisation.buildTimestamp(element),
                         firstCell.getTypeByte(),
                         serialisation.getValue(element),
                         CellUtil.getTagArray(firstCell),

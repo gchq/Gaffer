@@ -50,7 +50,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class AggregationIT extends AbstractStoreIT {
-    private final String AGGREGATED_ID = "3,3";
+    private final String AGGREGATED_ID = "3,3,3";
     private final String AGGREGATED_SOURCE = SOURCE + 6;
     private final String AGGREGATED_DEST = DEST + 6;
 
@@ -62,11 +62,11 @@ public class AggregationIT extends AbstractStoreIT {
     @Before
     public void setup() throws Exception {
         super.setup();
-        addDefaultElements();
+        //addDefaultElements();
 
         // Add duplicate elements
         graph.execute(new AddElements.Builder()
-                .elements(Collections.<Element>singleton(getEntity(AGGREGATED_SOURCE)))
+                .elements(Arrays.asList(getEntity(AGGREGATED_SOURCE), getEntity(AGGREGATED_SOURCE)))
                 .build(), getUser());
 
         graph.execute(new AddElements.Builder()
@@ -95,7 +95,7 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(2, results.size());
 
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
-        expectedEntity.putProperty(TestPropertyNames.STRING, "3,3");
+        expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
 
         final Edge expectedEdge = new Edge(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
         expectedEdge.putProperty(TestPropertyNames.INT, 1);

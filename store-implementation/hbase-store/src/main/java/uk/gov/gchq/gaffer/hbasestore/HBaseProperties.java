@@ -31,6 +31,7 @@ public class HBaseProperties extends StoreProperties {
     public static final String ZOOKEEPERS = "hbase.zookeepers";
     public static final String TABLE = "hbase.table";
     public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
+    public static final String DEPENDENCY_JARS_HDFS_DIR_PATH = "hbase.hdfs.jars.path";
 
     public static final int WRITE_BUFFER_SIZE_DEFAULT = 1000000;
 
@@ -49,6 +50,15 @@ public class HBaseProperties extends StoreProperties {
     @Override
     public HBaseProperties clone() {
         return (HBaseProperties) super.clone();
+    }
+
+    public org.apache.hadoop.fs.Path getDependencyJarsHdfsDirPath() {
+        final String path = get(DEPENDENCY_JARS_HDFS_DIR_PATH);
+        return null != path ? new org.apache.hadoop.fs.Path(path) : null;
+    }
+
+    public void setDependencyJarsHdfsDirPath(final String path) {
+        set(DEPENDENCY_JARS_HDFS_DIR_PATH, path);
     }
 
     /**

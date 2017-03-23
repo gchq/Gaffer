@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor;
 
 import org.apache.hadoop.hbase.CoprocessorEnvironment;
+import org.apache.hadoop.hbase.client.Durability;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseRegionObserver;
 import org.apache.hadoop.hbase.coprocessor.ObserverContext;
@@ -25,7 +27,9 @@ import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
+import org.apache.hadoop.hbase.regionserver.wal.WALEdit;
 import org.apache.hadoop.hbase.util.Bytes;
+import uk.gov.gchq.gaffer.commonutil.StringEscapeUtil;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.QueryScanner;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.StoreScanner;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -39,9 +43,19 @@ public class GafferCoprocessor extends BaseRegionObserver {
 
     @Override
     public void start(final CoprocessorEnvironment e) throws IOException {
-        final String schemaJson = e.getConfiguration().get(HBaseStoreConstants.SCHEMA).replaceAll(";;", ",");
+        final String schemaJson = StringEscapeUtil.unescapeComma(e.getConfiguration().get(HBaseStoreConstants.SCHEMA));
         schema = Schema.fromJson(Bytes.toBytes(schemaJson));
         serialisation = new ElementSerialisation(schema);
+    }
+
+    @Override
+    public void prePut(final ObserverContext<RegionCoprocessorEnvironment> e, final Put put, final WALEdit edit, final Durability durability) throws IOException {
+        super.prePut(e, put, edit, durability);
+    }
+
+    @Override
+    public void postPut(final ObserverContext<RegionCoprocessorEnvironment> e, final Put put, final WALEdit edit, final Durability durability) throws IOException {
+        super.postPut(e, put, edit, durability);
     }
 
     @Override

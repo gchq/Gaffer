@@ -44,7 +44,12 @@ public class SingleUseHBaseStore extends HBaseStore {
             TableUtils.dropTable(this);
             TableUtils.createTable(this);
         } else {
-            TableUtils.clearTable(this);
+            try {
+                TableUtils.deleteAllRows(this);
+            } catch (final StoreException e) {
+                TableUtils.dropTable(this);
+                TableUtils.createTable(this);
+            }
         }
     }
 }

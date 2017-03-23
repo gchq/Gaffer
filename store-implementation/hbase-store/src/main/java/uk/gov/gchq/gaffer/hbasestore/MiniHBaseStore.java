@@ -20,8 +20,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.codec.KeyValueCodecWithTags;
 import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos;
 import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
@@ -48,7 +50,6 @@ public class MiniHBaseStore extends HBaseStore {
     public static void setDropTable(final boolean dropTable) {
         MiniHBaseStore.dropTable = dropTable;
     }
-
 
     @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
@@ -77,7 +78,12 @@ public class MiniHBaseStore extends HBaseStore {
             TableUtils.dropTable(this);
             TableUtils.createTable(this);
         } else {
-            TableUtils.clearTable(this, VISIBILITY_LABELS);
+            try {
+                TableUtils.deleteAllRows(this, VISIBILITY_LABELS);
+            } catch (final StoreException e) {
+                TableUtils.dropTable(this);
+                TableUtils.createTable(this);
+            }
         }
     }
 
@@ -87,8 +93,10 @@ public class MiniHBaseStore extends HBaseStore {
         conf.set("hbase.superuser", "admin");
         conf.setInt("hfile.format.version", 3);
         conf.set("mapreduce.jobtracker.address", "local");
+        conf.set("fs.defaultFS", "file:///");
         conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
                 ScanLabelGenerator.class);
+        conf.set(HConstants.REPLICATION_CODEC_CONF_KEY, KeyValueCodecWithTags.class.getName());
         return conf;
     }
 

@@ -32,6 +32,7 @@ import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.StringEscapeUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
@@ -69,6 +70,7 @@ public final class TableUtils {
         } catch (final Exception e) {
             // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
             // Someone else got there first, never mind...
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,70 +98,53 @@ public final class TableUtils {
 
             final HTableDescriptor htable = new HTableDescriptor(tableName);
             final HColumnDescriptor col = new HColumnDescriptor(HBaseStoreConstants.getColFam());
-            col.setMaxVersions(Integer.MAX_VALUE);  // TODO: disable versions
-            htable.addFamily(col);
 
-            // TODO - need to properly escape commas
-            final String schemaJson = Bytes.toString(store.getSchema().toCompactJson()).replaceAll(",", ";;");
-            final Map<String, String> options = new HashMap<>(1);
-            options.put(HBaseStoreConstants.SCHEMA, schemaJson);
-
-            htable.addCoprocessor(GafferCoprocessor.class.getName(), null, Coprocessor.PRIORITY_USER, options);
-
-            admin.createTable(htable);
-
-//            final String repFactor = store.getProperties().getTableFileReplicationFactor();
-//            if (null != repFactor) {
-//                LOGGER.info("Table file replication set to {} on table {}", repFactor, tableName);
-//                connection.tableOperations().setProperty(tableName, Property.TABLE_FILE_REPLICATION.getKey(), repFactor);
-//            }
-
-            // Enable Bloom filters using ElementFunctor
-//            LOGGER.info("Enabling Bloom filter on table {}", tableName);
-//            connection.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_ENABLED.getKey(), "true");
-//            connection.tableOperations().setProperty(tableName, Property.TABLE_BLOOM_KEY_FUNCTOR.getKey(),
-//                    store.getKeyPackage().getKeyFunctor().getClass().getName());
-
+            // TODO: disable versions
+            col.setMaxVersions(Integer.MAX_VALUE);
             // Remove versioning iterator from table for all scopes
 //            LOGGER.info("Removing versioning iterator from table {}", tableName);
 //            final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
 //            connection.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
+            htable.addFamily(col);
+
+            final String schemaJson = StringEscapeUtil.escapeComma(
+                    Bytes.toString(store.getSchema().toCompactJson()));
+            final Map<String, String> options = new HashMap<>(1);
+            options.put(HBaseStoreConstants.SCHEMA, schemaJson);
+
+            htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
+            admin.createTable(htable);
         } catch (Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
 
         ensureTableExists(store);
-        //setLocalityGroups(store);
+        LOGGER.info("Table {} created", tableName);
     }
 
-    public static void clearTable(final HBaseStore store, final String... auths) throws StoreException {
+    public static void deleteAllRows(final HBaseStore store, final String... auths) throws StoreException {
         final Connection connection = store.getConnection();
         try {
             if (connection.getAdmin().tableExists(store.getProperties().getTable())) {
                 connection.getAdmin().flush(store.getProperties().getTable());
-                Scan scan = new Scan();
-                scan.setAuthorizations(new Authorizations(auths));
                 final Table table = connection.getTable(store.getProperties().getTable());
-                ResultScanner scanner = table.getScanner(scan);
-                final List<Delete> deletes = new ArrayList<>();
-                for (final Result result : scanner) {
-                    deletes.add(new Delete(result.getRow()));
-                }
-                table.delete(deletes);
-                connection.getAdmin().flush(store.getProperties().getTable());
-                scanner.close();
-
-                // TODO: work out a better way to clear a table
-                scan = new Scan();
+                final Scan scan = new Scan();
                 scan.setAuthorizations(new Authorizations(auths));
-                scanner = table.getScanner(scan);
-                if (scanner.iterator().hasNext()) {
-                    LOGGER.debug("The table is not empty! It will be deleted instead.");
-                    dropTable(store);
-                    createTable(store);
+                try (ResultScanner scanner = table.getScanner(scan)) {
+                    final List<Delete> deletes = new ArrayList<>();
+                    for (final Result result : scanner) {
+                        deletes.add(new Delete(result.getRow()));
+                    }
+                    table.delete(deletes);
+                    connection.getAdmin().flush(store.getProperties().getTable());
                 }
-                scanner.close();
+
+                try (ResultScanner scanner = table.getScanner(scan)) {
+                    if (scanner.iterator().hasNext()) {
+                        throw new StoreException("Some rows have not been deleted");
+                    }
+                }
             }
         } catch (final IOException e) {
             throw new StoreException(e);
@@ -199,83 +184,4 @@ public final class TableUtils {
             throw new StoreException(e);
         }
     }
-
-    //    public static void setLocalityGroups(final HBaseStore store) throws StoreException {
-//        final String tableName = store.getProperties().getTable();
-//        Map<String, Set<Text>> localityGroups =
-//                new HashMap<>();
-//        for (final String entityGroup : store.getSchema().getEntityGroups()) {
-//            HashSet<Text> localityGroup = new HashSet<>();
-//            localityGroup.add(new Text(entityGroup));
-//            localityGroups.put(entityGroup, localityGroup);
-//        }
-//        for (final String edgeGroup : store.getSchema().getEdgeGroups()) {
-//            HashSet<Text> localityGroup = new HashSet<>();
-//            localityGroup.add(new Text(edgeGroup));
-//            localityGroups.put(edgeGroup, localityGroup);
-//        }
-//        LOGGER.info("Setting locality groups on table {}", tableName);
-//        try {
-//            store.getConnection().tableOperations().setLocalityGroups(tableName, localityGroups);
-//        } catch (HBaseException | HBaseSecurityException | TableNotFoundException e) {
-//            throw new StoreException(e.getMessage(), e);
-//        }
-//    }
-
-    //    /**
-//     * Returns the {@link org.apache.hbase.core.security.Authorizations} of
-//     * the current user
-//     *
-//     * @param connection the connection to an hbase instance
-//     * @return The hbase Authorisations of the current user specified in the properties file
-//     * @throws StoreException if the table could not be found or other table/security issues
-//     */
-//    public static Authorizations getCurrentAuthorizations(final Connection connection) throws StoreException {
-//        try {
-//            return connection.securityOperations().getUserAuthorizations(connection.whoami());
-//        } catch (HBaseException | HBaseSecurityException e) {
-//            throw new StoreException(e.getMessage(), e);
-//        }
-//    }
-
-    //    /**
-//     * Creates a {@link BatchWriter}
-//     * <p>
-//     *
-//     * @param store the hbase store
-//     * @return A new BatchWriter with the settings defined in the
-//     * gaffer.hbasestore properties
-//     * @throws StoreException if the table could not be found or other table issues
-//     */
-//    public static BatchWriter createBatchWriter(final HBaseStore store) throws StoreException {
-//        return createBatchWriter(store, store.getProperties().getTable());
-//    }
-
-
-//    /**
-//     * Creates a {@link org.apache.hbase.core.client.BatchWriter} for the
-//     * specified table
-//     * <p>
-//     *
-//     * @param store     the hbase store
-//     * @param tableName the table name
-//     * @return A new BatchWriter with the settings defined in the
-//     * gaffer.hbasestore properties
-//     * @throws StoreException if the table could not be found or other table issues
-//     */
-//
-//    private static BatchWriter createBatchWriter(final HBaseStore store, final String tableName)
-//            throws StoreException {
-//        final BatchWriterConfig batchConfig = new BatchWriterConfig();
-//        batchConfig.setMaxMemory(store.getProperties().getMaxBufferSizeForBatchWriterInBytes());
-//        batchConfig.setMaxLatency(store.getProperties().getMaxTimeOutForBatchWriterInMilliseconds(),
-//                TimeUnit.MILLISECONDS);
-//        batchConfig.setMaxWriteThreads(store.getProperties().getNumThreadsForBatchWriter());
-//        try {
-//            return store.getConnection().createBatchWriter(tableName, batchConfig);
-//        } catch (final TableNotFoundException e) {
-//            throw new StoreException("Table not set up! Use table gaffer.hbasestore.utils to create the table"
-//                    + store.getProperties().getTable(), e);
-//        }
-//    }
 }

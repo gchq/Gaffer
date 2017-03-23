@@ -21,8 +21,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
@@ -30,8 +28,6 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentEntitySeedsHan
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
-import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -49,12 +45,9 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -80,20 +73,18 @@ public class HBaseStore extends Store {
     public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_AGGREGATION, QUERY_AGGREGATION, STORE_VALIDATION)));
     private Connection connection;
 
-    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "serialisation is initialised in the initialise method.")
-    private ElementSerialisation serialisation;
-
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         super.initialise(schema, properties);
-        serialisation = new ElementSerialisation(getSchema());
         TableUtils.ensureTableExists(this);
     }
 
     public Configuration getConfiguration() throws StoreException {
         final Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", getProperties().getZookeepers());
+        if (null != getProperties().getZookeepers()) {
+            conf.set("hbase.zookeeper.quorum", getProperties().getZookeepers());
+        }
         return conf;
     }
 
@@ -114,34 +105,6 @@ public class HBaseStore extends Store {
             }
         }
         return connection;
-    }
-
-    public void addElements(final Iterable<Element> elements) throws StoreException {
-        int batchSize = getProperties().getWriteBufferSize();
-        final Table table = TableUtils.getTable(this);
-        try {
-            final Iterator<Element> itr = elements.iterator();
-            while (itr.hasNext()) {
-                final List<Put> puts = new ArrayList<>(batchSize);
-                for (int i = 0; i < batchSize && itr.hasNext(); i++) {
-                    final Element element = itr.next();
-                    if (null == element) {
-                        i--;
-                        continue;
-                    }
-
-                    final Pair<Put> putPair = serialisation.getPuts(element);
-                    puts.add(putPair.getFirst());
-                    if (null != putPair.getSecond()) {
-                        puts.add(putPair.getSecond());
-                        i++;
-                    }
-                }
-                table.put(puts);
-            }
-        } catch (IOException e) {
-            throw new StoreException(e);
-        }
     }
 
     @Override

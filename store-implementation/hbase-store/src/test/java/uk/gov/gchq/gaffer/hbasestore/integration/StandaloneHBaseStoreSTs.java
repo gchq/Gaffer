@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.junit.Ignore;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
@@ -29,11 +28,10 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.IOException;
 
-@Ignore("This requires a standalone instance of hbase running on localhost:2181")
-public class StandaloneHBaseStoreITs extends AbstractStoreITs {
-    private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreITs.class, "standalone.store.properties"));
+public class StandaloneHBaseStoreSTs extends AbstractStoreITs {
+    private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreSTs.class, "standalone.store.properties"));
 
-    public StandaloneHBaseStoreITs() throws StoreException {
+    public StandaloneHBaseStoreSTs() throws StoreException {
         super(STORE_PROPERTIES);
         skipTest(VisibilityIT.class, "Configuration of visibility labels on the standalone cluster is required for this to work.");
         dropExistingTable();
@@ -41,7 +39,9 @@ public class StandaloneHBaseStoreITs extends AbstractStoreITs {
 
     private void dropExistingTable() throws StoreException {
         final Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum", STORE_PROPERTIES.getZookeepers());
+        if (null != STORE_PROPERTIES.getZookeepers()) {
+            conf.set("hbase.zookeeper.quorum", STORE_PROPERTIES.getZookeepers());
+        }
 
         final Connection connection;
         try {
@@ -49,7 +49,7 @@ public class StandaloneHBaseStoreITs extends AbstractStoreITs {
         } catch (IOException e) {
             throw new StoreException("Unable to create connection", e);
         }
-        
+
         TableUtils.dropTable(connection, STORE_PROPERTIES);
     }
 }
