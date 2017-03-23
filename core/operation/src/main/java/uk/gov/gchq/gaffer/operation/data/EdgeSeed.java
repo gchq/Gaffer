@@ -22,7 +22,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
- * An <code>EdgeId</code> contains source, destination and directed identifiers to identify an
+ * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */
