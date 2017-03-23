@@ -5,7 +5,7 @@
     <parent>
         <artifactId>named-operation</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.6.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>cache-service</artifactId>
-            <version>0.6.3-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 
