@@ -28,6 +28,7 @@
 
     <modules>
         <module>job-tracker-jcs</module>
+        <module>job-tracker-common</module>
     </modules>
 
 </project>
