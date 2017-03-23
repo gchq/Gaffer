@@ -30,7 +30,7 @@ public final class CacheServiceLoader implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
 
-    static void initialise() {
+    public static void initialise() {
         String cacheClass = System.getProperty(CacheSystemProperty.CACHE_SERVICE_CLASS);
 
         if (cacheClass == null) {

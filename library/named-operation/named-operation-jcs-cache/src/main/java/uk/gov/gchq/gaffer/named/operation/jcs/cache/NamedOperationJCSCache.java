@@ -26,12 +26,13 @@ import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.AbstractNamedOperationCache;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Implementation of {@link uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache} that uses an Apache JCS
+ * Implementation of {@link INamedOperationCache} that uses an Apache JCS
  * Cache to store {@link ExtendedNamedOperation}s. This cache is configured using the cache.ccf file.
  */
 public final class NamedOperationJCSCache extends AbstractNamedOperationCache {

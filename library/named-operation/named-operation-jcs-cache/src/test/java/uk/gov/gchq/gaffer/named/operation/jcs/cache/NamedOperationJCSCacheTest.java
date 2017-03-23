@@ -19,15 +19,12 @@ package uk.gov.gchq.gaffer.named.operation.jcs.cache;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
+import uk.gov.gchq.gaffer.named.operation.cache.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
@@ -138,7 +135,7 @@ public class NamedOperationJCSCacheTest {
     @Test
     public void shouldAllowUsersWithCorrectOpAuthsReadAccessToTheOperationChain() throws CacheOperationFailedException { // see if this works with standard user - it should do
         cache.addNamedOperation(standard, false, standardUser);
-        assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, advancedUser));
+        Assert.assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, advancedUser));
     }
 
     @Test
@@ -152,7 +149,7 @@ public class NamedOperationJCSCacheTest {
                 .build();
 
         cache.addNamedOperation(op, false, standardUser);
-        assertEquals(op, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        Assert.assertEquals(op, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
@@ -168,7 +165,7 @@ public class NamedOperationJCSCacheTest {
         cache.addNamedOperation(op, false, standardUser);
         cache.addNamedOperation(standard, true, standardUser);
 
-        assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        Assert.assertEquals(standard, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
@@ -183,7 +180,7 @@ public class NamedOperationJCSCacheTest {
         cache.addNamedOperation(standard, false, standardUser);
         cache.addNamedOperation(alternative, true, advancedUser);
 
-        assertEquals(alternative, cache.getNamedOperation(OPERATION_NAME, standardUser));
+        Assert.assertEquals(alternative, cache.getNamedOperation(OPERATION_NAME, standardUser));
     }
 
     @Test
