@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -46,6 +49,21 @@ public class ToListHandlerTest {
 
         //Then
         assertEquals(originalList, results);
+    }
+
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToListHandler handler = new ToListHandler();
+        final ToList<Integer> operation = mock(ToList.class);
+
+        given(operation.getInput()).willReturn(null);
+
+        //When
+        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
     }
 
 }

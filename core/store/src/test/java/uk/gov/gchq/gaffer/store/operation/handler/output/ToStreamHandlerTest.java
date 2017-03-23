@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -51,4 +54,18 @@ public class ToStreamHandlerTest {
         assertEquals(originalList, results);
     }
 
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToStreamHandler<Integer> handler = new ToStreamHandler();
+        final ToStream operation = mock(ToStream.class);
+
+        given(operation.getInput()).willReturn(null);
+
+        //When
+        final Stream<Integer> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
+    }
 }

@@ -24,6 +24,9 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -60,5 +63,20 @@ public class ToSetHandlerTest {
 
         // Then
         assertEquals(Sets.newHashSet(10, 9, 8, 7, 6, 5, 4, 3, 2, 1), Sets.newHashSet(results));
+    }
+
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToSetHandler<Integer> handler = new ToSetHandler<>();
+        final ToSet<Integer> operation = mock(ToSet.class);
+
+        given(operation.getInput()).willReturn(null);
+
+        // When
+        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+
+        // Then
+        assertThat(results, is(nullValue()));
     }
 }

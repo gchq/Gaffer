@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
+import com.google.common.collect.Iterables;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
@@ -38,7 +39,7 @@ public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends 
 
     private Iterable<?> wrapInIterable(final Object input) {
         if (null == input) {
-            return null;
+            return Collections.emptyList();
         }
 
         final Iterable inputItr;

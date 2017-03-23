@@ -23,7 +23,10 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.store.Context;
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -47,4 +50,36 @@ public class ToArrayHandlerTest {
         assertArrayEquals(originalArray, results);
     }
 
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToArrayHandler<Integer> handler = new ToArrayHandler();
+        final ToArray operation = mock(ToArray.class);
+
+        given(operation.getInput()).willReturn(null);
+
+        //When
+        final Integer[] results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
+    }
+
+    @Test
+    public void shouldHandleZeroLengthInput() throws OperationException {
+        // Given
+        final Integer[] originalArray = new Integer[]{};
+
+        final Iterable<Integer> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
+        final ToArrayHandler<Integer> handler = new ToArrayHandler();
+        final ToArray operation = mock(ToArray.class);
+
+        given(operation.getInput()).willReturn(originalResults);
+
+        //When
+        final Integer[] results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
+    }
 }

@@ -25,8 +25,11 @@ import uk.gov.gchq.gaffer.operation.impl.Limit;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class LimitHandlerTest {
@@ -70,5 +73,22 @@ public class LimitHandlerTest {
 
         // Then
         assertSame(input, result);
+    }
+
+    @Test
+    public void shouldHandleNullInput() throws Exception {
+        // Given
+        final CloseableIterable<Integer> input = null;
+        final Limit<Integer> limit = new Limit.Builder<Integer>()
+                .input(input)
+                .build();
+
+        final LimitHandler<Integer> handler = new LimitHandler<>();
+
+        // When
+        final Iterable<? extends Integer> result = handler.doOperation(limit, null, null);
+
+        // Then
+        assertThat(result, is(nullValue()));
     }
 }

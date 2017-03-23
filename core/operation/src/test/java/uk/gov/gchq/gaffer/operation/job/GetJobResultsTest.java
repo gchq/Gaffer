@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,62 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.operation.job;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 
-public class DiscardOutputTest implements OperationTest {
+public class GetJobResultsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final DiscardOutput op = new DiscardOutput();
+        final GetJobResults operation = new GetJobResults.Builder()
+                .jobId("jobId")
+                .build();
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-        final DiscardOutput deserialisedOp = serialiser.deserialise(json, DiscardOutput.class);
+        byte[] json = serialiser.serialise(operation, true);
+        final GetJobResults deserialisedOp = serialiser.deserialise(json, GetJobResults.class);
 
         // Then
-        assertNotNull(deserialisedOp);
+        assertEquals("jobId", deserialisedOp.getJobId());
     }
+
+    @Test
+    public void shouldReturnNullIfSetKey() {
+        // When
+        final GetJobResults jobResults = new GetJobResults.Builder()
+                .key(Export.DEFAULT_KEY)
+                .build();
+
+        // Then
+        assertThat(jobResults.getKey(), is(nullValue()));
+    }
+
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        // Given
-        final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
+        // When
+        final GetJobResults op = new GetJobResults.Builder()
+                .jobId("jobId")
+                .build();
 
         // Then
-        assertThat(discardOutput.getInput(), is(nullValue()));
+        assertEquals("jobId", op.getJobId());
     }
 }

@@ -17,35 +17,70 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.store.Context;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class ToMapHandlerTest {
 
     @Test
-    public void shouldConvertIterableToObjects() throws OperationException {
+    public void shouldConvertElementToMap() throws OperationException {
         // Given
-        final List<Integer> originalList = Arrays.asList(1, 2, 3);
+        final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                  .vertex(1)
+                                                  .build();
 
-        final Iterable originalResults = new WrappedCloseableIterable<>(originalList);
-        final ToListHandler handler = new ToListHandler();
-        final ToList<Integer> operation = mock(ToList.class);
+        final Map<String, Object> originalMap = new HashMap<>(1);
+        originalMap.put("group", TestGroups.ENTITY);
+        originalMap.put("vertex", 1);
+
+        final MapGenerator generator = new MapGenerator.Builder()
+                .group("group")
+                .vertex("vertex")
+                .source("source")
+                .destination("destination")
+                .build();
+
+        final Iterable originalResults = new WrappedCloseableIterable<>(Collections.singleton(entity));
+        final ToMapHandler handler = new ToMapHandler();
+        final ToMap operation = mock(ToMap.class);
 
         given(operation.getInput()).willReturn(originalResults);
+        given(operation.getElementGenerator()).willReturn(generator);
 
         //When
-        final Iterable<Integer> results = handler.doOperation(operation, new Context(), null);
+        final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
 
         //Then
-        assertEquals(originalList, results);
+        assertThat(results, contains(originalMap));
     }
 
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToMapHandler handler = new ToMapHandler();
+        final ToMap operation = mock(ToMap.class);
+
+        given(operation.getInput()).willReturn(null);
+
+        //When
+        final Iterable<? extends Map<String, Object>> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
+    }
 }

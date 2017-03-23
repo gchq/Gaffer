@@ -29,6 +29,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -115,5 +117,21 @@ public class ToVerticesHandlerTest {
 
         //Then
         assertThat(Sets.newHashSet(results), containsInAnyOrder(vertex2));
+    }
+
+    @Test
+    public void shouldHandleNullInput() throws OperationException {
+        // Given
+        final ToVerticesHandler handler = new ToVerticesHandler();
+        final ToVertices operation = mock(ToVertices.class);
+
+        given(operation.getInput()).willReturn(null);
+        given(operation.getEdgeVertices()).willReturn(EdgeVertices.NONE);
+
+        //When
+        final Iterable<Object> results = handler.doOperation(operation, new Context(), null);
+
+        //Then
+        assertThat(results, is(nullValue()));
     }
 }

@@ -15,7 +15,9 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
 import uk.gov.gchq.gaffer.store.Context;
@@ -26,20 +28,21 @@ import java.util.Collection;
 import java.util.List;
 
 public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]> {
+    @SuppressFBWarnings(value = "PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     @Override
     public T[] doOperation(final ToArray<T> operation, final Context context, final Store store) throws OperationException {
-        if (null == operation.getInput()) {
-            return (T[]) new Object[]{};
+        if (null == operation.getInput() || Iterables.isEmpty(operation.getInput())) {
+            return null;
         }
 
         return toArray(operation.getInput());
     }
 
-    private <T> T[] toArray(final Collection<T> collection, final Class<?> clazz) {
+    private <T> T[] toArray(final Collection<T> collection, final Class<?> clazz) throws OperationException {
         return toArray(collection, (T[]) Array.newInstance(clazz, collection.size()));
     }
 
-    private <T> T[] toArray(final Iterable<T> iterable) {
+    private <T> T[] toArray(final Iterable<T> iterable) throws OperationException {
         final List<T> list = Lists.newArrayList(iterable);
         Class<?> clazz = Object.class;
         if (!list.isEmpty()) {
@@ -48,10 +51,8 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
         return toArray(Lists.newArrayList(iterable), clazz);
     }
 
-    private <T> T[] toArray(final Collection<T> collection, final T[] array) {
-        return collection.size() > array.length
-                ? collection.toArray((T[]) Array.newInstance(array.getClass().getComponentType(), collection.size()))
-                : collection.toArray(array);
+    private <T> T[] toArray(final Collection<T> collection, final T[] array) throws OperationException {
+        return collection.toArray(array);
     }
 
 }
