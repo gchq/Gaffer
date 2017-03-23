@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.operation.data;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
- * An <code>EntityId</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
+ * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
  * It is used as a mainly used as a seed for queries.
  */
 public class EntitySeed extends ElementSeed implements EntityId {
