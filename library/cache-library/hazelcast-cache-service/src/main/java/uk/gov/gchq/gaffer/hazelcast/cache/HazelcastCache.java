@@ -46,7 +46,7 @@ public class HazelcastCache <K, V> implements ICache <K, V> {
             put(key, value);
         }
         else {
-            throw new CacheOperationException("Entry for key: " + key + " already exists");
+            throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
 

@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.File;
 
-public class HazelCastServiceTest {
+public class HazelcastCacheServiceTest {
 
     private HazelcastCacheService service = new HazelcastCacheService();
     private static final String CACHE_NAME = "test";
