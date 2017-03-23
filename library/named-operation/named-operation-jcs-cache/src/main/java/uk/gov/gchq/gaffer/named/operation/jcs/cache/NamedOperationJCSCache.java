@@ -53,9 +53,6 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * @throws CacheOperationFailedException thrown if the operation fails
      */
     public void addToCache(final String name, final ExtendedNamedOperation namedOperation, final boolean overwrite) throws CacheOperationFailedException {
-        if (name == null) {
-            throw new CacheOperationFailedException("NamedOperation name cannot be null");
-        }
         try {
             if (!overwrite && getCache().getFromGroup(name, CACHE_GROUP) != null) {
                 throw new CacheOperationFailedException("ExtendedNamedOperation with name " + name + " already exists");

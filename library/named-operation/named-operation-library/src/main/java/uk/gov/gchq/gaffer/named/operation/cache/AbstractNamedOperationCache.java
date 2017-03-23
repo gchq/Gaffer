@@ -42,6 +42,9 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
         } catch (NullPointerException e) {
             throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
+        if (name == null) {
+            throw new CacheOperationFailedException("NamedOperation name cannot be null");
+        }
         if (!overwrite) {
             addToCache(name, namedOperation, false);
             return;
@@ -73,6 +76,9 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
      */
     @Override
     public void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException {
+        if (name == null) {
+            throw new CacheOperationFailedException("NamedOperation name cannot be null");
+        }
         ExtendedNamedOperation existing = getFromCache(name);
         if (existing.hasWriteAccess(user)) {
             deleteFromCache(name);
