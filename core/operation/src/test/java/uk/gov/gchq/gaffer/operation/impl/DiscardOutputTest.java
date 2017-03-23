@@ -14,38 +14,34 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl.output;
+package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
-import sun.util.locale.provider.LocaleProviderAdapter.Type;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-
-import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 
-public class ToSetTest implements OperationTest {
+public class DiscardOutputTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final ToSet op = new ToSet();
+        final DiscardOutput op = new DiscardOutput();
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final ToSet deserialisedOp = serialiser.deserialise(json, ToSet.class);
+        final DiscardOutput deserialisedOp = serialiser.deserialise(json, DiscardOutput.class);
 
         // Then
         assertNotNull(deserialisedOp);
@@ -55,11 +51,9 @@ public class ToSetTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // Given
-        final ToSet<String> toSet = new ToSet.Builder<String>().input("1", "2").build();
+        final DiscardOutput discardOutput = new DiscardOutput.Builder().input("1").build();
 
         // Then
-        assertThat(toSet.getInput(), is(notNullValue()));
-        assertThat(toSet.getInput(), iterableWithSize(2));
-        assertThat(toSet.getInput(), containsInAnyOrder("1", "2"));
+        assertThat(discardOutput.getInput(), is(nullValue()));
     }
 }

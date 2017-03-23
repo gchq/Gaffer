@@ -26,5 +26,8 @@ public interface OperationTest {
 
     @Test
     void builderShouldCreatePopulatedOperation();
+
+//    @Test
+//    void shouldReturnCorrectTypeForTypeReference();
 }
 

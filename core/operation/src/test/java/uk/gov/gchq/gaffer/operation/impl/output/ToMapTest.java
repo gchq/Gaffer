@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -54,10 +55,12 @@ public class ToMapTest implements OperationTest {
         // Given
         final ToMap toMap = new ToMap.Builder()
                 .input(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2))
+                .generator(new MapGenerator())
                 .build();
 
         // Then
         assertThat(toMap.getInput(), is(notNullValue()));
         assertThat(toMap.getInput(), iterableWithSize(2));
+        assertThat(toMap.getElementGenerator(), is(notNullValue()));
     }
 }
