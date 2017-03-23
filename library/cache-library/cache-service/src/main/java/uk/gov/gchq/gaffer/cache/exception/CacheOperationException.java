@@ -14,30 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.cache;
+package uk.gov.gchq.gaffer.cache.exception;
 
+public class CacheOperationException extends Exception {
 
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+    public CacheOperationException(String message) {
+        super(message);
+    }
 
-import java.util.Collection;
-import java.util.Set;
-
-public interface ICache <K, V> {
-
-    V get(final K key);
-
-    void put(final K key, final V value) throws CacheOperationException;
-
-    void putSafe(final K key, final V value) throws CacheOperationException;
-
-    void remove(final K key);
-
-    Collection<V> getAllValues();
-
-    Set<K> getAllKeys();
-
-    int size();
-
-    void clear() throws CacheOperationException;
-
+    public CacheOperationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

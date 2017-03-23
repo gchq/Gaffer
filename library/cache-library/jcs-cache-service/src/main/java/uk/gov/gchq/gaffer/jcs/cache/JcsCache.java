@@ -21,6 +21,7 @@ import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
 import org.apache.jcs.engine.control.CompositeCache;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,11 +47,20 @@ public class JcsCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void put(final K key, final V value) {
+    public void put(final K key, final V value) throws CacheOperationException {
         try {
             cache.putInGroup(key, groupName, value);
         } catch (CacheException e) {
-            throw new IllegalArgumentException("Failed to add item to cache", e);
+            throw new CacheOperationException("Failed to add item to cache", e);
+        }
+    }
+
+    @Override
+    public void putSafe(K key, V value) throws CacheOperationException {
+        if (get(key) == null) {
+            put(key, value);
+        } else {
+            throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
 
@@ -82,11 +92,11 @@ public class JcsCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws CacheOperationException {
         try {
             cache.clear();
         } catch (CacheException e) {
-            throw new IllegalArgumentException("Failed to clear cache", e);
+            throw new CacheOperationException("Failed to clear cache", e);
         }
     }
 }

@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 public class HashMapCacheServiceTest {
 
@@ -58,7 +59,7 @@ public class HashMapCacheServiceTest {
     }
 
     @Test
-    public void shouldReUseCacheIfOneExists() {
+    public void shouldReUseCacheIfOneExists() throws CacheOperationException {
 
         // given
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);

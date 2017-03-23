@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
@@ -63,21 +64,42 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
 
     @Override
     public void clear() throws CacheOperationFailedException {
-        cache.clear();
+        try {
+            cache.clear();
+        } catch (CacheOperationException e) {
+            throw new CacheOperationFailedException("Failed to clear cache", e);
+        }
     }
 
     @Override
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         cache.remove(name);
+
+        if (cache.get(name) != null) {
+            throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
+        }
     }
 
     @Override
-    public void addToCache(final String name, final ExtendedNamedOperation operation, boolean overwrite) throws CacheOperationFailedException {
-        cache.put(name, operation);
+    public void addToCache(final String name, final ExtendedNamedOperation operation, final boolean overwrite) throws CacheOperationFailedException {
+        try {
+            if (overwrite) {
+                cache.put(name, operation);
+            } else {
+                cache.putSafe(name, operation);
+            }
+        } catch (CacheOperationException e) {
+            throw new CacheOperationFailedException(e);
+        }
     }
 
     @Override
-    public ExtendedNamedOperation getFromCache(String name) throws CacheOperationFailedException {
-        return cache.get(name);
+    public ExtendedNamedOperation getFromCache(final String name) throws CacheOperationFailedException {
+        ExtendedNamedOperation op = cache.get(name);
+
+        if (op != null) {
+            return op;
+        }
+        throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the cache");
     }
 }

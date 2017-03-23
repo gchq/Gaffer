@@ -20,6 +20,7 @@ package uk.gov.gchq.gaffer.hazelcast.cache;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class HazelCastServiceTest {
     }
 
     @Test
-    public void shouldReUseCacheIfOneExists() {
+    public void shouldReUseCacheIfOneExists() throws CacheOperationException {
 
         // given
         initialiseWithTestConfig();
@@ -87,7 +88,7 @@ public class HazelCastServiceTest {
     }
 
     @Test
-    public void shouldShareCachesBetweenServices() {
+    public void shouldShareCachesBetweenServices() throws CacheOperationException {
 
         // given
         initialiseWithTestConfig();

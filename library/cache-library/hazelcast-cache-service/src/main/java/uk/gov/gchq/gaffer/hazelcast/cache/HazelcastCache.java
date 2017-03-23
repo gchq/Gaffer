@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.hazelcast.cache;
 
 import com.hazelcast.core.IMap;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
 import java.util.Set;
@@ -37,6 +38,16 @@ public class HazelcastCache <K, V> implements ICache <K, V> {
     @Override
     public void put(final K key, final V value) {
         distributedMap.put(key, value);
+    }
+
+    @Override
+    public void putSafe(K key, V value) throws CacheOperationException {
+        if (get(key) == null) {
+            put(key, value);
+        }
+        else {
+            throw new CacheOperationException("Entry for key: " + key + " already exists");
+        }
     }
 
     @Override

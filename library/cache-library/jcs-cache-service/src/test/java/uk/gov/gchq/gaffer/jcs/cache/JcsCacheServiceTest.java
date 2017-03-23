@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class JcsCacheServiceTest {
     }
 
     @Test
-    public void shouldUseDefaultConfigFileIfNoneIsSpecified() {
+    public void shouldUseDefaultConfigFileIfNoneIsSpecified() throws CacheOperationException {
         service.initialise();
         ICache<String, Integer> cache = service.getCache(TEST_REGION);
         cache.put("test", 1);
@@ -62,7 +63,7 @@ public class JcsCacheServiceTest {
     }
 
     @Test
-    public void shouldUseSystemVariableToConfigureJCS() {
+    public void shouldUseSystemVariableToConfigureJCS() throws CacheOperationException {
         // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
         System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, filePath);
@@ -76,7 +77,7 @@ public class JcsCacheServiceTest {
     }
 
     @Test
-    public void shouldReUseCacheIfOneExists() {
+    public void shouldReUseCacheIfOneExists() throws CacheOperationException {
 
         // given
         service.initialise();
@@ -95,7 +96,7 @@ public class JcsCacheServiceTest {
     }
 
     @Test
-    public void shouldShareCachesBetweenServices() {
+    public void shouldShareCachesBetweenServices() throws CacheOperationException {
 
         // given
         service.initialise();

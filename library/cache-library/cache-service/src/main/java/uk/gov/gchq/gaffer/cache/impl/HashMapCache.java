@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +36,16 @@ public class HashMapCache <K, V> implements ICache <K, V> {
     @Override
     public void put(final K key, final V value) {
         cache.put(key, value);
+    }
+
+    @Override
+    public void putSafe(K key, V value) throws CacheOperationException {
+        if (get(key) == null) {
+            put(key, value);
+        }
+        else {
+            throw new CacheOperationException("Cache entry already exists for key: " + key);
+        }
     }
 
     @Override
