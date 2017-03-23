@@ -30,7 +30,7 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>cache-service</artifactId>
-            <version>0.6.3-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.jcs</groupId>
             <artifactId>jcs</artifactId>
-            <version>1.3</version>
+            <version>${jcs.version}</version>
         </dependency>
     </dependencies>
 
