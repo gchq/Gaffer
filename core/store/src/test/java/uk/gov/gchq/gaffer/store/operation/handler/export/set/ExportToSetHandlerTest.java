@@ -15,26 +15,14 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.export.set;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.operation.export.ExportTo;
-import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.SetExporter;
 import uk.gov.gchq.gaffer.store.Context;
-import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class ExportToSetHandlerTest {
 
