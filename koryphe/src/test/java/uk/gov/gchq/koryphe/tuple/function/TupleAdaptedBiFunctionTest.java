@@ -16,54 +16,76 @@
 
 package uk.gov.gchq.koryphe.tuple.function;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.koryphe.bifunction.MockBiFunction;
+import uk.gov.gchq.koryphe.tuple.Tuple;
+import uk.gov.gchq.koryphe.tuple.TupleInputAdapter;
+import uk.gov.gchq.koryphe.tuple.TupleReverseOutputAdapter;
 import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
 import uk.gov.gchq.koryphe.util.JsonSerialiser;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TupleAdaptedBiFunctionTest {
-    //TODO: fix test
-//    @Test
-//    public void testTupleCombination() {
-//        String[] inputs = new String[]{"input1", "input2", "input3"};
-//        Set<String> output1 = new HashSet<>(Collections.singletonList("input1"));
-//        Set<String> output2 = new HashSet<>(Arrays.asList("input1", "input2"));
-//        Set<String> output3 = new HashSet<>(Arrays.asList("input1", "input2", "input3"));
-//        List<Set<String>> outputsArray = new ArrayList<>();
-//        outputsArray.addAll(Arrays.asList(output1, output2, output3));
-//
-//        Tuple<String>[] tuples = new Tuple[]{mock(Tuple.class), mock(Tuple.class), mock(Tuple.class)};
-//        BiFunction<String, Set<String>, Set<String>> function1 = mock(BiFunction.class);
-//        TupleAdaptedBiFunction<String, String, Set<String>> combiner = new TupleAdaptedBiFunction<>(function1);
-//
-//        // set up the function
-//        Tuple<String> state = null;
-//        for (int i = 0; i < tuples.length; i++) {
-//            Set<String> previousOutput = null;
-//            if (i > 0) {
-//                previousOutput = outputsArray.get(i - 1);
-//            }
-//            given(function1.apply(inputs[i], previousOutput)).willReturn(outputsArray.get(i));
-//            state = combiner.apply(tuples[i], state);
-//        }
-//
-//        // check the expected calls
-//        for (int i = 0; i < tuples.length; i++) {
-//            String in1 = inputs[i];
-//            Set<String> in2 = null;
-//            if (i > 0) {
-//                in2 = outputsArray.get(i - 1);
-//
-//            }
-//            verify(function1, times(1)).apply(in1, in2);
-//        }
-//    }
+
+    @Test
+    public void testTupleCombination() {
+        String[] inputs = new String[]{"input1", "input2", "input3"};
+        Set<String> output1 = Sets.newHashSet(Collections.singletonList("input1"));
+        Set<String> output2 = Sets.newHashSet("input1", "input2");
+        Set<String> output3 = Sets.newHashSet("input1", "input2", "input3");
+        List<Set<String>> outputsArray = new ArrayList<>();
+        outputsArray.addAll(Arrays.asList(output1, output2, output3));
+
+        Tuple<String>[] tuples = new Tuple[]{mock(Tuple.class), mock(Tuple.class), mock(Tuple.class)};
+        BiFunction<String, Set<String>, Set<String>> function = mock(BiFunction.class);
+        TupleInputAdapter<String, String> inputAdapter = mock(TupleInputAdapter.class);
+        TupleAdaptedBiFunction<String, String, Set<String>> combiner = new TupleAdaptedBiFunction<>(function);
+        TupleReverseOutputAdapter<String,Set<String>> reverseOutputAdapter = mock(TupleReverseOutputAdapter.class);
+
+        combiner.setInputAdapter(inputAdapter);
+        combiner.setReverseOutputAdapter(reverseOutputAdapter);
+
+        // set up the function
+        Tuple<String> state = null;
+        for (int i = 0; i < tuples.length; i++) {
+            Set<String> previousOutput = null;
+            if (i > 0) {
+                previousOutput = outputsArray.get(i - 1);
+                given(reverseOutputAdapter.apply(null)).willReturn(outputsArray.get(i - 1));
+            }
+            if (i < 1) {
+                given(reverseOutputAdapter.apply(null)).willReturn(null);
+            }
+            given(inputAdapter.apply(tuples[i])).willReturn(inputs[i]);
+            given(function.apply(inputs[i], previousOutput)).willReturn(outputsArray.get(i));
+
+            state = combiner.apply(tuples[i], state);
+        }
+
+        // check the expected calls
+        for (int i = 0; i < tuples.length; i++) {
+            String in1 = inputs[i];
+            Set<String> in2 = null;
+            if (i > 0) {
+                in2 = outputsArray.get(i - 1);
+            }
+            verify(function, times(1)).apply(in1, in2);
+        }
+    }
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws IOException {

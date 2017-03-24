@@ -170,12 +170,12 @@
                                             </td>
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="filter.function"
-                                                        ng-options="function as function for function in filter.availableFunctions"
+                                                        ng-model="filter.predicate"
+                                                        ng-options="predicate as predicate for predicate in filter.availableFunctions"
                                                         ng-change="onSelectedFunctionChange(entity, filter)">
                                                     <option value="" disabled
                                                             selected>
-                                                        Select a function
+                                                        Select a predicate
                                                     </option>
                                                 </select>
                                             </td>
@@ -244,12 +244,12 @@
                                             </td>
                                             <td>
                                                 <select class="form-control"
-                                                        ng-model="filter.function"
-                                                        ng-options="function as function for function in filter.availableFunctions"
+                                                        ng-model="filter.predicate"
+                                                        ng-options="predicate as predicate for predicate in filter.availableFunctions"
                                                         ng-change="onSelectedFunctionChange(edge, filter)">
                                                     <option value="" disabled
                                                             selected>
-                                                        Select a function
+                                                        Select a predicate
                                                     </option>
                                                 </select>
                                             </td>

@@ -33,9 +33,9 @@ import java.util.function.BiFunction;
  */
 public class TupleAdaptedBiFunction<R, FI, FO> extends AdaptedBiFunction<Tuple<R>, FI, FO, Tuple<R>> {
     public TupleAdaptedBiFunction() {
-        setInputAdapter(new TupleInputAdapter<>());
-        setOutputAdapter(new TupleOutputAdapter<>());
-        setReverseOutputAdapter(new TupleReverseOutputAdapter<>());
+        setInputAdapter(new TupleInputAdapter<R, FI>());
+        setOutputAdapter(new TupleOutputAdapter<R, FO>());
+        setReverseOutputAdapter(new TupleReverseOutputAdapter<R, FO>());
     }
 
     @SafeVarargs

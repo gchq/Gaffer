@@ -13,12 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.koryphe.predicate;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.koryphe.composite.Composite;
 import java.util.function.Predicate;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-@FunctionalInterface
-public interface IKoryphePredicate<T> extends Predicate<T> {
+public class AdaptedPredicateComposite<I, FI> extends Composite<AdaptedPredicate<I, FI>> implements Predicate<I> {
+    @Override
+    public boolean test(final I input) {
+        for (final AdaptedPredicate<I, FI> predicate : getFunctions()) {
+            if (!predicate.test(input)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

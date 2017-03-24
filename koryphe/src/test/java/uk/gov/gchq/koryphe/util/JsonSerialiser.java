@@ -17,8 +17,8 @@
 package uk.gov.gchq.koryphe.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 
 public class JsonSerialiser {
@@ -37,5 +37,9 @@ public class JsonSerialiser {
 
     public static <T> T deserialise(String json, Class<T> type) throws IOException {
         return MAPPER.readValue(json, type);
+    }
+
+    public static <T> T deserialise(String json, TypeReference<T> typeReference) throws IOException {
+        return MAPPER.readValue(json, typeReference);
     }
 }

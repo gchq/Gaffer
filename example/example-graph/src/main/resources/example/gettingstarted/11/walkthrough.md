@@ -31,7 +31,7 @@ The results are as follows. This means that 25% of all the doubles on edge A-B h
 ${GET_0.25,0.5,0.75_PERCENTILES_FOR_EDGE_A_B}
 ```
 
-We can also get the cumulative density function of the distribution of the doubles:
+We can also get the cumulative density predicate of the distribution of the doubles:
 ${GET_CDF_SNIPPET}
 
 The results are:
