@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator10;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
         new LoadAndQuery10().run();
     }
 
-    public Iterable<Entity> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -62,7 +62,7 @@ public class LoadAndQuery10 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator10())
-                        .objects(dummyData)
+                        .input(dummyData)
                         .build())
                 .then(new AddElements())
                 .build();
@@ -74,24 +74,24 @@ public class LoadAndQuery10 extends LoadAndQuery {
 
         // [get] Get all edges
         // ---------------------------------------------------------
-        Iterable<Edge> allEdges = graph.execute(new GetAllEdges(), user);
+        final CloseableIterable<? extends Element> allEdges = graph.execute(new GetAllElements(), user);
         // ---------------------------------------------------------
         log("\nAll edges:");
-        for (final Edge edge : allEdges) {
+        for (final Element edge : allEdges) {
             log("GET_ALL_EDGES_RESULT", edge.toString());
         }
 
 
         // [get frequencies of 1L and 9L] Get the edge A-B and print estimates of frequencies of 1L and 9L
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+        final GetElements query = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B", false))
                 .build();
-        final Iterable<Edge> edges = graph.execute(query, user);
-        final Edge edge = edges.iterator().next();
+        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
+        final Element edge = edges.iterator().next();
         final LongsSketch longsSketch = (LongsSketch) edge.getProperty("longsSketch");
         final String estimates = "Edge A-B: 1L seen approximately " + longsSketch.getEstimate(1L)
-            + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
+                + " times, 9L seen approximately " + longsSketch.getEstimate(9L) + " times.";
         // ---------------------------------------------------------
         log("\nEdge A-B with estimates of the frequencies of 1 and 9");
         log("GET_FREQUENCIES_OF_1_AND_9_FOR_EDGE_A_B", estimates);

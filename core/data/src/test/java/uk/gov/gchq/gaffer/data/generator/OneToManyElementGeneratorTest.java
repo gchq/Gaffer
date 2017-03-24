@@ -50,13 +50,13 @@ public class OneToManyElementGeneratorTest {
 
         // When
         final TransformOneToManyIterable<String, Element> result =
-                (TransformOneToManyIterable<String, Element>) generator.getElements(Arrays.asList(obj1, obj2));
+                (TransformOneToManyIterable<String, Element>) generator.apply(Arrays.asList(obj1, obj2));
 
         // Then
         assertEquals(Arrays.asList(elm1a, elm1b, elm2a, elm2b), Lists.newArrayList(result));
     }
 
-    private class OneToManyElementGeneratorImpl extends OneToManyElementGenerator<String> {
+    private class OneToManyElementGeneratorImpl implements OneToManyElementGenerator<String> {
         /**
          * Note this is a strange way of generating elements - but it makes the testing easier.
          *
@@ -64,7 +64,7 @@ public class OneToManyElementGeneratorTest {
          * @return
          */
         @Override
-        public Iterable<Element> getElements(final String domainObject) {
+        public Iterable<Element> _apply(final String domainObject) {
             if (obj1.equals(domainObject)) {
                 return Arrays.asList(elm1a, elm1b);
             }
@@ -74,11 +74,6 @@ public class OneToManyElementGeneratorTest {
             }
 
             throw new IllegalArgumentException("Unknown domain object type");
-        }
-
-        @Override
-        public Iterable<String> getObjects(final Iterable<Element> elements) {
-            throw new UnsupportedOperationException("Not implemented");
         }
     }
 }

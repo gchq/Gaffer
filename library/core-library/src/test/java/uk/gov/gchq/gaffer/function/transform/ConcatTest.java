@@ -17,27 +17,24 @@ package uk.gov.gchq.gaffer.function.transform;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
-import uk.gov.gchq.gaffer.function.Function;
-import uk.gov.gchq.gaffer.function.TransformFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.function.FunctionTest;
 import java.io.IOException;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
-public class ConcatTest extends TransformFunctionTest {
+public class ConcatTest extends FunctionTest {
     @Test
     public void shouldConcatStringsWithDefaultSeparator() {
         // Given
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
+        String output = concat.apply("1", "2");
 
-        assertArrayEquals(new String[]{"1,2,3"}, output);
+        assertEquals("1,2", output);
     }
 
     @Test
@@ -47,9 +44,9 @@ public class ConcatTest extends TransformFunctionTest {
         concat.setSeparator(" ");
 
         // When
-        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
+        final String output = concat.apply("1", "2");
 
-        assertArrayEquals(new String[]{"1 2 3"}, output);
+        assertEquals("1 2", output);
     }
 
     @Test
@@ -58,52 +55,20 @@ public class ConcatTest extends TransformFunctionTest {
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.transform(new String[]{"1", null, "3"});
+        final String output = concat.apply("1", null);
 
-        assertArrayEquals(new String[]{"1,,3"}, output);
+        assertEquals("1", output);
     }
 
     @Test
-    public void shouldReturnEmptyArrayForNullInput() {
+    public void shouldReturnNullForNullInput() {
         // Given
         final Concat concat = new Concat();
 
         // When
-        final Object[] output = concat.transform(null);
+        final String output = concat.apply(null, null);
 
-        assertEquals(1, output.length);
-        assertNull(output[0]);
-    }
-
-    @Test
-    public void shouldReturnClonedConcatWithEmptyStateAndDefaultSeparator() {
-        // Given
-        final Concat concat = new Concat();
-        concat.transform(new String[]{"1", "2", "3"});
-
-        // When
-        Concat clone = concat.statelessClone();
-        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
-
-        // Then
-        assertNotSame(concat, clone);
-        assertArrayEquals(new String[]{"1,2,3"}, output);
-    }
-
-    @Test
-    public void shouldReturnClonedConcatWithEmptyStateAndCustomSeparator() {
-        // Given
-        final Concat concat = new Concat();
-        concat.setSeparator(" ");
-        concat.transform(new String[]{"1", "2", "3"});
-
-        // When
-        Concat clone = concat.statelessClone();
-        final Object[] output = concat.transform(new String[]{"1", "2", "3"});
-
-        // Then
-        assertNotSame(concat, clone);
-        assertArrayEquals(new String[]{"1 2 3"}, output);
+        assertNull(output);
     }
 
     @Override
@@ -136,7 +101,7 @@ public class ConcatTest extends TransformFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<Concat> getFunctionClass() {
         return Concat.class;
     }
 }

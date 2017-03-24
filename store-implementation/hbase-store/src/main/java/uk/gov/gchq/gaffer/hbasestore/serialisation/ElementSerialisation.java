@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -32,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -44,38 +44,17 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * The ByteEntityHBaseElementConverter converts Gaffer Elements to HBase
- * Keys And Values
- * <p>
- * The way keys are created can be summarised as the following. For Edges the
- * resulting cell will be: Source Value + Delimiter + Flag + Delimiter +
- * Destination Value + Delimiter + Flag (And a second edge of Destination Value
- * + Delimiter + Flag + Delimiter + Source Value + Delimiter + Flag for
- * searching)
- * <p>
- * For entities the resulting cell will be: Identifier Value + Delimiter + Flag
- * <p>
- * Note that the Delimiter referenced in the above example is the byte
- * representation of the number 0 for this implementation and the values are
- * appropriately escaped. And the Flag is a byte value that changes depending on
- * whether it being used on an entity, an undirected edge and a directed edge
- * input as the user specified or as the one input inverted for searching. The
- * flag values are as follows: Entity = 1 Undirected Edge = 4 Directed Edge = 2
- * Inverted Directed Edge = 3
- * <p>
- * Values are constructed by placing all the properties in a map of Property
- * Name : Byte Value
- * <p>
- * And then serialising the entire map to bytes.
- */
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
-    protected final Schema schema;
+    private final Schema schema;
 
     public ElementSerialisation(final Schema schema) {
         this.schema = schema;
+    }
+
+    public byte[] getValue(final Element element) throws SerialisationException {
+        return getValue(element.getGroup(), element.getProperties());
     }
 
     public byte[] getValue(final String group, final Properties properties)
@@ -112,10 +91,6 @@ public class ElementSerialisation {
         }
 
         return out.toByteArray();
-    }
-
-    public byte[] getValue(final Element element) throws SerialisationException {
-        return getValue(element.getGroup(), element.getProperties());
     }
 
     public Properties getPropertiesFromValue(final String group, final byte[] value)
@@ -174,7 +149,7 @@ public class ElementSerialisation {
     }
 
     public Element getPartialElement(final String group, final byte[] rowId, final Map<String, String> options) throws SerialisationException {
-        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), buildColumnQualifier(group, new Properties())), options);
+        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), options);
     }
 
     public Element getElement(final Cell cell) throws SerialisationException {
@@ -190,11 +165,11 @@ public class ElementSerialisation {
         return getEdge(cell, options);
     }
 
-    public byte[] buildColumnVisibility(final Element element) throws SerialisationException {
-        return buildColumnVisibility(element.getGroup(), element.getProperties());
+    public byte[] getColumnVisibility(final Element element) throws SerialisationException {
+        return getColumnVisibility(element.getGroup(), element.getProperties());
     }
 
-    public byte[] buildColumnVisibility(final String group, final Properties properties)
+    public byte[] getColumnVisibility(final String group, final Properties properties)
             throws SerialisationException {
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
@@ -219,11 +194,11 @@ public class ElementSerialisation {
         return HBaseStoreConstants.EMPTY_BYTES;
     }
 
-    public byte[] buildColumnQualifier(final Element element) throws SerialisationException {
-        return buildColumnQualifier(element.getGroup(), element.getProperties());
+    public byte[] getColumnQualifier(final Element element) throws SerialisationException {
+        return getColumnQualifier(element.getGroup(), element.getProperties());
     }
 
-    public byte[] buildColumnQualifier(final String group, final Properties properties)
+    public byte[] getColumnQualifier(final String group, final Properties properties)
             throws SerialisationException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
@@ -238,11 +213,9 @@ public class ElementSerialisation {
             throw new SerialisationException("Failed to serialise group to ByteArrayOutputStream", e);
         }
 
-        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
-        while (propertyNames.hasNext()) {
-            String propertyName = propertyNames.next();
+        for (final String propertyName : elementDefinition.getGroupBy()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final Serialisation<Object> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
@@ -353,11 +326,11 @@ public class ElementSerialisation {
         return propertyBytes;
     }
 
-    public long buildTimestamp(final Element element) throws SerialisationException {
-        return buildTimestamp(element.getProperties());
+    public long getTimestamp(final Element element) throws SerialisationException {
+        return getTimestamp(element.getProperties());
     }
 
-    public long buildTimestamp(final Properties properties) throws SerialisationException {
+    public long getTimestamp(final Properties properties) throws SerialisationException {
         if (null != schema.getTimestampProperty()) {
             final Object property = properties.get(schema.getTimestampProperty());
             if (property == null) {
@@ -397,80 +370,17 @@ public class ElementSerialisation {
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
         try {
-            return ByteArrayEscapeUtils.escape(this.schema.getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(vertex));
         } catch (final SerialisationException e) {
-            throw new SerialisationException(
-                    "Failed to serialise given identifier object for use in the bloom filter", e);
+            throw new SerialisationException("Failed to serialise given vertex object.", e);
         }
     }
-
-    public byte[] getEntityKey(final byte[] serialisedVertex, final boolean endKey) {
-        byte[] key;
-        if (endKey) {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
-            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        } else {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
-        }
-        key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.ENTITY;
-        return key;
-    }
-
 
     public boolean isEntity(final Cell cell) throws SerialisationException {
         final byte[] row = CellUtil.cloneRow(cell);
         return row[row.length - 1] == ByteEntityPositions.ENTITY;
     }
 
-    protected boolean selfEdge(final Edge edge) {
-        return edge.getSource().equals(edge.getDestination());
-    }
-
-    protected void addPropertiesToElement(final Element element, final Cell cell)
-            throws SerialisationException {
-        element.copyProperties(
-                getPropertiesFromColumnQualifier(element.getGroup(), CellUtil.cloneQualifier(cell)));
-        element.copyProperties(
-                getPropertiesFromValue(element.getGroup(), CellUtil.cloneValue(cell)));
-        element.copyProperties(
-                getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
-    }
-
-    protected Serialisation getVertexSerialiser() {
-        return schema.getVertexSerialiser();
-    }
-
-    protected Edge getEdge(final Cell cell, final Map<String, String> options)
-            throws SerialisationException {
-        final byte[][] result = new byte[3][];
-        final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
-        final String group = getGroup(cell);
-        try {
-            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
-                    getVertexSerialiser().deserialise(result[1]), directed);
-            addPropertiesToElement(edge, cell);
-            return edge;
-        } catch (final SerialisationException e) {
-            throw new SerialisationException("Failed to re-create Edge from cell", e);
-        }
-    }
-
-    protected byte[] getSerialisedSource(final Edge edge) throws SerialisationException {
-        try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getSource()));
-        } catch (final SerialisationException e) {
-            throw new SerialisationException("Failed to serialise Edge Source", e);
-        }
-    }
-
-    protected byte[] getSerialisedDestination(final Edge edge) throws SerialisationException {
-        try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getDestination()));
-        } catch (final SerialisationException e) {
-            throw new SerialisationException("Failed to serialise Edge Destination", e);
-        }
-    }
 
     public String getGroup(final Cell cell) throws SerialisationException {
         return getGroup(CellUtil.cloneQualifier(cell));
@@ -490,17 +400,6 @@ public class ElementSerialisation {
         return Bytes.toString(Arrays.copyOfRange(columnQualifier, numBytesForLength, numBytesForLength + currentPropLength));
     }
 
-    protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
-        return !elementDef.getGroupBy().contains(propertyName)
-                && !propertyName.equals(schema.getTimestampProperty());
-    }
-
-    private void writeBytes(final byte[] bytes, final ByteArrayOutputStream out)
-            throws IOException {
-        CompactRawSerialisationUtils.write(bytes.length, out);
-        out.write(bytes);
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     public Pair<byte[]> getRowKeys(final Element element) throws SerialisationException {
         if (element instanceof Entity) {
@@ -513,7 +412,7 @@ public class ElementSerialisation {
     public byte[] getRowKey(final Entity entity) throws SerialisationException {
         byte[] value;
         try {
-            value = ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
+            value = serialiseVertex(entity.getVertex());
             final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
             returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
@@ -533,9 +432,8 @@ public class ElementSerialisation {
             directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
             directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
         }
-        final byte[] source = getSerialisedSource(edge);
-        final byte[] destination = getSerialisedDestination(edge);
-
+        final byte[] source = serialiseVertex(edge.getSource());
+        final byte[] destination = serialiseVertex(edge.getDestination());
         final int length = source.length + destination.length + 5;
         final byte[] rowKey1 = new byte[length];
         System.arraycopy(source, 0, rowKey1, 0, source.length);
@@ -545,7 +443,7 @@ public class ElementSerialisation {
         System.arraycopy(destination, 0, rowKey1, source.length + 3, destination.length);
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
-        if (selfEdge(edge)) {
+        if (edge.getSource().equals(edge.getDestination())) {
             return new Pair<>(rowKey1, null);
         }
 
@@ -562,11 +460,11 @@ public class ElementSerialisation {
 
     public Pair<Put> getPuts(final Element element) throws SerialisationException {
         final Pair<byte[]> row = getRowKeys(element);
-        final byte[] cq = buildColumnQualifier(element);
-        final long ts = buildTimestamp(element.getProperties());
+        final byte[] cq = getColumnQualifier(element);
+        final long ts = getTimestamp(element.getProperties());
 
         final byte[] value = getValue(element);
-        final String visibilityStr = Bytes.toString(buildColumnVisibility(element));
+        final String visibilityStr = Bytes.toString(getColumnVisibility(element));
         final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
         final Put put = new Put(row.getFirst());
         put.addColumn(HBaseStoreConstants.getColFam(), cq, ts, value);
@@ -587,7 +485,47 @@ public class ElementSerialisation {
         return puts;
     }
 
-    protected Entity getEntity(final Cell cell) throws SerialisationException {
+    private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
+        return !elementDef.getGroupBy().contains(propertyName)
+                && !propertyName.equals(schema.getTimestampProperty());
+    }
+
+    private void writeBytes(final byte[] bytes, final ByteArrayOutputStream out)
+            throws IOException {
+        CompactRawSerialisationUtils.write(bytes.length, out);
+        out.write(bytes);
+    }
+
+    private void addPropertiesToElement(final Element element, final Cell cell)
+            throws SerialisationException {
+        element.copyProperties(
+                getPropertiesFromColumnQualifier(element.getGroup(), CellUtil.cloneQualifier(cell)));
+        element.copyProperties(
+                getPropertiesFromValue(element.getGroup(), CellUtil.cloneValue(cell)));
+        element.copyProperties(
+                getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
+    }
+
+    private Serialisation<Object> getVertexSerialiser() {
+        return schema.getVertexSerialiser();
+    }
+
+    private Edge getEdge(final Cell cell, final Map<String, String> options)
+            throws SerialisationException {
+        final byte[][] result = new byte[3][];
+        final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
+        final String group = getGroup(cell);
+        try {
+            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
+                    getVertexSerialiser().deserialise(result[1]), directed);
+            addPropertiesToElement(edge, cell);
+            return edge;
+        } catch (final SerialisationException e) {
+            throw new SerialisationException("Failed to re-create Edge from cell", e);
+        }
+    }
+
+    private Entity getEntity(final Cell cell) throws SerialisationException {
 
         try {
             final byte[] row = CellUtil.cloneRow(cell);
@@ -670,30 +608,5 @@ public class ElementSerialisation {
         return options != null
                 && options.containsKey(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
                 && "true".equalsIgnoreCase(options.get(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
-    }
-
-    public Pair<byte[]> getEdgeOnlyKeys(final byte[] serialisedVertex) {
-        final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
-        endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
-        endKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        final byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
-        startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        startKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
-        startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        return new Pair<>(startKeyBytes, endKeyBytes);
-    }
-
-    public byte[] getEdgeKey(final byte[] serialisedVertex, final boolean endKey) {
-        byte[] key;
-        if (endKey) {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
-            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        } else {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
-        }
-        key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
-        return key;
     }
 }

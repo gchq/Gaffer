@@ -16,17 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
  * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */
-public class EdgeSeed extends ElementSeed {
+public class EdgeSeed extends ElementSeed implements EdgeId {
+    private static final long serialVersionUID = -8137886975649690000L;
     private Object source;
     private Object destination;
     private boolean directed;
@@ -40,7 +40,6 @@ public class EdgeSeed extends ElementSeed {
         this.directed = directed;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getSource() {
         return source;
     }
@@ -49,7 +48,6 @@ public class EdgeSeed extends ElementSeed {
         this.source = source;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getDestination() {
         return destination;
     }
@@ -66,51 +64,6 @@ public class EdgeSeed extends ElementSeed {
         this.directed = directed;
     }
 
-    /**
-     * This {@link EdgeSeed} is related to an
-     * {@link ElementSeed} if either the ElementSeed is equal to this EdgeSeed or it is
-     * an EntitySeed and it's identifier matches this EdgeSeed's source or destination.
-     *
-     * @param that the {@link ElementSeed} to compare
-     * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
-     */
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Entity")
-    @Override
-    public Matches isRelated(final ElementSeed that) {
-        if (that instanceof EdgeSeed) {
-            if (equals(that)) {
-                return Matches.BOTH;
-            }
-
-            return Matches.NONE;
-        }
-
-        return isRelated((EntitySeed) that);
-    }
-
-    /**
-     * This {@link EdgeSeed} is related to an
-     * {@link EntitySeed} if the EntitySeed's identifier matches this
-     * EdgeSeed's source or destination.
-     *
-     * @param that the {@link ElementSeed} to compare
-     * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
-     */
-    public Matches isRelated(final EntitySeed that) {
-        boolean matchesSource = (source == null) ? that.getVertex() == null : source.equals(that.getVertex());
-        boolean matchesDestination = (destination == null) ? that.getVertex() == null : destination.equals(that.getVertex());
-        if (matchesSource) {
-            if (matchesDestination) {
-                return Matches.BOTH;
-            }
-            return Matches.SOURCE;
-        }
-        if (matchesDestination) {
-            return Matches.DESTINATION;
-        }
-        return Matches.NONE;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         return null != obj
@@ -118,17 +71,17 @@ public class EdgeSeed extends ElementSeed {
                 && equals((EdgeSeed) obj);
     }
 
-    private boolean equals(final EdgeSeed edgeSeed) {
-        return null != edgeSeed
+    private boolean equals(final EdgeSeed that) {
+        return null != that
                 && (new EqualsBuilder()
-                .append(source, edgeSeed.getSource())
-                .append(destination, edgeSeed.getDestination())
-                .append(directed, edgeSeed.isDirected())
+                .append(directed, that.isDirected())
+                .append(source, that.getSource())
+                .append(destination, that.getDestination())
                 .isEquals()
                 || new EqualsBuilder()
-                .append(source, edgeSeed.getDestination())
-                .append(destination, edgeSeed.getSource())
                 .append(directed, false)
+                .append(source, that.getDestination())
+                .append(destination, that.getSource())
                 .isEquals()
         );
     }
@@ -154,7 +107,7 @@ public class EdgeSeed extends ElementSeed {
 
     @Override
     public String toString() {
-        return "EdgeSeed{"
+        return "EdgeId{"
                 + "source=" + source
                 + ", destination=" + destination
                 + ", directed=" + directed

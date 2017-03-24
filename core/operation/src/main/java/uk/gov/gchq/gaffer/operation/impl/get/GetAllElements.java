@@ -16,95 +16,72 @@
 
 package uk.gov.gchq.gaffer.operation.impl.get;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
- * Extends {@link GetElements}, but fetches all elements from the graph that are
+ * Extends {@link GetAllElements}, but fetches all elements from the graph that are
  * compatible with the provided view.
  * There are also various flags to filter out the elements returned.
- *
- * @param <ELEMENT_TYPE> the element return type
  */
-public class GetAllElements<ELEMENT_TYPE extends Element>
-        extends GetElements<ElementSeed, ELEMENT_TYPE> {
-    public GetAllElements() {
-        super();
-    }
+public class GetAllElements implements
+        Operation,
+        Output<CloseableIterable<? extends Element>>,
+        GraphFilters,
+        Options {
+    private View view;
+    private GraphFilters.DirectedType directedType;
+    private Map<String, String> options;
 
-    public GetAllElements(final View view) {
-        super(view);
-    }
-
-    public GetAllElements(final GetAllElements<?> operation) {
-        super(operation);
+    @Override
+    public View getView() {
+        return view;
     }
 
     @Override
-    public SeedMatchingType getSeedMatching() {
-        return SeedMatchingType.EQUAL;
+    public void setView(final View view) {
+        this.view = view;
     }
 
     @Override
-    public void setSeeds(final Iterable<ElementSeed> seeds) {
-        if (null != seeds) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
+    public GraphFilters.DirectedType getDirectedType() {
+        return directedType;
     }
 
     @Override
-    public void setSeeds(final CloseableIterable<ElementSeed> seeds) {
-        if (null != seeds) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
+    public void setDirectedType(final GraphFilters.DirectedType directedType) {
+        this.directedType = directedType;
     }
 
     @Override
-    public void setInput(final CloseableIterable<ElementSeed> input) {
-        if (null != input) {
-            throw new IllegalArgumentException("This operation does not allow seeds to be set");
-        }
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
     @Override
-    public CloseableIterable<ElementSeed> getSeeds() {
-        return null;
+    public Map<String, String> getOptions() {
+        return options;
     }
 
     @Override
-    public CloseableIterable<ElementSeed> getInput() {
-        return null;
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
     }
 
-    @Override
-    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
-        return IncludeIncomingOutgoingType.OUTGOING;
-    }
-
-    @Override
-    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType includeIncomingOutGoing) {
-        if (!IncludeIncomingOutgoingType.OUTGOING.equals(includeIncomingOutGoing)) {
-            throw new IllegalArgumentException(getClass().getSimpleName() + " does not support any direction apart from outgoing edges");
-        }
-    }
-
-    public abstract static class BaseBuilder<OP_TYPE extends GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<OP_TYPE, ELEMENT_TYPE, ?>>
-            extends GetElements.BaseBuilder<OP_TYPE, ElementSeed, ELEMENT_TYPE, CHILD_CLASS> {
-        public BaseBuilder(final OP_TYPE op) {
-            super(op);
-        }
-    }
-
-    public static final class Builder<ELEMENT_TYPE extends Element> extends BaseBuilder<GetAllElements<ELEMENT_TYPE>, ELEMENT_TYPE, Builder<ELEMENT_TYPE>> {
+    public static class Builder extends Operation.BaseBuilder<GetAllElements, Builder>
+            implements Output.Builder<GetAllElements, CloseableIterable<? extends Element>, Builder>,
+            GraphFilters.Builder<GetAllElements, Builder>,
+            Options.Builder<GetAllElements, Builder> {
         public Builder() {
-            super(new GetAllElements<ELEMENT_TYPE>());
-        }
-
-        @Override
-        protected Builder<ELEMENT_TYPE> self() {
-            return this;
+            super(new GetAllElements());
         }
     }
 }

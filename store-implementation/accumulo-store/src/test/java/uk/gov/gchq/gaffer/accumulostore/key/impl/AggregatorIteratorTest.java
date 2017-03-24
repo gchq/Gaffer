@@ -32,11 +32,12 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -134,20 +135,24 @@ public class AggregatorIteratorTest {
         edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
         final User user = new User();
-        store.execute(new AddElements(Arrays.asList((Element) edge1, edge2, edge3)), user);
+        store.execute(new AddElements.Builder()
+                .input(Arrays.asList((Element) edge1, edge2, edge3))
+                .build(), user);
 
-        final GetEdges<EntitySeed> get = new GetEdges.Builder<EntitySeed>()
-                .view(defaultView)
-                .addSeed(new EntitySeed("1"))
+        final GetElements get = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .input(new EntitySeed("1"))
                 .build();
 
         // When
-        final List<Edge> results = Lists.newArrayList(store.execute(get, user));
+        final List<Element> results = Lists.newArrayList(store.execute(get, user));
 
         // Then
         assertEquals(1, results.size());
 
-        final Edge aggregatedEdge = results.get(0);
+        final Edge aggregatedEdge = (Edge) results.get(0);
         assertEquals(expectedResult, aggregatedEdge);
         assertEquals(expectedResult.getProperties(), aggregatedEdge.getProperties());
     }

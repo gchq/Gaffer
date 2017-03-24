@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -34,12 +33,13 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.predicate.IsA;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -160,9 +160,18 @@ public class GraphConfigurationServiceTest {
     }
 
     @Test
-    public void shouldGetGenerators() throws IOException {
+    public void shouldGetElementGenerators() throws IOException {
         // When
-        final Set<Class> classes = service.getGenerators();
+        final Set<Class> classes = service.getElementGenerators();
+
+        // Then
+        assertTrue(classes.size() > 0);
+    }
+
+    @Test
+    public void shouldGetObjectGenerators() throws IOException {
+        // When
+        final Set<Class> classes = service.getObjectGenerators();
 
         // Then
         assertTrue(classes.size() > 0);

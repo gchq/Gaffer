@@ -32,7 +32,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +44,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperation(new GetAllElements<>());
+        final Response response = RestApiTestUtil.executeOperation(new GetAllElements());
 
         // Then
         final List<Element> results = response.readEntity(new GenericType<List<Element>>() {
@@ -61,7 +60,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -78,7 +77,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -92,7 +91,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain.Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build());
 
@@ -107,7 +106,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     @Test
     public void shouldReturnNoChunkedElementsWhenNoElementsInGraph() throws IOException {
         // When
-        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements<>()));
+        final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
 
         // Then
         final List<Element> results = readChunkedElements(response);
@@ -121,7 +120,9 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
         // When
         final Response response = RestApiTestUtil.executeOperationChain(new OperationChain.Builder()
-                .first(new AddElements(Collections.singleton(new Entity("wrong_group", "object"))))
+                .first(new AddElements.Builder()
+                        .input(new Entity("wrong_group", "object"))
+                        .build())
                 .build());
 
         System.out.println(response.readEntity(String.class));
@@ -155,7 +156,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                                         .get(TestGroups.ENTITY));
+                .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }

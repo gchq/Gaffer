@@ -22,29 +22,28 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation, final Context context, final Store store) throws OperationException {
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation, final User user, final HBaseStore store) throws OperationException {
-        if (null == operation.getSeeds()) {
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation, final User user, final HBaseStore store) throws OperationException {
+        if (null == operation.getInput()) {
             // If null seeds no results are returned
             return new WrappedCloseableIterable<>(Collections.emptyList());
         }
 
         try {
-            return new HBaseRetriever<>(store, operation, user, operation.getSeeds());
+            return new HBaseRetriever<>(store, operation, user, operation.getInput());
         } catch (StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

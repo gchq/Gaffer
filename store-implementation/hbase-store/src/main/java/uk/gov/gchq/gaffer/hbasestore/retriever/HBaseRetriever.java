@@ -34,14 +34,16 @@ import uk.gov.gchq.gaffer.data.AlwaysValid;
 import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
@@ -52,24 +54,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implements CloseableIterable<Element> {
+public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> implements CloseableIterable<Element> {
     private final ElementSerialisation serialisation;
     private final RowRangeFactory rowRangeFactory;
-    private final CloseableIterable<? extends ElementSeed> seeds;
+    private final Iterable<? extends ElementId> ids;
     private final HBaseStore store;
     private final Authorizations authorisations;
-    private final OP_TYPE operation;
+    private final OP operation;
     private final List<Filter> coreFilters;
     private final ElementValidator validator;
     private CloseableIterator<Element> iterator;
 
-    public HBaseRetriever(final HBaseStore store, final OP_TYPE operation, final User user, final CloseableIterable<? extends ElementSeed> seeds, final Filter... filters)
-            throws StoreException {
+    public HBaseRetriever(final HBaseStore store,
+                          final OP operation,
+                          final User user,
+                          final Iterable<? extends ElementId> ids,
+                          final Filter... filters) throws StoreException {
         this.serialisation = new ElementSerialisation(store.getSchema());
-        this.rowRangeFactory = new RowRangeFactory(store.getSchema());
+        this.rowRangeFactory = new RowRangeFactory(serialisation);
         this.store = store;
         this.operation = operation;
-        this.seeds = seeds;
+        this.ids = ids;
         this.validator = new ElementValidator(operation.getView());
         if (null != user && null != user.getDataAuths()) {
             this.authorisations = new Authorizations(
@@ -80,7 +85,6 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
 
         this.coreFilters = Collections.unmodifiableList(Lists.newArrayList(filters));
     }
-
 
     @Override
     public void close() {
@@ -108,13 +112,13 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
         Table table = null;
         try {
             final List<Filter> filters;
-            if (null != seeds) {
+            if (null != ids) {
                 final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
-                for (final ElementSeed seed : seeds) {
-                    rowRanges.addAll(rowRangeFactory.getRowRange(seed, operation));
+                for (final ElementId id : ids) {
+                    rowRanges.addAll(rowRangeFactory.getRowRange(id, operation));
                 }
 
-                // At least 1 seed is required - otherwise no results are returned
+                // At least 1 id is required - otherwise no results are returned
                 if (rowRanges.isEmpty()) {
                     return null;
                 }
@@ -149,12 +153,12 @@ public class HBaseRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implemen
      */
     private Element deserialiseAndTransform(final Cell cell) {
         try {
-            final Element element = serialisation.getElement(cell, operation.getOptions());
+            Element element = serialisation.getElement(cell, operation.getOptions());
             final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
             if (viewDef != null) {
                 final ElementTransformer transformer = viewDef.getTransformer();
                 if (transformer != null) {
-                    transformer.transform(element);
+                    element = transformer.apply(element);
                 }
             }
             return element;

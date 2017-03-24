@@ -18,10 +18,10 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
+import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AddElementsHandler implements OperationHandler<AddElements, Void> {
+public class AddElementsHandler implements OperationHandler<AddElements> {
     @Override
     public Void doOperation(final AddElements operation,
                             final Context context, final Store store)
@@ -49,7 +49,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         int batchSize = store.getProperties().getWriteBufferSize();
         try {
             final Table table = TableUtils.getTable(store);
-            final Iterator<Element> itr = addElementsOperation.getElements().iterator();
+            final Iterator<? extends Element> itr = addElementsOperation.getInput().iterator();
             while (itr.hasNext()) {
                 final List<Put> puts = new ArrayList<>(batchSize);
                 for (int i = 0; i < batchSize && itr.hasNext(); i++) {

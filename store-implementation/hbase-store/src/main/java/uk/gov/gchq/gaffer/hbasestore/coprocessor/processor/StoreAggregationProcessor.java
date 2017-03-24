@@ -47,6 +47,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
 
         final List<LazyElementCell> output = new ArrayList<>();
         ElementAggregator aggregator = null;
+        Properties aggregatedProperties = null;
         LazyElementCell firstElementCell = null;
         for (final LazyElementCell elementCell : elementCells) {
             if (elementCell.isDeleted()) {
@@ -56,7 +57,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
             } else if (!GroupComparatorUtils.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
-                completeAggregator(firstElementCell, aggregator, output);
+                completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
                 aggregator = null;
             } else {
@@ -66,21 +67,20 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
                     aggregator = schema.getElement(group).getAggregator();
                     final Properties properties = firstElementCell.getElement().getProperties();
                     properties.remove(schemaGroupBy);
-                    aggregator.aggregate(properties);
+                    aggregatedProperties = properties;
                 }
 
                 final Properties properties = elementCell.getElement().getProperties();
                 properties.remove(schemaGroupBy);
-                aggregator.aggregate(properties);
+                aggregatedProperties = aggregator.apply(properties, aggregatedProperties);
             }
         }
-        completeAggregator(firstElementCell, aggregator, output);
+        completeAggregator(firstElementCell, aggregatedProperties, output);
         return output;
     }
 
-
-    private void completeAggregator(final LazyElementCell elementCell, final ElementAggregator aggregator, final List<LazyElementCell> output) {
-        if (null == aggregator) {
+    private void completeAggregator(final LazyElementCell elementCell, final Properties aggregatedProperties, final List<LazyElementCell> output) {
+        if (null == aggregatedProperties) {
             if (null != elementCell) {
                 output.add(elementCell);
             }
@@ -88,13 +88,13 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
             try {
                 final Cell firstCell = elementCell.getCell();
                 final Element element = elementCell.getElement();
-                aggregator.state(element);
+                element.copyProperties(aggregatedProperties);
 
                 final Cell aggregatedCell = CellUtil.createCell(
                         CellUtil.cloneRow(firstCell),
                         CellUtil.cloneFamily(firstCell),
                         CellUtil.cloneQualifier(firstCell),
-                        serialisation.buildTimestamp(element),
+                        serialisation.getTimestamp(element),
                         firstCell.getTypeByte(),
                         serialisation.getValue(element),
                         CellUtil.getTagArray(firstCell),

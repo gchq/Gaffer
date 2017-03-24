@@ -52,7 +52,7 @@ public class MapGeneratorTest {
                 .build();
 
         // When
-        final Map<String, Object> map = generator.getObject(element);
+        final Map<String, Object> map = generator._apply(element);
 
         // Then
 
@@ -83,7 +83,7 @@ public class MapGeneratorTest {
                 .build();
 
         // When
-        final Map<String, Object> map = generator.getObject(element);
+        final Map<String, Object> map = generator._apply(element);
 
         // Then
 
@@ -108,7 +108,7 @@ public class MapGeneratorTest {
         final MapGenerator generator = new MapGenerator();
 
         // When
-        final Map<String, Object> map = generator.getObject(element);
+        final Map<String, Object> map = generator._apply(element);
 
         // Then
 

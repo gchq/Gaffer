@@ -30,7 +30,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
+public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
 

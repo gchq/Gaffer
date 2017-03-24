@@ -15,45 +15,16 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * An <code>Max</code> is a {@link uk.gov.gchq.gaffer.function.SimpleAggregateFunction} that takes in
- * {@link Number}s of the same type and calculates the maximum.
- * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
- * otherwise it will be automatically set for you using the class of the first number passed in.
- *
- * @see NumericAggregateFunction
+ * An <code>Max</code> is a {@link KorypheBinaryOperator} that takes in
+ * {@link Comparable}s and calculates the maximum comparable. It assumes that all the input comparables
+ * are compatible and can be compared against each other.
  */
-@Inputs(Number.class)
-@Outputs(Number.class)
-public class Max extends NumericAggregateFunction {
+public class Max extends KorypheBinaryOperator<Comparable> {
     @Override
-    protected void aggregateInt(final Integer input) {
-        if (input > (Integer) aggregate) {
-            aggregate = input;
-        }
-    }
-
-    @Override
-    protected void aggregateLong(final Long input) {
-        if (input > (Long) aggregate) {
-            aggregate = input;
-        }
-    }
-
-    @Override
-    protected void aggregateDouble(final Double input) {
-        if (input > (Double) aggregate) {
-            aggregate = input;
-        }
-    }
-
-    public Max statelessClone() {
-        Max max = new Max();
-        max.setMode(super.getMode());
-        max.init();
-        return max;
+    protected Comparable _apply(final Comparable a, final Comparable b) {
+        return a.compareTo(b) >= 0 ? a : b;
     }
 }

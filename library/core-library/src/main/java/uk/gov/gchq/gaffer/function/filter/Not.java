@@ -13,55 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.function.filter;
 
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.FilterFunction;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
+import java.util.function.Predicate;
 
 /**
- * An <code>Not</code> is a {@link FilterFunction} that wraps a {@link FilterFunction},
- * and inverts the result from the wrapped function.
+ * A {@link Predicate} that returns the inverse of the wrapped function.
  *
- * @see uk.gov.gchq.gaffer.function.aggregate.NumericAggregateFunction
+ * @param <I> Type of input to be validated
  */
-public class Not extends FilterFunction {
-    private FilterFunction function;
+public final class Not<I> extends KoryphePredicate<I> {
+    private Predicate<I> function;
 
     public Not() {
     }
 
-    public Not(final FilterFunction function) {
+    public Not(final Predicate<I> function) {
+        setFunction(function);
+    }
+
+    public void setFunction(final Predicate<I> function) {
         this.function = function;
     }
 
-    @Override
-    public Not statelessClone() {
-        return new Not(function.statelessClone());
-    }
-
-    @Override
-    public Class<?>[] getInputClasses() {
-        return function.getInputClasses();
-    }
-
-    /**
-     * @param input the input to test
-     * @return the inverted result from the wrapped filter function.
-     */
-    @Override
-    public boolean isValid(final Object[] input) {
-        return null == function || !function.isValid(input);
-
-    }
-
-    public FilterFunction getFunction() {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    public Predicate<I> getFunction() {
         return function;
     }
 
-    public void setFunction(final FilterFunction function) {
-        this.function = function;
+    @Override
+    public boolean test(final I input) {
+        return null != function && !function.test(input);
     }
 
     @Override
@@ -70,14 +58,12 @@ public class Not extends FilterFunction {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final Not not = (Not) o;
-
         return new EqualsBuilder()
-                .append(inputs, not.inputs)
                 .append(function, not.function)
                 .isEquals();
     }
@@ -85,16 +71,7 @@ public class Not extends FilterFunction {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(function)
                 .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("function", function)
-                .toString();
     }
 }

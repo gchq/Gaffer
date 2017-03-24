@@ -26,10 +26,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DataGenerator13 extends OneToManyElementGenerator<String> {
+public class DataGenerator13 implements OneToManyElementGenerator<String> {
 
     @Override
-    public Iterable<Element> getElements(final String line) {
+    public Iterable<Element> _apply(final String line) {
         final Set<Element> elements = new HashSet<>();
         // On day 10/1/17 there are 1000 edges A-B0, A-B1, ..., A-B999.
         // For each edge we create an Entity with a union sketch containing the source and destination from the edge
@@ -81,10 +81,4 @@ public class DataGenerator13 extends OneToManyElementGenerator<String> {
         }
         return elements;
     }
-
-    @Override
-    public Iterable<String> getObjects(final Iterable<Element> elements) {
-        throw new UnsupportedOperationException();
-    }
-
 }

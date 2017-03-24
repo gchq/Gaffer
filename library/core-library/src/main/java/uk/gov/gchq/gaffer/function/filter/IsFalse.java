@@ -15,21 +15,15 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>IsFalse</code> is a {@link SimpleFilterFunction} that checks that the input boolean is
+ * An <code>IsFalse</code> is a {@link java.util.function.Predicate} that checks that the input boolean is
  * false.
  */
-@Inputs(Boolean.class)
-public class IsFalse extends SimpleFilterFunction<Boolean> {
-    public IsFalse statelessClone() {
-        return new IsFalse();
-    }
-
+public class IsFalse extends KoryphePredicate<Boolean> {
     @Override
-    public boolean isValid(final Boolean input) {
-        return null != input && Boolean.FALSE.equals(input);
+    public boolean test(final Boolean input) {
+        return Boolean.FALSE.equals(input);
     }
 }

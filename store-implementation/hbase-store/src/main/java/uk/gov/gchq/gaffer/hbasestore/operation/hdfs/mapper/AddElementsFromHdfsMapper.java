@@ -17,9 +17,9 @@ package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
 import java.io.IOException;
 

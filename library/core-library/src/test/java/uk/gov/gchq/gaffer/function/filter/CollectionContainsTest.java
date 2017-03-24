@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,10 +29,9 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class CollectionContainsTest extends FilterFunctionTest {
+public class CollectionContainsTest extends PredicateTest {
     private static final String VALUE1 = "value1";
     private static final String VALUE2 = "value2";
 
@@ -51,7 +50,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(list);
+        boolean accepted = filter.test(list);
 
         // Then
         assertTrue(accepted);
@@ -63,7 +62,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(set);
+        boolean accepted = filter.test(set);
 
         // Then
         assertTrue(accepted);
@@ -75,7 +74,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE2);
 
         // When
-        boolean accepted = filter.isValid(list);
+        boolean accepted = filter.test(list);
 
         // Then
         assertFalse(accepted);
@@ -87,7 +86,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE2);
 
         // When
-        boolean accepted = filter.isValid(set);
+        boolean accepted = filter.test(set);
 
         // Then
         assertFalse(accepted);
@@ -99,7 +98,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(new ArrayList<>());
+        boolean accepted = filter.test(new ArrayList<>());
 
         // Then
         assertFalse(accepted);
@@ -111,23 +110,10 @@ public class CollectionContainsTest extends FilterFunctionTest {
         final CollectionContains filter = new CollectionContains(VALUE1);
 
         // When
-        boolean accepted = filter.isValid(new HashSet<>());
+        boolean accepted = filter.test(new HashSet<>());
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final CollectionContains filter = new CollectionContains(VALUE1);
-
-        // When
-        final CollectionContains clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(VALUE1, clonedFilter.getValue());
     }
 
     @Test
@@ -154,7 +140,7 @@ public class CollectionContainsTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<CollectionContains> getFunctionClass() {
+    protected Class<CollectionContains> getPredicateClass() {
         return CollectionContains.class;
     }
 

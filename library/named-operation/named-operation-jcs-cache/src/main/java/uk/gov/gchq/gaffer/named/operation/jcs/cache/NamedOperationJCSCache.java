@@ -22,8 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.AbstractNamedOperationCache;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.user.User;
@@ -32,7 +31,7 @@ import java.util.Set;
 
 /**
  * Implementation of {@link uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache} that uses an Apache JCS
- * Cache to store {@link ExtendedNamedOperation}s. This cache is configured using the cache.ccf file.
+ * Cache to store {@link NamedOperationDetail}s. This cache is configured using the cache.ccf file.
  */
 public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     public static final String REGION = "namedOperationsRegion";
@@ -42,22 +41,22 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     private String configPath;
 
     /**
-     * Adds a ExtendedNamedOperation to the cache. If the name or ExtendedNamedOperation is null then a {@link CacheOperationFailedException}
+     * Adds a NamedOperationDetail to the cache. If the name or NamedOperationDetail is null then a {@link CacheOperationFailedException}
      * will be thrown. If the function is called with the overwrite flag set to false then the operation will fail if
-     * a ExtendedNamedOperation already exists with the given name.
+     * a NamedOperationDetail already exists with the given name.
      *
-     * @param name           The name/key to store the ExtendedNamedOperation against
-     * @param namedOperation The ExtendedNamedOperation to be stored
-     * @param overwrite      Whether or not to overwrite an existing ExtendedNamedOperation
+     * @param name           The name/key to store the NamedOperationDetail against
+     * @param namedOperation The NamedOperationDetail to be stored
+     * @param overwrite      Whether or not to overwrite an existing NamedOperationDetail
      * @throws CacheOperationFailedException thrown if the operation fails
      */
-    public void addToCache(final String name, final ExtendedNamedOperation namedOperation, final boolean overwrite) throws CacheOperationFailedException {
+    public void addToCache(final String name, final NamedOperationDetail namedOperation, final boolean overwrite) throws CacheOperationFailedException {
         if (name == null) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
         try {
             if (!overwrite && getCache().getFromGroup(name, CACHE_GROUP) != null) {
-                throw new CacheOperationFailedException("ExtendedNamedOperation with name " + name + " already exists");
+                throw new CacheOperationFailedException("NamedOperationDetail with name " + name + " already exists");
             }
             getCache().putInGroup(name, CACHE_GROUP, namedOperation);
 
@@ -83,28 +82,22 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
 
 
     /**
-     * Gets all the keys from the cache and iterates through each ExtendedNamedOperation stored in the cache. Assuming
+     * Gets all the keys from the cache and iterates through each NamedOperationDetail stored in the cache. Assuming
      * the user has read permission (therefore can execute the NamedOperation) it either adds a NamedOperation or
-     * ExtendedNamedOperation to a set, depending on the simple flag which would ordinarily be set to true.
+     * NamedOperationDetail to a set, depending on the simple flag which would ordinarily be set to true.
      *
-     * @param user   The user making the request
-     * @param simple flag determining whether to return a set of NamedOperations with a basic name and description or
-     *               the full ExtendedNamedOperation with details of the opChain, and access controls
+     * @param user The user making the request
      * @return a set of NamedOperations
      */
     @Override
-    public CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {
         Set keys = getCache().getGroupKeys(CACHE_GROUP);
-        Set<NamedOperation> executables = new HashSet<>();
+        Set<NamedOperationDetail> executables = new HashSet<>();
         for (final Object key : keys) {
             try {
-                ExtendedNamedOperation op = getFromCache((String) key);
+                NamedOperationDetail op = getFromCache((String) key);
                 if (op.hasReadAccess(user)) {
-                    if (simple) {
-                        executables.add(op.getBasic());
-                    } else {
-                        executables.add(op);
-                    }
+                    executables.add(op);
                 }
             } catch (CacheOperationFailedException e) {
                 LOGGER.error(e.getMessage(), e);
@@ -117,24 +110,24 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
 
     /**
      * Checks the supplied name is not null, an Object exists with this name in the cache, that Object is not null and
-     * is an instance of ExtendedNamedOperation. If all these conditions are met, the ExtendedNamedOperation is returned, if any are not
+     * is an instance of NamedOperationDetail. If all these conditions are met, the NamedOperationDetail is returned, if any are not
      * met then an exception is thrown.
      *
      * @param name the key stored in the cache
-     * @return a ExtendedNamedOperation stored against the key
+     * @return a NamedOperationDetail stored against the key
      * @throws CacheOperationFailedException thrown when the operation fails
      */
-    public ExtendedNamedOperation getFromCache(final String name) throws CacheOperationFailedException {
+    public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
         if (name == null) {
             throw new CacheOperationFailedException("Operation name cannot be null");
         }
-        ExtendedNamedOperation namedOperation;
+        NamedOperationDetail namedOperation;
         Object obj = getCache().getFromGroup(name, CACHE_GROUP);
-        if (obj != null && obj.getClass().equals(ExtendedNamedOperation.class)) {
-            namedOperation = (ExtendedNamedOperation) obj;
+        if (obj != null && obj.getClass().equals(NamedOperationDetail.class)) {
+            namedOperation = (NamedOperationDetail) obj;
             return namedOperation;
         }
-        throw new CacheOperationFailedException("No ExtendedNamedOperation with a name '" + name + "' could be found in the cache");
+        throw new CacheOperationFailedException("No NamedOperationDetail with a name '" + name + "' could be found in the cache");
     }
 
     /**

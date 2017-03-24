@@ -18,17 +18,19 @@ package uk.gov.gchq.gaffer.hbasestore.retriever;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.Pair;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,53 +40,174 @@ import java.util.List;
 import static org.apache.hadoop.hbase.filter.MultiRowRangeFilter.RowRange;
 
 public class RowRangeFactory {
-
-    private final Schema schema;
+    private final ElementSerialisation serialiser;
 
     public RowRangeFactory(final Schema schema) {
-        this.schema = schema;
+        this(new ElementSerialisation(schema));
+    }
+
+    public RowRangeFactory(final ElementSerialisation serialiser) {
+        this.serialiser = serialiser;
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
-    public <T extends GetElementsOperation<?, ?>> List<RowRange> getRowRange(final ElementSeed elementSeed, final T operation) throws SerialisationException {
-        if (elementSeed instanceof EntitySeed) {
-            if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching()) && !operation.isIncludeEntities()) {
-                throw new IllegalArgumentException(
-                        "When doing querying by ID, you should only provide an EntitySeed seed if you also set includeEntities flag to true");
-            }
-            return getRowRange(((EntitySeed) elementSeed).getVertex(), operation, operation.getIncludeEdges());
+    public List<RowRange> getRowRange(final ElementId elementId, final GraphFilters operation)
+            throws SerialisationException {
+        if (elementId instanceof EntityId) {
+            return getRowRange(((EntityId) elementId).getVertex(), operation, operation.getView().hasEdges());
         } else {
-            if (!operation.isIncludeEntities() && IncludeEdgeType.NONE == operation.getIncludeEdges()) {
-                throw new IllegalArgumentException("Need to get either Entities and/or Edges when getting Elements");
-            }
-
-            final EdgeSeed edgeSeed = (EdgeSeed) elementSeed;
+            final EdgeId edgeId = (EdgeId) elementId;
             final List<RowRange> ranges = new ArrayList<>();
-            if (IncludeEdgeType.ALL == operation.getIncludeEdges()
-                    || (IncludeEdgeType.DIRECTED == operation.getIncludeEdges() && edgeSeed.isDirected())
-                    || (IncludeEdgeType.UNDIRECTED == operation.getIncludeEdges() && !edgeSeed.isDirected())) {
+            if (operation.getView().hasEdges()
+                    && (null == operation.getDirectedType()
+                    || DirectedType.BOTH == operation.getDirectedType()
+                    || (DirectedType.DIRECTED == operation.getDirectedType() && edgeId.isDirected())
+                    || (DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeId.isDirected()))) {
                 // Get Edges with the given EdgeSeed - This is applicable for
                 // EQUALS and RELATED seed matching.
-                ranges.add(new RowRange(getKeyFromEdgeSeed(edgeSeed, operation, false), true,
-                        getKeyFromEdgeSeed(edgeSeed, operation, true), true));
+                ranges.add(new RowRange(
+                        getEdgeRowId(edgeId, false), true,
+                        getEdgeRowId(edgeId, true), true
+                ));
             }
-            if (SeedMatchingType.RELATED.equals(operation.getSeedMatching()) && operation.isIncludeEntities()) {
-                // Get Entities related to EdgeSeeds
-                ranges.addAll(getRowRange(edgeSeed.getSource(), operation, IncludeEdgeType.NONE));
-                ranges.addAll(getRowRange(edgeSeed.getDestination(), operation, IncludeEdgeType.NONE));
+
+            // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
+            final boolean doRelated = !(operation instanceof SeedMatching)
+                    || !SeedMatching.SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
+            if (doRelated && operation.getView().hasEntities()) {
+                // Get Entities related to EdgeIds
+                ranges.addAll(getRowRange(edgeId.getSource(), operation, false));
+                ranges.addAll(getRowRange(edgeId.getDestination(), operation, false));
             }
 
             return ranges;
         }
     }
 
-    private <T extends GetElementsOperation<?, ?>> byte[] getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                             final boolean endKey) throws SerialisationException {
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
-        final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
+    private List<RowRange> getRowRange(final Object vertex, final GraphFilters operation,
+                                       final boolean includeEdgesParam) throws SerialisationException {
+
+        final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
+        final DirectedType directedType = operation.getDirectedType();
+        final boolean includeEdges;
+        final boolean includeEntities;
+        final boolean seedEqual = (operation instanceof SeedMatching)
+                && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
+        if (seedEqual) {
+            includeEdges = false;
+            includeEntities = true;
+        } else {
+            includeEdges = includeEdgesParam;
+            includeEntities = operation.getView().hasEntities();
+        }
+
+        byte[] serialisedVertex = serialiser.serialiseVertex(vertex);
+
+        if (!includeEntities && !includeEdges) {
+            throw new IllegalArgumentException("Need to include either Entities or Edges or both when getting RowRange");
+        }
+
+        if (!includeEdges) {
+            // return only entities
+            return Collections.singletonList(
+                    new RowRange(getEntityRowId(serialisedVertex, false), true, getEntityRowId(serialisedVertex, true), true));
+        } else {
+            if (includeEntities) {
+                if (directedType == DirectedType.DIRECTED) {
+                    // return onlyDirectedEdges and entities
+                    if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
+                        return Arrays.asList(
+                                new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                        getEntityRowId(serialisedVertex, true), true),
+                                new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                                        getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                    } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
+                        return Collections.singletonList(new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true));
+                    } else {
+                        return Collections.singletonList(new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), false));
+                    }
+                } else if (directedType == DirectedType.UNDIRECTED) {
+                    // return only undirectedEdges and entities
+                    // Entity only range and undirected only range
+                    return Arrays.asList(
+                            new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
+                                    getUndirectedEdgeRowId(serialisedVertex, true), true),
+                            new RowRange(getEntityRowId(serialisedVertex, false), true, getEntityRowId(serialisedVertex, true),
+                                    true));
+                } else {
+                    // Return everything
+                    if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
+                        return Arrays.asList(
+                                new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                        getEntityRowId(serialisedVertex, true), true),
+                                new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                                        getUndirectedEdgeRowId(serialisedVertex, true), true));
+                    } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
+                        return Arrays.asList(
+                                new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                        getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true),
+                                new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
+                                        getUndirectedEdgeRowId(serialisedVertex, true), true));
+                    } else {
+                        return Collections.singletonList(new RowRange(getEntityRowId(serialisedVertex, false), true,
+                                getUndirectedEdgeRowId(serialisedVertex, true), true));
+                    }
+                }
+            } else if (directedType == DirectedType.DIRECTED) {
+                if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
+                    return Collections
+                            .singletonList(new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                                    getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
+                    return Collections.singletonList(new RowRange(getDirectedEdgeRowIdSourceFirst(serialisedVertex, false),
+                            true, getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true));
+                } else {
+                    return Collections.singletonList(new RowRange(getDirectedEdgeRowIdSourceFirst(serialisedVertex, false),
+                            true, getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                }
+            } else if (directedType == DirectedType.UNDIRECTED) {
+                return Collections.singletonList(new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
+                        getUndirectedEdgeRowId(serialisedVertex, true), true));
+            } else {
+                // return all edges
+                if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
+                    return Collections
+                            .singletonList(new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                                    getUndirectedEdgeRowId(serialisedVertex, true), true));
+                } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
+                    return Arrays.asList(
+                            new RowRange(getDirectedEdgeRowIdSourceFirst(serialisedVertex, false), true,
+                                    getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true),
+                            new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
+                                    getUndirectedEdgeRowId(serialisedVertex, true), true));
+                } else {
+                    final Pair<byte[]> keys = getAllEdgeOnlyRowIds(serialisedVertex);
+                    return Collections.singletonList(new RowRange(keys.getFirst(), false, keys.getSecond(), false));
+                }
+            }
+        }
+    }
+
+    private byte[] getEntityRowId(final byte[] serialisedVertex, final boolean endKey) {
+        byte[] key;
+        if (endKey) {
+            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
+            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
+        } else {
+            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
+        }
+        key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
+        key[serialisedVertex.length + 1] = ByteEntityPositions.ENTITY;
+        return key;
+    }
+
+    private byte[] getEdgeRowId(final EdgeId edgeId, final boolean endKey) throws SerialisationException {
+        final byte directionFlag1 = edgeId.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
-        byte[] sourceValue = ByteArrayEscapeUtils.escape((vertexSerialiser.serialise(seed.getSource())));
-        byte[] destinationValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getDestination()));
+        byte[] sourceValue = serialiser.serialiseVertex(edgeId.getSource());
+        byte[] destinationValue = serialiser.serialiseVertex(edgeId.getDestination());
         int length;
         byte[] key;
         if (endKey) {
@@ -107,122 +230,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private <T extends GetElementsOperation<?, ?>> List<RowRange> getRowRange(final Object vertex, final T operation,
-                                                                              final IncludeEdgeType includeEdgesParam) throws SerialisationException {
-        final IncludeIncomingOutgoingType inOutType = operation.getIncludeIncomingOutGoing();
-        final IncludeEdgeType includeEdges;
-        final boolean includeEntities;
-        if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching())) {
-            includeEdges = IncludeEdgeType.NONE;
-            includeEntities = true;
-        } else {
-            includeEdges = includeEdgesParam;
-            includeEntities = operation.isIncludeEntities();
-        }
-
-        byte[] serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
-
-        if (!includeEntities && includeEdges == IncludeEdgeType.NONE) {
-            throw new IllegalArgumentException("Need to include either Entities or Edges or both when getting RowRange");
-        }
-
-        if (includeEdges == IncludeEdgeType.NONE) {
-            // return only entities
-            return Collections.singletonList(
-                    new RowRange(getEntityKey(serialisedVertex, false), true, getEntityKey(serialisedVertex, true), true));
-        } else {
-            if (includeEntities) {
-                if (includeEdges == IncludeEdgeType.DIRECTED) {
-                    // return onlyDirectedEdges and entities
-                    if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
-                        return Arrays.asList(
-                                new RowRange(getEntityKey(serialisedVertex, false), true,
-                                        getEntityKey(serialisedVertex, true), true),
-                                new RowRange(getDirectedEdgeKeyDestinationFirst(serialisedVertex, false), true,
-                                        getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), true));
-                    } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
-                        return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), true,
-                                getDirectedEdgeKeySourceFirst(serialisedVertex, true), true));
-                    } else {
-                        return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), true,
-                                getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), false));
-                    }
-                } else if (includeEdges == IncludeEdgeType.UNDIRECTED) {
-                    // return only undirectedEdges and entities
-                    // Entity only range and undirected only range
-                    return Arrays.asList(
-                            new RowRange(getUnDirectedEdgeKey(serialisedVertex, false), true,
-                                    getUnDirectedEdgeKey(serialisedVertex, true), true),
-                            new RowRange(getEntityKey(serialisedVertex, false), true, getEntityKey(serialisedVertex, true),
-                                    true));
-                } else {
-                    // Return everything
-                    if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
-                        return Arrays.asList(
-                                new RowRange(getEntityKey(serialisedVertex, false), true,
-                                        getEntityKey(serialisedVertex, true), true),
-                                new RowRange(getDirectedEdgeKeyDestinationFirst(serialisedVertex, false), true,
-                                        getUnDirectedEdgeKey(serialisedVertex, true), true));
-                    } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
-                        return Arrays.asList(
-                                new RowRange(getEntityKey(serialisedVertex, false), true,
-                                        getDirectedEdgeKeySourceFirst(serialisedVertex, true), true),
-                                new RowRange(getUnDirectedEdgeKey(serialisedVertex, false), true,
-                                        getUnDirectedEdgeKey(serialisedVertex, true), true));
-                    } else {
-                        return Collections.singletonList(new RowRange(getEntityKey(serialisedVertex, false), true,
-                                getUnDirectedEdgeKey(serialisedVertex, true), true));
-                    }
-                }
-            } else if (includeEdges == IncludeEdgeType.DIRECTED) {
-                if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
-                    return Collections
-                            .singletonList(new RowRange(getDirectedEdgeKeyDestinationFirst(serialisedVertex, false), true,
-                                    getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), true));
-                } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
-                    return Collections.singletonList(new RowRange(getDirectedEdgeKeySourceFirst(serialisedVertex, false),
-                            true, getDirectedEdgeKeySourceFirst(serialisedVertex, true), true));
-                } else {
-                    return Collections.singletonList(new RowRange(getDirectedEdgeKeySourceFirst(serialisedVertex, false),
-                            true, getDirectedEdgeKeyDestinationFirst(serialisedVertex, true), true));
-                }
-            } else if (includeEdges == IncludeEdgeType.UNDIRECTED) {
-                return Collections.singletonList(new RowRange(getUnDirectedEdgeKey(serialisedVertex, false), true,
-                        getUnDirectedEdgeKey(serialisedVertex, true), true));
-            } else {
-                // return all edges
-                if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
-                    return Collections
-                            .singletonList(new RowRange(getDirectedEdgeKeyDestinationFirst(serialisedVertex, false), true,
-                                    getUnDirectedEdgeKey(serialisedVertex, true), true));
-                } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
-                    return Arrays.asList(
-                            new RowRange(getDirectedEdgeKeySourceFirst(serialisedVertex, false), true,
-                                    getDirectedEdgeKeySourceFirst(serialisedVertex, true), true),
-                            new RowRange(getUnDirectedEdgeKey(serialisedVertex, false), true,
-                                    getUnDirectedEdgeKey(serialisedVertex, true), true));
-                } else {
-                    final Pair<byte[]> keys = getAllEdgeOnlyKeys(serialisedVertex);
-                    return Collections.singletonList(new RowRange(keys.getFirst(), false, keys.getSecond(), false));
-                }
-            }
-        }
-    }
-
-    private byte[] getEntityKey(final byte[] serialisedVertex, final boolean endKey) {
-        byte[] key;
-        if (endKey) {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
-            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        } else {
-            key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
-        }
-        key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.ENTITY;
-        return key;
-    }
-
-    private byte[] getDirectedEdgeKeyDestinationFirst(final byte[] serialisedVertex, final boolean endKey) {
+    private byte[] getDirectedEdgeRowIdDestinationFirst(final byte[] serialisedVertex, final boolean endKey) {
         byte[] key;
         if (endKey) {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
@@ -235,7 +243,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private byte[] getDirectedEdgeKeySourceFirst(final byte[] serialisedVertex, final boolean endKey) {
+    private byte[] getDirectedEdgeRowIdSourceFirst(final byte[] serialisedVertex, final boolean endKey) {
         byte[] key;
         if (endKey) {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
@@ -248,7 +256,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private byte[] getUnDirectedEdgeKey(final byte[] serialisedVertex, final boolean endKey) {
+    private byte[] getUndirectedEdgeRowId(final byte[] serialisedVertex, final boolean endKey) {
         byte[] key;
         if (endKey) {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
@@ -261,7 +269,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private Pair<byte[]> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
+    private Pair<byte[]> getAllEdgeOnlyRowIds(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;

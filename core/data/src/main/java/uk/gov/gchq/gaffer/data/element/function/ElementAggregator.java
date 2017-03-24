@@ -16,139 +16,79 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.PropertiesTuple;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.processor.Aggregator;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunctionComposite;
+import java.util.function.BiFunction;
 
-/**
- * Element Aggregator - for aggregating {@link uk.gov.gchq.gaffer.data.element.Element}s.
- * When Elements are aggregated it is only the Element {@link uk.gov.gchq.gaffer.data.element.Properties} that are aggregated.
- * Aggregation requires elements to have the same identifiers and group.
- * <p>
- * Use {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator.
- * <p>
- * To use this aggregator:
- * <ul>
- * <li>Use {@link uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder} to build an ElementAggregator</li>
- * <li>first group Elements with the same identifiers and group together</li>
- * <li>call initFunctions()</li>
- * <li>for each element in the group call aggregate(element)</li>
- * <li>create a new element then call state(newElement) to populate the new element with the aggregated properties</li>
- * </ul>
- *
- * @see uk.gov.gchq.gaffer.data.element.function.ElementAggregator.Builder
- * @see uk.gov.gchq.gaffer.function.processor.Aggregator
- */
-public class ElementAggregator extends Aggregator<String> {
+public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
+    private final PropertiesTuple stateTuple = new PropertiesTuple();
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
      * Aggregation requires elements to have the same identifiers and group.
      *
-     * @param element the element to be aggregated.
+     * @param element the element to aggregated
+     * @param state   the other element to aggregate. This is normally the 'state' where the aggregated results will be set.
+     * @return Element - the aggregated element
      */
-    public void aggregate(final Element element) {
-        aggregate(element.getProperties());
-    }
-
-    public void aggregate(final Properties properties) {
-        propertiesTuple.setProperties(properties);
-        super.aggregate(propertiesTuple);
-    }
-
-    /**
-     * Calls state on the element. Note - state is actually only called on the element properties.
-     * Aggregation requires elements to have the same identifiers and group.
-     *
-     * @param element the element to be aggregated.
-     */
-    public void state(final Element element) {
-        state(element.getProperties());
-    }
-
-    public void state(final Properties properties) {
-        propertiesTuple.setProperties(properties);
-        super.state(propertiesTuple);
-    }
-
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
-    @Override
-    public ElementAggregator clone() {
-        final ElementAggregator clone = new ElementAggregator();
-        clone.addFunctions(super.cloneFunctions());
-
-        return clone;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+    public Element apply(final Element element, final Element state) {
+        if (null == state) {
+            return element;
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        apply(element.getProperties(), state.getProperties());
+        return state;
+    }
+
+    public Properties apply(final Properties properties, final Properties state) {
+        if (null == state) {
+            return properties;
         }
 
-        final ElementAggregator that = (ElementAggregator) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(functions, that.functions)
-                .append(initialised, that.initialised)
-                .append(propertiesTuple, that.propertiesTuple)
-                .isEquals();
+        propertiesTuple.setProperties(properties);
+        stateTuple.setProperties(state);
+        apply(propertiesTuple, stateTuple);
+        return state;
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(functions)
-                .append(initialised)
-                .append(propertiesTuple)
-                .toHashCode();
-    }
+    public static class Builder {
+        private final ElementAggregator aggregator;
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("functions", functions)
-                .append("initialised", initialised)
-                .append("propertiesTuple", propertiesTuple)
-                .toString();
-    }
-
-    /**
-     * Builder for {@link ElementAggregator}.
-     */
-    public static class Builder extends Aggregator.Builder<String> {
         public Builder() {
             this(new ElementAggregator());
         }
 
-        public Builder(final ElementAggregator aggregator) {
-            super(aggregator);
+        private Builder(final ElementAggregator aggregator) {
+            this.aggregator = aggregator;
         }
 
-        public Builder select(final String... selection) {
-            return (Builder) super.select(selection);
-        }
-
-        public Builder execute(final AggregateFunction function) {
-            return (Builder) super.execute(function);
+        public SelectedBuilder select(final String... selection) {
+            final TupleAdaptedBiFunction<String, Object, Object> current = new TupleAdaptedBiFunction<>();
+            current.setSelection(selection);
+            return new SelectedBuilder(aggregator, current);
         }
 
         public ElementAggregator build() {
-            return (ElementAggregator) super.build();
+            return aggregator;
+        }
+    }
+
+    public static final class SelectedBuilder {
+        private final ElementAggregator aggregator;
+        private final TupleAdaptedBiFunction<String, Object, Object> current;
+
+        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBiFunction<String, Object, Object> current) {
+            this.aggregator = aggregator;
+            this.current = current;
+        }
+
+        public Builder execute(final BiFunction function) {
+            current.setFunction(function);
+            aggregator.getFunctions().add(current);
+            return new Builder(aggregator);
         }
     }
 }

@@ -34,55 +34,19 @@ public final class GroupComparatorUtils {
                 && GroupComparatorUtils.compareTags(left, right) == 0;
     }
 
-    public static int compareRow(final byte[] left, final Cell right) {
-        return Bytes.BYTES_RAWCOMPARATOR.compare(left, 0, left.length, right.getRowArray(), right.getRowOffset(), right.getRowLength());
-    }
-
     public static int compareRow(final Cell left, final Cell right) {
         return Bytes.BYTES_RAWCOMPARATOR.compare(left.getRowArray(), left.getRowOffset(), left.getRowLength(), right.getRowArray(), right.getRowOffset(), right.getRowLength());
-    }
-
-    public static int compareFamily(final byte[] left, final Cell right) {
-        return Bytes.BYTES_RAWCOMPARATOR.compare(left, 0, left.length, right.getFamilyArray(), right.getFamilyOffset(), right.getFamilyLength());
     }
 
     public static int compareFamily(final Cell left, final Cell right) {
         return Bytes.BYTES_RAWCOMPARATOR.compare(left.getFamilyArray(), left.getFamilyOffset(), left.getFamilyLength(), right.getFamilyArray(), right.getFamilyOffset(), right.getFamilyLength());
     }
 
-    public static int compareQualifier(final byte[] left, final Cell right) {
-        return Bytes.BYTES_RAWCOMPARATOR.compare(left, 0, left.length, right.getQualifierArray(), right.getQualifierOffset(), right.getQualifierLength());
-    }
-
     public static int compareQualifier(final Cell left, final Cell right) {
         return Bytes.BYTES_RAWCOMPARATOR.compare(left.getQualifierArray(), left.getQualifierOffset(), left.getQualifierLength(), right.getQualifierArray(), right.getQualifierOffset(), right.getQualifierLength());
     }
 
-    public static int compareTimestamp(final Cell left, final Cell right) {
-        // The below older timestamps sorting ahead of newer timestamps looks
-        // wrong but it is intentional. This is how HBase stores cells so that
-        // the newest cells are found first.
-        if (left.getTimestamp() < right.getTimestamp()) {
-            return 1;
-        } else if (left.getTimestamp() > right.getTimestamp()) {
-            return -1;
-        }
-        return 0;
-    }
-
-    public static int compareTags(final byte[] left, final Cell right) {
-        return Bytes.BYTES_RAWCOMPARATOR.compare(left, 0, left.length, right.getTagsArray(), right.getTagsOffset(), right.getTagsLength());
-    }
-
     public static int compareTags(final Cell left, final Cell right) {
         return Bytes.BYTES_RAWCOMPARATOR.compare(left.getTagsArray(), left.getTagsOffset(), left.getTagsLength(), right.getTagsArray(), right.getTagsOffset(), right.getTagsLength());
-    }
-
-    public static int compareTypeByte(final Cell left, final Cell right) {
-        return (0xff & left.getTypeByte()) - (0xff & right.getTypeByte());
-    }
-
-    public static int compareTypeByte(final byte left, final Cell right) {
-        return (0xff & left) - (0xff & right.getTypeByte());
     }
 }

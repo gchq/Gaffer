@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -97,11 +99,24 @@ public final class Graph {
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
-     * @param <OUTPUT>  the operation output type.
+     * @throws OperationException if an operation fails
+     */
+    public void execute(final Operation operation, final User user) throws OperationException {
+        execute(new OperationChain<>(operation), user);
+    }
+
+    /**
+     * Performs the given output operation on the store.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operation may be modified/optimised by the store.
+     *
+     * @param operation the output operation to be executed.
+     * @param user      the user executing the operation.
+     * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation, final User user) throws OperationException {
+    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
         return execute(new OperationChain<>(operation), user);
     }
 
@@ -138,18 +153,18 @@ public final class Graph {
      *
      * @param operationChain the operation chain to be executed.
      * @param user           the user executing the operation chain.
-     * @param <OUTPUT>       the operation chain output type.
+     * @param <O>            the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
+    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
         updateOperationChainView(operationChain);
 
         for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
         }
 
-        OUTPUT result = store.execute(operationChain, user);
+        O result = store.execute(operationChain, user);
 
         for (final GraphHook graphHook : graphHooks) {
             result = graphHook.postExecute(result, operationChain, user);
@@ -158,23 +173,26 @@ public final class Graph {
         return result;
     }
 
-    private <OUTPUT> void updateOperationChainView(final OperationChain<OUTPUT> operationChain) {
+    private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            final View opView;
-            if (null == operation.getView()) {
-                opView = view;
-            } else if (!operation.getView().hasGroups()) {
-                opView = new View.Builder()
-                        .merge(view)
-                        .merge(operation.getView())
-                        .build();
 
-            } else {
-                opView = operation.getView();
+            if (operation instanceof OperationView) {
+                final OperationView operationView = ((OperationView) operation);
+                final View opView;
+                if (null == operationView.getView()) {
+                    opView = view;
+                } else if (!operationView.getView().hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(view)
+                            .merge(operationView.getView())
+                            .build();
+                } else {
+                    opView = operationView.getView();
+                }
+
+                opView.expandGlobalDefinitions();
+                operationView.setView(opView);
             }
-
-            opView.expandGlobalDefinitions();
-            operation.setView(opView);
         }
     }
 

@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.named.operation.handler;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -35,14 +35,15 @@ import java.util.List;
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
-public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation, Void> {
+public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
     private INamedOperationCache cache;
 
     /**
      * Adds a NamedOperation to a cache which must be specified in the operation declarations file. An
-     * ExtendedNamedOperation is built using the fields on the AddNamedOperation. The operation name and operation chain
+     * NamedOperationDetail is built using the fields on the AddNamedOperation. The operation name and operation chain
      * fields must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
      * thrown. The handler then adds/overwrites the NamedOperation according toa an overwrite flag.
+     *
      * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
@@ -57,7 +58,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                         "resources/NamedOperationsDeclarations.json and referenced in store.properties");
             }
             validate(context.getUser(), operation.getOperationName(), operation.getOperationChain(), cache);
-            ExtendedNamedOperation extendedNamedOperation = new ExtendedNamedOperation.Builder()
+            NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChain())
                     .operationName(operation.getOperationName())
                     .creatorId(context.getUser().getUserId())
@@ -66,7 +67,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                     .description(operation.getDescription())
                     .build();
 
-            cache.addNamedOperation(extendedNamedOperation, operation.isOverwriteFlag(), context.getUser());
+            cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context.getUser());
         } catch (CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -90,12 +91,12 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     }
 
     private void validate(final User user, final List<String> parentOperations, final OperationChain<?> operationChain, final INamedOperationCache cache) throws CacheOperationFailedException, OperationException {
-        for (final Operation op: operationChain.getOperations()) {
+        for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
                 if (parentOperations.contains(((NamedOperation) op).getOperationName())) {
                     throw new OperationException("The Operation Chain must not be recursive");
                 }
-                ExtendedNamedOperation operation = cache.getNamedOperation(((NamedOperation) op).getOperationName(), user);
+                NamedOperationDetail operation = cache.getNamedOperation(((NamedOperation) op).getOperationName(), user);
                 if (operation == null) {
                     throw new OperationException("The Operation " + ((NamedOperation) op).getOperationName() +
                             " references an operation which doesn't exist. Unable to create operation");

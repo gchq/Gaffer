@@ -18,22 +18,21 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsFalseTest extends FilterFunctionTest {
+public class IsFalseTest extends PredicateTest {
     @Test
     public void shouldAcceptTheValueWhenFalse() {
         // Given
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.isValid(false);
+        boolean accepted = filter.test(false);
 
         // Then
         assertTrue(accepted);
@@ -45,7 +44,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.isValid(Boolean.FALSE);
+        boolean accepted = filter.test(Boolean.FALSE);
 
         // Then
         assertTrue(accepted);
@@ -57,7 +56,7 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.isValid((Boolean) null);
+        boolean accepted = filter.test((Boolean) null);
 
         // Then
         assertFalse(accepted);
@@ -69,22 +68,10 @@ public class IsFalseTest extends FilterFunctionTest {
         final IsFalse filter = new IsFalse();
 
         // When
-        boolean accepted = filter.isValid(true);
+        boolean accepted = filter.test(true);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsFalse filter = new IsFalse();
-
-        // When
-        final IsFalse clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -108,7 +95,7 @@ public class IsFalseTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsFalse> getFunctionClass() {
+    protected Class<IsFalse> getPredicateClass() {
         return IsFalse.class;
     }
 

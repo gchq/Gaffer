@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.function.filter.IsShorterThan;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IsShorterThanExample extends FilterFunctionExample {
+public class IsShorterThanExample extends PredicateExample {
     private final Map<String, String> map = new HashMap<>();
     final Map<String, String> bigMap = new HashMap<>(map);
 

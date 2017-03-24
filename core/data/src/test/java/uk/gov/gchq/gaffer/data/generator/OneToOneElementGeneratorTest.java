@@ -47,7 +47,7 @@ public class OneToOneElementGeneratorTest {
         final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
 
         // When
-        final Element result = generator.getElement(obj1);
+        final Element result = generator._apply(obj1);
 
         // Then
         assertSame(elm1, result);
@@ -56,10 +56,10 @@ public class OneToOneElementGeneratorTest {
     @Test
     public void getObjectShouldReturnGeneratedObject() {
         // Given
-        final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
+        final OneToOneObjectGenerator<String> generator = new OneToOneObjectGeneratorImpl();
 
         // When
-        final String result = generator.getObject(elm1);
+        final String result = generator._apply(elm1);
 
         // Then
         assertSame(obj1, result);
@@ -68,10 +68,10 @@ public class OneToOneElementGeneratorTest {
     @Test
     public void getObjectsShouldReturnGeneratedObjectTransformIterable() {
         // Given
-        final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
+        final OneToOneObjectGenerator<String> generator = new OneToOneObjectGeneratorImpl();
 
         // When
-        final TransformIterable<Element, String> result = (TransformIterable<Element, String>) generator.getObjects(Arrays.asList(elm1, elm2));
+        final TransformIterable<Element, String> result = (TransformIterable<Element, String>) generator.apply(Arrays.asList(elm1, elm2));
 
         // Then
         final Iterator<String> itr = result.iterator();
@@ -86,7 +86,7 @@ public class OneToOneElementGeneratorTest {
         final OneToOneElementGenerator<String> generator = new OneToOneElementGeneratorImpl();
 
         // When
-        final TransformIterable<String, Element> result = (TransformIterable<String, Element>) generator.getElements(Arrays.asList(obj1, obj2));
+        final TransformIterable<String, Element> result = (TransformIterable<String, Element>) generator.apply(Arrays.asList(obj1, obj2));
 
         // Then
         final Iterator<Element> itr = result.iterator();
@@ -95,10 +95,9 @@ public class OneToOneElementGeneratorTest {
         assertFalse(itr.hasNext());
     }
 
-    private class OneToOneElementGeneratorImpl extends OneToOneElementGenerator<String> {
-
+    private class OneToOneElementGeneratorImpl implements OneToOneElementGenerator<String> {
         @Override
-        public Element getElement(final String item) {
+        public Element _apply(final String item) {
             if (obj1.equals(item)) {
                 return elm1;
             }
@@ -109,9 +108,11 @@ public class OneToOneElementGeneratorTest {
 
             return null;
         }
+    }
 
+    private class OneToOneObjectGeneratorImpl implements OneToOneObjectGenerator<String> {
         @Override
-        public String getObject(final Element element) {
+        public String _apply(final Element element) {
             if (elm1 == element) {
                 return obj1;
             }

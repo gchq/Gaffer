@@ -33,7 +33,7 @@ public class ExportToSetTest implements OperationTest {
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
         final String key = "key";
-        final ExportToSet op = new ExportToSet.Builder()
+        final ExportToSet op = new ExportToSet.Builder<>()
                 .key(key)
                 .build();
 
@@ -49,7 +49,7 @@ public class ExportToSetTest implements OperationTest {
     @Override
     public void builderShouldCreatePopulatedOperation() {
         // When
-        final ExportToSet op = new ExportToSet.Builder()
+        final ExportToSet op = new ExportToSet.Builder<>()
                 .key("key")
                 .build();
 

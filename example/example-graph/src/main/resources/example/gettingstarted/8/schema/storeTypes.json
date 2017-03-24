@@ -7,12 +7,12 @@
     },
     "date.earliest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.ComparableMin"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Min"
       }
     },
     "date.latest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.ComparableMax"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
       }
     },
     "visibility": {

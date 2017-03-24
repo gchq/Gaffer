@@ -9,9 +9,7 @@
       "description": "Directed true type description",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
-          }
+          "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
         }
       ]
     },
@@ -20,9 +18,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
-          }
+          "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
         }
       ]
     },

@@ -18,22 +18,20 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsEqualTest extends FilterFunctionTest {
+public class IsEqualTest extends PredicateTest {
 
     @Test
     public void shouldAcceptTheTestValue() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter.isValid("test");
+        boolean accepted = filter.test("test");
 
         assertTrue(accepted);
     }
@@ -42,7 +40,7 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldAcceptWhenControlValueAndTestValueAreNull() {
         final IsEqual filter = new IsEqual();
 
-        boolean accepted = filter.isValid((Object) null);
+        boolean accepted = filter.test(null);
 
         assertTrue(accepted);
     }
@@ -51,23 +49,9 @@ public class IsEqualTest extends FilterFunctionTest {
     public void shouldRejectWhenNotEqual() {
         final IsEqual filter = new IsEqual("test");
 
-        boolean accepted = filter.isValid("a different value");
+        boolean accepted = filter.test("a different value");
 
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsEqual filter = new IsEqual("test");
-
-        // When
-        final IsEqual clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotNull(clonedFilter);
-        assertNotSame(filter, clonedFilter);
-        assertEquals("test", clonedFilter.getControlValue());
     }
 
     @Test
@@ -92,7 +76,7 @@ public class IsEqualTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsEqual> getFunctionClass() {
+    protected Class<IsEqual> getPredicateClass() {
         return IsEqual.class;
     }
 

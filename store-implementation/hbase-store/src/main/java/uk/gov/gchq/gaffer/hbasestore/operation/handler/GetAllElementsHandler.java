@@ -19,34 +19,26 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.filter.ElementDeduplicationFilter;
+import uk.gov.gchq.gaffer.hbasestore.filter.ElementDedupeFilter;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final User user, final HBaseStore store) throws OperationException {
-        final ElementDeduplicationFilter filter;
-        final ElementDeduplicationFilter.ElementDeduplicationFilterProperties rangeFilterProps = new ElementDeduplicationFilter.ElementDeduplicationFilterProperties(operation);
-        if (rangeFilterProps.isSkipFilter()) {
-            filter = null;
-        } else {
-            filter = new ElementDeduplicationFilter(rangeFilterProps);
-        }
-
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final HBaseStore store) throws OperationException {
         try {
-            return new HBaseRetriever<>(store, operation, user, null, filter);
+            return new HBaseRetriever<>(store, operation, user, null, new ElementDedupeFilter(operation));
         } catch (StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

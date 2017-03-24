@@ -23,25 +23,14 @@ import uk.gov.gchq.gaffer.example.films.data.Review;
 import uk.gov.gchq.gaffer.example.films.data.schema.Group;
 import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 
-public class ReviewGenerator extends OneToOneElementGenerator<Review> {
+public class ReviewGenerator implements OneToOneElementGenerator<Review> {
     @Override
-    public Element getElement(final Review review) {
+    public Element _apply(final Review review) {
         final Entity entity = new Entity(Group.REVIEW, review.getFilmId());
         entity.putProperty(Property.USER_ID, review.getUserId());
         entity.putProperty(Property.RATING, (long) review.getRating());
         entity.putProperty(Property.COUNT, 1);
 
         return entity;
-    }
-
-    @Override
-    public Review getObject(final Element element) {
-        if (Group.REVIEW.equals(element.getGroup()) && element instanceof Entity) {
-            final int rating = (int) ((long) element.getProperty(Property.RATING) / (int) element.getProperty(Property.COUNT));
-            return new Review(((Entity) element).getVertex().toString(),
-                    element.getProperty(Property.USER_ID).toString(), rating);
-        }
-
-        throw new UnsupportedOperationException("Cannot generate Review object from " + element);
     }
 }

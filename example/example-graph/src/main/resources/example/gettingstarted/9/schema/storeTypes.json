@@ -7,7 +7,7 @@
     },
     "set": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.SetAggregator"
+        "class": "uk.gov.gchq.gaffer.function.aggregate.CollectionConcat"
       }
     },
     "hllp": {

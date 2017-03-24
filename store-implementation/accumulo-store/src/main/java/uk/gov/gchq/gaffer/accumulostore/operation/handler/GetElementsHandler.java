@@ -17,38 +17,31 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.handler;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
+import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloElementsRetriever;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsHandler implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
+public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
-                                         final User user,
-                                         final AccumuloStore store) throws OperationException {
-        final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
+                                                            final User user,
+                                                            final AccumuloStore store) throws OperationException {
         try {
-            return new AccumuloSingleIDRetriever(store, operation, user,
-                    itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
-                    itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
-                    itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
-                    itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
+            return new AccumuloElementsRetriever(store, operation, user);
         } catch (IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }

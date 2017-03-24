@@ -31,7 +31,7 @@ import java.util.Map;
  * The ValidatorFilter will filter out {@link uk.gov.gchq.gaffer.data.element.Element}s
  * based on the validator functions given in the {@link Schema} that is passed to this iterator.
  * <p>
- * If a {@link uk.gov.gchq.gaffer.function.FilterFunction} returns false then the Element is removed.
+ * If a {@link java.util.function.Predicate} returns false then the Element is removed.
  */
 public class ValidatorFilter extends AbstractElementFilter {
     @Override

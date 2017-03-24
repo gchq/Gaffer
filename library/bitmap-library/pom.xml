@@ -17,7 +17,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>function</artifactId>
+            <artifactId>koryphe</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

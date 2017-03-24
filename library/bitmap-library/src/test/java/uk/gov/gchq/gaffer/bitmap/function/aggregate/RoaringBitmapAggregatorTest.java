@@ -19,21 +19,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
-
-import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
-public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
+public class RoaringBitmapAggregatorTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -41,19 +32,17 @@ public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
     @Test
     public void aggregatorDealsWithNullInput() {
         RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-        roaringBitmapAggregator.init();
-        roaringBitmapAggregator._aggregate(null);
-        assertNull(roaringBitmapAggregator.state()[0]);
+        final RoaringBitmap state = roaringBitmapAggregator.apply(null, null);
+        assertNull(state);
     }
 
     @Test
     public void emptyInputBitmapGeneratesEmptyOutputBitmap() {
-        RoaringBitmap bitmap = new RoaringBitmap();
+        RoaringBitmap bitmap1 = new RoaringBitmap();
+        RoaringBitmap bitmap2 = new RoaringBitmap();
         RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-        roaringBitmapAggregator.init();
-        roaringBitmapAggregator._aggregate(bitmap);
-
-        assertEquals(0, ((RoaringBitmap) roaringBitmapAggregator.state()[0]).getCardinality());
+        final RoaringBitmap result = roaringBitmapAggregator.apply(bitmap1, bitmap2);
+        assertEquals(0, result.getCardinality());
     }
 
     @Test
@@ -65,11 +54,10 @@ public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
         inputBitmap.add(input2);
 
         RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-        roaringBitmapAggregator.init();
-        roaringBitmapAggregator._aggregate(inputBitmap);
+        final RoaringBitmap result = roaringBitmapAggregator.apply(inputBitmap, null);
 
-        assertEquals(2, ((RoaringBitmap) roaringBitmapAggregator.state()[0]).getCardinality());
-        assertEquals(inputBitmap, roaringBitmapAggregator.state()[0]);
+        assertEquals(2, result.getCardinality());
+        assertEquals(inputBitmap, result);
     }
 
     @Test
@@ -84,8 +72,8 @@ public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
         inputs[1] = input2;
 
         RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-        roaringBitmapAggregator._aggregate(inputBitmap1);
-        assertEquals(inputBitmap1, roaringBitmapAggregator.state()[0]);
+        RoaringBitmap state = roaringBitmapAggregator.apply(inputBitmap1, null);
+        assertEquals(inputBitmap1, state);
 
         RoaringBitmap inputBitmap2 = new RoaringBitmap();
         int input3 = 23615003;
@@ -94,7 +82,7 @@ public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
         inputBitmap2.add(input4);
         inputs[2] = input3;
         inputs[3] = input4;
-        roaringBitmapAggregator._aggregate(inputBitmap2);
+        state = roaringBitmapAggregator.apply(inputBitmap2, state);
 
         RoaringBitmap inputBitmap3 = new RoaringBitmap();
         int input5 = 23615002;
@@ -103,54 +91,15 @@ public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
         inputBitmap3.add(input6);
         inputs[4] = input5;
         inputs[5] = input6;
-        roaringBitmapAggregator._aggregate(inputBitmap3);
+        state = roaringBitmapAggregator.apply(inputBitmap3, state);
 
         Arrays.sort(inputs);
-        RoaringBitmap result = (RoaringBitmap) roaringBitmapAggregator.state()[0];
-        int outPutBitmapSize = result.getCardinality();
+        int outPutBitmapSize = state.getCardinality();
         assertEquals(6, outPutBitmapSize);
         int i = 0;
-        for (Integer value : result) {
+        for (Integer value : state) {
             assertEquals((Integer) inputs[i], value);
             i++;
         }
-    }
-
-    @Test
-    public void shouldCloneInputBitmapWhenAggregating() {
-        // Given
-        final RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-        roaringBitmapAggregator.init();
-
-        final RoaringBitmap bitmap = mock(RoaringBitmap.class);
-        final RoaringBitmap clonedBitmap = mock(RoaringBitmap.class);
-        given(bitmap.clone()).willReturn(clonedBitmap);
-
-        // When
-        roaringBitmapAggregator._aggregate(bitmap);
-
-        // Then
-        assertSame(clonedBitmap, roaringBitmapAggregator.state()[0]);
-        assertNotSame(bitmap, roaringBitmapAggregator.state()[0]);
-    }
-
-    @Override
-    protected AggregateFunction getInstance() {
-        return new RoaringBitmapAggregator();
-    }
-
-    @Override
-    protected Class<? extends Function> getFunctionClass() {
-        return RoaringBitmapAggregator.class;
-    }
-
-    @Override
-    public void shouldJsonSerialiseAndDeserialise() throws IOException {
-        final RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
-
-        String serialisedForm = this.serialise(roaringBitmapAggregator);
-
-        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.bitmap.function.aggregate.RoaringBitmapAggregator\"}", serialisedForm);
-        assertEquals(roaringBitmapAggregator, this.deserialise(serialisedForm));
     }
 }

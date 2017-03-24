@@ -49,7 +49,7 @@ public class ElementValidatorTest {
         given(elm.getGroup()).willReturn(group);
         given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
-        given(filter.filter(elm)).willReturn(true);
+        given(filter.test(elm)).willReturn(true);
 
         // When
         final boolean isValid = validator.validate(elm);
@@ -72,7 +72,7 @@ public class ElementValidatorTest {
         given(elm.getGroup()).willReturn(group);
         given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
-        given(filter.filter(elm)).willReturn(true);
+        given(filter.test(elm)).willReturn(true);
 
         // When
         final boolean isValid = validator.validate(elm);
@@ -95,7 +95,7 @@ public class ElementValidatorTest {
         given(elm.getGroup()).willReturn(group);
         given(schema.getElement(group)).willReturn(elementDef);
         given(elementDef.getValidator(includeIsA)).willReturn(filter);
-        given(filter.filter(elm)).willReturn(false);
+        given(filter.test(elm)).willReturn(false);
 
         // When
         final boolean isValid = validator.validate(elm);
@@ -136,7 +136,7 @@ public class ElementValidatorTest {
         given(elm.getGroup()).willReturn(group);
         given(view.getElement(group)).willReturn(elementDef);
         given(elementDef.getPreAggregationFilter()).willReturn(filter);
-        given(filter.filter(elm)).willReturn(true);
+        given(filter.test(elm)).willReturn(true);
 
         // When
         final boolean isValid = validator.validate(elm);
@@ -158,7 +158,7 @@ public class ElementValidatorTest {
         given(elm.getGroup()).willReturn(group);
         given(view.getElement(group)).willReturn(elementDef);
         given(elementDef.getPreAggregationFilter()).willReturn(filter);
-        given(filter.filter(elm)).willReturn(false);
+        given(filter.test(elm)).willReturn(false);
 
         // When
         final boolean isValid = validator.validate(elm);

@@ -23,18 +23,17 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentEntitySeedsHandler;
+import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -43,6 +42,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.Arrays;
@@ -107,11 +107,6 @@ public class HBaseStore extends Store {
         return connection;
     }
 
-    @Override
-    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
-        throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be HBaseProperties")
     @Override
     public HBaseProperties getProperties() {
@@ -124,23 +119,28 @@ public class HBaseStore extends Store {
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return new GetAdjacentEntitySeedsHandler();
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        return new GetAdjacentIdsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
+    }
+
+    @Override
+    protected Object doUnhandledOperation(final Operation operation, final Context context) {
+        throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
     @Override

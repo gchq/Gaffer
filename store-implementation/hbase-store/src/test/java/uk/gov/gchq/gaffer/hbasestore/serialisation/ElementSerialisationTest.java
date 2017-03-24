@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.hbasestore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -96,7 +96,7 @@ public class ElementSerialisationTest {
         edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final byte[] columnQualifier = serialisation.buildColumnQualifier(edge);
+        final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
         final Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.EDGE, columnQualifier);
 
         // Then
@@ -110,7 +110,7 @@ public class ElementSerialisationTest {
         entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final byte[] columnQualifier = serialisation.buildColumnQualifier(entity);
+        final byte[] columnQualifier = serialisation.getColumnQualifier(entity);
         final Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.ENTITY, columnQualifier);
 
         // Then
@@ -127,7 +127,7 @@ public class ElementSerialisationTest {
         edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final byte[] columnQualifier = serialisation.buildColumnQualifier(edge);
+        final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
         final Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.EDGE, columnQualifier);
 
         // Then
@@ -142,7 +142,7 @@ public class ElementSerialisationTest {
         entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final byte[] columnQualifier = serialisation.buildColumnQualifier(entity);
+        final byte[] columnQualifier = serialisation.getColumnQualifier(entity);
         final Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.ENTITY, columnQualifier);
 
         // Then
@@ -200,7 +200,7 @@ public class ElementSerialisationTest {
         edge.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, null);
 
         // When
-        final byte[] columnQualifier = serialisation.buildColumnQualifier(edge);
+        final byte[] columnQualifier = serialisation.getColumnQualifier(edge);
         Properties properties = serialisation.getPropertiesFromColumnQualifier(TestGroups.EDGE, columnQualifier);
 
         // Then
@@ -303,7 +303,7 @@ public class ElementSerialisationTest {
             }
         };
 
-        final byte[] bytes = serialisation.buildColumnQualifier(TestGroups.EDGE, properties);
+        final byte[] bytes = serialisation.getColumnQualifier(TestGroups.EDGE, properties);
 
         // When
         final byte[] truncatedPropertyBytes = serialisation.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
@@ -315,7 +315,7 @@ public class ElementSerialisationTest {
                 put(HBasePropertyNames.COLUMN_QUALIFIER_2, 2);
             }
         };
-        final byte[] expectedBytes = serialisation.buildColumnQualifier(TestGroups.EDGE, truncatedProperties);
+        final byte[] expectedBytes = serialisation.getColumnQualifier(TestGroups.EDGE, truncatedProperties);
         final byte[] expectedTruncatedPropertyBytes = serialisation.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, expectedBytes, 2);
         assertArrayEquals(expectedTruncatedPropertyBytes, truncatedPropertyBytes);
     }
@@ -357,7 +357,7 @@ public class ElementSerialisationTest {
         };
 
         // When
-        final long timestamp = serialisation.buildTimestamp(properties);
+        final long timestamp = serialisation.getTimestamp(properties);
 
         // Then
         assertEquals(propertyTimestamp, timestamp);
@@ -386,7 +386,7 @@ public class ElementSerialisationTest {
         };
 
         // When
-        final long timestamp = serialisation.buildTimestamp(properties);
+        final long timestamp = serialisation.getTimestamp(properties);
 
         // Then
         assertNotNull(timestamp);
@@ -403,7 +403,7 @@ public class ElementSerialisationTest {
         };
 
         // When
-        final long timestamp = serialisation.buildTimestamp(properties);
+        final long timestamp = serialisation.getTimestamp(properties);
 
         // Then
         assertNotNull(timestamp);

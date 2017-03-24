@@ -19,21 +19,19 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.MapFilter;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the MapFilter class can be used to filter {@code FreqMap} frequencies.
  */
-public class FreqMapIsMoreThanTest extends FilterFunctionTest {
+public class FreqMapIsMoreThanTest extends PredicateTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
 
@@ -47,10 +45,10 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldAcceptWhenFreqIsGreaterThan0() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0L));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY1, new IsMoreThan(0L));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{map1});
+        boolean accepted = filter.test(map1);
 
         // Then
         assertTrue(accepted);
@@ -59,10 +57,10 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldAcceptWhenFreqIsEqualTo1() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY1, new IsMoreThan(1L, true));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{map1});
+        boolean accepted = filter.test(map1);
 
         // Then
         assertTrue(accepted);
@@ -71,10 +69,10 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenEqualToAndFlagNotSet() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, false));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY1, new IsMoreThan(1L, false));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{map1});
+        boolean accepted = filter.test(map1);
 
         // Then
         assertFalse(accepted);
@@ -83,10 +81,10 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenLessThan10() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(10L));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY1, new IsMoreThan(10L));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{map1});
+        boolean accepted = filter.test(map1);
 
         // Then
         assertFalse(accepted);
@@ -95,10 +93,10 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectWhenKeyNotPresent() {
         // Given
-        final MapFilter filter = new MapFilter(KEY2, new IsMoreThan(10L));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY2, new IsMoreThan(10L));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{map1});
+        boolean accepted = filter.test(map1);
 
         // Then
         assertFalse(accepted);
@@ -107,43 +105,27 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     @Test
     public void shouldRejectEmptyMaps() {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(0L));
+        final PredicateMap<Long> filter = new PredicateMap<>(KEY1, new IsMoreThan(0L));
 
         // When
-        boolean accepted = filter.isValid(new Object[]{new FreqMap()});
+        boolean accepted = filter.test(new FreqMap());
 
         // Then
         assertFalse(accepted);
     }
 
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
-
-        // When
-        final MapFilter clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(KEY1, clonedFilter.getKey());
-        assertEquals(1L, ((IsMoreThan) clonedFilter.getFunction()).getControlValue());
-        assertTrue(((IsMoreThan) clonedFilter.getFunction()).getOrEqualTo());
-    }
-
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final MapFilter filter = new MapFilter(KEY1, new IsMoreThan(1L, true));
+        final PredicateMap<Comparable> filter = new PredicateMap<>(KEY1, new IsMoreThan(1L, true));
 
         // When
         final String json = new String(new JSONSerialiser().serialise(filter, true));
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.function.MapFilter\",%n" +
-                "  \"function\" : {%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.function.filter.PredicateMap\",%n" +
+                "  \"predicate\" : {%n" +
                 "    \"class\" : \"uk.gov.gchq.gaffer.function.filter.IsMoreThan\",%n" +
                 "    \"orEqualTo\" : true,%n" +
                 "    \"value\" : {%n" +
@@ -154,7 +136,7 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
                 "}"), json);
 
         // When 2
-        final MapFilter deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), MapFilter.class);
+        final PredicateMap<Long> deserialisedFilter = new JSONSerialiser().deserialise(json.getBytes(), PredicateMap.class);
 
         // Then 2
         assertNotNull(deserialisedFilter);
@@ -162,12 +144,12 @@ public class FreqMapIsMoreThanTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<MapFilter> getFunctionClass() {
-        return MapFilter.class;
+    protected Class<PredicateMap> getPredicateClass() {
+        return PredicateMap.class;
     }
 
     @Override
-    protected MapFilter getInstance() {
-        return new MapFilter(KEY1, new IsMoreThan(0L));
+    protected PredicateMap<Long> getInstance() {
+        return new PredicateMap<>(KEY1, new IsMoreThan(0L));
     }
 }

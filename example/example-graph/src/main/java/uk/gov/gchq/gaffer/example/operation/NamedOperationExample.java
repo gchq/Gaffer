@@ -16,15 +16,17 @@
 package uk.gov.gchq.gaffer.example.operation;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
 public class NamedOperationExample extends OperationExample {
     public static void main(final String[] args) {
@@ -47,13 +49,13 @@ public class NamedOperationExample extends OperationExample {
         // ---------------------------------------------------------
         final AddNamedOperation operation = new AddNamedOperation.Builder()
                 .operationChain(new OperationChain.Builder()
-                        .first(new GetAdjacentEntitySeeds.Builder()
-                                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
+                        .first(new GetAdjacentIds.Builder()
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new GetAdjacentEntitySeeds.Builder()
-                                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
-                                .deduplicate(true)
+                        .then(new GetAdjacentIds.Builder()
+                                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
+                        .then(new Deduplicate<>())
                         .build())
                 .description("2 hop query")
                 .name("2-hop")
@@ -66,7 +68,7 @@ public class NamedOperationExample extends OperationExample {
         runExampleNoResult(operation);
     }
 
-    public CloseableIterable<NamedOperation> getAllNamedOperations() {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations() {
         // ---------------------------------------------------------
         final GetAllNamedOperations operation = new GetAllNamedOperations();
         // ---------------------------------------------------------
@@ -74,15 +76,16 @@ public class NamedOperationExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Iterable<EntitySeed> runNamedOperation() {
+    public CloseableIterable<EntityId> runNamedOperation() {
         // ---------------------------------------------------------
-        final NamedOperation operation = new NamedOperation.Builder()
-                .name("2-hop")
-                .seeds(Collections.singletonList(new EntitySeed(2)))
-                .build();
+        final NamedOperation<EntityId, CloseableIterable<EntityId>> operation =
+                new NamedOperation.Builder<EntityId, CloseableIterable<EntityId>>()
+                        .name("2-hop")
+                        .input(new EntitySeed(2))
+                        .build();
         // ---------------------------------------------------------
 
-        return (Iterable) runExample(operation);
+        return runExample(operation);
     }
 
     public void deleteNamedOperation() {
