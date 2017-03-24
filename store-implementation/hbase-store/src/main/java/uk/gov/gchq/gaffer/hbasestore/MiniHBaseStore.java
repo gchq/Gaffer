@@ -40,16 +40,8 @@ import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
 public class MiniHBaseStore extends HBaseStore {
-    private static boolean dropTable = false;
     private static HBaseTestingUtility utility;
     private static Connection connection;
-
-    //TODO Should these labels come from properties?
-    private static final String[] VISIBILITY_LABELS = new String[]{"public", "private", "vis1", "vis2"};
-
-    public static void setDropTable(final boolean dropTable) {
-        MiniHBaseStore.dropTable = dropTable;
-    }
 
     @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
@@ -66,44 +58,26 @@ public class MiniHBaseStore extends HBaseStore {
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
                 conf.set("fs.defaultFS", "file:///");
-                addLabels();
-            } catch (Throwable e) {
+                addLabels(((HBaseProperties) properties).getMiniHBaseVisibilities());
+            } catch (final Exception e) {
                 throw new StoreException(e);
             }
         }
 
         super.initialise(schema, properties);
 
-        if (dropTable) {
+        try {
+            TableUtils.deleteAllRows(this, getProperties().getMiniHBaseVisibilities());
+        } catch (final StoreException e) {
             TableUtils.dropTable(this);
             TableUtils.createTable(this);
-        } else {
-            try {
-                TableUtils.deleteAllRows(this, VISIBILITY_LABELS);
-            } catch (final StoreException e) {
-                TableUtils.dropTable(this);
-                TableUtils.createTable(this);
-            }
         }
     }
 
-    private Configuration setupConf() throws IOException {
-        final Configuration conf = HBaseConfiguration.create();
-        VisibilityTestUtil.enableVisiblityLabels(conf);
-        conf.set("hbase.superuser", "admin");
-        conf.setInt("hfile.format.version", 3);
-        conf.set("mapreduce.jobtracker.address", "local");
-        conf.set("fs.defaultFS", "file:///");
-        conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
-                ScanLabelGenerator.class);
-        conf.set(HConstants.REPLICATION_CODEC_CONF_KEY, KeyValueCodecWithTags.class.getName());
-        return conf;
-    }
-
     @Override
-    public Configuration getConfiguration() throws StoreException {
+    public Configuration getConfiguration() {
         if (null == utility) {
-            throw new StoreException("Store has not yet been initialised");
+            throw new RuntimeException("Store has not yet been initialised");
         }
         return utility.getConfiguration();
     }
@@ -118,7 +92,7 @@ public class MiniHBaseStore extends HBaseStore {
         if (null == connection || connection.isClosed()) {
             try {
                 connection = ConnectionFactory.createConnection(utility.getConfiguration());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new StoreException(e);
             }
         }
@@ -126,20 +100,35 @@ public class MiniHBaseStore extends HBaseStore {
     }
 
     @SuppressFBWarnings("SIC_INNER_SHOULD_BE_STATIC_ANON")
-    public void addLabels() throws Exception {
-        PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse> action =
-                new PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse>() {
-                    public VisibilityLabelsProtos.VisibilityLabelsResponse run() throws Exception {
-                        try (Connection conn = ConnectionFactory.createConnection(utility.getConfiguration())) {
-                            VisibilityClient.addLabels(conn, VISIBILITY_LABELS);
-                        } catch (Throwable t) {
-                            throw new IOException(t);
+    public void addLabels(final String... visibilities) throws IOException, InterruptedException {
+        if (visibilities.length > 0) {
+            PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse> action =
+                    new PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse>() {
+                        public VisibilityLabelsProtos.VisibilityLabelsResponse run() throws Exception {
+                            try (Connection conn = ConnectionFactory.createConnection(utility.getConfiguration())) {
+                                VisibilityClient.addLabels(conn, visibilities);
+                            } catch (final Throwable t) {
+                                throw new IOException(t);
+                            }
+                            return null;
                         }
-                        return null;
-                    }
-                };
+                    };
 
-        final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
-        superUser.runAs(action);
+            final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
+            superUser.runAs(action);
+        }
+    }
+
+    private Configuration setupConf() throws IOException {
+        final Configuration conf = HBaseConfiguration.create();
+        VisibilityTestUtil.enableVisiblityLabels(conf);
+        conf.set("hbase.superuser", "admin");
+        conf.setInt("hfile.format.version", 3);
+        conf.set("mapreduce.jobtracker.address", "local");
+        conf.set("fs.defaultFS", "file:///");
+        conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
+                ScanLabelGenerator.class);
+        conf.set(HConstants.REPLICATION_CODEC_CONF_KEY, KeyValueCodecWithTags.class.getName());
+        return conf;
     }
 }

@@ -46,7 +46,7 @@ public class StandaloneHBaseStoreSTs extends AbstractStoreITs {
         final Connection connection;
         try {
             connection = ConnectionFactory.createConnection(conf);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Unable to create connection", e);
         }
 

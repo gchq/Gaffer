@@ -29,7 +29,7 @@ public class HBaseStoreITs extends AbstractStoreITs {
         super(STORE_PROPERTIES);
         try {
             TableUtils.dropAllTables(new MiniHBaseStore().getConnection());
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             // ignore any errors that occur when dropping test tables
         }
     }

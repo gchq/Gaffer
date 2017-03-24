@@ -112,7 +112,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                 elementCell.setElement(element);
                 output.add(elementCell);
 
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         }

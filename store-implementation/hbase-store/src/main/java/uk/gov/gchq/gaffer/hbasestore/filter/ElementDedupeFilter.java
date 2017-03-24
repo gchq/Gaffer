@@ -52,7 +52,7 @@ public class ElementDedupeFilter extends FilterBase {
         final ElementDedupeFilterProperties props;
         try {
             props = JSON_SERIALISER.deserialise(bytes, ElementDedupeFilterProperties.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new DeserializationException(e);
         }
 

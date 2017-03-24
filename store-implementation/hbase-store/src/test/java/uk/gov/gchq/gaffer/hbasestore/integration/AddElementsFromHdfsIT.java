@@ -52,7 +52,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class AddElementsFromHdfsST {
+public class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
     public static final int NUM_ENTITIES = 10;
     public static final int DUPLICATES = 4;

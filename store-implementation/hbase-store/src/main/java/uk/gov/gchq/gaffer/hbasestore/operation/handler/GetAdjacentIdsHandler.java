@@ -66,7 +66,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
 
         try {
             edgeRetriever = new HBaseRetriever<>(store, getEdges, user, getEdges.getInput());
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
 

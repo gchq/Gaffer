@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -65,21 +66,24 @@ public final class TableUtils {
         try {
             final Admin admin = connection.getAdmin();
             if (!admin.tableExists(tableName)) {
-                TableUtils.createTable(store);
+                try {
+                    TableUtils.createTable(store);
+                } catch (final Exception e) {
+                    // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
+                    // Someone else got there first, never mind...
+                }
             }
-        } catch (final Exception e) {
-            // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
-            // Someone else got there first, never mind...
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new StoreException("Failed to check if table " + tableName + " exists", e);
         }
     }
 
-    public static Table getTable(final HBaseStore store) throws StoreException {
+    public static HTable getTable(final HBaseStore store) throws StoreException {
         final TableName tableName = store.getProperties().getTable();
         final Connection connection = store.getConnection();
         try {
-            return connection.getTable(tableName);
-        } catch (IOException e) {
+            return (HTable) connection.getTable(tableName);
+        } catch (final IOException e) {
             IOUtils.closeQuietly(connection);
             throw new StoreException(e);
         }
@@ -91,7 +95,7 @@ public final class TableUtils {
         try {
             final Admin admin = store.getConnection().getAdmin();
             if (admin.tableExists(tableName)) {
-                LOGGER.info("Table {} exists, not creating", tableName);
+                LOGGER.info("Table {} already exists", tableName);
                 return;
             }
             LOGGER.info("Creating table {}", tableName);
@@ -99,13 +103,10 @@ public final class TableUtils {
             final HTableDescriptor htable = new HTableDescriptor(tableName);
             final HColumnDescriptor col = new HColumnDescriptor(HBaseStoreConstants.getColFam());
 
-            // TODO: disable versions
+            // TODO: Currently there is no way to disable versions in HBase.
+            // HBase have this note in their code "Allow maxVersion of 0 to be the way you say 'Keep all versions'."
+            // As soon as HBase have made this update we can set the max versions number to 0.
             col.setMaxVersions(Integer.MAX_VALUE);
-            // Remove versioning iterator from table for all scopes
-//            LOGGER.info("Removing versioning iterator from table {}", tableName);
-//            final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
-//            connection.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
-
             htable.addFamily(col);
 
             final String schemaJson = StringEscapeUtil.escapeComma(
@@ -115,7 +116,7 @@ public final class TableUtils {
 
             htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
             admin.createTable(htable);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             throw new StoreException(e.getMessage(), e);
         }
 
@@ -142,12 +143,12 @@ public final class TableUtils {
 
                 try (ResultScanner scanner = table.getScanner(scan)) {
                     if (scanner.iterator().hasNext()) {
-                        throw new StoreException("Some rows have not been deleted");
+                        throw new StoreException("Some rows in table " + store.getProperties().getTable() + " failed to delete");
                     }
                 }
             }
         } catch (final IOException e) {
-            throw new StoreException(e);
+            throw new StoreException("Failed to delete all rows in table " + store.getProperties().getTable(), e);
         }
     }
 
@@ -170,7 +171,7 @@ public final class TableUtils {
                 admin.deleteTable(tableName);
             }
         } catch (final IOException e) {
-            throw new StoreException(e);
+            throw new StoreException("Failed to drop table " + tableName, e);
         }
     }
 

@@ -44,7 +44,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
 
         try {
             return new HBaseRetriever<>(store, operation, user, operation.getInput());
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }
     }

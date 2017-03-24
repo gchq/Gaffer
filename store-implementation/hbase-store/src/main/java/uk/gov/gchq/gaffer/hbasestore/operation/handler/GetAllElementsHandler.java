@@ -39,7 +39,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final HBaseStore store) throws OperationException {
         try {
             return new HBaseRetriever<>(store, operation, user, null, new ElementDedupeFilter(operation));
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }
     }

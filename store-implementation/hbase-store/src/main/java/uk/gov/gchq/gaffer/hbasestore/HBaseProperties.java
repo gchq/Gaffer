@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
@@ -32,6 +33,11 @@ public class HBaseProperties extends StoreProperties {
     public static final String TABLE = "hbase.table";
     public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
     public static final String DEPENDENCY_JARS_HDFS_DIR_PATH = "hbase.hdfs.jars.path";
+
+    /**
+     * Comma separated visibilities for use with the Mini HBase store.
+     */
+    public static final String MINI_HBASE_VISIBILITIES = "hbase.mini.visibilities";
 
     public static final int WRITE_BUFFER_SIZE_DEFAULT = 1000000;
 
@@ -108,5 +114,23 @@ public class HBaseProperties extends StoreProperties {
 
     public void setWriteBufferSize(final int size) {
         set(WRITE_BUFFER_SIZE, String.valueOf(size));
+    }
+
+    public String[] getMiniHBaseVisibilities() {
+        final String visibilityCsv = get(MINI_HBASE_VISIBILITIES);
+        if (null == visibilityCsv) {
+            return new String[0];
+        }
+
+        final String[] visibilities = visibilityCsv.split(",");
+        for (int i = 0; i < visibilities.length; i++) {
+            visibilities[i] = visibilities[i].trim();
+        }
+
+        return visibilities;
+    }
+
+    public void setMiniHBaseVisibilities(final String... visibilities) {
+        set(MINI_HBASE_VISIBILITIES, StringUtils.join(visibilities, ","));
     }
 }

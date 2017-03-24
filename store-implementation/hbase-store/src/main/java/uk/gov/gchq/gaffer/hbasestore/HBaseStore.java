@@ -80,7 +80,7 @@ public class HBaseStore extends Store {
         TableUtils.ensureTableExists(this);
     }
 
-    public Configuration getConfiguration() throws StoreException {
+    public Configuration getConfiguration() {
         final Configuration conf = HBaseConfiguration.create();
         if (null != getProperties().getZookeepers()) {
             conf.set("hbase.zookeeper.quorum", getProperties().getZookeepers());
@@ -100,7 +100,7 @@ public class HBaseStore extends Store {
         if (null == connection || connection.isClosed()) {
             try {
                 connection = ConnectionFactory.createConnection(getConfiguration());
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new StoreException(e);
             }
         }

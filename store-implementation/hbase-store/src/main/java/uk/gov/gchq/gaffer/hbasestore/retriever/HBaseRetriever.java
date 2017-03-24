@@ -137,7 +137,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
             scan.setMaxVersions();
             table = TableUtils.getTable(store);
             return table.getScanner(scan);
-        } catch (IOException | StoreException e) {
+        } catch (final IOException | StoreException e) {
             if (null != table) {
                 IOUtils.closeQuietly(table);
             }
@@ -162,7 +162,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                 }
             }
             return element;
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }

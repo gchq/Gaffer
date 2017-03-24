@@ -60,7 +60,7 @@ public class LazyElementCell {
             }
             try {
                 setElement(serialisation.getElement(cell));
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -86,7 +86,7 @@ public class LazyElementCell {
             if (!isDeleted()) {
                 try {
                     group = serialisation.getGroup(cell);
-                } catch (SerialisationException e) {
+                } catch (final SerialisationException e) {
                     throw new RuntimeException("Unable to deserialise group", e);
                 }
             }

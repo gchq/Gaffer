@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
 import org.apache.hadoop.hbase.mapreduce.PutSortReducer;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
@@ -35,6 +36,11 @@ import java.io.IOException;
 
 public class HBaseAddElementsFromHdfsJobFactory extends
         AbstractAddElementsFromHdfsJobFactory {
+    @Override
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        return new JobConf(((HBaseStore) store).getConfiguration());
+    }
+
     @Override
     public void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
         super.setupJob(job, operation, store);
@@ -67,7 +73,7 @@ public class HBaseAddElementsFromHdfsJobFactory extends
                     TableUtils.getTable(store),
                     store.getConnection().getRegionLocator(store.getProperties().getTable())
             );
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new RuntimeException(e);
         }
     }

@@ -73,7 +73,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             final Configuration conf = store.getConfiguration();
             conf.set(LoadIncrementalHFiles.CREATE_TABLE_CONF_KEY, "no");
             importTool = new LoadIncrementalHFiles(conf);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new OperationException("Failed to import elements into HBase", e);
         }
 

@@ -125,13 +125,13 @@ public class ElementSerialisation {
                     if (currentPropLength > 0) {
                         try {
                             properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(value, lastDelimiter, lastDelimiter += currentPropLength)));
-                        } catch (SerialisationException e) {
+                        } catch (final SerialisationException e) {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
                     } else {
                         try {
                             properties.put(propertyName, serialiser.deserialiseEmptyBytes());
-                        } catch (SerialisationException e) {
+                        } catch (final SerialisationException e) {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
                     }
@@ -209,7 +209,7 @@ public class ElementSerialisation {
         try {
             final byte[] groupBytes = Bytes.toBytes(group);
             writeBytes(groupBytes, out);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to serialise group to ByteArrayOutputStream", e);
         }
 
@@ -271,7 +271,7 @@ public class ElementSerialisation {
                 if (currentPropLength > 0) {
                     try {
                         properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
-                    } catch (SerialisationException e) {
+                    } catch (final SerialisationException e) {
                         throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                     }
                 }
@@ -461,23 +461,26 @@ public class ElementSerialisation {
     public Pair<Put> getPuts(final Element element) throws SerialisationException {
         final Pair<byte[]> row = getRowKeys(element);
         final byte[] cq = getColumnQualifier(element);
-        final long ts = getTimestamp(element.getProperties());
+        return getPuts(element, row, cq);
+    }
 
+    public Pair<Put> getPuts(final Element element, final Pair<byte[]> row, final byte[] cq) throws SerialisationException {
+        final long ts = getTimestamp(element.getProperties());
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(getColumnVisibility(element));
-        final CellVisibility visibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
+        final CellVisibility cellVisibility = visibilityStr.isEmpty() ? null : new CellVisibility(visibilityStr);
         final Put put = new Put(row.getFirst());
         put.addColumn(HBaseStoreConstants.getColFam(), cq, ts, value);
-        if (null != visibility) {
-            put.setCellVisibility(visibility);
+        if (null != cellVisibility) {
+            put.setCellVisibility(cellVisibility);
         }
 
         final Pair<Put> puts = new Pair<>(put);
         if (null != row.getSecond()) {
             final Put put2 = new Put(row.getSecond());
             put2.addColumn(HBaseStoreConstants.getColFam(), cq, value);
-            if (null != visibility) {
-                put2.setCellVisibility(visibility);
+            if (null != cellVisibility) {
+                put2.setCellVisibility(cellVisibility);
             }
             puts.setSecond(put2);
         }
