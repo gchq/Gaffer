@@ -17,6 +17,7 @@
 package uk.gov.gchq.koryphe.predicate;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.koryphe.composite.Composite;
 import java.util.List;
 import java.util.function.Predicate;
@@ -42,11 +43,15 @@ public final class Or<I> extends Composite<Predicate<I>> implements IKoryphePred
 
     @Override
     public boolean test(final I input) {
-        for (final Predicate<I> validator : getFunctions()) {
-            if (validator.test(input)) {
-                return true;
-            }
-        }
-        return false;
+         return functions.stream()
+                                  .reduce(Predicate::or)
+                                  .orElse(p -> false).test(input);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append(super.getFunctions())
+                .toString();
     }
 }

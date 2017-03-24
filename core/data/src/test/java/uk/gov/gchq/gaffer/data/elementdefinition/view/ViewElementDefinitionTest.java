@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.koryphe.KorypheElementFilter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -31,8 +31,8 @@ public class ViewElementDefinitionTest {
     public void shouldBuildElementDefinition() {
         // Given
         final ElementTransformer transformer = mock(ElementTransformer.class);
-        final ElementFilter filter = mock(ElementFilter.class);
-        final ElementFilter postFilter = mock(ElementFilter.class);
+        final KorypheElementFilter filter = mock(KorypheElementFilter.class);
+        final KorypheElementFilter postFilter = mock(KorypheElementFilter.class);
 
 
         // When
@@ -58,7 +58,7 @@ public class ViewElementDefinitionTest {
     public void shouldFailToBuildElementDefinitionWhenPreAggregationFilterSpecifiedTwice() {
         // Given
         final ElementTransformer transformer = mock(ElementTransformer.class);
-        final ElementFilter filter = mock(ElementFilter.class);
+        final KorypheElementFilter filter = mock(KorypheElementFilter.class);
 
         // When
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
@@ -74,7 +74,7 @@ public class ViewElementDefinitionTest {
     public void shouldFailToBuildElementDefinitionWhenPostAggregationFilterSpecifiedTwice() {
         // Given
         final ElementTransformer transformer = mock(ElementTransformer.class);
-        final ElementFilter filter = mock(ElementFilter.class);
+        final KorypheElementFilter filter = mock(KorypheElementFilter.class);
 
         // When
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()
@@ -90,7 +90,7 @@ public class ViewElementDefinitionTest {
     public void shouldFailToBuildElementDefinitionWhenPostTransformFilterSpecifiedTwice() {
         // Given
         final ElementTransformer transformer = mock(ElementTransformer.class);
-        final ElementFilter postFilter = mock(ElementFilter.class);
+        final KorypheElementFilter postFilter = mock(KorypheElementFilter.class);
 
         // When
         final ViewElementDefinition elementDef = new ViewElementDefinition.Builder()

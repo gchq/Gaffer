@@ -24,7 +24,7 @@ ${DATA_SCHEMA_JSON}
 and we've defined a new `"visibility.string"` type in our DataTypes, which is a Java String and must be non-null to be loaded into the Graph.:
 ${DATA_TYPES_JSON}
 
-We've also updated the StoreTypes and specified that the visibility property is serialised using the custom ${VISIBILITY_SERIALISER_LINK} aggregated using the ${VISIBILITY_AGGREGATOR_LINK} function.
+We've also updated the StoreTypes and specified that the visibility property is serialised using the custom ${VISIBILITY_SERIALISER_LINK} aggregated using the ${VISIBILITY_AGGREGATOR_LINK} predicate.
 ${STORE_TYPES_JSON}
 
 

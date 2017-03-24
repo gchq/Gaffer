@@ -13,7 +13,7 @@ When defining an Element we must provide a "group". This is a unique string that
 Edges must have the following:
 - source - this is the type of object that will be used as the source vertex in your graph. The value here is just a string similar to a property type (it could actually be the same type as a property type).
 - destination - similar to source, it can either be the same or a different type.
-- directed - we need to tell Gaffer if the edge is directed or undirected. The easiest way to currently do that is to create a type called "true", "false" and define that type in the Data Type schema as being a boolean with a filter function to check the boolean is true or false
+- directed - we need to tell Gaffer if the edge is directed or undirected. The easiest way to currently do that is to create a type called "true", "false" and define that type in the Data Type schema as being a boolean with a filter predicate to check the boolean is true or false
 
 Entities must have a vertex field - again this is similar to the source and destination fields on an Edge.
 
@@ -54,7 +54,7 @@ ${DATA_TYPES_JSON}
 These fields are optional:
 
 - serialiserClass - the java class of the serialiser to use. If this is not provided Gaffer will attempt to select an appropriate one for you - this is only available for simple java types.
-- aggregateFunction - the aggregate function to use to aggregate/summarise/merge property values of the same type together.
+- aggregateFunction - the aggregate predicate to use to aggregate/summarise/merge property values of the same type together.
 
 Here are some example Store Types
 ${STORE_TYPES_JSON}

@@ -49,7 +49,7 @@ public class ViewIT {
 //        assertEquals(1, projection.size());
 //        assertEquals(TestPropertyNames.TRANSIENT_1, projection.get(0));
 //
-//        assertTrue(contexts.get(0).getFunction() instanceof ExampleTransformFunction);
+//        assertTrue(contexts.get(0).getPredicate() instanceof ExampleTransformFunction);
 //
 //        final ElementFilter postFilter = edge.getPostTransformFilter();
 //        assertNotNull(postFilter);
@@ -61,7 +61,7 @@ public class ViewIT {
 //        assertEquals(1, postFilterSelection.size());
 //        assertEquals(TestPropertyNames.TRANSIENT_1, postFilterSelection.get(0));
 //
-//        assertTrue(filterContexts.get(0).getFunction() instanceof ExampleFilterFunction);
+//        assertTrue(filterContexts.get(0).getPredicate() instanceof ExampleFilterFunction);
 //
 //
 //    }

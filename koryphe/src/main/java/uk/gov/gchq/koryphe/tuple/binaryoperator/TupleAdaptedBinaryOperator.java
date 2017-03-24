@@ -20,6 +20,7 @@ import uk.gov.gchq.koryphe.tuple.TupleInputAdapter;
 import uk.gov.gchq.koryphe.tuple.TupleOutputAdapter;
 import uk.gov.gchq.koryphe.tuple.TupleReverseOutputAdapter;
 import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 /**
@@ -41,5 +42,10 @@ public class TupleAdaptedBinaryOperator<R, FT> extends TupleAdaptedBiFunction<R,
         this();
         setFunction(function);
         setSelection(selection);
+    }
+
+    @Override
+    public BinaryOperator<FT> getFunction() {
+        return (BinaryOperator<FT>) super.getFunction();
     }
 }

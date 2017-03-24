@@ -26,6 +26,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.koryphe.KorypheElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -50,9 +51,9 @@ import java.util.Set;
 public class ViewElementDefinition implements ElementDefinition, Cloneable {
     private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     protected ElementTransformer transformer;
-    protected ElementFilter preAggregationFilter;
-    protected ElementFilter postAggregationFilter;
-    protected ElementFilter postTransformFilter;
+    protected KorypheElementFilter preAggregationFilter;
+    protected KorypheElementFilter postAggregationFilter;
+    protected KorypheElementFilter postTransformFilter;
 
     /**
      * This field overrides the group by properties in the schema.
@@ -121,7 +122,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonIgnore
-    public ElementFilter getPreAggregationFilter() {
+    public KorypheElementFilter getPreAggregationFilter() {
         return preAggregationFilter;
     }
 
@@ -131,7 +132,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonIgnore
-    public ElementFilter getPostAggregationFilter() {
+    public KorypheElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
     }
 
@@ -141,7 +142,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonIgnore
-    public ElementFilter getPostTransformFilter() {
+    public KorypheElementFilter getPostTransformFilter() {
         return postTransformFilter;
     }
 
@@ -255,7 +256,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS preAggregationFilter(final ElementFilter preAggregationFilter) {
+        public CHILD_CLASS preAggregationFilter(final KorypheElementFilter preAggregationFilter) {
             if (null != getElementDef().getPreAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().preAggregationFilter(ElementFilter)" +
                         "may only be called once.");
@@ -266,12 +267,12 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         }
 
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
-            getElementDef().preAggregationFilter = new ElementFilter();
+            getElementDef().preAggregationFilter = new KorypheElementFilter();
             getElementDef().preAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
         }
 
-        public CHILD_CLASS postAggregationFilter(final ElementFilter postAggregationFilter) {
+        public CHILD_CLASS postAggregationFilter(final KorypheElementFilter postAggregationFilter) {
             if (null != getElementDef().getPostAggregationFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postAggregationFilter(ElementFilter)" +
                         "may only be called once.");
@@ -282,12 +283,12 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         }
 
         public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
-            getElementDef().postAggregationFilter = new ElementFilter();
+            getElementDef().postAggregationFilter = new KorypheElementFilter();
             getElementDef().postAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
         }
 
-        public CHILD_CLASS postTransformFilter(final ElementFilter postTransformFilter) {
+        public CHILD_CLASS postTransformFilter(final KorypheElementFilter postTransformFilter) {
             if (null != getElementDef().getPostTransformFilter()) {
                 throw new IllegalArgumentException("ViewElementDefinition.Builder().postTransformFilter(ElementFilter)" +
                         "may only be called once.");
@@ -298,7 +299,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         }
 
         public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
-            getElementDef().postTransformFilter = new ElementFilter();
+            getElementDef().postTransformFilter = new KorypheElementFilter();
             getElementDef().postTransformFilter.getFunctions().addAll(filterFunctions);
             return self();
         }

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.function.koryphe.KorypheElementFilter;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import java.util.ArrayList;
@@ -112,13 +113,13 @@ public class ViewTest {
                                 .execute(new ExampleTransformFunction())
                                 .project(TestPropertyNames.PROP_3)
                                 .build())
-                        .postTransformFilter(new ElementFilter.Builder()
+                        .postTransformFilter(new KorypheElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_3)
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
+                        .preAggregationFilter(new KorypheElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new ExampleFilterFunction())
                                 .build())

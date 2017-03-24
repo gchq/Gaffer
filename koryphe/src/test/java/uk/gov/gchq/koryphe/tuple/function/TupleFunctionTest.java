@@ -16,99 +16,126 @@
 
 package uk.gov.gchq.koryphe.tuple.function;
 
+import org.junit.Test;
+import uk.gov.gchq.koryphe.function.MockFunction;
+import uk.gov.gchq.koryphe.tuple.Tuple;
+import uk.gov.gchq.koryphe.tuple.TupleInputAdapter;
+import uk.gov.gchq.koryphe.tuple.TupleOutputAdapter;
+import uk.gov.gchq.koryphe.tuple.n.Tuple1;
+import uk.gov.gchq.koryphe.tuple.n.Tuple2;
+import uk.gov.gchq.koryphe.util.JsonSerialiser;
+
+import java.io.IOException;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 public class TupleFunctionTest {
     //TODO: add tests
-//    @Test
-//    public void testSingleFunctionTransformation() {
-//        String input1 = "input1";
-//        String output1a = "output1a";
-//        String output1b = "output1b";
-//        Tuple2<String, String> output1 = new Value2<>(output1a, output1b);
-//
-//        Tuple<String> tuple = mock(Tuple.class);
-//
-//        // set up a function
-//        TupleFunction<String, String, Tuple2<String, String>> function = new TupleFunction<>();
-//        Function<String, Tuple2<String, String>> function1 = mock(Function.class);
-//        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
-//        TupleAdapter<String, Tuple2<String, String>> outputAdapter = mock(TupleAdapter.class);
-//        given(inputAdapter.select(tuple)).willReturn(input1);
-//        given(function1.apply(input1)).willReturn(output1);
-//        function.setFunction(function1);
-//        function.setSelection(inputAdapter);
-//        function.setProjection(outputAdapter);
-//
-//        // apply it
-//        function.apply(tuple);
-//
-//        // check it was called as expected
-//        verify(inputAdapter, times(1)).select(tuple);
-//        verify(function1, times(1)).apply(input1);
-//        verify(outputAdapter, times(1)).project(tuple, output1);
-//    }
-//
-//    @Test
-//    public void testMultiTupleTransformation() {
-//        String input = "input";
-//        String output = "output";
-//
-//        TupleFunction<String, String, String> function = new TupleFunction<>();
-//
-//        //create some tuples
-//        int times = 5;
-//        Tuple<String>[] tuples = new Tuple[times];
-//        for (int i = 0; i < times; i++) {
-//            tuples[i] = mock(Tuple.class);
-//        }
-//
-//        // set up a function to transform the tuples
-//        Function<String, String> function1 = mock(Function.class);
-//        TupleAdapter<String, String> inputAdapter = mock(TupleAdapter.class);
-//        TupleAdapter<String, String> outputAdapter = mock(TupleAdapter.class);
-//        function.setFunction(function1);
-//        function.setSelection(inputAdapter);
-//        function.setProjection(outputAdapter);
-//        for (int i = 0; i < times; i++) {
-//            given(inputAdapter.select(tuples[i])).willReturn(input + i);
-//            given(function1.apply(input + i)).willReturn(output + i);
-//        }
-//
-//        // apply transformations
-//        for (int i = 0; i < times; i++) {
-//            function.apply(tuples[i]);
-//        }
-//
-//        // check expected calls
-//        for (int i = 0; i < times; i++) {
-//            verify(inputAdapter, times(1)).select(tuples[i]);
-//            verify(function1, times(1)).apply(input + i);
-//            verify(outputAdapter, times(1)).project(tuples[i], output + i);
-//        }
-//    }
-//
-//    @Test
-//    public void shouldJsonSerialiseAndDeserialise() throws IOException {
-//        TupleFunction<String, Object, Object> function = new TupleFunction<>();
-//        MockFunction mockFunction = new MockFunction();
-//        function.setFunction(mockFunction);
-//        TupleAdapter<String, Object> inputAdapter = new TupleAdapter<>("a");
-//        TupleAdapter<String, Object> outputAdapter = new TupleAdapter<>("b");
-//        function.setSelection(inputAdapter);
-//        function.setProjection(outputAdapter);
-//
-//        String json = JsonSerialiser.serialise(function);
-//        TupleFunction<String, Object, Object> deserialisedFunction = JsonSerialiser.deserialise(json, TupleFunction.class);
-//        assertNotSame(function, deserialisedFunction);
-//
-//        Function<Object, Object> functionCopy = deserialisedFunction.getFunction();
-//        assertNotSame(function, functionCopy);
-//        assertTrue(functionCopy instanceof MockFunction);
-//
-//        TupleAdapter<String, Object> inputAdapterCopy = deserialisedFunction.getSelection();
-//        TupleAdapter<String, Object> outputAdapterCopy = deserialisedFunction.getProjection();
-//        assertNotSame(inputAdapter, inputAdapterCopy);
-//        assertTrue(inputAdapterCopy instanceof TupleAdapter);
-//        assertNotSame(outputAdapter, outputAdapterCopy);
-//        assertTrue(outputAdapterCopy instanceof TupleAdapter);
-//    }
+    @Test
+    public void testSingleFunctionTransformation() {
+        String input1 = "input1";
+        String output1a = "output1a";
+        String output1b = "output1b";
+        Tuple2<String, String> output1 = new Tuple2<>(output1a, output1b);
+
+        Tuple<String> tuple = mock(Tuple.class);
+
+        // set up a function
+        TupleAdaptedFunction<String, String, Tuple2<String, String>> function = new TupleAdaptedFunction<>();
+        Function<String, Tuple2<String, String>> function1 = mock(Function.class);
+        Function<Tuple<String>, String> inputAdapter = mock(Function.class);
+        BiFunction<Tuple2<String, String>, Tuple<String>, Tuple<String>> outputAdapter = mock(BiFunction.class);
+        given(inputAdapter.apply(tuple)).willReturn(input1);
+        given(function1.apply(input1)).willReturn(output1);
+        function.setFunction(function1);
+        function.setInputAdapter(inputAdapter);
+        function.setOutputAdapter(outputAdapter);
+
+        // apply it
+        function.apply(tuple);
+
+        // check it was called as expected
+        verify(inputAdapter, times(1)).apply(tuple);
+        verify(function1, times(1)).apply(input1);
+        verify(outputAdapter, times(1)).apply(output1, tuple);
+    }
+
+    @Test
+    public void testMultiTupleTransformation() {
+        String input = "input";
+        String output = "output";
+
+        TupleAdaptedFunction<String, String, String> function = new TupleAdaptedFunction<>();
+
+        //create some tuples
+        int times = 5;
+        Tuple<String>[] tuples = new Tuple[times];
+        for (int i = 0; i < times; i++) {
+            tuples[i] = mock(Tuple.class);
+        }
+
+        // set up a function to transform the tuples
+        Function<String, String> function1 = mock(Function.class);
+        Function<Tuple<String>, String> inputAdapter = mock(Function.class);
+        BiFunction<String, Tuple<String>, Tuple<String>> outputAdapter = mock(BiFunction.class);
+        function.setFunction(function1);
+        function.setInputAdapter(inputAdapter);
+        function.setOutputAdapter(outputAdapter);
+        for (int i = 0; i < times; i++) {
+            given(inputAdapter.apply(tuples[i])).willReturn(input + i);
+            given(function1.apply(input + i)).willReturn(output + i);
+        }
+
+        // apply transformations
+        for (int i = 0; i < times; i++) {
+            function.apply(tuples[i]);
+        }
+
+        // check expected calls
+        for (int i = 0; i < times; i++) {
+            verify(inputAdapter, times(1)).apply(tuples[i]);
+            verify(function1, times(1)).apply(input + i);
+            verify(outputAdapter, times(1)).apply(output + i, tuples[i]);
+        }
+    }
+
+    @Test
+    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        TupleAdaptedFunction<String, Object, String> function = new TupleAdaptedFunction<>();
+        MockFunction mockFunction = new MockFunction();
+        function.setFunction(mockFunction);
+        Function<Tuple<String>, Object> inputAdapter = new MockInputAdapter();
+        BiFunction<String, Tuple<String>, Tuple<String>> outputAdapter = new MockOutputAdapter();
+        function.setInputAdapter(inputAdapter);
+        function.setOutputAdapter(outputAdapter);
+
+        String json = JsonSerialiser.serialise(function);
+        TupleAdaptedFunction<String, Object, String>  deserialisedFunction = JsonSerialiser.deserialise(json, TupleAdaptedFunction.class);
+        assertNotSame(function, deserialisedFunction);
+
+        Function<Object, String> functionCopy = deserialisedFunction.getFunction();
+        assertNotSame(function, functionCopy);
+        assertTrue(functionCopy instanceof MockFunction);
+
+        Function<Tuple<String>, Object> inputAdapterCopy = deserialisedFunction.getInputAdapter();
+        TupleOutputAdapter<String, String> outputAdapterCopy = deserialisedFunction.getOutputAdapter();
+        assertNotSame(inputAdapter, inputAdapterCopy);
+        assertTrue(inputAdapterCopy instanceof Function);
+        assertNotSame(outputAdapter, outputAdapterCopy);
+        assertTrue(outputAdapterCopy instanceof TupleOutputAdapter);
+    }
+
+    private static final class MockInputAdapter extends TupleInputAdapter<String, Object> {
+    }
+
+    private static final class MockOutputAdapter extends TupleOutputAdapter<String, String> {
+    }
+
 }

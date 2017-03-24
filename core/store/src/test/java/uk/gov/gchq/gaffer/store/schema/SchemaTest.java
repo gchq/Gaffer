@@ -119,42 +119,42 @@ public class SchemaTest {
 //        int index = 0;
 //
 //        TuplePredicate<String, Tuple<String>> tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(IdentifierType.SOURCE.name(), tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(IdentifierType.DESTINATION.name(), tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+//        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+//        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(TestPropertyNames.DATE, tuplePredicate.getSelection().get(0));
 //
 //        tuplePredicate = valContexts.get(index++);
-//        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+//        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
 //        assertEquals(1, tuplePredicate.getSelection().size());
 //        assertEquals(TestPropertyNames.TIMESTAMP, tuplePredicate.getSelection().get(0));
 //
@@ -183,12 +183,12 @@ public class SchemaTest {
 //        assertEquals(3, aggContexts.size());
 //
 //        PassThroughFunctionContext<String, AggregateFunction> aggContext = aggContexts.get(0);
-//        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+//        assertTrue(aggContext.getPredicate() instanceof ExampleAggregateFunction);
 //        assertEquals(1, aggContext.getSelection().size());
 //        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0));
 //
 //        aggContext = aggContexts.get(1);
-//        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+//        assertTrue(aggContext.getPredicate() instanceof ExampleAggregateFunction);
 //        assertEquals(1, aggContext.getSelection().size());
 //        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0));
 //    }
