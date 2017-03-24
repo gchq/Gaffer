@@ -22,10 +22,10 @@ import uk.gov.gchq.gaffer.graph.Graph;
 
 public class GraphTest {
     @Test
-    public void shouldReturnExpectedEntities() {
+    public void shouldInitialiseAccumuloGraph() {
         // When
         new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
+                .storeProperties(StreamUtil.openStream(getClass(), "accumulo/store.properties"))
                 .addSchema(StreamUtil.openStream(getClass(), "example-schema.json"))
                 .build();
 

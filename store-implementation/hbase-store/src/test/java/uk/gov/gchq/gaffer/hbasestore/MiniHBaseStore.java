@@ -39,7 +39,18 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 
+/**
+ * Uses {@link HBaseTestingUtility} to create a mini hbase instance for testing.
+ * Due to the additional dependencies required for the mini hbase instance this store
+ * will not work with the Gaffer REST API. There are conflicting versions of JAX-RS
+ * - the hbase testing utility requires JAX-RS 1 but the REST API needs JAX-RS 2.
+ */
 public class MiniHBaseStore extends HBaseStore {
+    /**
+     * Comma separated visibilities for use with the Mini HBase store.
+     */
+    public static final String MINI_HBASE_VISIBILITIES = "hbase.mini.visibilities";
+
     private static HBaseTestingUtility utility;
     private static Connection connection;
 
@@ -58,7 +69,7 @@ public class MiniHBaseStore extends HBaseStore {
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
                 conf.set("fs.defaultFS", "file:///");
-                addLabels(((HBaseProperties) properties).getMiniHBaseVisibilities());
+                addLabels(getMiniHBaseVisibilities(properties));
             } catch (final Exception e) {
                 throw new StoreException(e);
             }
@@ -67,7 +78,7 @@ public class MiniHBaseStore extends HBaseStore {
         super.initialise(schema, properties);
 
         try {
-            TableUtils.deleteAllRows(this, getProperties().getMiniHBaseVisibilities());
+            TableUtils.deleteAllRows(this, getMiniHBaseVisibilities(properties));
         } catch (final StoreException e) {
             TableUtils.dropTable(this);
             TableUtils.createTable(this);
@@ -130,5 +141,19 @@ public class MiniHBaseStore extends HBaseStore {
                 ScanLabelGenerator.class);
         conf.set(HConstants.REPLICATION_CODEC_CONF_KEY, KeyValueCodecWithTags.class.getName());
         return conf;
+    }
+
+    private String[] getMiniHBaseVisibilities(final StoreProperties properties) {
+        final String visibilityCsv = properties.get(MINI_HBASE_VISIBILITIES);
+        if (null == visibilityCsv) {
+            return new String[0];
+        }
+
+        final String[] visibilities = visibilityCsv.split(",");
+        for (int i = 0; i < visibilities.length; i++) {
+            visibilities[i] = visibilities[i].trim();
+        }
+
+        return visibilities;
     }
 }

@@ -25,7 +25,7 @@
     <artifactId>example-rest</artifactId>
     <packaging>war</packaging>
     <properties>
-        <store.type>hbase</store.type>
+        <store.type>accumulo</store.type>
     </properties>
     <dependencies>
         <dependency>
@@ -47,6 +47,12 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>

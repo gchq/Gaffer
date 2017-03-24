@@ -140,7 +140,6 @@ public class AddElementsFromHdfsIT {
         for (int i = 0; i < NUM_ENTITIES; i++) {
             assertEquals(TestGroups.ENTITY, elementList.get(i).getGroup());
             assertEquals(VERTEX_ID_PREFIX + i, ((Entity) elementList.get(i)).getVertex());
-            System.out.println(elementList.get(i));
             assertEquals(DUPLICATES, elementList.get(i).getProperty("count"));
         }
     }
