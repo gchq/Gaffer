@@ -151,7 +151,7 @@ public interface AccumuloElementConverter {
 
     /**
      * Helper Used to create Bloom Filters, method Serialises a given object
-     * (from an {@link uk.gov.gchq.gaffer.operation.data.EntitySeed} ) with the Identifier
+     * (from an {@link uk.gov.gchq.gaffer.data.element.id.EntityId} ) with the Identifier
      * Serialiser defined in the schema.
      *
      * @param vertex the vertex identifier to serialise
@@ -190,7 +190,7 @@ public interface AccumuloElementConverter {
      * Truncates the provided columnQualifier, returning the byte representation of the serialised version of the specified
      * properties.
      *
-     * @param group           the element group
+     * @param group    the element group
      * @param bytes    the full list of property bytes
      * @param numProps the number of properties to extract
      * @return the truncated property bytes.
@@ -246,7 +246,7 @@ public interface AccumuloElementConverter {
      * Creates a timestamp based on the provided {@link Properties}
      * will return a default value if properties do not have a valid timestamp value
      *
-     * @param properties  the element properties
+     * @param properties the element properties
      * @return the timestamp
      * @throws AccumuloElementConversionException If the timestamp extraction fails.
      */

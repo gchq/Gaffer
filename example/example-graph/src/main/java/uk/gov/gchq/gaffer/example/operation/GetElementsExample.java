@@ -35,8 +35,8 @@ public class GetElementsExample extends OperationExample {
     }
 
     public void runExamples() {
-        getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3();
-        getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1();
+        getEntitiesAndEdgesByEntityId2AndEdgeId2to3();
+        getEntitiesAndEdgesByEntityId2AndEdgeId2to3WithCountGreaterThan1();
 
         getEntitiesAndEdgesThatAreRelatedToVertex2();
         getAllEntitiesAndEdgesThatAreRelatedToEdge1to2();
@@ -87,7 +87,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3() {
+    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntityId2AndEdgeId2to3() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))
@@ -98,7 +98,7 @@ public class GetElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntitySeed2AndEdgeSeed2to3WithCountGreaterThan1() {
+    public CloseableIterable<? extends Element> getEntitiesAndEdgesByEntityId2AndEdgeId2to3WithCountGreaterThan1() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(2))

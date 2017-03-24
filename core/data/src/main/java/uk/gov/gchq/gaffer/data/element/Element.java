@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.io.Serializable;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map.Entry;
 
 /**
@@ -43,7 +43,7 @@ import java.util.Map.Entry;
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
 @JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
-public abstract class Element implements Serializable {
+public abstract class Element implements ElementId {
     public static final String DEFAULT_GROUP = "UNKNOWN";
 
     private Properties properties;
@@ -59,7 +59,7 @@ public abstract class Element implements Serializable {
     }
 
     public void putProperty(final String name, final Object value) {
-            properties.put(name, value);
+        properties.put(name, value);
     }
 
     public void copyProperties(final Properties properties) {

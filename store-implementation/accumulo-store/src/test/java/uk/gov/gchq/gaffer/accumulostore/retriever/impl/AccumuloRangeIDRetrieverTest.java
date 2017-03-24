@@ -28,12 +28,11 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -88,7 +87,7 @@ public class AccumuloRangeIDRetrieverTest {
 
     private void shouldRetieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner

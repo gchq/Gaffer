@@ -21,11 +21,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.operation.MultiInputB;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -33,17 +33,17 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * Given two sets of {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s, called A and B,
+ * Given two sets of {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s, called A and B,
  * this retrieves all {@link uk.gov.gchq.gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B and also returns
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s in set A.
+ * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  */
 public class GetElementsBetweenSets implements
         Operation,
-        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>>,
-        MultiInput<EntitySeed>,
-        MultiInputB<EntitySeed>,
+        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>>,
+        MultiInput<EntityId>,
+        MultiInputB<EntityId>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -51,8 +51,8 @@ public class GetElementsBetweenSets implements
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    private Iterable<? extends EntitySeed> input;
-    private Iterable<? extends EntitySeed> inputB;
+    private Iterable<? extends EntityId> input;
+    private Iterable<? extends EntityId> inputB;
     private Map<String, String> options;
 
     /**
@@ -99,12 +99,12 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public Iterable<? extends EntitySeed> getInput() {
+    public Iterable<? extends EntityId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends EntitySeed> input) {
+    public void setInput(final Iterable<? extends EntityId> input) {
         this.input = input;
     }
 
@@ -136,19 +136,19 @@ public class GetElementsBetweenSets implements
     }
 
     @Override
-    public Iterable<? extends EntitySeed> getInputB() {
+    public Iterable<? extends EntityId> getInputB() {
         return inputB;
     }
 
     @Override
-    public void setInputB(final Iterable<? extends EntitySeed> inputB) {
+    public void setInputB(final Iterable<? extends EntityId> inputB) {
         this.inputB = inputB;
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElementsBetweenSets, Builder>
-            implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntitySeed>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
-            MultiInputB.Builder<GetElementsBetweenSets, EntitySeed, Builder>,
+            implements InputOutput.Builder<GetElementsBetweenSets, Iterable<? extends EntityId>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElementsBetweenSets, EntityId, Builder>,
+            MultiInputB.Builder<GetElementsBetweenSets, EntityId, Builder>,
             SeededGraphFilters.Builder<GetElementsBetweenSets, Builder>,
             SeedMatching.Builder<GetElementsBetweenSets, Builder>,
             Options.Builder<GetElementsBetweenSets, Builder> {

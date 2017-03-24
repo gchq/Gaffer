@@ -21,18 +21,20 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.GlobalViewElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -66,7 +68,7 @@ public class ExamplesService implements IExamplesService {
     @Override
     public OperationChain execute() {
         return new OperationChain.Builder()
-                .first(getAdjacentEntitySeeds())
+                .first(getAdjacentIds())
                 .then(new GetElements())
                 .build();
     }
@@ -79,13 +81,13 @@ public class ExamplesService implements IExamplesService {
     @Override
     public GetElements getElementsBySeed() {
         final GetElements op = new GetElements();
-        final List<ElementSeed> seeds = new ArrayList<>();
+        final List<ElementId> seeds = new ArrayList<>();
         if (hasEntities()) {
-            seeds.add(getEntitySeed(1));
+            seeds.add(getEntityId(1));
         }
 
         if (hasEdges()) {
-            seeds.add(getEdgeSeed(1, 2));
+            seeds.add(getEdgeId(1, 2));
         }
 
         op.setInput(seeds);
@@ -96,15 +98,15 @@ public class ExamplesService implements IExamplesService {
     @Override
     public GetElements getRelatedElements() {
         final GetElements op = new GetElements();
-        final List<ElementSeed> seeds = new ArrayList<>();
+        final List<ElementId> seeds = new ArrayList<>();
         if (hasEntities()) {
-            seeds.add(getEntitySeed(1));
+            seeds.add(getEntityId(1));
         } else if (hasEdges()) {
-            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
         }
 
         if (hasEdges()) {
-            seeds.add(getEdgeSeed(1, 2));
+            seeds.add(getEdgeId(1, 2));
         }
 
         op.setInput(seeds);
@@ -113,13 +115,13 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
-    public GetAdjacentEntitySeeds getAdjacentEntitySeeds() {
-        final GetAdjacentEntitySeeds op = new GetAdjacentEntitySeeds();
-        final List<EntitySeed> seeds = new ArrayList<>();
+    public GetAdjacentIds getAdjacentIds() {
+        final GetAdjacentIds op = new GetAdjacentIds();
+        final List<EntityId> seeds = new ArrayList<>();
         if (hasEntities()) {
-            seeds.add(getEntitySeed(1));
+            seeds.add(getEntityId(1));
         } else if (hasEdges()) {
-            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
         }
 
         op.setInput(seeds);
@@ -137,15 +139,15 @@ public class ExamplesService implements IExamplesService {
     @Override
     public GetElements getElements() {
         final GetElements op = new GetElements();
-        final List<ElementSeed> seeds = new ArrayList<>();
+        final List<ElementId> seeds = new ArrayList<>();
         if (hasEntities()) {
-            seeds.add(getEntitySeed(1));
+            seeds.add(getEntityId(1));
         } else if (hasEdges()) {
-            seeds.add(new EntitySeed(getEdgeSeed(1, 2).getSource()));
+            seeds.add(new EntitySeed(getEdgeId(1, 2).getSource()));
         }
 
         if (hasEdges()) {
-            seeds.add(getEdgeSeed(1, 2));
+            seeds.add(getEdgeId(1, 2));
         }
 
         op.setInput(seeds);
@@ -291,12 +293,12 @@ public class ExamplesService implements IExamplesService {
         return edge;
     }
 
-    protected EntitySeed getEntitySeed(final int uniqueId) {
+    protected EntityId getEntityId(final int uniqueId) {
         return new EntitySeed(
                 getExampleVertex(getSchema().getEntity(getAnEntityGroup()).getIdentifierClass(IdentifierType.VERTEX), uniqueId));
     }
 
-    protected EdgeSeed getEdgeSeed(final int uniqueId1, final int uniqueId2) {
+    protected EdgeId getEdgeId(final int uniqueId1, final int uniqueId2) {
         return new EdgeSeed(
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.SOURCE), uniqueId1),
                 getExampleVertex(getSchema().getEdge(getAnEdgeGroup()).getIdentifierClass(IdentifierType.DESTINATION), uniqueId2),

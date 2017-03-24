@@ -17,13 +17,14 @@
 package uk.gov.gchq.gaffer.operation.data;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
  * An <code>EntitySeed</code> contains a single vertex for an {@link uk.gov.gchq.gaffer.data.element.Entity}.
  * It is used as a mainly used as a seed for queries.
  */
-public class EntitySeed extends ElementSeed {
+public class EntitySeed extends ElementSeed implements EntityId {
+    private static final long serialVersionUID = -1668220155074029644L;
     private Object vertex;
 
     public EntitySeed() {
@@ -42,52 +43,6 @@ public class EntitySeed extends ElementSeed {
         this.vertex = vertex;
     }
 
-    /**
-     * This {@link EntitySeed} is related to an
-     * {@link ElementSeed} if either the ElementSeed is equal to this EntitySeed or it is
-     * an EdgeSeed and it's source or destination matches this EntitySeed's vertex.
-     *
-     * @param that the {@link ElementSeed} to compare
-     * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
-     */
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Edge it must be an Edge")
-    @Override
-    public Matches isRelated(final ElementSeed that) {
-        if (that instanceof EntitySeed) {
-            if (equals(that)) {
-                return Matches.VERTEX;
-            }
-            return Matches.NONE;
-        }
-
-        return isRelated((EdgeSeed) that);
-    }
-
-    /**
-     * This {@link EntitySeed} is related to an
-     * {@link EdgeSeed} if either EdgeSeed's source or destination matches this
-     * EntitySeed's vertex.
-     *
-     * @param that the {@link EdgeSeed} to compare
-     * @return An instance of {@link ElementSeed.Matches} to describe how the seeds are related.
-     */
-    public Matches isRelated(final EdgeSeed that) {
-        boolean matchesSource = (vertex == null) ? that.getSource() == null : vertex.equals(that.getSource());
-        boolean matchesDestination = (vertex == null) ? that.getDestination() == null : vertex.equals(that.getDestination());
-        if (matchesSource) {
-            if (matchesDestination) {
-                return Matches.BOTH;
-            }
-            return Matches.SOURCE;
-        }
-
-        if (matchesDestination) {
-            return Matches.DESTINATION;
-        }
-
-        return Matches.NONE;
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -98,7 +53,7 @@ public class EntitySeed extends ElementSeed {
         }
 
         final EntitySeed that = (EntitySeed) o;
-        return !(vertex != null ? !vertex.equals(that.vertex) : that.vertex != null);
+        return !(vertex != null ? !vertex.equals(that.getVertex()) : that.getVertex() != null);
     }
 
     @Override
@@ -108,7 +63,7 @@ public class EntitySeed extends ElementSeed {
 
     @Override
     public String toString() {
-        return "EntitySeed{"
+        return "EntityId{"
                 + "vertex=" + vertex
                 + '}';
     }

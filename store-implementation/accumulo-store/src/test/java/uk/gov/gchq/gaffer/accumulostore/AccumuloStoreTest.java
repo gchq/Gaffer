@@ -42,6 +42,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
@@ -130,12 +131,12 @@ public class AccumuloStoreTest {
                 .build();
         store.execute(add, user);
 
-        final EntitySeed entitySeed1 = new EntitySeed("1");
+        final EntityId entityId1 = new EntitySeed("1");
         final GetElements getBySeed = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .input(entitySeed1)
+                .input(entityId1)
                 .build();
         final CloseableIterable<? extends Element> results = store.execute(getBySeed, user);
 
@@ -146,7 +147,7 @@ public class AccumuloStoreTest {
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .input(entitySeed1)
+                .input(entityId1)
                 .build();
         CloseableIterable<? extends Element> relatedResults = store.execute(getRelated, user);
         assertEquals(1, Iterables.size(relatedResults));
@@ -165,7 +166,7 @@ public class AccumuloStoreTest {
                                         .build())
                                 .build())
                         .build())
-                .input(entitySeed1)
+                .input(entityId1)
                 .build();
         relatedResults = store.execute(getRelatedWithPostAggregationFilter, user);
         assertEquals(0, Iterables.size(relatedResults));

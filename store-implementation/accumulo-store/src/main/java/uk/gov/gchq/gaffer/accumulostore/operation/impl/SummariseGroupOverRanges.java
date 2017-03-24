@@ -20,10 +20,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -40,24 +40,24 @@ import java.util.Map;
  */
 public class SummariseGroupOverRanges
         implements Operation,
-        InputOutput<Iterable<? extends Pair<? extends ElementSeed>>, CloseableIterable<? extends Element>>,
-        MultiInput<Pair<? extends ElementSeed>>,
+        InputOutput<Iterable<? extends Pair<? extends ElementId>>, CloseableIterable<? extends Element>>,
+        MultiInput<Pair<? extends ElementId>>,
         SeededGraphFilters,
         Options {
 
-    private Iterable<? extends Pair<? extends ElementSeed>> input;
+    private Iterable<? extends Pair<? extends ElementId>> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
     private Map<String, String> options;
 
     @Override
-    public Iterable<? extends Pair<? extends ElementSeed>> getInput() {
+    public Iterable<? extends Pair<? extends ElementId>> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends Pair<? extends ElementSeed>> input) {
+    public void setInput(final Iterable<? extends Pair<? extends ElementId>> input) {
         this.input = input;
     }
 
@@ -107,8 +107,8 @@ public class SummariseGroupOverRanges
     }
 
     public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
-            implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementSeed>>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementSeed>, Builder>,
+            implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId>, Builder>,
             SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
             Options.Builder<SummariseGroupOverRanges, Builder> {
         public Builder() {

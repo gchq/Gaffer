@@ -19,10 +19,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -31,15 +31,15 @@ import java.util.Map;
 
 public class GetRDDOfElements implements
         Operation,
-        InputOutput<Iterable<? extends ElementSeed>, RDD<Element>>,
-        MultiInput<ElementSeed>,
+        InputOutput<Iterable<? extends ElementId>, RDD<Element>>,
+        MultiInput<ElementId>,
         SeededGraphFilters,
         Rdd,
         Options {
 
     private Map<String, String> options;
     private SparkContext sparkContext;
-    private Iterable<? extends ElementSeed> input;
+    private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
@@ -77,12 +77,12 @@ public class GetRDDOfElements implements
     }
 
     @Override
-    public Iterable<? extends ElementSeed> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends ElementSeed> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
@@ -117,8 +117,8 @@ public class GetRDDOfElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>
-            implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementSeed>, RDD<Element>, Builder>,
-            MultiInput.Builder<GetRDDOfElements, ElementSeed, Builder>,
+            implements InputOutput.Builder<GetRDDOfElements, Iterable<? extends ElementId>, RDD<Element>, Builder>,
+            MultiInput.Builder<GetRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetRDDOfElements, Builder>,
             Rdd.Builder<GetRDDOfElements, Builder>,
             Options.Builder<GetRDDOfElements, Builder> {

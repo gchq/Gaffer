@@ -32,10 +32,10 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
@@ -99,11 +99,11 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("1")));
         final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(defaultView).input(simpleEntityRanges).build();
 
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
@@ -114,7 +114,7 @@ public class GetElementsinRangesHandlerTest {
         elementsInRanges.close();
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("08")));
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         final int count = Iterables.size(elements);
         //Each Edge was put in 3 times with different col qualifiers, without summarisation we expect this number
@@ -135,10 +135,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -161,7 +161,7 @@ public class GetElementsinRangesHandlerTest {
         elementsInRange.close();
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("08")));
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
@@ -186,10 +186,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("C")));
+        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("C")));
 
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -215,7 +215,7 @@ public class GetElementsinRangesHandlerTest {
         rangeElements.close();
         simpleEntityRanges.clear();
         //This should get everything between 0 and 0799 (again being string ordering 0800 is more than 08)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("08")));
+        simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("08")));
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
         count = 0;
         for (final Element elm : elements) {
@@ -239,11 +239,11 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -276,10 +276,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementSeed>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementSeed>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()

@@ -40,7 +40,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 
@@ -117,7 +117,7 @@ public class LoadAndQuery {
         // Create an operation chain.
         // So the chain operation will get the adjacent review entity seeds then get the review entities.
         final OperationChain<CloseableIterable<? extends Element>> queryChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds.Builder()
+                .first(new GetAdjacentIds.Builder()
                         .view(new View.Builder()
                                 .edge(Group.VIEWING)
                                 .build())

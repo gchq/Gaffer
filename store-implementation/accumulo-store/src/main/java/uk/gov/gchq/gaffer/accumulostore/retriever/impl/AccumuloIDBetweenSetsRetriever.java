@@ -28,18 +28,18 @@ import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Given two sets of {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s, called A and B,
+ * Given two sets of {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s, called A and B,
  * this retrieves all {@link uk.gov.gchq.gaffer.data.element.Edge}s where one end is in set
  * A and the other is in set B and also returns
  * {@link uk.gov.gchq.gaffer.data.element.Entity}s for
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s in set A.
+ * {@link uk.gov.gchq.gaffer.data.element.id.EntityId}s in set A.
  * <p>
  * This is done by querying for set A, and uses a
  * {@link org.apache.hadoop.util.bloom.BloomFilter}s in a filtering iterator to
@@ -67,11 +67,10 @@ import java.util.Set;
  * further reduce the chances of false positives making it to the user.
  */
 public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElementsBetweenSets> {
-    private Iterable<? extends EntitySeed> seedSetA;
-    private Iterable<? extends EntitySeed> seedSetB;
-    private Iterator<? extends EntitySeed> seedSetAIter;
-    private Iterator<? extends EntitySeed> seedSetBIter;
-
+    private Iterable<? extends EntityId> seedSetA;
+    private Iterable<? extends EntityId> seedSetB;
+    private Iterator<? extends EntityId> seedSetAIter;
+    private Iterator<? extends EntityId> seedSetBIter;
 
     public AccumuloIDBetweenSetsRetriever(final AccumuloStore store,
                                           final GetElementsBetweenSets operation,
@@ -89,7 +88,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
         setSeeds(operation.getInput(), operation.getInputB());
     }
 
-    private void setSeeds(final Iterable<? extends EntitySeed> setA, final Iterable<? extends EntitySeed> setB) {
+    private void setSeeds(final Iterable<? extends EntityId> setA, final Iterable<? extends EntityId> setB) {
         this.seedSetA = setA;
         this.seedSetB = setB;
     }
@@ -147,7 +146,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
         }
 
         @Override
-        protected void updateBloomFilterIfRequired(final EntitySeed seed) throws RetrieverException {
+        protected void updateBloomFilterIfRequired(final EntityId seed) throws RetrieverException {
             // no action required.
         }
 

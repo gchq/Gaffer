@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -54,8 +55,8 @@ public class GetElementsBetweenSetsHandlerTest {
 
     private final long TIMESTAMP = System.currentTimeMillis();
     // Query for all edges between the set {A0} and the set {A23}
-    private final List<EntitySeed> seedsA = Arrays.asList(new EntitySeed("A0"));
-    private final List<EntitySeed> inputB = Arrays.asList(new EntitySeed("A23"));
+    private final List<EntityId> seedsA = Arrays.asList(new EntitySeed("A0"));
+    private final List<EntityId> inputB = Arrays.asList(new EntitySeed("A23"));
 
     private static View defaultView;
     private static AccumuloStore byteEntityStore;

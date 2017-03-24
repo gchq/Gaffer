@@ -79,7 +79,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
-        printJava("GetJavaRDDOfAllElements<ElementSeed> operation = new GetJavaRDDOfAllElements.Builder<>()\n"
+        printJava("GetJavaRDDOfAllElements<ElementId> operation = new GetJavaRDDOfAllElements.Builder<>()\n"
                 + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
@@ -107,7 +107,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
-        printJava("GetJavaRDDOfAllElements<ElementSeed> operation = new GetJavaRDDOfAllElements.Builder<>()\n"
+        printJava("GetJavaRDDOfAllElements<ElementId> operation = new GetJavaRDDOfAllElements.Builder<>()\n"
                 + "                .view(new View.Builder()\n" +
                 "                        .edge(\"edge\")\n" +
                 "                        .build())\n"

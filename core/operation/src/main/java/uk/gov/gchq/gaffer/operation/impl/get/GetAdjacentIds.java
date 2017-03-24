@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -31,20 +31,19 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * An <code>GetAdjacentEntitySeeds</code> operation will return the
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}s at the opposite end of connected edges to a seed
- * {@link uk.gov.gchq.gaffer.operation.data.EntitySeed}.
+ * A <code>GetAdjacentIds</code> operation will return the
+ * vertex at the opposite end of connected edges to a provided seed vertex.
  *
- * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
-public class GetAdjacentEntitySeeds implements
+public class GetAdjacentIds implements
         Operation,
-        InputOutput<Iterable<? extends EntitySeed>, CloseableIterable<? extends EntitySeed>>,
-        MultiInput<EntitySeed>,
+        InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>>,
+        MultiInput<EntityId>,
         SeededGraphFilters,
         Options {
     private View view;
-    private Iterable<? extends EntitySeed> input;
+    private Iterable<? extends EntityId> input;
     private DirectedType directedType;
     private Map<String, String> options;
     private IncludeIncomingOutgoingType inOutType;
@@ -82,18 +81,18 @@ public class GetAdjacentEntitySeeds implements
     }
 
     @Override
-    public Iterable<? extends EntitySeed> getInput() {
+    public Iterable<? extends EntityId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends EntitySeed> input) {
+    public void setInput(final Iterable<? extends EntityId> input) {
         this.input = input;
     }
 
     @Override
-    public TypeReference<CloseableIterable<? extends EntitySeed>> getOutputTypeReference() {
-        return new TypeReferenceImpl.CloseableIterableEntitySeed();
+    public TypeReference<CloseableIterable<? extends EntityId>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableEntityId();
     }
 
     @Override
@@ -116,13 +115,13 @@ public class GetAdjacentEntitySeeds implements
         this.inOutType = inOutType;
     }
 
-    public static class Builder extends Operation.BaseBuilder<GetAdjacentEntitySeeds, Builder>
-            implements InputOutput.Builder<GetAdjacentEntitySeeds, Iterable<? extends EntitySeed>, CloseableIterable<? extends EntitySeed>, Builder>,
-            MultiInput.Builder<GetAdjacentEntitySeeds, EntitySeed, Builder>,
-            SeededGraphFilters.Builder<GetAdjacentEntitySeeds, Builder>,
-            Options.Builder<GetAdjacentEntitySeeds, Builder> {
+    public static class Builder extends Operation.BaseBuilder<GetAdjacentIds, Builder>
+            implements InputOutput.Builder<GetAdjacentIds, Iterable<? extends EntityId>, CloseableIterable<? extends EntityId>, Builder>,
+            MultiInput.Builder<GetAdjacentIds, EntityId, Builder>,
+            SeededGraphFilters.Builder<GetAdjacentIds, Builder>,
+            Options.Builder<GetAdjacentIds, Builder> {
         public Builder() {
-            super(new GetAdjacentEntitySeeds());
+            super(new GetAdjacentIds());
         }
     }
 }

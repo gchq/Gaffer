@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
@@ -59,7 +59,7 @@ public class OperationAuthoriserTest {
         // Given
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())  // Requires SuperUser
+                .first(new GetAdjacentIds())  // Requires SuperUser
                 .build();
 
         final User user = new User.Builder()
@@ -80,7 +80,7 @@ public class OperationAuthoriserTest {
         // Given
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
+                .first(new GetAdjacentIds())
                 .then(new GetElements())
                 .build();
 
@@ -100,7 +100,7 @@ public class OperationAuthoriserTest {
         // Given
         final OperationAuthoriser opAuthoriser = new OperationAuthoriser(StreamUtil.opAuths(getClass()));
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds())
+                .first(new GetAdjacentIds())
                 .then(new GetElements())
                 .build();
 

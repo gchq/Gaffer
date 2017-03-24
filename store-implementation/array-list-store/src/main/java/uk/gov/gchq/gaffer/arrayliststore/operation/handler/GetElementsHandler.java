@@ -22,10 +22,11 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId.Matches;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed.Matches;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -140,10 +141,10 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return false;
     }
 
-    private Matches isSeedRelated(final ElementSeed elementSeed, final Iterable<? extends ElementSeed> seeds) {
+    private Matches isSeedRelated(final ElementSeed elementId, final Iterable<? extends ElementId> seeds) {
         Set<Matches> matchesSet = new HashSet<>();
-        for (final ElementSeed seed : seeds) {
-            final Matches isRelatedMatch = elementSeed.isRelated(seed);
+        for (final ElementId seed : seeds) {
+            final Matches isRelatedMatch = elementId.isRelated(seed);
             if (isRelatedMatch.isMatch()) {
                 matchesSet.add(isRelatedMatch);
                 if (matchesSet.size() > 1) {
@@ -162,12 +163,12 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return Matches.NONE;
     }
 
-    private boolean isSeedEqual(final ElementSeed elementSeed, final Iterable<? extends ElementSeed> seeds, final DirectedType includeEdges) {
-        for (final ElementSeed seed : seeds) {
-            if (elementSeed.equals(seed)) {
-                if (elementSeed instanceof EdgeSeed
-                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeSeed) elementSeed).isDirected())
-                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeSeed) elementSeed).isDirected()))) {
+    private boolean isSeedEqual(final ElementId elementId, final Iterable<? extends ElementId> seeds, final DirectedType includeEdges) {
+        for (final ElementId seed : seeds) {
+            if (elementId.equals(seed)) {
+                if (elementId instanceof EdgeSeed
+                        && ((DirectedType.DIRECTED == includeEdges && !((EdgeSeed) elementId).isDirected())
+                        || (DirectedType.UNDIRECTED == includeEdges && ((EdgeSeed) elementId).isDirected()))) {
                     continue;
                 }
 

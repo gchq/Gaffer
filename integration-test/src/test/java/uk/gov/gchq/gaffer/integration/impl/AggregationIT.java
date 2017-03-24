@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsIn;
@@ -98,9 +100,9 @@ public class AggregationIT extends AbstractStoreIT {
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEdge,
-                expectedEntity
+        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
+                        expectedEdge,
+                        expectedEntity}
         ));
 
         for (final Element result : results) {

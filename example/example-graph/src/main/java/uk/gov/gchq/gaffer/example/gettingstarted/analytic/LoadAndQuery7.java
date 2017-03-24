@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator7;
@@ -30,7 +31,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -82,7 +83,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // ---------------------------------------------------------
 
         // Create some starting seeds for the sub graph.
-        final Iterable<EntitySeed> seeds = Lists.newArrayList(new EntitySeed("1"));
+        final Iterable<EntityId> seeds = Lists.newArrayList(new EntitySeed("1"));
 
         // Create a view to return only edges that have a count more than 1
         // Note we could have used a different view for each hop in order to
@@ -101,7 +102,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // This generator will extract just the destination vertices from edges
         // and skip any entities.
         // ---------------------------------------------------------
-        final EntitySeedExtractor destVerticesExtractor = new EntitySeedExtractor(
+        final EntityIdExtractor destVerticesExtractor = new EntityIdExtractor(
                 new IsEdgeValidator(),
                 new AlwaysValid<>(),
                 true,

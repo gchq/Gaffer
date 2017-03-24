@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -281,7 +282,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
     }
 
     private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
-        final Set<EntitySeed> seeds = new HashSet<>();
+        final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
         seeds.add(AccumuloTestData.SEED_A23);
         // Add a bunch of items that are not in the data to make the probability of being able to find a false
@@ -309,7 +310,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         final int numHashes = Math.max(1, (int) ((size / numItemsToBeAdded) * Math.log(2)));
         // Create Bloom filter and add seeds to it
         final BloomFilter filter = new BloomFilter(size, numHashes, Hash.MURMUR_HASH);
-        for (final EntitySeed seed : seeds) {
+        for (final EntityId seed : seeds) {
             filter.add(new Key(store.getKeyPackage().getKeyConverter().serialiseVertex(seed.getVertex())));
         }
 

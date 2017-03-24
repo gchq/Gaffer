@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import javax.ws.rs.GET;
@@ -59,8 +59,8 @@ public interface IExamplesService {
     GetElements getRelatedElements();
 
     @GET
-    @Path("/graph/doOperation/get/entitySeeds/adjacent")
-    GetAdjacentEntitySeeds getAdjacentEntitySeeds();
+    @Path("/graph/doOperation/get/entityIds/adjacent")
+    GetAdjacentIds getAdjacentIds();
 
     @GET
     @Path("/graph/doOperation/get/elements/all")

@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -71,7 +72,7 @@ public class GetElementsWithinSetHandlerTest {
     private static Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
     private static Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
     private static Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    final Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
+    final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
     private User user = new User();
 

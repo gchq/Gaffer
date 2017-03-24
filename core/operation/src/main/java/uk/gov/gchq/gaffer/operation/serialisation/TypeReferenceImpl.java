@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.operation.serialisation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.GroupCounts;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import java.util.Set;
 
 
@@ -71,8 +71,8 @@ public final class TypeReferenceImpl {
             TypeReference<CloseableIterable<? extends uk.gov.gchq.gaffer.data.element.Element>> {
     }
 
-    public static class CloseableIterableEntitySeed extends
-            TypeReference<CloseableIterable<? extends EntitySeed>> {
+    public static class CloseableIterableEntityId extends
+            TypeReference<CloseableIterable<? extends EntityId>> {
     }
 
     public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.export.Exporter> {

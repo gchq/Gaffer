@@ -39,7 +39,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
@@ -64,12 +64,12 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -241,8 +241,8 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return new GetAdjacentEntitySeedsHandler();
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<?extends EntityId>> getAdjacentIdsHandler() {
+        return new GetAdjacentIdsHandler();
     }
 
     @Override

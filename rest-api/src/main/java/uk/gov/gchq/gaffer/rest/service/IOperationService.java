@@ -21,12 +21,12 @@ import io.swagger.annotations.ApiOperation;
 import org.glassfish.jersey.server.ChunkedOutput;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationChain;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import javax.ws.rs.Consumes;
@@ -66,9 +66,9 @@ public interface IOperationService {
     CloseableIterable<Element> generateElements(final GenerateElements<Object> operation);
 
     @POST
-    @Path("/get/entitySeeds/adjacent")
-    @ApiOperation(value = "Gets adjacent entity seeds", response = EntitySeed.class, responseContainer = "List")
-    CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation);
+    @Path("/get/entityIds/adjacent")
+    @ApiOperation(value = "Gets adjacent entity seeds", response = EntityId.class, responseContainer = "List")
+    CloseableIterable<EntityId> getAdjacentIds(final GetAdjacentIds operation);
 
     @POST
     @Path("/get/elements/all")

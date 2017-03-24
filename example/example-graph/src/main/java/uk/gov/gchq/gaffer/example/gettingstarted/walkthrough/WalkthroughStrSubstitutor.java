@@ -44,12 +44,12 @@ import uk.gov.gchq.gaffer.function.filter.Exists;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -211,9 +211,9 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("ELEMENT_TRANSFORMER_JAVADOC", getJavaDocLink(ElementTransformer.class));
         params.put("FUNCTION_JAVADOC", getJavaDocLink(Function.class));
         params.put("TRANSFORM_FUNCTION_JAVADOC", getJavaDocLink(TransformFunction.class));
-        params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentEntitySeeds.class));
+        params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentIds.class));
         params.put("GENERATE_OBJECTS_JAVADOC", getJavaDocLink(GenerateObjects.class));
-        params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntitySeedExtractor.class));
+        params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntityIdExtractor.class));
         params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(GetSetExport.class));
         params.put("EXPORT_TO_SET_JAVADOC", getJavaDocLink(ExportToSet.class));
 

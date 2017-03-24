@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;

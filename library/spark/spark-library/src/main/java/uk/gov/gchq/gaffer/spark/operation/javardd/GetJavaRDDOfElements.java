@@ -19,10 +19,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -31,15 +31,15 @@ import java.util.Map;
 
 public class GetJavaRDDOfElements implements
         Operation,
-        InputOutput<Iterable<? extends ElementSeed>, JavaRDD<Element>>,
-        MultiInput<ElementSeed>,
+        InputOutput<Iterable<? extends ElementId>, JavaRDD<Element>>,
+        MultiInput<ElementId>,
         SeededGraphFilters,
         JavaRdd,
         Options {
 
     private Map<String, String> options;
     private JavaSparkContext sparkContext;
-    private Iterable<? extends ElementSeed> input;
+    private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;
     private View view;
     private DirectedType directedType;
@@ -77,12 +77,12 @@ public class GetJavaRDDOfElements implements
     }
 
     @Override
-    public Iterable<? extends ElementSeed> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends ElementSeed> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
@@ -117,8 +117,8 @@ public class GetJavaRDDOfElements implements
     }
 
     public static class Builder extends BaseBuilder<GetJavaRDDOfElements, Builder>
-            implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementSeed>, JavaRDD<Element>, Builder>,
-            MultiInput.Builder<GetJavaRDDOfElements, ElementSeed, Builder>,
+            implements InputOutput.Builder<GetJavaRDDOfElements, Iterable<? extends ElementId>, JavaRDD<Element>, Builder>,
+            MultiInput.Builder<GetJavaRDDOfElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetJavaRDDOfElements, Builder>,
             JavaRdd.Builder<GetJavaRDDOfElements, Builder>,
             Options.Builder<GetJavaRDDOfElements, Builder> {

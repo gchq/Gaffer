@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutg
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
@@ -74,13 +74,13 @@ public class LoadAndQuery6 extends LoadAndQuery {
 
 
         // [get] Create and execute an operation chain consisting of 3 operations:
-        //GetAdjacentEntitySeeds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
+        //GetAdjacentIds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
         //GetRelatedEdges - get outbound edges
         //GenerateObjects - convert the edges back into comma separated strings
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
-                        .first(new GetAdjacentEntitySeeds.Builder()
+                        .first(new GetAdjacentIds.Builder()
                                 .input(new EntitySeed("1"))
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())

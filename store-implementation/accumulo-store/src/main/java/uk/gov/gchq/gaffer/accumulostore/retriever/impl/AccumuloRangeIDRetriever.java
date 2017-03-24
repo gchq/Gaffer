@@ -25,8 +25,8 @@ import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -35,10 +35,10 @@ import java.util.Set;
 
 /**
  * This allows queries for all data from between the provided
- * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} pairs.
+ * {@link uk.gov.gchq.gaffer.data.element.id.ElementId} pairs.
  */
-public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementSeed>>, CloseableIterable<? extends Element>> & GraphFilters & Options>
-        extends AccumuloItemRetriever<OP, Pair<ElementSeed>> {
+public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId>>, CloseableIterable<? extends Element>> & GraphFilters & Options>
+        extends AccumuloItemRetriever<OP, Pair<ElementId>> {
 
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
@@ -68,7 +68,7 @@ public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends 
     }
 
     @Override
-    protected void addToRanges(final Pair<ElementSeed> seed, final Set<Range> ranges) throws RangeFactoryException {
+    protected void addToRanges(final Pair<ElementId> seed, final Set<Range> ranges) throws RangeFactoryException {
         ranges.add(rangeFactory.getRangeFromPair(seed, operation));
     }
 }

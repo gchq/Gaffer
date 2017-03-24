@@ -20,9 +20,10 @@ import uk.gov.gchq.gaffer.arrayliststore.ArrayListStore;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -32,17 +33,17 @@ import java.util.List;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING;
 
-public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
     @Override
-    public CloseableIterable<? extends EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
-                                                               final Context context, final Store store)
+    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
+                                                             final Context context, final Store store)
             throws OperationException {
         return new WrappedCloseableIterable<>(doOperation(operation, (ArrayListStore) store));
     }
 
-    private List<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation, final ArrayListStore store) {
-        final EntitySeed[] reuseableTuple = new EntitySeed[2];
-        final List<EntitySeed> result = new ArrayList<>();
+    private List<EntityId> doOperation(final GetAdjacentIds operation, final ArrayListStore store) {
+        final EntityId[] reuseableTuple = new EntityId[2];
+        final List<EntityId> result = new ArrayList<>();
         for (final Edge edge : store.getEdges()) {
             if (operation.validateFlags(edge)) {
                 extractOtherEndOfSeededEdge(edge, operation, reuseableTuple);
@@ -68,14 +69,14 @@ public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<Get
      * @param reuseableTuple instead of creating an array every time the method is called this array is reused.
      */
     private void extractOtherEndOfSeededEdge(final Edge edge,
-                                             final GetAdjacentEntitySeeds operation,
-                                             final EntitySeed[] reuseableTuple) {
+                                             final GetAdjacentIds operation,
+                                             final EntityId[] reuseableTuple) {
         reuseableTuple[0] = null;
         reuseableTuple[1] = null;
         boolean matchSource = !edge.isDirected() || !INCOMING.equals(operation.getIncludeIncomingOutGoing());
         boolean matchDestination = !edge.isDirected() || !OUTGOING.equals(operation.getIncludeIncomingOutGoing());
 
-        for (final EntitySeed seed : operation.getInput()) {
+        for (final EntityId seed : operation.getInput()) {
             if (matchSource && edge.getSource().equals(seed.getVertex())) {
                 reuseableTuple[1] = new EntitySeed(edge.getDestination());
                 matchSource = false;

@@ -224,7 +224,7 @@ public class BloomFilter18IT {
     }
 
     private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
-        final EntitySeed[] randomData = new EntitySeed[5000];
+        final EntityId[] randomData = new EntitySeed[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
@@ -258,7 +258,7 @@ public class BloomFilter18IT {
         return causalRate;
     }
 
-    private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
+    private void seek(final FileSKVIterator reader, final EntityId seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         final GetElements operation = new GetElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)

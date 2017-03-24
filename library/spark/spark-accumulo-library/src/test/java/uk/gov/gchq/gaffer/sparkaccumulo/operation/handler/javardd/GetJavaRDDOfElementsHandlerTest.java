@@ -25,6 +25,8 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -52,7 +54,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     private final static String EDGE_GROUP = "BasicEdge";
 
     @Test
-    public void checkGetCorrectElementsInJavaRDDForEntitySeed() throws OperationException, IOException {
+    public void checkGetCorrectElementsInJavaRDDForEntityId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
@@ -86,7 +88,7 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntitySeed")
+                .setAppName("testCheckGetCorrectElementsInJavaRDDForEntityId")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
@@ -203,7 +205,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     }
 
     @Test
-    public void checkGetCorrectElementsInRDDForEdgeSeed() throws OperationException, IOException {
+    public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
@@ -237,7 +239,7 @@ public class GetJavaRDDOfElementsHandlerTest {
 
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
-                .setAppName("testCheckGetCorrectElementsInJavaRDDForEdgeSeed")
+                .setAppName("testCheckGetCorrectElementsInJavaRDDForEdgeId")
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");

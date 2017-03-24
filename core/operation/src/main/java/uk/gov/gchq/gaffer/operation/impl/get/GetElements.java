@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -32,15 +32,15 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
 
 /**
- * Gets elements from Gaffer based on {@link uk.gov.gchq.gaffer.operation.data.ElementSeed}s as
+ * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
  * There are various flags to filter out the elements returned.
  * See extensions of {@link GetElements} for further details.
  */
 public class GetElements implements
         Operation,
-        InputOutput<Iterable<? extends ElementSeed>, CloseableIterable<? extends Element>>,
-        MultiInput<ElementSeed>,
+        InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Element>>,
+        MultiInput<ElementId>,
         SeededGraphFilters,
         SeedMatching,
         Options {
@@ -48,7 +48,7 @@ public class GetElements implements
     private View view;
     private IncludeIncomingOutgoingType inOutType;
     private DirectedType directedType;
-    private Iterable<? extends ElementSeed> input;
+    private Iterable<? extends ElementId> input;
     private Map<String, String> options;
 
     /**
@@ -95,12 +95,12 @@ public class GetElements implements
     }
 
     @Override
-    public Iterable<? extends ElementSeed> getInput() {
+    public Iterable<? extends ElementId> getInput() {
         return input;
     }
 
     @Override
-    public void setInput(final Iterable<? extends ElementSeed> input) {
+    public void setInput(final Iterable<? extends ElementId> input) {
         this.input = input;
     }
 
@@ -126,8 +126,8 @@ public class GetElements implements
     }
 
     public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
-            implements InputOutput.Builder<GetElements, Iterable<? extends ElementSeed>, CloseableIterable<? extends Element>, Builder>,
-            MultiInput.Builder<GetElements, ElementSeed, Builder>,
+            implements InputOutput.Builder<GetElements, Iterable<? extends ElementId>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<GetElements, ElementId, Builder>,
             SeededGraphFilters.Builder<GetElements, Builder>,
             SeedMatching.Builder<GetElements, Builder>,
             Options.Builder<GetElements, Builder> {

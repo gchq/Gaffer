@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsLessThan;
@@ -38,7 +39,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.data.generator.EntitySeedExtractor;
+import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -256,8 +257,8 @@ public class ArrayListStoreTest {
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1))
                         .build())
-                .then(new GenerateObjects.Builder<EntitySeed>()
-                        .generator(new EntitySeedExtractor(IdentifierType.DESTINATION))
+                .then(new GenerateObjects.Builder<EntityId>()
+                        .generator(new EntityIdExtractor(IdentifierType.DESTINATION))
                         .build())
                 .then(new GetElements.Builder()
                         .view(new View.Builder()

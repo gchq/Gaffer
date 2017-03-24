@@ -1,7 +1,7 @@
 {
   "operations": [
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds",
       "includeIncomingOutGoing": "OUTGOING",
       "input": [
         {

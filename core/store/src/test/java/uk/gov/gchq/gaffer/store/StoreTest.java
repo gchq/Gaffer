@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -35,7 +36,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -46,7 +46,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
@@ -96,7 +96,7 @@ public class StoreTest {
     private OperationHandler<AddElements> addElementsHandler;
     private OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getElementsHandler;
     private OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getAllElementsHandler;
-    private OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler;
+    private OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler;
     private OperationHandler<Validate> validateHandler;
     private Schema schema;
     private SchemaOptimiser schemaOptimiser;
@@ -111,7 +111,7 @@ public class StoreTest {
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
-        getAdjacentEntitySeedsHandler = mock(OutputOperationHandler.class);
+        getAdjacentIdsHandler = mock(OutputOperationHandler.class);
         validateHandler = mock(OperationHandler.class);
         exportToGafferResultCacheHandler = mock(OperationHandler.class);
         getGafferResultCacheExportHandler = mock(OperationHandler.class);
@@ -495,7 +495,7 @@ public class StoreTest {
             createOperationHandlersCallCount++;
             addOperationHandler(mock(AddElements.class).getClass(), (OperationHandler) addElementsHandler);
             addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
-            addOperationHandler(mock(GetAdjacentEntitySeeds.class).getClass(), (OperationHandler) getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), (OperationHandler) getElementsHandler);
             addOperationHandler(Validate.class, (OperationHandler) validateHandler);
             addOperationHandler(ExportToGafferResultCache.class, (OperationHandler) exportToGafferResultCacheHandler);
             addOperationHandler(GetGafferResultCacheExport.class, (OperationHandler) getGafferResultCacheExportHandler);
@@ -512,8 +512,8 @@ public class StoreTest {
         }
 
         @Override
-        protected OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler() {
-            return getAdjacentEntitySeedsHandler;
+        protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+            return getAdjacentIdsHandler;
         }
 
         @Override

@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.spark.examples
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
-import uk.gov.gchq.gaffer.data.element.Element
+import uk.gov.gchq.gaffer.data.element.id.{EdgeId, ElementId}
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View
 import uk.gov.gchq.gaffer.example.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph
@@ -111,7 +111,7 @@ class GetRDDOfElementsExample() extends OperationExample(classOf[GetRDDOfElement
       .sparkContext(sc)
       .build
     val rdd = graph.execute(operation, new User("user01"))
-    val elements: Array[Element] = rdd.collect
+    val elements = rdd.collect()
     ROOT_LOGGER.setLevel(Level.INFO)
     printScala(
       """val operation = new GetRDDOfElements.Builder()

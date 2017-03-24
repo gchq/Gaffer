@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -30,7 +31,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
@@ -44,7 +44,7 @@ import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
@@ -417,12 +417,12 @@ public abstract class Store {
     protected abstract OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler();
 
     /**
-     * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds}.
+     * Get this Stores implementation of the handler for {@link GetAdjacentIds}.
      * All Stores must implement this.
      *
-     * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds}
+     * @return the implementation of the handler for {@link GetAdjacentIds}
      */
-    protected abstract OutputOperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> getAdjacentEntitySeedsHandler();
+    protected abstract OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler();
 
     /**
      * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}. All Stores must implement this.
@@ -515,7 +515,7 @@ public abstract class Store {
         addOperationHandler(GetElements.class, (OperationHandler) getGetElementsHandler());
 
         // Get Adjacent
-        addOperationHandler(GetAdjacentEntitySeeds.class, (OperationHandler) getAdjacentEntitySeedsHandler());
+        addOperationHandler(GetAdjacentIds.class, (OperationHandler) getAdjacentIdsHandler());
 
         // Get All Elements
         addOperationHandler(GetAllElements.class, (OperationHandler) getGetAllElementsHandler());

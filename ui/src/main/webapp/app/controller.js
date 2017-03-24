@@ -117,7 +117,7 @@ angular.module('app').controller('AppController',
               fullscreen: $scope.customFullscreen
             })
             .then(function(seed) {
-              $scope.seeds(seed.vertexType, seed.vertex);
+              $scope.addSeed(seed.vertexType, seed.vertex);
             });
       };
 
@@ -166,7 +166,7 @@ angular.module('app').controller('AppController',
     }
 
     $scope.addSeed = function(vertex, value) {
-        graph.seeds(vertex, value);
+        graph.addSeed(vertex, value);
     }
 
     arrayContainsValue = function(arr, value) {

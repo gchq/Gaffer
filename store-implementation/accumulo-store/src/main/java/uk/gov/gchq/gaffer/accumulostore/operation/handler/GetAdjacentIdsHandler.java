@@ -27,10 +27,11 @@ import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -39,16 +40,16 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 
-public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<GetAdjacentEntitySeeds, CloseableIterable<? extends EntitySeed>> {
+public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 
     @Override
-    public CloseableIterable<? extends EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
+    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
                                                                final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<? extends EntitySeed> doOperation(final GetAdjacentEntitySeeds op,
+    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds op,
                                                                final User user,
                                                                final AccumuloStore store)
             throws OperationException {
@@ -76,16 +77,16 @@ public class GetAdjacentEntitySeedsHandler implements OutputOperationHandler<Get
             throw new OperationException(e.getMessage(), e);
         }
 
-        return new ExtractDestinationEntitySeed(edgeRetriever);
+        return new ExtractDestinationEntityId(edgeRetriever);
     }
 
-    private static final class ExtractDestinationEntitySeed extends TransformIterable<Element, EntitySeed> {
-        private ExtractDestinationEntitySeed(final Iterable<Element> input) {
+    private static final class ExtractDestinationEntityId extends TransformIterable<Element, EntityId> {
+        private ExtractDestinationEntityId(final Iterable<Element> input) {
             super(input, new IsEdgeValidator());
         }
 
         @Override
-        protected EntitySeed transform(final Element element) {
+        protected EntityId transform(final Element element) {
             return new EntitySeed(((Edge) element).getDestination());
         }
 

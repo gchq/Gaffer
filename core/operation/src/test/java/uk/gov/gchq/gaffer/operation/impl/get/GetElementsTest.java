@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -26,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import java.util.Collections;
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -39,10 +39,11 @@ public class GetElementsTest implements OperationTest {
     @Test
     public void shouldSetSeedMatchingTypeToEquals() {
         // Given
-        final ElementSeed elementSeed1 = new EntitySeed("identifier");
+        final ElementId elementId1 = new EntitySeed("identifier");
 
         // When
-        final GetElements op = new GetElements.Builder().input(Collections.singletonList(elementSeed1))
+        final GetElements op = new GetElements.Builder()
+                .input(elementId1)
                 .seedMatching(SeedMatchingType.EQUAL)
                 .build();
 
@@ -50,7 +51,7 @@ public class GetElementsTest implements OperationTest {
         assertEquals(SeedMatchingType.EQUAL, op.getSeedMatching());
     }
 
-    private void shouldSerialiseAndDeserialiseOperationWithElementSeeds() throws SerialisationException {
+    private void shouldSerialiseAndDeserialiseOperationWithElementIds() throws SerialisationException {
         // Given
         final ElementSeed elementSeed1 = new EntitySeed("identifier");
         final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
@@ -85,12 +86,12 @@ public class GetElementsTest implements OperationTest {
 
     @Test
     public void shouldSetSeedMatchingTypeToRelated() {
-        final ElementSeed elementSeed1 = new EntitySeed("identifier");
-        final ElementSeed elementSeed2 = new EdgeSeed("source2", "destination2", true);
+        final ElementId elementId1 = new EntitySeed("identifier");
+        final ElementId elementId2 = new EdgeSeed("source2", "destination2", true);
 
         // When
         final GetElements op = new GetElements.Builder()
-                .input(elementSeed1, elementSeed2)
+                .input(elementId1, elementId2)
                 .seedMatching(SeedMatchingType.RELATED)
                 .build();
 
@@ -107,8 +108,8 @@ public class GetElementsTest implements OperationTest {
                         .edge("testEdgeGroup")
                         .build())
                 .build();
-        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, op
-                .getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING,
+                op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
         assertEquals(seed, op.getInput().iterator().next());
     }
@@ -116,7 +117,7 @@ public class GetElementsTest implements OperationTest {
     @Test
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
-        shouldSerialiseAndDeserialiseOperationWithElementSeeds();
+        shouldSerialiseAndDeserialiseOperationWithElementIds();
     }
 
     @Test
