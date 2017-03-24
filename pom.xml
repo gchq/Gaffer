@@ -29,12 +29,12 @@
 
     <modules>
         <module>koryphe</module>
-        <module>rest-api</module>
         <module>core</module>
-        <module>integration-test</module>
-        <module>ui</module>
-        <module>store-implementation</module>
         <module>library</module>
+        <module>integration-test</module>
+        <module>store-implementation</module>
+        <module>rest-api</module>
+        <module>ui</module>
         <module>example</module>
     </modules>
 

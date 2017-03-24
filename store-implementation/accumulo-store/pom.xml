@@ -143,6 +143,7 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
+                                    <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
                                     <include>org.apache.commons:commons-lang
