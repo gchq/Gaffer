@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * An <code>GetAdjacentVertices</code> operation will return the
- * vertices at the opposite end of connected edges to a provided seed vertices
+ * A <code>GetAdjacentIds</code> operation will return the
+ * vertex at the opposite end of connected edges to a provided seed vertex.
  *
  * @see uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds.Builder
  */
