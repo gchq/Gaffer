@@ -16,22 +16,19 @@
 
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 
-public abstract class FilterProcessor implements GafferScannerProcessor {
-    protected abstract boolean validate(final Element element);
-
+public abstract class FilterProcessor implements GafferScannerProcessor, Predicate<LazyElementCell> {
     @Override
     public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
         final Iterator<LazyElementCell> itr = elementCells.iterator();
         while (itr.hasNext()) {
             final LazyElementCell elementCell = itr.next();
             if (!elementCell.isDeleted()) {
-                final Element element = elementCell.getElement();
-                if (!validate(element)) {
+                if (!test(elementCell)) {
                     itr.remove();
                 }
             }

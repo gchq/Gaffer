@@ -69,8 +69,7 @@ public final class TableUtils {
                 try {
                     TableUtils.createTable(store);
                 } catch (final Exception e) {
-                    // The method to create a table is synchronised, if you are using the same store only through one client in one JVM you shouldn't get here
-                    // Someone else got there first, never mind...
+                    LOGGER.warn("Failed to create table, this could be occur if the table was created in a different thread.", e);
                 }
             }
         } catch (IOException e) {

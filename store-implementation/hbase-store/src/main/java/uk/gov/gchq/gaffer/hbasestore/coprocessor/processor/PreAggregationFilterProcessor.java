@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 
 public class PreAggregationFilterProcessor extends FilterProcessor {
@@ -27,7 +27,7 @@ public class PreAggregationFilterProcessor extends FilterProcessor {
     }
 
     @Override
-    protected boolean validate(final Element element) {
-        return validator.validateInput(element);
+    public boolean test(final LazyElementCell elementCell) {
+        return validator.validateInput(elementCell.getElement());
     }
 }

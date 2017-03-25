@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.filter.ElementDedupeFilter;
+import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -38,7 +38,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
 
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final HBaseStore store) throws OperationException {
         try {
-            return new HBaseRetriever<>(store, operation, user, null, new ElementDedupeFilter(operation));
+            return new HBaseRetriever<>(store, operation, user, null, ElementDedupeFilterProcessor.class);
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

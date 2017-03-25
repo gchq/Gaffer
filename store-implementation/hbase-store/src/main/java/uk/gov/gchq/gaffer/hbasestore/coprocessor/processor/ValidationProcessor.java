@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
@@ -27,7 +27,7 @@ public class ValidationProcessor extends FilterProcessor {
     }
 
     @Override
-    protected boolean validate(final Element element) {
-        return validator.validateWithSchema(element);
+    public boolean test(final LazyElementCell elementCell) {
+        return validator.validateWithSchema(elementCell.getElement());
     }
 }

@@ -17,10 +17,8 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
-import java.util.Iterator;
-import java.util.List;
 
-public class GroupFilterProcessor implements GafferScannerProcessor {
+public class GroupFilterProcessor extends FilterProcessor {
     private final View view;
 
     public GroupFilterProcessor(final View view) {
@@ -28,18 +26,8 @@ public class GroupFilterProcessor implements GafferScannerProcessor {
     }
 
     @Override
-    public List<LazyElementCell> process(final List<LazyElementCell> elementCells) {
-        final Iterator<LazyElementCell> itr = elementCells.iterator();
-        while (itr.hasNext()) {
-            final LazyElementCell elementCell = itr.next();
-            if (!elementCell.isDeleted()) {
-                final String group = elementCell.getGroup();
-                if (!view.isEntity(group) && !view.isEdge(group)) {
-                    itr.remove();
-                }
-            }
-        }
-
-        return elementCells;
+    public boolean test(final LazyElementCell elementCell) {
+        final String group = elementCell.getGroup();
+        return view.isEntity(group) || view.isEdge(group);
     }
 }

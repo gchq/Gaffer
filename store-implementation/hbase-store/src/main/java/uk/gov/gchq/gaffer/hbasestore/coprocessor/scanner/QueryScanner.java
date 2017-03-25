@@ -20,7 +20,9 @@ import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
+import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GroupFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.PostAggregationFilterProcessor;
@@ -30,22 +32,35 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProce
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class QueryScanner extends GafferScanner implements RegionScanner {
     public QueryScanner(final RegionScanner scanner,
                         final Scan scan,
                         final Schema schema, final ElementSerialisation serialisation) {
-        super(scanner, serialisation, createProcessors(getView(scan), schema, serialisation));
+        super(scanner, serialisation,
+                createProcessors(getView(scan), schema, serialisation, getDirectedType(scan), getExtraProcessors(scan)));
     }
 
-    private static List<GafferScannerProcessor> createProcessors(final View view, final Schema schema, final ElementSerialisation serialisation) {
+    private static List<GafferScannerProcessor> createProcessors(
+            final View view,
+            final Schema schema,
+            final ElementSerialisation serialisation,
+            final DirectedType directedType,
+            final Set<Class<? extends GafferScannerProcessor>> extraProcessors) {
         final List<GafferScannerProcessor> processors = new ArrayList<>();
         if (null != view) {
             processors.add(new GroupFilterProcessor(view));
+            if (extraProcessors.remove(ElementDedupeFilterProcessor.class)) {
+                processors.add(new ElementDedupeFilterProcessor(view, directedType));
+            }
         }
 
         processors.add(new StoreAggregationProcessor(serialisation, schema));
@@ -55,6 +70,10 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
             processors.add(new PreAggregationFilterProcessor(view));
             processors.add(new QueryAggregationProcessor(serialisation, schema, view));
             processors.add(new PostAggregationFilterProcessor(view));
+        }
+
+        if (!extraProcessors.isEmpty()) {
+            throw new RuntimeException("Unrecognised extra processors: " + extraProcessors);
         }
 
         return processors;
@@ -69,6 +88,33 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
             view = View.fromJson(viewJson);
         }
         return view;
+    }
+
+    private static DirectedType getDirectedType(final Scan scan) {
+        final byte[] directedType = scan.getAttribute(HBaseStoreConstants.DIRECTED_TYPE);
+        if (null == directedType) {
+            return null;
+        }
+        return DirectedType.valueOf(Bytes.toString(directedType));
+    }
+
+    private static Set<Class<? extends GafferScannerProcessor>> getExtraProcessors(final Scan scan) {
+        final byte[] bytes = scan.getAttribute(HBaseStoreConstants.EXTRA_PROCESSORS);
+        if (null == bytes) {
+            return Collections.emptySet();
+        }
+
+        final String[] classNames = Bytes.toString(bytes).split(",");
+        final Set<Class<? extends GafferScannerProcessor>> classes = new HashSet<>(classNames.length);
+        for (String processorClassName : classNames) {
+            try {
+                classes.add(Class.forName(processorClassName).asSubclass(GafferScannerProcessor.class));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Invalid gaffer scanner processor: " + processorClassName, e);
+            }
+        }
+
+        return classes;
     }
 
     protected RegionScanner getScanner() {

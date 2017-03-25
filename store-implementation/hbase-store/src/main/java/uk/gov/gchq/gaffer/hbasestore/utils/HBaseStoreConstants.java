@@ -24,8 +24,10 @@ public final class HBaseStoreConstants {
     }
 
     // Iterator options
+    public static final String DIRECTED_TYPE = "DirectedType";
     public static final String VIEW = "View";
     public static final String SCHEMA = "Schema";
+    public static final String EXTRA_PROCESSORS = "ExtraProcessors";
 
     // Operations options
     public static final String OPERATION_HDFS_STAGING_PATH = "hbasestore.operation.hdfs.staging.path";

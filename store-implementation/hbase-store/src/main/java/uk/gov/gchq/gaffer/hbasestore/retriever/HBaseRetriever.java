@@ -16,17 +16,16 @@
 
 package uk.gov.gchq.gaffer.hbasestore.retriever;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
+import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
+import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
@@ -61,15 +61,16 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     private final HBaseStore store;
     private final Authorizations authorisations;
     private final OP operation;
-    private final List<Filter> coreFilters;
+    private final byte[] extraProcessors;
     private final ElementValidator validator;
     private CloseableIterator<Element> iterator;
 
+    @SafeVarargs
     public HBaseRetriever(final HBaseStore store,
                           final OP operation,
                           final User user,
                           final Iterable<? extends ElementId> ids,
-                          final Filter... filters) throws StoreException {
+                          final Class<? extends GafferScannerProcessor>... extraProcessors) throws StoreException {
         this.serialisation = new ElementSerialisation(store.getSchema());
         this.rowRangeFactory = new RowRangeFactory(serialisation);
         this.store = store;
@@ -83,7 +84,15 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
             this.authorisations = new Authorizations();
         }
 
-        this.coreFilters = Collections.unmodifiableList(Lists.newArrayList(filters));
+        if (extraProcessors.length > 0) {
+            final String[] extraProcessorClassNames = new String[extraProcessors.length];
+            for (int i = 0; i < extraProcessors.length; i++) {
+                extraProcessorClassNames[i] = extraProcessors[i].getName();
+            }
+            this.extraProcessors = Bytes.toBytes(StringUtils.join(extraProcessorClassNames, ","));
+        } else {
+            this.extraProcessors = null;
+        }
     }
 
     @Override
@@ -111,7 +120,8 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     private ResultScanner getScanner() {
         Table table = null;
         try {
-            final List<Filter> filters;
+            final Scan scan = new Scan();
+
             if (null != ids) {
                 final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
                 for (final ElementId id : ids) {
@@ -122,18 +132,18 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                 if (rowRanges.isEmpty()) {
                     return null;
                 }
-                filters = new ArrayList<>(coreFilters.size() + 1);
-                filters.add(new MultiRowRangeFilter(rowRanges));
-                filters.addAll(coreFilters);
-            } else {
-                filters = coreFilters;
+                scan.setFilter(new MultiRowRangeFilter(rowRanges));
             }
 
-            final Scan scan = new Scan();
             scan.setAuthorizations(authorisations);
             scan.setAttribute(HBaseStoreConstants.SCHEMA, store.getSchema().toCompactJson());
             scan.setAttribute(HBaseStoreConstants.VIEW, operation.getView().toCompactJson());
-            scan.setFilter(new FilterList(filters));
+            if (null != operation.getDirectedType()) {
+                scan.setAttribute(HBaseStoreConstants.DIRECTED_TYPE, Bytes.toBytes(operation.getDirectedType().name()));
+            }
+            if (null != extraProcessors) {
+                scan.setAttribute(HBaseStoreConstants.EXTRA_PROCESSORS, extraProcessors);
+            }
             scan.setMaxVersions();
             table = TableUtils.getTable(store);
             return table.getScanner(scan);
