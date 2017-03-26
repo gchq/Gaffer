@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.core.exception;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 
 /**
@@ -26,7 +24,6 @@ import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
  * objects.
  */
 public final class ErrorFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorFactory.class);
 
     /**
      * Empty, private constructor to prevent instantiation.
@@ -43,7 +40,6 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferCheckedException gex) {
-        LOGGER.error("Gaffer checked exception: " + gex.getMessage(), gex);
         return new ErrorBuilder().status(gex.getStatus())
                 .simpleMessage(gex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(gex))
@@ -58,7 +54,6 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferRuntimeException gex) {
-        LOGGER.error("Gaffer runtime exception: " + gex.getMessage(), gex);
         return new ErrorBuilder().status(gex.getStatus())
                 .simpleMessage(gex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(gex))
@@ -73,7 +68,6 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final Exception ex) {
-        LOGGER.error("Internal server error: " + ex.getMessage(), ex);
         return new ErrorBuilder().status(Status.INTERNAL_SERVER_ERROR)
                 .simpleMessage(ex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(ex))

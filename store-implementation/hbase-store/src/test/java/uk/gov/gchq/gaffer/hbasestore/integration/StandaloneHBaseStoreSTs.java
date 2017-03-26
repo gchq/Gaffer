@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.IOException;
@@ -33,7 +32,6 @@ public class StandaloneHBaseStoreSTs extends AbstractStoreITs {
 
     public StandaloneHBaseStoreSTs() throws StoreException {
         super(STORE_PROPERTIES);
-        skipTest(VisibilityIT.class, "Configuration of visibility labels on the standalone cluster is required for this to work.");
         dropExistingTable();
     }
 

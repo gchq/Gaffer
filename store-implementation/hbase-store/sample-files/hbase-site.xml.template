@@ -56,7 +56,7 @@
     </property>
     <property>
         <name>hbase.zookeeper.property.dataDir</name>
-        <value>file:///tmp/hbase-data</value>
+        <value>/tmp/hbase-data</value>
     </property>
     <property>
         <name>hbase.zookeeper.quorum</name>

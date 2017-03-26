@@ -33,7 +33,7 @@ public interface SeedMatching {
      * A <code>SeedMatchingType</code> defines how the seeds in the operation should be matched.
      */
     enum SeedMatchingType {
-        EQUAL, SeedMatchingType, RELATED
+        EQUAL, RELATED
     }
 
     interface Builder<OP extends SeedMatching, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {

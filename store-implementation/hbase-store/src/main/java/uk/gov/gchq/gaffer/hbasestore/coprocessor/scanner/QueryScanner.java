@@ -106,7 +106,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
 
         final String[] classNames = Bytes.toString(bytes).split(",");
         final Set<Class<? extends GafferScannerProcessor>> classes = new HashSet<>(classNames.length);
-        for (String processorClassName : classNames) {
+        for (final String processorClassName : classNames) {
             try {
                 classes.add(Class.forName(processorClassName).asSubclass(GafferScannerProcessor.class));
             } catch (ClassNotFoundException e) {

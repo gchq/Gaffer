@@ -21,6 +21,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -70,6 +72,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
+
     public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_AGGREGATION, QUERY_AGGREGATION, STORE_VALIDATION)));
     private Connection connection;
 
@@ -115,7 +119,11 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        try {
+            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        } catch (final NoClassDefFoundError e) {
+            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
+        }
     }
 
     @Override

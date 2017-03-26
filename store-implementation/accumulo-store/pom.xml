@@ -146,6 +146,8 @@
                                     <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
+                                    <include>com.google.guava*
+                                    </include>
                                     <include>org.apache.commons:commons-lang
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>

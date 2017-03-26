@@ -58,7 +58,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
-            <scope>provided</scope>
             <!-- exclude server-side parts that conflict with running in a webapp -->
             <exclusions>
                 <exclusion>
@@ -99,7 +98,6 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
             <version>${hadoop.version}</version>
-            <scope>provided</scope>
             <!-- exclude server-side parts that conflict with running in a webapp -->
             <exclusions>
                 <exclusion>
@@ -311,15 +309,27 @@
                                 <includes>
                                     <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
-                                    <include>org.slf4j:slf4j-api</include>
-                                    <include>org.apache.commons:commons-lang
-                                    </include>
-                                    <include>com.fasterxml.jackson.*:*</include>
+                                    <include>com.google.guava*</include>
+                                    <include>org.apache.commons*</include>
+                                    <include>com.fasterxml.jackson*</include>
                                     <include>com.clearspring.analytics:stream
                                     </include>
                                     <include>com.yahoo.*</include>
                                 </includes>
                             </artifactSet>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>utility
+                            </shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>
