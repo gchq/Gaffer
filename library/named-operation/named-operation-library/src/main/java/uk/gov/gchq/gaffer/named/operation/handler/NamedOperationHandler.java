@@ -85,7 +85,7 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
                 final OperationView viewFilters = ((OperationView) operation);
                 final View opView;
                 if (null == viewFilters.getView()) {
-                    opView = view;
+                    opView = view.clone();
                 } else if (!viewFilters.getView().hasGroups()) {
                     opView = new View.Builder()
                             .merge(view)

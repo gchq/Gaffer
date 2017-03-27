@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public final class NamedOperationDetail implements Serializable {
+public class NamedOperationDetail implements Serializable {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final long serialVersionUID = -8831783492657131469L;
     private static final String CHARSET_NAME = "UTF-8";
@@ -40,7 +40,7 @@ public final class NamedOperationDetail implements Serializable {
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
 
-    private NamedOperationDetail(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
+    public NamedOperationDetail(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
         if (operations == null || null == operations.getOperations() || operations.getOperations().isEmpty()) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
