@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import uk.gov.gchq.gaffer.commonutil.ByteUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
-import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
-import uk.gov.gchq.gaffer.hbasestore.utils.ByteUtils;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class ElementDedupeFilterProcessor extends FilterProcessor {
@@ -46,7 +46,7 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
     public boolean test(final LazyElementCell elementCell) {
         final Cell cell = elementCell.getCell();
         final byte flag = getFlag(cell);
-        final boolean isEdge = flag != ByteEntityPositions.ENTITY;
+        final boolean isEdge = flag != HBaseStoreConstants.ENTITY;
 
         if (!edges && isEdge) {
             return false;
@@ -65,7 +65,7 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
     }
 
     private boolean testEdge(final byte flag, final Cell cell) {
-        final boolean isUndirected = flag == ByteEntityPositions.UNDIRECTED_EDGE;
+        final boolean isUndirected = flag == HBaseStoreConstants.UNDIRECTED_EDGE;
         if (unDirectedEdges) {
             // Only undirected edges
             return isUndirected && (testForDuplicateUndirectedEdge(cell));
@@ -91,10 +91,10 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
         } catch (SerialisationException e) {
             throw new RuntimeException("Unable to deserialise element source and destination");
         }
-        return ByteUtils.compareBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
+        return ByteUtil.compareSortedBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
     }
 
     private boolean testDirection(final byte flag) {
-        return flag != ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
+        return flag != HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE;
     }
 }

@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import uk.gov.gchq.gaffer.commonutil.ByteUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -24,8 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
-import uk.gov.gchq.gaffer.hbasestore.utils.ByteUtils;
-import uk.gov.gchq.gaffer.hbasestore.utils.GroupComparatorUtils;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,9 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         return output;
     }
 
-    private void completeAggregator(final LazyElementCell elementCell, final Properties aggregatedProperties, final List<LazyElementCell> output) {
+    private void completeAggregator(final LazyElementCell elementCell,
+                                    final Properties aggregatedProperties,
+                                    final List<LazyElementCell> output) {
         if (null == aggregatedProperties) {
             if (null != elementCell) {
                 output.add(elementCell);
@@ -118,12 +120,16 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
-    private boolean compareGroupByKeys(final Cell left, final Cell right, final String group, final Set<String> schemaGroupBy, final Set<String> groupBy) {
+    private boolean compareGroupByKeys(final Cell left,
+                                       final Cell right,
+                                       final String group,
+                                       final Set<String> schemaGroupBy,
+                                       final Set<String> groupBy) {
         if (null != groupBy && groupBy.isEmpty()) {
             return true;
         }
 
-        if (GroupComparatorUtils.compareQualifier(left, right) == 0) {
+        if (HBaseUtil.compareQualifier(left, right) == 0) {
             return true;
         }
 
@@ -134,7 +140,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         try {
             final byte[] groupByPropBytesLeft = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(left), groupBy.size());
             final byte[] groupByPropBytesRight = serialisation.getPropertiesAsBytesFromColumnQualifier(group, CellUtil.cloneQualifier(right), groupBy.size());
-            return ByteUtils.areKeyBytesEqual(groupByPropBytesLeft, groupByPropBytesRight);
+            return ByteUtil.areSortedBytesEqual(groupByPropBytesLeft, groupByPropBytesRight);
         } catch (final SerialisationException e) {
             throw new RuntimeException("Unable to serialise properties into bytes", e);
         }

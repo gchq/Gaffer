@@ -22,16 +22,16 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * Copied from paulmw - https://github.com/paulmw/hbase-aggregation
  */
-public final class GroupComparatorUtils {
+public final class HBaseUtil {
 
-    private GroupComparatorUtils() {
+    private HBaseUtil() {
     }
 
     public static boolean compareKeys(final Cell left, final Cell right) {
-        return GroupComparatorUtils.compareRow(left, right) == 0
-                && GroupComparatorUtils.compareFamily(left, right) == 0
-                && GroupComparatorUtils.compareQualifier(left, right) == 0
-                && GroupComparatorUtils.compareTags(left, right) == 0;
+        return HBaseUtil.compareRow(left, right) == 0
+                && HBaseUtil.compareFamily(left, right) == 0
+                && HBaseUtil.compareQualifier(left, right) == 0
+                && HBaseUtil.compareTags(left, right) == 0;
     }
 
     public static int compareRow(final Cell left, final Cell right) {

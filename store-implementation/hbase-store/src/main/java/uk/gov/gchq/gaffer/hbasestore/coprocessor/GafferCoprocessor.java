@@ -26,7 +26,7 @@ import org.apache.hadoop.hbase.regionserver.ScanType;
 import org.apache.hadoop.hbase.regionserver.Store;
 import org.apache.hadoop.hbase.regionserver.compactions.CompactionRequest;
 import org.apache.hadoop.hbase.util.Bytes;
-import uk.gov.gchq.gaffer.commonutil.StringEscapeUtil;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.QueryScanner;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner.StoreScanner;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -40,7 +40,7 @@ public class GafferCoprocessor extends BaseRegionObserver {
 
     @Override
     public void start(final CoprocessorEnvironment e) throws IOException {
-        final String schemaJson = StringEscapeUtil.unescapeComma(e.getConfiguration().get(HBaseStoreConstants.SCHEMA));
+        final String schemaJson = StringUtil.unescapeComma(e.getConfiguration().get(HBaseStoreConstants.SCHEMA));
         schema = Schema.fromJson(Bytes.toBytes(schemaJson));
         serialisation = new ElementSerialisation(schema);
     }

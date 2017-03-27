@@ -21,6 +21,8 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProce
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StoreScanner extends GafferScanner {
     public StoreScanner(final InternalScanner scanner,
@@ -28,10 +30,13 @@ public class StoreScanner extends GafferScanner {
         super(scanner, serialisation, createProcessors(schema, serialisation));
     }
 
-    private static GafferScannerProcessor[] createProcessors(final Schema schema, final ElementSerialisation serialisation) {
-        return new GafferScannerProcessor[]{
-                new StoreAggregationProcessor(serialisation, schema),
-                new ValidationProcessor(schema)
-        };
+    private static List<GafferScannerProcessor> createProcessors(final Schema schema, final ElementSerialisation serialisation) {
+        final List<GafferScannerProcessor> processors = new ArrayList<>();
+        if (schema.hasAggregators()) {
+            processors.add(new StoreAggregationProcessor(serialisation, schema));
+        }
+        processors.add(new ValidationProcessor(schema));
+
+        return processors;
     }
 }

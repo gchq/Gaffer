@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.hbasestore.retriever;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -26,6 +25,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
@@ -57,12 +57,13 @@ import java.util.NoSuchElementException;
 public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options> implements CloseableIterable<Element> {
     private final ElementSerialisation serialisation;
     private final RowRangeFactory rowRangeFactory;
+    private final ElementValidator validator;
     private final Iterable<? extends ElementId> ids;
     private final HBaseStore store;
     private final Authorizations authorisations;
     private final OP operation;
     private final byte[] extraProcessors;
-    private final ElementValidator validator;
+
     private CloseableIterator<Element> iterator;
 
     @SafeVarargs
@@ -73,10 +74,10 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                           final Class<? extends GafferScannerProcessor>... extraProcessors) throws StoreException {
         this.serialisation = new ElementSerialisation(store.getSchema());
         this.rowRangeFactory = new RowRangeFactory(serialisation);
+        this.validator = new ElementValidator(operation.getView());
         this.store = store;
         this.operation = operation;
         this.ids = ids;
-        this.validator = new ElementValidator(operation.getView());
         if (null != user && null != user.getDataAuths()) {
             this.authorisations = new Authorizations(
                     user.getDataAuths().toArray(new String[user.getDataAuths().size()]));
@@ -85,11 +86,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         }
 
         if (extraProcessors.length > 0) {
-            final String[] extraProcessorClassNames = new String[extraProcessors.length];
-            for (int i = 0; i < extraProcessors.length; i++) {
-                extraProcessorClassNames[i] = extraProcessors[i].getName();
-            }
-            this.extraProcessors = Bytes.toBytes(StringUtils.join(extraProcessorClassNames, ","));
+            this.extraProcessors = StringUtil.toCsv(extraProcessors);
         } else {
             this.extraProcessors = null;
         }
@@ -99,12 +96,13 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     public void close() {
         if (iterator != null) {
             iterator.close();
+            iterator = null;
         }
     }
 
     @Override
     public CloseableIterator<Element> iterator() {
-        // Only 1 iterator can be open at a time
+        // By design, only 1 iterator can be open at a time
         close();
 
         final ResultScanner scanner = getScanner();
@@ -155,12 +153,6 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         }
     }
 
-    /**
-     * Performs any transformations specified in a view on an element
-     *
-     * @param cell the serialised element to deserialise and transform
-     * @return the transformed Element
-     */
     private Element deserialiseAndTransform(final Cell cell) {
         try {
             Element element = serialisation.getElement(cell, operation.getOptions());

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.hbasestore.utils;
+package uk.gov.gchq.gaffer.commonutil;
 
 /**
  * Utility methods for bytes
  */
-public final class ByteUtils {
-    private ByteUtils() {
+public final class ByteUtil {
+    private ByteUtil() {
         // private to prevent this class being instantiated.
         // All methods are static and should be called directly.
     }
 
-    public static int compareBytes(final byte[] bytes1, final byte[] bytes2) {
+    public static int compareSortedBytes(final byte[] bytes1, final byte[] bytes2) {
         final int minLength = Math.min(bytes1.length, bytes2.length);
         for (int i = 0; i < minLength; i++) {
             if (bytes1[i] != bytes2[i]) {
@@ -43,7 +43,7 @@ public final class ByteUtils {
      * @param bytes2 second array of bytes to test
      * @return true if the provided bytes are equal
      */
-    public static boolean areKeyBytesEqual(final byte[] bytes1, final byte[] bytes2) {
+    public static boolean areSortedBytesEqual(final byte[] bytes1, final byte[] bytes2) {
         if (bytes1 == bytes2) {
             return true;
         }

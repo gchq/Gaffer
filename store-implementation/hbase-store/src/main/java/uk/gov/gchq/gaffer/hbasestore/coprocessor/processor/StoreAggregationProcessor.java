@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
-import uk.gov.gchq.gaffer.hbasestore.utils.GroupComparatorUtils;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
-            } else if (!GroupComparatorUtils.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
+            } else if (!HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
                 completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
                 aggregator = null;

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore;
 
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -47,9 +48,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -63,18 +62,28 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 /**
- * An HBase Implementation of the Gaffer Framework
+ * An HBase implementation of a Gaffer {@link Store}
  * <p>
  * The key detail of the HBase implementation is that any Edge inserted by a
  * user is inserted into the hbase table twice, once with the source object
- * being put first in the key and once with the destination bring put first in
- * the key This is to enable an edge to be found in a Range scan when providing
+ * being put first in the rowId and once with the destination bring put first in
+ * the rowId. This is to enable an edge to be found in a Range scan when providing
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
-
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(ORDERED, VISIBILITY, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_AGGREGATION, QUERY_AGGREGATION, STORE_VALIDATION)));
+    public static final Set<StoreTrait> TRAITS =
+            Collections.unmodifiableSet(Sets.newHashSet(
+                    ORDERED,
+                    VISIBILITY,
+                    PRE_AGGREGATION_FILTERING,
+                    POST_AGGREGATION_FILTERING,
+                    POST_TRANSFORMATION_FILTERING,
+                    TRANSFORMATION,
+                    STORE_AGGREGATION,
+                    QUERY_AGGREGATION,
+                    STORE_VALIDATION
+            ));
     private Connection connection;
 
     @Override
@@ -92,14 +101,6 @@ public class HBaseStore extends Store {
         return conf;
     }
 
-    /**
-     * Creates an HBase {@link Connection}
-     * using the properties found in properties file associated with the
-     * HBaseStore
-     *
-     * @return A new {@link Connection}
-     * @throws StoreException if there is a failure to connect to hbase.
-     */
     public Connection getConnection() throws StoreException {
         if (null == connection || connection.isClosed()) {
             try {
@@ -111,19 +112,20 @@ public class HBaseStore extends Store {
         return connection;
     }
 
+    @Override
+    public Set<StoreTrait> getTraits() {
+        return TRAITS;
+    }
+
+    @Override
+    public boolean isValidationRequired() {
+        return false;
+    }
+
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be HBaseProperties")
     @Override
     public HBaseProperties getProperties() {
         return (HBaseProperties) super.getProperties();
-    }
-
-    @Override
-    protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
-        }
     }
 
     @Override
@@ -147,17 +149,16 @@ public class HBaseStore extends Store {
     }
 
     @Override
+    protected void addAdditionalOperationHandlers() {
+        try {
+            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        } catch (final NoClassDefFoundError e) {
+            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
+        }
+    }
+
+    @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
-    }
-
-    @Override
-    public Set<StoreTrait> getTraits() {
-        return TRAITS;
-    }
-
-    @Override
-    public boolean isValidationRequired() {
-        return false;
     }
 }

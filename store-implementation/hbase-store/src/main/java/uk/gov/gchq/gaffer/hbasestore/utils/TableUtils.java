@@ -33,8 +33,7 @@ import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.commonutil.StringEscapeUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
@@ -48,7 +47,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Static utilities used in the creation and maintenance of hbase tables.
+ * Static utilities used in the creation and maintenance of HBase tables.
+ * <p>
+ * This class also has a main method to create and update an HBase table.
+ * </p>
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
@@ -58,11 +60,69 @@ public final class TableUtils {
     }
 
     /**
+     * Utility for creating and updating an HBase table.
+     * HBase tables are automatically created when the Gaffer HBase store is initialised when an instance of Graph is created.
+     * <p>
+     * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
+     * </p>
+     * <p>
+     * Usage:
+     * </p>
+     * <p>
+     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [pathToSchemaDirectory] [pathToStoreProperties]
+     * </p>
+     *
+     * @param args [schema directory path] [store properties path]
+     * @throws Exception if the tables fails to be created/updated
+     */
+    public static void main(final String[] args) throws Exception {
+        if (args.length < NUM_REQUIRED_ARGS) {
+            System.err.println("Wrong number of arguments. \nUsage: "
+                    + "<schema directory path> <store properties path>");
+            System.exit(1);
+        }
+
+        final HBaseStore store = new HBaseStore();
+        store.initialise(Schema.fromJson(Paths.get(args[0])),
+                HBaseProperties.loadStoreProperties(args[1]));
+
+        try (final Admin admin = store.getConnection().getAdmin()) {
+            final TableName tableName = store.getProperties().getTable();
+            if (admin.tableExists(tableName)) {
+                final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
+                descriptor.removeCoprocessor(GafferCoprocessor.class.getName());
+                addCoprocesssor(descriptor, store);
+                admin.modifyTable(tableName, descriptor);
+            } else {
+                TableUtils.createTable(store);
+            }
+        }
+    }
+
+    /**
+     * Gets the HBase table given the provided hbase store.
+     *
+     * @param store the hbase store.
+     * @return the HBase table
+     * @throws StoreException if a reference to the table could not be created.
+     */
+    public static HTable getTable(final HBaseStore store) throws StoreException {
+        final TableName tableName = store.getProperties().getTable();
+        final Connection connection = store.getConnection();
+        try {
+            return (HTable) connection.getTable(tableName);
+        } catch (final IOException e) {
+            IOUtils.closeQuietly(connection);
+            throw new StoreException(e);
+        }
+    }
+
+    /**
      * Ensures that the table exists, otherwise it creates it and sets it up to
      * receive Gaffer data
      *
      * @param store the hbase store
-     * @throws StoreException if a connection to hbase could not be created or there is a failure to create a table/iterator
+     * @throws StoreException if a connection to hbase could not be created or there is a failure to create the table
      */
     public static void ensureTableExists(final HBaseStore store) throws StoreException {
         final Connection connection = store.getConnection();
@@ -88,17 +148,12 @@ public final class TableUtils {
         }
     }
 
-    public static HTable getTable(final HBaseStore store) throws StoreException {
-        final TableName tableName = store.getProperties().getTable();
-        final Connection connection = store.getConnection();
-        try {
-            return (HTable) connection.getTable(tableName);
-        } catch (final IOException e) {
-            IOUtils.closeQuietly(connection);
-            throw new StoreException(e);
-        }
-    }
-
+    /**
+     * Creates an HBase table for the given HBase store.
+     *
+     * @param store the hbase store
+     * @throws StoreException if a connection to hbase could not be created or there is a failure to create the table
+     */
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
         final TableName tableName = store.getProperties().getTable();
@@ -127,14 +182,6 @@ public final class TableUtils {
 
         ensureTableExists(store);
         LOGGER.info("Table {} created", tableName);
-    }
-
-    private static void addCoprocesssor(final HTableDescriptor htable, final HBaseStore store) throws IOException {
-        final String schemaJson = StringEscapeUtil.escapeComma(
-                Bytes.toString(store.getSchema().toCompactJson()));
-        final Map<String, String> options = new HashMap<>(1);
-        options.put(HBaseStoreConstants.SCHEMA, schemaJson);
-        htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
     }
 
     public static void deleteAllRows(final HBaseStore store, final String... auths) throws StoreException {
@@ -199,27 +246,11 @@ public final class TableUtils {
         }
     }
 
-    public static void main(final String[] args) throws StoreException, SchemaException, IOException {
-        if (args.length < NUM_REQUIRED_ARGS) {
-            System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<schema directory path> <store properties path>");
-            System.exit(1);
-        }
-
-        final HBaseStore store = new HBaseStore();
-        store.initialise(Schema.fromJson(Paths.get(args[0])),
-                HBaseProperties.loadStoreProperties(args[1]));
-
-        try (final Admin admin = store.getConnection().getAdmin()) {
-            final TableName tableName = store.getProperties().getTable();
-            if (admin.tableExists(tableName)) {
-                final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
-                descriptor.removeCoprocessor(GafferCoprocessor.class.getName());
-                addCoprocesssor(descriptor, store);
-                admin.modifyTable(tableName, descriptor);
-            } else {
-                TableUtils.createTable(store);
-            }
-        }
+    private static void addCoprocesssor(final HTableDescriptor htable, final HBaseStore store) throws IOException {
+        final String schemaJson = StringUtil.escapeComma(
+                Bytes.toString(store.getSchema().toCompactJson()));
+        final Map<String, String> options = new HashMap<>(1);
+        options.put(HBaseStoreConstants.SCHEMA, schemaJson);
+        htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
     }
 }

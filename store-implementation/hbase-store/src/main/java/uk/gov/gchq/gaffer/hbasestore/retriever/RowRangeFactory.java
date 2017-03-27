@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
+import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -119,14 +119,14 @@ public class RowRangeFactory {
                         return Arrays.asList(
                                 new RowRange(getEntityRowId(serialisedVertex, false), true,
                                         getEntityRowId(serialisedVertex, true), true),
-                                new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
-                                        getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                                new RowRange(getDirectedEdgeRowIdDestFirst(serialisedVertex, false), true,
+                                        getDirectedEdgeRowIdDestFirst(serialisedVertex, true), true));
                     } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                         return Collections.singletonList(new RowRange(getEntityRowId(serialisedVertex, false), true,
                                 getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true));
                     } else {
                         return Collections.singletonList(new RowRange(getEntityRowId(serialisedVertex, false), true,
-                                getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), false));
+                                getDirectedEdgeRowIdDestFirst(serialisedVertex, true), false));
                     }
                 } else if (directedType == DirectedType.UNDIRECTED) {
                     // return only undirectedEdges and entities
@@ -142,7 +142,7 @@ public class RowRangeFactory {
                         return Arrays.asList(
                                 new RowRange(getEntityRowId(serialisedVertex, false), true,
                                         getEntityRowId(serialisedVertex, true), true),
-                                new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                                new RowRange(getDirectedEdgeRowIdDestFirst(serialisedVertex, false), true,
                                         getUndirectedEdgeRowId(serialisedVertex, true), true));
                     } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                         return Arrays.asList(
@@ -158,14 +158,14 @@ public class RowRangeFactory {
             } else if (directedType == DirectedType.DIRECTED) {
                 if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                     return Collections
-                            .singletonList(new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
-                                    getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                            .singletonList(new RowRange(getDirectedEdgeRowIdDestFirst(serialisedVertex, false), true,
+                                    getDirectedEdgeRowIdDestFirst(serialisedVertex, true), true));
                 } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                     return Collections.singletonList(new RowRange(getDirectedEdgeRowIdSourceFirst(serialisedVertex, false),
                             true, getDirectedEdgeRowIdSourceFirst(serialisedVertex, true), true));
                 } else {
                     return Collections.singletonList(new RowRange(getDirectedEdgeRowIdSourceFirst(serialisedVertex, false),
-                            true, getDirectedEdgeRowIdDestinationFirst(serialisedVertex, true), true));
+                            true, getDirectedEdgeRowIdDestFirst(serialisedVertex, true), true));
                 }
             } else if (directedType == DirectedType.UNDIRECTED) {
                 return Collections.singletonList(new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
@@ -174,7 +174,7 @@ public class RowRangeFactory {
                 // return all edges
                 if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                     return Collections
-                            .singletonList(new RowRange(getDirectedEdgeRowIdDestinationFirst(serialisedVertex, false), true,
+                            .singletonList(new RowRange(getDirectedEdgeRowIdDestFirst(serialisedVertex, false), true,
                                     getUndirectedEdgeRowId(serialisedVertex, true), true));
                 } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                     return Arrays.asList(
@@ -199,13 +199,13 @@ public class RowRangeFactory {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.ENTITY;
+        key[serialisedVertex.length + 1] = HBaseStoreConstants.ENTITY;
         return key;
     }
 
     private byte[] getEdgeRowId(final EdgeId edgeId, final boolean endKey) throws SerialisationException {
-        final byte directionFlag1 = edgeId.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
-                : ByteEntityPositions.UNDIRECTED_EDGE;
+        final byte directionFlag1 = edgeId.isDirected() ? HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE
+                : HBaseStoreConstants.UNDIRECTED_EDGE;
         byte[] sourceValue = serialiser.serialiseVertex(edgeId.getSource());
         byte[] destinationValue = serialiser.serialiseVertex(edgeId.getDestination());
         int length;
@@ -230,7 +230,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private byte[] getDirectedEdgeRowIdDestinationFirst(final byte[] serialisedVertex, final boolean endKey) {
+    private byte[] getDirectedEdgeRowIdDestFirst(final byte[] serialisedVertex, final boolean endKey) {
         byte[] key;
         if (endKey) {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
@@ -239,7 +239,7 @@ public class RowRangeFactory {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
+        key[serialisedVertex.length + 1] = HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE;
         return key;
     }
 
@@ -252,7 +252,7 @@ public class RowRangeFactory {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
+        key[serialisedVertex.length + 1] = HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE;
         return key;
     }
 
@@ -265,18 +265,18 @@ public class RowRangeFactory {
             key = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 2);
         }
         key[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
+        key[serialisedVertex.length + 1] = HBaseStoreConstants.UNDIRECTED_EDGE;
         return key;
     }
 
     private Pair<byte[]> getAllEdgeOnlyRowIds(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;
+        endKeyBytes[serialisedVertex.length + 1] = HBaseStoreConstants.UNDIRECTED_EDGE;
         endKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
         final byte[] startKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
-        startKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
+        startKeyBytes[serialisedVertex.length + 1] = HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE;
         startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;
         return new Pair<>(startKeyBytes, endKeyBytes);
     }

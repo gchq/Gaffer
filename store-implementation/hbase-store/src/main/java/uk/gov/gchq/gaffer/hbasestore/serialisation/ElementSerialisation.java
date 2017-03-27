@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.hbasestore.utils.ByteEntityPositions;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
@@ -378,7 +377,7 @@ public class ElementSerialisation {
 
     public boolean isEntity(final Cell cell) throws SerialisationException {
         final byte[] row = CellUtil.cloneRow(cell);
-        return row[row.length - 1] == ByteEntityPositions.ENTITY;
+        return row[row.length - 1] == HBaseStoreConstants.ENTITY;
     }
 
 
@@ -415,7 +414,7 @@ public class ElementSerialisation {
             value = serialiseVertex(entity.getVertex());
             final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
             returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-            returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
+            returnVal[returnVal.length - 1] = HBaseStoreConstants.ENTITY;
             return returnVal;
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to serialise Entity Identifier", e);
@@ -426,11 +425,11 @@ public class ElementSerialisation {
         byte directionFlag1;
         byte directionFlag2;
         if (edge.isDirected()) {
-            directionFlag1 = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
+            directionFlag1 = HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE;
+            directionFlag2 = HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE;
         } else {
-            directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
+            directionFlag1 = HBaseStoreConstants.UNDIRECTED_EDGE;
+            directionFlag2 = HBaseStoreConstants.UNDIRECTED_EDGE;
         }
         final byte[] source = serialiseVertex(edge.getSource());
         final byte[] destination = serialiseVertex(edge.getDestination());
@@ -488,6 +487,62 @@ public class ElementSerialisation {
         return puts;
     }
 
+    public boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
+                                           final Map<String, String> options) throws SerialisationException {
+        // Get element class, sourceValue, destinationValue and directed flag from row cell
+        // Expect to find 3 delimiters (4 fields)
+        final int[] positionsOfDelimiters = new int[3];
+        short numDelims = 0;
+        // Last byte will be directional flag so don't count it
+        for (int i = 0; i < rowKey.length - 1; ++i) {
+            if (rowKey[i] == ByteArrayEscapeUtils.DELIMITER) {
+                if (numDelims >= 3) {
+                    throw new SerialisationException(
+                            "Too many delimiters found in row cell - found more than the expected 3.");
+                }
+                positionsOfDelimiters[numDelims++] = i;
+            }
+        }
+        if (numDelims != 3) {
+            throw new SerialisationException(
+                    "Wrong number of delimiters found in row cell - found " + numDelims + ", expected 3.");
+        }
+        // If edge is undirected then create edge
+        // (no need to worry about which direction the vertices should go in).
+        // If the edge is directed then need to decide which way round the vertices should go.
+        byte directionFlag;
+        try {
+            directionFlag = rowKey[rowKey.length - 1];
+        } catch (final NumberFormatException e) {
+            throw new SerialisationException("Error parsing direction flag from row cell - " + e);
+        }
+        if (directionFlag == HBaseStoreConstants.UNDIRECTED_EDGE) {
+            // Edge is undirected
+            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
+            return false;
+        } else if (directionFlag == HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE) {
+            // Edge is directed and the first identifier is the source of the edge
+            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
+            return true;
+        } else if (directionFlag == HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE) {
+            // Edge is directed and the second identifier is the source of the edge
+            int src = 1;
+            int dst = 0;
+            if (matchEdgeSource(options)) {
+                src = 0;
+                dst = 1;
+            }
+            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
+            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
+            return true;
+        } else {
+            throw new SerialisationException(
+                    "Invalid direction flag in row cell - flag was " + directionFlag);
+        }
+    }
+
     private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
                 && !propertyName.equals(schema.getTimestampProperty());
@@ -541,70 +596,15 @@ public class ElementSerialisation {
         }
     }
 
-    public boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
-                                           final Map<String, String> options) throws SerialisationException {
-        // Get element class, sourceValue, destinationValue and directed flag from row cell
-        // Expect to find 3 delimiters (4 fields)
-        final int[] positionsOfDelimiters = new int[3];
-        short numDelims = 0;
-        // Last byte will be directional flag so don't count it
-        for (int i = 0; i < rowKey.length - 1; ++i) {
-            if (rowKey[i] == ByteArrayEscapeUtils.DELIMITER) {
-                if (numDelims >= 3) {
-                    throw new SerialisationException(
-                            "Too many delimiters found in row cell - found more than the expected 3.");
-                }
-                positionsOfDelimiters[numDelims++] = i;
-            }
-        }
-        if (numDelims != 3) {
-            throw new SerialisationException(
-                    "Wrong number of delimiters found in row cell - found " + numDelims + ", expected 3.");
-        }
-        // If edge is undirected then create edge
-        // (no need to worry about which direction the vertices should go in).
-        // If the edge is directed then need to decide which way round the vertices should go.
-        byte directionFlag;
-        try {
-            directionFlag = rowKey[rowKey.length - 1];
-        } catch (final NumberFormatException e) {
-            throw new SerialisationException("Error parsing direction flag from row cell - " + e);
-        }
-        if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new SerialisationException(
-                    "Invalid direction flag in row cell - flag was " + directionFlag);
-        }
+    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
+        return ByteArrayEscapeUtils
+                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
     }
+
 
     private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
         return ByteArrayEscapeUtils
                 .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {

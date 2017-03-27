@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
 import org.apache.hadoop.hbase.util.Bytes;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
@@ -37,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,30 +45,36 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
     public QueryScanner(final RegionScanner scanner,
                         final Scan scan,
                         final Schema schema, final ElementSerialisation serialisation) {
-        super(scanner, serialisation,
-                createProcessors(getView(scan), schema, serialisation, getDirectedType(scan), getExtraProcessors(scan)));
+        super(scanner, serialisation, createProcessors(schema, serialisation, scan));
     }
 
     private static List<GafferScannerProcessor> createProcessors(
-            final View view,
             final Schema schema,
             final ElementSerialisation serialisation,
-            final DirectedType directedType,
-            final Set<Class<? extends GafferScannerProcessor>> extraProcessors) {
+            final Scan scan) {
         final List<GafferScannerProcessor> processors = new ArrayList<>();
+        final Set<Class<? extends GafferScannerProcessor>> extraProcessors = getExtraProcessors(scan);
+
+        final View view = getView(scan);
         if (null != view) {
             processors.add(new GroupFilterProcessor(view));
             if (extraProcessors.remove(ElementDedupeFilterProcessor.class)) {
+                final DirectedType directedType = getDirectedType(scan);
                 processors.add(new ElementDedupeFilterProcessor(view, directedType));
             }
         }
 
-        processors.add(new StoreAggregationProcessor(serialisation, schema));
+        if (schema.hasAggregators()) {
+            processors.add(new StoreAggregationProcessor(serialisation, schema));
+        }
+
         processors.add(new ValidationProcessor(schema));
 
         if (null != view) {
             processors.add(new PreAggregationFilterProcessor(view));
-            processors.add(new QueryAggregationProcessor(serialisation, schema, view));
+            if (schema.hasAggregators()) {
+                processors.add(new QueryAggregationProcessor(serialisation, schema, view));
+            }
             processors.add(new PostAggregationFilterProcessor(view));
         }
 
@@ -103,18 +109,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
         if (null == bytes) {
             return Collections.emptySet();
         }
-
-        final String[] classNames = Bytes.toString(bytes).split(",");
-        final Set<Class<? extends GafferScannerProcessor>> classes = new HashSet<>(classNames.length);
-        for (final String processorClassName : classNames) {
-            try {
-                classes.add(Class.forName(processorClassName).asSubclass(GafferScannerProcessor.class));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Invalid gaffer scanner processor: " + processorClassName, e);
-            }
-        }
-
-        return classes;
+        return StringUtil.csvToClasses(bytes, GafferScannerProcessor.class);
     }
 
     protected RegionScanner getScanner() {
