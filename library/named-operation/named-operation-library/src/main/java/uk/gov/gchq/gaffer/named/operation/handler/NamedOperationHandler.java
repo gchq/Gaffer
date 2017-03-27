@@ -59,7 +59,7 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
             ExtendedNamedOperation namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
             OperationChain<?> operationChain = namedOperation.getOperationChain();
             operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
-            updateOperationInput(operationChain.getOperations().get(0), operation.getSeeds());
+            updateOperationInput(operationChain.getOperations().get(0), operation.getInput());
             operationChain = updateView(operation.getView(), operationChain);
             return store._execute(operationChain, context);
         } catch (CacheOperationFailedException e) {
@@ -80,16 +80,22 @@ public class NamedOperationHandler implements OperationHandler<NamedOperation, O
      */
     private OperationChain<?> updateView(final View view, final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
+            final View opView;
             if (null == operation.getView()) {
-                operation.setView(view);
+                opView = view.clone();
             } else if (!operation.getView().hasGroups()) {
                 // this allows users to create an empty view and setup summarisation,
                 // without having to specify all the element groups.
-                operation.setView(new View.Builder()
+                opView = new View.Builder()
                         .merge(operation.getView())
                         .merge(view)
-                        .build());
+                        .build();
+            } else {
+                opView = operation.getView();
             }
+
+            opView.expandGlobalDefinitions();
+            operation.setView(opView);
         }
         return operationChain;
     }
