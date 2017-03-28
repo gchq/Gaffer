@@ -20,10 +20,13 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.CountElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentEntitySeedsOperationHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsOperationHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.MapImpl;
+import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -37,10 +40,13 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -93,6 +99,7 @@ public class MapStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
+        addOperationHandler(CountAllElementsDefaultView.class, new CountAllElementsDefaultViewHandler());
     }
 
     @Override
@@ -118,5 +125,11 @@ public class MapStore extends Store {
     @Override
     protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported");
+    }
+
+    @Override
+    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
+        super.addOperationChainOptimisers(newOpChainOptimisers);
+        super.addOperationChainOptimisers(Collections.singletonList(new CountElementsOperationChainOptimiser()));
     }
 }

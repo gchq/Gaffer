@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
@@ -60,6 +61,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -139,7 +141,7 @@ public abstract class Store {
                 final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
                 newJobTracker.initialise(properties.getJobTrackerConfigPath());
                 return newJobTracker;
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
             }
         }
@@ -539,6 +541,7 @@ public abstract class Store {
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
         addOperationHandler(Deduplicate.class, new DeduplicateHandler());
+        addOperationHandler(Count.class, new CountHandler());
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
     }
