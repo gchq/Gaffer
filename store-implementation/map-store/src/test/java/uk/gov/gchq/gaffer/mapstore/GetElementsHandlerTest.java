@@ -48,7 +48,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetElementsOperationHandlerTest {
+public class GetElementsHandlerTest {
     private final static int NUM_LOOPS = 10;
 
     @Rule
@@ -57,7 +57,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByNonExistentEntitySeed() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -78,7 +78,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByNonExistentEdgeSeed() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -99,7 +99,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEntitySeed() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -136,7 +136,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeed() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -259,9 +259,9 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testAddAndGetAllElementsNoAggregationAndDuplicateElements() throws StoreException, OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraphNoAggregation();
+        final Graph graph = GetAllElementsHandlerTest.getGraphNoAggregation();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getDuplicateElements())
+                .elements(GetAllElementsHandlerTest.getDuplicateElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -269,17 +269,17 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
         StreamSupport.stream(results.spliterator(), false).forEach(System.out::println);
 
         // Then
-        final Map<Element, Integer> resultingElementsToCount = GetAllElementsOperationHandlerTest.streamToCount(
+        final Map<Element, Integer> resultingElementsToCount = GetAllElementsHandlerTest.streamToCount(
                 StreamSupport.stream(results.spliterator(), false));
-        final Stream<Element> expectedResultsStream = GetAllElementsOperationHandlerTest.getDuplicateElements().stream()
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+        final Stream<Element> expectedResultsStream = GetAllElementsHandlerTest.getDuplicateElements().stream()
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
                         return ((Entity) element).getVertex().equals("A");
@@ -288,14 +288,14 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") || edge.getDestination().equals("A");
                     }
                 });
-        final Map<Element, Integer> expectedCounts = GetAllElementsOperationHandlerTest.streamToCount(expectedResultsStream);
+        final Map<Element, Integer> expectedCounts = GetAllElementsHandlerTest.streamToCount(expectedResultsStream);
         assertEquals(expectedCounts, resultingElementsToCount);
     }
 
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroup() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -305,7 +305,7 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
@@ -315,7 +315,7 @@ public class GetElementsOperationHandlerTest {
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
                         return ((Entity) element).getVertex().equals("A");
@@ -331,7 +331,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroup() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -341,7 +341,7 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
@@ -351,7 +351,7 @@ public class GetElementsOperationHandlerTest {
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
                         return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
@@ -367,7 +367,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -377,9 +377,9 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -400,8 +400,8 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") || edge.getDestination().equals("A");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
-                        && ((int) e.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -409,7 +409,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -419,9 +419,9 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -442,8 +442,8 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
-                        && ((int) e.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -451,7 +451,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -461,9 +461,9 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -484,8 +484,8 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") || edge.getDestination().equals("A");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
-                        && ((int) e.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -493,7 +493,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -503,9 +503,9 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -526,8 +526,8 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1)
-                        && ((int) e.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1)
+                        && ((int) e.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -551,7 +551,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -561,11 +561,11 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new ExampleTransform())
-                                        .project(GetAllElementsOperationHandlerTest.COUNT)
+                                        .project(GetAllElementsHandlerTest.COUNT)
                                         .build())
                                 .build())
                         .build())
@@ -585,10 +585,10 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") || edge.getDestination().equals("A");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .map(element -> {
-                    element.putProperty(GetAllElementsOperationHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                    element.putProperty(GetAllElementsHandlerTest.COUNT,
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .forEach(expectedResults::add);
@@ -598,7 +598,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -608,11 +608,11 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new ExampleTransform())
-                                        .project(GetAllElementsOperationHandlerTest.COUNT)
+                                        .project(GetAllElementsHandlerTest.COUNT)
                                         .build())
                                 .build())
                         .build())
@@ -632,10 +632,10 @@ public class GetElementsOperationHandlerTest {
                         return edge.getSource().equals("A") && edge.getDestination().equals("B0");
                     }
                 })
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .map(element -> {
-                    element.putProperty(GetAllElementsOperationHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                    element.putProperty(GetAllElementsHandlerTest.COUNT,
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
                 .forEach(expectedResults::add);
@@ -645,7 +645,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -655,14 +655,14 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
                 .addSeed(new EntitySeed("A"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new ExampleTransform())
-                                        .project(GetAllElementsOperationHandlerTest.COUNT)
+                                        .project(GetAllElementsHandlerTest.COUNT)
                                         .build())
                                 .postTransformFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(50))
                                         .build())
                                 .build())
@@ -675,14 +675,14 @@ public class GetElementsOperationHandlerTest {
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(e -> ((Edge) e).getSource().equals("A") || ((Edge) e).getDestination().equals("A"))
                 .map(element -> {
-                    element.putProperty(GetAllElementsOperationHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                    element.putProperty(GetAllElementsHandlerTest.COUNT,
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 50)
+                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -690,7 +690,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -700,14 +700,14 @@ public class GetElementsOperationHandlerTest {
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new ExampleTransform())
-                                        .project(GetAllElementsOperationHandlerTest.COUNT)
+                                        .project(GetAllElementsHandlerTest.COUNT)
                                         .build())
                                 .postTransformFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(50))
                                         .build())
                                 .build())
@@ -720,7 +720,7 @@ public class GetElementsOperationHandlerTest {
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
-                .filter(e -> e.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(e -> e.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     if (element instanceof Entity) {
                         return ((Entity) element).getVertex().equals("A") || ((Entity) element).getVertex().equals("B0");
@@ -730,11 +730,11 @@ public class GetElementsOperationHandlerTest {
                     }
                 })
                 .map(element -> {
-                    element.putProperty(GetAllElementsOperationHandlerTest.COUNT,
-                            ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
+                    element.putProperty(GetAllElementsHandlerTest.COUNT,
+                            ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) + ExampleTransform.INCREMENT_BY);
                     return element;
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 50)
+                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 50)
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
     }
@@ -742,7 +742,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsIncludeEntitiesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -795,7 +795,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsIncludeEdgesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -909,7 +909,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsInOutTypeOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1005,7 +1005,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsSeedMatchingTypeOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1082,7 +1082,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsPopulatePropertiesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1145,7 +1145,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsLimitResultsOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1181,7 +1181,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsDeduplicateOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1229,7 +1229,7 @@ public class GetElementsOperationHandlerTest {
     @Test
     public void testGetElementsWhenNotMaintainingIndices() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraphNoIndices();
+        final Graph graph = GetAllElementsHandlerTest.getGraphNoIndices();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -1248,23 +1248,23 @@ public class GetElementsOperationHandlerTest {
 
     private static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
-        final Entity entity1 = new Entity(GetAllElementsOperationHandlerTest.BASIC_ENTITY, "A");
-        entity1.putProperty(GetAllElementsOperationHandlerTest.PROPERTY1, "p");
-        entity1.putProperty(GetAllElementsOperationHandlerTest.COUNT, 1);
-        final Entity entity2 = new Entity(GetAllElementsOperationHandlerTest.BASIC_ENTITY, "Z");
-        entity2.putProperty(GetAllElementsOperationHandlerTest.PROPERTY1, "p");
-        entity2.putProperty(GetAllElementsOperationHandlerTest.COUNT, 1);
+        final Entity entity1 = new Entity(GetAllElementsHandlerTest.BASIC_ENTITY, "A");
+        entity1.putProperty(GetAllElementsHandlerTest.PROPERTY1, "p");
+        entity1.putProperty(GetAllElementsHandlerTest.COUNT, 1);
+        final Entity entity2 = new Entity(GetAllElementsHandlerTest.BASIC_ENTITY, "Z");
+        entity2.putProperty(GetAllElementsHandlerTest.PROPERTY1, "p");
+        entity2.putProperty(GetAllElementsHandlerTest.COUNT, 1);
         elements.add(entity1);
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {
-                    final Edge edge1 = new Edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, "A", "B" + i, true);
-                    edge1.putProperty(GetAllElementsOperationHandlerTest.PROPERTY1, "q");
-                    edge1.putProperty(GetAllElementsOperationHandlerTest.COUNT, i);
+                    final Edge edge1 = new Edge(GetAllElementsHandlerTest.BASIC_EDGE1, "A", "B" + i, true);
+                    edge1.putProperty(GetAllElementsHandlerTest.PROPERTY1, "q");
+                    edge1.putProperty(GetAllElementsHandlerTest.COUNT, i);
                     elements.add(edge1);
-                    final Edge edge2 = new Edge(GetAllElementsOperationHandlerTest.BASIC_EDGE2, "X", "Y" + i, false);
-                    edge2.putProperty(GetAllElementsOperationHandlerTest.PROPERTY1, "r");
-                    edge2.putProperty(GetAllElementsOperationHandlerTest.PROPERTY2, "s");
-                    edge2.putProperty(GetAllElementsOperationHandlerTest.COUNT, 3);
+                    final Edge edge2 = new Edge(GetAllElementsHandlerTest.BASIC_EDGE2, "X", "Y" + i, false);
+                    edge2.putProperty(GetAllElementsHandlerTest.PROPERTY1, "r");
+                    edge2.putProperty(GetAllElementsHandlerTest.PROPERTY2, "s");
+                    edge2.putProperty(GetAllElementsHandlerTest.COUNT, 3);
                     elements.add(edge2);
                 });
         return elements;

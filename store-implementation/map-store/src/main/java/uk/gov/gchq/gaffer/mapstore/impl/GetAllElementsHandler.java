@@ -80,10 +80,10 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
                         }
                     })
                     .flatMap(x -> x.stream());
-            final Stream<Element> elementsAfterIncludeEntitiesEdgesOption = GetElementsOperationHandler.
+            final Stream<Element> elementsAfterIncludeEntitiesEdgesOption = GetElementsHandler.
                     applyIncludeEntitiesEdgesOptions(elements, getAllElements.isIncludeEntities(),
                             getAllElements.getIncludeEdges());
-            final Stream<Element> afterView = GetElementsOperationHandler
+            final Stream<Element> afterView = GetElementsHandler
                     .applyView(elementsAfterIncludeEntitiesEdgesOption, mapImpl.schema, getAllElements.getView());
             if (!getAllElements.isPopulateProperties()) {
                 // If populateProperties option is false then remove all properties

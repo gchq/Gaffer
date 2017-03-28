@@ -53,7 +53,7 @@ import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 /**
  * An {@link OperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
  */
-public class GetElementsOperationHandler
+public class GetElementsHandler
         implements OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> {
 
     @Override

@@ -40,7 +40,7 @@ import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
-public class GetAllElementsOperationHandlerTest {
+public class GetAllElementsHandlerTest {
     final static String BASIC_ENTITY = "BasicEntity";
     final static String BASIC_EDGE1 = "BasicEdge";
     final static String BASIC_EDGE2 = "BasicEdge2";
@@ -238,7 +238,7 @@ public class GetAllElementsOperationHandlerTest {
     @Test
     public void testGetAllElementsIncludeEntitiesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -276,7 +276,7 @@ public class GetAllElementsOperationHandlerTest {
     @Test
     public void testGetAllElementsIncludeEdgesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -344,7 +344,7 @@ public class GetAllElementsOperationHandlerTest {
     @Test
     public void testGetAllElementsPopulatePropertiesOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -382,7 +382,7 @@ public class GetAllElementsOperationHandlerTest {
     @Test
     public void testGetAllElementsLimitResultsOption() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
                 .elements(getElements())
                 .build();
@@ -441,17 +441,17 @@ public class GetAllElementsOperationHandlerTest {
 
     static Schema getSchema() {
         final Schema schema = Schema.fromJson(
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/dataSchema.json"),
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataSchema.json"),
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
         return schema;
     }
 
     static Schema getSchemaNoAggregation() {
         final Schema schema = Schema.fromJson(
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/dataSchemaNoAggregation.json"),
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
-                GetAllElementsOperationHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataSchemaNoAggregation.json"),
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
+                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
         return schema;
     }
 

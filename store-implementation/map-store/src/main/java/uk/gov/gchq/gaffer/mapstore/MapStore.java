@@ -22,9 +22,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountElementsOperationChainOptimiser;
-import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentEntitySeedsOperationHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
-import uk.gov.gchq.gaffer.mapstore.impl.GetElementsOperationHandler;
+import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.MapImpl;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -104,7 +104,7 @@ public class MapStore extends Store {
 
     @Override
     protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
-        return new GetElementsOperationHandler();
+        return new GetElementsHandler();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class MapStore extends Store {
 
     @Override
     protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return new GetAdjacentEntitySeedsOperationHandler();
+        return new GetAdjacentEntitySeedsHandler();
     }
 
     @Override

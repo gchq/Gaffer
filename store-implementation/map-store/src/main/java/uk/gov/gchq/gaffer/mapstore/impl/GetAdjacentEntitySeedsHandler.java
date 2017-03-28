@@ -46,9 +46,9 @@ import java.util.stream.StreamSupport;
 /**
  * An {@link OperationHandler} for the {@link GetAdjacentEntitySeeds} operation on the {@link MapStore}.
  */
-public class GetAdjacentEntitySeedsOperationHandler implements
+public class GetAdjacentEntitySeedsHandler implements
         OperationHandler<GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetAdjacentEntitySeedsOperationHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GetAdjacentEntitySeedsHandler.class);
 
     @Override
     public CloseableIterable<EntitySeed> doOperation(final GetAdjacentEntitySeeds operation,
@@ -89,7 +89,7 @@ public class GetAdjacentEntitySeedsOperationHandler implements
             Stream<EntitySeed> entitySeedStream = StreamSupport.stream(getAdjacentEntitySeeds.getSeeds().spliterator(), true);
             Stream<Pair<EntitySeed, Set<Element>>> entitySeedRelevantElementsStream = entitySeedStream
                     .map(entitySeed -> {
-                        final Set<Element> elements = GetElementsOperationHandler
+                        final Set<Element> elements = GetElementsHandler
                                 .getRelevantElements(mapImpl, entitySeed, getElements);
                         elements.removeIf(e -> e instanceof Entity);
                         return new Pair<>(entitySeed, elements);
@@ -112,7 +112,7 @@ public class GetAdjacentEntitySeedsOperationHandler implements
             Stream<Pair<EntitySeed, Stream<Element>>> entitySeedRelevantFullElementsStreamAfterView =
                     entitySeedRelevantFullElementsStream
                             .map(pair -> {
-                                final Stream<Element> elementsAfterView = GetElementsOperationHandler
+                                final Stream<Element> elementsAfterView = GetElementsHandler
                                         .applyView(pair.getSecond().stream(), mapImpl.schema,
                                                 getAdjacentEntitySeeds.getView());
                                 return new Pair<>(pair.getFirst(), elementsAfterView);

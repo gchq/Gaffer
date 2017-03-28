@@ -41,9 +41,9 @@ public class GetAdjacentEntitySeedsTest {
     @Test
     public void testGetAdjacentEntitySeedsWhenThereAreNone() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getElements())
+                .elements(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -62,9 +62,9 @@ public class GetAdjacentEntitySeedsTest {
     @Test
     public void testGetAdjacentEntitySeed() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getElements())
+                .elements(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -78,7 +78,7 @@ public class GetAdjacentEntitySeedsTest {
         final Set<EntitySeed> resultsSet = new HashSet<>();
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<EntitySeed> expectedResults = new HashSet<>();
-        GetAllElementsOperationHandlerTest.getElements().stream()
+        GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
                 .filter(element -> {
                     final Edge edge = (Edge) element;
@@ -115,7 +115,7 @@ public class GetAdjacentEntitySeedsTest {
         resultsSet.clear();
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         expectedResults.clear();
-        GetAllElementsOperationHandlerTest.getElements().stream()
+        GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
                 .filter(element -> {
                     final Edge edge = (Edge) element;
@@ -139,9 +139,9 @@ public class GetAdjacentEntitySeedsTest {
     @Test
     public void testGetAdjacentEntitySeedWithViewRestrictedByGroup() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getElements())
+                .elements(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -150,7 +150,7 @@ public class GetAdjacentEntitySeedsTest {
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("Y2"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE2)
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE2)
                         .build())
                 .build();
         final CloseableIterable<EntitySeed> results = graph.execute(getAdjacentEntitySeeds, new User());
@@ -159,9 +159,9 @@ public class GetAdjacentEntitySeedsTest {
         final Set<EntitySeed> resultsSet = new HashSet<>();
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<EntitySeed> expectedResults = new HashSet<>();
-        GetAllElementsOperationHandlerTest.getElements().stream()
+        GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE2))
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE2))
                 .filter(element -> {
                     final Edge edge = (Edge) element;
                     return edge.getSource().equals("A") || edge.getDestination().equals("A")
@@ -184,9 +184,9 @@ public class GetAdjacentEntitySeedsTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getElements())
+                .elements(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -195,9 +195,9 @@ public class GetAdjacentEntitySeedsTest {
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("Y2"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -209,15 +209,15 @@ public class GetAdjacentEntitySeedsTest {
         final Set<EntitySeed> resultsSet = new HashSet<>();
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<EntitySeed> expectedResults = new HashSet<>();
-        GetAllElementsOperationHandlerTest.getElements().stream()
+        GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     final Edge edge = (Edge) element;
                     return edge.getSource().equals("A") || edge.getDestination().equals("A")
                             || edge.getSource().equals("Y2") || edge.getDestination().equals("Y2");
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .map(element -> {
                     final Edge edge = (Edge) element;
                     final Set<EntitySeed> nodes = new HashSet<>();
@@ -235,9 +235,9 @@ public class GetAdjacentEntitySeedsTest {
     @Test
     public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
-        final Graph graph = GetAllElementsOperationHandlerTest.getGraph();
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsOperationHandlerTest.getElements())
+                .elements(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 
@@ -246,9 +246,9 @@ public class GetAdjacentEntitySeedsTest {
                 .addSeed(new EntitySeed("A"))
                 .addSeed(new EntitySeed("Y2"))
                 .view(new View.Builder()
-                        .edge(GetAllElementsOperationHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
+                        .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
-                                        .select(GetAllElementsOperationHandlerTest.COUNT)
+                                        .select(GetAllElementsHandlerTest.COUNT)
                                         .execute(new IsMoreThan(5))
                                         .build())
                                 .build())
@@ -260,15 +260,15 @@ public class GetAdjacentEntitySeedsTest {
         final Set<EntitySeed> resultsSet = new HashSet<>();
         StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
         final Set<EntitySeed> expectedResults = new HashSet<>();
-        GetAllElementsOperationHandlerTest.getElements().stream()
+        GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
-                .filter(element -> element.getGroup().equals(GetAllElementsOperationHandlerTest.BASIC_EDGE1))
+                .filter(element -> element.getGroup().equals(GetAllElementsHandlerTest.BASIC_EDGE1))
                 .filter(element -> {
                     final Edge edge = (Edge) element;
                     return edge.getSource().equals("A") || edge.getDestination().equals("A")
                             || edge.getSource().equals("Y2") || edge.getDestination().equals("Y2");
                 })
-                .filter(element -> ((Integer) element.getProperty(GetAllElementsOperationHandlerTest.COUNT)) > 5)
+                .filter(element -> ((Integer) element.getProperty(GetAllElementsHandlerTest.COUNT)) > 5)
                 .map(element -> {
                     final Edge edge = (Edge) element;
                     final Set<EntitySeed> nodes = new HashSet<>();
