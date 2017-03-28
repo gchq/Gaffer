@@ -31,7 +31,6 @@
     </properties>
 
     <dependencies>
-        <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>

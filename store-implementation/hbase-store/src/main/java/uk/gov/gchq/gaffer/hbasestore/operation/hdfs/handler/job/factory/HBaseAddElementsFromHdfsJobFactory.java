@@ -15,8 +15,10 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.HFileOutputFormat2;
@@ -39,6 +41,24 @@ public class HBaseAddElementsFromHdfsJobFactory extends
     @Override
     protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
         return new JobConf(((HBaseStore) store).getConfiguration());
+    }
+
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "Store will always be an HBaseStore")
+    @Override
+    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store) throws IOException {
+        super.setupJobConf(jobConf, operation, store);
+
+        if (null == operation.getNumReduceTasks()) {
+            final HBaseStore hbaseStore = (HBaseStore) store;
+            final TableName tableName = hbaseStore.getProperties().getTable();
+            final int numRegions;
+            try {
+                numRegions = hbaseStore.getConnection().getAdmin().getTableRegions(tableName).size();
+            } catch (StoreException e) {
+                throw new RuntimeException("Unable to get table regions", e);
+            }
+            jobConf.setNumReduceTasks(numRegions + 1);
+        }
     }
 
     @Override

@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.tool.FetchElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
+import uk.gov.gchq.gaffer.hbasestore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
@@ -31,7 +34,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
 
     @Override
@@ -72,6 +74,16 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         try {
             final Configuration conf = store.getConfiguration();
             conf.set(LoadIncrementalHFiles.CREATE_TABLE_CONF_KEY, "no");
+
+            final FileSystem fs = FileSystem.get(conf);
+
+            // Remove the _SUCCESS file to prevent warning in HBase
+            LOGGER.info("Removing file {}/_SUCCESS", operation.getOutputPath());
+            fs.delete(new Path(operation.getOutputPath() + "/_SUCCESS"), false);
+
+            // Set all permissions
+            IngestUtils.setDirectoryPermsForHbase(fs, new Path(operation.getOutputPath()));
+
             importTool = new LoadIncrementalHFiles(conf);
         } catch (final Exception e) {
             throw new OperationException("Failed to import elements into HBase", e);
