@@ -68,7 +68,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }

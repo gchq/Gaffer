@@ -119,7 +119,7 @@ public class AccumuloStore extends Store {
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());

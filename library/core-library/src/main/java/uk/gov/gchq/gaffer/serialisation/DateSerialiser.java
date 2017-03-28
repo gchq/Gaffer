@@ -38,7 +38,7 @@ public class DateSerialiser implements Serialisation<Date> {
     public byte[] serialise(final Date value) throws SerialisationException {
         try {
             return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -48,7 +48,7 @@ public class DateSerialiser implements Serialisation<Date> {
         Long longR;
         try {
             longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (NumberFormatException | UnsupportedEncodingException e) {
+        } catch (final NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return new Date(longR);

@@ -39,7 +39,7 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final User user, final AccumuloStore store) throws OperationException {
         try {
             return new AccumuloAllElementsRetriever(store, operation, user);
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }

@@ -53,7 +53,7 @@ public final class NamedOperationDetail implements Serializable {
         this.creatorId = userId;
         try {
             this.operations = new String(SERIALISER.serialise(operations), Charset.forName(CHARSET_NAME));
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new IllegalArgumentException(e.getMessage(), e);
         }
         this.readAccessRoles = readers;

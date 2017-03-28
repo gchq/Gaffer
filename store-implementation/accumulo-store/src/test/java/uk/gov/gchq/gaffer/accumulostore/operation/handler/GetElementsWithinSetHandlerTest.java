@@ -304,7 +304,7 @@ public class GetElementsWithinSetHandlerTest {
             }
             final User user = new User();
             addElements(data, user, store);
-        } catch (TableExistsException | StoreException e) {
+        } catch (final TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
@@ -312,7 +312,7 @@ public class GetElementsWithinSetHandlerTest {
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
             store.execute(new AddElements.Builder().input(data).build(), user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

@@ -92,7 +92,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             intMax._aggregate(2.7d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -103,7 +103,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             intMax._aggregate(1l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -153,7 +153,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             longMax._aggregate(1);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -170,7 +170,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             longMax._aggregate(2.5d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -220,7 +220,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             doubleMax._aggregate(1);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -230,7 +230,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             doubleMax._aggregate(3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -263,7 +263,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -275,7 +275,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(2.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -303,7 +303,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(3);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -315,7 +315,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(2.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -343,7 +343,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(2);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -355,7 +355,7 @@ public class MaxTest extends AggregateFunctionTest {
         try {
             max._aggregate(1l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

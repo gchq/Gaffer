@@ -48,7 +48,7 @@ public class GetElementsWithinSetHandler implements OutputOperationHandler<GetEl
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }
