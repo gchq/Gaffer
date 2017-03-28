@@ -53,8 +53,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
     }
 
     private void addElements(final CloseableIterable<Element> elements, final MapImpl mapImpl, final Schema schema) {
-        final boolean maintainEntitySeedIndex = mapImpl.maintainEntitySeedIndex;
-        final boolean maintainEdgeSeedIndex = mapImpl.maintainEdgeSeedIndex;
+        final boolean maintainIndex = mapImpl.maintainIndex;
         final Set<String> groupsWithNoAggregation = mapImpl.groupsWithNoAggregation;
         final Map<EntitySeed, Set<Element>> entitySeedToElements = mapImpl.entitySeedToElements;
         final Map<EdgeSeed, Set<Element>> edgeSeedToElements = mapImpl.edgeSeedToElements;
@@ -68,12 +67,9 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
                     final Element elementWithGroupByProperties = updateElementToProperties(schema,
                             element, elementToProperties, groupsWithNoAggregation, groupToGroupByProperties,
                             groupToNonGroupByProperties);
-                    // Update entitySeedToElements if index required
-                    if (maintainEntitySeedIndex) {
+                    // Update entitySeedToElements and edgeSeedToElements if index required
+                    if (maintainIndex) {
                         updateEntitySeedIndex(entitySeedToElements, elementWithGroupByProperties);
-                    }
-                    // Update edgeSeedToElements if index required
-                    if (maintainEdgeSeedIndex) {
                         updateEdgeSeedIndex(edgeSeedToElements, elementWithGroupByProperties);
                     }
                 });

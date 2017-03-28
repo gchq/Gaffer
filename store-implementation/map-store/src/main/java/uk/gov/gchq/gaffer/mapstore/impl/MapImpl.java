@@ -45,22 +45,18 @@ public class MapImpl {
     Map<EntitySeed, Set<Element>> entitySeedToElements;
     // edgeSeedToElements is a map from an EdgeSeed to the element key from elementToProperties
     Map<EdgeSeed, Set<Element>> edgeSeedToElements;
-    final boolean maintainEntitySeedIndex;
-    final boolean maintainEdgeSeedIndex;
+    final boolean maintainIndex;
     final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     final Set<String> groupsWithNoAggregation = new HashSet<>();
     final Schema schema;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
-        maintainEntitySeedIndex = mapStoreProperties.getCreateEntitySeedIndex();
-        maintainEdgeSeedIndex = mapStoreProperties.getCreateEdgeSeedIndex();
+        maintainIndex = mapStoreProperties.getCreateIndex();
         try {
             elementToProperties = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-            if (maintainEntitySeedIndex) {
+            if (maintainIndex) {
                 entitySeedToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-            }
-            if (maintainEdgeSeedIndex) {
                 edgeSeedToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
             }
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {

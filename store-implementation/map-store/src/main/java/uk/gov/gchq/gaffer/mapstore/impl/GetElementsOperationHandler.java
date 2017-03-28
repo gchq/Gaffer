@@ -66,8 +66,8 @@ public class GetElementsOperationHandler
     private CloseableIterable<Element> doOperation(final GetElements<ElementSeed, Element> operation,
                                                    final MapStore mapStore) throws OperationException {
         final MapImpl mapImpl = mapStore.getMapImpl();
-        if (!mapImpl.maintainEntitySeedIndex || !mapImpl.maintainEdgeSeedIndex) {
-            throw new OperationException("Cannot execute getElements if indices are not set");
+        if (!mapImpl.maintainIndex) {
+            throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
         }
         final CloseableIterable<ElementSeed> seeds = operation.getSeeds();
         if (null == seeds || !seeds.iterator().hasNext()) {

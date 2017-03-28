@@ -431,8 +431,7 @@ public class GetAllElementsOperationHandlerTest {
 
     static Graph getGraphNoIndices() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        storeProperties.setCreateEntitySeedIndex("false");
-        storeProperties.setCreateEdgeSeedIndex("false");
+        storeProperties.setCreateIndex("false");
         final Graph graph = new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)

@@ -25,8 +25,7 @@ import java.nio.file.Path;
  */
 public class MapStoreProperties extends StoreProperties {
     public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
-    public static final String CREATE_ENTITY_SEED_INDEX = "gaffer.store.mapstore.createEntitySeedIndex";
-    public static final String CREATE_EDGE_SEED_INDEX = "gaffer.store.mapstore.createEdgeSeedIndex";
+    public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
 
     public MapStoreProperties() {
         super();
@@ -54,19 +53,12 @@ public class MapStoreProperties extends StoreProperties {
         return get(MAP_CLASS, "java.util.HashMap");
     }
 
-    public void setCreateEntitySeedIndex(final String createEntitySeedIndex) {
-        set(CREATE_ENTITY_SEED_INDEX, createEntitySeedIndex);
+    public void setCreateIndex(final String createIndex) {
+        set(CREATE_INDEX, createIndex);
     }
 
-    public boolean getCreateEntitySeedIndex() {
-        return Boolean.parseBoolean(get(CREATE_ENTITY_SEED_INDEX, "true"));
+    public boolean getCreateIndex() {
+        return Boolean.parseBoolean(get(CREATE_INDEX, "true"));
     }
 
-    public void setCreateEdgeSeedIndex(final String createEdgeSeedIndex) {
-        set(CREATE_ENTITY_SEED_INDEX, createEdgeSeedIndex);
-    }
-
-    public boolean getCreateEdgeSeedIndex() {
-        return Boolean.parseBoolean(get(CREATE_EDGE_SEED_INDEX, "true"));
-    }
 }
