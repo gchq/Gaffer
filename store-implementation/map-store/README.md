@@ -15,10 +15,10 @@ limitations under the License.
 # Map-store
 
 TODO - Finish README
-TODO - Move logic from MapStore class into an implementation class and into the handlers
 TODO - More testing of aggregation logic
 TODO - Need to duplicate properties before returning them
 TODO - Create factory so that HashMap, ConcurrentHashMap or MapDB can be used
+TODO - Replace 2 options for index with one
 
 The Map-store is a simple in-memory store. Any class that implements Java's Map interface can be used to store the data. Data stored in this store is not persistent, i.e. when the JVM is shut down the data will disappear.
 
