@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.mapstore.GetAllElementsHandlerTest;
+import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreException;
