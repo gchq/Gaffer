@@ -33,8 +33,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class CommonJobTrackerTest {
-    private CommonJobTracker jobTracker;
+public class GafferCacheJobTrackerTest {
+    private GafferCacheJobTracker jobTracker;
 
     @BeforeClass
     public static void setUpTests() {
@@ -43,7 +43,7 @@ public class CommonJobTrackerTest {
 
     @Before
     public void setUp() throws Exception {
-        jobTracker = new CommonJobTracker();
+        jobTracker = new GafferCacheJobTracker();
         jobTracker.initialise(null);
         jobTracker.clear();
     }

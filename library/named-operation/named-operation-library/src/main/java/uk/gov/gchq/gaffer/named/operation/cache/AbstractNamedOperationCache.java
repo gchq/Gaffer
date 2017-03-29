@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.user.User;
 
 public abstract class AbstractNamedOperationCache implements INamedOperationCache {

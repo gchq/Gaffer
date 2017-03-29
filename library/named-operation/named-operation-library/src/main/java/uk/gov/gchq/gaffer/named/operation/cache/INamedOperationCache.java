@@ -19,20 +19,17 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;import uk.gov.gchq.gaffer.named.operation.NamedOperation;
-import uk.gov.gchq.gaffer.named.operation.handler.AddNamedOperationHandler;
-import uk.gov.gchq.gaffer.named.operation.handler.DeleteNamedOperationHandler;
-import uk.gov.gchq.gaffer.named.operation.handler.GetAllNamedOperationsHandler;
-import uk.gov.gchq.gaffer.named.operation.handler.NamedOperationHandler;
+import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
  * A generic wrapper for a cache object that adds Named operations to it. This should be implemented and injected into
  * the Handlers:
- * {@link GetAllNamedOperationsHandler}
- * {@link AddNamedOperationHandler},
- * {@link DeleteNamedOperationHandler},
- * {@link NamedOperationHandler}
+ * {@link uk.gov.gchq.gaffer.named.operation.handler.GetAllNamedOperationsHandler}
+ * {@link uk.gov.gchq.gaffer.named.operation.handler.AddNamedOperationHandler},
+ * {@link uk.gov.gchq.gaffer.named.operation.handler.DeleteNamedOperationHandler},
+ * {@link uk.gov.gchq.gaffer.named.operation.handler.NamedOperationHandler}
  * The cache is then assigned through the OperationsDeclarations.json file. There is an example in the resources folder.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")

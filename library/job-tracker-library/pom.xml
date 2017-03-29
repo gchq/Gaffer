@@ -28,7 +28,7 @@
 
     <modules>
         <module>job-tracker-jcs</module>
-        <module>job-tracker-common</module>
+        <module>job-tracker-gaffer-cache</module>
     </modules>
 
 </project>

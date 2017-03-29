@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>job-tracker-common</artifactId>
+    <artifactId>job-tracker-gaffer-cache</artifactId>
 
     <dependencies>
         <dependency>

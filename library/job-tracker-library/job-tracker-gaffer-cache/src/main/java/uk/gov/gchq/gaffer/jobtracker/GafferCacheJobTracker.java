@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class CommonJobTracker implements JobTracker {
+public class GafferCacheJobTracker implements JobTracker {
 
     private static final String CACHE_NAME = "JobTracker";
     private ICache<String, JobDetail> cache;
