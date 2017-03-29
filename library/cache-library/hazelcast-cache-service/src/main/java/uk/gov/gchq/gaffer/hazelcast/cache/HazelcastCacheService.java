@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 
-import java.io.FileNotFoundException;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheSystemProperty.CACHE_CONFIG_FILE;
 
@@ -48,8 +47,8 @@ public class HazelcastCacheService implements ICacheService {
             try {
                 Config config = new FileSystemXmlConfig(configFile);
                 hazelcast = Hazelcast.newHazelcastInstance(config);
-            } catch (FileNotFoundException e) {
-                throw new IllegalArgumentException("Could not create file with path " + configFile, e);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
             }
         }
     }

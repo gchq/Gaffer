@@ -39,11 +39,10 @@ public class HashMapCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void putSafe(K key, V value) throws CacheOperationException {
+    public void putSafe(final K key, final V value) throws CacheOperationException {
         if (get(key) == null) {
             put(key, value);
-        }
-        else {
+        } else {
             throw new CacheOperationException("Cache entry already exists for key: " + key);
         }
     }

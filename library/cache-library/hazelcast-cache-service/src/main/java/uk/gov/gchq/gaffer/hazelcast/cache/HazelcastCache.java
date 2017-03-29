@@ -36,16 +36,19 @@ public class HazelcastCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void put(final K key, final V value) {
-        distributedMap.put(key, value);
+    public void put(final K key, final V value) throws CacheOperationException {
+        try {
+            distributedMap.put(key, value);
+        } catch (Exception e) {
+            throw new CacheOperationException(e);
+        }
     }
 
     @Override
-    public void putSafe(K key, V value) throws CacheOperationException {
+    public void putSafe(final K key, final V value) throws CacheOperationException {
         if (get(key) == null) {
             put(key, value);
-        }
-        else {
+        } else {
             throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
@@ -71,7 +74,11 @@ public class HazelcastCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void clear() {
-        distributedMap.clear();
+    public void clear() throws CacheOperationException {
+        try {
+            distributedMap.clear();
+        } catch (Exception e) {
+            throw new CacheOperationException(e);
+        }
     }
 }

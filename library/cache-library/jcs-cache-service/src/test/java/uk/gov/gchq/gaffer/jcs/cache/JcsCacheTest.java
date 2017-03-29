@@ -9,6 +9,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class JcsCacheTest {
@@ -37,4 +38,26 @@ public class JcsCacheTest {
             assertEquals("Entry for key test already exists", e.getMessage());
         }
     }
+
+    @Test
+    public void shouldThrowExceptionWhenAddingNullKeyToCache() {
+        try {
+            cache.put(null, 2);
+            fail("Expected an exception");
+        } catch (CacheOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfAddingNullValue() {
+        try {
+            cache.put("test", null);
+            fail("Expected an exception");
+        } catch (CacheOperationException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+
 }

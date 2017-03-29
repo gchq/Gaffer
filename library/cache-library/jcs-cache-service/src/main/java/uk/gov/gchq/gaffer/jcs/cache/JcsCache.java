@@ -48,6 +48,9 @@ public class JcsCache <K, V> implements ICache <K, V> {
 
     @Override
     public void put(final K key, final V value) throws CacheOperationException {
+        if (key == null) {
+            throw new CacheOperationException("Key must not be null");
+        }
         try {
             cache.putInGroup(key, groupName, value);
         } catch (CacheException e) {
@@ -56,7 +59,7 @@ public class JcsCache <K, V> implements ICache <K, V> {
     }
 
     @Override
-    public void putSafe(K key, V value) throws CacheOperationException {
+    public void putSafe(final K key, final V value) throws CacheOperationException {
         if (get(key) == null) {
             put(key, value);
         } else {

@@ -34,10 +34,14 @@ public class HazelcastCacheServiceTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Before
-    public void before() {
+    public void beforeEach() {
         System.clearProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
     }
 
+    @After
+    public void afterEach() {
+        service.shutdown();
+    }
 
     @Test
     public void shouldThrowAnExceptionWhenConfigFileIsMisConfigured() {

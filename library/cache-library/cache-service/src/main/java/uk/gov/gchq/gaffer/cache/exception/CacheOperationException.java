@@ -18,11 +18,15 @@ package uk.gov.gchq.gaffer.cache.exception;
 
 public class CacheOperationException extends Exception {
 
-    public CacheOperationException(String message) {
+    public CacheOperationException(final String message) {
         super(message);
     }
 
-    public CacheOperationException(String message, Throwable cause) {
+    public CacheOperationException(final String message, final Throwable cause) {
         super(message, cause);
+    }
+
+    public CacheOperationException(final Throwable cause) {
+        super(cause);
     }
 }
