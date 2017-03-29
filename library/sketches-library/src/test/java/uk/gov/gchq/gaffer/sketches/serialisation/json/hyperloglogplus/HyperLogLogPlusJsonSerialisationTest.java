@@ -89,7 +89,7 @@ public class HyperLogLogPlusJsonSerialisationTest {
             // TODO - See 'Can't easily create HyperLogLogPlus sketches in JSON'
             mapper.readValue(IOUtils.toInputStream(sketchAsString), HyperLogLogPlus.class);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e);
         }
     }

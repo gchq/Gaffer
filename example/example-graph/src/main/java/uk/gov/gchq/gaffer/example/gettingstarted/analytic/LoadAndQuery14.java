@@ -42,7 +42,7 @@ public class LoadAndQuery14 extends LoadAndQuery {
         final Schema schema = graph.getSchema();
         try {
             log("SCHEMA", new String(schema.toJson(true), CommonConstants.UTF_8));
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
 

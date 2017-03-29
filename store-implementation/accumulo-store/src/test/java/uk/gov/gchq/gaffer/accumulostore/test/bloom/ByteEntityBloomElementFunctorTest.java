@@ -156,7 +156,7 @@ public class ByteEntityBloomElementFunctorTest {
             final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
             assertNotNull(elementFunctor.transform(range));
             assertEquals(expectedBloomKey1, elementFunctor.transform(range));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
     }
@@ -175,7 +175,7 @@ public class ByteEntityBloomElementFunctorTest {
             // Create Range with unspecified end key and shouldRetieveElementsInRangeBetweenSeeds - should get null
             final Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
     }

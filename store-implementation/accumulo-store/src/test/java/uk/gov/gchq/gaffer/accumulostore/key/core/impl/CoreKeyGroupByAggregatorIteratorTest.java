@@ -214,7 +214,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -295,7 +295,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -418,7 +418,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -649,7 +649,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -861,7 +861,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
@@ -1037,7 +1037,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
                 fail("Additional row found.");
             }
 
-        } catch (AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }

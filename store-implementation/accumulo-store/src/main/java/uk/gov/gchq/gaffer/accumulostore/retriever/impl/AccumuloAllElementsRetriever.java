@@ -76,7 +76,7 @@ public class AccumuloAllElementsRetriever extends AccumuloRetriever<GetAllElemen
             final Set<Range> ranges = Sets.newHashSet(new Range());
             try {
                 scanner = getScanner(ranges);
-            } catch (TableNotFoundException | StoreException e) {
+            } catch (final TableNotFoundException | StoreException e) {
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();

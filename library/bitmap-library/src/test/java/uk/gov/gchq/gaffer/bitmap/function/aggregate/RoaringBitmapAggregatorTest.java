@@ -19,6 +19,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;

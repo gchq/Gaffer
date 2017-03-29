@@ -88,7 +88,7 @@ public class IsShorterThanTest extends PredicateTest {
         try {
             filter.test(4);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e);
         }
     }

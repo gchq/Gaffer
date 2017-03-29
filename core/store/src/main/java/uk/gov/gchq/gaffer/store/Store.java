@@ -134,7 +134,7 @@ public abstract class Store {
                 final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
                 newJobTracker.initialise(properties.getJobTrackerConfigPath());
                 return newJobTracker;
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
             }
         }

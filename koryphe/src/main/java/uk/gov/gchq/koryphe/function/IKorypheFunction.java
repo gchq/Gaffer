@@ -16,10 +16,9 @@
 package uk.gov.gchq.koryphe.function;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
 import java.util.function.Function;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 @FunctionalInterface
-public interface IKorypheFunction<T, R> extends Function<T, R>, Serializable {
+public interface IKorypheFunction<T, R> extends Function<T, R> {
 }
