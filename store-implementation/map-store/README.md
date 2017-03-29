@@ -14,18 +14,14 @@ limitations under the License.
 
 # Map-store
 
-TODO - Finish README
-TODO - More testing of aggregation logic
-TODO - Need to duplicate properties before returning them
-TODO - Create factory so that HashMap, ConcurrentHashMap or MapDB can be used
-TODO - Replace 2 options for index with one
-
 The Map-store is a simple in-memory store. Any class that implements Java's Map interface can be used to store the data. Data stored in this store is not persistent, i.e. when the JVM is shut down the data will disappear.
 
-It is designed to support aggregation of properties efficiently. Optionally
+It is designed to support aggregation of properties efficiently. Optionally an index is maintained so that Elements can be found quickly from EntitySeeds or EdgeSeeds.
 
 Some examples of how this can be used are:
 
 - As an in-memory cache of some data that has been retrieved from a larger store.
 - The aggregation of graph data within a streaming process.
 - To demonstrate some of Gaffer's APIs.
+
+It allows very quick calculation of the total number of elements in the graph subject to the default view. This optimisation is automatically applied if an operation chain consisting of a GetAllElements followed by a Count operation.
