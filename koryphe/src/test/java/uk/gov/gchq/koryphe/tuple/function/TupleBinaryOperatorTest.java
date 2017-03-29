@@ -60,8 +60,6 @@ public class TupleBinaryOperatorTest {
 
         for (int i = 0; i < tuples.length; i++) {
             String previousOutput = null;
-            System.out.println("Previous: " + previousOutput);
-            System.out.println("State: " + state);
             given(inputAdapter.apply(tuples[i])).willReturn(inputs[i]);
             if (i > 0) {
                 previousOutput = outputs[i - 1];
