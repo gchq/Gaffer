@@ -34,7 +34,7 @@ public class VisibilityAggregatorTest {
             a.aggregate(new Object[]{"blah"});
             a.aggregate(new Object[]{"public"});
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("Visibility must either be 'public' or 'private'. You supplied blah"));
         }
     }

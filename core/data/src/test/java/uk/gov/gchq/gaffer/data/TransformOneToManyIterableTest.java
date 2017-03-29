@@ -104,7 +104,7 @@ public class TransformOneToManyIterableTest {
         try {
             itr.hasNext();
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e);
         }
     }
@@ -138,7 +138,7 @@ public class TransformOneToManyIterableTest {
         try {
             itr.next();
             fail("Exception expected");
-        } catch (NoSuchElementException e) {
+        } catch (final NoSuchElementException e) {
             assertNotNull(e);
         }
     }
@@ -160,7 +160,7 @@ public class TransformOneToManyIterableTest {
         try {
             itr.remove();
             fail("Exception expected");
-        } catch (UnsupportedOperationException e) {
+        } catch (final UnsupportedOperationException e) {
             assertNotNull(e);
         }
     }

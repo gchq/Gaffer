@@ -36,7 +36,7 @@ public class VisibilitySerialiser implements Serialisation<String> {
                 value = "(private|public)";
             }
             return value.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -49,7 +49,7 @@ public class VisibilitySerialiser implements Serialisation<String> {
                 value = "public";
             }
             return value;
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

@@ -73,7 +73,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(getEdges.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(getEdges),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(getEdges.getView(), store));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
 

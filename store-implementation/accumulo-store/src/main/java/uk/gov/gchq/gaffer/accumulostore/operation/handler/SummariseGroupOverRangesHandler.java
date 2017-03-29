@@ -63,7 +63,7 @@ public class SummariseGroupOverRangesHandler implements OutputOperationHandler<S
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getElementPropertyRangeQueryFilter(operation),
                     itrFactory.getRowIDAggregatorIteratorSetting(store, columnFamily));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }

@@ -59,7 +59,7 @@ public abstract class OperationExample extends Example {
 
         try {
             getGraph().execute(operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -77,7 +77,7 @@ public abstract class OperationExample extends Example {
         try {
             results = getGraph().execute(
                     operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -97,7 +97,7 @@ public abstract class OperationExample extends Example {
         try {
             result = getGraph().execute(
                     operationChain, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -164,7 +164,7 @@ public abstract class OperationExample extends Example {
 
         try {
             graph.execute(addOpChain, new User());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 

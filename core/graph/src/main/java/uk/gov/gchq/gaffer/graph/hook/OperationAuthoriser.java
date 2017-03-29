@@ -169,7 +169,7 @@ public class OperationAuthoriser implements GraphHook {
             final Class<?> opClass;
             try {
                 opClass = Class.forName(opClassName);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
             final Set<String> auths = new HashSet<>();

@@ -90,7 +90,7 @@ public class OperationDeclarations {
     public static OperationDeclarations fromJson(final byte[] json) {
         try {
             return JSON_SERIALISER.deserialise(json, OperationDeclarations.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }
     }
@@ -98,7 +98,7 @@ public class OperationDeclarations {
     public static OperationDeclarations fromJson(final InputStream inputStream) {
         try {
             return JSON_SERIALISER.deserialise(inputStream, OperationDeclarations.class);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException("Failed to load element definitions from bytes", e);
         }
     }

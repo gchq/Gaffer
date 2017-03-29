@@ -88,7 +88,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             intMin._aggregate(2.7d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -99,7 +99,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             intMin._aggregate(5l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -149,7 +149,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             longMin._aggregate(3);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -166,7 +166,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             longMin._aggregate(1.5d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -216,7 +216,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             doubleMin._aggregate(5);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -226,7 +226,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             doubleMin._aggregate(2l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -259,7 +259,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -271,7 +271,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(1.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -299,7 +299,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(1);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -311,7 +311,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(3.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -339,7 +339,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(3);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -351,7 +351,7 @@ public class MinTest extends AggregateFunctionTest {
         try {
             min._aggregate(1l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

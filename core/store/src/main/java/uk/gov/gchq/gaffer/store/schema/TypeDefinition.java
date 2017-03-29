@@ -131,12 +131,12 @@ public class TypeDefinition {
             final Class<? extends Serialisation> serialiserClass;
             try {
                 serialiserClass = Class.forName(clazz).asSubclass(Serialisation.class);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new SchemaException(e.getMessage(), e);
             }
             try {
                 this.serialiser = serialiserClass.newInstance();
-            } catch (IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
+            } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
                 throw new SchemaException(e.getMessage(), e);
             }
         }

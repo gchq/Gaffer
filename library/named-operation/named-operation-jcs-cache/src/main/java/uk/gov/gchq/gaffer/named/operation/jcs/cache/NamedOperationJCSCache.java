@@ -60,7 +60,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             }
             getCache().putInGroup(name, CACHE_GROUP, namedOperation);
 
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             LOGGER.error("Failed to add named Operation " + name + " with operation " + namedOperation.getOperationChain().toString(), e.getMessage());
             throw new CacheOperationFailedException(e.getMessage(), e);
         }
@@ -99,7 +99,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
                 if (op.hasReadAccess(user)) {
                     executables.add(op);
                 }
-            } catch (CacheOperationFailedException e) {
+            } catch (final CacheOperationFailedException e) {
                 LOGGER.error(e.getMessage(), e);
             }
 
@@ -139,7 +139,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
     public void clear() throws CacheOperationFailedException {
         try {
             getCache().clear();
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new CacheOperationFailedException(e.getMessage(), e);
         }
     }
@@ -151,11 +151,11 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             }
             try {
                 cache = JCS.getInstance(REGION);
-            } catch (CacheException e1) {
+            } catch (final CacheException e1) {
                 // Try just the default region
                 try {
                     cache = JCS.getInstance("default");
-                } catch (CacheException e2) {
+                } catch (final CacheException e2) {
                     throw new RuntimeException("Failed to create named operation cache", e2);
                 }
             }

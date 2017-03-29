@@ -75,7 +75,7 @@ public final class IngestUtils {
         Collection<Text> splits;
         try {
             splits = conn.tableOperations().listSplits(table, maxSplits);
-        } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
+        } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new IOException(e.getMessage(), e);
         }
         // This should have returned at most maxSplits splits, but this is not implemented properly in MockInstance.

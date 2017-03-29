@@ -89,7 +89,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             intSum._aggregate(2.7d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -100,7 +100,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             intSum._aggregate(1l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -150,7 +150,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             longSum._aggregate(1);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -167,7 +167,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             longSum._aggregate(2.5d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -217,7 +217,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             doubleSum._aggregate(1);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -227,7 +227,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             doubleSum._aggregate(3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -260,7 +260,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -272,7 +272,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(2.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -300,7 +300,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(3);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -312,7 +312,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(2.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -340,7 +340,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(2);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -352,7 +352,7 @@ public class SumTest extends AggregateFunctionTest {
         try {
             sum._aggregate(1l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

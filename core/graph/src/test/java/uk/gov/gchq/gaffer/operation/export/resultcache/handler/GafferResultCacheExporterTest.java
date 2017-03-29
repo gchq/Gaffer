@@ -188,7 +188,7 @@ public class GafferResultCacheExporterTest {
     private static byte[] serialise(final Object item) {
         try {
             return SERIALISER.serialise(item);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }
