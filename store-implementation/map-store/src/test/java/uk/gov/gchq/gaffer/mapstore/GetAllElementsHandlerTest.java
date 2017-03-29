@@ -411,7 +411,7 @@ public class GetAllElementsHandlerTest {
         assertEquals(2, resultsSet.size());
     }
 
-    static Graph getGraph() {
+    public static Graph getGraph() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         final Graph graph = new Graph.Builder()
                 .addSchema(getSchema())
@@ -439,7 +439,7 @@ public class GetAllElementsHandlerTest {
         return graph;
     }
 
-    static Schema getSchema() {
+    public static Schema getSchema() {
         final Schema schema = Schema.fromJson(
                 GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataSchema.json"),
                 GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
@@ -455,7 +455,7 @@ public class GetAllElementsHandlerTest {
         return schema;
     }
 
-    static List<Element> getElements() {
+    public static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {

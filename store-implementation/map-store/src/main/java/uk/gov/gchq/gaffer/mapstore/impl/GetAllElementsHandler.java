@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -85,11 +86,12 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
                             getAllElements.getIncludeEdges());
             final Stream<Element> afterView = GetElementsHandler
                     .applyView(elementsAfterIncludeEntitiesEdgesOption, mapImpl.schema, getAllElements.getView());
+            final Stream<Element> clonedElements = afterView.map(element -> ElementCloner.cloneElement(element, mapImpl.schema));
             if (!getAllElements.isPopulateProperties()) {
                 // If populateProperties option is false then remove all properties
-                return new WrappedCloseableIterator<>(afterView.map(e -> e.emptyClone()).iterator());
+                return new WrappedCloseableIterator<>(clonedElements.map(e -> e.emptyClone()).iterator());
             }
-            return new WrappedCloseableIterator<>(afterView.iterator());
+            return new WrappedCloseableIterator<>(clonedElements.iterator());
         }
     }
 }
