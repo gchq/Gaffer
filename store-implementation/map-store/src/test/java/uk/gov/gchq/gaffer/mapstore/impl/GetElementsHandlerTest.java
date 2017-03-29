@@ -273,7 +273,6 @@ public class GetElementsHandlerTest {
                         .build())
                 .build();
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
-        StreamSupport.stream(results.spliterator(), false).forEach(System.out::println);
 
         // Then
         final Map<Element, Integer> resultingElementsToCount = GetAllElementsHandlerTest.streamToCount(
@@ -1244,6 +1243,31 @@ public class GetElementsHandlerTest {
         // Then
         exception.expect(OperationException.class);
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
+    }
+
+    @Test
+    public void testElementsAreClonedBeforeBeingReturned() throws OperationException {
+        // Given
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final AddElements addElements = new AddElements.Builder()
+                .elements(getElements())
+                .build();
+        graph.execute(addElements, new User());
+
+        // When
+        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+                .addSeed(new EntitySeed("B9"))
+                .deduplicate(false)
+                .build();
+        final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
+        // Change a property
+        result.setDestination("BBB");
+        result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
+
+        // Then
+        final Edge result2 = (Edge) graph.execute(getElements, new User()).iterator().next();
+        assertEquals("B9", result2.getDestination());
+        assertEquals("q", result2.getProperty(GetAllElementsHandlerTest.PROPERTY1));
     }
 
     private static List<Element> getElements() {
