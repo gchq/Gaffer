@@ -16,10 +16,14 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
@@ -29,16 +33,21 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+/**
+ * HBase will skip 'puts' if there are multiple 'puts' with the same rowId and column qualifier.
+ * To work around this issue, we need to aggregate elements within each batch before adding them to HBase.
+ * Due to this, optimising the batch size could have a big impact on performance.
+ * Configure the batch size using store property: hbase.writeBufferSize
+ */
 public class AddElementsHandler implements OperationHandler<AddElements> {
     @Override
     public Void doOperation(final AddElements operation,
@@ -50,62 +59,24 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private void addElements(final AddElements addElementsOperation, final HBaseStore store)
             throws OperationException {
-        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
-        int batchSize = store.getProperties().getWriteBufferSize();
         try {
             final HTable table = TableUtils.getTable(store);
-            final Iterator<? extends Element> itr = addElementsOperation.getInput().iterator();
-            while (itr.hasNext()) {
-                final Map<Integer, Set<Integer>> elementMap = new HashMap<>(batchSize);
-                final List<Put> puts = new ArrayList<>(batchSize);
-                for (int i = 0; i < batchSize && itr.hasNext(); i++) {
-                    final Element element = itr.next();
-                    if (null == element) {
-                        i--;
-                        continue;
-                    }
-
-                    final Pair<byte[]> row = serialisation.getRowKeys(element);
-                    final byte[] rowId = row.getFirst();
-                    final byte[] cq = serialisation.getColumnQualifier(element);
-
-                    // HBase will skip 'puts' if there are multiple 'puts' with the same rowId and column qualifier.
-                    // The following is a horrible work around for the time being,
-                    // it may cause problems when adding large numbers of similar
-                    // elements - in that case you would be better off using
-                    // AddElementsFromHdfs.
-                    // Check if the rowId and cq combination has already been added
-                    // if it has then flush the current 'puts' and start a new batch.
-                    final boolean sameKey;
-                    final int rowIdHash = Arrays.hashCode(rowId);
-                    final int cqHash = Arrays.hashCode(cq);
-                    Set<Integer> rowSet = elementMap.get(rowIdHash);
-                    if (null == rowSet) {
-                        rowSet = new HashSet<>();
-                        elementMap.put(rowIdHash, rowSet);
-                    }
-                    sameKey = !rowSet.add(cqHash);
-                    if (sameKey) {
-                        table.put(puts);
-                        // Ensure the table has flushed
-                        if (!table.isAutoFlush()) {
-                            table.flushCommits();
-                        }
-                        puts.clear();
-                        i = 0;
-                    }
-
-                    final Pair<Put> putPair = serialisation.getPuts(element, row, cq);
+            final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
+            final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
+            while (elements.hasNext()) {
+                final Collection<Element> elementBatch = createElementBatch(elements, store);
+                final List<Put> puts = new ArrayList<>(elementBatch.size());
+                for (final Element element : elementBatch) {
+                    final Pair<Put> putPair = serialisation.getPuts(element);
                     puts.add(putPair.getFirst());
                     if (null != putPair.getSecond()) {
                         puts.add(putPair.getSecond());
-                        i++;
                     }
                 }
 
                 if (!puts.isEmpty()) {
                     table.put(puts);
-                    // Ensure the table has flushed
+                    // Ensure the table has flushed otherwise similar elements in the next batch may be skipped.
                     if (!table.isAutoFlush()) {
                         table.flushCommits();
                     }
@@ -114,5 +85,44 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         } catch (final IOException | StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }
+    }
+
+    private Collection<Element> createElementBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
+        final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
+        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
+        final int batchSize = store.getProperties().getWriteBufferSize();
+
+        final Map<Integer, Element> keyToElement = new HashMap<>(batchSize);
+        for (int i = 0; i < batchSize && elements.hasNext(); i++) {
+            final Element element = elements.next();
+            if (null == element) {
+                i--;
+                continue;
+            }
+
+            final int keyHashCode = new HashCodeBuilder(17, 37)
+                    .append(serialisation.getRowKeys(element).getFirst())
+                    .append(serialisation.getColumnQualifier(element))
+                    .append(serialisation.getColumnVisibility(element))
+                    .toHashCode();
+            final Element existingElement = keyToElement.get(keyHashCode);
+            if (null == existingElement) {
+                keyToElement.put(keyHashCode, element);
+            } else {
+                ElementAggregator aggregator = aggregators.get(existingElement.getGroup());
+                final SchemaElementDefinition elementDef = store.getSchema().getElement(existingElement.getGroup());
+                if (null == aggregator) {
+                    aggregator = elementDef.getAggregator();
+                    aggregators.put(existingElement.getGroup(), aggregator);
+                }
+                Properties properties = element.getProperties();
+                if (null != elementDef.getGroupBy() && !elementDef.getGroupBy().isEmpty()) {
+                    properties = properties.clone();
+                    properties.remove(elementDef.getGroupBy());
+                }
+                aggregator.apply(properties, existingElement.getProperties());
+            }
+        }
+        return keyToElement.values();
     }
 }
