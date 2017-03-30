@@ -183,7 +183,7 @@ public class AndTest extends FilterFunctionTest {
         try {
             and.getInputClasses();
             fail("Exception expected");
-        } catch (InputMismatchException e) {
+        } catch (final InputMismatchException e) {
             assertNotNull(e);
         }
     }

@@ -89,7 +89,7 @@ public class IsShorterThanTest extends FilterFunctionTest {
         try {
             filter.isValid(4);
             fail("Exception expected");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertNotNull(e);
         }
     }

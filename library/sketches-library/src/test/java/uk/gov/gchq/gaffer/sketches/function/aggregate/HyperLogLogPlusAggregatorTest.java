@@ -72,7 +72,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         try {
             hyperLogLogPlusAggregator.aggregate(null);
-        } catch (IllegalArgumentException exception) {
+        } catch (final IllegalArgumentException exception) {
             assertEquals("Expected an input array of length 1", exception.getMessage());
         }
     }
@@ -84,7 +84,7 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
         try {
             hyperLogLogPlusAggregator.aggregate(new Object[0]);
-        } catch (IllegalArgumentException exception) {
+        } catch (final IllegalArgumentException exception) {
             assertEquals("Expected an input array of length 1", exception.getMessage());
         }
     }

@@ -69,7 +69,7 @@ public class SchemaElementDefinitionValidator {
                     LOGGER.error("Class for " + idType + " could not be found.");
                     return false;
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found", e);
                 return false;
             }
@@ -86,7 +86,7 @@ public class SchemaElementDefinitionValidator {
                     LOGGER.error("Class for " + propertyName + " could not be found.");
                     return false;
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found", e);
                 return false;
             }

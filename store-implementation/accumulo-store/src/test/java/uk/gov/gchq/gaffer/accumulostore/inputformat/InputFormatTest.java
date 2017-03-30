@@ -241,7 +241,7 @@ public class InputFormatTest {
         }
         try {
             store.initialise(schema, properties);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             fail("StoreException thrown: " + e);
         }
         setupGraph(store, data);

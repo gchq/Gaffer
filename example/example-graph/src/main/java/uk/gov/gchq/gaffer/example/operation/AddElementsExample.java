@@ -34,7 +34,7 @@ public class AddElementsExample extends OperationExample {
     public void runExamples() {
         try {
             addElements();
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }

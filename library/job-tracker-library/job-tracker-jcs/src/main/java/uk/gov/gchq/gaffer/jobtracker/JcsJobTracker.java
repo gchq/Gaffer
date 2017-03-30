@@ -45,7 +45,7 @@ public class JcsJobTracker implements JobTracker {
             // Try just the default region
             try {
                 cache = JCS.getInstance("default");
-            } catch (CacheException e2) {
+            } catch (final CacheException e2) {
                 throw new RuntimeException("Unable to initialised the job tracker cache with config file: " + configPath, e);
             }
         }
@@ -57,7 +57,7 @@ public class JcsJobTracker implements JobTracker {
 
         try {
             cache.putInGroup(jobDetail.getJobId(), CACHE_GROUP, jobDetail);
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new RuntimeException("Failed to add job to job tracker: " + jobDetail, e);
         }
     }
@@ -87,7 +87,7 @@ public class JcsJobTracker implements JobTracker {
     public void clear() {
         try {
             cache.clear();
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             throw new RuntimeException("Failed to clear the cache", e);
         }
     }

@@ -423,7 +423,7 @@ public final class Graph {
                     } else {
                         store.initialise(cloneSchema(schema), properties);
                     }
-                } catch (StoreException e) {
+                } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }
             } else {
@@ -450,13 +450,13 @@ public final class Graph {
             final Store newStore;
             try {
                 newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
             }
 
             try {
                 newStore.initialise(schema, storeProperties);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
             }
             return newStore;

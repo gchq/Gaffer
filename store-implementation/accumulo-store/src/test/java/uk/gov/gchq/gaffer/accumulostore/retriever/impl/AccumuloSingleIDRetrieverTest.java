@@ -106,7 +106,7 @@ public class AccumuloSingleIDRetrieverTest {
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             fail("Unable to construct SingleID Retriever");
         }
         //Should find both i-B and i-C edges and entities i
@@ -133,7 +133,7 @@ public class AccumuloSingleIDRetrieverTest {
         final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         //Should find both i-B and i-C edges.
@@ -161,7 +161,7 @@ public class AccumuloSingleIDRetrieverTest {
         final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         //Should find only the entities i
@@ -191,7 +191,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
@@ -225,7 +225,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setDirectedType(DirectedType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
@@ -259,7 +259,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         for (final Element element : retriever) {
@@ -292,7 +292,7 @@ public class AccumuloSingleIDRetrieverTest {
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new RuntimeException(e);
         }
         int count = 0;
@@ -326,7 +326,7 @@ public class AccumuloSingleIDRetrieverTest {
         }
         try {
             store.execute(new AddElements.Builder().input(elements).build(), new User());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }
     }

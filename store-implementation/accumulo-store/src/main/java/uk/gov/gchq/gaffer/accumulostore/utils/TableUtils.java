@@ -134,7 +134,7 @@ public final class TableUtils {
             } else {
                 LOGGER.info("Validator iterator has not been added to table {}", tableName);
             }
-        } catch (AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
+        } catch (final AccumuloSecurityException | TableNotFoundException | AccumuloException | IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
         setLocalityGroups(store);
@@ -152,7 +152,7 @@ public final class TableUtils {
         LOGGER.info("Setting locality groups on table {}", tableName);
         try {
             store.getConnection().tableOperations().setLocalityGroups(tableName, localityGroups);
-        } catch (AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+        } catch (final AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }
@@ -186,7 +186,7 @@ public final class TableUtils {
         final Instance instance = new ZooKeeperInstance(instanceName, zookeepers);
         try {
             return instance.getConnector(userName, new PasswordToken(password));
-        } catch (AccumuloException | AccumuloSecurityException e) {
+        } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException("Failed to create accumulo connection", e);
         }
     }
@@ -202,7 +202,7 @@ public final class TableUtils {
     public static Authorizations getCurrentAuthorizations(final Connector connection) throws StoreException {
         try {
             return connection.securityOperations().getUserAuthorizations(connection.whoami());
-        } catch (AccumuloException | AccumuloSecurityException e) {
+        } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }

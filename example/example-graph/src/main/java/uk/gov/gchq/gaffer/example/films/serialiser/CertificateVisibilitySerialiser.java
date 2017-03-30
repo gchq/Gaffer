@@ -35,7 +35,7 @@ public class CertificateVisibilitySerialiser implements Serialisation<Certificat
         final String result = "(" + value.name() + ")";
         try {
             return result.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -45,7 +45,7 @@ public class CertificateVisibilitySerialiser implements Serialisation<Certificat
         final String nameInBrackets;
         try {
             nameInBrackets = new String(bytes, CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
 

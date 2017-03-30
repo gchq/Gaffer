@@ -172,7 +172,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }
@@ -333,7 +333,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         protected CHILD_CLASS json(final byte[] jsonBytes, final Class<? extends ViewElementDefinition> clazz) throws SchemaException {
             try {
                 merge(JSON_SERIALISER.deserialise(jsonBytes, clazz));
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new SchemaException("Unable to deserialise json", e);
             }
             return self();

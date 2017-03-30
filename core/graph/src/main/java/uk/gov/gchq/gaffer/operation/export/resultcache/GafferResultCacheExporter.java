@@ -157,7 +157,7 @@ public class GafferResultCacheExporter implements Exporter {
             final Class<?> resultClass;
             try {
                 resultClass = Class.forName(resultClassName);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 LOGGER.error("Result class name was not found: " + resultClassName, e);
                 throw new RuntimeException(e);
             }

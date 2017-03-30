@@ -170,13 +170,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                     if (currentPropLength > 0) {
                         try {
                             properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
-                        } catch (SerialisationException e) {
+                        } catch (final SerialisationException e) {
                             throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                         }
                     } else {
                         try {
                             properties.put(propertyName, serialiser.deserialiseEmptyBytes());
-                        } catch (SerialisationException e) {
+                        } catch (final SerialisationException e) {
                             throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                         }
                     }
@@ -360,7 +360,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 if (currentPropLength > 0) {
                     try {
                         properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
-                    } catch (SerialisationException e) {
+                    } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                     }
                 }

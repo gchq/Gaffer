@@ -78,7 +78,7 @@ public class CoreKeyBloomFilterIterator extends Filter {
         final byte[] bytes;
         try {
             bytes = options.get(AccumuloStoreConstants.BLOOM_FILTER).getBytes(AccumuloStoreConstants.BLOOM_FILTER_CHARSET);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
         }
 

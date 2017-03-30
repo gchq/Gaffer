@@ -98,7 +98,7 @@ public class AccumuloRangeIDRetrieverTest {
         try {
             final AccumuloRangeIDRetriever retriever = new AccumuloRangeIDRetriever(store, operation, new User());
             assertEquals(numEntries, Iterables.size(retriever));
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             fail("Unable to construct Range Retriever");
         }
     }
@@ -121,7 +121,7 @@ public class AccumuloRangeIDRetrieverTest {
             store.execute(new AddElements.Builder()
                     .input(elements)
                     .build(), user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Couldn't add element: " + e);
         }
     }

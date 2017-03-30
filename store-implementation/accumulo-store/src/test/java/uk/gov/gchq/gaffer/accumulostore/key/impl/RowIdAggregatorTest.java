@@ -256,7 +256,7 @@ public class RowIdAggregatorTest {
             final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 fail(e.getMessage());
             }
             final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
@@ -298,7 +298,7 @@ public class RowIdAggregatorTest {
             if (it.hasNext()) {
                 fail("Additional row found.");
             }
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableExistsException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }

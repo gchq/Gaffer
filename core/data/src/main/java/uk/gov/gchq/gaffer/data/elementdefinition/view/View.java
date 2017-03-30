@@ -81,7 +81,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     public String toString() {
         try {
             return "View" + new String(toJson(true), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
