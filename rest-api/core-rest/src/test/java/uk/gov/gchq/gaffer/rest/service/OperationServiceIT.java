@@ -155,7 +155,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
 
     private void verifyGroupCounts(final GroupCounts groupCounts) {
         assertEquals(2, (int) groupCounts.getEntityGroups()
-                                         .get(TestGroups.ENTITY));
+                .get(TestGroups.ENTITY));
         assertEquals(1, (int) groupCounts.getEdgeGroups().get(TestGroups.EDGE));
         assertFalse(groupCounts.isLimitHit());
     }
