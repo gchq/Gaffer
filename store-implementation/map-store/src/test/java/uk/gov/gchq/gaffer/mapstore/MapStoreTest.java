@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.mapstore;
 
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -53,7 +52,6 @@ public class MapStoreTest {
         assertEquals(expectedTraits, mapStore.getTraits());
     }
 
-    @Ignore
     @Test
     public void test() throws StoreException, OperationException {
         //TODO fix this test - currently throws a null pointer.
