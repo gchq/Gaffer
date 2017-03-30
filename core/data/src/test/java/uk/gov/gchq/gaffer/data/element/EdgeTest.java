@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -128,7 +129,7 @@ public class EdgeTest extends ElementTest {
     }
 
     @Test
-    public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
+    public void shouldReturnTrueForShallowEqualsWhenAllCoreFieldsAreEqual() {
         // Given
         final Edge edge1 = new Edge("group");
         edge1.setSource("source vertex");
@@ -144,11 +145,10 @@ public class EdgeTest extends ElementTest {
 
         // Then
         assertTrue(isEqual);
-        assertEquals(edge1.hashCode(), edge2.hashCode());
     }
 
     @Test
-    public void shouldReturnTrueForEqualsWhenAllFieldsAreEqual() {
+    public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
         final Edge edge1 = new Edge("group");
         edge1.setSource("source vertex");
@@ -160,11 +160,31 @@ public class EdgeTest extends ElementTest {
         edge2.putProperty("some property", "some value");
 
         // When
-        boolean isEqual = edge1.shallowEquals((Object) edge2);
+        boolean isEqual = edge1.equals((Object) edge2);
 
         // Then
         assertTrue(isEqual);
         assertEquals(edge1.hashCode(), edge2.hashCode());
+    }
+
+    @Test
+    public void shouldReturnFalseForEqualsWhenPropertyIsDifferent() {
+        // Given
+        final Edge edge1 = new Edge("group");
+        edge1.setSource("source vertex");
+        edge1.setDestination("dest vertex");
+        edge1.setDirected(true);
+        edge1.putProperty("some property", "some value");
+
+        final Edge edge2 = cloneCoreFields(edge1);
+        edge2.putProperty("some property", "some other value");
+
+        // When
+        boolean isEqual = edge1.equals((Object) edge2);
+
+        // Then
+        assertFalse(isEqual);
+        assertNotEquals(edge1.hashCode(), edge2.hashCode());
     }
 
     @Test
