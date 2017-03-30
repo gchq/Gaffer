@@ -40,23 +40,20 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
  * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
  * store the {@link Element}s. The {@link Element} objects are stored in memory, i.e . no serialisation is performed.
- *
+ * <p>
  * <p>It is designed to support efficient aggregation of properties. The key of the Map is the {@link Element} with any
  * group-by properties, and the value is the non-group-by properties. This allows very quick aggregation of properties
  * from a new {@link Element} with existing properties.
- *
+ * <p>
  * <p>Indices can optionally be maintained to allow quick look-up of {@link Element}s based on {@link EntitySeed}s
  * or {@link uk.gov.gchq.gaffer.operation.data.EdgeSeed}s.
  */
@@ -80,6 +77,7 @@ public class MapStore extends Store {
         super.initialise(schema, mapStoreProperties);
         // Initialise maps
         mapImpl = new MapImpl(schema, mapStoreProperties);
+        addOperationChainOptimisers(Collections.singletonList(new CountElementsOperationChainOptimiser()));
         LOGGER.info("Initialised MapStore");
     }
 
@@ -125,11 +123,5 @@ public class MapStore extends Store {
     @Override
     protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
         throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported");
-    }
-
-    @Override
-    protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
-        super.addOperationChainOptimisers(newOpChainOptimisers);
-        super.addOperationChainOptimisers(Collections.singletonList(new CountElementsOperationChainOptimiser()));
     }
 }

@@ -16,19 +16,16 @@
 
 package uk.gov.gchq.gaffer.example;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.graph.Graph;
+public final class SchemaConstants {
+    // Entities
+    public static final String ENTITY = "entity";
 
-public class GraphTest {
-    @Test
-    public void shouldInitialiseAccumuloGraph() {
-        // When
-        new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(SchemaConstants.class, "accumulo/store.properties"))
-                .addSchemas(StreamUtil.openStreams(SchemaConstants.class, "example-schema"))
-                .build();
+    // Edges
+    public static final String EDGE = "edge";
 
-        // Then - no exceptions thrown
+    // Properties
+    public static final String COUNT = "count";
+
+    private SchemaConstants() {
     }
 }
