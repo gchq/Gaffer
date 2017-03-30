@@ -85,6 +85,7 @@ public abstract class Element implements ElementId {
     public int hashCode() {
         return new HashCodeBuilder(13, 17)
                 .append(group)
+                .append(properties)
                 .toHashCode();
     }
 
