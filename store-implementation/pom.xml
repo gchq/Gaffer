@@ -29,6 +29,5 @@
     <modules>
         <module>accumulo-store</module>
         <module>proxy-store</module>
-        <module>array-list-store</module>
     </modules>
 </project>
