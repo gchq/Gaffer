@@ -68,7 +68,8 @@ public class NamedOperation<I_ITEM, O> implements
 
     public static class Builder<I_ITEM, O> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<NamedOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
-            MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>> {
+            MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>>,
+            OperationView.Builder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>> {
         public Builder() {
             super(new NamedOperation<>());
         }
