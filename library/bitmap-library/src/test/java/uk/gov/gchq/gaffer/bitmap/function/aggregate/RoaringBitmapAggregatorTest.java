@@ -19,14 +19,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class RoaringBitmapAggregatorTest {
+public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -103,5 +104,20 @@ public class RoaringBitmapAggregatorTest {
             assertEquals((Integer) inputs[i], value);
             i++;
         }
+    }
+
+    @Override
+    protected RoaringBitmapAggregator getInstance() {
+        return new RoaringBitmapAggregator();
+    }
+
+    @Override
+    protected Class<? extends BinaryOperator> getFunctionClass() {
+        return RoaringBitmapAggregator.class;
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+
     }
 }
