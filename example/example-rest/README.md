@@ -17,6 +17,8 @@ Example REST
 ============
 This module provides an example implementation of a Gaffer REST Interface.
 
+By default it will use the Gaffer MockAccumulo store.
+
 There are two options for building and then running it:
 
 Option 1 - Deployable war file
@@ -32,12 +34,12 @@ To deploy it to a server of your choice, take target/example-rest-[version].war 
 In order for the application to function, it needs a number of system properties to be set up on the server:
 e.g.
 gaffer.schemas=${SOME PATH}/schema
-gaffer.storeProperties=${SOME PATH}/mockaccumulostore.properties
+gaffer.storeProperties=${SOME PATH}/accumulo/store.properties
 
 The above example for 'gaffer.schemas' assumes that your schemas are in separate files, but if they were in a combined file, then you would just provide the path to one file.
 The 'gaffer.storeProperties' property points to a file that specifies the connection details of your Gaffer Store implementation. In this case, the implementation is an in-memory MockAccumuloStore.
 
-Either way, the relevant files need to exist in the specified path on the appropriate machine. Examples can be copied from src/main/resources/. These examples illustrate the schema for a Film/Viewing graph and use the MockAccumuloStore as the Gaffer Store Implementation.
+Either way, the relevant files need to exist in the specified path on the appropriate machine. Examples can be copied from src/main/resources/. These examples illustrate a basic schema and use the MockAccumuloStore as the Gaffer Store Implementation.
 Alternatively, there are further examples in the 'examples' project, or you could create your own.
 
 The above System Properties need to be configured on your server. An example of doing this in Tomcat would be to add the lines above to the end of ${CATALINA_HOME}/conf/catalina.properties and then to ensure that the files are resolvable via the configured paths.
@@ -69,13 +71,13 @@ files and the data store .properties file. As a default, these point to the same
   </systemProperty>
   <systemProperty>
       <name>gaffer.schemas</name>
-      <!-- this needs to point to your Gaffer schema folder-->
-      <value>${project.build.outputDirectory}/schema</value>
+      <!-- this needs to point to your Gaffer schema files or folder-->
+      <value>${project.build.outputDirectory}/example-schema.json</value>
   </systemProperty>
   <systemProperty>
       <name>gaffer.storeProperties</name>
        <!-- this needs to point your data store properties file-->
-      <value>${project.build.outputDirectory}/mockaccumulostore.properties</value>
+      <value>${project.build.outputDirectory}/accumulo/store.properties</value>
   </systemProperty>
 </systemProperties>
 ```
