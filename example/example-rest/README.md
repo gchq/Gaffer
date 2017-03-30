@@ -72,7 +72,7 @@ files and the data store .properties file. As a default, these point to the same
   <systemProperty>
       <name>gaffer.schemas</name>
       <!-- this needs to point to your Gaffer schema files or folder-->
-      <value>${project.build.outputDirectory}/example-schema.json</value>
+      <value>${project.build.outputDirectory}/example-schema</value>
   </systemProperty>
   <systemProperty>
       <name>gaffer.storeProperties</name>
