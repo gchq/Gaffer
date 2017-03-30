@@ -42,8 +42,7 @@ public class ToMapExample extends OperationExample {
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends Map<String, Object>>> opChain = new Builder()
                 .first(new GetElements.Builder()
-                        .input(new EntitySeed(1))
-                        .input(new EntitySeed(2))
+                        .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
                 .then(new ToMap.Builder()
                         .generator(new MapGenerator.Builder()

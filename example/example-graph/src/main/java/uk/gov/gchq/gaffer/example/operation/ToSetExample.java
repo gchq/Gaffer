@@ -42,8 +42,7 @@ public class ToSetExample extends OperationExample {
     public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
+                .input(new EntitySeed(1), new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 

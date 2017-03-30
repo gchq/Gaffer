@@ -19,6 +19,7 @@ package uk.gov.gchq.koryphe.composite;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
  * @param <F> The type of Function
  */
 public abstract class Composite<F> {
-    private List<F> functions;
+    protected List<F> functions;
 
     public Composite() {
         this(new ArrayList<>());
@@ -71,5 +72,12 @@ public abstract class Composite<F> {
                 .append(getClass())
                 .append(functions)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("functions", functions)
+                .toString();
     }
 }

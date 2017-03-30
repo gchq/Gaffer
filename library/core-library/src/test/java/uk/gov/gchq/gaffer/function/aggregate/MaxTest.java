@@ -128,14 +128,14 @@ public class MaxTest extends BiFunctionTest {
         try {
             max.apply(state, 3l);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // When 3
         try {
             max.apply(state, 2.1d);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

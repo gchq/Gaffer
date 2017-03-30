@@ -202,7 +202,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public String toString() {
         try {
             return "Schema" + new String(toJson(true), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -254,12 +254,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 Class<? extends Serialisation> serialiserClass;
                 try {
                     serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialisation.class);
-                } catch (ClassNotFoundException e) {
+                } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
                 try {
                     vertexSerialiser(serialiserClass.newInstance());
-                } catch (IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
+                } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
             }

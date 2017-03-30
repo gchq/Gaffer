@@ -17,20 +17,26 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SchemaElementDefinitionValidatorTest {
     @Test
@@ -215,108 +221,108 @@ public class SchemaElementDefinitionValidatorTest {
         assertTrue(result.isValid());
     }
 
-    // TODO fix
-//    @Test
-//    public void shouldValidateAndReturnTrueWhenAggregatorIsValid() {
-//        // Given
-//        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-//        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-//        final ElementAggregator aggregator = mock(ElementAggregator.class);
-//        final PassThroughFunctionContext<String, BiFunction> context1 = mock(PassThroughFunctionContext.class);
-//        final BiFunction function = mock(BiFunction.class);
-//        final List<PassThroughFunctionContext<String, BiFunction>> contexts = new ArrayList<>();
-//        contexts.add(context1);
-//
-//        given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
-//        given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)));
-//        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-//        given(elementDef.getAggregator()).willReturn(aggregator);
-//        given(context1.getSelection()).willReturn(Arrays.asList(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2));
-//        given(function.getInputClasses()).willReturn(new Class[]{String.class, Integer.class});
-//        given(context1.getFunction()).willReturn(function);
-//        given(aggregator.getFunctions()).willReturn(contexts);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-//        given(elementDef.getClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-//        given(elementDef.getClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-//
-//        // When
-//        final ValidationResult result = validator.validate(elementDef, true);
-//
-//        // Then
-//        assertTrue(result.isValid());
-//        verify(elementDef).getClass(TestPropertyNames.PROP_1);
-//        verify(elementDef).getClass(TestPropertyNames.PROP_2);
-//        verify(function).getInputClasses();
-//    }
-//
-//    @Test
-//    public void shouldValidateAndReturnTrueWhenNoPropertiesSoAggregatorIsValid() {
-//        // Given
-//        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-//        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-//
-//        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-//        given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
-//        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-//        given(elementDef.getAggregator()).willReturn(null);
-//
-//        // When
-//        final ValidationResult result = validator.validate(elementDef, true);
-//
-//        // Then
-//        assertTrue(result.isValid());
-//    }
-//
-//    @Test
-//    public void shouldValidateAndReturnFalseWhenNoBiFunctionAndBiFunctionsAreRequired() {
-//        // Given
-//        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-//        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-//
-//        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-//        final Map<String, String> propertyMap = mock(Map.class);
-//        given(propertyMap.isEmpty()).willReturn(false);
-//        given(elementDef.getPropertyMap()).willReturn(propertyMap);
-//        given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)));
-//        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-//        given(elementDef.getAggregator()).willReturn(null);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-//
-//        // When
-//        final ValidationResult result = validator.validate(elementDef, true);
-//
-//        // Then
-//        assertFalse(result.isValid());
-//    }
-//
-//    @Test
-//    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnBiFunction() {
-//        // Given
-//        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-//        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-//        final ElementAggregator aggregator = mock(ElementAggregator.class);
-//        final PassThroughFunctionContext<String, BiFunction> context1 = mock(PassThroughFunctionContext.class);
-//        final BiFunction function = mock(BiFunction.class);
-//        final List<PassThroughFunctionContext<String, BiFunction>> contexts = new ArrayList<>();
-//        contexts.add(context1);
-//
-//        given(elementDef.getIdentifiers()).willReturn(new HashSet<IdentifierType>());
-//        given(elementDef.getProperties()).willReturn(new HashSet<>(Arrays.asList(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)));
-//        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-//        given(elementDef.getAggregator()).willReturn(aggregator);
-//        given(context1.getSelection()).willReturn(Collections.singletonList(TestPropertyNames.PROP_1));
-//        given(function.getInputClasses()).willReturn(new Class[]{String.class, Integer.class});
-//        given(context1.getFunction()).willReturn(function);
-//        given(aggregator.getFunctions()).willReturn(contexts);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-//        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-//
-//        // When
-//        final ValidationResult result = validator.validate(elementDef, true);
-//
-//        // Then
-//        assertFalse(result.isValid());
-//    }
+    @Test
+    public void shouldValidateAndReturnTrueWhenAggregatorIsValid() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "string");
+        properties.put(TestPropertyNames.PROP_2, "int");
+        final BiFunction<String, Integer, Integer> function1 = mock(BiFunction.class);
+        final BiFunction function2 = mock(BiFunction.class);
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function1)
+                .select(TestPropertyNames.PROP_2)
+                .execute(function2)
+                .build();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef, true);
+
+        // Then
+        assertTrue(result.isValid());
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueWhenNoPropertiesSoAggregatorIsValid() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(null);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef, true);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenNoBiFunctionAndBiFunctionsAreRequired() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "string");
+        properties.put(TestPropertyNames.PROP_2, "int");
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(null);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef, true);
+
+        // Then
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnBiFunction() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "string");
+        properties.put(TestPropertyNames.PROP_2, "int");
+        final BiFunction<String, Integer, Integer> function1 = mock(BiFunction.class);
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function1)
+                .build();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef, true);
+
+        // Then
+        assertFalse(result.isValid());
+    }
 }

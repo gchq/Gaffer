@@ -19,5 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.function.BinaryOperator;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@FunctionalInterface
 public interface IKorypheBinaryOperator<T> extends BinaryOperator<T> {
 }

@@ -37,7 +37,7 @@ public class DoubleSerialiser implements Serialisation<Double> {
     public byte[] serialise(final Double value) throws SerialisationException {
         try {
             return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -46,7 +46,7 @@ public class DoubleSerialiser implements Serialisation<Double> {
     public Double deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (NumberFormatException | UnsupportedEncodingException e) {
+        } catch (final NumberFormatException | UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
