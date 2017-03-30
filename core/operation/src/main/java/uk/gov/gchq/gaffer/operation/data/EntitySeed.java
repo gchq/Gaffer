@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
@@ -34,7 +33,6 @@ public class EntitySeed extends ElementSeed implements EntityId {
         this.vertex = vertex;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getVertex() {
         return vertex;
     }

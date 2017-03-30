@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObject;
 import uk.gov.gchq.gaffer.rest.example.ExampleDomainObjectGenerator;
+import uk.gov.gchq.gaffer.rest.example.ExampleElementGenerator;
 import uk.gov.gchq.gaffer.rest.example.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -190,10 +191,9 @@ public class ExamplesService implements IExamplesService {
         return op;
     }
 
-
     @Override
     public GenerateElements generateElements() {
-        final GenerateElements<ExampleDomainObject> op = new GenerateElements<>(new ExampleDomainObjectGenerator());
+        final GenerateElements<ExampleDomainObject> op = new GenerateElements<>(new ExampleElementGenerator());
         final ArrayList<ExampleDomainObject> objs = new ArrayList<>();
         if (hasEntities()) {
             final SchemaElementDefinition entityDef = getSchema().getEntity(getAnEntityGroup());

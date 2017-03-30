@@ -1,55 +1,45 @@
 package uk.gov.gchq.gaffer.function.aggregate;
 
+import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
-public class StringConcatTest extends AggregateFunctionTest {
+public class StringConcatTest extends BinaryOperatorTest {
+    private String state;
+
+    @Before
+    public void before() {
+        state = null;
+    }
+
     @Test
     public void shouldConcatStringsTogether() {
         // Given
-        final StringConcat aggregator = new StringConcat();
-        aggregator.setSeparator(";");
-        aggregator.init();
+        final StringConcat function = new StringConcat();
+        function.setSeparator(";");
 
         // When
-        aggregator._aggregate("1");
-        aggregator.aggregate(new Object[]{"2"});
-        aggregator.aggregate(new Object[]{null});
+        state = function.apply("1", state);
+        state = function.apply("2", state);
+        function.apply(null, state);
 
         // Then
-        assertEquals("1;2", aggregator.state()[0]);
+        assertEquals("1;2", state);
     }
-
-    @Test
-    public void shouldCloneAggregator() {
-        // Given
-        final StringConcat aggregator = new StringConcat();
-        aggregator._aggregate("1");
-
-        // When
-        final StringConcat clone = aggregator.statelessClone();
-
-        // Then
-        assertNotSame(aggregator, clone);
-        assertNull(clone.state()[0]);
-    }
-
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final StringConcat aggregator = new StringConcat();
+        final StringConcat function = new StringConcat();
 
         // When 1
-        final String json = new String(new JSONSerialiser().serialise(aggregator, true));
+        final String json = new String(new JSONSerialiser().serialise(function, true));
 
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +

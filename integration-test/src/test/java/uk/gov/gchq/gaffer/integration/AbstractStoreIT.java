@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.function.aggregate.Max;
@@ -216,17 +215,13 @@ public abstract class AbstractStoreIT {
                         .clazz(Long.class)
                         .aggregateFunction(new Max())
                         .serialiser(new CompactRawLongSerialiser())
-                        .validator(new ElementFilter.Builder()
-                                .execute(new AgeOff(AGE_OFF_TIME))
-                                .build())
+                        .validateFunctions(new AgeOff(AGE_OFF_TIME))
                         .build())
                 .type(TestTypes.PROP_INTEGER_2, new TypeDefinition.Builder()
                         .clazz(Integer.class)
                         .aggregateFunction(new Max())
                         .serialiser(new RawIntegerSerialiser())
-                        .validator(new ElementFilter.Builder()
-                                .execute(new IsLessThan(10))
-                                .build())
+                        .validateFunctions(new IsLessThan(10))
                         .build())
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .vertex(TestTypes.ID_STRING)

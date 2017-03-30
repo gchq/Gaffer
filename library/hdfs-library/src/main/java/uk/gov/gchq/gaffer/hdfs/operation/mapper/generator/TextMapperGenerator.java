@@ -19,9 +19,9 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.MapContext;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * An <code>TextMapperGenerator</code> is an {@link MapperGenerator} that
@@ -29,27 +29,27 @@ import java.util.List;
  */
 public class TextMapperGenerator implements MapperGenerator<LongWritable, Text> {
     private final List<String> singleItemList = new ArrayList<>(1);
-    private ElementGenerator<String> elementGenerator;
+    private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
 
     public TextMapperGenerator() {
     }
 
-    public TextMapperGenerator(final ElementGenerator<String> elementGenerator) {
+    public TextMapperGenerator(final Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @Override
-    public Iterable<Element> getElements(final LongWritable keyIn, final Text valueIn, final MapContext<LongWritable, Text, ?, ?> context) {
+    public Iterable<? extends Element> getElements(final LongWritable keyIn, final Text valueIn, final MapContext<LongWritable, Text, ?, ?> context) {
         singleItemList.clear();
         singleItemList.add(valueIn.toString());
-        return elementGenerator.getElements(singleItemList);
+        return elementGenerator.apply(singleItemList);
     }
 
-    public ElementGenerator<String> getElementGenerator() {
+    public Function<Iterable<? extends String>, Iterable<? extends Element>> getElementGenerator() {
         return elementGenerator;
     }
 
-    public void setElementGenerator(final ElementGenerator<String> elementGenerator) {
+    public void setElementGenerator(final Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -41,7 +40,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this.directed = directed;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getSource() {
         return source;
     }
@@ -50,7 +48,6 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this.source = source;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Object getDestination() {
         return destination;
     }

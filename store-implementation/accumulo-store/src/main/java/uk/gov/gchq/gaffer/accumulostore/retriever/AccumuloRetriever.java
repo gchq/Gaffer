@@ -133,11 +133,11 @@ public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? ex
 
     protected void transform(final Element element, final ElementTransformer transformer) {
         if (transformer != null) {
-            transformer.transform(element);
+            transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return postFilter != null ? postFilter.filter(element) : true;
+        return postFilter == null || postFilter.test(element);
     }
 }

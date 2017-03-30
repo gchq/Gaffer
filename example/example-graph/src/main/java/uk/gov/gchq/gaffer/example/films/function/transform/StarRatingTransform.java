@@ -16,28 +16,14 @@
 
 package uk.gov.gchq.gaffer.example.films.function.transform;
 
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.tuple.function.KorypheFunction2;
 
-@Inputs({Long.class, Integer.class})
-@Outputs(Float.class)
-public class StarRatingTransform extends TransformFunction {
+public class StarRatingTransform extends KorypheFunction2<Long, Integer, Float> {
     @Override
-    public Object[] transform(final Object[] input) {
-        return execute((Long) input[0], (Integer) input[1]);
-    }
-
-    public Object[] execute(final Long total, final Integer count) {
+    public Float apply(final Long total, final Integer count) {
         final float average = total / (float) count;
 
         // Convert the average to a star rating between 0 and 5 - rounded to 2 decimal places
-        final float fiveStarRating = Math.round(5 * average) / 100f;
-
-        return new Object[]{fiveStarRating};
-    }
-
-    public StarRatingTransform statelessClone() {
-        return new StarRatingTransform();
+        return Math.round(5 * average) / 100f;
     }
 }

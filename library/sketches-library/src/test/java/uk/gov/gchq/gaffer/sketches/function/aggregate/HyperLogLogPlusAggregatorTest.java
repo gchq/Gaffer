@@ -20,18 +20,14 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import java.io.IOException;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
-public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
+public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
     private HyperLogLogPlus hyperLogLogPlus1;
     private HyperLogLogPlus hyperLogLogPlus2;
 
@@ -54,85 +50,15 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
 
     private void shouldAggregateHyperLogLogPlus() {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        assertNull((hyperLogLogPlusAggregator.state()[0]));
-        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
-        assertEquals(2l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
-        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus2);
-        assertEquals(4l, ((HyperLogLogPlus) hyperLogLogPlusAggregator.state()[0]).cardinality());
-
-        assertNotSame(hyperLogLogPlus1, hyperLogLogPlusAggregator.state());
-        assertNotSame(hyperLogLogPlus2, hyperLogLogPlusAggregator.state());
-    }
-
-    @Test
-    public void testFailedExecuteDueToNullInput() {
-        HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
-        try {
-            hyperLogLogPlusAggregator.aggregate(null);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testFailedExecuteDueToEmptyInput() {
-        HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
-        try {
-            hyperLogLogPlusAggregator.aggregate(new Object[0]);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
+        HyperLogLogPlus currentState = hyperLogLogPlus1;
+        assertEquals(2l, currentState.cardinality());
+        currentState = hyperLogLogPlusAggregator.apply(hyperLogLogPlus2, currentState);
+        assertEquals(4l, currentState.cardinality());
     }
 
     @Test
     public void testClone() {
-        HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus1);
-        HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
-        assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertNull((clone.state()[0]));
-        clone._aggregate(hyperLogLogPlus2);
-        assertEquals(hyperLogLogPlus2.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
-    }
-
-    @Test
-    public void testCloneWhenEmpty() {
-        HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
-        assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertNull((clone.state()[0]));
-        clone._aggregate(hyperLogLogPlus1);
-        assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
-    }
-
-    @Test
-    public void testCloneOfBusySketch() {
-        HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
-        hyperLogLogPlusAggregator.init();
-        for (int i = 0; i < 100; i++) {
-            HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(5, 5);
-            for (int j = 0; j < 100; j++) {
-                hyperLogLogPlus.offer(getRandomLetter());
-            }
-            hyperLogLogPlusAggregator._aggregate(hyperLogLogPlus);
-        }
-        HyperLogLogPlusAggregator clone = hyperLogLogPlusAggregator.statelessClone();
-        assertNotSame(hyperLogLogPlusAggregator, clone);
-        assertNull((clone.state()[0]));
-        clone._aggregate(hyperLogLogPlus1);
-        assertEquals(hyperLogLogPlus1.cardinality(), ((HyperLogLogPlus) clone.state()[0]).cardinality());
-    }
-
-    private static String getRandomLetter() {
-        String[] letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        return letters[(int) (Math.random() * letters.length)];
+        assertEquals(new HyperLogLogPlusAggregator(), new HyperLogLogPlusAggregator());
     }
 
     @Test
@@ -154,98 +80,8 @@ public class HyperLogLogPlusAggregatorTest extends AggregateFunctionTest {
         assertNotNull(deserialisedAggregator);
     }
 
-    @Test
-    public void shouldBeEqualWhenBothAggregatorsHaveSameSketches() throws IOException {
-        // Given
-        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
-        hllp1.offer("A");
-        hllp1.offer("B");
-
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
-        hllp2.offer("A");
-        hllp2.offer("B");
-
-        aggregator1._aggregate(hllp1);
-        aggregator2._aggregate(hllp2);
-
-        // Then
-        assertEquals(aggregator1, aggregator2);
-    }
-
-    @Test
-    public void shouldBeNotEqualWhenBothAggregatorsHaveDifferentSketches() throws IOException {
-        // Given
-        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
-        hllp1.offer("A");
-        hllp1.offer("B");
-
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
-        hllp2.offer("A");
-        hllp2.offer("C");
-
-        aggregator1._aggregate(hllp1);
-        aggregator2._aggregate(hllp2);
-
-        // Then
-        assertNotEquals(aggregator1, aggregator2);
-    }
-
-    @Test
-    public void shouldBeNotEqualWhenFirstAggregatorsHasNullHllp() throws IOException {
-        // Given
-        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(5, 5);
-        hllp2.offer("A");
-        hllp2.offer("C");
-
-        aggregator2._aggregate(hllp2);
-
-        // Then
-        assertNotEquals(aggregator1, aggregator2);
-    }
-
-    @Test
-    public void shouldBeNotEqualWhenSecondAggregatorsHasNullHllp() throws IOException {
-        // Given
-        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
-        hllp1.offer("A");
-        hllp1.offer("B");
-
-        aggregator1._aggregate(hllp1);
-
-        // Then
-        assertNotEquals(aggregator1, aggregator2);
-    }
-
-    @Test
-    public void shouldBeNotEqualWhenBothAggregatorsHaveSketchesWithDifferentPAndSpValues() throws IOException {
-        // Given
-        final HyperLogLogPlusAggregator aggregator1 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlusAggregator aggregator2 = new HyperLogLogPlusAggregator();
-        final HyperLogLogPlus hllp1 = new HyperLogLogPlus(5, 5);
-        hllp1.offer("A");
-        hllp1.offer("B");
-
-        final HyperLogLogPlus hllp2 = new HyperLogLogPlus(6, 6);
-        hllp2.offer("A");
-        hllp2.offer("B");
-
-        aggregator1._aggregate(hllp1);
-        aggregator2._aggregate(hllp2);
-
-        // Then
-        assertNotEquals(aggregator1, aggregator2);
-    }
-
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends BinaryOperator> getFunctionClass() {
         return HyperLogLogPlusAggregator.class;
     }
 

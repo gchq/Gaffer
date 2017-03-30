@@ -28,5 +28,5 @@ import uk.gov.gchq.gaffer.data.element.Element;
  * @see TextMapperGenerator
  */
 public interface MapperGenerator<KEY_IN, VALUE_IN> {
-    Iterable<Element> getElements(final KEY_IN keyIn, final VALUE_IN valueIn, final MapContext<KEY_IN, VALUE_IN, ?, ?> context);
+    Iterable<? extends Element> getElements(final KEY_IN keyIn, final VALUE_IN valueIn, final MapContext<KEY_IN, VALUE_IN, ?, ?> context);
 }

@@ -16,11 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -31,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
  * {@link uk.gov.gchq.gaffer.data.element.Edge}.
  * It is used as a mainly used as a seed for queries.
  */
-@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
 public abstract class ElementSeed implements ElementId {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     public static ElementSeed createSeed(final ElementId elementId) {
@@ -48,15 +42,5 @@ public abstract class ElementSeed implements ElementId {
 
     public static EdgeSeed createSeed(final EdgeId edgeId) {
         return new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
-    }
-
-    @JsonGetter("class")
-    String getClassName() {
-        return getClass().getName();
-    }
-
-    @JsonSetter("class")
-    void setClassName(final String className) {
-        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 }

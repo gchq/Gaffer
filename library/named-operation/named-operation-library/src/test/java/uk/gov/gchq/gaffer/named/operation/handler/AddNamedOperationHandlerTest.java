@@ -35,7 +35,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
-import static junit.framework.TestCase.fail;
+import static org.junit.Assert.fail;
 
 public class AddNamedOperationHandlerTest {
 

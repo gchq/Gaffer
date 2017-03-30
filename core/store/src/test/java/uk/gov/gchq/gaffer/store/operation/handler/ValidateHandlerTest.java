@@ -70,7 +70,7 @@ public class ValidateHandlerTest {
         given(elm1.getGroup()).willReturn(group);
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final ElementFilter validator = mock(ElementFilter.class);
-        given(validator.filter(elm1)).willReturn(true);
+        given(validator.test(elm1)).willReturn(true);
         given(elementDef.getValidator(true)).willReturn(validator);
         given(schema.getElement(group)).willReturn(elementDef);
 

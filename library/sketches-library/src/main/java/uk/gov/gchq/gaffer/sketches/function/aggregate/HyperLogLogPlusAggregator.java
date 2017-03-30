@@ -17,110 +17,20 @@ package uk.gov.gchq.gaffer.sketches.function.aggregate;
 
 import com.clearspring.analytics.stream.cardinality.CardinalityMergeException;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
-import java.io.IOException;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * An <code>HyperLogLogPlusAggregator</code> is a {@link SimpleAggregateFunction} that takes in
+ * An <code>HyperLogLogPlusAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
  * {@link HyperLogLogPlus}s and merges the sketches together.
  */
-@Inputs(HyperLogLogPlus.class)
-@Outputs(HyperLogLogPlus.class)
-public class HyperLogLogPlusAggregator extends SimpleAggregateFunction<HyperLogLogPlus> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HyperLogLogPlusAggregator.class);
-    private HyperLogLogPlus sketch;
-
+public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {
     @Override
-    public void init() {
-        sketch = null;
-    }
-
-    @Override
-    protected void _aggregate(final HyperLogLogPlus input) {
-        if (input != null) {
-            if (null == sketch) {
-                try {
-                    sketch = HyperLogLogPlus.Builder.build(input.getBytes());
-                } catch (final IOException e) {
-                    LOGGER.warn("Unable to clone a HyperLogLogPlus object", e);
-                    sketch = input;
-                }
-            } else {
-                try {
-                    sketch.addAll(input);
-                } catch (final CardinalityMergeException exception) {
-                    throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected HyperLogLogPlus _state() {
-        return sketch;
-    }
-
-    @Override
-    public HyperLogLogPlusAggregator statelessClone() {
-        HyperLogLogPlusAggregator clone = new HyperLogLogPlusAggregator();
-        clone.init();
-        return clone;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final HyperLogLogPlusAggregator that = (HyperLogLogPlusAggregator) o;
-
-        if (null == sketch) {
-            return null == that.sketch;
-        }
-
-        if (null == that.sketch) {
-            return false;
-        }
-
+    protected HyperLogLogPlus _apply(final HyperLogLogPlus a, final HyperLogLogPlus b) {
         try {
-            return new EqualsBuilder()
-                    .append(inputs, that.inputs)
-                    .append(outputs, that.outputs)
-                    .append(sketch.getBytes(), that.sketch.getBytes())
-                    .isEquals();
-        } catch (final IOException e) {
-            LOGGER.warn("Could not compare HyperLogLogPlus objects using their bytes", e);
-            return false;
+            a.addAll(b);
+        } catch (final CardinalityMergeException exception) {
+            throw new RuntimeException("An Exception occurred when trying to aggregate the HyperLogLogPlus objects", exception);
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(outputs)
-                .append(sketch)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
-                .append("sketch", sketch)
-                .toString();
+        return a;
     }
 }

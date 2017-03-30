@@ -31,7 +31,7 @@ To build the war file along with all its dependencies then run the following com
 
 To deploy it to a server of your choice, take target/example-rest-[version].war and deploy as per the usual deployment process for your server.
 
-In order for the application to function, it needs a number of system properties to be set up on the server:
+In order for the application to predicate, it needs a number of system properties to be set up on the server:
 e.g.
 gaffer.schemas=${SOME PATH}/schema
 gaffer.storeProperties=${SOME PATH}/accumulo/store.properties

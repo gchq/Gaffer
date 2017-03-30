@@ -45,15 +45,12 @@ public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
         }
 
         final ElementAggregator aggregator = schema.getElement(group).getAggregator();
-        aggregator.aggregate(properties);
+        Properties aggregatedProps = properties;
         while (iter.hasNext()) {
-            aggregator.aggregate(iter.next());
+            aggregatedProps = aggregator.apply(iter.next(), aggregatedProps);
         }
 
-        final Properties aggregatedProperties = new Properties();
-        aggregator.state(aggregatedProperties);
-
-        return aggregatedProperties;
+        return aggregatedProps;
     }
 
     @Override

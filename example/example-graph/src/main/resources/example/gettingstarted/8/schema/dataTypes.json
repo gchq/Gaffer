@@ -4,9 +4,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -14,9 +12,7 @@
       "class": "java.util.Date",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -24,9 +20,7 @@
       "class": "java.util.Date",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -34,9 +28,7 @@
       "class": "java.lang.Long",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -44,9 +36,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
       ]
     },
@@ -54,9 +44,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     }

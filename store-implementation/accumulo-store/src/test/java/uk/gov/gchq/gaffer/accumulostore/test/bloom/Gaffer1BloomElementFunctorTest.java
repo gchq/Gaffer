@@ -43,7 +43,7 @@ public class Gaffer1BloomElementFunctorTest {
     private AccumuloElementConverter elementConverter;
     private Schema schema;
 
-    private final static CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
+    private static final CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
 
     @Before
     public void setup() {

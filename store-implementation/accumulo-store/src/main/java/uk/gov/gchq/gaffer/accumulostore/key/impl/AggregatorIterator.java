@@ -63,14 +63,13 @@ public class AggregatorIterator extends Combiner {
         }
 
         Properties properties;
-        final ElementAggregator aggregator;
+        final ElementAggregator aggregator = schema.getElement(group).getAggregator();
         try {
             properties = elementConverter.getPropertiesFromValue(group, value);
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
-        aggregator = schema.getElement(group).getAggregator();
-        aggregator.aggregate(properties);
+        Properties aggregatedProps = properties;
         while (iter.hasNext()) {
             value = iter.next();
             try {
@@ -78,12 +77,10 @@ public class AggregatorIterator extends Combiner {
             } catch (final AccumuloElementConversionException e) {
                 throw new AggregationException("Failed to recreate a graph element from a key and value", e);
             }
-            aggregator.aggregate(properties);
+            aggregatedProps = aggregator.apply(properties, aggregatedProps);
         }
-        properties = new Properties();
-        aggregator.state(properties);
         try {
-            return elementConverter.getValueFromProperties(group, properties);
+            return elementConverter.getValueFromProperties(group, aggregatedProps);
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to create an accumulo value from an elements properties", e);
         }

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 
@@ -28,6 +30,16 @@ public interface ElementId extends Serializable {
     Matches isRelated(ElementId that);
 
     boolean isEqual(final ElementId that);
+
+    @JsonGetter("class")
+    default String getClassName() {
+        return getClass().getName();
+    }
+
+    @JsonSetter("class")
+    default void setClassName(final String className) {
+        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
+    }
 
     enum Matches {
         BOTH,

@@ -28,22 +28,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class EntityIdExtractorTest {
-    @Test
-    public void shouldThrowUnsupportedOperationExceptionIfGetElementCalled() {
-        // Given
-        final EntityIdExtractor extractor = new EntityIdExtractor();
-
-        // When / Then
-        try {
-            extractor.getElement(mock(EntityId.class));
-        } catch (final UnsupportedOperationException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
     @Test
     public void shouldGetIdentifierFromEntity() {
         // Given
@@ -51,7 +37,7 @@ public class EntityIdExtractorTest {
         final Entity entity = new Entity(TestGroups.ENTITY, "identifier");
 
         // When
-        final EntityId seed = extractor.getObject(entity);
+        final EntityId seed = extractor._apply(entity);
 
         // Then
         assertSame("identifier", seed.getVertex());
@@ -64,7 +50,7 @@ public class EntityIdExtractorTest {
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
 
         // When
-        final EntityId seed = extractor.getObject(edge);
+        final EntityId seed = extractor._apply(edge);
 
         // Then
         assertEquals("source", seed.getVertex());
@@ -77,7 +63,7 @@ public class EntityIdExtractorTest {
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
 
         // When
-        final EntityId seed = extractor.getObject(edge);
+        final EntityId seed = extractor._apply(edge);
 
         // Then
         assertEquals("destination", seed.getVertex());
@@ -91,7 +77,7 @@ public class EntityIdExtractorTest {
 
         // When / Then
         try {
-            extractor.getObject(edge);
+            extractor._apply(edge);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e);

@@ -20,10 +20,10 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-public class DataGenerator14 extends OneToOneElementGenerator<String> {
+public class DataGenerator14 implements OneToOneElementGenerator<String> {
 
     @Override
-    public Element getElement(final String line) {
+    public Element _apply(final String line) {
         final String[] t = line.split(",");
         final Edge.Builder builder = new Edge.Builder()
                 .group(t[2])
@@ -39,10 +39,5 @@ public class DataGenerator14 extends OneToOneElementGenerator<String> {
         }
 
         return builder.build();
-    }
-
-    @Override
-    public String getObject(final Element element) {
-        throw new UnsupportedOperationException();
     }
 }

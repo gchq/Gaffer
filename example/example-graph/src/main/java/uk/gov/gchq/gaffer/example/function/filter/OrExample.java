@@ -16,14 +16,15 @@
 package uk.gov.gchq.gaffer.example.function.filter;
 
 
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.function.filter.Or;
+import uk.gov.gchq.koryphe.tuple.n.Tuple1;
+import uk.gov.gchq.koryphe.tuple.n.Tuple2;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.Arrays;
 
-public class OrExample extends FilterFunctionExample {
+public class OrExample extends PredicateExample {
     public static void main(final String[] args) {
         new OrExample().run();
     }
@@ -39,46 +40,30 @@ public class OrExample extends FilterFunctionExample {
 
     public void isLessThan2OrIsMoreThan2() {
         // ---------------------------------------------------------
-        final Or function = new Or(Arrays.asList(
-                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                        .select(0) // select first property
-                        .execute(new IsLessThan(2))
-                        .build(),
-                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                        .select(0) // select first property
-                        .execute(new IsMoreThan(2))
-                        .build()));
+        final Or function = new Or<>(Arrays.asList(
+                new IsLessThan(2),
+                new IsMoreThan(2)
+        ));
         // ---------------------------------------------------------
 
-        runExample(function,
-                new Object[]{1},
-                new Object[]{2},
-                new Object[]{3},
-                new Object[]{1L},
-                new Object[]{3L}
-        );
+        runExample(function, 1, 2, 3, 1L, 3L);
     }
 
     public void property1IsLessThan2OrProperty2IsMoreThan2() {
         // ---------------------------------------------------------
-        final Or function = new Or(Arrays.asList(
-                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                        .select(0) // select first property
-                        .execute(new IsLessThan(2))
-                        .build(),
-                new ConsumerFunctionContext.Builder<Integer, FilterFunction>()
-                        .select(1) // select second property
-                        .execute(new IsMoreThan(2))
-                        .build()));
+        final Or function = new Or<>(Arrays.asList(
+                new TupleAdaptedPredicate<>(new IsLessThan(2), 0),
+                new TupleAdaptedPredicate<>(new IsMoreThan(2), 1)
+        ));
         // ---------------------------------------------------------
 
         runExample(function,
-                new Object[]{1, 3},
-                new Object[]{1, 1},
-                new Object[]{3, 3},
-                new Object[]{3, 1},
-                new Object[]{1L, 3L},
-                new Object[]{1}
+                new Tuple2<>(1, 3),
+                new Tuple2<>(1, 1),
+                new Tuple2<>(3, 3),
+                new Tuple2<>(3, 1),
+                new Tuple2<>(1L, 3L),
+                new Tuple1<>(1)
         );
     }
 }

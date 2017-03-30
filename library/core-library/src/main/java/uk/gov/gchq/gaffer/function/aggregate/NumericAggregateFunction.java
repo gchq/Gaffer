@@ -15,14 +15,11 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * An <code>NumericAggregateFunction</code> is a {@link SimpleAggregateFunction} that takes in
+ * An <code>NumericAggregateFunction</code> is a {@link KorypheBinaryOperator} that takes in
  * {@link Number}s of the same type and processes the number in some way. To implement this class just
  * implement the init methods and aggregate methods for the different number types.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
@@ -30,133 +27,24 @@ import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
  *
  * @see NumericAggregateFunction
  */
-public abstract class NumericAggregateFunction extends SimpleAggregateFunction<Number> {
-
-    private NumberType mode = NumberType.AUTO;
-
-    protected Number aggregate = null;
-
-    /**
-     * Sets the number type mode. If this is not set, then this will be set automatically based on the class of the
-     * first number that is passed to the aggregator.
-     *
-     * @param mode the {@link NumberType} to set.
-     */
-    public void setMode(final NumberType mode) {
-        this.mode = mode;
-    }
-
-    /**
-     * @return the {@link NumberType} to be aggregated
-     */
-    public NumberType getMode() {
-        return mode;
-    }
-
+public abstract class NumericAggregateFunction extends KorypheBinaryOperator<Number> {
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Assume both inputs are the same type")
     @Override
-    public void init() {
-        aggregate = null;
-    }
-
-    @Override
-    protected void _aggregate(final Number input) {
-        if (input == null) {
-            return;
+    public Number _apply(final Number a, final Number b) {
+        if (a instanceof Integer) {
+            return aggregateInt((Integer) a, (Integer) b);
+        } else if (a instanceof Long) {
+            return aggregateLong((Long) a, (Long) b);
+        } else if (a instanceof Double) {
+            return aggregateDouble((Double) a, (Double) b);
         }
 
-        switch (mode) {
-            case AUTO:
-                if (input instanceof Integer) {
-                    setMode(NumberType.INT);
-                } else if (input instanceof Long) {
-                    setMode(NumberType.LONG);
-                } else if (input instanceof Double) {
-                    setMode(NumberType.DOUBLE);
-                } else {
-                    break;
-                }
-                _aggregate(input);
-                break;
-            case INT:
-                if (null == aggregate) {
-                    aggregate = (Integer) input;
-                } else {
-                    aggregateInt((Integer) input);
-                }
-                break;
-            case LONG:
-                if (null == aggregate) {
-                    aggregate = (Long) input;
-                } else {
-                    aggregateLong((Long) input);
-                }
-                break;
-            case DOUBLE:
-                if (null == aggregate) {
-                    aggregate = (Double) input;
-                } else {
-                    aggregateDouble((Double) input);
-                }
-                break;
-            default:
-                break;
-        }
+        return null;
     }
 
-    protected abstract void aggregateInt(final Integer input);
+    protected abstract Integer aggregateInt(final Integer a, final Integer b);
 
-    protected abstract void aggregateLong(final Long input);
+    protected abstract Long aggregateLong(final Long a, final Long b);
 
-    protected abstract void aggregateDouble(final Double input);
-
-    @Override
-    public Number _state() {
-        return aggregate;
-    }
-
-    public enum NumberType {
-        AUTO, INT, LONG, DOUBLE
-    }
-
-    public abstract AggregateFunction statelessClone();
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final NumericAggregateFunction that = (NumericAggregateFunction) o;
-
-        return new EqualsBuilder()
-                .append(inputs, that.inputs)
-                .append(outputs, that.outputs)
-                .append(mode, that.mode)
-                .append(aggregate, that.aggregate)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(outputs)
-                .append(mode)
-                .append(aggregate)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
-                .append("mode", mode)
-                .append("aggregate", aggregate)
-                .toString();
-    }
+    protected abstract Double aggregateDouble(final Double a, final Double b);
 }

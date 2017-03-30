@@ -28,15 +28,13 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.IsA;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -127,48 +125,48 @@ public class SchemaTest {
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
-        final List<ConsumerFunctionContext<String, FilterFunction>> valContexts = validator.getFunctions();
+        final List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getFunctions();
         int index = 0;
 
-        ConsumerFunctionContext<String, FilterFunction> valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.SOURCE.name(), valContext.getSelection().get(0));
+        TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.SOURCE.name(), tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DESTINATION.name(), valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.DESTINATION.name(), tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DIRECTED.name(), valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(IdentifierType.DIRECTED.name(), valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof ExampleFilterFunction);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.DATE, valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.DATE, tuplePredicate.getSelection()[0]);
 
-        valContext = valContexts.get(index++);
-        assertTrue(valContext.getFunction() instanceof IsA);
-        assertEquals(1, valContext.getSelection().size());
-        assertEquals(TestPropertyNames.TIMESTAMP, valContext.getSelection().get(0));
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.TIMESTAMP, tuplePredicate.getSelection()[0]);
 
         assertEquals(index, valContexts.size());
 
@@ -190,19 +188,19 @@ public class SchemaTest {
         assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
-        ElementAggregator aggregator = edgeDefinition.getAggregator();
-        List<PassThroughFunctionContext<String, AggregateFunction>> aggContexts = aggregator.getFunctions();
+        final ElementAggregator aggregator = edgeDefinition.getAggregator();
+        final List<TupleAdaptedBiFunction<String, ?, ?>> aggContexts = aggregator.getFunctions();
         assertEquals(3, aggContexts.size());
 
-        PassThroughFunctionContext<String, AggregateFunction> aggContext = aggContexts.get(0);
+        TupleAdaptedBiFunction<String, ?, ?> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
-        assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection().get(0));
+        assertEquals(1, aggContext.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection()[0]);
 
         aggContext = aggContexts.get(1);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
-        assertEquals(1, aggContext.getSelection().size());
-        assertEquals(TestPropertyNames.DATE, aggContext.getSelection().get(0));
+        assertEquals(1, aggContext.getSelection().length);
+        assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
     }
 
     @Test

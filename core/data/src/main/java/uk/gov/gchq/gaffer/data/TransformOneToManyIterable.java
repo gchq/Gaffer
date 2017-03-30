@@ -43,7 +43,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      *
      * @param input the input {@link Iterable}
      */
-    public TransformOneToManyIterable(final Iterable<I> input) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -54,7 +54,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param input     the input {@link Iterable}
      * @param validator the {@link Validator}
      */
-    public TransformOneToManyIterable(final Iterable<I> input, final Validator<I> validator) {
+    public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 

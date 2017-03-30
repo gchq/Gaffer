@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6;
+import uk.gov.gchq.gaffer.example.gettingstarted.generator.ObjectGenerator6;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -88,7 +89,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
                                 .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
                         .then(new GenerateObjects.Builder<String>()
-                                .generator(dataGenerator)
+                                .generator(new ObjectGenerator6())
                                 .build())
                         .build();
 

@@ -18,16 +18,14 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Collection;
 
 /**
- * An <code>CollectionContains</code> is a {@link uk.gov.gchq.gaffer.function.SimpleFilterFunction}
+ * An <code>CollectionContains</code> is a {@link java.util.function.Predicate}
  * that checks whether a {@link java.util.Collection} contains a provided value.
  */
-@Inputs(Collection.class)
-public class CollectionContains extends SimpleFilterFunction<Collection<?>> {
+public class CollectionContains extends KoryphePredicate<Collection<?>> {
     private Object value;
 
     public CollectionContains() {
@@ -46,12 +44,8 @@ public class CollectionContains extends SimpleFilterFunction<Collection<?>> {
         this.value = value;
     }
 
-    public CollectionContains statelessClone() {
-        return new CollectionContains(value);
-    }
-
     @Override
-    protected boolean isValid(final Collection<?> input) {
+    public boolean test(final Collection<?> input) {
         return input.contains(value);
     }
 
@@ -61,14 +55,13 @@ public class CollectionContains extends SimpleFilterFunction<Collection<?>> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final CollectionContains that = (CollectionContains) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(value, that.value)
                 .isEquals();
     }
@@ -76,7 +69,6 @@ public class CollectionContains extends SimpleFilterFunction<Collection<?>> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(value)
                 .toHashCode();
     }
@@ -84,7 +76,6 @@ public class CollectionContains extends SimpleFilterFunction<Collection<?>> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("value", value)
                 .toString();
     }

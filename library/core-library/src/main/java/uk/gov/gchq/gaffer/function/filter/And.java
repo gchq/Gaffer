@@ -13,45 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.MultiFilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
+import com.google.common.collect.Lists;
+import uk.gov.gchq.koryphe.composite.Composite;
+import uk.gov.gchq.koryphe.predicate.IKoryphePredicate;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
- * An <code>And</code> is a {@link MultiFilterFunction} that should be created with a list of
- * {@link ConsumerFunctionContext} contain {@link FilterFunction}s.
- * This filter ANDs together the filter results from all these filters and returns the result.
+ * A composite {@link Predicate} that returns true if all of it's predicates return true, otherwise false.
  *
- * @see uk.gov.gchq.gaffer.function.aggregate.NumericAggregateFunction
+ * @param <I> Type of input to be validated
  */
-public class And extends MultiFilterFunction {
+public final class And<I> extends Composite<Predicate<I>> implements IKoryphePredicate<I> {
     public And() {
+        super();
     }
 
-    public And(final List<ConsumerFunctionContext<Integer, FilterFunction>> function) {
-        super(function);
+    @SafeVarargs
+    public And(final Predicate<I>... predicates) {
+        super(Lists.newArrayList(predicates));
+    }
+
+    public And(final List<Predicate<I>> predicates) {
+        super(predicates);
     }
 
     @Override
-    public And statelessClone() {
-        return new And(cloneFunctions());
-    }
-
-    /**
-     * @param input the input to test
-     * @return true if all of the contained filter functions returns true, otherwise false.
-     */
-    @Override
-    public boolean isValid(final Object[] input) {
-        for (final Boolean result : executeFilters(input)) {
-            if (!result) {
+    public boolean test(final I input) {
+        for (final Predicate<I> predicate : getFunctions()) {
+            if (!predicate.test(input)) {
                 return false;
             }
         }
-
         return true;
     }
 }

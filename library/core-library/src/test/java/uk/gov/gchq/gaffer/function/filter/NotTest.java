@@ -18,88 +18,67 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.IsA;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class NotTest extends FilterFunctionTest {
+public class NotTest extends PredicateTest {
     @Test
     public void shouldAcceptTheValueWhenTheWrappedFunctionReturnsFalse() {
         // Given
-        final FilterFunction function = mock(FilterFunction.class);
-        final Not filter = new Not(function);
-        final Object[] input = new Object[]{"some value"};
-        given(function.isValid(input)).willReturn(false);
+        final Predicate<String> function = mock(Predicate.class);
+        final Not<String> filter = new Not<>(function);
+        given(function.test("some value")).willReturn(false);
 
         // When
-        boolean accepted = filter.isValid(input);
+        boolean accepted = filter.test("some value");
 
         // Then
         assertTrue(accepted);
-        verify(function).isValid(input);
+        verify(function).test("some value");
     }
 
     @Test
-    public void shouldAcceptTheValueWhenTheWrappedFunctionReturnsTrue() {
+    public void shouldRejectTheValueWhenTheWrappedFunctionReturnsTrue() {
         // Given
-        final FilterFunction function = mock(FilterFunction.class);
-        final Not filter = new Not(function);
-        final Object[] input = new Object[]{"some value"};
-        given(function.isValid(input)).willReturn(true);
+        final Predicate<String> function = mock(Predicate.class);
+        final Not<String> filter = new Not<>(function);
+        given(function.test("some value")).willReturn(true);
 
         // When
-        boolean accepted = filter.isValid(input);
+        boolean accepted = filter.test("some value");
 
         // Then
         assertFalse(accepted);
-        verify(function).isValid(input);
+        verify(function).test("some value");
     }
 
     @Test
     public void shouldRejectTheValueWhenNullFunction() {
         // Given
-        final Not filter = new Not();
-        final Object[] input = new Object[]{"some value"};
+        final Not<String> filter = new Not<>();
 
         // When
-        boolean accepted = filter.isValid(input);
+        boolean accepted = filter.test("some value");
 
         // Then
-        assertTrue(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final FilterFunction function = mock(FilterFunction.class);
-        final FilterFunction clonedFunction = mock(FilterFunction.class);
-        final Not filter = new Not(function);
-        given(function.statelessClone()).willReturn(clonedFunction);
-
-        // When
-        final Not clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertSame(clonedFunction, clonedFilter.getFunction());
+        assertFalse(accepted);
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
         final IsA isA = new IsA(String.class);
-        final Not filter = new Not(isA);
+        final Not<Object> filter = new Not<>(isA);
 
         // When
         final String json = new String(new JSONSerialiser().serialise(filter, true));
@@ -108,7 +87,7 @@ public class NotTest extends FilterFunctionTest {
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.function.filter.Not\",%n" +
                 "  \"function\" : {%n" +
-                "    \"class\" : \"uk.gov.gchq.gaffer.function.IsA\",%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.predicate.IsA\",%n" +
                 "    \"type\" : \"java.lang.String\"%n" +
                 "  }%n" +
                 "}"), json);
@@ -122,12 +101,12 @@ public class NotTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<Not> getFunctionClass() {
+    protected Class<Not> getPredicateClass() {
         return Not.class;
     }
 
     @Override
-    protected Not getInstance() {
-        return new Not(new IsA(String.class));
+    protected Not<Object> getInstance() {
+        return new Not<>(new IsA(String.class));
     }
 }

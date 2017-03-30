@@ -183,17 +183,16 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
     }
 
     private Properties reduce(final Iterator<Properties> iter) {
+        Properties state = null;
         Properties properties;
         while (iter.hasNext()) {
             properties = iter.next();
             if (properties != null) {
-                aggregator.aggregate(properties);
+                state = aggregator.apply(properties, state);
             }
         }
 
-        final Properties result = new Properties();
-        aggregator.state(result);
-        return result;
+        return state;
     }
 
     public static class PropertiesIterator implements Iterator<Properties> {

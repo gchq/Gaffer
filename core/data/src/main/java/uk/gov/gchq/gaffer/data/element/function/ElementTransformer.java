@@ -16,103 +16,71 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.ElementTuple;
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.processor.Transformer;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
+import java.util.function.Function;
 
-/**
- * Element Transformer - for transforming {@link uk.gov.gchq.gaffer.data.element.Element}s.
- * <p>
- * Use {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder} to build an ElementTransformer.
- *
- * @see uk.gov.gchq.gaffer.data.element.function.ElementTransformer.Builder
- * @see uk.gov.gchq.gaffer.function.processor.Transformer
- */
-public class ElementTransformer extends Transformer<String> {
+public class ElementTransformer extends TupleAdaptedFunctionComposite {
+
     private final ElementTuple elementTuple = new ElementTuple();
 
-    public void transform(final Element element) {
+    public Element apply(final Element element) {
         elementTuple.setElement(element);
-        super.transform(elementTuple);
+        apply(elementTuple);
+        return element;
     }
 
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
-    @Override
-    public ElementTransformer clone() {
-        final ElementTransformer clone = new ElementTransformer();
-        clone.addFunctions(super.cloneFunctions());
+    public static class Builder {
+        private final ElementTransformer transformer;
 
-        return clone;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final ElementTransformer that = (ElementTransformer) o;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(functions, that.functions)
-                .append(elementTuple, that.elementTuple)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
-                .append(functions)
-                .append(elementTuple)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("functions", functions)
-                .append("elementTuple", elementTuple)
-                .toString();
-    }
-
-    /**
-     * Builder for {@link ElementTransformer}.
-     */
-    public static class Builder extends Transformer.Builder<String> {
         public Builder() {
             this(new ElementTransformer());
         }
 
-        public Builder(final ElementTransformer transformer) {
-            super(transformer);
+        private Builder(final ElementTransformer transformer) {
+            this.transformer = transformer;
         }
 
-        public Builder select(final String... selection) {
-            return (Builder) super.select(selection);
-        }
-
-        public Builder project(final String... projection) {
-            return (Builder) super.project(projection);
-        }
-
-        public Builder execute(final TransformFunction function) {
-            return (Builder) super.execute(function);
+        public SelectedBuilder select(final String... selection) {
+            final TupleAdaptedFunction<String, Object, Object> current = new TupleAdaptedFunction<>();
+            current.setSelection(selection);
+            return new SelectedBuilder(transformer, current);
         }
 
         public ElementTransformer build() {
-            return (ElementTransformer) super.build();
+            return transformer;
+        }
+    }
+
+    public static final class SelectedBuilder {
+        private final ElementTransformer transformer;
+        private final TupleAdaptedFunction<String, Object, Object> current;
+
+        private SelectedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+            this.transformer = transformer;
+            this.current = current;
+        }
+
+        public ExecutedBuilder execute(final Function function) {
+            current.setFunction(function);
+            return new ExecutedBuilder(transformer, current);
+        }
+    }
+
+    public static final class ExecutedBuilder {
+        private final ElementTransformer transformer;
+        private final TupleAdaptedFunction<String, Object, Object> current;
+
+        private ExecutedBuilder(final ElementTransformer transformer, final TupleAdaptedFunction<String, Object, Object> current) {
+            this.transformer = transformer;
+            this.current = current;
+        }
+
+        public Builder project(final String... projection) {
+            current.setProjection(projection);
+            transformer.getFunctions().add(current);
+            return new Builder(transformer);
         }
     }
 }

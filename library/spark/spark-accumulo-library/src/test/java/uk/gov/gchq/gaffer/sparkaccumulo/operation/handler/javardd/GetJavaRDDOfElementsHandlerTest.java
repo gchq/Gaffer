@@ -25,8 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -50,8 +48,8 @@ import static org.junit.Assert.fail;
 
 public class GetJavaRDDOfElementsHandlerTest {
 
-    private final static String ENTITY_GROUP = "BasicEntity";
-    private final static String EDGE_GROUP = "BasicEdge";
+    private static final String ENTITY_GROUP = "BasicEntity";
+    private static final String EDGE_GROUP = "BasicEdge";
 
     @Test
     public void checkGetCorrectElementsInJavaRDDForEntityId() throws OperationException, IOException {

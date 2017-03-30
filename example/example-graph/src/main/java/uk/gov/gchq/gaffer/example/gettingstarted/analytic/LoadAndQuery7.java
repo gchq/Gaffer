@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.data.AlwaysValid;
-import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -102,11 +100,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
         // This generator will extract just the destination vertices from edges
         // and skip any entities.
         // ---------------------------------------------------------
-        final EntityIdExtractor destVerticesExtractor = new EntityIdExtractor(
-                new IsEdgeValidator(),
-                new AlwaysValid<>(),
-                true,
-                IdentifierType.DESTINATION);
+        final EntityIdExtractor destVerticesExtractor = new EntityIdExtractor(IdentifierType.DESTINATION);
         // ---------------------------------------------------------
 
         // [get] Create a sub graph
@@ -123,7 +117,7 @@ public class LoadAndQuery7 extends LoadAndQuery {
                         .view(view)
                         .build())
                 .then(new ExportToSet<>())
-                .then(new GenerateObjects<>(destVerticesExtractor))
+                .then(new GenerateObjects<EntityId>(destVerticesExtractor))
                 .then(new GetElements.Builder()
                         .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                         .view(view)

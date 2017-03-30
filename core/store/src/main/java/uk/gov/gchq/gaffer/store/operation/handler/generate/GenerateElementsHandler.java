@@ -35,6 +35,6 @@ public class GenerateElementsHandler<OBJ> implements OutputOperationHandler<Gene
     public Iterable<? extends Element> doOperation(final GenerateElements<OBJ> operation,
                                                    final Context context, final Store store)
             throws OperationException {
-        return operation.getElementGenerator().getElements(operation.getInput());
+        return operation.getElementGenerator().apply(operation.getInput());
     }
 }

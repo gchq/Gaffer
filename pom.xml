@@ -28,6 +28,7 @@
     <url>https://github.com/gchq/Gaffer</url>
 
     <modules>
+        <module>koryphe</module>
         <module>rest-api</module>
         <module>core</module>
         <module>integration-test</module>

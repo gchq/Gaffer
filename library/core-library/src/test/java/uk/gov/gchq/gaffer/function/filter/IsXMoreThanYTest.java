@@ -3,22 +3,21 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsXMoreThanYTest extends FilterFunctionTest {
+public class IsXMoreThanYTest extends PredicateTest {
     @Test
     public void shouldAcceptWhenMoreThan() {
         // Given
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.isValid(new Object[]{2, 1});
+        boolean accepted = filter.test(2, 1);
 
         // Then
         assertTrue(accepted);
@@ -30,7 +29,7 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.isValid(new Object[]{5, 6});
+        boolean accepted = filter.test(5, 6);
 
         // Then
         assertFalse(accepted);
@@ -43,22 +42,10 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
         final IsXMoreThanY filter = new IsXMoreThanY();
 
         // When
-        boolean accepted = filter.isValid(new Object[]{5, 5});
+        boolean accepted = filter.test(5, 5);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsXMoreThanY filter = new IsXMoreThanY();
-
-        // When
-        final IsXMoreThanY clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
     }
 
     @Test
@@ -82,7 +69,7 @@ public class IsXMoreThanYTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsXMoreThanY> getFunctionClass() {
+    protected Class<IsXMoreThanY> getPredicateClass() {
         return IsXMoreThanY.class;
     }
 

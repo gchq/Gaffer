@@ -175,8 +175,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                                 .transformer(new ElementTransformer.Builder()
                                         .select(IdentifierType.VERTEX.name(),
                                                 TestPropertyNames.STRING)
-                                        .project(TestPropertyNames.TRANSIENT_1)
                                         .execute(new Concat())
+                                        .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
                                 .build())
                         .build())

@@ -41,8 +41,8 @@ import java.util.Set;
  * A view should contain {@link uk.gov.gchq.gaffer.data.element.Edge} and {@link uk.gov.gchq.gaffer.data.element.Entity} types required and
  * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} and a
  * {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer}.
- * The {@link uk.gov.gchq.gaffer.function.FilterFunction}s within the ElementFilter describe the how the elements should be filtered.
- * The {@link uk.gov.gchq.gaffer.function.TransformFunction}s within ElementTransformer allow transient properties to be created
+ * The {@link java.util.function.Predicate}s within the ElementFilter describe the how the elements should be filtered.
+ * The {@link java.util.function.Function}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
  * It also contains any transient properties that are created in transform functions.
  *

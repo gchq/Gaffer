@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 
-public class AgeOffExample extends FilterFunctionExample {
+public class AgeOffExample extends PredicateExample {
     private long now = System.currentTimeMillis();
 
     public static void main(final String[] args) {

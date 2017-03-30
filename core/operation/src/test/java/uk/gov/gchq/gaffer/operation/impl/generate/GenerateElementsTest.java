@@ -42,7 +42,7 @@ public class GenerateElementsTest implements OperationTest {
 
         // When
         byte[] json = serialiser.serialise(op, true);
-        final GenerateElements<?> deserialisedOp = serialiser.deserialise(json, GenerateElements.class);
+        final GenerateElements<String> deserialisedOp = serialiser.deserialise(json, GenerateElements.class);
 
         // Then
         final Iterator itr = deserialisedOp.getInput().iterator();

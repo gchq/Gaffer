@@ -60,13 +60,13 @@ public class ValidatedElementsTest {
 
             final String group = "group " + i;
             given(elements.get(i).getGroup()).willReturn(group);
-            given(filters.get(i).filter(elements.get(i))).willReturn(true);
+            given(filters.get(i).test(elements.get(i))).willReturn(true);
 
             final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
             given(schema.getElement(group)).willReturn(elementDef);
             given(elementDef.getValidator(true)).willReturn(filters.get(i));
         }
-        given(filters.get(1).filter(elements.get(1))).willReturn(false);
+        given(filters.get(1).test(elements.get(1))).willReturn(false);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class ValidatedElementsTest {
             assertNotNull(e);
         }
 
-        verify(filters.get(2), never()).filter(elements.get(2));
+        verify(filters.get(2), never()).test(elements.get(2));
     }
 
 

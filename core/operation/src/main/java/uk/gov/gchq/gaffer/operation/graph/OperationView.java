@@ -85,7 +85,7 @@ public interface OperationView {
             return false;
         }
         final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPreAggregationFilter() || elementDef.getPreAggregationFilter().test(element));
     }
 
     /**
@@ -99,7 +99,7 @@ public interface OperationView {
             return false;
         }
         final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPostAggregationFilter() || elementDef.getPostAggregationFilter().test(element));
     }
 
     /**
@@ -113,7 +113,7 @@ public interface OperationView {
             return false;
         }
         final ViewElementDefinition elementDef = getView().getElement(element.getGroup());
-        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().filter(element));
+        return null != elementDef && (null == elementDef.getPostTransformFilter() || elementDef.getPostTransformFilter().test(element));
     }
 
     interface Builder<OP extends OperationView, B extends Builder<OP, ?>> extends Operation.Builder<OP, B> {

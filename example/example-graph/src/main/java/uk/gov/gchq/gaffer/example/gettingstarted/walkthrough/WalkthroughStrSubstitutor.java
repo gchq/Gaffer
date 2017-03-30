@@ -35,10 +35,6 @@ import uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransfor
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator1;
 import uk.gov.gchq.gaffer.example.gettingstarted.serialiser.VisibilitySerialiser;
 import uk.gov.gchq.gaffer.example.util.JavaSourceUtil;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.Function;
-import uk.gov.gchq.gaffer.function.TransformFunction;
 import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.function.filter.Exists;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -59,6 +55,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 public abstract class WalkthroughStrSubstitutor {
     private static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
@@ -207,10 +204,8 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("SUM_JAVADOC", getJavaDocLink(Sum.class));
         params.put("EXISTS_JAVADOC", getJavaDocLink(Exists.class));
         params.put("VIEW_ELEMENT_DEF_JAVADOC", getJavaDocLink(ViewElementDefinition.class));
-        params.put("FILTER_FUNCTION_JAVADOC", getJavaDocLink(FilterFunction.class));
         params.put("ELEMENT_TRANSFORMER_JAVADOC", getJavaDocLink(ElementTransformer.class));
         params.put("FUNCTION_JAVADOC", getJavaDocLink(Function.class));
-        params.put("TRANSFORM_FUNCTION_JAVADOC", getJavaDocLink(TransformFunction.class));
         params.put("GET_ADJACENT_ENTITY_SEEDS_JAVADOC", getJavaDocLink(GetAdjacentIds.class));
         params.put("GENERATE_OBJECTS_JAVADOC", getJavaDocLink(GenerateObjects.class));
         params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntityIdExtractor.class));
@@ -223,7 +218,6 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("VISIBILITY_AGGREGATOR_LINK", getGitHubCodeLink(VisibilityAggregator.class, EXAMPLE_GRAPH_MODULE_PATH));
         params.put("VISIBILITY_SERIALISER_LINK", getGitHubCodeLink(VisibilitySerialiser.class, EXAMPLE_GRAPH_MODULE_PATH));
         params.put("ACCUMULO_USER_GUIDE", "[Accumulo Store User Guide](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide)");
-        params.put("AGGREGATE_FUNCTION", getGitHubCodeLink(AggregateFunction.class, "core/function"));
         params.put("ACCUMULO_KEY_PACKAGE", getGitHubCodeLink(AccumuloKeyPackage.class, "store-implementations/accumulo-store"));
 
 

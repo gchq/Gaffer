@@ -16,10 +16,12 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 
 public interface EntityId extends ElementId {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     Object getVertex();
 
     void setVertex(final Object vertex);

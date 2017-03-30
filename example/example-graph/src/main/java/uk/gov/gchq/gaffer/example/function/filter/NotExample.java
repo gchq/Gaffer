@@ -19,8 +19,9 @@ package uk.gov.gchq.gaffer.example.function.filter;
 import uk.gov.gchq.gaffer.function.filter.AreEqual;
 import uk.gov.gchq.gaffer.function.filter.Exists;
 import uk.gov.gchq.gaffer.function.filter.Not;
+import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
-public class NotExample extends FilterFunctionExample {
+public class NotExample extends PredicateExample {
     public static void main(final String[] args) {
         new NotExample().run();
     }
@@ -36,26 +37,22 @@ public class NotExample extends FilterFunctionExample {
 
     public void doesNotExist() {
         // ---------------------------------------------------------
-        final Not function = new Not(new Exists());
+        final Not function = new Not<>(new Exists());
         // ---------------------------------------------------------
 
-        runExample(function,
-                new Object[]{1},
-                new Object[]{null},
-                new Object[]{""},
-                new Object[]{"abc"});
+        runExample(function, 1, null, "", "abc");
     }
 
     public void areNotEqual() {
         // ---------------------------------------------------------
-        final Not function = new Not(new AreEqual());
+        final Not function = new Not<>(new AreEqual());
         // ---------------------------------------------------------
 
         runExample(function,
-                new Object[]{1, 1.0},
-                new Object[]{1, 2},
-                new Object[]{2.5, 2.5},
-                new Object[]{"", null},
-                new Object[]{"abc", "abc"});
+                new Tuple2<>(1, 1.0),
+                new Tuple2<>(1, 2),
+                new Tuple2<>(2.5, 2.5),
+                new Tuple2<>("", null),
+                new Tuple2<>("abc", "abc"));
     }
 }

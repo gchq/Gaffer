@@ -16,59 +16,20 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate;
 
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * A <code>ReservoirItemsUnionAggregator</code> is a {@link SimpleAggregateFunction} that aggregates
+ * A <code>ReservoirItemsUnionAggregator</code> is a {@link java.util.function.BinaryOperator} that aggregates
  * {@link ReservoirItemsUnion}s. It does this by extracting a {@link com.yahoo.sketches.sampling.ReservoirItemsSketch}
  * from each {@link ReservoirItemsUnion} and merges that using
  * {@link ReservoirItemsUnion#update(com.yahoo.sketches.sampling.ReservoirItemsSketch)}.
+ *
  * @param <T> The type of object in the reservoir.
  */
-@Inputs(ReservoirItemsUnion.class)
-@Outputs(ReservoirItemsUnion.class)
-public class ReservoirItemsUnionAggregator<T> extends SimpleAggregateFunction<ReservoirItemsUnion<T>> {
-    private ReservoirItemsUnion<T> union;
-
+public class ReservoirItemsUnionAggregator<T> extends KorypheBinaryOperator<ReservoirItemsUnion<T>> {
     @Override
-    public void init() {
-    }
-
-    @Override
-    protected void _aggregate(final ReservoirItemsUnion<T> input) {
-        if (input != null) {
-            if (union == null) {
-                union = ReservoirItemsUnion.getInstance(input.getMaxK());
-            }
-            union.update(input.getResult());
-        }
-    }
-
-    @Override
-    protected ReservoirItemsUnion<T> _state() {
-        return union;
-    }
-
-    @Override
-    public ReservoirItemsUnionAggregator statelessClone() {
-        final ReservoirItemsUnionAggregator<T> clone = new ReservoirItemsUnionAggregator<>();
-        clone.init();
-        return clone;
-    }
-
-    // NB: No equals() method is provided for this class as neither ReservoirItemsUnion nor ReservoirItemsSketch
-    // have an equals() method, and it is not possible to compare the serialised forms as serialisation requires
-    // a serialiser for T.
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
-                .append("union", union)
-                .toString();
+    public ReservoirItemsUnion<T> _apply(final ReservoirItemsUnion<T> a, final ReservoirItemsUnion<T> b) {
+        a.update(b.getResult());
+        return a;
     }
 }

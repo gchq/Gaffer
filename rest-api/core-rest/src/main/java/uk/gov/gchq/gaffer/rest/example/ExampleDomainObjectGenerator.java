@@ -20,30 +20,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
-public class ExampleDomainObjectGenerator extends OneToOneElementGenerator<ExampleDomainObject> {
-    @Override
-    public Element getElement(final ExampleDomainObject obj) {
-        if (obj.getIds().length > 1) {
-            final Edge edge = new Edge(obj.getType());
-            edge.setSource(obj.getIds()[0]);
-            edge.setDestination(obj.getIds()[1]);
-            if (obj.getIds().length > 2) {
-                edge.setDirected(Boolean.TRUE.equals(obj.getIds()[2]));
-            }
-
-            return edge;
-        }
-
-        final Entity entity = new Entity(obj.getType());
-        entity.setVertex(obj.getIds()[0]);
-        return entity;
-    }
-
+public class ExampleDomainObjectGenerator implements OneToOneObjectGenerator<ExampleDomainObject> {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public ExampleDomainObject getObject(final Element element) {
+    public ExampleDomainObject _apply(final Element element) {
         if (element instanceof Entity) {
             return new ExampleDomainObject(element.getGroup(), ((Entity) element).getVertex());
         }
