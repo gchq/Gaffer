@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.mapstore.impl.AddElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.CountAllElementsDefaultViewHandler;
-import uk.gov.gchq.gaffer.mapstore.impl.CountElementsOperationChainOptimiser;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAdjacentEntitySeedsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.mapstore.impl.GetElementsHandler;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -77,7 +75,6 @@ public class MapStore extends Store {
         super.initialise(schema, mapStoreProperties);
         // Initialise maps
         mapImpl = new MapImpl(schema, mapStoreProperties);
-        addOperationChainOptimisers(Collections.singletonList(new CountElementsOperationChainOptimiser()));
         LOGGER.info("Initialised MapStore");
     }
 

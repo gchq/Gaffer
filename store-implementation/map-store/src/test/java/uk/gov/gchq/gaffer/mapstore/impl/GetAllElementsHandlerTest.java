@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -33,8 +34,12 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -156,8 +161,8 @@ public class GetAllElementsHandlerTest {
         // When
         final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
                 .view(new View.Builder()
-                    .edge(BASIC_EDGE1)
-                    .build())
+                        .edge(BASIC_EDGE1)
+                        .build())
                 .build();
         final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
 
@@ -414,46 +419,35 @@ public class GetAllElementsHandlerTest {
 
     public static Graph getGraph() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        final Graph graph = new Graph.Builder()
+        return new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
-        return graph;
     }
 
     static Graph getGraphNoAggregation() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        final Graph graph = new Graph.Builder()
+        return new Graph.Builder()
                 .addSchema(getSchemaNoAggregation())
                 .storeProperties(storeProperties)
                 .build();
-        return graph;
     }
 
     static Graph getGraphNoIndices() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         storeProperties.setCreateIndex("false");
-        final Graph graph = new Graph.Builder()
+        return new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
-        return graph;
     }
 
     public static Schema getSchema() {
-        final Schema schema = Schema.fromJson(
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataSchema.json"),
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.schemas(GetAllElementsHandlerTest.class));
     }
 
     static Schema getSchemaNoAggregation() {
-        final Schema schema = Schema.fromJson(
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataSchemaNoAggregation.json"),
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/dataTypes.json"),
-                GetAllElementsHandlerTest.class.getResourceAsStream("/schema/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.openStreams(GetAllElementsHandlerTest.class, "schema-no-aggregation"));
     }
 
     public static List<Element> getElements() {

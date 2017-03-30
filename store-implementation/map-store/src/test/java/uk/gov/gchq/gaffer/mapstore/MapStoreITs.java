@@ -19,12 +19,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-/**
- *
- */
 public class MapStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(
-            StreamUtil.openStream(MapStoreITs.class, "/store.properties"));
+    private static final StoreProperties STORE_PROPERTIES =
+            StoreProperties.loadStoreProperties(StreamUtil.storeProps(MapStoreITs.class));
 
     public MapStoreITs() {
         super(STORE_PROPERTIES);
