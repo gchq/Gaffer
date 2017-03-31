@@ -76,6 +76,26 @@ public class GetElementsHandlerTest {
     }
 
     @Test
+    public void testGetElementsWhenNoEntitySeedsProvided() throws OperationException {
+        // Given
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final AddElements addElements = new AddElements.Builder()
+                .elements(getElements())
+                .build();
+        graph.execute(addElements, new User());
+
+        // When
+        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+                .build();
+        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+
+        // Then
+        final Set<Element> resultsSet = new HashSet<>();
+        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        assertEquals(Collections.emptySet(), resultsSet);
+    }
+
+    @Test
     public void testGetElementsByNonExistentEdgeSeed() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
@@ -87,6 +107,26 @@ public class GetElementsHandlerTest {
         // When
         final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .addSeed(new EdgeSeed("NOT_PRESENT", "ALSO_NOT_PRESENT", true))
+                .build();
+        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+
+        // Then
+        final Set<Element> resultsSet = new HashSet<>();
+        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        assertEquals(Collections.emptySet(), resultsSet);
+    }
+
+    @Test
+    public void testGetElementsWhenNoEdgeSeedsProvided() throws OperationException {
+        // Given
+        final Graph graph = GetAllElementsHandlerTest.getGraph();
+        final AddElements addElements = new AddElements.Builder()
+                .elements(getElements())
+                .build();
+        graph.execute(addElements, new User());
+
+        // When
+        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
                 .build();
         final CloseableIterable<Element> results = graph.execute(getElements, new User());
 
