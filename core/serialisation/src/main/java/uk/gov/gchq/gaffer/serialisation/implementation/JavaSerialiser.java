@@ -57,7 +57,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         try (final InputStream inputStream = new ByteArrayInputStream(bytes);
              final ObjectInputStream is = new ObjectInputStream(inputStream)) {
             return is.readObject();
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (final ClassNotFoundException | IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to recreate object", e);
         }
     }

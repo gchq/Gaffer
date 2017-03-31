@@ -19,5 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.function.Predicate;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@FunctionalInterface
 public interface IKoryphePredicate<T> extends Predicate<T> {
 }

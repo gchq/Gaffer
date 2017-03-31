@@ -49,7 +49,7 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
                         "resources/NamedOperationsDeclarations.json and referenced in store.properties");
             }
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser());
-        } catch (CacheOperationFailedException e) {
+        } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;

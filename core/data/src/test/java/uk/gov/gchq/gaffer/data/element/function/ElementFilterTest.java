@@ -17,18 +17,44 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.function.Predicate;
 
+import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ElementFilterTest {
+
+    @Test
+    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
+        // Given
+        final ElementFilter filter = new ElementFilter();
+
+        final JSONSerialiser serialiser = new JSONSerialiser();
+
+        // When
+        final byte[] serialisedElement = serialiser.serialise(filter);
+        final ElementFilter deserialisedElement = serialiser.deserialise(serialisedElement, filter.getClass());
+
+        // Then
+        assertEquals(filter, deserialisedElement);
+    }
+
+    public static class MockPredicate implements Predicate<Element> {
+
+        @Override
+        public boolean test(final Element element) {
+            return true;
+        }
+    }
 
     @Test
     public void shouldTestElementOnPredicate2() {

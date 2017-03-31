@@ -44,7 +44,7 @@ public class DataGenerator8 implements OneToOneElementGenerator<String> {
             edgeBuilder
                     .property("startDate", startDate)
                     .property("endDate", DateUtils.addDays(startDate, 1));
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new IllegalArgumentException("Unable to parse date", e);
         }
 

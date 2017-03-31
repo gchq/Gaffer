@@ -37,7 +37,7 @@ public class SingleUseAccumuloStore extends AccumuloStore {
         super.initialise(schema, properties);
         try {
             getConnection().tableOperations().delete(getProperties().getTable());
-        } catch (StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
+        } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }
         super.initialise(schema, properties);

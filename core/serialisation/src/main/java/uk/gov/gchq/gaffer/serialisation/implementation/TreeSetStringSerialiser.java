@@ -52,7 +52,7 @@ public class TreeSetStringSerialiser implements Serialisation<TreeSet> {
 
         try {
             return builder.toString().getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -62,7 +62,7 @@ public class TreeSetStringSerialiser implements Serialisation<TreeSet> {
         final String str;
         try {
             str = new String(bytes, CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
 

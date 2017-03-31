@@ -69,7 +69,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
                     try {
                         typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(Arrays
                                 .copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
-                    } catch (UnsupportedEncodingException e) {
+                    } catch (final UnsupportedEncodingException e) {
                         throw new SerialisationException("Failed to deserialise the Type from TypeValue Object", e);
                     }
                 }
@@ -81,7 +81,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
             try {
                 typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(Arrays
                         .copyOfRange(bytes, lastDelimiter, bytes.length)), CommonConstants.UTF_8));
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 throw new SerialisationException("Failed to deserialise the Value from TypeValue Object", e);
             }
         }

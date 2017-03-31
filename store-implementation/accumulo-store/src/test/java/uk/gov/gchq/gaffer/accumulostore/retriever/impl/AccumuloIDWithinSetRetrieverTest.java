@@ -200,7 +200,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                     .build();
             final Set<Element> results = returnElementsFromOperation(store, op, new User(), true);
             assertEquals(expectedResults, results);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
@@ -496,7 +496,7 @@ public class AccumuloIDWithinSetRetrieverTest {
             data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);
             addElements(data, store, new User());
-        } catch (TableExistsException | StoreException e) {
+        } catch (final TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
@@ -507,7 +507,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                             .input(data)
                             .build(),
                     user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

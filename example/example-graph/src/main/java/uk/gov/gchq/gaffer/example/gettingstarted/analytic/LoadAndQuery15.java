@@ -127,7 +127,7 @@ public class LoadAndQuery15 extends LoadAndQuery {
                     .build(), user);
             try {
                 Thread.sleep(100);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -81,7 +81,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
         final Connector connector;
         try {
             connector = store.getConnection();
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException("Failed to create accumulo connection", e);
         }
 
@@ -90,7 +90,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
             final Collection<Text> splits = connector.tableOperations().listSplits(table);
             final String[] arr = new String[splits.size()];
             return splits.parallelStream().map(text -> text.toString()).collect(Collectors.toList()).toArray(arr);
-        } catch (TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
+        } catch (final TableNotFoundException | AccumuloSecurityException | AccumuloException e) {
             throw new OperationException("Failed to get accumulo split points from table " + table, e);
         }
     }

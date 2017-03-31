@@ -42,4 +42,9 @@ public class TupleAdaptedBinaryOperator<R, FT> extends TupleAdaptedBiFunction<R,
         setFunction(function);
         setSelection(selection);
     }
+
+    @Override
+    public BinaryOperator<FT> getFunction() {
+        return (BinaryOperator<FT>) super.getFunction();
+    }
 }

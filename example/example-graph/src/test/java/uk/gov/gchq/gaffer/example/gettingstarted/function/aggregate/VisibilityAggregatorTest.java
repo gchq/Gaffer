@@ -36,7 +36,7 @@ public class VisibilityAggregatorTest {
             a.apply("blah", state);
             a.apply("public", state);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("Visibility must either be 'public' or 'private'. You supplied blah"));
         }
     }

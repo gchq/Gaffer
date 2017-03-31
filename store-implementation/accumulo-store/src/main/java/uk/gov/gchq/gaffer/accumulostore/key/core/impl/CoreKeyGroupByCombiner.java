@@ -195,7 +195,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             try {
                 groupByPropBytes1 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual1, groupBy.size());
                 groupByPropBytes2 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual2, groupBy.size());
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
 
@@ -258,7 +258,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             final String group;
             try {
                 group = elementConverter.getGroupFromColumnFamily(columnFamily);
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
 
@@ -287,7 +287,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                         elementConverter.buildColumnQualifier(group, properties),
                         elementConverter.buildColumnVisibility(group, properties),
                         elementConverter.buildTimestamp(properties));
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
 

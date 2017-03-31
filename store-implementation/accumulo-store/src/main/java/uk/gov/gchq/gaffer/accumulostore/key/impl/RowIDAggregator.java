@@ -92,7 +92,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
                     .newInstance(schema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
                     + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
@@ -177,7 +177,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                     elementConverter.buildColumnQualifier(group, topProperties),
                     elementConverter.buildColumnVisibility(group, topProperties),
                     elementConverter.buildTimestamp(topProperties));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             throw new RuntimeException(e);
         }
     }
@@ -230,7 +230,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
             final String currentColumnFamily;
             try {
                 currentColumnFamily = new String(source.getTopKey().getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
             if (group.equals(currentColumnFamily) && !source.getTopKey().isDeleted()) {
@@ -263,7 +263,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                 properties.putAll(elementConverter.getPropertiesFromColumnVisibility(group, key.getColumnVisibilityData().getBackingArray()));
                 properties.putAll(elementConverter.getPropertiesFromTimestamp(group, key.getTimestamp()));
                 properties.putAll(elementConverter.getPropertiesFromValue(group, value));
-            } catch (AccumuloElementConversionException e) {
+            } catch (final AccumuloElementConversionException e) {
                 throw new RuntimeException(e);
             }
 

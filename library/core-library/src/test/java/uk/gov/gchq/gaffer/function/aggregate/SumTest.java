@@ -79,7 +79,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(2.7d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -90,7 +90,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(1l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -135,7 +135,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(1, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -152,7 +152,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(2.5d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -197,7 +197,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(1, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -207,7 +207,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(3l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -238,7 +238,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(3l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -249,7 +249,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(2.1d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -274,7 +274,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(3, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -285,7 +285,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(2.1d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -310,7 +310,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(2, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -321,7 +321,7 @@ public class SumTest extends BinaryOperatorTest {
         try {
             state = sum.apply(1l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
