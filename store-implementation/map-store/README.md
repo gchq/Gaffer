@@ -18,14 +18,14 @@ The Map-store is a simple in-memory store. Any class that implements Java's Map 
 
 It is designed to support aggregation of properties efficiently. Optionally an index is maintained so that Elements can be found quickly from EntitySeeds or EdgeSeeds.
 
-This is not currently designed to be a very high-performance, scalable in-memory store. Future versions of may include implementations that allow better scalability, for example by using off-heap storage.
+This is not currently designed to be a very high-performance, scalable in-memory store. Future versions of may include implementations that allow better scalability, for example by using off-heap storage. The current version stores the elements as objects in memory and so is not efficient in its memory usage.
 
 Some examples of how this can be used are:
 
 - As an in-memory cache of some data that has been retrieved from a larger store.
-- The aggregation of graph data within a streaming process.
+- For the aggregation of graph data within a streaming process.
 - To demonstrate some of Gaffer's APIs.
 
-It allows very quick calculation of the total number of elements in the graph subject to the default view. This optimisation is automatically applied if an operation chain consisting of a GetAllElements followed by a Count operation.
+It allows very quick calculation of the total number of elements in the graph subject to the default view.
 
 Note that this store requires that the classes used for the vertices, and for all the group-by properties, have an implementation of the hashCode() method.
