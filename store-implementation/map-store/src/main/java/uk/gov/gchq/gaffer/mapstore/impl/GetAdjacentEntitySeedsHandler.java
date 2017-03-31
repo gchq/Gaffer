@@ -101,6 +101,11 @@ public class GetAdjacentEntitySeedsHandler implements
                         pair.getSecond()
                                 .stream()
                                 .map(element -> {
+                                    final Element clone = element.emptyClone();
+                                    clone.copyProperties(element.getProperties());
+                                    return clone;
+                                })
+                                .map(element -> {
                                     final Properties properties = mapImpl.elementToProperties.get(element);
                                     element.copyProperties(properties);
                                     return element;
