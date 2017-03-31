@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -29,68 +28,58 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
+
     @Override
     public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
 
-        final Map<Boolean, List<ElementId>> map = Streams.toStream(operation.getInput())
-                                                          .collect(Collectors.partitioningBy(EntityId.class::isInstance));
+        return () -> Streams.toStream(operation.getInput())
+                            .flatMap(elementIdsToVertices(operation))
+                            .iterator();
+    }
 
-        final Stream<EntityId> entities = getEntityIds(map);
+    private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {
+        return e -> {
+            final List<Object> vertices = new ArrayList<>();
 
-        Stream<Object> edgeVertices = Stream.of();
-
-        if (operation.getEdgeVertices() != EdgeVertices.NONE) {
-            final Stream<EdgeId> edges = getEdgeIds(map);
-            switch (operation.getEdgeVertices()) {
-                case BOTH:
-                    edgeVertices = getBothVertices(edges);
-                    break;
-                case SOURCE:
-                    edgeVertices = getSourceVertices(edges);
-                    break;
-                case DESTINATION:
-                    edgeVertices = getDestinationVertices(edges);
-                    break;
-                default:
-                    break;
+            if (e instanceof EdgeId) {
+                if (operation.getEdgeVertices() != EdgeVertices.NONE) {
+                    switch (operation.getEdgeVertices()) {
+                        case BOTH:
+                            vertices.addAll(getBothVertices((EdgeId) e));
+                            break;
+                        case SOURCE:
+                            vertices.add(getSourceVertices((EdgeId) e));
+                            break;
+                        case DESTINATION:
+                            vertices.add(getDestinationVertices((EdgeId) e));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } else {
+                vertices.add(((EntityId) e).getVertex());
             }
-        }
-
-        return Stream.concat(entities.map(EntityId::getVertex), edgeVertices)
-                     .collect(GafferCollectors.toCloseableIterable());
+            return vertices.stream();
+        };
     }
 
-    private Stream<Object> getSourceVertices(final Stream<EdgeId> stream) {
-        return stream.map(EdgeId::getSource);
+    private Object getSourceVertices(final EdgeId edgeId) {
+        return edgeId.getSource();
     }
 
-    private Stream<Object> getDestinationVertices(final Stream<EdgeId> stream) {
-        return stream.map(EdgeId::getDestination);
+    private Object getDestinationVertices(final EdgeId edgeId) {
+        return edgeId.getDestination();
     }
 
-    private Stream<Object> getBothVertices(final Stream<EdgeId> stream) {
-        return stream.map(e -> Lists.newArrayList(e.getSource(), e.getDestination()))
-                     .flatMap(List::stream);
+    private List<Object> getBothVertices(final EdgeId edgeId) {
+        return Lists.newArrayList(edgeId.getSource(), edgeId.getDestination());
     }
-
-    private Stream<EntityId> getEntityIds(final Map<Boolean, List<ElementId>> map) {
-        return map.getOrDefault(true, new ArrayList<>(0))
-                  .stream()
-                  .map(EntityId.class::cast);
-    }
-
-    private Stream<EdgeId> getEdgeIds(final Map<Boolean, List<ElementId>> map) {
-        return map.getOrDefault(false, new ArrayList<>(0))
-                  .stream()
-                  .map(EdgeId.class::cast);
-    }
-
 }

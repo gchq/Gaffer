@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.store.Context;
@@ -30,7 +29,6 @@ public class ToMapHandler implements OutputOperationHandler<ToMap, Iterable<? ex
             return null;
         }
 
-        return new WrappedCloseableIterable<>(operation.getElementGenerator()
-                                                       .apply(operation.getInput()));
+        return operation.getElementGenerator().apply(operation.getInput());
     }
 }
