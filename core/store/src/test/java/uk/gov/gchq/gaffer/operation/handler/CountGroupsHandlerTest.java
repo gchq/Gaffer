@@ -139,7 +139,7 @@ public class CountGroupsHandlerTest {
 
     }
 
-    private CloseableIterable<Element> getElements() {
+    static CloseableIterable<Element> getElements() {
         final Entity entity1 = mock(Entity.class);
         final Entity entity2 = mock(Entity.class);
         final Entity entity3 = mock(Entity.class);

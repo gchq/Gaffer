@@ -37,6 +37,9 @@ public final class TypeReferenceImpl {
     public static class String extends TypeReference<java.lang.String> {
     }
 
+    public static class Long extends TypeReference<java.lang.Long> {
+    }
+
     public static class Object extends TypeReference<java.lang.Object> {
     }
 
