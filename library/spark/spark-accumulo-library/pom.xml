@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>spark</artifactId>
-        <version>0.6.4</version>
+        <version>0.6.5-SNAPSHOT</version>
     </parent>
     <artifactId>spark-accumulo-library</artifactId>
 
