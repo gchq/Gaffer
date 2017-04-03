@@ -60,7 +60,7 @@ public class JobService implements IJobService {
             final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, user);
             LOGGER.info("Job started = " + jobDetail);
             return jobDetail;
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             postOperationHook(opChain, user);
@@ -71,7 +71,7 @@ public class JobService implements IJobService {
     public CloseableIterable<JobDetail> details() {
         try {
             return graphFactory.getGraph().execute(new GetAllJobDetails(), userFactory.createUser());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -84,7 +84,7 @@ public class JobService implements IJobService {
                             .jobId(id)
                             .build(),
                     userFactory.createUser());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -97,7 +97,7 @@ public class JobService implements IJobService {
                             .jobId(id)
                             .build(),
                     userFactory.createUser());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }

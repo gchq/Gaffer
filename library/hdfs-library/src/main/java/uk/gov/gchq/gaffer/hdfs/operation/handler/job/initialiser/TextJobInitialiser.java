@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import uk.gov.gchq.gaffer.hdfs.operation.MapReduceOperation;
+import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +33,12 @@ public class TextJobInitialiser implements JobInitialiser {
     }
 
     @Override
-    public void initialiseJob(final Job job, final MapReduceOperation operation, final Store store)
+    public void initialiseJob(final Job job, final MapReduce operation, final Store store)
             throws IOException {
         initialiseInput(job, operation);
     }
 
-    private void initialiseInput(final Job job, final MapReduceOperation operation) throws IOException {
+    private void initialiseInput(final Job job, final MapReduce operation) throws IOException {
         job.setInputFormatClass(TextInputFormat.class);
         List<String> paths = operation.getInputPaths();
         for (final String path : paths) {

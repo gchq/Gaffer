@@ -3,21 +3,18 @@ package uk.gov.gchq.gaffer.function.aggregate;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
-public class FreqMapAggregatorTest extends AggregateFunctionTest {
+public class FreqMapAggregatorTest extends BinaryOperatorTest {
     @Test
     public void shouldMergeFreqMaps() {
         // Given
         final FreqMapAggregator aggregator = new FreqMapAggregator();
-        aggregator.init();
 
         final FreqMap freqMap1 = new FreqMap();
         freqMap1.put("1", 2L);
@@ -28,33 +25,13 @@ public class FreqMapAggregatorTest extends AggregateFunctionTest {
         freqMap2.put("3", 5L);
 
         // When
-        aggregator._aggregate(freqMap1);
-        aggregator._aggregate(freqMap2);
+        final FreqMap result = aggregator.apply(freqMap1, freqMap2);
 
         // Then
-        final FreqMap mergedFreqMap = ((FreqMap) aggregator.state()[0]);
-        assertEquals((Long) 2L, mergedFreqMap.get("1"));
-        assertEquals((Long) 7L, mergedFreqMap.get("2"));
-        assertEquals((Long) 5L, mergedFreqMap.get("3"));
+        assertEquals((Long) 2L, result.get("1"));
+        assertEquals((Long) 7L, result.get("2"));
+        assertEquals((Long) 5L, result.get("3"));
     }
-
-    @Test
-    public void shouldCloneAggregator() {
-        // Given
-        final FreqMapAggregator aggregator = new FreqMapAggregator();
-        final FreqMap freqMap1 = new FreqMap();
-        freqMap1.put("1", 2L);
-        freqMap1.put("2", 3L);
-        aggregator._aggregate(freqMap1);
-
-        // When
-        final FreqMapAggregator clone = aggregator.statelessClone();
-
-        // Then
-        assertNotSame(aggregator, clone);
-        assertNull((clone.state()[0]));
-    }
-
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {

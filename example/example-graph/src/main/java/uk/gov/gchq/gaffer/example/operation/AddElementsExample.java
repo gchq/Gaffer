@@ -34,7 +34,7 @@ public class AddElementsExample extends OperationExample {
     public void runExamples() {
         try {
             addElements();
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
     }
@@ -44,7 +44,7 @@ public class AddElementsExample extends OperationExample {
         printGraph();
 
         final AddElements operation = new AddElements.Builder()
-                .elements(new Entity.Builder()
+                .input(new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
                                 .property("count", 1)
@@ -56,7 +56,7 @@ public class AddElementsExample extends OperationExample {
                                 .build())
                 .build();
         printJava("new AddElements.Builder()\n"
-                + "                .elements(new Entity.Builder()\n"
+                + "                .input(new Entity.Builder()\n"
                 + "                                .group(\"entity\")\n"
                 + "                                .vertex(6)\n"
                 + "                                .property(\"count\", 1)\n"

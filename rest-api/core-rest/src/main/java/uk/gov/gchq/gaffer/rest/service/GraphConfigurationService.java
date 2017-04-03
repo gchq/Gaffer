@@ -25,13 +25,13 @@ import org.apache.commons.lang.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.TransformFunction;
+import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.signature.Signature;
 import javax.inject.Inject;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -40,19 +40,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * <p>
- * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link uk.gov.gchq.gaffer.function.FilterFunction}s,
- * {@link uk.gov.gchq.gaffer.function.TransformFunction}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
+ * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link java.util.function.Predicate}s,
+ * {@link java.util.function.Function}s and {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator}s available
  * are only returned if they are in a package prefixed with 'gaffer'.
  */
 public class GraphConfigurationService implements IGraphConfigurationService {
-    private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(FilterFunction.class);
-    private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(TransformFunction.class);
-    private static final Set<Class> GENERATORS = getSubClasses(ElementGenerator.class);
+    private static final Set<Class> FILTER_FUNCTIONS = getSubClasses(Predicate.class);
+    private static final Set<Class> TRANSFORM_FUNCTIONS = getSubClasses(Function.class);
+    private static final Set<Class> ELEMENT_GENERATORS = getSubClasses(ElementGenerator.class);
+    private static final Set<Class> OBJECT_GENERATORS = getSubClasses(ObjectGenerator.class);
 
     @Inject
     private GraphFactory graphFactory;
@@ -91,9 +94,9 @@ public class GraphConfigurationService implements IGraphConfigurationService {
         final Set<Class> classes = new HashSet<>();
         for (final Class functionClass : FILTER_FUNCTIONS) {
             try {
-                final FilterFunction function = (FilterFunction) functionClass.newInstance();
-                final Class<?>[] inputs = function.getInputClasses();
-                if (inputs.length == 1 && inputs[0].isAssignableFrom(clazz)) {
+                final Predicate function = (Predicate) functionClass.newInstance();
+                final Signature signature = Signature.getInputSignature(function);
+                if (signature.assignable(clazz).isValid()) {
                     classes.add(functionClass);
                 }
             } catch (final Exception e) {
@@ -139,8 +142,13 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     }
 
     @Override
-    public Set<Class> getGenerators() {
-        return GENERATORS;
+    public Set<Class> getElementGenerators() {
+        return ELEMENT_GENERATORS;
+    }
+
+    @Override
+    public Set<Class> getObjectGenerators() {
+        return OBJECT_GENERATORS;
     }
 
     @Override

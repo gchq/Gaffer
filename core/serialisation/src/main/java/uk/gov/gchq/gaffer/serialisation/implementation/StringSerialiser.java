@@ -33,7 +33,7 @@ public class StringSerialiser implements Serialisation<String> {
     public byte[] serialise(final String value) throws SerialisationException {
         try {
             return value.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -42,7 +42,7 @@ public class StringSerialiser implements Serialisation<String> {
     public String deserialise(final byte[] bytes) throws SerialisationException {
         try {
             return new String(bytes, CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

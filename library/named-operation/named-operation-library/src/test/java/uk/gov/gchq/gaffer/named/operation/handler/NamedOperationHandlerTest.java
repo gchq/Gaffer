@@ -24,14 +24,15 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
 import uk.gov.gchq.gaffer.named.operation.cache.MockNamedOperationCache;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
@@ -83,14 +84,14 @@ public class NamedOperationHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
         final User user = mock(User.class);
-        final ExtendedNamedOperation extendedNamedOperation = mock(ExtendedNamedOperation.class);
+        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
 
-        final Operation op1 = mock(Operation.class);
-        final Operation op2 = mock(Operation.class);
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2));
         final Object expectedResult = mock(Object.class);
         final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        final CloseableIterable<Object> input = mock(CloseableIterable.class);
+        final Iterable<?> input = mock(CloseableIterable.class);
         final View view = mock(View.class);
         final View clonedView = mock(View.class);
         final View op2View = mock(View.class);
@@ -109,22 +110,23 @@ public class NamedOperationHandlerTest {
 
         // When
         final Object result = operationHandler.doOperation(
-                new NamedOperation.Builder()
+                new NamedOperation.Builder<>()
                         .name(opName)
                         .view(view)
                         .input(input)
-                        .build(), context, store);
+                        .build(),
+                context, store);
 
         // Then
         assertSame(expectedResult, result);
 
         assertSame(op1, opChainCaptor.getValue().getOperations().get(0));
-        verify(op1).setInput(input);
+        verify(op1).setInput((Iterable) input);
         verify(op1).setView(clonedView);
         verify(clonedView).expandGlobalDefinitions();
 
         assertSame(op2, opChainCaptor.getValue().getOperations().get(1));
-        verify(op2, never()).setInput(input);
+        verify(op2, never()).setInput((Iterable) input);
         verify(op2).setView(op2View);
         verify(op2View).expandGlobalDefinitions();
     }
@@ -139,19 +141,19 @@ public class NamedOperationHandlerTest {
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
         final User user = mock(User.class);
-        final ExtendedNamedOperation extendedNamedOperation = mock(ExtendedNamedOperation.class);
+        final NamedOperationDetail extendedNamedOperation = mock(NamedOperationDetail.class);
 
-        final Operation op1 = mock(Operation.class);
-        final Operation op2 = mock(Operation.class);
+        final GetAdjacentIds op1 = mock(GetAdjacentIds.class);
+        final GetElements op2 = mock(GetElements.class);
         final OperationChain opChain = new OperationChain(Arrays.asList(op1, op2));
         final Object expectedResult = mock(Object.class);
         final ArgumentCaptor<OperationChain> opChainCaptor = ArgumentCaptor.forClass(OperationChain.class);
-        final CloseableIterable<Object> input = mock(CloseableIterable.class);
+        final Iterable<?> input = mock(CloseableIterable.class);
         final View view = mock(View.class);
         final View clonedView = mock(View.class);
         final View op2View = mock(View.class);
 
-        given(op1.getInput()).willReturn("some existing input");
+        given(op1.getInput()).willReturn(mock(CloseableIterable.class));
         given(op1.getView()).willReturn(null);
         given(op2.getView()).willReturn(op2View);
         given(op2View.hasGroups()).willReturn(true);
@@ -165,22 +167,23 @@ public class NamedOperationHandlerTest {
 
         // When
         final Object result = operationHandler.doOperation(
-                new NamedOperation.Builder()
+                new NamedOperation.Builder<>()
                         .name(opName)
                         .view(view)
                         .input(input)
-                        .build(), context, store);
+                        .build(),
+                context, store);
 
         // Then
         assertSame(expectedResult, result);
 
         assertSame(op1, opChainCaptor.getValue().getOperations().get(0));
-        verify(op1, never()).setInput(input);
+        verify(op1, never()).setInput((Iterable) input);
         verify(op1).setView(clonedView);
         verify(clonedView).expandGlobalDefinitions();
 
         assertSame(op2, opChainCaptor.getValue().getOperations().get(1));
-        verify(op2, never()).setInput(input);
+        verify(op2, never()).setInput((Iterable) input);
         verify(op2).setView(op2View);
         verify(op2View).expandGlobalDefinitions();
     }

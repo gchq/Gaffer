@@ -16,22 +16,19 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate;
 
 import com.google.common.collect.Ordering;
-import com.yahoo.sketches.quantiles.ItemsSketch;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 
-public class StringsUnionAggregatorTest extends AggregateFunctionTest {
+public class StringsUnionAggregatorTest extends BinaryOperatorTest {
     private ItemsUnion<String> union1;
     private ItemsUnion<String> union2;
 
@@ -52,102 +49,17 @@ public class StringsUnionAggregatorTest extends AggregateFunctionTest {
     @Test
     public void testAggregate() {
         final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
+        ItemsUnion<String> currentState = union1;
+        assertEquals(3L, currentState.getResult().getN());
+        assertEquals("2", currentState.getResult().getQuantile(0.5D));
 
-        unionAggregator._aggregate(union1);
-        ItemsSketch<String> currentState = unionAggregator._state().getResult();
-        assertEquals(3L, currentState.getN());
-        assertEquals("2", currentState.getQuantile(0.5D));
-
-        unionAggregator._aggregate(union2);
-        currentState = unionAggregator._state().getResult();
-        assertEquals(7L, currentState.getN());
-        assertEquals("4", currentState.getQuantile(0.5D));
-    }
-
-    @Test
-    public void testFailedExecuteDueToNullInput() {
-        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(null);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testFailedExecuteDueToEmptyInput() {
-        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(new Object[0]);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testClone() {
-        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        final StringsUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union2);
-        assertEquals(union2.getResult().getQuantile(0.5D), ((ItemsUnion<String>) clone.state()[0]).getResult().getQuantile(0.5D));
-    }
-
-    @Test
-    public void testCloneWhenEmpty() {
-        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
-        final StringsUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getQuantile(0.5D), ((ItemsUnion<String>) clone.state()[0]).getResult().getQuantile(0.5D));
-    }
-
-    @Test
-    public void testCloneOfBusySketch() {
-        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
-        unionAggregator.init();
-        for (int i = 0; i < 100; i++) {
-            final ItemsUnion<String> union = ItemsUnion.getInstance(Ordering.<String>natural());
-            for (int j = 0; j < 100; j++) {
-                union.update("" + Math.random());
-            }
-            unionAggregator._aggregate(union);
-        }
-        final StringsUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getQuantile(0.5D), ((ItemsUnion<String>) clone.state()[0]).getResult().getQuantile(0.5D));
+        currentState = unionAggregator.apply(union2, currentState);
+        assertEquals(7L, currentState.getResult().getN());
+        assertEquals("4", currentState.getResult().getQuantile(0.5D));
     }
 
     @Test
     public void testEquals() {
-        final ItemsUnion<String> sketch1 = ItemsUnion.getInstance(Ordering.<String>natural());
-        sketch1.update("1");
-        final StringsUnionAggregator sketchAggregator1 = new StringsUnionAggregator();
-        sketchAggregator1.aggregate(new ItemsUnion[]{sketch1});
-
-        final ItemsUnion<String> sketch2 = ItemsUnion.getInstance(Ordering.<String>natural());
-        sketch2.update("1");
-        final StringsUnionAggregator sketchAggregator2 = new StringsUnionAggregator();
-        sketchAggregator2.aggregate(new ItemsUnion[]{sketch2});
-
-        assertEquals(sketchAggregator1, sketchAggregator2);
-
-        sketch2.update("2");
-        sketchAggregator2.aggregate(new ItemsUnion[]{sketch2});
-        assertNotEquals(sketchAggregator1, sketchAggregator2);
-    }
-
-    @Test
-    public void testEqualsWhenEmpty() {
         assertEquals(new StringsUnionAggregator(), new StringsUnionAggregator());
     }
 
@@ -171,7 +83,7 @@ public class StringsUnionAggregatorTest extends AggregateFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends BinaryOperator> getFunctionClass() {
         return StringsUnionAggregator.class;
     }
 

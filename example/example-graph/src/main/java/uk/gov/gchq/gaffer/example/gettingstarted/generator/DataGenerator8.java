@@ -16,21 +16,19 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.generator;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.time.DateUtils;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DataGenerator8 extends OneToOneElementGenerator<String> {
+public class DataGenerator8 implements OneToOneElementGenerator<String> {
 
     @Override
-    public Element getElement(final String line) {
+    public Element _apply(final String line) {
         final String[] t = line.split(",");
         final Edge.Builder edgeBuilder = new Edge.Builder()
                 .group("data")
@@ -46,21 +44,10 @@ public class DataGenerator8 extends OneToOneElementGenerator<String> {
             edgeBuilder
                     .property("startDate", startDate)
                     .property("endDate", DateUtils.addDays(startDate, 1));
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             throw new IllegalArgumentException("Unable to parse date", e);
         }
 
         return edgeBuilder.build();
-    }
-
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
-    @Override
-    public String getObject(final Element element) {
-        if (element instanceof Entity) {
-            throw new UnsupportedOperationException();
-        } else {
-            final Edge edge = ((Edge) element);
-            return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("startDate") + "," + edge.getProperty("visibility");
-        }
     }
 }

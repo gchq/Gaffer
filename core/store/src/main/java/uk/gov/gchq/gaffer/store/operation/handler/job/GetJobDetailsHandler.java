@@ -21,9 +21,9 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-public class GetJobDetailsHandler implements OperationHandler<GetJobDetails, JobDetail> {
+public class GetJobDetailsHandler implements OutputOperationHandler<GetJobDetails, JobDetail> {
     @Override
     public JobDetail doOperation(final GetJobDetails operation, final Context context, final Store store) throws OperationException {
         if (null == store.getJobTracker()) {

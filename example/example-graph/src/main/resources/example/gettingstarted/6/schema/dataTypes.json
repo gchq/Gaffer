@@ -4,9 +4,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -14,11 +12,9 @@
       "class": "java.lang.Integer",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
-            "orEqualTo": true,
-            "value": 0
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
         }
       ]
     },
@@ -26,9 +22,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
         }
       ]
     }

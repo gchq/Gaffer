@@ -38,7 +38,7 @@ public class HyperLogLogPlusSerialiserTest {
         final byte[] hyperLogLogPlus1Serialised;
         try {
             hyperLogLogPlus1Serialised = HYPER_LOG_LOG_PLUS_SERIALISER.serialise(hyperLogLogPlus1);
-        } catch (SerialisationException exception) {
+        } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
         }
@@ -46,7 +46,7 @@ public class HyperLogLogPlusSerialiserTest {
         final HyperLogLogPlus hyperLogLogPlus1Deserialised;
         try {
             hyperLogLogPlus1Deserialised = HYPER_LOG_LOG_PLUS_SERIALISER.deserialise(hyperLogLogPlus1Serialised);
-        } catch (SerialisationException exception) {
+        } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
         }
@@ -60,14 +60,14 @@ public class HyperLogLogPlusSerialiserTest {
         byte[] hyperLogLogPlusSerialised;
         try {
             hyperLogLogPlusSerialised = HYPER_LOG_LOG_PLUS_SERIALISER.serialise(hyperLogLogPlus);
-        } catch (SerialisationException exception) {
+        } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
         }
         HyperLogLogPlus hyperLogLogPlusDeserialised;
         try {
             hyperLogLogPlusDeserialised = HYPER_LOG_LOG_PLUS_SERIALISER.deserialise(hyperLogLogPlusSerialised);
-        } catch (SerialisationException exception) {
+        } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
         }

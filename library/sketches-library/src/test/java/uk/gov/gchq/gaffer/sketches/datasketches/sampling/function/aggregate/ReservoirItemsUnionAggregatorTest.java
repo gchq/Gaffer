@@ -15,26 +15,24 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate;
 
-import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class ReservoirItemsUnionAggregatorTest extends AggregateFunctionTest {
+public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
     private static final Random RANDOM = new Random();
     private ReservoirItemsUnion<String> union1;
     private ReservoirItemsUnion<String> union2;
@@ -55,27 +53,24 @@ public class ReservoirItemsUnionAggregatorTest extends AggregateFunctionTest {
     @Test
     public void testAggregate() {
         final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
 
-        unionAggregator._aggregate(union1);
-        ReservoirItemsSketch<String> currentState = unionAggregator._state().getResult();
-        assertEquals(3L, currentState.getN());
-        assertEquals(3, currentState.getNumSamples());
+        ReservoirItemsUnion<String> currentState = union1;
+        assertEquals(3L, currentState.getResult().getN());
+        assertEquals(3, currentState.getResult().getNumSamples());
         // As less items have been added than the capacity, the sample should exactly match what was added.
-        Set<String> samples = new HashSet<>(Arrays.asList(currentState.getSamples()));
+        Set<String> samples = new HashSet<>(Arrays.asList(currentState.getResult().getSamples()));
         Set<String> expectedSamples = new HashSet<>();
         expectedSamples.add("1");
         expectedSamples.add("2");
         expectedSamples.add("3");
         assertEquals(expectedSamples, samples);
 
-        unionAggregator._aggregate(union2);
-        currentState = unionAggregator._state().getResult();
-        assertEquals(99L, currentState.getN());
-        assertEquals(20L, currentState.getNumSamples());
+        currentState = unionAggregator.apply(union2, currentState);
+        assertEquals(99L, currentState.getResult().getN());
+        assertEquals(20L, currentState.getResult().getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present
         // in the sample but we can check that they are all from the set of things we added.
-        samples = new HashSet<>(Arrays.asList(currentState.getSamples()));
+        samples = new HashSet<>(Arrays.asList(currentState.getResult().getSamples()));
         for (long i = 4L; i < 100; i++) {
             expectedSamples.add("" + i);
         }
@@ -83,65 +78,8 @@ public class ReservoirItemsUnionAggregatorTest extends AggregateFunctionTest {
     }
 
     @Test
-    public void testFailedExecuteDueToNullInput() {
-        final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(null);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testFailedExecuteDueToEmptyInput() {
-        final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(new Object[0]);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testClone() {
-        final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        final ReservoirItemsUnionAggregator<String> clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union2);
-        assertEquals(union2.getResult().getN(), ((ReservoirItemsUnion) clone.state()[0]).getResult().getN());
-    }
-
-    @Test
-    public void testCloneWhenEmpty() {
-        final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
-        final ReservoirItemsUnionAggregator<String> clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getN(), ((ReservoirItemsUnion) clone.state()[0]).getResult().getN());
-    }
-
-    @Test
-    public void testCloneOfBusySketch() {
-        final ReservoirItemsUnionAggregator<String> unionAggregator = new ReservoirItemsUnionAggregator<>();
-        unionAggregator.init();
-        for (int i = 0; i < 100; i++) {
-            final ReservoirItemsUnion<String> union = ReservoirItemsUnion.getInstance(20);
-            for (int j = 0; j < 100; j++) {
-                union.update("" + RANDOM.nextLong());
-            }
-            unionAggregator._aggregate(union);
-        }
-        final ReservoirItemsUnionAggregator<String> clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getN(), ((ReservoirItemsUnion) clone.state()[0]).getResult().getN());
+    public void testEquals() {
+        assertEquals(new ReservoirItemsUnionAggregator(), new ReservoirItemsUnionAggregator());
     }
 
     @Test
@@ -164,7 +102,7 @@ public class ReservoirItemsUnionAggregatorTest extends AggregateFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends BinaryOperator> getFunctionClass() {
         return ReservoirItemsUnionAggregator.class;
     }
 

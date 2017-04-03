@@ -18,7 +18,8 @@ package uk.gov.gchq.gaffer.example.operation;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 
 public class GetJobDetailsExample extends OperationExample {
@@ -51,7 +52,8 @@ public class GetJobDetailsExample extends OperationExample {
     public JobDetail getJobDetailsInOperationChain() {
         // ---------------------------------------------------------
         final OperationChain<JobDetail> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
+                .first(new GetAllElements())
+                .then(new DiscardOutput())
                 .then(new GetJobDetails())
                 .build();
         // ---------------------------------------------------------

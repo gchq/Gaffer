@@ -16,164 +16,95 @@
 package uk.gov.gchq.gaffer.function.filter;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.ArrayTuple;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import java.util.Arrays;
-import java.util.Collections;
+import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
+import java.util.function.Predicate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class OrTest extends FilterFunctionTest {
+public class OrTest extends PredicateTest {
 
     @Test
     public void shouldAcceptWhenOneFunctionsAccepts() {
         // Given
-        final String test = "test";
-        final String test1a = "test1a";
-        final String test1b = "test1b";
-        final String test2a = "test2a";
+        final Predicate<String> func1 = mock(Predicate.class);
+        final Predicate<String> func2 = mock(Predicate.class);
+        final Predicate<String> func3 = mock(Predicate.class);
+        final Or<String> or = new Or<>(func1, func2, func3);
 
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext1 = mock(ConsumerFunctionContext.class);
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext2 = mock(ConsumerFunctionContext.class);
-        final FilterFunction func1 = mock(FilterFunction.class);
-        final FilterFunction func2 = mock(FilterFunction.class);
-        final Or or = new Or(Arrays.asList(funcContext1, funcContext2));
-
-        given(funcContext1.getFunction()).willReturn(func1);
-        given(funcContext2.getFunction()).willReturn(func2);
-
-        given(funcContext1.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test1a, test1b});
-        given(funcContext2.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test2a});
-
-        given(func1.isValid(new String[]{test, test1a, test1b})).willReturn(true);
-        given(func2.isValid(new String[]{test, test2a})).willReturn(false);
+        given(func1.test("value")).willReturn(false);
+        given(func2.test("value")).willReturn(true);
+        given(func3.test("value")).willReturn(true);
 
         // When
-        boolean accepted = or.isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or.test("value");
 
         // Then
         assertTrue(accepted);
-        verify(func1).isValid(new String[]{test, test1a, test1b});
-        verify(func2, never()).isValid(new String[]{test, test2a});
+        verify(func1).test("value");
+        verify(func2).test("value");
+        verify(func3, never()).test("value");
     }
 
     @Test
-    public void shouldAcceptWhenNoFunctions() {
+    public void shouldRejectWhenNoFunctions() {
         // Given
         final Or or = new Or();
 
         // When
-        boolean accepted = or.isValid(new String[]{"test"});
+        boolean accepted = or.test(new String[]{"test"});
 
         // Then
-        assertTrue(accepted);
+        assertFalse(accepted);
     }
 
     @Test
-    public void shouldAcceptWhenNoFunctionsOrNullInput() {
+    public void shouldRejectWhenNoFunctionsOrNullInput() {
         // Given
-        final Or or = new Or();
+        final Or<String> or = new Or<>();
 
         // When
-        boolean accepted = or.isValid(null);
+        boolean accepted = or.test(null);
 
         // Then
-        assertTrue(accepted);
+        assertFalse(accepted);
     }
-
 
     @Test
     public void shouldRejectWhenAllFunctionsReject() {
         // Given
-        final String test = "test";
-        final String test1a = "test1a";
-        final String test1b = "test1b";
-        final String test2a = "test2a";
+        final Predicate<String> func1 = mock(Predicate.class);
+        final Predicate<String> func2 = mock(Predicate.class);
+        final Predicate<String> func3 = mock(Predicate.class);
+        final Or<String> or = new Or<>(func1, func2, func3);
 
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext1 = mock(ConsumerFunctionContext.class);
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext2 = mock(ConsumerFunctionContext.class);
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext3 = mock(ConsumerFunctionContext.class);
-
-        final FilterFunction func1 = mock(FilterFunction.class);
-        final FilterFunction func2 = mock(FilterFunction.class);
-        final FilterFunction func3 = mock(FilterFunction.class);
-        final Or or = new Or(Arrays.asList(funcContext1, funcContext2, funcContext3));
-
-        given(funcContext1.getFunction()).willReturn(func1);
-        given(funcContext2.getFunction()).willReturn(func2);
-        given(funcContext3.getFunction()).willReturn(func3);
-
-        given(funcContext1.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test1a, test1b});
-        given(funcContext2.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test, test2a});
-        given(funcContext3.select(Mockito.any(ArrayTuple.class))).willReturn(new Object[]{test});
-
-        given(func1.isValid(new String[]{test, test1a, test1b})).willReturn(false);
-        given(func2.isValid(new String[]{test, test2a})).willReturn(false);
-        given(func3.isValid(new String[]{test})).willReturn(false);
+        given(func1.test("value")).willReturn(false);
+        given(func2.test("value")).willReturn(false);
+        given(func3.test("value")).willReturn(false);
 
         // When
-        boolean accepted = or.isValid(new String[]{test, test1a, test2a, test1b});
+        boolean accepted = or.test("value");
 
         // Then
         assertFalse(accepted);
-        verify(func1).isValid(new String[]{test, test1a, test1b});
-        verify(func2).isValid(new String[]{test, test2a});
-        verify(func3, never()).isValid(new String[]{test, test2a});
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext1 = mock(ConsumerFunctionContext.class);
-        final ConsumerFunctionContext<Integer, FilterFunction> funcContext2 = mock(ConsumerFunctionContext.class);
-        final FilterFunction func1 = mock(FilterFunction.class);
-        final FilterFunction func2 = mock(FilterFunction.class);
-        final FilterFunction func1Cloned = mock(FilterFunction.class);
-        final FilterFunction func2Cloned = mock(FilterFunction.class);
-        final Or or = new Or(Arrays.asList(funcContext1, funcContext2));
-
-        given(funcContext1.getFunction()).willReturn(func1);
-        given(funcContext2.getFunction()).willReturn(func2);
-
-        given(funcContext1.getSelection()).willReturn(Arrays.asList(0, 1, 3));
-        given(funcContext2.getSelection()).willReturn(Arrays.asList(0, 2));
-
-        given(func1.statelessClone()).willReturn(func1Cloned);
-        given(func2.statelessClone()).willReturn(func2Cloned);
-
-        // When
-        final Or clonedOr = or.statelessClone();
-
-        // Then
-        assertNotSame(or, clonedOr);
-        assertNotNull(clonedOr);
-        assertEquals(2, clonedOr.getFunctions().size());
-        assertSame(func1Cloned, clonedOr.getFunctions().get(0).getFunction());
-        assertArrayEquals(new Integer[]{0, 1, 3}, clonedOr.getFunctions().get(0).getSelection().toArray());
-        assertSame(func2Cloned, clonedOr.getFunctions().get(1).getFunction());
-        assertArrayEquals(new Integer[]{0, 2}, clonedOr.getFunctions().get(1).getSelection().toArray());
+        verify(func1).test("value");
+        verify(func2).test("value");
+        verify(func3).test("value");
     }
 
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final Or filter = new Or(Collections.singletonList(new ConsumerFunctionContext<Integer, FilterFunction>(new Or(), Arrays.asList(0, 1, 2))));
+        final Or filter = new Or(new IsA());
 
         // When
         final String json = new String(new JSONSerialiser().serialise(filter, true));
@@ -182,11 +113,7 @@ public class OrTest extends FilterFunctionTest {
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.function.filter.Or\",%n" +
                 "  \"functions\" : [ {%n" +
-                "    \"function\" : {%n" +
-                "      \"class\" : \"uk.gov.gchq.gaffer.function.filter.Or\",%n" +
-                "      \"functions\" : [ ]%n" +
-                "    },%n" +
-                "    \"selection\" : [ 0, 1, 2 ]%n" +
+                "    \"class\" : \"uk.gov.gchq.koryphe.predicate.IsA\"%n" +
                 "  } ]%n" +
                 "}"), json);
 
@@ -198,7 +125,7 @@ public class OrTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<Or> getFunctionClass() {
+    protected Class<Or> getPredicateClass() {
         return Or.class;
     }
 

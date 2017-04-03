@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -27,8 +28,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -60,13 +61,13 @@ public class GetAllElementsHandlerTest {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>().build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        final GetAllElements getAllElements = new GetAllElements.Builder().build();
+        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -84,13 +85,13 @@ public class GetAllElementsHandlerTest {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElementsForAggregation())
+                .input(getElementsForAggregation())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>().build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        final GetAllElements getAllElements = new GetAllElements.Builder().build();
+        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -117,27 +118,7 @@ public class GetAllElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
     }
 
-    @Test
-    public void testAddAndGetAllElementsNoAggregationAndDuplicateElements() throws StoreException, OperationException {
-        // Given
-        final Graph graph = getGraphNoAggregation();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getDuplicateElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>().build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
-
-        // Then
-        final Map<Element, Integer> resultingElementsToCount = streamToCount(
-                StreamSupport.stream(results.spliterator(), false));
-        final Map<Element, Integer> expectedCounts = streamToCount(getDuplicateElements().stream());
-        assertEquals(expectedCounts, resultingElementsToCount);
-    }
-
-    static Map<Element, Integer> streamToCount(final Stream<Element> elements) {
+    static Map<Element, Integer> streamToCount(final Stream<? extends Element> elements) {
         final Map<Element, Integer> elementToCount = new HashMap<>();
         elements.forEach(element -> {
             if (elementToCount.containsKey(element)) {
@@ -154,17 +135,17 @@ public class GetAllElementsHandlerTest {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
+        final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -181,12 +162,12 @@ public class GetAllElementsHandlerTest {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
+        final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -196,7 +177,7 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -213,12 +194,12 @@ public class GetAllElementsHandlerTest {
         // Given
         final Graph graph = getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
+        final GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
@@ -228,7 +209,7 @@ public class GetAllElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -242,19 +223,22 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsIncludeEntitiesOption() throws OperationException {
+    public void testGetAllElementsWithAndWithEntities() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
-        // When includeEntities is false
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .includeEntities(false)
+        // When no entities
+        GetAllElements getAllElements = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2)
+                        .build())
                 .build();
-        CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -265,9 +249,13 @@ public class GetAllElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEntities is true
-        getAllElements = new GetAllElements.Builder<>()
-                .includeEntities(true)
+        // When view has entities
+        getAllElements = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2)
+                        .build())
                 .build();
         results = graph.execute(getAllElements, new User());
 
@@ -280,19 +268,19 @@ public class GetAllElementsHandlerTest {
     }
 
     @Test
-    public void testGetAllElementsIncludeEdgesOption() throws OperationException {
+    public void testGetAllElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
-        // When includeEdges is ALL
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+        // When directedType is ALL
+        GetAllElements getAllElements = new GetAllElements.Builder()
+                .directedType(DirectedType.BOTH)
                 .build();
-        CloseableIterable<Element> results = graph.execute(getAllElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -301,9 +289,11 @@ public class GetAllElementsHandlerTest {
         getElements().forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is NONE
-        getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.NONE)
+        // When view has no edges
+        getAllElements = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
         results = graph.execute(getAllElements, new User());
 
@@ -316,9 +306,9 @@ public class GetAllElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is DIRECTED
-        getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
+        // When directedType is DIRECTED
+        getAllElements = new GetAllElements.Builder()
+                .directedType(DirectedType.DIRECTED)
                 .build();
         results = graph.execute(getAllElements, new User());
 
@@ -331,9 +321,9 @@ public class GetAllElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is UNDIRECTED
-        getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
+        // When directedType is UNDIRECTED
+        getAllElements = new GetAllElements.Builder()
+                .directedType(DirectedType.UNDIRECTED)
                 .build();
         results = graph.execute(getAllElements, new User());
 
@@ -345,76 +335,6 @@ public class GetAllElementsHandlerTest {
                 .filter(element -> element instanceof Entity || !((Edge) element).isDirected())
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
-    }
-
-    @Test
-    public void testGetAllElementsPopulatePropertiesOption() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When populateProperties is true
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .populateProperties(true)
-                .build();
-        CloseableIterable<Element> results = graph.execute(getAllElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        final Set<Element> expectedResults = new HashSet<>();
-        getElements().forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
-
-        // When populateProperties is false
-        getAllElements = new GetAllElements.Builder<>()
-                .populateProperties(false)
-                .build();
-        results = graph.execute(getAllElements, new User());
-
-        // Then
-        resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        expectedResults.clear();
-        getElements().stream()
-                .map(element -> element.emptyClone())
-                .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
-    }
-
-    @Test
-    public void testGetAllElementsLimitResultsOption() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When limitResults is 1
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .limitResults(1)
-                .build();
-        CloseableIterable<Element> results = graph.execute(getAllElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        assertEquals(1, resultsSet.size());
-
-        // When limitResults is 2
-        getAllElements = new GetAllElements.Builder<>()
-                .limitResults(2)
-                .build();
-        results = graph.execute(getAllElements, new User());
-
-        // Then
-        resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        assertEquals(2, resultsSet.size());
     }
 
     public static Graph getGraph() {

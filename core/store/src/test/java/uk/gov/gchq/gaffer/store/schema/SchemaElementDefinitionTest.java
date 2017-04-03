@@ -26,17 +26,16 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.function.IsA;
+import uk.gov.gchq.koryphe.predicate.IsA;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinition> {
@@ -118,7 +117,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         final ElementFilter validator = elementDef.getValidator();
 
         // Then
-        assertNull(validator.getFunctions());
+        assertEquals(0, validator.getFunctions().size());
     }
 
     @Test
@@ -141,22 +140,22 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(numFunctions, validator.getFunctions().size());
         if (elementDef instanceof SchemaEdgeDefinition) {
             assertEquals(Integer.class.getName(), ((IsA) validator.getFunctions().get(0).getFunction()).getType());
-            assertEquals(Collections.singletonList(IdentifierType.SOURCE.name()),
+            assertArrayEquals(new String[]{IdentifierType.SOURCE.name()},
                     validator.getFunctions().get(0).getSelection());
 
             assertEquals(Date.class.getName(), ((IsA) validator.getFunctions().get(1).getFunction()).getType());
-            assertEquals(Collections.singletonList(IdentifierType.DESTINATION.name()),
+            assertArrayEquals(new String[]{IdentifierType.DESTINATION.name()},
                     validator.getFunctions().get(1).getSelection());
 
             assertEquals(Boolean.class.getName(), ((IsA) validator.getFunctions().get(2).getFunction()).getType());
-            assertEquals(Collections.singletonList(IdentifierType.DIRECTED.name()),
+            assertArrayEquals(new String[]{IdentifierType.DIRECTED.name()},
                     validator.getFunctions().get(2).getSelection());
         } else {
-            assertEquals(Collections.singletonList(IdentifierType.VERTEX.name()),
+            assertArrayEquals(new String[]{IdentifierType.VERTEX.name()},
                     validator.getFunctions().get(0).getSelection());
         }
         assertEquals(String.class.getName(), ((IsA) validator.getFunctions().get(numFunctions - 1).getFunction()).getType());
-        assertEquals(Collections.singletonList("property"),
+        assertArrayEquals(new String[]{"property"},
                 validator.getFunctions().get(numFunctions - 1).getSelection());
     }
 
@@ -165,9 +164,6 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
     public void shouldBuildElementDefinition() {
         // Given
         final ElementFilter validator = mock(ElementFilter.class);
-        final ElementFilter clonedValidator = mock(ElementFilter.class);
-
-        given(validator.clone()).willReturn(clonedValidator);
 
         // When
         final T elementDef = createBuilder()
@@ -181,7 +177,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         assertEquals(2, elementDef.getProperties().size());
         assertEquals(Integer.class, elementDef.getPropertyClass(TestPropertyNames.PROP_1));
         assertEquals(Object.class, elementDef.getPropertyClass(TestPropertyNames.PROP_2));
-        assertSame(clonedValidator, elementDef.getValidator());
+        assertSame(validator, elementDef.getOriginalValidator());
     }
 
     @Test
@@ -199,7 +195,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(1, aggregator.getFunctions().size());
         assertTrue(aggregator.getFunctions().get(0).getFunction() instanceof ExampleAggregateFunction);
-        assertEquals(Collections.singletonList("property"),
+        assertEquals(new String[]{"property"},
                 aggregator.getFunctions().get(0).getSelection());
     }
 

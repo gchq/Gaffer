@@ -68,6 +68,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -92,6 +93,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -116,6 +118,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -139,6 +142,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -162,6 +166,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -186,6 +191,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -210,6 +216,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 

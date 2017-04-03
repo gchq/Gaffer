@@ -5,7 +5,7 @@
       "elementGenerator": {
         "class": "uk.gov.gchq.gaffer.example.films.generator.DataGenerator"
       },
-      "objects": [
+      "input": [
         {
           "class": "uk.gov.gchq.gaffer.example.films.data.Viewing",
           "filmId": "filmA",

@@ -18,15 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -50,20 +46,12 @@ public class GetAllElementsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
-                .includeEntities(false)
-                .option("testOption", "true")
-                .populateProperties(false)
+        GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertFalse(getAllElements.isIncludeEntities());
-        assertFalse(getAllElements.isPopulateProperties());
-        assertEquals(GetOperation.IncludeEdgeType.ALL, getAllElements.getIncludeEdges());
-        assertEquals("true", getAllElements.getOption("testOption"));
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

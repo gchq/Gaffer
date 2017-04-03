@@ -18,14 +18,12 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>AgeOff</code> is a {@link SimpleFilterFunction} that ages off old data based on a provided age of time in milliseconds.
+ * An <code>AgeOff</code> is a {@link java.util.function.Predicate} that ages off old data based on a provided age of time in milliseconds.
  */
-@Inputs(Long.class)
-public class AgeOff extends SimpleFilterFunction<Long> {
+public class AgeOff extends KoryphePredicate<Long> {
     public static final long HOURS_TO_MILLISECONDS = 60L * 60L * 1000L;
     public static final long DAYS_TO_MILLISECONDS = 24L * HOURS_TO_MILLISECONDS;
 
@@ -44,15 +42,8 @@ public class AgeOff extends SimpleFilterFunction<Long> {
         this.ageOffTime = ageOffTime;
     }
 
-    public AgeOff statelessClone() {
-        AgeOff clone = new AgeOff(ageOffTime);
-        clone.setAgeOffTime(ageOffTime);
-
-        return clone;
-    }
-
     @Override
-    public boolean isValid(final Long input) {
+    public boolean test(final Long input) {
         return null != input && (System.currentTimeMillis() - input) < ageOffTime;
     }
 
@@ -78,22 +69,20 @@ public class AgeOff extends SimpleFilterFunction<Long> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
-        final AgeOff ageOff = (AgeOff) o;
-
+        final AgeOff otherPredicate = (AgeOff) o;
         return new EqualsBuilder()
-                .append(inputs, ageOff.inputs)
-                .append(ageOffTime, ageOff.ageOffTime)
+                .append(ageOffTime, otherPredicate.ageOffTime)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
+                .appendSuper(super.hashCode())
                 .append(ageOffTime)
                 .toHashCode();
     }
@@ -101,7 +90,6 @@ public class AgeOff extends SimpleFilterFunction<Long> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("ageOffTime", ageOffTime)
                 .toString();
     }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -26,22 +27,25 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.SimpleTransformFunction;
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
 import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
-
-import java.util.*;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -55,19 +59,19 @@ public class GetElementsHandlerTest {
     public final ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void testGetElementsByNonExistentEntitySeed() throws OperationException {
+    public void testGetElementsByNonExistentEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("NOT_PRESENT"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("NOT_PRESENT"))
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -76,18 +80,18 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsWhenNoEntitySeedsProvided() throws OperationException {
+    public void testGetElementsWhenNoEntityIdsProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -96,19 +100,19 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByNonExistentEdgeSeed() throws OperationException {
+    public void testGetElementsByNonExistentEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("NOT_PRESENT", "ALSO_NOT_PRESENT", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("NOT_PRESENT", "ALSO_NOT_PRESENT", true))
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -117,18 +121,18 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsWhenNoEdgeSeedsProvided() throws OperationException {
+    public void testGetElementsWhenNoEdgeIdsProvided() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -137,19 +141,19 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntitySeed() throws OperationException {
+    public void testGetElementsByEntityId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -174,20 +178,20 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeed() throws OperationException {
+    public void testGetElementsByEdgeId() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When query for A->B0 with seedMatching set to RELATED
-        GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
-                .seedMatching(GetOperation.SeedMatchingType.RELATED)
+        GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
+                .seedMatching(SeedMatchingType.RELATED)
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -211,9 +215,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When query for A->B0 with seedMatching set to EQUAL
-        getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
-                .seedMatching(GetOperation.SeedMatchingType.EQUAL)
+        getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
+                .seedMatching(SeedMatchingType.EQUAL)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -231,9 +235,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with seedMatching set to RELATED
-        getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("X", "Y0", false))
-                .seedMatching(GetOperation.SeedMatchingType.RELATED)
+        getElements = new GetElements.Builder()
+                .input(new EdgeSeed("X", "Y0", false))
+                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -258,9 +262,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When - query for X-Y0 (undirected) in direction it was inserted in with seedMatching set to EQUAL
-        getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("X", "Y0", false))
-                .seedMatching(GetOperation.SeedMatchingType.EQUAL)
+        getElements = new GetElements.Builder()
+                .input(new EdgeSeed("X", "Y0", false))
+                .seedMatching(SeedMatchingType.EQUAL)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -271,9 +275,9 @@ public class GetElementsHandlerTest {
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with seedMatching set to
         // RELATED
-        getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("Y0", "X", false))
-                .seedMatching(GetOperation.SeedMatchingType.RELATED)
+        getElements = new GetElements.Builder()
+                .input(new EdgeSeed("Y0", "X", false))
+                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -284,9 +288,9 @@ public class GetElementsHandlerTest {
 
         // When - query for Y0-X (undirected) in opposite direction to which it was inserted in with seedMatching set to
         // EQUAL
-        getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("Y0", "X", false))
-                .seedMatching(GetOperation.SeedMatchingType.EQUAL)
+        getElements = new GetElements.Builder()
+                .input(new EdgeSeed("Y0", "X", false))
+                .seedMatching(SeedMatchingType.EQUAL)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -301,18 +305,18 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoAggregation();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsHandlerTest.getDuplicateElements())
+                .input(GetAllElementsHandlerTest.getDuplicateElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Map<Element, Integer> resultingElementsToCount = GetAllElementsHandlerTest.streamToCount(
@@ -332,22 +336,22 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntitySeedWithViewRestrictedByGroup() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -368,22 +372,22 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeedWithViewRestrictedByGroup() throws OperationException {
+    public void testGetElementsByEdgeIdWithViewRestrictedByGroup() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1)
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -404,17 +408,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -424,7 +428,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -446,17 +450,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
+    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPreAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -466,7 +470,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -488,17 +492,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
@@ -508,7 +512,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -530,17 +534,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
+    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndAPostAggregationFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
@@ -550,7 +554,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -571,34 +575,27 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
     }
 
-    @Inputs(Integer.class)
-    @Outputs(Integer.class)
-    private static class ExampleTransform extends SimpleTransformFunction<Integer> {
+    private static class ExampleTransform extends KorypheFunction<Integer, Integer> {
         static final int INCREMENT_BY = 100;
 
         @Override
-        protected Integer _transform(final Integer input) {
+        public Integer apply(final Integer input) {
             return input + INCREMENT_BY;
-        }
-
-        @Override
-        public TransformFunction statelessClone() {
-            return new ExampleTransform();
         }
     }
 
     @Test
-    public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndATransform() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
@@ -609,7 +606,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -635,17 +632,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEdgeSeedWithViewRestrictedByGroupAndATransform() throws OperationException {
+    public void testGetElementsByEdgeIdWithViewRestrictedByGroupAndATransform() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
@@ -656,7 +653,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -682,17 +679,17 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsByEntitySeedWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
+    public void testGetElementsByEntityIdWithViewRestrictedByGroupAndAPostTransformFilter() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
@@ -707,7 +704,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -731,13 +728,13 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EdgeSeed, Element> getElements = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
                 .view(new View.Builder()
                         .edge(GetAllElementsHandlerTest.BASIC_EDGE1, new ViewElementDefinition.Builder()
                                 .transformer(new ElementTransformer.Builder()
@@ -752,7 +749,7 @@ public class GetElementsHandlerTest {
                                 .build())
                         .build())
                 .build();
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -783,16 +780,19 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
-        // When includeEntities is false
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .includeEntities(false)
+        // When view has not entities
+        GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2)
+                        .build())
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -807,10 +807,14 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEntities is true
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .includeEntities(true)
+        // When view has entities
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE)
+                        .edge(TestGroups.EDGE_2)
+                        .build())
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -832,21 +836,20 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsIncludeEdgesOption() throws OperationException {
+    public void testGetElementsDirectedTypeOption() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
-        // When includeEdges is ALL
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
+        // When directedType is BOTH
+        GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .directedType(DirectedType.BOTH)
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -866,11 +869,12 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is NONE
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .includeEdges(GetOperation.IncludeEdgeType.NONE)
+        // When view has no edges
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -890,11 +894,10 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is DIRECTED
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .includeEdges(GetOperation.IncludeEdgeType.DIRECTED)
+        // When directedType is DIRECTED
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .directedType(DirectedType.DIRECTED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -917,11 +920,10 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // When includeEdges is UNDIRECTED
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
+        // When directedType is UNDIRECTED
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .directedType(DirectedType.UNDIRECTED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -950,17 +952,16 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When inOutType is BOTH
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.BOTH)
+        GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .inOutType(IncludeIncomingOutgoingType.BOTH)
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -981,10 +982,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When inOutType is INCOMING
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .inOutType(IncludeIncomingOutgoingType.INCOMING)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -1011,10 +1011,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When inOutType is OUTGOING
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .inOutType(GetOperation.IncludeIncomingOutgoingType.OUTGOING)
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .inOutType(IncludeIncomingOutgoingType.OUTGOING)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -1046,17 +1045,16 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When seedMatching is EQUAL
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .seedMatching(GetOperation.SeedMatchingType.EQUAL)
+        GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .seedMatching(SeedMatchingType.EQUAL)
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
+        CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
@@ -1072,10 +1070,9 @@ public class GetElementsHandlerTest {
         assertEquals(expectedResults, resultsSet);
 
         // When seedMatching is RELATED
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .seedMatching(GetOperation.SeedMatchingType.RELATED)
+        getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"), new EntitySeed("X"))
+                .seedMatching(SeedMatchingType.RELATED)
                 .build();
         results = graph.execute(getElements, new User());
 
@@ -1097,12 +1094,12 @@ public class GetElementsHandlerTest {
                 .forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
 
-        // Repeat with seedMatching set to EQUAL for an EdgeSeed
-        final GetElements<EdgeSeed, Element> getElementsFromEdgeSeed = new GetElements.Builder<EdgeSeed, Element>()
-                .addSeed(new EdgeSeed("A", "B0", true))
-                .seedMatching(GetOperation.SeedMatchingType.EQUAL)
+        // Repeat with seedMatching set to EQUAL for an EdgeId
+        final GetElements getElementsFromEdgeId = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B0", true))
+                .seedMatching(SeedMatchingType.EQUAL)
                 .build();
-        results = graph.execute(getElementsFromEdgeSeed, new User());
+        results = graph.execute(getElementsFromEdgeId, new User());
 
         // Then
         resultsSet.clear();
@@ -1119,170 +1116,22 @@ public class GetElementsHandlerTest {
     }
 
     @Test
-    public void testGetElementsPopulatePropertiesOption() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When populateProperties is true
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .populateProperties(true)
-                .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        final Set<Element> expectedResults = new HashSet<>();
-        getElements().stream()
-                .filter(element -> {
-                    if (element instanceof Entity) {
-                        final Entity entity = (Entity) element;
-                        return entity.getVertex().equals("A") || entity.getVertex().equals("X");
-                    } else {
-                        final Edge edge = (Edge) element;
-                        return edge.getSource().equals("A") || edge.getDestination().equals("A")
-                                || edge.getSource().equals("X") || edge.getDestination().equals("X");
-                    }
-                })
-                .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
-
-        // When populateProperties is false
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .populateProperties(false)
-                .build();
-        results = graph.execute(getElements, new User());
-
-        // Then
-        resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        expectedResults.clear();
-        getElements().stream()
-                .filter(element -> {
-                    if (element instanceof Entity) {
-                        final Entity entity = (Entity) element;
-                        return entity.getVertex().equals("A") || entity.getVertex().equals("X");
-                    } else {
-                        final Edge edge = (Edge) element;
-                        return edge.getSource().equals("A") || edge.getDestination().equals("A")
-                                || edge.getSource().equals("X") || edge.getDestination().equals("X");
-                    }
-                })
-                .map(element -> element.emptyClone())
-                .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
-    }
-
-    @Test
-    public void testGetElementsLimitResultsOption() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When limitResults is 1
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .limitResults(1)
-                .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        assertEquals(1, resultsSet.size());
-
-        // When limitResults is 2
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("X"))
-                .limitResults(2)
-                .build();
-        results = graph.execute(getElements, new User());
-
-        // Then
-        resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        assertEquals(2, resultsSet.size());
-    }
-
-    @Test
-    public void testGetElementsDeduplicateOption() throws OperationException {
-        // Given
-        final Graph graph = GetAllElementsHandlerTest.getGraph();
-        final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
-                .build();
-        graph.execute(addElements, new User());
-
-        // When deduplicate is false
-        // Use A and B0 as seeds so that get the same edge back twice
-        GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("B0"))
-                .deduplicate(false)
-                .build();
-        CloseableIterable<Element> results = graph.execute(getElements, new User());
-
-        // Then
-        assertEquals(NUM_LOOPS + 2L, StreamSupport.stream(results.spliterator(), false).count());
-
-        // When deduplicate is true
-        getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .addSeed(new EntitySeed("B0"))
-                .deduplicate(true)
-                .build();
-        results = graph.execute(getElements, new User());
-
-        // Then
-        final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
-        final Set<Element> expectedResults = new HashSet<>();
-        getElements().stream()
-                .filter(element -> {
-                    if (element instanceof Entity) {
-                        final Entity entity = (Entity) element;
-                        return entity.getVertex().equals("A") || entity.getVertex().equals("B0");
-                    } else {
-                        final Edge edge = (Edge) element;
-                        return edge.getSource().equals("A") || edge.getDestination().equals("A")
-                                || edge.getSource().equals("B0") || edge.getDestination().equals("B0");
-                    }
-                })
-                .forEach(expectedResults::add);
-        assertEquals(expectedResults, resultsSet);
-    }
-
-    @Test
     public void testGetElementsWhenNotMaintainingIndices() throws OperationException {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraphNoIndices();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("A"))
-                .deduplicate(false)
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("A"))
                 .build();
 
         // Then
         exception.expect(OperationException.class);
-        final CloseableIterable<Element> results = graph.execute(getElements, new User());
+        final CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
     }
 
     @Test
@@ -1290,14 +1139,13 @@ public class GetElementsHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
-                .addSeed(new EntitySeed("B9"))
-                .deduplicate(false)
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed("B9"))
                 .build();
         final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
         // Change a property

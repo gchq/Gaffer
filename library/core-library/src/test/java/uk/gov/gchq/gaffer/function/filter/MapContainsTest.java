@@ -19,18 +19,17 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class MapContainsTest extends FilterFunctionTest {
+public class MapContainsTest extends PredicateTest {
     private static final String KEY1 = "key1";
     private static final String KEY2 = "key2";
 
@@ -47,7 +46,7 @@ public class MapContainsTest extends FilterFunctionTest {
         final MapContains filter = new MapContains(KEY1);
 
         // When
-        boolean accepted = filter.isValid(map1);
+        boolean accepted = filter.test(map1);
 
         // Then
         assertTrue(accepted);
@@ -59,7 +58,7 @@ public class MapContainsTest extends FilterFunctionTest {
         final MapContains filter = new MapContains(KEY2);
 
         // When
-        boolean accepted = filter.isValid(map1);
+        boolean accepted = filter.test(map1);
 
         // Then
         assertFalse(accepted);
@@ -71,24 +70,10 @@ public class MapContainsTest extends FilterFunctionTest {
         final MapContains filter = new MapContains(KEY1);
 
         // When
-        boolean accepted = filter.isValid(new HashMap());
+        boolean accepted = filter.test(new HashMap());
 
         // Then
         assertFalse(accepted);
-    }
-
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final MapContains filter = new MapContains(KEY1);
-
-        // When
-        final MapContains clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(KEY1, clonedFilter.getKey());
     }
 
     @Test
@@ -114,7 +99,7 @@ public class MapContainsTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<MapContains> getFunctionClass() {
+    protected Class<MapContains> getPredicateClass() {
         return MapContains.class;
     }
 

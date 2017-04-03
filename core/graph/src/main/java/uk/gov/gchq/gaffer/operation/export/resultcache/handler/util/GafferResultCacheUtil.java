@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation.export.resultcache.handler.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -58,9 +57,7 @@ public final class GafferResultCacheUtil {
         if (null != timeToLive) {
             builder.merge(new Schema.Builder()
                     .type("timestamp", new TypeDefinition.Builder()
-                            .validator(new ElementFilter.Builder()
-                                    .execute(new AgeOff(timeToLive))
-                                    .build())
+                            .validateFunctions(new AgeOff(timeToLive))
                             .build())
                     .build());
         }

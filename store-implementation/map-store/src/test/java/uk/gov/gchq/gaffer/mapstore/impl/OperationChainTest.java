@@ -21,17 +21,17 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,16 +50,20 @@ public class OperationChainTest {
                 .storeProperties(new MapStoreProperties())
                 .build();
         final AddElements addElements = new AddElements.Builder()
-                .elements(getElements())
+                .input(getElements())
                 .build();
         graph.execute(addElements, new User());
 
         // When
-        final CloseableIterable<Edge> results = graph.execute(new OperationChain.Builder()
-                .first(new GetAdjacentEntitySeeds.Builder()
-                        .addSeed(new EntitySeed("vertex1"))
+        final CloseableIterable<? extends Element> results = graph.execute(new OperationChain.Builder()
+                .first(new GetAdjacentIds.Builder()
+                        .input(new EntitySeed("vertex1"))
                         .build())
-                .then(new GetEdges<>())
+                .then(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge("edge")
+                                .build())
+                        .build())
                 .build(), new User());
 
         // Then

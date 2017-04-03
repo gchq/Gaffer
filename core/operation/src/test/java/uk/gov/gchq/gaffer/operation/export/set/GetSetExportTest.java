@@ -20,7 +20,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ public class GetSetExportTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetExport operation = new GetSetExport.Builder()
+        final GetSetExport operation = new GetSetExport.Builder()
                 .key("key")
                 .jobId("jobId")
                 .start(0)
