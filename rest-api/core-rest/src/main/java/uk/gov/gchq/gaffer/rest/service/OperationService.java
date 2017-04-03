@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.rest.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.server.ChunkedOutput;
@@ -81,10 +80,7 @@ public class OperationService implements IOperationService {
 
     @Override
     public Object execute(final OperationChain opChain) {
-        LOGGER.info("starting: " + opChain);
-        final Object result = _execute(opChain);
-        LOGGER.info("result: " + Lists.newArrayList(((Iterable) result)));
-        return result;
+        return _execute(opChain);
     }
 
     @SuppressFBWarnings
