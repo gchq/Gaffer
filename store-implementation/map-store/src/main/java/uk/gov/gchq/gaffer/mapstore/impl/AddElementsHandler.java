@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +60,7 @@ public class AddElementsHandler implements OperationHandler<AddElements, Void> {
         final Map<String, Set<String>> groupToNonGroupByProperties = mapImpl.groupToNonGroupByProperties;
         final Map<Element, Properties> elementToProperties = mapImpl.elementToProperties;
 
-        StreamSupport.stream(elements.spliterator(), true)
+        StreamSupport.stream(elements.spliterator(), false)
                 .forEach(element -> {
                     // Update main map of element with group-by properties to properties
                     final Element elementWithGroupByProperties = updateElementToProperties(schema,
