@@ -65,7 +65,7 @@ public final class Streams {
      * @return a stream containing the contents of the iterator
      */
     public static <T> Stream<T> toParallelStream(final Iterator<T> iterator) {
-        return toStream(() -> iterator);
+        return toParallelStream(() -> iterator);
     }
 
     private Streams() {

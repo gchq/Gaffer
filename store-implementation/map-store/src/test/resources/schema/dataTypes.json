@@ -1,0 +1,16 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String"
+    },
+    "directed.either": {
+      "class": "java.lang.Boolean"
+    },
+    "string": {
+      "class": "java.lang.String"
+    },
+    "int": {
+      "class": "java.lang.Integer"
+    }
+  }
+}

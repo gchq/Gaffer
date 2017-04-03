@@ -297,7 +297,7 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy + ". Seeds: " + seeds, expectedElements.size(),
-                Lists.newArrayList(results).size());
+                Sets.newHashSet(results).size());
 
         assertEquals(new HashSet<>(expectedElements), Sets.newHashSet(results));
     }
