@@ -20,8 +20,6 @@ uk.gov.gchq.gaffer.accumulostore.operation.impl
 uk.gov.gchq.gaffer.accumulostore.retriever
 uk.gov.gchq.gaffer.accumulostore.retriever.impl
 uk.gov.gchq.gaffer.accumulostore.utils
-uk.gov.gchq.gaffer.arrayliststore
-uk.gov.gchq.gaffer.arrayliststore.operation.handler
 uk.gov.gchq.gaffer.bitmap.function.aggregate
 uk.gov.gchq.gaffer.bitmap.serialisation
 uk.gov.gchq.gaffer.bitmap.serialisation.json
@@ -38,6 +36,7 @@ uk.gov.gchq.gaffer.data.elementdefinition
 uk.gov.gchq.gaffer.data.elementdefinition.exception
 uk.gov.gchq.gaffer.data.elementdefinition.view
 uk.gov.gchq.gaffer.data.generator
+uk.gov.gchq.gaffer.example
 uk.gov.gchq.gaffer.example.films.analytic
 uk.gov.gchq.gaffer.example.films.data
 uk.gov.gchq.gaffer.example.films.data.schema
@@ -74,6 +73,10 @@ uk.gov.gchq.gaffer.hdfs.operation.mapper.generator
 uk.gov.gchq.gaffer.jobtracker
 uk.gov.gchq.gaffer.jsonserialisation
 uk.gov.gchq.gaffer.jsonserialisation.jackson
+uk.gov.gchq.gaffer.mapstore
+uk.gov.gchq.gaffer.mapstore.impl
+uk.gov.gchq.gaffer.mapstore.operation
+uk.gov.gchq.gaffer.mapstore.utils
 uk.gov.gchq.gaffer.named.operation
 uk.gov.gchq.gaffer.named.operation.cache
 uk.gov.gchq.gaffer.named.operation.handler
