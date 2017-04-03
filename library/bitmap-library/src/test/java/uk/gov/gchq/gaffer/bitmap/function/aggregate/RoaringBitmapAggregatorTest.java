@@ -19,6 +19,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.function.AggregateFunction;
+import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
+import uk.gov.gchq.gaffer.function.Function;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -28,7 +33,7 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class RoaringBitmapAggregatorTest {
+public class RoaringBitmapAggregatorTest extends AggregateFunctionTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -127,5 +132,25 @@ public class RoaringBitmapAggregatorTest {
         // Then
         assertSame(clonedBitmap, roaringBitmapAggregator.state()[0]);
         assertNotSame(bitmap, roaringBitmapAggregator.state()[0]);
+    }
+
+    @Override
+    protected AggregateFunction getInstance() {
+        return new RoaringBitmapAggregator();
+    }
+
+    @Override
+    protected Class<? extends Function> getFunctionClass() {
+        return RoaringBitmapAggregator.class;
+    }
+
+    @Override
+    public void shouldJsonSerialiseAndDeserialise() throws IOException {
+        final RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
+
+        String serialisedForm = this.serialise(roaringBitmapAggregator);
+
+        assertEquals("{\"class\":\"uk.gov.gchq.gaffer.bitmap.function.aggregate.RoaringBitmapAggregator\"}", serialisedForm);
+        assertEquals(roaringBitmapAggregator, this.deserialise(serialisedForm));
     }
 }

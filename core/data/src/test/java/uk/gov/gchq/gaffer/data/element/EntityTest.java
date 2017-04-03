@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -123,6 +124,24 @@ public class EntityTest extends ElementTest {
         // Then
         assertTrue(isEqual);
         assertEquals(entity1.hashCode(), entity2.hashCode());
+    }
+
+    @Test
+    public void shouldReturnFalseForEqualsWhenPropertyIsDifferent() {
+        // Given
+        final Entity entity1 = new Entity("group");
+        entity1.setVertex("identifier");
+        entity1.putProperty("some property", "some value");
+
+        final Entity entity2 = cloneCoreFields(entity1);
+        entity2.putProperty("some property", "some other value");
+
+        // When
+        boolean isEqual = entity1.equals((Object) entity2);
+
+        // Then
+        assertFalse(isEqual);
+        assertNotEquals(entity1.hashCode(), entity2.hashCode());
     }
 
     @Test

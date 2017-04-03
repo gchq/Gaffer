@@ -22,11 +22,11 @@ import uk.gov.gchq.gaffer.graph.Graph;
 
 public class GraphTest {
     @Test
-    public void shouldReturnExpectedEntities() {
+    public void shouldInitialiseAccumuloGraph() {
         // When
         new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
-                .addSchema(StreamUtil.openStream(getClass(), "example-schema.json"))
+                .storeProperties(StreamUtil.openStream(SchemaConstants.class, "accumulo/store.properties"))
+                .addSchemas(StreamUtil.openStreams(SchemaConstants.class, "example-schema"))
                 .build();
 
         // Then - no exceptions thrown

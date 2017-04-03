@@ -19,16 +19,42 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>example</artifactId>
-        <version>0.6.3</version>
+        <version>0.6.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
     <packaging>war</packaging>
+    <properties>
+        <store.type>accumulo</store.type>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>example-graph</artifactId>
+            <artifactId>named-operation-library</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>named-operation-jcs-cache</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>job-tracker-jcs</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>graph</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>accumulo-store</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -49,7 +75,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>${project.parent.groupId}</groupId>
-                                    <artifactId>rest-api</artifactId>
+                                    <artifactId>${store.type}-rest</artifactId>
                                     <version>${project.parent.version}</version>
                                     <type>war</type>
                                     <overWrite>false</overWrite>
@@ -92,10 +118,10 @@
                                 <gaffer.rest-api.basePath>rest/v1
                                 </gaffer.rest-api.basePath>
                                 <gaffer.schemas>
-                                    ${project.build.outputDirectory}/example-schema.json
+                                    ${project.build.outputDirectory}/example-schema
                                 </gaffer.schemas>
                                 <gaffer.storeProperties>
-                                    ${project.build.outputDirectory}/mockaccumulostore.properties
+                                    ${project.build.outputDirectory}/${store.type}/store.properties
                                 </gaffer.storeProperties>
                             </systemProperties>
                         </configuration>
