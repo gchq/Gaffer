@@ -25,6 +25,10 @@ public class GafferRuntimeException extends RuntimeException {
         super(message);
     }
 
+    public GafferRuntimeException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
     public GafferRuntimeException(final String message, final Status status) {
         super(message);
         this.status = status;

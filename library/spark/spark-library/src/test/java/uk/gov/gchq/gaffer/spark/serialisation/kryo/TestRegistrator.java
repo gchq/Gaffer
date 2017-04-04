@@ -17,7 +17,8 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
-import org.apache.spark.serializer.KryoRegistrator;
+import org.junit.Before;
+import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -26,18 +27,32 @@ import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerialiser;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
-/**
- * A custom {@link KryoRegistrator} that serializes Gaffer {@link Entity}s and {@link Edge}s. NB: It
- * is not necessary to implement one for Elements as that is an abstract class.
- */
-public class Registrator implements KryoRegistrator {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-    @Override
-    public void registerClasses(final Kryo kryo) {
-        kryo.register(Entity.class, new EntityKryoSerializer());
-        kryo.register(Edge.class, new EdgeKryoSerializer());
-        kryo.register(Properties.class);
-        kryo.register(FreqMap.class);
-        kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerialiser());
+public class TestRegistrator {
+    private final Kryo kryo = new Kryo();
+
+    @Before
+    public void setup() {
+        new Registrator().registerClasses(kryo);
+    }
+
+    @Test
+    public void testRegistered() {
+        // Entity
+        assertEquals(EntityKryoSerializer.class, kryo.getSerializer(Entity.class).getClass());
+
+        // Edge
+        assertEquals(EdgeKryoSerializer.class, kryo.getSerializer(Edge.class).getClass());
+
+        // Properties
+        assertTrue(kryo.getRegistration(Properties.class).getId() > 0);
+
+        // FreqMap
+        assertTrue(kryo.getRegistration(FreqMap.class).getId() > 0);
+
+        // HyperLogLogPlus
+        assertEquals(HyperLogLogPlusKryoSerialiser.class, kryo.getSerializer(HyperLogLogPlus.class).getClass());
     }
 }
