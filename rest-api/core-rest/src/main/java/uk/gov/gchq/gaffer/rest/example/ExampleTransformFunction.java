@@ -16,20 +16,11 @@
 
 package uk.gov.gchq.gaffer.rest.example;
 
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.function.KorypheFunction;
 
-@Inputs(Object.class)
-@Outputs(String.class)
-public class ExampleTransformFunction extends TransformFunction {
+public class ExampleTransformFunction extends KorypheFunction<Object, String> {
     @Override
-    public Object[] transform(final Object[] input) {
-        return new Object[]{input[0].toString() + " transformed"};
-    }
-
-    @Override
-    public ExampleTransformFunction statelessClone() {
-        return new ExampleTransformFunction();
+    public String apply(final Object input) {
+        return input.toString() + " transformed";
     }
 }

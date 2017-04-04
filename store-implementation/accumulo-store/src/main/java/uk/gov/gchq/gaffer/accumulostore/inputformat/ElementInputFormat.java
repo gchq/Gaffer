@@ -97,7 +97,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
                     if (viewDef != null) {
                         final ElementTransformer transformer = viewDef.getTransformer();
                         if (transformer != null) {
-                            transformer.transform(currentK);
+                            transformer.apply(currentK);
                         }
                     }
                     currentV = NullWritable.get();

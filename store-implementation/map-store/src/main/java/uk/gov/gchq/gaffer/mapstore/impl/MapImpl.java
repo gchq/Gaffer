@@ -17,13 +17,12 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,10 +40,10 @@ public class MapImpl {
     // elementToProperties maps from an Element containing the group-by properties to a Properties object without the
     // group-by properties
     Map<Element, Properties> elementToProperties;
-    // entitySeedToElements is a map from an EntitySeed to the element key from elementToProperties
-    Map<EntitySeed, Set<Element>> entitySeedToElements;
-    // edgeSeedToElements is a map from an EdgeSeed to the element key from elementToProperties
-    Map<EdgeSeed, Set<Element>> edgeSeedToElements;
+    // entityIdToElements is a map from an EntityId to the element key from elementToProperties
+    Map<EntityId, Set<Element>> entityIdToElements;
+    // edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
+    Map<EdgeId, Set<Element>> edgeIdToElements;
     final boolean maintainIndex;
     final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
@@ -56,8 +55,8 @@ public class MapImpl {
         try {
             elementToProperties = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
             if (maintainIndex) {
-                entitySeedToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-                edgeSeedToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
+                entityIdToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
+                edgeIdToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
             }
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Exception instantiating map of class " + mapStoreProperties.getMapClass(), e);

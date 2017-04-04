@@ -20,15 +20,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>HyperLogLogPlus</code> is a {@link SimpleFilterFunction} that simply checks that the input
+ * An <code>HyperLogLogPlus</code> is a {@link java.util.function.Predicate} that simply checks that the input
  * {@link HyperLogLogPlus} cardinality is less than a control value.
  */
-@Inputs(HyperLogLogPlus.class)
-public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogPlus> {
+public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus> {
     private long controlValue;
     private boolean orEqualTo;
 
@@ -63,12 +61,7 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
     }
 
     @Override
-    public HyperLogLogPlusIsLessThan statelessClone() {
-        return new HyperLogLogPlusIsLessThan(controlValue, orEqualTo);
-    }
-
-    @Override
-    public boolean isValid(final HyperLogLogPlus input) {
+    public boolean test(final HyperLogLogPlus input) {
         if (input == null) {
             return false;
         }
@@ -98,7 +91,6 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
         final HyperLogLogPlusIsLessThan that = (HyperLogLogPlusIsLessThan) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(controlValue, that.controlValue)
                 .append(orEqualTo, that.orEqualTo)
                 .isEquals();
@@ -107,7 +99,6 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(controlValue)
                 .append(orEqualTo)
                 .toHashCode();
@@ -116,7 +107,6 @@ public class HyperLogLogPlusIsLessThan extends SimpleFilterFunction<HyperLogLogP
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("controlValue", controlValue)
                 .append("orEqualTo", orEqualTo)
                 .toString();

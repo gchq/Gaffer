@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {

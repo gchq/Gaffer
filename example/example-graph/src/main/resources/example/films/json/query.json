@@ -1,13 +1,13 @@
 {
   "operations": [
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds",
       "view": {
         "edges": {
           "viewing": {}
         }
       },
-      "seeds": [
+      "input": [
         {
           "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
           "vertex": "user02"
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEntities",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
       "view": {
         "entities": {
           "review": {

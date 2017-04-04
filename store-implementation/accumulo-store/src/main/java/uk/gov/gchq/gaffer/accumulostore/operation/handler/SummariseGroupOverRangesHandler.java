@@ -21,30 +21,27 @@ import uk.gov.gchq.gaffer.accumulostore.key.IteratorSettingFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloRangeIDRetriever;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class SummariseGroupOverRangesHandler
-        implements OperationHandler<SummariseGroupOverRanges<Pair<ElementSeed>, Element>, CloseableIterable<Element>> {
+public class SummariseGroupOverRangesHandler implements OutputOperationHandler<SummariseGroupOverRanges, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<Element> doOperation(final SummariseGroupOverRanges<Pair<ElementSeed>, Element> operation,
-                                         final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final SummariseGroupOverRanges<Pair<ElementSeed>, Element> operation,
-                                         final User user,
-                                         final AccumuloStore store) throws OperationException {
+    public CloseableIterable<? extends Element> doOperation(final SummariseGroupOverRanges operation,
+                                                            final User user,
+                                                            final AccumuloStore store) throws OperationException {
         final int numEdgeGroups = operation.getView().getEdgeGroups().size();
         final int numEntityGroups = operation.getView().getEntityGroups().size();
         if ((numEdgeGroups + numEntityGroups) != 1) {
@@ -60,13 +57,13 @@ public class SummariseGroupOverRangesHandler
 
         final IteratorSettingFactory itrFactory = store.getKeyPackage().getIteratorFactory();
         try {
-            return new AccumuloRangeIDRetriever(store, operation, user,
+            return new AccumuloRangeIDRetriever<>(store, operation, user,
                     itrFactory.getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getElementPropertyRangeQueryFilter(operation),
                     itrFactory.getRowIDAggregatorIteratorSetting(store, columnFamily));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }

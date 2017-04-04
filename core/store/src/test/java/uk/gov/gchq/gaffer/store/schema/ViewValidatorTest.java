@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,10 +39,10 @@ public class ViewValidatorTest {
         final Schema schema = new Schema();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -61,10 +62,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -84,10 +85,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
 
@@ -110,10 +111,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -125,8 +126,8 @@ public class ViewValidatorTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -138,10 +139,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -152,8 +153,8 @@ public class ViewValidatorTest {
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -167,22 +168,22 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnTrueWhenEntityTransformerIsValid() {
+    public void shouldValidateAndReturnTrueWhenEntityTransformerResult() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -198,10 +199,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
 
@@ -222,10 +223,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -244,10 +245,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -269,10 +270,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -284,8 +285,8 @@ public class ViewValidatorTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -296,10 +297,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -310,8 +311,8 @@ public class ViewValidatorTest {
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -325,22 +326,22 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
-    public void shouldValidateAndReturnTrueWhenEdgeTransformerIsValid() {
+    public void shouldValidateAndReturnTrueWhenEdgeTransformerResult() {
         // Given
         final ViewValidator validator = new ViewValidator();
         final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .build())
                 .build();
@@ -356,10 +357,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -384,10 +385,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -409,10 +410,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -456,10 +457,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -498,10 +499,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -542,10 +543,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, true);
+        final ValidationResult result = validator.validate(view, schema, true);
 
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
     @Test
@@ -557,8 +558,8 @@ public class ViewValidatorTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .postTransformFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.PROP_3)
@@ -575,10 +576,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
 
         // Then
-        assertTrue(isValid);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -590,8 +591,8 @@ public class ViewValidatorTest {
                         .transientProperty(TestPropertyNames.PROP_3, String.class)
                         .transformer(new ElementTransformer.Builder()
                                 .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                                .project(TestPropertyNames.PROP_3)
                                 .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
                                 .build())
                         .postTransformFilter(new ElementFilter.Builder()
                                 .select(TestPropertyNames.TRANSIENT_1)
@@ -608,9 +609,10 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final boolean isValid = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, false);
+
         // Then
-        assertFalse(isValid);
+        assertFalse(result.isValid());
     }
 
 }

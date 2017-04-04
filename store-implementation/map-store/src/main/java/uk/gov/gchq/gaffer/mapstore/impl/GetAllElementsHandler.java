@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,18 +37,18 @@ import java.util.stream.Stream;
 import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 
 /**
- * An {@link OperationHandler} for the {@link GetAllElements} operation on the {@link MapStore}.
+ * An {@link OutputOperationHandler} for the {@link GetAllElements} operation on the {@link MapStore}.
  */
-public class GetAllElementsHandler implements OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> {
+public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<Element> doOperation(final GetAllElements<Element> operation,
-                                                  final Context context,
-                                                  final Store store) throws OperationException {
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
+                                                            final Context context,
+                                                            final Store store) throws OperationException {
         return doOperation(operation, (MapStore) store);
     }
 
-    private CloseableIterable<Element> doOperation(final GetAllElements<Element> operation, final MapStore mapStore) {
+    private CloseableIterable<Element> doOperation(final GetAllElements operation, final MapStore mapStore) {
         return new AllElementsIterable(mapStore.getMapImpl(), operation);
     }
 
@@ -82,15 +81,11 @@ public class GetAllElementsHandler implements OperationHandler<GetAllElements<El
                     })
                     .flatMap(x -> x.stream());
             final Stream<Element> elementsAfterIncludeEntitiesEdgesOption = GetElementsHandler.
-                    applyIncludeEntitiesEdgesOptions(elements, getAllElements.isIncludeEntities(),
-                            getAllElements.getIncludeEdges());
+                    applyIncludeEntitiesEdgesOptions(elements, getAllElements.getView().hasEntities(),
+                            getAllElements.getView().hasEdges(), getAllElements.getDirectedType());
             final Stream<Element> afterView = GetElementsHandler
                     .applyView(elementsAfterIncludeEntitiesEdgesOption, mapImpl.schema, getAllElements.getView());
             final Stream<Element> clonedElements = afterView.map(element -> ElementCloner.cloneElement(element, mapImpl.schema));
-            if (!getAllElements.isPopulateProperties()) {
-                // If populateProperties option is false then remove all properties
-                return new WrappedCloseableIterator<>(clonedElements.map(e -> e.emptyClone()).iterator());
-            }
             return new WrappedCloseableIterator<>(clonedElements.iterator());
         }
     }

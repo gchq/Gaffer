@@ -40,7 +40,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
             final Class<?> elementConverterClass = Class.forName(converterClass);
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
                     .newInstance(schema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
         }

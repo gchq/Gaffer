@@ -17,23 +17,24 @@
 package uk.gov.gchq.gaffer.store.operation.handler.export;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
 import uk.gov.gchq.gaffer.operation.impl.export.GetExports;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class GetExportsHandler implements OperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
+public class GetExportsHandler implements OutputOperationHandler<GetExports, Map<String, CloseableIterable<?>>> {
     @Override
     public Map<String, CloseableIterable<?>> doOperation(final GetExports getExports, final Context context, final Store store) throws OperationException {
         final Map<String, CloseableIterable<?>> exports = new LinkedHashMap<>();
         for (final GetExport getExport : getExports.getGetExports()) {
-            final CloseableIterable<?> export = store._execute(new OperationChain<>(getExport), context);
-            exports.put(getExport.getClass().getName() + ": " + getExport.getKey(), export);
+            final CloseableIterable<?> export = (CloseableIterable<?>) store._execute(new OperationChain((Operation) getExport), context);
+            exports.put(getExport.getClass().getName() + ": " + getExport.getKeyOrDefault(), export);
         }
 
         return exports;

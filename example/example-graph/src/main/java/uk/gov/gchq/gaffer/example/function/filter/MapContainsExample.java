@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.function.filter.MapContains;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapContainsExample extends FilterFunctionExample {
+public class MapContainsExample extends PredicateExample {
     private final Map<String, String> map = new HashMap<>();
     final Map<String, String> mapNoA = new HashMap<>();
     final Map<String, String> mapNullA = new HashMap<>();

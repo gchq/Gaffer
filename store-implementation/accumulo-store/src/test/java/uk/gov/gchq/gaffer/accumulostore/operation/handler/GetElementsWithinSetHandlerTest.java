@@ -35,9 +35,9 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -72,7 +72,7 @@ public class GetElementsWithinSetHandlerTest {
     private static Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
     private static Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
     private static Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    final Set<EntitySeed> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
+    final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
     private User user = new User();
 
@@ -145,13 +145,13 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
         assertEquals(5, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
         elements.close();
     }
 
@@ -177,31 +177,28 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
         elements.close();
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEdgesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEdgesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEdgesWhenViewContainsNoEntitiesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEdgesWhenViewContainsNoEntities(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEdgesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final View view = new View.Builder(defaultView)
-                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
-                        .groupBy()
-                        .build())
+    private void shouldReturnOnlyEdgesWhenViewContainsNoEntities(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
                 .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .groupBy()
                         .build())
@@ -209,40 +206,43 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(view, seeds);
-        operation.setIncludeEntities(false);
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         final Collection<Element> forTest = new LinkedList<>();
         Iterables.addAll(forTest, elements);
 
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
         elements.close();
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetByteEntityStore() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(byteEntityStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesByteEntityStore() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(byteEntityStore);
     }
 
     @Test
-    public void shouldReturnOnlyEntitiesWhenOptionSetGaffer1Store() throws OperationException {
-        shouldReturnOnlyEntitiesWhenOptionSet(gaffer1KeyStore);
+    public void shouldReturnOnlyEntitiesWhenViewContainsNoEdgesGaffer1Store() throws OperationException {
+        shouldReturnOnlyEntitiesWhenViewContainsNoEdges(gaffer1KeyStore);
     }
 
-    private void shouldReturnOnlyEntitiesWhenOptionSet(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet<>(defaultView, seeds);
-        operation.setIncludeEdges(IncludeEdgeType.NONE);
+    private void shouldReturnOnlyEntitiesWhenViewContainsNoEdges(final AccumuloStore store) throws OperationException {
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
-        final CloseableIterable<Element> elements = handler.doOperation(operation, user, store);
+        final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
-        assertThat(elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
         elements.close();
     }
 
@@ -304,15 +304,15 @@ public class GetElementsWithinSetHandlerTest {
             }
             final User user = new User();
             addElements(data, user, store);
-        } catch (TableExistsException | StoreException e) {
+        } catch (final TableExistsException | StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
 
     private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
         try {
-            store.execute(new AddElements(data), user);
-        } catch (OperationException e) {
+            store.execute(new AddElements.Builder().input(data).build(), user);
+        } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

@@ -22,14 +22,14 @@ import java.io.File;
 
 public class CommonTestConstants {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CommonTestConstants.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommonTestConstants.class);
     public static File TMP_DIRECTORY;
 
     static {
         final String tmpDirectoryProperty = System.getProperty("java.io.tmpdir");
 
         if (null != tmpDirectoryProperty) {
-            TMP_DIRECTORY =  new File(tmpDirectoryProperty);
+            TMP_DIRECTORY = new File(tmpDirectoryProperty);
         } else {
             LOGGER.warn("Could not determine default temporary directory, using current directory.");
             TMP_DIRECTORY = new File(".");

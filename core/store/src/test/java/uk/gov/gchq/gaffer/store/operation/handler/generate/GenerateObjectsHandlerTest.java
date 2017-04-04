@@ -17,14 +17,14 @@
 package uk.gov.gchq.gaffer.store.operation.handler.generate;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import java.util.Iterator;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
@@ -37,20 +37,19 @@ public class GenerateObjectsHandlerTest {
         // Given
         final GenerateObjectsHandler<String> handler = new GenerateObjectsHandler<>();
         final Store store = mock(Store.class);
-        final GenerateObjects<Element, String> operation = mock(GenerateObjects.class);
-        final CloseableIterable<Element> elements = mock(CloseableIterable.class);
-        final ElementGenerator<String> elementGenerator = mock(ElementGenerator.class);
-        final CloseableIterable<String> objs = mock(CloseableIterable.class);
+        final GenerateObjects<String> operation = mock(GenerateObjects.class);
+        final Iterable elements = mock(Iterable.class);
+        final Function<Iterable<? extends Element>, Iterable<? extends String>> objGenerator = mock(ObjectGenerator.class);
+        final Iterable objs = mock(Iterable.class);
         final Context context = new Context();
-
-        final CloseableIterator<String> objsIter = mock(CloseableIterator.class);
+        final Iterator objsIter = mock(Iterator.class);
         given(objs.iterator()).willReturn(objsIter);
-        given(elementGenerator.getObjects(elements)).willReturn(objs);
-        given(operation.getElements()).willReturn(elements);
-        given(operation.getElementGenerator()).willReturn(elementGenerator);
+        given(objGenerator.apply(elements)).willReturn(objs);
+        given(operation.getInput()).willReturn(elements);
+        given(operation.getElementGenerator()).willReturn(objGenerator);
 
         // When
-        final CloseableIterable<String> result = handler.doOperation(operation, context, store);
+        final Iterable<? extends String> result = handler.doOperation(operation, context, store);
 
         // Then
         assertSame(objsIter, result.iterator());

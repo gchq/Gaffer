@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -29,7 +28,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         new LoadAndQuery3().run();
     }
 
-    public CloseableIterable<Edge> run() throws OperationException {
+    public CloseableIterable<?extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -55,7 +54,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final List<Element> elements = new ArrayList<>();
         final DataGenerator3 dataGenerator = new DataGenerator3();
         for (final String s : DataUtils.loadData(getData())) {
-            elements.add(dataGenerator.getElement(s));
+            elements.add(dataGenerator._apply(s));
         }
         // ---------------------------------------------------------
         log("Elements generated from the data file.");
@@ -77,20 +76,20 @@ public class LoadAndQuery3 extends LoadAndQuery {
         // [add] add the edges to the graph
         // ---------------------------------------------------------
         final AddElements addElements = new AddElements.Builder()
-                .elements(elements)
+                .input(elements)
                 .build();
         graph.execute(addElements, user);
         // ---------------------------------------------------------
         log("The elements have been added.\n");
 
 
-        log("\nAll edges containing the vertex 1. The counts have been aggregated\n");
+        log("\nAll elements related to vertex 1. The counts have been aggregated\n");
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetEdges<EntitySeed> getRelatedEdges = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedElement = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<Edge> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<?extends Element> results = graph.execute(getRelatedElement, user);
         // ---------------------------------------------------------
         for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
@@ -107,11 +106,11 @@ public class LoadAndQuery3 extends LoadAndQuery {
                                 .build())
                         .build())
                 .build();
-        final GetEdges<EntitySeed> getRelatedEdgesWithCountMoreThan3 = new GetEdges.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("1"))
+        final GetElements getRelatedEdgesWithCountMoreThan3 = new GetElements.Builder()
+                .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<Edge> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
+        final CloseableIterable<?extends Element> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
         for (final Element e : filteredResults) {

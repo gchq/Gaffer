@@ -84,7 +84,7 @@ public class AvroSerialiser implements Serialisation<Object> {
         }
         try {
             ReflectData.get().getSchema(clazz);
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             return false;
         }
         return true;

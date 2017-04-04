@@ -17,12 +17,9 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
 
-public class DeleteNamedOperation extends AbstractOperation<Void, Void> {
-
+public class DeleteNamedOperation implements Operation {
     private String operationName;
 
     public String getOperationName() {
@@ -33,27 +30,14 @@ public class DeleteNamedOperation extends AbstractOperation<Void, Void> {
         this.operationName = operationName;
     }
 
-    @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
-    }
-
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<DeleteNamedOperation, Void, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    public static class Builder extends Operation.BaseBuilder<DeleteNamedOperation, Builder> {
+        public Builder() {
             super(new DeleteNamedOperation());
         }
 
-        public CHILD_CLASS name(final String name) {
-            getOp().setOperationName(name);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder name(final String name) {
+            _getOp().setOperationName(name);
+            return _self();
         }
     }
 }

@@ -21,13 +21,14 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.5-SNAPSHOT</version>
+    <version>0.6.7-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
     <url>https://github.com/gchq/Gaffer</url>
 
     <modules>
+        <module>koryphe</module>
         <module>rest-api</module>
         <module>core</module>
         <module>integration-test</module>

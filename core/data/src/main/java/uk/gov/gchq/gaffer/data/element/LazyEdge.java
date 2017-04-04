@@ -94,6 +94,17 @@ public class LazyEdge extends Edge {
     }
 
     @Override
+    public Object getIdentifier(final IdentifierType name) {
+        return lazyLoadIdentifier(edge.getIdentifier(name), name);
+    }
+
+    @Override
+    public void putIdentifier(final IdentifierType name, final Object value) {
+        edge.putIdentifier(name, value);
+        loadedIdentifiers.add(name);
+    }
+
+    @Override
     public void putProperty(final String name, final Object value) {
         lazyProperties.put(name, value);
     }

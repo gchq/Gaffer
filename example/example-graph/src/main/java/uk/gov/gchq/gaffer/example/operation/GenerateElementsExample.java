@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -40,10 +39,10 @@ public class GenerateElementsExample extends OperationExample {
         generateElementsFromDomainObjects();
     }
 
-    public CloseableIterable<Element> generateElementsFromStrings() {
+    public Iterable<? extends Element> generateElementsFromStrings() {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
-                .objects(Arrays.asList("1,1", "1,2,1"))
+                .input(Arrays.asList("1,1", "1,2,1"))
                 .generator(new DataGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -51,10 +50,10 @@ public class GenerateElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> generateElementsFromDomainObjects() {
+    public Iterable<? extends Element> generateElementsFromDomainObjects() {
         // ---------------------------------------------------------
         final GenerateElements<Object> operation = new GenerateElements.Builder<>()
-                .objects(Arrays.asList(
+                .input(Arrays.asList(
                         new DomainObject1(1, 1),
                         new DomainObject2(1, 2, 1)))
                 .generator(new DomainObjectGenerator())
@@ -132,9 +131,9 @@ public class GenerateElementsExample extends OperationExample {
         }
     }
 
-    public static class DomainObjectGenerator extends OneToOneElementGenerator<Object> {
+    public static class DomainObjectGenerator implements OneToOneElementGenerator<Object> {
         @Override
-        public Element getElement(final Object domainObject) {
+        public Element _apply(final Object domainObject) {
             if (domainObject instanceof DomainObject1) {
                 final DomainObject1 obj1 = (DomainObject1) domainObject;
                 return new Entity.Builder()
@@ -154,11 +153,6 @@ public class GenerateElementsExample extends OperationExample {
             } else {
                 throw new IllegalArgumentException("Unsupported domain object");
             }
-        }
-
-        @Override
-        public Object getObject(final Element element) {
-            throw new UnsupportedOperationException("Getting objects is not supported");
         }
     }
 }

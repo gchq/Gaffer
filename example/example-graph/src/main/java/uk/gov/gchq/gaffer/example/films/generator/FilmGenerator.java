@@ -19,29 +19,17 @@ package uk.gov.gchq.gaffer.example.films.generator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.example.films.data.Certificate;
 import uk.gov.gchq.gaffer.example.films.data.Film;
 import uk.gov.gchq.gaffer.example.films.data.schema.Group;
 import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 
-public class FilmGenerator extends OneToOneElementGenerator<Film> {
+public class FilmGenerator implements OneToOneElementGenerator<Film> {
     @Override
-    public Element getElement(final Film film) {
+    public Element _apply(final Film film) {
         final Entity entity = new Entity(Group.FILM, film.getFilmId());
         entity.putProperty(Property.NAME, film.getName());
         entity.putProperty(Property.CERTIFICATE, film.getCertificate());
 
         return entity;
-    }
-
-    @Override
-    public Film getObject(final Element element) {
-        if (Group.FILM.equals(element.getGroup()) && element instanceof Entity) {
-            return new Film(((Entity) element).getVertex().toString(),
-                    element.getProperty(Property.NAME).toString(),
-                    (Certificate) element.getProperty(Property.CERTIFICATE));
-        }
-
-        throw new UnsupportedOperationException("Cannot generate Film object from " + element);
     }
 }

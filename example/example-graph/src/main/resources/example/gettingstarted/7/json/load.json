@@ -5,7 +5,7 @@
       "elementGenerator": {
         "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator7"
       },
-      "objects": [
+      "input": [
         "1,2",
         "1,2",
         "1,2",

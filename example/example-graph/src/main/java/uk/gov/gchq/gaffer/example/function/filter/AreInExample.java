@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AreInExample extends FilterFunctionExample {
+public class AreInExample extends PredicateExample {
     public static void main(final String[] args) {
         new AreInExample().run();
     }

@@ -84,7 +84,7 @@ public class GafferResultCacheExporterTest {
         verify(store).execute(opChain.capture(), Mockito.eq(user));
         assertEquals(1, opChain.getValue().getOperations().size());
         final AddElements addElements = (AddElements) opChain.getValue().getOperations().get(0);
-        final List<Element> elements = Lists.newArrayList(addElements.getElements());
+        final List<Element> elements = Lists.newArrayList(addElements.getInput());
         final Object timestamp = elements.get(0).getProperty("timestamp");
         final List<Element> expectedElements = createCachedEdges(timestamp, elements.get(0).getProperty("result"), elements.get(1).getProperty("result"), null);
         assertEquals(expectedElements, elements);
@@ -188,7 +188,7 @@ public class GafferResultCacheExporterTest {
     private static byte[] serialise(final Object item) {
         try {
             return SERIALISER.serialise(item);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException(e);
         }
     }

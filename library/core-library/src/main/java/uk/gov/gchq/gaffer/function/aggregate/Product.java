@@ -15,39 +15,27 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
-
 /**
- * An <code>Min</code> is a {@link uk.gov.gchq.gaffer.function.SimpleAggregateFunction} that takes in
+ * An <code>Product</code> is a {@link java.util.function.BinaryOperator} that takes in
  * {@link Number}s of the same type and calculates the product.
  * If you know the type of number that will be used then this can be set by calling setMode(NumberType),
  * otherwise it will be automatically set for you using the class of the first number passed in.
  *
  * @see NumericAggregateFunction
  */
-@Inputs(Number.class)
-@Outputs(Number.class)
 public class Product extends NumericAggregateFunction {
     @Override
-    protected void aggregateInt(final Integer input) {
-        aggregate = (Integer) aggregate * input;
+    protected Integer aggregateInt(final Integer a, final Integer b) {
+        return a * b;
     }
 
     @Override
-    protected void aggregateLong(final Long input) {
-        aggregate = (Long) aggregate * input;
+    protected Long aggregateLong(final Long a, final Long b) {
+        return a * b;
     }
 
     @Override
-    protected void aggregateDouble(final Double input) {
-        aggregate = (Double) aggregate * input;
-    }
-
-    public Product statelessClone() {
-        Product product = new Product();
-        product.setMode(super.getMode());
-        product.init();
-        return product;
+    protected Double aggregateDouble(final Double a, final Double b) {
+        return a * b;
     }
 }

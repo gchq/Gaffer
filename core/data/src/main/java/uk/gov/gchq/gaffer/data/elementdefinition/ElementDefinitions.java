@@ -68,7 +68,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }
@@ -126,9 +126,18 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @JsonIgnore
+    public boolean hasEntities() {
+        return null != entities && !entities.isEmpty();
+    }
+
+    @JsonIgnore
+    public boolean hasEdges() {
+        return null != edges && !edges.isEmpty();
+    }
+
+    @JsonIgnore
     public boolean hasGroups() {
-        return (null != entities && !entities.isEmpty())
-                || (null != edges && !edges.isEmpty());
+        return hasEntities() || hasEdges();
     }
 
     public Map<String, EDGE_DEF> getEdges() {

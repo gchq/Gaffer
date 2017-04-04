@@ -23,9 +23,9 @@ import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResult
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.export.ExportHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 
-public class ExportToGafferResultCacheHandler extends ExportHandler<ExportToGafferResultCache, GafferResultCacheExporter> {
+public class ExportToGafferResultCacheHandler extends ExportToHandler<ExportToGafferResultCache, GafferResultCacheExporter> {
     /**
      * Time to live in milliseconds.
      */

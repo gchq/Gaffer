@@ -3,10 +3,9 @@
     {
       "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements",
       "elementGenerator": {
-        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator8",
-        "skipInvalid": false
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator8"
       },
-      "objects": [
+      "input": [
         "1,2,01/01/2016 00:00:00,public",
         "1,2,01/01/2016 00:00:00,private",
         "1,2,01/01/2016 01:00:00,public",

@@ -18,44 +18,39 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.io.Serializable;
 
-public class NamedOperation extends AbstractGetOperation<Object, Object> implements Serializable {
-    private static final long serialVersionUID = -356445124131310528L;
+public class NamedOperation<I_ITEM, O> implements
+        InputOutput<Iterable<? extends I_ITEM>, O>,
+        MultiInput<I_ITEM>,
+        OperationView {
+    private View view;
+    private Iterable<? extends I_ITEM> input;
     private String operationName;
-    private String description;
 
-    public NamedOperation() {
-        super();
+    @Override
+    public View getView() {
+        return view;
     }
 
-    public NamedOperation(final Iterable<Object> input) {
-        super(input);
+    @Override
+    public void setView(final View view) {
+        this.view = view;
     }
 
-    public NamedOperation(final CloseableIterable<Object> input) {
-        super(input);
+    @Override
+    public Iterable<? extends I_ITEM> getInput() {
+        return input;
     }
 
-    public NamedOperation(final View view) {
-        super(view);
-    }
-
-    public NamedOperation(final CloseableIterable<Object> input, final View view) {
-        super(view, input);
-    }
-
-    public NamedOperation(final String operationName, final String description) {
-        super();
-        this.operationName = operationName;
-        this.description = description;
+    @Override
+    public void setInput(final Iterable<? extends I_ITEM> input) {
+        this.input = input;
     }
 
     public String getOperationName() {
@@ -66,69 +61,22 @@ public class NamedOperation extends AbstractGetOperation<Object, Object> impleme
         this.operationName = operationName;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+    public TypeReference<O> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    public static class Builder<I_ITEM, O> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
+            implements InputOutput.Builder<NamedOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
+            MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>>,
+            OperationView.Builder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>> {
+        public Builder() {
+            super(new NamedOperation<>());
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final NamedOperation op = (NamedOperation) o;
-
-        return new EqualsBuilder()
-                .append(operationName, op.operationName)
-                .append(description, op.description)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(operationName)
-                .append(description)
-                .hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("operationName", operationName)
-                .append("description", description)
-                .toString();
-    }
-
-    @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Object();
-    }
-
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractGetOperation.BaseBuilder<NamedOperation, Object, Object, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new NamedOperation());
-        }
-
-        public CHILD_CLASS name(final String name) {
-            getOp().setOperationName(name);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder<I_ITEM, O> name(final String name) {
+            _getOp().setOperationName(name);
+            return _self();
         }
     }
 }

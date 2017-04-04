@@ -21,11 +21,11 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.operation.OperationExample;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
@@ -74,17 +74,15 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         log("#### get Java RDD of elements\n");
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
-        final GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()
-                .addSeed(new EdgeSeed(1, 2, true))
-                .addSeed(new EdgeSeed(2, 3, true))
+        final GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()
+                .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
                 .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
-        printJava("GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
+        printJava("GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()\n"
+                + "                .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))\n"
                 + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
@@ -103,19 +101,21 @@ public class GetJavaRDDOfElementsExample extends OperationExample {
         log("#### get Java RDD of elements returning edges only\n");
         printGraph();
         ROOT_LOGGER.setLevel(Level.OFF);
-        final GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()
-                .addSeed(new EdgeSeed(1, 2, true))
-                .addSeed(new EdgeSeed(2, 3, true))
-                .includeEntities(false)
+        final GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()
+                .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))
+                .view(new View.Builder()
+                        .edge("edge")
+                        .build())
                 .javaSparkContext(sc)
                 .build();
         final JavaRDD<Element> rdd = graph.execute(operation, new User("user01"));
         final List<Element> elements = rdd.collect();
         ROOT_LOGGER.setLevel(Level.INFO);
-        printJava("GetJavaRDDOfElements<ElementSeed> operation = new GetJavaRDDOfElements.Builder<>()\n"
-                + "                .addSeed(new EdgeSeed(1, 2, true))\n"
-                + "                .addSeed(new EdgeSeed(2, 3, true))\n"
-                + "                .includeEntities(false)\n"
+        printJava("GetJavaRDDOfElements operation = new GetJavaRDDOfElements.Builder()\n"
+                + "                .input(new EdgeSeed(1, 2, true), new EdgeSeed(2, 3, true))\n"
+                + "                .view(new View.Builder()\n" +
+                "                        .edge(\"edge\")\n" +
+                "                        .build())\n"
                 + "                .javaSparkContext(sc)\n"
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"

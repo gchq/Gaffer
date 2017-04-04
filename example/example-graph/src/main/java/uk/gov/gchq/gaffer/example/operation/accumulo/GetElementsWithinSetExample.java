@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.example.operation.accumulo;
 
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -38,24 +39,20 @@ public class GetElementsWithinSetExample extends OperationExample {
         getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2();
     }
 
-    public Iterable<Element> getElementsWithinSetOfVertices1And2And3() {
+    public CloseableIterable<? extends Element> getElementsWithinSetOfVertices1And2And3() {
         // ---------------------------------------------------------
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EntitySeed(3))
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .input(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3))
                 .build();
         // ---------------------------------------------------------
 
         return runExample(operation);
     }
 
-    public Iterable<Element> getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2() {
+    public CloseableIterable<? extends Element> getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2() {
         // ---------------------------------------------------------
-        final GetElementsWithinSet<Element> operation = new GetElementsWithinSet.Builder<>()
-                .addSeed(new EntitySeed(1))
-                .addSeed(new EntitySeed(2))
-                .addSeed(new EntitySeed(3))
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .input(new EntitySeed(1), new EntitySeed(2), new EntitySeed(3))
                 .view(new View.Builder()
                         .entity("entity", new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()

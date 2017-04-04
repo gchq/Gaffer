@@ -1,9 +1,9 @@
 {
   "operations": [
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds",
       "includeIncomingOutGoing": "OUTGOING",
-      "seeds": [
+      "input": [
         {
           "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
           "vertex": "1"
@@ -11,13 +11,13 @@
       ]
     },
     {
-      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetEdges",
+      "class": "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
       "includeIncomingOutGoing": "OUTGOING"
     },
     {
       "class": "uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects",
       "elementGenerator": {
-        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator6"
+        "class": "uk.gov.gchq.gaffer.example.gettingstarted.generator.ObjectGenerator6"
       }
     }
   ]

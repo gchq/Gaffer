@@ -21,18 +21,13 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class MapGenerator extends OneToOneElementGenerator<Map<String, Object>> {
+public class MapGenerator implements OneToOneObjectGenerator<Map<String, Object>> {
     public static final String GROUP = "GROUP";
     private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
     private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
     @Override
-    public Element getElement(final Map<String, Object> map) {
-        throw new UnsupportedOperationException("Generating elements is not supported");
-    }
-
-    @Override
-    public Map<String, Object> getObject(final Element element) {
+    public Map<String, Object> _apply(final Element element) {
         final Map<String, Object> map = new LinkedHashMap<>(fields.size() + constants.size());
         for (final Map.Entry<String, String> entry : fields.entrySet()) {
             final Object value = getFieldValue(element, entry.getKey());

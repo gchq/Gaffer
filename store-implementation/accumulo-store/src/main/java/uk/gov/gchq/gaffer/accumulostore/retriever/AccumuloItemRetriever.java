@@ -28,10 +28,14 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.HashSet;
@@ -40,22 +44,22 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation<? extends SEED_TYPE, ?>, SEED_TYPE>
-        extends AccumuloRetriever<OP_TYPE> {
+public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options, I_ITEM>
+        extends AccumuloRetriever<OP> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
-    private final Iterable<? extends SEED_TYPE> ids;
+    private final Iterable<? extends I_ITEM> ids;
 
-    protected AccumuloItemRetriever(final AccumuloStore store, final OP_TYPE operation,
+    protected AccumuloItemRetriever(final AccumuloStore store, final OP operation,
                                     final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
-        this.ids = operation.getSeeds();
+        this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
     }
 
     @Override
     public CloseableIterator<Element> iterator() {
-        final Iterator<? extends SEED_TYPE> idIterator = null != ids ? ids.iterator() : Iterators.<SEED_TYPE>emptyIterator();
+        final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
         }
@@ -70,16 +74,16 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
         return iterator;
     }
 
-    protected abstract void addToRanges(final SEED_TYPE seed, final Set<Range> ranges) throws RangeFactoryException;
+    protected abstract void addToRanges(final I_ITEM seed, final Set<Range> ranges) throws RangeFactoryException;
 
     protected class ElementIterator implements CloseableIterator<Element> {
-        private final Iterator<? extends SEED_TYPE> idsIterator;
+        private final Iterator<? extends I_ITEM> idsIterator;
         private int count;
         private BatchScanner scanner;
         private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
 
-        protected ElementIterator(final Iterator<? extends SEED_TYPE> idIterator) throws RetrieverException {
+        protected ElementIterator(final Iterator<? extends I_ITEM> idIterator) throws RetrieverException {
             idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
@@ -96,7 +100,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
             // iterators, etc).
             try {
                 scanner = getScanner(ranges);
-            } catch (TableNotFoundException | StoreException e) {
+            } catch (final TableNotFoundException | StoreException e) {
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();
@@ -111,7 +115,9 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
             while (scannerIterator.hasNext()) {
                 final Entry<Key, Value> entry = scannerIterator.next();
                 try {
-                    nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
+                    nextElm = elementConverter.getFullElement(
+                            entry.getKey(),
+                            entry.getValue(),
                             operation.getOptions());
                 } catch (final AccumuloElementConversionException e) {
                     LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
@@ -143,7 +149,7 @@ public abstract class AccumuloItemRetriever<OP_TYPE extends GetElementsOperation
                 scanner.close();
                 try {
                     scanner = getScanner(ranges);
-                } catch (TableNotFoundException | StoreException e) {
+                } catch (final TableNotFoundException | StoreException e) {
                     LOGGER.error(e.getMessage() + " returning iterator doesn't have any more elements", e);
                     return false;
                 }

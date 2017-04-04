@@ -51,7 +51,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -256,12 +256,18 @@ public class RowIdAggregatorTest {
             final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 fail(e.getMessage());
             }
             final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
-            final Range r = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("1")), new EntitySeed("4")), new SummariseGroupOverRanges());
-            final Range r2 = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("5")), new EntitySeed("5")), new SummariseGroupOverRanges());
+            final SummariseGroupOverRanges summariseGroupOverRanges = new SummariseGroupOverRanges.Builder()
+                    .view(new View.Builder()
+                            .edge("BasicEdge2")
+                            .entity("BasicEntity")
+                            .build())
+                    .build();
+            final Range r = rangeF.getRangeFromPair(new Pair<>((new EntitySeed("1")), new EntitySeed("4")), summariseGroupOverRanges);
+            final Range r2 = rangeF.getRangeFromPair(new Pair<>((new EntitySeed("5")), new EntitySeed("5")), summariseGroupOverRanges);
             scanner.setRanges(Arrays.asList(r, r2));
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
@@ -292,7 +298,7 @@ public class RowIdAggregatorTest {
             if (it.hasNext()) {
                 fail("Additional row found.");
             }
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableExistsException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }
