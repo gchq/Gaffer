@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -32,7 +33,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,7 +55,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(Collections.emptySet(), resultsSet);
     }
 
@@ -76,7 +76,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<EntityId> expectedResults = new HashSet<>();
         GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
@@ -101,7 +101,7 @@ public class GetAdjacentIdsTest {
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(expectedResults, resultsSet);
 
         // When - query for A and Y2
@@ -112,7 +112,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
@@ -155,7 +155,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<EntityId> expectedResults = new HashSet<>();
         GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
@@ -204,7 +204,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<EntityId> expectedResults = new HashSet<>();
         GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)
@@ -254,7 +254,7 @@ public class GetAdjacentIdsTest {
 
         // Then
         final Set<EntityId> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<EntityId> expectedResults = new HashSet<>();
         GetAllElementsHandlerTest.getElements().stream()
                 .filter(element -> element instanceof Edge)

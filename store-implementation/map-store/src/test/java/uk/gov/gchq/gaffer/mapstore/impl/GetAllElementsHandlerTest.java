@@ -19,6 +19,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -43,7 +44,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,12 +71,12 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(new HashSet<>(getElements()), resultsSet);
 
         // Repeat to ensure iterator can be consumed twice
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         assertEquals(new HashSet<>(getElements()), resultsSet);
     }
 
@@ -95,7 +95,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         final Entity entity = new Entity(BASIC_ENTITY, "0");
         entity.putProperty(PROPERTY1, "p");
@@ -149,7 +149,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1))
@@ -181,7 +181,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1) && ((int) e.getProperty(COUNT)) > 5)
@@ -213,7 +213,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
                 .filter(e -> e.getGroup().equals(BASIC_EDGE1) && ((int) e.getProperty(COUNT)) > 5)
@@ -242,7 +242,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
                 .filter(e -> e instanceof Edge)
@@ -261,7 +261,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         getElements().forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
@@ -284,7 +284,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().forEach(expectedResults::add);
         assertEquals(expectedResults, resultsSet);
@@ -299,7 +299,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         getElements().stream()
                 .filter(element -> element instanceof Entity)
@@ -314,7 +314,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         getElements().stream()
                 .filter(element -> element instanceof Entity || ((Edge) element).isDirected())
@@ -329,7 +329,7 @@ public class GetAllElementsHandlerTest {
 
         // Then
         resultsSet.clear();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         expectedResults.clear();
         getElements().stream()
                 .filter(element -> element instanceof Entity || !((Edge) element).isDirected())
