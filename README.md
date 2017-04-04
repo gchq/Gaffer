@@ -80,3 +80,13 @@ This will include all other mandatory dependencies. Other (optional) components 
 Our Javadoc can be found [here](http://gchq.github.io/Gaffer/).
 
 We have some user guides on our [wiki](https://github.com/gchq/Gaffer/wiki). 
+
+### Contributing
+
+We have some detailed information on our ways of working [pages].(https://github.com/gchq/Gaffer/wiki/Ways-of-Working)
+
+But in brief:
+
+- Sign the [GCHQ Contributor Licence Agreement](https://github.com/gchq/Gaffer/wiki/GCHQ-OSS-Contributor-License-Agreement-V1.0)
+ - Push your changes to your fork.
+ - Submit a pull request.
