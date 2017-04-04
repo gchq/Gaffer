@@ -83,7 +83,7 @@ We have some user guides on our [wiki](https://github.com/gchq/Gaffer/wiki).
 
 ### Contributing
 
-We have some detailed information on our ways of working [pages].(https://github.com/gchq/Gaffer/wiki/Ways-of-Working)
+We have some detailed information on our ways of working [pages](https://github.com/gchq/Gaffer/wiki/Ways-of-Working)
 
 But in brief:
 
