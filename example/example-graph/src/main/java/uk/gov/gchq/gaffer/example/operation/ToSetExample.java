@@ -35,11 +35,11 @@ public class ToSetExample extends OperationExample {
 
     @Override
     public void runExamples() {
-        withoutDeduplicatingEdges();
-        withDeduplicateEdgesChain();
+        withoutToSetOperation();
+        withToSetOperation();
     }
 
-    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
+    public CloseableIterable<? extends Element> withoutToSetOperation() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
                 .input(new EntitySeed(1), new EntitySeed(2))
@@ -49,12 +49,11 @@ public class ToSetExample extends OperationExample {
         return runExample(operation);
     }
 
-    public Set<? extends Element> withDeduplicateEdgesChain() {
+    public Set<? extends Element> withToSetOperation() {
         // ---------------------------------------------------------
         final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
-                        .input(new EntitySeed(1))
-                        .input(new EntitySeed(2))
+                        .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
                 .then(new ToSet<>())
                 .build();
