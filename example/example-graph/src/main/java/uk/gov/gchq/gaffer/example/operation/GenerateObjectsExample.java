@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 import uk.gov.gchq.gaffer.example.operation.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import java.util.Arrays;
 
 public class GenerateObjectsExample extends OperationExample {
     public static void main(final String[] args) {
@@ -41,8 +40,7 @@ public class GenerateObjectsExample extends OperationExample {
     public Iterable<? extends String> generateStringsFromElements() {
         // ---------------------------------------------------------
         final GenerateObjects<String> operation = new GenerateObjects.Builder<String>()
-                .input(Arrays.asList(
-                        new Entity.Builder()
+                .input(new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
                                 .property("count", 1)
@@ -51,7 +49,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
                                 .property("count", 1)
-                                .build()))
+                                .build())
                 .generator(new ObjectGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -62,8 +60,7 @@ public class GenerateObjectsExample extends OperationExample {
     public Iterable<?> generateDomainObjectsFromElements() {
         // ---------------------------------------------------------
         final GenerateObjects<Object> operation = new GenerateObjects.Builder<>()
-                .input(Arrays.asList(
-                        new Entity.Builder()
+                .input(new Entity.Builder()
                                 .group("entity")
                                 .vertex(6)
                                 .property("count", 1)
@@ -72,7 +69,7 @@ public class GenerateObjectsExample extends OperationExample {
                                 .group("edge")
                                 .source(5).dest(6).directed(true)
                                 .property("count", 1)
-                                .build()))
+                                .build())
                 .generator(new DomainObjectGenerator())
                 .build();
         // ---------------------------------------------------------

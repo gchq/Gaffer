@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.OperationImpl;
@@ -39,6 +38,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -66,11 +66,11 @@ public class OperationChainTest {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(0)
-                .getClass());
+                                                        .get(0)
+                                                        .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                .get(1)
-                .getClass());
+                                                        .get(1)
+                                                        .getClass());
     }
 
     @Test
@@ -88,7 +88,7 @@ public class OperationChainTest {
         final GetJobDetails getJobDetails = mock(GetJobDetails.class);
         final GenerateObjects<EntityId> generateEntitySeeds = mock(GenerateObjects.class);
         final Limit<Element> limit = mock(Limit.class);
-        final Deduplicate<Element> deduplicate = mock(Deduplicate.class);
+        final ToSet<Element> deduplicate = mock(ToSet.class);
         final CountGroups countGroups = mock(CountGroups.class);
         final ExportToSet<GroupCounts> exportToSet = mock(ExportToSet.class);
         final ExportToGafferResultCache<CloseableIterable<? extends Element>> exportToGafferCache = mock(ExportToGafferResultCache.class);

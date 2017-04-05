@@ -26,12 +26,16 @@ import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
 import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 public class GetElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -112,6 +116,29 @@ public class GetElementsTest implements OperationTest {
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
         assertEquals(seed, op.getInput().iterator().next());
+    }
+
+    @Test
+    public void shouldSetDirectedTypeToBoth() {
+        // When
+        final GetElements op = new GetElements.Builder()
+                .directedType(DirectedType.BOTH)
+                .build();
+
+        // Then
+        assertEquals(DirectedType.BOTH, op.getDirectedType());
+    }
+
+    @Test
+    public void shouldSetOptionToValue() {
+        // When
+        final GetElements op = new GetElements.Builder()
+                .option("key", "value")
+                .build();
+
+        // Then
+        assertThat(op.getOptions(), is(notNullValue()));
+        assertThat(op.getOptions().get("key"), is("value"));
     }
 
     @Test

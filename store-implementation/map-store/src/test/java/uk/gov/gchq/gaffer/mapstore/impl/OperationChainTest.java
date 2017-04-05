@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.mapstore.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -68,7 +68,7 @@ public class OperationChainTest {
 
         // Then
         final Set<Element> resultsSet = new HashSet<>();
-        StreamSupport.stream(results.spliterator(), false).forEach(resultsSet::add);
+        Streams.toStream(results).forEach(resultsSet::add);
         final Set<Element> expectedResults = new HashSet<>();
         getElements().stream()
                 .filter(e -> e instanceof Edge)

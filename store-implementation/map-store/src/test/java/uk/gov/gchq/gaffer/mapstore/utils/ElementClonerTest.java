@@ -16,12 +16,11 @@
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.impl.GetAllElementsHandlerTest;
 import uk.gov.gchq.gaffer.store.StoreException;
-
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +33,7 @@ public class ElementClonerTest {
         mapStore.initialise(GetAllElementsHandlerTest.getSchema(), new MapStoreProperties());
 
         // Then
-        StreamSupport.stream(GetAllElementsHandlerTest.getElements().spliterator(), false)
+        Streams.toStream(GetAllElementsHandlerTest.getElements())
                 .map(element -> new Pair<>(element, ElementCloner.cloneElement(element, mapStore.getSchema())))
                 .forEach(pair -> assertEquals(pair.getFirst(), pair.getSecond()));
     }

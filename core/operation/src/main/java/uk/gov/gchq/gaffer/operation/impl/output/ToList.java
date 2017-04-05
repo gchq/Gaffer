@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation.impl;
+package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.List;
 
 /**
- * A <code>Deduplicate</code> operation takes in an {@link Iterable} of items
- * and removes duplicates.
+ * A <code>ToList</code> operation takes in an {@link java.lang.Iterable} of items
+ * and converts them to a {@link java.util.List}.
  *
- * @see Deduplicate.Builder
+ * @see uk.gov.gchq.gaffer.operation.impl.output.ToList.Builder
  */
-public class Deduplicate<T> implements
+public class ToList<T> implements
         Operation,
-        InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
+        InputOutput<Iterable<? extends T>, List<? extends T>>,
         MultiInput<T> {
     private Iterable<? extends T> input;
 
@@ -45,16 +46,16 @@ public class Deduplicate<T> implements
     }
 
     @Override
-    public TypeReference<Iterable<? extends T>> getOutputTypeReference() {
-        return TypeReferenceImpl.createIterableT();
+    public TypeReference<List<? extends T>> getOutputTypeReference() {
+        return new TypeReferenceImpl.List();
     }
 
     public static final class Builder<T>
-            extends Operation.BaseBuilder<Deduplicate<T>, Builder<T>>
-            implements InputOutput.Builder<Deduplicate<T>, Iterable<? extends T>, Iterable<? extends T>, Builder<T>>,
-            MultiInput.Builder<Deduplicate<T>, T, Builder<T>> {
+            extends BaseBuilder<ToList<T>, Builder<T>>
+            implements InputOutput.Builder<ToList<T>, Iterable<? extends T>, List<? extends T>, Builder<T>>,
+            MultiInput.Builder<ToList<T>, T, Builder<T>> {
         public Builder() {
-            super(new Deduplicate<>());
+            super(new ToList<>());
         }
     }
 }

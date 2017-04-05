@@ -149,7 +149,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for "1" when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
-                .input(Collections.singleton(new EntitySeed("1")))
+                .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -297,7 +297,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for 1 -> B when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
-                .input(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())

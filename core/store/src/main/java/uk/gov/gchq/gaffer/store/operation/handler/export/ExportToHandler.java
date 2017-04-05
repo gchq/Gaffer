@@ -38,7 +38,7 @@ public abstract class ExportToHandler<EXPORT extends ExportTo, EXPORTER extends 
 
     private Iterable<?> wrapInIterable(final Object input) {
         if (null == input) {
-            return null;
+            return Collections.emptyList();
         }
 
         final Iterable inputItr;

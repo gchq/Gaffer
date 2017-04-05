@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-package uk.gov.gchq.gaffer.store.operation.handler;
-
-import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-/**
- * An <code>DeduplicateHandler</code> handles for {@link Deduplicate} operations.
- * Adds all the operation input items into a {@link java.util.LinkedHashSet} to
- * remove duplicate items.
- */
-public class DeduplicateHandler<T> implements OutputOperationHandler<Deduplicate<T>, Iterable<? extends T>> {
+public class ToEntitySeedsHandler implements OutputOperationHandler<ToEntitySeeds, Iterable<? extends EntitySeed>> {
     @Override
-    public Iterable<? extends T> doOperation(final Deduplicate<T> operation, final Context context, final Store store) throws OperationException {
+    public Iterable<EntitySeed> doOperation(final ToEntitySeeds operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
 
-        return Sets.newLinkedHashSet(operation.getInput());
+       return () -> Streams.toStream(operation.getInput())
+                     .map(EntitySeed::new)
+                     .iterator();
     }
 }
