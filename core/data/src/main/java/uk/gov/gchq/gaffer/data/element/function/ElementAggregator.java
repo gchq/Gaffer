@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.data.element.function;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunctionComposite;
-import java.util.function.BiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorComposite;
+import java.util.function.BinaryOperator;
 
-public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
+public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite {
     private final PropertiesTuple propertiesTuple = new PropertiesTuple();
     private final PropertiesTuple stateTuple = new PropertiesTuple();
 
@@ -66,7 +66,7 @@ public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
         }
 
         public SelectedBuilder select(final String... selection) {
-            final TupleAdaptedBiFunction<String, Object, Object> current = new TupleAdaptedBiFunction<>();
+            final TupleAdaptedBinaryOperator<String, Object> current = new TupleAdaptedBinaryOperator<>();
             current.setSelection(selection);
             return new SelectedBuilder(aggregator, current);
         }
@@ -78,14 +78,14 @@ public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
 
     public static final class SelectedBuilder {
         private final ElementAggregator aggregator;
-        private final TupleAdaptedBiFunction<String, Object, Object> current;
+        private final TupleAdaptedBinaryOperator<String, Object> current;
 
-        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBiFunction<String, Object, Object> current) {
+        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBinaryOperator<String, Object> current) {
             this.aggregator = aggregator;
             this.current = current;
         }
 
-        public Builder execute(final BiFunction function) {
+        public Builder execute(final BinaryOperator function) {
             current.setFunction(function);
             aggregator.getFunctions().add(current);
             return new Builder(aggregator);

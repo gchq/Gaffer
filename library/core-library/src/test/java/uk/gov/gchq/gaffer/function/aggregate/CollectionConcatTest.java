@@ -4,7 +4,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.koryphe.bifunction.BiFunctionTest;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class CollectionConcatTest extends BiFunctionTest {
+public class CollectionConcatTest extends BinaryOperatorTest {
     @Test
     public void shouldConcatArraysTogether() {
         // Given

@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -308,7 +308,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
             aggregator.getFunctions().add(
-                    new TupleAdaptedBiFunction<>(type.getAggregateFunction(), key));
+                    new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), key));
         }
     }
 

@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class SchemaElementDefinitionValidator {
 
     /**
      * Checks each identifier and property has a type associated with it.
-     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BiFunction}s defined are
+     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BinaryOperator}s defined are
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
@@ -113,7 +113,7 @@ public class SchemaElementDefinitionValidator {
             final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
         if (null != aggregator && null != aggregator.getFunctions()) {
-            for (final TupleAdaptedBiFunction<String, ?, ?> adaptedFunction : aggregator.getFunctions()) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getFunctions()) {
                 if (null == adaptedFunction.getFunction()) {
                     result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                 } else {
@@ -149,7 +149,7 @@ public class SchemaElementDefinitionValidator {
         // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
         if (aggregator.getFunctions() != null) {
-            for (final TupleAdaptedBiFunction<String, ?, ?> adaptedFunction : aggregator.getFunctions()) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getFunctions()) {
                 final String[] selection = adaptedFunction.getSelection();
                 if (selection != null) {
                     for (final String key : selection) {

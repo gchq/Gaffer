@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.koryphe.predicate.IsA;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
 import java.io.InputStream;
@@ -189,10 +189,10 @@ public class SchemaTest {
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         final ElementAggregator aggregator = edgeDefinition.getAggregator();
-        final List<TupleAdaptedBiFunction<String, ?, ?>> aggContexts = aggregator.getFunctions();
+        final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getFunctions();
         assertEquals(3, aggContexts.size());
 
-        TupleAdaptedBiFunction<String, ?, ?> aggContext = aggContexts.get(0);
+        TupleAdaptedBinaryOperator<String, ?> aggContext = aggContexts.get(0);
         assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection()[0]);
