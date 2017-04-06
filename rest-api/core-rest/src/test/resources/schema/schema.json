@@ -21,7 +21,7 @@
     "int": {
       "class": "java.lang.Integer",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "string": {
@@ -31,7 +31,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
         }
       ]
     }

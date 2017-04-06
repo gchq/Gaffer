@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsUnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -90,7 +91,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate.ReservoirLongsUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

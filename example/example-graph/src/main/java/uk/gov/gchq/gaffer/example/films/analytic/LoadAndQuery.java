@@ -30,10 +30,8 @@ import uk.gov.gchq.gaffer.example.films.data.SampleData;
 import uk.gov.gchq.gaffer.example.films.data.schema.Group;
 import uk.gov.gchq.gaffer.example.films.data.schema.Property;
 import uk.gov.gchq.gaffer.example.films.data.schema.TransientProperty;
-import uk.gov.gchq.gaffer.example.films.function.transform.StarRatingTransform;
+import uk.gov.gchq.gaffer.example.films.function.StarRatingTransform;
 import uk.gov.gchq.gaffer.example.films.generator.DataGenerator;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -43,6 +41,8 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
 
 /**
  * This example shows how to interact with a Gaffer graph using a Film example.

@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.StringsSketchAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
@@ -72,7 +73,7 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.frequencies.function.aggregate.StringsSketchAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.StringsSketchAggregator\"%n" +
                 "}"), json);
 
         // When 2
