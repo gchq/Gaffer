@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 
 public class NamedOperationExample extends OperationExample {
@@ -55,7 +54,6 @@ public class NamedOperationExample extends OperationExample {
                         .then(new GetAdjacentIds.Builder()
                                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
                                 .build())
-                        .then(new Deduplicate<>())
                         .build())
                 .description("2 hop query")
                 .name("2-hop")

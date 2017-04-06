@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
@@ -50,11 +50,18 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
+import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
+import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.output.ToList;
+import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
+import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.DeduplicateHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.LimitHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -68,6 +75,13 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandle
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToListHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -134,7 +148,7 @@ public abstract class Store {
                 final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
                 newJobTracker.initialise(properties.getJobTrackerConfigPath());
                 return newJobTracker;
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
             }
         }
@@ -530,11 +544,20 @@ public abstract class Store {
         addOperationHandler(GetAllJobDetails.class, new GetAllJobDetailsHandler());
         addOperationHandler(GetJobResults.class, new GetJobResultsHandler());
 
+        // Output
+        addOperationHandler(ToArray.class, new ToArrayHandler<>());
+        addOperationHandler(ToEntitySeeds.class, new ToEntitySeedsHandler());
+        addOperationHandler(ToList.class, new ToListHandler<>());
+        addOperationHandler(ToMap.class, new ToMapHandler());
+        addOperationHandler(ToSet.class, new ToSetHandler<>());
+        addOperationHandler(ToStream.class, new ToStreamHandler<>());
+        addOperationHandler(ToVertices.class, new ToVerticesHandler());
+
         // Other
         addOperationHandler(GenerateElements.class, new GenerateElementsHandler<>());
         addOperationHandler(GenerateObjects.class, new GenerateObjectsHandler<>());
         addOperationHandler(Validate.class, new ValidateHandler());
-        addOperationHandler(Deduplicate.class, new DeduplicateHandler());
+        addOperationHandler(Count.class, new CountHandler());
         addOperationHandler(CountGroups.class, new CountGroupsHandler());
         addOperationHandler(Limit.class, new LimitHandler());
         addOperationHandler(DiscardOutput.class, new DiscardOutputHandler());

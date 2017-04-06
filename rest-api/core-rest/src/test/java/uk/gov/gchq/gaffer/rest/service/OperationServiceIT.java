@@ -125,8 +125,6 @@ public class OperationServiceIT extends AbstractRestApiIT {
                         .build())
                 .build());
 
-        System.out.println(response.readEntity(String.class));
-
         assertEquals(500, response.getStatus());
     }
 

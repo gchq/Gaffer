@@ -50,7 +50,7 @@ public class GetElementsInRangesHandler implements OutputOperationHandler<GetEle
                     itrFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     itrFactory.getElementPropertyRangeQueryFilter(operation),
                     itrFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }

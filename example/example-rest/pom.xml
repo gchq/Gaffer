@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>example</artifactId>
-        <version>0.6.4-SNAPSHOT</version>
+        <version>0.6.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>example-rest</artifactId>
@@ -118,7 +118,7 @@
                                 <gaffer.rest-api.basePath>rest/v1
                                 </gaffer.rest-api.basePath>
                                 <gaffer.schemas>
-                                    ${project.build.outputDirectory}/example-schema.json
+                                    ${project.build.outputDirectory}/example-schema
                                 </gaffer.schemas>
                                 <gaffer.storeProperties>
                                     ${project.build.outputDirectory}/${store.type}/store.properties

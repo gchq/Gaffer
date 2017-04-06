@@ -335,7 +335,7 @@ public class GetElementsBetweenSetsHandlerTest {
     private static void addElements(final Iterable<Element> data, final AccumuloStore store, final User user) {
         try {
             store.execute(new AddElements.Builder().input(data).build(), user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

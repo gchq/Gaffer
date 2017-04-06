@@ -22,9 +22,9 @@ import uk.gov.gchq.koryphe.function.MockFunction2;
 import uk.gov.gchq.koryphe.function.MockFunction2b;
 import uk.gov.gchq.koryphe.function.MockFunction3;
 import uk.gov.gchq.koryphe.function.MockFunctionMultiParents2;
-import uk.gov.gchq.koryphe.predicate.MockPredicate;
-import uk.gov.gchq.koryphe.predicate.MockPredicate1;
-import uk.gov.gchq.koryphe.predicate.MockPredicate2;
+import uk.gov.gchq.koryphe.predicate.MockPredicate2False;
+import uk.gov.gchq.koryphe.predicate.MockPredicateFalse;
+import uk.gov.gchq.koryphe.predicate.MockPredicateTrue;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -119,7 +119,7 @@ public class SignatureTest {
 
     @Test
     public void shouldCheckPredicateTypes() {
-        Predicate predicate = new MockPredicate();
+        Predicate predicate = new MockPredicateTrue();
         final Signature input = Signature.getInputSignature(predicate);
 
         assertTrue(input.assignable(Double.class).isValid());
@@ -129,7 +129,7 @@ public class SignatureTest {
 
     @Test
     public void shouldCheckPredicateTypes1() {
-        Predicate predicate = new MockPredicate1();
+        Predicate predicate = new MockPredicateFalse();
         final Signature input = Signature.getInputSignature(predicate);
 
         assertTrue(input.assignable(Double.class).isValid());
@@ -139,7 +139,7 @@ public class SignatureTest {
 
     @Test
     public void shouldCheckPredicateTypes2() {
-        Predicate predicate = new MockPredicate2();
+        Predicate predicate = new MockPredicate2False();
         final Signature input = Signature.getInputSignature(predicate);
 
         assertTrue(input.assignable(Double.class, Integer.class).isValid());

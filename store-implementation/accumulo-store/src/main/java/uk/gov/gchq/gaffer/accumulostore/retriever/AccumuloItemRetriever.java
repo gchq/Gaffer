@@ -100,7 +100,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
             // iterators, etc).
             try {
                 scanner = getScanner(ranges);
-            } catch (TableNotFoundException | StoreException e) {
+            } catch (final TableNotFoundException | StoreException e) {
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();
@@ -149,7 +149,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                 scanner.close();
                 try {
                     scanner = getScanner(ranges);
-                } catch (TableNotFoundException | StoreException e) {
+                } catch (final TableNotFoundException | StoreException e) {
                     LOGGER.error(e.getMessage() + " returning iterator doesn't have any more elements", e);
                     return false;
                 }

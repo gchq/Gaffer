@@ -25,8 +25,8 @@ public class GraphTest {
     public void shouldInitialiseAccumuloGraph() {
         // When
         new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(getClass(), "accumulo/store.properties"))
-                .addSchema(StreamUtil.openStream(getClass(), "example-schema.json"))
+                .storeProperties(StreamUtil.openStream(SchemaConstants.class, "accumulo/store.properties"))
+                .addSchemas(StreamUtil.openStreams(SchemaConstants.class, "example-schema"))
                 .build();
 
         // Then - no exceptions thrown

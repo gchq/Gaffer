@@ -41,10 +41,16 @@ public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
             extends Input.Builder<OP, Iterable<? extends I_ITEM>, B> {
         @SuppressWarnings("unchecked")
         default B input(final I_ITEM... input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
             return input(Lists.newArrayList(input));
         }
 
         default B input(final Iterable<? extends I_ITEM> input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
             _getOp().setInput((Iterable) input);
             return _self();
         }

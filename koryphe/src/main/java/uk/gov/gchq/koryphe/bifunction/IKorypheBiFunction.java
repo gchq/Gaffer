@@ -19,5 +19,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.function.BiFunction;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+@FunctionalInterface
 public interface IKorypheBiFunction<T, U, R> extends BiFunction<T, U, R> {
 }

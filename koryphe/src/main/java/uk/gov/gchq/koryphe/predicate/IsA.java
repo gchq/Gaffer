@@ -57,7 +57,7 @@ public class IsA extends KoryphePredicate<Object> {
     public void setType(final String type) {
         try {
             this.type = Class.forName(type);
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new IllegalArgumentException("Could not load class for given type: " + type);
         }
     }

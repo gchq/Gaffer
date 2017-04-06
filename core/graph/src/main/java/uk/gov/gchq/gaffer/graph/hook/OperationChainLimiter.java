@@ -231,7 +231,7 @@ public class OperationChainLimiter implements GraphHook {
             try {
                 opClass = Class.forName(opClassName)
                         .asSubclass(Operation.class);
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 LOGGER.error("An operation class could not be found for operation score property " + opClassName, e);
                 throw new IllegalArgumentException(e);
             }

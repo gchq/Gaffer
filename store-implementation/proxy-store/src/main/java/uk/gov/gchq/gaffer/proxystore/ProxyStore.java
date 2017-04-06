@@ -90,9 +90,11 @@ public class ProxyStore extends Store {
         LOGGER.info("Delegate REST API status: " + status.get("description"));
     }
 
+    @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
     protected Set<Class<? extends Operation>> fetchOperations(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("graph/operations");
-        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReferenceImpl.Operations(), null));
+        return (Set) Collections.unmodifiableSet(doGet(url, new TypeReference<Set<Class<Operation>>>() {
+        }, null));
     }
 
     @Override
@@ -163,7 +165,7 @@ public class ProxyStore extends Store {
                            final Context context) throws StoreException {
         try {
             return doPost(url, new String(jsonSerialiser.serialise(body), CommonConstants.UTF_8), outputType, context);
-        } catch (SerialisationException | UnsupportedEncodingException e) {
+        } catch (final SerialisationException | UnsupportedEncodingException e) {
             throw new StoreException("Unable to serialise body of request into json.", e);
         }
     }

@@ -3,14 +3,12 @@ package uk.gov.gchq.gaffer.function.aggregate;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.koryphe.bifunction.BiFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
+import uk.gov.gchq.koryphe.bifunction.BiFunctionTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 
 public class IntegerFreqMapAggregatorTest extends BiFunctionTest {
     @Test

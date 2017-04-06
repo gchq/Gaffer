@@ -28,6 +28,9 @@ public interface Input<I> extends Operation {
     interface Builder<OP extends Input<I>, I, B extends Builder<OP, I, ?>>
             extends Operation.Builder<OP, B> {
         default B input(final I input) {
+            if (null != _getOp().getInput()) {
+                throw new IllegalStateException("Input has already been set");
+            }
             _getOp().setInput(input);
             return _self();
         }

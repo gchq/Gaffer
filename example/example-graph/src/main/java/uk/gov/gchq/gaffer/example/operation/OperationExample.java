@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class OperationExample extends Example {
     private final Graph graph = createExampleGraph();
@@ -59,7 +60,7 @@ public abstract class OperationExample extends Example {
 
         try {
             getGraph().execute(operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -77,7 +78,7 @@ public abstract class OperationExample extends Example {
         try {
             results = getGraph().execute(
                     operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -97,7 +98,7 @@ public abstract class OperationExample extends Example {
         try {
             result = getGraph().execute(
                     operationChain, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -107,7 +108,7 @@ public abstract class OperationExample extends Example {
         return result;
     }
 
-    private <RESULT_TYPE> void logResult(final RESULT_TYPE result) {
+    public <RESULT_TYPE> void logResult(final RESULT_TYPE result) {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
@@ -125,6 +126,14 @@ public abstract class OperationExample extends Example {
                 } else {
                     log("    " + entry.getValue().toString());
                 }
+            }
+        } else if (result instanceof Stream) {
+            final Stream stream = (Stream) result;
+            stream.forEach(item -> log(item.toString()));
+        } else if (result instanceof Object[]) {
+            final Object[] array = (Object[]) result;
+            for (int i = 0; i < array.length; i++) {
+                log(array[i].toString());
             }
         } else {
             log(result.toString());
@@ -164,7 +173,7 @@ public abstract class OperationExample extends Example {
 
         try {
             graph.execute(addOpChain, new User());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 

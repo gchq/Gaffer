@@ -77,7 +77,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
                 if (i > 0) {
                     try {
                         typeSubTypeValue.setType(new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
-                    } catch (UnsupportedEncodingException e) {
+                    } catch (final UnsupportedEncodingException e) {
                         throw new SerialisationException("Failed to deserialise the Type from TypeSubTypeValue Object", e);
                     }
                 }
@@ -90,7 +90,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
                 if (i > lastDelimiter) {
                     try {
                         typeSubTypeValue.setSubType(new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
-                    } catch (UnsupportedEncodingException e) {
+                    } catch (final UnsupportedEncodingException e) {
                         throw new SerialisationException("Failed to deserialise the SubType from TypeSubTypeValue Object", e);
                     }
                 }
@@ -101,7 +101,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
         if (bytes.length > lastDelimiter) {
             try {
                 typeSubTypeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, bytes.length)), CommonConstants.UTF_8));
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 throw new SerialisationException("Failed to deserialise the Value from TypeSubTypeValue Object", e);
             }
         }

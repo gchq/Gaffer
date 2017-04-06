@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.string",
+      "properties": {
+        "property1": "string",
+        "count": "int"
+      },
+      "groupBy": [
+        "property1"
+      ]
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "property1": "string",
+        "count": "int"
+      },
+      "groupBy": [
+        "property1"
+      ]
+    },
+    "BasicEdge2": {
+      "source": "vertex.string",
+      "destination": "vertex.string",
+      "directed": "directed.either",
+      "properties": {
+        "property1": "string",
+        "property2": "string",
+        "count": "int"
+      },
+      "groupBy": [
+        "property1",
+        "property2"
+      ]
+    }
+  }
+}

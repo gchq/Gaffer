@@ -18,12 +18,10 @@ Example REST
 This module provides an example implementation of a Gaffer REST Interface.
 
 By default it will use the Gaffer MockAccumulo store.
-If you have an HBase instance running on localhost:2181 you can use the Gaffer HBase store by setting the following property when you build the maven module:
-
+To use a different store type you can set this system property when running the maven build.
 ```
--Dstore.type=hbase
+-Dstore.type=map
 ```
-
 
 There are two options for building and then running it:
 
@@ -37,7 +35,7 @@ To build the war file along with all its dependencies then run the following com
 
 To deploy it to a server of your choice, take target/example-rest-[version].war and deploy as per the usual deployment process for your server.
 
-In order for the application to function, it needs a number of system properties to be set up on the server:
+In order for the application to predicate, it needs a number of system properties to be set up on the server:
 e.g.
 gaffer.schemas=${SOME PATH}/schema
 gaffer.storeProperties=${SOME PATH}/accumulo/store.properties
@@ -78,7 +76,7 @@ files and the data store .properties file. As a default, these point to the same
   <systemProperty>
       <name>gaffer.schemas</name>
       <!-- this needs to point to your Gaffer schema files or folder-->
-      <value>${project.build.outputDirectory}/example-schema.json</value>
+      <value>${project.build.outputDirectory}/example-schema</value>
   </systemProperty>
   <systemProperty>
       <name>gaffer.storeProperties</name>

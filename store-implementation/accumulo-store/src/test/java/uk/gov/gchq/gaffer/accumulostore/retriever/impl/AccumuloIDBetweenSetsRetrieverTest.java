@@ -197,7 +197,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             final Set<Element> a2B2EdgeOutgoingResults = returnElementsFromOperation(store, opA2B2, new User(), false);
             assertEquals(0, a2B2EdgeOutgoingResults.size());
 
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
@@ -248,7 +248,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
             final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }
@@ -514,7 +514,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                             .input(data)
                             .build(),
                     user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             fail("Failed to set up graph in Accumulo with exception: " + e);
         }
     }

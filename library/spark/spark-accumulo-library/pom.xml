@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>spark</artifactId>
-        <version>0.6.4-SNAPSHOT</version>
+        <version>0.6.7-SNAPSHOT</version>
     </parent>
     <artifactId>spark-accumulo-library</artifactId>
 
@@ -50,4 +50,44 @@
             <type>test-jar</type>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>full</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>full
+                            </shadedClassifierName>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.spark:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

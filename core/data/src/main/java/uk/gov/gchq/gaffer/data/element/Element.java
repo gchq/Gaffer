@@ -58,8 +58,10 @@ public abstract class Element implements ElementId {
     }
 
     public void copyProperties(final Properties properties) {
-        for (final Entry<String, Object> entry : properties.entrySet()) {
-            putProperty(entry.getKey(), entry.getValue());
+        if (null != properties) {
+            for (final Entry<String, Object> entry : properties.entrySet()) {
+                putProperty(entry.getKey(), entry.getValue());
+            }
         }
     }
 
@@ -80,6 +82,7 @@ public abstract class Element implements ElementId {
     public int hashCode() {
         return new HashCodeBuilder(13, 17)
                 .append(group)
+                .append(properties)
                 .toHashCode();
     }
 

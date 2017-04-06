@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.predicate.IsA;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertFalse;

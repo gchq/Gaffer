@@ -411,7 +411,7 @@ public class ExamplesService implements IExamplesService {
                 } else {
                     value = clazz.newInstance();
                 }
-            } catch (InstantiationException | IllegalAccessException e) {
+            } catch (final InstantiationException | IllegalAccessException e) {
                 value = null;
             }
         }

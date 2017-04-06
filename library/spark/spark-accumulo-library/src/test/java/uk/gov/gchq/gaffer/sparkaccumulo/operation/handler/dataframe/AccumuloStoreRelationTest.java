@@ -25,6 +25,7 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -48,7 +49,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -121,10 +121,10 @@ public class AccumuloStoreRelationTest {
         final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
-        StreamSupport.stream(getElements().spliterator(), false)
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
+        Streams.toStream(getElements())
+               .filter(returnElement)
+               .map(elementConverter::apply)
+               .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -169,10 +169,10 @@ public class AccumuloStoreRelationTest {
         final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
-        StreamSupport.stream(getElements().spliterator(), false)
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
+        Streams.toStream(getElements())
+               .filter(returnElement)
+               .map(elementConverter::apply)
+               .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -223,10 +223,10 @@ public class AccumuloStoreRelationTest {
         final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
-        StreamSupport.stream(getElements().spliterator(), false)
-                .filter(returnElement)
-                .map(elementConverter::apply)
-                .forEach(expectedRows::add);
+        Streams.toStream(getElements())
+               .filter(returnElement)
+               .map(elementConverter::apply)
+               .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();

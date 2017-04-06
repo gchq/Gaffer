@@ -25,8 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -151,7 +149,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for "1" when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
-                .input(Collections.singleton(new EntitySeed("1")))
+                .input(new EntitySeed("1"))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
@@ -299,7 +297,7 @@ public class GetJavaRDDOfElementsHandlerTest {
         // Check get correct edges for 1 -> B when specify edges only
         rddQuery = new GetJavaRDDOfElements.Builder()
                 .javaSparkContext(sparkContext)
-                .input(Collections.singleton(new EdgeSeed("1", "B", false)))
+                .input(new EdgeSeed("1", "B", false))
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())

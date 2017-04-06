@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.spark.examples
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
-import uk.gov.gchq.gaffer.data.element.id.{EdgeId, ElementId}
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View
 import uk.gov.gchq.gaffer.example.operation.OperationExample
 import uk.gov.gchq.gaffer.graph.Graph

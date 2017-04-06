@@ -17,10 +17,20 @@
 package uk.gov.gchq.koryphe.predicate;
 
 import uk.gov.gchq.koryphe.composite.Composite;
+import java.util.List;
 import java.util.function.Predicate;
 
 
-public class PredicateComposite<T> extends Composite<Predicate<T>> implements Predicate<T> {
+public class PredicateComposite<T> extends Composite<Predicate<T>> implements IKoryphePredicate<T> {
+
+    public PredicateComposite() {
+        super();
+    }
+
+    public PredicateComposite(final List<Predicate<T>> functions) {
+        super(functions);
+    }
+
     @Override
     public boolean test(final T input) {
         for (final Predicate<T> predicate : getFunctions()) {

@@ -57,7 +57,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
         try {
             return builder.toString()
                           .getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -71,7 +71,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
         String stringMap;
         try {
             stringMap = new String(bytes, CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         if (stringMap.isEmpty()) {

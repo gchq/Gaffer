@@ -75,6 +75,28 @@ public class IsATest {
     }
 
     @Test
+    public void shouldCreateIsAFromClassName() {
+        // Given
+        final String type = "java.lang.String";
+
+        // When
+        final IsA predicate = new IsA(type);
+
+        // Then
+        assertNotNull(predicate);
+        assertEquals(predicate.getType(), type);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowExceptionIfInvalidClassNameProvided() {
+        // Given
+        final String type = "java.util.String";
+
+        // When
+        final IsA predicate = new IsA(type);
+    }
+
+    @Test
     public void shouldJsonSerialiseAndDeserialise() throws IOException {
         // Given
         final Class<Integer> type = Integer.class;

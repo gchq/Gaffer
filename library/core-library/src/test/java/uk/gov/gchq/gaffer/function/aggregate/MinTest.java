@@ -129,14 +129,14 @@ public class MinTest extends BiFunctionTest {
         try {
             state = min.apply(2l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // When 3
         try {
             state = min.apply(2.1d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

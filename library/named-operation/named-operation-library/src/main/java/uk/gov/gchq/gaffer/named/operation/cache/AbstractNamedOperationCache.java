@@ -39,7 +39,7 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
         String name;
         try {
             name = namedOperation.getOperationName();
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
         if (!overwrite) {
@@ -51,7 +51,7 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
 
         try {
             existing = getFromCache(name);
-        } catch (CacheOperationFailedException e) { // if there is no existing named Operation add one
+        } catch (final CacheOperationFailedException e) { // if there is no existing named Operation add one
             addToCache(name, namedOperation, false);
             return;
         }

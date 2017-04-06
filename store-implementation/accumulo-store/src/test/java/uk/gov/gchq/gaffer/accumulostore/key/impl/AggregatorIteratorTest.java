@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -136,7 +134,7 @@ public class AggregatorIteratorTest {
 
         final User user = new User();
         store.execute(new AddElements.Builder()
-                .input(Arrays.asList((Element) edge1, edge2, edge3))
+                .input(edge1, edge2, edge3)
                 .build(), user);
 
         final GetElements get = new GetElements.Builder()

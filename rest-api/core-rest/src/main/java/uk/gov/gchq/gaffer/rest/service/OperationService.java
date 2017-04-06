@@ -139,7 +139,7 @@ public class OperationService implements IOperationService {
 
         try {
             return graphFactory.getGraph().execute(opChain, user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             postOperationHook(opChain, user);

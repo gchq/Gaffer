@@ -78,7 +78,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(2.7d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -89,7 +89,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(1l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -134,7 +134,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(1, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -151,7 +151,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(2.5d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -196,7 +196,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(1, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 1
@@ -206,7 +206,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(3l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -237,7 +237,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(3l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -248,7 +248,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(2.1d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -273,7 +273,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(3, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -284,7 +284,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(2.1d, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3
@@ -309,7 +309,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(2, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 2
@@ -320,7 +320,7 @@ public class ProductTest extends BinaryOperatorTest {
         try {
             state = product.apply(1l, state);
             fail();
-        } catch (ClassCastException cce) {
+        } catch (final ClassCastException cce) {
         }
 
         // Then 3

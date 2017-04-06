@@ -120,14 +120,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (AssertionError e) {
+                        } catch (final AssertionError e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (AssertionError e) {
+                        } catch (final AssertionError e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
@@ -297,7 +297,7 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         assertEquals("The number of elements returned was not as expected. Missing elements: " + expectedElementsCopy + ". Seeds: " + seeds, expectedElements.size(),
-                Lists.newArrayList(results).size());
+                Sets.newHashSet(results).size());
 
         assertEquals(new HashSet<>(expectedElements), Sets.newHashSet(results));
     }
