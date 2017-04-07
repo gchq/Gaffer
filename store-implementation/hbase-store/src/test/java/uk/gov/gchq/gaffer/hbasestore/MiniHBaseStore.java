@@ -33,8 +33,10 @@ import org.apache.hadoop.hbase.security.visibility.VisibilityConstants;
 import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
 import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
@@ -128,6 +130,10 @@ public class MiniHBaseStore extends HBaseStore {
             final User superUser = User.createUserForTesting(getConfiguration(), "admin", new String[]{"supergroup"});
             superUser.runAs(action);
         }
+    }
+
+    OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
+        return super.getOperationHandler(opClass);
     }
 
     private Configuration setupConf() throws IOException {

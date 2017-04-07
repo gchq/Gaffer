@@ -50,7 +50,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -69,13 +71,17 @@ public class AddElementsHandlerTest {
                     .source("string")
                     .destination("string")
                     .directed("true")
+                    .property("prop1", "string")
                     .property("visibility", "string")
                     .property("count", "int")
+                    .groupBy("prop1")
                     .build())
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex("string")
+                    .property("prop1", "string")
                     .property("visibility", "string")
                     .property("count", "int")
+                    .groupBy("prop1")
                     .build())
             .visibilityProperty("visibility")
             .vertexSerialiser(new StringSerialiser())
@@ -98,8 +104,11 @@ public class AddElementsHandlerTest {
         // Given
         final AddElementsHandler handler = new AddElementsHandler();
         final List<Element> elements = createElements();
+        final List<Element> elementsWithNull = new ArrayList<>(elements);
+        elementsWithNull.add(null); // null should be skipped
+
         final AddElements addElements = new AddElements.Builder()
-                .input(elements)
+                .input(elementsWithNull)
                 .build();
         final Context context = mock(Context.class);
         final HBaseStore store = mock(HBaseStore.class);
@@ -221,7 +230,8 @@ public class AddElementsHandlerTest {
         final List<Element> expectedElements = new ArrayList<>();
         for (final Element element : distinctElements) {
             element.putProperty("count", 2);
-            element.putProperty("visibility", "public,public");
+            element.putProperty("prop1", "a");
+            element.putProperty("visibility", "public");
             expectedElements.add(element);
             if (element instanceof Edge && !((Edge) element).getSource().equals(((Edge) element).getDestination())) {
                 expectedElements.add(element);
@@ -235,6 +245,30 @@ public class AddElementsHandlerTest {
         verify(table).flushCommits();
     }
 
+    @Test
+    public void shouldDoNothingIfNoElementsProvided() throws OperationException, StoreException, IOException {
+        // Given
+        final AddElementsHandler handler = new AddElementsHandler();
+        final AddElements addElements = new AddElements();
+        final Context context = mock(Context.class);
+        final HBaseStore store = mock(HBaseStore.class);
+
+        final HTable table = mock(HTable.class);
+        given(store.getTable()).willReturn(table);
+
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        given(store.getProperties()).willReturn(properties);
+
+        given(store.getSchema()).willReturn(SCHEMA);
+
+        // When
+        handler.doOperation(addElements, context, store);
+
+        // Then
+        verify(table, never()).put(anyListOf(Put.class));
+        verify(table, never()).flushCommits();
+    }
+
     private List<Element> createElements() {
         return Lists.newArrayList(
                 new Edge.Builder()
@@ -242,6 +276,7 @@ public class AddElementsHandlerTest {
                         .source("vertexA")
                         .dest("vertexB")
                         .directed(true)
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build(),
@@ -250,6 +285,7 @@ public class AddElementsHandlerTest {
                         .source("vertexD")
                         .dest("vertexC")
                         .directed(true)
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build(),
@@ -258,6 +294,7 @@ public class AddElementsHandlerTest {
                         .source("vertexE")
                         .dest("vertexE")
                         .directed(true)
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build(),
@@ -266,6 +303,7 @@ public class AddElementsHandlerTest {
                         .source("vertexF")
                         .dest("vertexG")
                         .directed(false)
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build(),
@@ -274,12 +312,14 @@ public class AddElementsHandlerTest {
                         .source("vertexH")
                         .dest("vertexH")
                         .directed(false)
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertexI")
+                        .property("prop1", "a")
                         .property("visibility", "public")
                         .property("count", 1)
                         .build()

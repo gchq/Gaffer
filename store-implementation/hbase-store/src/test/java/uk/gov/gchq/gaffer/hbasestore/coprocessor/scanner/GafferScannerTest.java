@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -107,7 +108,7 @@ public class GafferScannerTest {
         final List<Cell> outputResult = new ArrayList<>();
 
         // When
-        final boolean result = scanner.next(outputResult);
+        final boolean result = scanner.next(outputResult, null);
 
         // When / Then
         assertTrue(result);
@@ -116,5 +117,20 @@ public class GafferScannerTest {
         assertEquals(lazyCells, captor.getValue());
         verify(processor2).process(processedCells1);
         assertEquals(cells, outputResult);
+    }
+
+    @Test
+    public void shouldCloseScanner() throws IOException {
+        // Given
+        final InternalScanner internalScanner = mock(InternalScanner.class);
+        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation) {
+        };
+
+        // When
+        scanner.close();
+
+        // Then
+        verify(internalScanner).close();
+        assertSame(internalScanner, scanner.getScanner());
     }
 }

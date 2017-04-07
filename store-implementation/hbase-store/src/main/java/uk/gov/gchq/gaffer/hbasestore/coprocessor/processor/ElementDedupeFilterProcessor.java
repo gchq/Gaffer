@@ -58,6 +58,22 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
         return !isEdge || testEdge(flag, cell);
     }
 
+    public boolean isEdges() {
+        return edges;
+    }
+
+    public boolean isEntities() {
+        return entities;
+    }
+
+    public boolean isUnDirectedEdges() {
+        return unDirectedEdges;
+    }
+
+    public boolean isDirectedEdges() {
+        return directedEdges;
+    }
+
     private byte getFlag(final Cell cell) {
         final byte[] rowID = CellUtil.cloneRow(cell);
         return rowID[rowID.length - 1];

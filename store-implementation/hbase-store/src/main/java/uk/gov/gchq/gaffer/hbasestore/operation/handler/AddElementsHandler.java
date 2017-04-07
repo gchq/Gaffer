@@ -65,6 +65,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         try {
             final HTable table = store.getTable();
             final boolean hasAggregators = store.getSchema().hasAggregators();
+            final String visibilityProperty = store.getSchema().getVisibilityProperty();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
             final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
             final int batchSize = store.getProperties().getWriteBufferSize();
@@ -81,6 +82,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
                     final int keyHashCode = new HashCodeBuilder(17, 37)
                             .append(serialisation.getRowKeys(element).getFirst())
+                            .append(serialisation.getColumnVisibility(element))
                             .append(serialisation.getColumnQualifier(element))
                             .append(serialisation.getColumnVisibility(element))
                             .toHashCode();
@@ -98,6 +100,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         if (null != elementDef.getGroupBy() && !elementDef.getGroupBy().isEmpty()) {
                             properties = properties.clone();
                             properties.remove(elementDef.getGroupBy());
+                            properties.remove(visibilityProperty);
                         }
                         aggregator.apply(properties, existingElement.getProperties());
                     } else {

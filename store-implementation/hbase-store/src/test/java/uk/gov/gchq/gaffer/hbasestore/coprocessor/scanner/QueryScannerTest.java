@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner;
 
+import org.apache.hadoop.hbase.HRegionInfo;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.regionserver.RegionScanner;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -33,6 +36,7 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -42,11 +46,14 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class QueryScannerTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -93,6 +100,7 @@ public class QueryScannerTest {
         final Scan scan = mock(Scan.class);
         given(scan.getAttribute(HBaseStoreConstants.VIEW)).willReturn(VIEW.toCompactJson());
         given(scan.getAttribute(HBaseStoreConstants.EXTRA_PROCESSORS)).willReturn(StringUtil.toCsv(ElementDedupeFilterProcessor.class));
+        given(scan.getAttribute(HBaseStoreConstants.DIRECTED_TYPE)).willReturn(Bytes.toBytes(GraphFilters.DirectedType.DIRECTED.name()));
 
         // When
         final List<GafferScannerProcessor> processors = QueryScanner.createProcessors(scan, SCHEMA, serialisation);
@@ -105,6 +113,11 @@ public class QueryScannerTest {
 
         i++;
         assertTrue(processors.get(i) instanceof ElementDedupeFilterProcessor);
+        assertTrue(((ElementDedupeFilterProcessor) processors.get(i)).isEntities());
+        assertTrue(((ElementDedupeFilterProcessor) processors.get(i)).isEdges());
+        assertTrue(((ElementDedupeFilterProcessor) processors.get(i)).isDirectedEdges());
+        assertFalse(((ElementDedupeFilterProcessor) processors.get(i)).isUnDirectedEdges());
+
 
         i++;
         assertTrue(processors.get(i) instanceof StoreAggregationProcessor);
@@ -146,6 +159,10 @@ public class QueryScannerTest {
 
         i++;
         assertTrue(processors.get(i) instanceof ElementDedupeFilterProcessor);
+        assertTrue(((ElementDedupeFilterProcessor) processors.get(i)).isEntities());
+        assertTrue(((ElementDedupeFilterProcessor) processors.get(i)).isEdges());
+        assertFalse(((ElementDedupeFilterProcessor) processors.get(i)).isDirectedEdges());
+        assertFalse(((ElementDedupeFilterProcessor) processors.get(i)).isUnDirectedEdges());
 
         i++;
         assertTrue(processors.get(i) instanceof ValidationProcessor);
@@ -232,5 +249,40 @@ public class QueryScannerTest {
         } catch (final RuntimeException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldDelegateMethodsToInternalScanner() throws IOException {
+        final RegionScanner scanner = mock(RegionScanner.class);
+        final Scan scan = mock(Scan.class);
+        final QueryScanner queryScanner = new QueryScanner(scanner, scan, SCHEMA, serialisation);
+
+        assertSame(scanner, queryScanner.getScanner());
+
+        final HRegionInfo regionInfo = mock(HRegionInfo.class);
+        given(scanner.getRegionInfo()).willReturn(regionInfo);
+        assertSame(regionInfo, queryScanner.getRegionInfo());
+        verify(scanner).getRegionInfo();
+
+        given(scanner.isFilterDone()).willReturn(true);
+        assertTrue(queryScanner.isFilterDone());
+        verify(scanner).isFilterDone();
+
+        final byte[] bytes = new byte[]{0, 1, 2, 3};
+        given(scanner.reseek(bytes)).willReturn(true);
+        assertTrue(queryScanner.reseek(bytes));
+        verify(scanner).reseek(bytes);
+
+        given(scanner.getMaxResultSize()).willReturn(100L);
+        assertEquals(100L, queryScanner.getMaxResultSize());
+        verify(scanner).getMaxResultSize();
+
+        given(scanner.getMvccReadPoint()).willReturn(200L);
+        assertEquals(200L, queryScanner.getMvccReadPoint());
+        verify(scanner).getMvccReadPoint();
+
+        given(scanner.getBatch()).willReturn(2);
+        assertEquals(2, queryScanner.getBatch());
+        verify(scanner).getBatch();
     }
 }
