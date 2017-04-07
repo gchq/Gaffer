@@ -126,7 +126,7 @@ Note that here `elements` could be a never-ending stream of `Element`s and the a
 
 IMPORTANT - due to the way elements are inserted into HBase we need to aggregate elements within each batch before adding them to HBase to avoid them being skipped.
 Therefore optimising the batch size could have a big impact on performance. Configure the batch size using store property: hbase.writeBufferSize
-If your schema does not have aggregation then elements with the same key (group, vertex, source, destination, direction) in the same batch will be skipped/deduplicated even if the properties are different.
+If your schema does not have aggregation then elements with the same key (group, vertex, source, destination, direction) in the same batch will require the batch to flushed multiple times to avoid losing elements and this will have a large impact on ingest rates. If this happens you will need to consider creating your own batches with distinct elements or using AddElementsFromHdfs.
 
 **Bulk import**
 

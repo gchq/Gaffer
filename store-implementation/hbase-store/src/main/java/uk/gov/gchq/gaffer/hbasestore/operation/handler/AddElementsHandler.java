@@ -64,83 +64,58 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
         try {
             final HTable table = store.getTable();
+            final boolean hasAggregators = store.getSchema().hasAggregators();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
+            final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
+            final int batchSize = store.getProperties().getWriteBufferSize();
+            final Map<Integer, Element> keyToElement = new HashMap<>(batchSize);
+            final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
             while (elements.hasNext()) {
-                final List<Put> puts = createBatch(elements, store);
-                if (!puts.isEmpty()) {
-                    table.put(puts);
-                    // Ensure the table has been flushed otherwise similar elements in the next batch may be skipped.
-                    if (!table.isAutoFlush()) {
-                        table.flushCommits();
+                keyToElement.clear();
+                for (int i = 0; i < batchSize && elements.hasNext(); i++) {
+                    final Element element = elements.next();
+                    if (null == element) {
+                        i--;
+                        continue;
+                    }
+
+                    final int keyHashCode = new HashCodeBuilder(17, 37)
+                            .append(serialisation.getRowKeys(element).getFirst())
+                            .append(serialisation.getColumnQualifier(element))
+                            .append(serialisation.getColumnVisibility(element))
+                            .toHashCode();
+                    final Element existingElement = keyToElement.get(keyHashCode);
+                    if (null == existingElement) {
+                        keyToElement.put(keyHashCode, element);
+                    } else if (hasAggregators) {
+                        ElementAggregator aggregator = aggregators.get(existingElement.getGroup());
+                        final SchemaElementDefinition elementDef = store.getSchema().getElement(existingElement.getGroup());
+                        if (null == aggregator) {
+                            aggregator = elementDef.getAggregator();
+                            aggregators.put(existingElement.getGroup(), aggregator);
+                        }
+                        Properties properties = element.getProperties();
+                        if (null != elementDef.getGroupBy() && !elementDef.getGroupBy().isEmpty()) {
+                            properties = properties.clone();
+                            properties.remove(elementDef.getGroupBy());
+                        }
+                        aggregator.apply(properties, existingElement.getProperties());
+                    } else {
+                        executePuts(table, createPuts(serialisation, keyToElement));
+                        keyToElement.clear();
+                        i = 0;
+                        keyToElement.put(keyHashCode, element);
                     }
                 }
+
+                executePuts(table, createPuts(serialisation, keyToElement));
             }
         } catch (final IOException | StoreException e) {
             throw new OperationException("Failed to add elements", e);
         }
     }
 
-    private List<Put> createBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
-        if (store.getSchema().hasAggregators()) {
-            return createAggregatedBatch(elements, store);
-        }
-
-        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
-        final int batchSize = store.getProperties().getWriteBufferSize();
-        final List<Put> puts = new ArrayList<>(batchSize);
-        for (int i = 0; i < batchSize && elements.hasNext(); i++) {
-            final Element element = elements.next();
-            if (null == element) {
-                i--;
-                continue;
-            }
-            final Pair<Put> putPair = serialisation.getPuts(element);
-            puts.add(putPair.getFirst());
-            if (null != putPair.getSecond()) {
-                puts.add(putPair.getSecond());
-            }
-        }
-
-        return puts;
-    }
-
-    private List<Put> createAggregatedBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
-        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
-        final int batchSize = store.getProperties().getWriteBufferSize();
-
-        final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
-        final Map<Integer, Element> keyToElement = new HashMap<>(batchSize);
-        for (int i = 0; i < batchSize && elements.hasNext(); i++) {
-            final Element element = elements.next();
-            if (null == element) {
-                i--;
-                continue;
-            }
-
-            final int keyHashCode = new HashCodeBuilder(17, 37)
-                    .append(serialisation.getRowKeys(element).getFirst())
-                    .append(serialisation.getColumnQualifier(element))
-                    .append(serialisation.getColumnVisibility(element))
-                    .toHashCode();
-            final Element existingElement = keyToElement.get(keyHashCode);
-            if (null == existingElement) {
-                keyToElement.put(keyHashCode, element);
-            } else {
-                ElementAggregator aggregator = aggregators.get(existingElement.getGroup());
-                final SchemaElementDefinition elementDef = store.getSchema().getElement(existingElement.getGroup());
-                if (null == aggregator) {
-                    aggregator = elementDef.getAggregator();
-                    aggregators.put(existingElement.getGroup(), aggregator);
-                }
-                Properties properties = element.getProperties();
-                if (null != elementDef.getGroupBy() && !elementDef.getGroupBy().isEmpty()) {
-                    properties = properties.clone();
-                    properties.remove(elementDef.getGroupBy());
-                }
-                aggregator.apply(properties, existingElement.getProperties());
-            }
-        }
-
+    private List<Put> createPuts(final ElementSerialisation serialisation, final Map<Integer, Element> keyToElement) throws SerialisationException {
         final Collection<Element> elementBatch = keyToElement.values();
         final List<Put> puts = new ArrayList<>(elementBatch.size());
         for (final Element element : elementBatch) {
@@ -150,7 +125,16 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 puts.add(putPair.getSecond());
             }
         }
-
         return puts;
+    }
+
+    private void executePuts(final HTable table, final List<Put> puts) throws IOException {
+        if (!puts.isEmpty()) {
+            table.put(puts);
+            // Ensure the table has been flushed otherwise similar elements in the next batch may be skipped.
+            if (!table.isAutoFlush()) {
+                table.flushCommits();
+            }
+        }
     }
 }

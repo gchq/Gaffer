@@ -51,6 +51,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 public class AddElementsHandlerTest {
@@ -161,23 +162,28 @@ public class AddElementsHandlerTest {
         handler.doOperation(addElements, context, store);
 
         // Then
-        final ArgumentCaptor<List> putsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(table).put(putsCaptor.capture());
-        final List<Put> puts = putsCaptor.getValue();
-
         final List<Element> expectedElements = new ArrayList<>();
-        for (final Element element : elements) {
+        for (final Element element : distinctElements) {
             expectedElements.add(element);
             if (element instanceof Edge && !((Edge) element).getSource().equals(((Edge) element).getDestination())) {
                 expectedElements.add(element);
             }
         }
         final Element[] expectedElementsArr = expectedElements.toArray(new Element[expectedElements.size()]);
-        final List<Element> elementsAdded = CellUtil.getElements(puts, new ElementSerialisation(SCHEMA));
-        assertEquals(expectedElements.size(), elementsAdded.size());
-        assertThat(elementsAdded, IsCollectionContaining.hasItems(expectedElementsArr));
+        final ArgumentCaptor<List> putsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(table, times(2)).put(putsCaptor.capture());
+        final List<Put> puts1 = putsCaptor.getAllValues().get(0);
+        final List<Put> puts2 = putsCaptor.getAllValues().get(1);
 
-        verify(table).flushCommits();
+        final List<Element> elementsAdded1 = CellUtil.getElements(puts1, new ElementSerialisation(SCHEMA));
+        assertEquals(expectedElements.size(), elementsAdded1.size());
+        assertThat(elementsAdded1, IsCollectionContaining.hasItems(expectedElementsArr));
+
+        final List<Element> elementsAdded2 = CellUtil.getElements(puts2, new ElementSerialisation(SCHEMA));
+        assertEquals(expectedElements.size(), elementsAdded2.size());
+        assertThat(elementsAdded2, IsCollectionContaining.hasItems(expectedElementsArr));
+
+        verify(table, times(2)).flushCommits();
     }
 
     @Test
