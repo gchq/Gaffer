@@ -64,7 +64,6 @@ public class AddElementsFromHdfsIT {
     public String outputDir;
     public String stagingDir;
     public String failureDir;
-    public String splitsDir;
 
     @BeforeClass
     public static void beforeClass() {
@@ -82,7 +81,6 @@ public class AddElementsFromHdfsIT {
         outputDir = testFolder.getRoot().getAbsolutePath() + "/outputDir";
         failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
         stagingDir = testFolder.getRoot().getAbsolutePath() + "/stagingDir";
-        splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
     }
 
     @Test
