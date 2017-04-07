@@ -27,6 +27,9 @@ public abstract class FilterProcessor implements GafferScannerProcessor, Predica
         final Iterator<LazyElementCell> itr = elementCells.iterator();
         while (itr.hasNext()) {
             final LazyElementCell elementCell = itr.next();
+            // If we filter out a deleted element when compacting then the deleted
+            // flag will not be persisted and the element will not get deleted.
+            // When querying, deleted cells will have already been filtered out.
             if (!elementCell.isDeleted()) {
                 if (!test(elementCell)) {
                     itr.remove();

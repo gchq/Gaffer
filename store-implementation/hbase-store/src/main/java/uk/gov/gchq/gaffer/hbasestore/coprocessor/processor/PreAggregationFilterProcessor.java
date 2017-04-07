@@ -30,4 +30,8 @@ public class PreAggregationFilterProcessor extends FilterProcessor {
     public boolean test(final LazyElementCell elementCell) {
         return validator.validateInput(elementCell.getElement());
     }
+
+    public View getView() {
+        return validator.getView();
+    }
 }

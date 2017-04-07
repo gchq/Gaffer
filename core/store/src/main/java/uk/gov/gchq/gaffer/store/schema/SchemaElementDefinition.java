@@ -438,6 +438,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
+        @JsonIgnore
+        public final CHILD_CLASS validateFunctions(final ElementFilter elementFilter) {
+            return validateFunctions((List<TupleAdaptedPredicate<String, Tuple<String>>>) (List) elementFilter.getFunctions());
+        }
+
         public CHILD_CLASS groupBy(final String... propertyName) {
             Collections.addAll(elDef.getGroupBy(), propertyName);
             return self();

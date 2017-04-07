@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.element.function;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
+import java.util.List;
 import java.util.function.Predicate;
 
 public class ElementFilter extends TupleAdaptedPredicateComposite {
@@ -27,6 +28,11 @@ public class ElementFilter extends TupleAdaptedPredicateComposite {
     public boolean test(final Element element) {
         elementTuple.setElement(element);
         return test(elementTuple);
+    }
+
+    @Override
+    public List<TupleAdaptedPredicate<String, ?>> getFunctions() {
+        return super.getFunctions();
     }
 
     public static class Builder {

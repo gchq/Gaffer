@@ -76,7 +76,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
                 if (!puts.isEmpty()) {
                     table.put(puts);
-                    // Ensure the table has flushed otherwise similar elements in the next batch may be skipped.
+                    // Ensure the table has been flushed otherwise similar elements in the next batch may be skipped.
                     if (!table.isAutoFlush()) {
                         table.flushCommits();
                     }

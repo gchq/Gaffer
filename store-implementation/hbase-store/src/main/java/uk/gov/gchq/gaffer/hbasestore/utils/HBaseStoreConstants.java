@@ -22,8 +22,10 @@ public final class HBaseStoreConstants {
     private HBaseStoreConstants() {
     }
 
+    private static final byte[] COL_FAM = Bytes.toBytes("e"); // e - for Elements/Edges/Entities
+
     public static byte[] getColFam() {
-        return Bytes.toBytes("e"); // e - for Elements/Edges/Entities
+        return Bytes.copy(COL_FAM);
     }
 
     // Coprocessor options

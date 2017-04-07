@@ -30,4 +30,8 @@ public class GroupFilterProcessor extends FilterProcessor {
         final String group = elementCell.getGroup();
         return view.isEntity(group) || view.isEdge(group);
     }
+
+    public View getView() {
+        return view;
+    }
 }

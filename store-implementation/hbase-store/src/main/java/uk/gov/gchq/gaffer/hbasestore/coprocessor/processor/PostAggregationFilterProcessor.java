@@ -30,4 +30,8 @@ public class PostAggregationFilterProcessor extends FilterProcessor {
     public boolean test(final LazyElementCell elementCell) {
         return validator.validateAggregation(elementCell.getElement());
     }
+
+    public View getView() {
+        return validator.getView();
+    }
 }

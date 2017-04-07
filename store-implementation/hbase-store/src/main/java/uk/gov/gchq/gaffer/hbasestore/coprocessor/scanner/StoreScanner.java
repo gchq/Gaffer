@@ -30,7 +30,7 @@ public class StoreScanner extends GafferScanner {
         super(scanner, serialisation, createProcessors(schema, serialisation));
     }
 
-    private static List<GafferScannerProcessor> createProcessors(final Schema schema, final ElementSerialisation serialisation) {
+    protected static List<GafferScannerProcessor> createProcessors(final Schema schema, final ElementSerialisation serialisation) {
         final List<GafferScannerProcessor> processors = new ArrayList<>();
         if (schema.hasAggregators()) {
             processors.add(new StoreAggregationProcessor(serialisation, schema));

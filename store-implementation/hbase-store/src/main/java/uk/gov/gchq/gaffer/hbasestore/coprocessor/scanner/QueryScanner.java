@@ -44,23 +44,24 @@ import java.util.Set;
 public class QueryScanner extends GafferScanner implements RegionScanner {
     public QueryScanner(final RegionScanner scanner,
                         final Scan scan,
-                        final Schema schema, final ElementSerialisation serialisation) {
-        super(scanner, serialisation, createProcessors(schema, serialisation, scan));
+                        final Schema schema,
+                        final ElementSerialisation serialisation) {
+        super(scanner, serialisation, createProcessors(scan, schema, serialisation));
     }
 
-    private static List<GafferScannerProcessor> createProcessors(
+    protected static List<GafferScannerProcessor> createProcessors(
+            final Scan scan,
             final Schema schema,
-            final ElementSerialisation serialisation,
-            final Scan scan) {
+            final ElementSerialisation serialisation) {
         final List<GafferScannerProcessor> processors = new ArrayList<>();
         final Set<Class<? extends GafferScannerProcessor>> extraProcessors = getExtraProcessors(scan);
 
+        // The view will be null if a scan of the table is done in the hbase shell
         final View view = getView(scan);
         if (null != view) {
             processors.add(new GroupFilterProcessor(view));
             if (extraProcessors.remove(ElementDedupeFilterProcessor.class)) {
-                final DirectedType directedType = getDirectedType(scan);
-                processors.add(new ElementDedupeFilterProcessor(view, directedType));
+                processors.add(new ElementDedupeFilterProcessor(view.hasEntities(), view.hasEdges(), getDirectedType(scan)));
             }
         }
 

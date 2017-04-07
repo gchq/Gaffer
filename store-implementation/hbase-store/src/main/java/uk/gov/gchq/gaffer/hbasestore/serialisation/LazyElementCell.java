@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -93,5 +95,33 @@ public class LazyElementCell {
         }
 
         return group;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (null == o || !getClass().equals(o.getClass())) {
+            return false;
+        }
+
+        final LazyElementCell otherCell = (LazyElementCell) o;
+        return new EqualsBuilder()
+                .append(group, otherCell.group)
+                .append(cell, otherCell.cell)
+                .append(element, otherCell.element)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(group)
+                .append(cell)
+                .append(element)
+                .toHashCode();
     }
 }

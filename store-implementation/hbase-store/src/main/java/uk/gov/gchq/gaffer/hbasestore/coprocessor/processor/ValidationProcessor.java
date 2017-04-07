@@ -30,4 +30,8 @@ public class ValidationProcessor extends FilterProcessor {
     public boolean test(final LazyElementCell elementCell) {
         return validator.validateWithSchema(elementCell.getElement());
     }
+
+    public Schema getSchema() {
+        return validator.getSchema();
+    }
 }

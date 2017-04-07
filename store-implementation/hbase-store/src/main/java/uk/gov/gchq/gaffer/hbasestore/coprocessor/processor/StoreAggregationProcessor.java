@@ -110,4 +110,7 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
+    public Schema getSchema() {
+        return schema;
+    }
 }

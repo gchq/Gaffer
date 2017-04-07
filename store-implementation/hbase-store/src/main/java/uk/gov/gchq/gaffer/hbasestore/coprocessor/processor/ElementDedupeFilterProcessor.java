@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import uk.gov.gchq.gaffer.commonutil.ByteUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.LazyElementCell;
@@ -35,9 +34,9 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
     private final boolean unDirectedEdges;
     private final boolean directedEdges;
 
-    public ElementDedupeFilterProcessor(final View view, final DirectedType directedType) {
-        entities = view.hasEntities();
-        edges = view.hasEdges();
+    public ElementDedupeFilterProcessor(final boolean entities, final boolean edges, final DirectedType directedType) {
+        this.entities = entities;
+        this.edges = edges;
         directedEdges = DirectedType.DIRECTED == directedType;
         unDirectedEdges = DirectedType.UNDIRECTED == directedType;
     }

@@ -146,4 +146,11 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         }
     }
 
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public View getView() {
+        return view;
+    }
 }
