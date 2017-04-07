@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,24 @@ public final class CellUtil {
     private CellUtil() {
     }
 
+    public static List<Element> getElements(final Iterable<Put> puts, final ElementSerialisation serialisation) throws SerialisationException {
+        final List<Element> cells = new ArrayList<>();
+        for (final Put put : puts) {
+            cells.add(getLazyCell(put, serialisation).getElement());
+        }
+
+        return cells;
+    }
+
+    public static List<LazyElementCell> getLazyCellsFromPuts(final Iterable<Put> puts, final ElementSerialisation serialisation) throws SerialisationException {
+        final List<LazyElementCell> cells = new ArrayList<>();
+        for (final Put put : puts) {
+            cells.add(getLazyCell(put, serialisation));
+        }
+
+        return cells;
+    }
+
     public static List<LazyElementCell> getLazyCells(final Iterable<Element> elements, final ElementSerialisation serialisation) throws SerialisationException {
         final List<LazyElementCell> cells = new ArrayList<>();
         for (final Element element : elements) {
@@ -49,6 +67,10 @@ public final class CellUtil {
 
     public static Pair<LazyElementCell> getLazyCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
         return getLazyCells(serialisation.getPuts(element), serialisation);
+    }
+
+    public static LazyElementCell getLazyCell(final Put put, final ElementSerialisation serialisation) {
+        return new LazyElementCell(getCell(put), serialisation);
     }
 
     public static Pair<LazyElementCell> getLazyCells(final Pair<Put> puts, final ElementSerialisation serialisation) {
@@ -74,16 +96,24 @@ public final class CellUtil {
         return cells;
     }
 
+    public static Cell getCell(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
+        return getCells(serialisation.getPuts(element)).getFirst();
+    }
+
     public static Pair<Cell> getCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
         return getCells(serialisation.getPuts(element));
     }
 
+    public static Cell getCell(final Put put) {
+        return put.getFamilyCellMap().values().iterator().next().iterator().next();
+    }
+
     public static Pair<Cell> getCells(final Pair<Put> puts) {
         final Pair<Cell> cells = new Pair<>();
-        cells.setFirst(puts.getFirst().getFamilyCellMap().values().iterator().next().iterator().next());
+        cells.setFirst(getCell(puts.getFirst()));
 
         if (null != puts.getSecond()) {
-            cells.setSecond(puts.getSecond().getFamilyCellMap().values().iterator().next().iterator().next());
+            cells.setSecond(getCell(puts.getSecond()));
         }
 
         return cells;

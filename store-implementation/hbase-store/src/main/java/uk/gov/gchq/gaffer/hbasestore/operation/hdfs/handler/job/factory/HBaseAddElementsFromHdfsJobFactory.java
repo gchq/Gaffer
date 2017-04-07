@@ -27,7 +27,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
@@ -70,7 +69,7 @@ public class HBaseAddElementsFromHdfsJobFactory extends
         try {
             HFileOutputFormat2.configureIncrementalLoad(
                     job,
-                    TableUtils.getTable(store),
+                    store.getTable(),
                     store.getConnection().getRegionLocator(store.getProperties().getTable())
             );
         } catch (final StoreException e) {

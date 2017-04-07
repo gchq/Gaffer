@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -143,7 +142,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
                 scan.setAttribute(HBaseStoreConstants.EXTRA_PROCESSORS, extraProcessors);
             }
             scan.setMaxVersions();
-            table = TableUtils.getTable(store);
+            table = store.getTable();
             return table.getScanner(scan);
         } catch (final IOException | StoreException e) {
             if (null != table) {

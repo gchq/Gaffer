@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hbasestore.utils;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.hbase.Coprocessor;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -24,7 +23,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -96,24 +94,6 @@ public final class TableUtils {
             } else {
                 TableUtils.createTable(store);
             }
-        }
-    }
-
-    /**
-     * Gets the HBase table given the provided hbase store.
-     *
-     * @param store the hbase store.
-     * @return the HBase table
-     * @throws StoreException if a reference to the table could not be created.
-     */
-    public static HTable getTable(final HBaseStore store) throws StoreException {
-        final TableName tableName = store.getProperties().getTable();
-        final Connection connection = store.getConnection();
-        try {
-            return (HTable) connection.getTable(tableName);
-        } catch (final IOException e) {
-            IOUtils.closeQuietly(connection);
-            throw new StoreException(e);
         }
     }
 

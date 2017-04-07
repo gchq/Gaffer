@@ -124,6 +124,10 @@ graph.execute(addElements, new User());
 
 Note that here `elements` could be a never-ending stream of `Element`s and the above command will continuously ingest the data until it is cancelled or the stream stops.
 
+IMPORTANT - due to the way elements are inserted into HBase we need to aggregate elements within each batch before adding them to HBase to avoid them being skipped.
+Therefore optimising the batch size could have a big impact on performance. Configure the batch size using store property: hbase.writeBufferSize
+If your schema does not have aggregation then elements with the same key (group, vertex, source, destination, direction) in the same batch will be skipped/deduplicated even if the properties are different.
+
 **Bulk import**
 
 To ingest data via bulk import, a MapReduce job is used to convert your data into files of HBase key-value pairs that are pre-sorted to match the distribution of data in HBase. Once these files are created, HBase moves them from their current location in HDFS to the correct directory within HBase's data directory. The data in them is then available for query immediately.

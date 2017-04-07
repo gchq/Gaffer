@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -59,21 +58,15 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private void addElements(final AddElements addElementsOperation, final HBaseStore store)
             throws OperationException {
+        if (null == addElementsOperation.getInput()) {
+            return;
+        }
+
         try {
-            final HTable table = TableUtils.getTable(store);
-            final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
+            final HTable table = store.getTable();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
             while (elements.hasNext()) {
-                final Collection<Element> elementBatch = createElementBatch(elements, store);
-                final List<Put> puts = new ArrayList<>(elementBatch.size());
-                for (final Element element : elementBatch) {
-                    final Pair<Put> putPair = serialisation.getPuts(element);
-                    puts.add(putPair.getFirst());
-                    if (null != putPair.getSecond()) {
-                        puts.add(putPair.getSecond());
-                    }
-                }
-
+                final List<Put> puts = createBatch(elements, store);
                 if (!puts.isEmpty()) {
                     table.put(puts);
                     // Ensure the table has been flushed otherwise similar elements in the next batch may be skipped.
@@ -87,11 +80,35 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private Collection<Element> createElementBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
-        final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
+    private List<Put> createBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
+        if (store.getSchema().hasAggregators()) {
+            return createAggregatedBatch(elements, store);
+        }
+
+        final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
+        final int batchSize = store.getProperties().getWriteBufferSize();
+        final List<Put> puts = new ArrayList<>(batchSize);
+        for (int i = 0; i < batchSize && elements.hasNext(); i++) {
+            final Element element = elements.next();
+            if (null == element) {
+                i--;
+                continue;
+            }
+            final Pair<Put> putPair = serialisation.getPuts(element);
+            puts.add(putPair.getFirst());
+            if (null != putPair.getSecond()) {
+                puts.add(putPair.getSecond());
+            }
+        }
+
+        return puts;
+    }
+
+    private List<Put> createAggregatedBatch(final Iterator<? extends Element> elements, final HBaseStore store) throws SerialisationException {
         final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
         final int batchSize = store.getProperties().getWriteBufferSize();
 
+        final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
         final Map<Integer, Element> keyToElement = new HashMap<>(batchSize);
         for (int i = 0; i < batchSize && elements.hasNext(); i++) {
             final Element element = elements.next();
@@ -123,6 +140,17 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 aggregator.apply(properties, existingElement.getProperties());
             }
         }
-        return keyToElement.values();
+
+        final Collection<Element> elementBatch = keyToElement.values();
+        final List<Put> puts = new ArrayList<>(elementBatch.size());
+        for (final Element element : elementBatch) {
+            final Pair<Put> putPair = serialisation.getPuts(element);
+            puts.add(putPair.getFirst());
+            if (null != putPair.getSecond()) {
+                puts.add(putPair.getSecond());
+            }
+        }
+
+        return puts;
     }
 }

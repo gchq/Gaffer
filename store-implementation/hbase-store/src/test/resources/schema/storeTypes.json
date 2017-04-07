@@ -15,7 +15,8 @@
     "visibility": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
-      }
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
     }
   }
 }
