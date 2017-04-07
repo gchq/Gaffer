@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -65,12 +64,11 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
     private CloseableIterator<Element> iterator;
 
-    @SafeVarargs
     public HBaseRetriever(final HBaseStore store,
                           final OP operation,
                           final User user,
                           final Iterable<? extends ElementId> ids,
-                          final Class<? extends GafferScannerProcessor>... extraProcessors) throws StoreException {
+                          final Class<?>... extraProcessors) throws StoreException {
         this.serialisation = new ElementSerialisation(store.getSchema());
         this.rowRangeFactory = new RowRangeFactory(serialisation);
         this.validator = new ElementValidator(operation.getView());
@@ -84,7 +82,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
             this.authorisations = new Authorizations();
         }
 
-        if (extraProcessors.length > 0) {
+        if (null != extraProcessors && extraProcessors.length > 0) {
             this.extraProcessors = StringUtil.toCsv(extraProcessors);
         } else {
             this.extraProcessors = null;

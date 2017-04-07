@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.IsEdgeValidator;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -46,10 +47,14 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
-    public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds op,
-                                                             final User user,
-                                                             final HBaseStore store)
+    private CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds op,
+                                                              final User user,
+                                                              final HBaseStore store)
             throws OperationException {
+        if (null == op.getInput()) {
+            // If null seeds no results are returned
+            return new WrappedCloseableIterable<>(Collections.emptyList());
+        }
 
         final HBaseRetriever<?> edgeRetriever;
         final GetElements getEdges = new GetElements.Builder()
@@ -65,7 +70,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
                 .build();
 
         try {
-            edgeRetriever = new HBaseRetriever<>(store, getEdges, user, getEdges.getInput());
+            edgeRetriever = store.createRetriever(getEdges, user, getEdges.getInput());
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
@@ -73,7 +78,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
         return new ExtractDestinationEntityId(edgeRetriever);
     }
 
-    private static final class ExtractDestinationEntityId extends TransformIterable<Element, EntityId> {
+    protected static final class ExtractDestinationEntityId extends TransformIterable<Element, EntityId> {
         private ExtractDestinationEntityId(final Iterable<Element> input) {
             super(input, new IsEdgeValidator());
         }
@@ -86,6 +91,11 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
         @Override
         public void close() {
             ((CloseableIterable) super.getInput()).close();
+        }
+
+        @Override
+        protected Iterable<? extends Element> getInput() {
+            return super.getInput();
         }
     }
 }

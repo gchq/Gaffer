@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -36,14 +35,14 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return doOperation(operation, context.getUser(), (HBaseStore) store);
     }
 
-    public CloseableIterable<? extends Element> doOperation(final GetElements operation, final User user, final HBaseStore store) throws OperationException {
+    private CloseableIterable<? extends Element> doOperation(final GetElements operation, final User user, final HBaseStore store) throws OperationException {
         if (null == operation.getInput()) {
             // If null seeds no results are returned
             return new WrappedCloseableIterable<>(Collections.emptyList());
         }
 
         try {
-            return new HBaseRetriever<>(store, operation, user, operation.getInput());
+            return store.createRetriever(operation, user, operation.getInput());
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }
