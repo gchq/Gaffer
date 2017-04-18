@@ -60,7 +60,7 @@ public final class ByteUtil {
 
         // since sorted data is usually compared in accumulo,
         // the prefixes will normally be the same... so compare
-        // the last two charachters first.. the most likely place
+        // the last two characters first.. the most likely place
         // to have disorder is at end of the strings when the
         // data is sorted... if those are the same compare the rest
         // of the data forward... comparing backwards is slower

@@ -36,7 +36,7 @@ public class SingleUseHBaseStore extends HBaseStore {
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         // Initialise is deliberately called both before and after the deletion of the table.
-        // The first call sets up a connection to the Accumulo instance
+        // The first call sets up a connection to the HBase instance
         // The second call is used to re-create the table
         super.initialise(schema, properties);
 

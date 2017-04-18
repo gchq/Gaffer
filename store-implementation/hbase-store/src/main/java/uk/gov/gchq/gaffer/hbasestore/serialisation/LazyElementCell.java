@@ -122,7 +122,6 @@ public class LazyElementCell {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
                 .append(group)
                 .append(cell)
                 .append(element)
