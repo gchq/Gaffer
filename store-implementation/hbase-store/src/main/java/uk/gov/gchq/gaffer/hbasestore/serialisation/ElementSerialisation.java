@@ -25,7 +25,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -400,9 +400,9 @@ public class ElementSerialisation {
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
-    public Pair<byte[]> getRowKeys(final Element element) throws SerialisationException {
+    public SimplePair<byte[]> getRowKeys(final Element element) throws SerialisationException {
         if (element instanceof Entity) {
-            return new Pair<>(getRowKey(((Entity) element)));
+            return new SimplePair<>(getRowKey(((Entity) element)));
         }
 
         return getRowKeys(((Edge) element));
@@ -421,7 +421,7 @@ public class ElementSerialisation {
         }
     }
 
-    public Pair<byte[]> getRowKeys(final Edge edge) throws SerialisationException {
+    public SimplePair<byte[]> getRowKeys(final Edge edge) throws SerialisationException {
         byte directionFlag1;
         byte directionFlag2;
         if (edge.isDirected()) {
@@ -443,7 +443,7 @@ public class ElementSerialisation {
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
         if (edge.getSource().equals(edge.getDestination())) {
-            return new Pair<>(rowKey1, null);
+            return new SimplePair<>(rowKey1, null);
         }
 
         final byte[] rowKey2 = new byte[length];
@@ -454,16 +454,16 @@ public class ElementSerialisation {
         System.arraycopy(source, 0, rowKey2, destination.length + 3, source.length);
         rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey2[rowKey2.length - 1] = directionFlag2;
-        return new Pair<>(rowKey1, rowKey2);
+        return new SimplePair<>(rowKey1, rowKey2);
     }
 
-    public Pair<Put> getPuts(final Element element) throws SerialisationException {
-        final Pair<byte[]> row = getRowKeys(element);
+    public SimplePair<Put> getPuts(final Element element) throws SerialisationException {
+        final SimplePair<byte[]> row = getRowKeys(element);
         final byte[] cq = getColumnQualifier(element);
         return getPuts(element, row, cq);
     }
 
-    public Pair<Put> getPuts(final Element element, final Pair<byte[]> row, final byte[] cq) throws SerialisationException {
+    public SimplePair<Put> getPuts(final Element element, final SimplePair<byte[]> row, final byte[] cq) throws SerialisationException {
         final long ts = getTimestamp(element.getProperties());
         final byte[] value = getValue(element);
         final String visibilityStr = Bytes.toString(getColumnVisibility(element));
@@ -474,7 +474,7 @@ public class ElementSerialisation {
             put.setCellVisibility(cellVisibility);
         }
 
-        final Pair<Put> puts = new Pair<>(put);
+        final SimplePair<Put> puts = new SimplePair<>(put);
         if (null != row.getSecond()) {
             final Put put2 = new Put(row.getSecond());
             put2.addColumn(HBaseStoreConstants.getColFam(), cq, value);

@@ -14,49 +14,43 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil;
+package uk.gov.gchq.gaffer.commonutil.pair;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
 
 /**
  * A simple class to contain a pair of items.
  *
- * @param <T> type of items in the pair
+ * @param <F> type of first item in the pair
+ * @param <S> type of second item in the pair
  */
-public class Pair<T> implements Serializable {
+public abstract class AbstractPair<F, S> implements Pair<F, S> {
     private static final long serialVersionUID = 4769405415756562347L;
-    private T first;
-    private T second;
+    protected F first;
+    protected S second;
 
-    public Pair() {
+    public AbstractPair() {
     }
 
-    public Pair(final T first) {
+    public AbstractPair(final F first) {
         this(first, null);
     }
 
-    public Pair(final T first, final T second) {
+    public AbstractPair(final F first, final S second) {
         this.first = first;
         this.second = second;
     }
 
+    @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    public T getFirst() {
+    public F getFirst() {
         return first;
     }
 
-    public void setFirst(final T first) {
-        this.first = first;
-    }
-
+    @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    public T getSecond() {
+    public S getSecond() {
         return second;
-    }
-
-    public void setSecond(final T second) {
-        this.second = second;
     }
 
     @Override
@@ -82,7 +76,7 @@ public class Pair<T> implements Serializable {
             return false;
         }
 
-        final Pair<?> other = (Pair<?>) obj;
+        final AbstractPair<?, ?> other = (AbstractPair<?, ?>) obj;
         if (first == null) {
             if (other.first != null) {
                 return false;
@@ -100,10 +94,5 @@ public class Pair<T> implements Serializable {
         }
 
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Pair{" + "first=" + first + ", second=" + second + '}';
     }
 }

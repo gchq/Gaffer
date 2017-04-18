@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
-import uk.gov.gchq.gaffer.commonutil.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -122,7 +122,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         final Collection<Element> elementBatch = keyToElement.values();
         final List<Put> puts = new ArrayList<>(elementBatch.size());
         for (final Element element : elementBatch) {
-            final Pair<Put> putPair = serialisation.getPuts(element);
+            final SimplePair<Put> putPair = serialisation.getPuts(element);
             puts.add(putPair.getFirst());
             if (null != putPair.getSecond()) {
                 puts.add(putPair.getSecond());

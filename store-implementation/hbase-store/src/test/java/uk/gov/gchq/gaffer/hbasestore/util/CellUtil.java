@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.util;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
-import uk.gov.gchq.gaffer.commonutil.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
@@ -51,7 +51,7 @@ public final class CellUtil {
     public static List<LazyElementCell> getLazyCells(final Iterable<Element> elements, final ElementSerialisation serialisation) throws SerialisationException {
         final List<LazyElementCell> cells = new ArrayList<>();
         for (final Element element : elements) {
-            final Pair<LazyElementCell> cellPair = getLazyCells(element, serialisation);
+            final SimplePair<LazyElementCell> cellPair = getLazyCells(element, serialisation);
             cells.add(cellPair.getFirst());
             if (null != cellPair.getSecond()) {
                 cells.add(cellPair.getSecond());
@@ -65,7 +65,7 @@ public final class CellUtil {
         return getLazyCells(serialisation.getPuts(element), serialisation).getFirst();
     }
 
-    public static Pair<LazyElementCell> getLazyCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
+    public static SimplePair<LazyElementCell> getLazyCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
         return getLazyCells(serialisation.getPuts(element), serialisation);
     }
 
@@ -73,9 +73,9 @@ public final class CellUtil {
         return new LazyElementCell(getCell(put), serialisation);
     }
 
-    public static Pair<LazyElementCell> getLazyCells(final Pair<Put> puts, final ElementSerialisation serialisation) {
-        final Pair<Cell> cells = getCells(puts);
-        final Pair<LazyElementCell> lazyCells = new Pair<>();
+    public static SimplePair<LazyElementCell> getLazyCells(final SimplePair<Put> puts, final ElementSerialisation serialisation) {
+        final SimplePair<Cell> cells = getCells(puts);
+        final SimplePair<LazyElementCell> lazyCells = new SimplePair<>();
         lazyCells.setFirst(new LazyElementCell(cells.getFirst(), serialisation));
         if (null != cells.getSecond()) {
             lazyCells.setSecond(new LazyElementCell(cells.getSecond(), serialisation));
@@ -86,7 +86,7 @@ public final class CellUtil {
     public static List<Cell> getCells(final Iterable<Element> elements, final ElementSerialisation serialisation) throws SerialisationException {
         final List<Cell> cells = new ArrayList<>();
         for (final Element element : elements) {
-            final Pair<Cell> cellPair = getCells(element, serialisation);
+            final SimplePair<Cell> cellPair = getCells(element, serialisation);
             cells.add(cellPair.getFirst());
             if (null != cellPair.getSecond()) {
                 cells.add(cellPair.getSecond());
@@ -100,7 +100,7 @@ public final class CellUtil {
         return getCells(serialisation.getPuts(element)).getFirst();
     }
 
-    public static Pair<Cell> getCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
+    public static SimplePair<Cell> getCells(final Element element, final ElementSerialisation serialisation) throws SerialisationException {
         return getCells(serialisation.getPuts(element));
     }
 
@@ -108,8 +108,8 @@ public final class CellUtil {
         return put.getFamilyCellMap().values().iterator().next().iterator().next();
     }
 
-    public static Pair<Cell> getCells(final Pair<Put> puts) {
-        final Pair<Cell> cells = new Pair<>();
+    public static SimplePair<Cell> getCells(final SimplePair<Put> puts) {
+        final SimplePair<Cell> cells = new SimplePair<>();
         cells.setFirst(getCell(puts.getFirst()));
 
         if (null != puts.getSecond()) {

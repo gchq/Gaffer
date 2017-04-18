@@ -17,8 +17,8 @@
 package uk.gov.gchq.gaffer.hbasestore.coprocessor.processor;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -71,7 +71,7 @@ public class ElementDedupeFilterProcessorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge;
-            final Pair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
+            final SimplePair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
             assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
@@ -89,7 +89,7 @@ public class ElementDedupeFilterProcessorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-            final Pair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
+            final SimplePair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
             assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
@@ -106,7 +106,7 @@ public class ElementDedupeFilterProcessorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
-            final Pair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
+            final SimplePair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
             assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
             if (null != cells.getSecond()) {
                 // self elements are not added the other way round
@@ -123,7 +123,7 @@ public class ElementDedupeFilterProcessorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Entity;
-            final Pair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
+            final SimplePair<LazyElementCell> cells = CellUtil.getLazyCells(element, serialisation);
             assertEquals("Failed for element: " + element.toString(), expectedResult, processor.test(cells.getFirst()));
             if (null != cells.getSecond()) {
                 // entities and self edges are not added the other way round
