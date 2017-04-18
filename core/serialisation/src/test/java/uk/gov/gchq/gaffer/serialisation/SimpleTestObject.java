@@ -30,7 +30,7 @@ public class SimpleTestObject implements Serializable {
         return x;
     }
 
-    public void setX(String x) {
+    public void setX(final String x) {
         this.x = x;
     }
 

@@ -103,7 +103,7 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
         final byte[][] sourceDestValues = new byte[3][];
         try {
             elementSerialisation.getSourceAndDestination(CellUtil.cloneRow(cell), sourceDestValues, null);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new RuntimeException("Unable to deserialise element source and destination");
         }
         return ByteUtil.compareSortedBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;

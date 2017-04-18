@@ -64,7 +64,7 @@ public class SampleDataForSplitPointsTest implements OperationTest {
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
         try {
             op.setNumReduceTasks(10);
-        } catch(IllegalArgumentException e) {
+        } catch(final IllegalArgumentException e) {
             return;
         }
         fail();
