@@ -1,0 +1,36 @@
+########################################################################
+# Creates image containing jar files
+# Eclipse an IDE to develop source files
+#######################################################################
+
+
+FROM gaffer-docker/centos6:gafferdevel
+
+# Name of the developer
+
+MAINTAINER ng10developer 
+
+# Dockerfile metadata
+
+LABEL com.gaffer-docker.version.is-beta="yes" \
+      com.gaffer-docker.version.is-production="no" \
+      com.gaffer-docker.version="0.0.3-beta" \
+      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.description=" Eclipse docker file"
+
+# Creates the directory for the eclipse user workspace
+ENV ECLIPSE_WORKSPACE_DIR /home/hduser/workspace
+USER root
+
+RUN \
+      mkdir -p ${ECLIPSE_WORKSPACE_DIR} && \
+      curl -L 'https://eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/mars/2/eclipse-jee-mars-2-linux-gtk-x86_64.tar.gz&r=1' | tar xzf - -C /opt/ && \
+      curl -L 'http://www.eclipse.org/downloads/download.php?file=/rt/eclipselink/releases/2.6.2/eclipselink-2.6.2.v20151217-774c696.zip&r=1' > /opt/eclipselink.zip 
+ENV SETUP_LOCN_DIR setup_files
+ENV PATH=$PATH:/opt/eclipse
+
+RUN \
+     export uid=1000 gid=1000 && \
+     chown -R  hduser:hadoop /opt ${ECLIPSE_WORKSPACE_DIR}
+
+USER hduser

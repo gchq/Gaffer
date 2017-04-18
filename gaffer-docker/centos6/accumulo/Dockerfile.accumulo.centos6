@@ -1,0 +1,131 @@
+##########################################################
+# Creates Base Centos6 pseudo distributed accumulo 1.6.4
+#
+# The image inherits the hadoopserver configuration and setup from the
+# hadoop image
+###################################################################
+
+FROM gaffer-docker/centos6:hadoop
+
+# Name of the developer
+
+MAINTAINER ng10developer 
+
+# Dockerfile metadata
+
+LABEL com.gaffer-docker.version.is-beta="yes"\
+      com.gaffer-docker.version.is-production="no" \
+      com.gaffer-docker.version="0.3.2-beta" \
+      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.description="Accumulo Docker Image"
+
+USER root
+
+# location where configuration files are temporary
+# stored prior to being copied frm the docker host to the installation directory
+# during the build process
+
+ENV DOCKER_FILES /usr/local/docker_files
+ENV INSTALL_DIR /opt
+ENV ZOOKEEPER_LOCN_FILES zookeeper
+ENV ACCUMULO_LOCN_FILES setup_files
+ENV JAVA_HOME /opt/jvm/java
+
+#configures swappiness to 0  and disables ipv6
+# the swappiness and disabling of IPV6 needs to be
+# disbled on the host system
+RUN echo "vm.swappiness = 0" > /etc/sysctl.conf
+RUN echo "net.ipv6.conf.all.disable_ipv6 = 1" >> /etc/sysctl.conf
+RUN echo "net.ipv6.conf.default.disable_ipv6 = 1" >> /etc/sysctl.conf
+
+RUN mkdir -p ${DOCKER_FILES}
+RUN chown hduser:hadoop ${DOCKER_FILES}
+RUN chown hduser:hadoop ${INSTALL_DIR}
+
+USER hduser
+# Install zookeeper.
+# Accumulo uses zookeeper for coordinating settings betwen its processes
+# and for other configuration information
+
+ADD ${ZOOKEEPER_LOCN_FILES}/zoo.cfg ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/log4j.properties ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/zkEnv.sh ${DOCKER_FILES}/
+ADD ${ZOOKEEPER_LOCN_FILES}/zkServer.sh ${DOCKER_FILES}/
+
+RUN curl -s https://archive.apache.org/dist/zookeeper/zookeeper-3.3.5/zookeeper-3.3.5.tar.gz | tar -xz -C /opt/
+RUN cd ${INSTALL_DIR} && ln -s ./zookeeper-3.3.5 zookeeper
+RUN cp -pf ${DOCKER_FILES}/zoo.cfg ${INSTALL_DIR}/zookeeper/conf/.
+RUN cp -pf ${DOCKER_FILES}/log4j.properties ${INSTALL_DIR}/zookeeper/conf/.
+RUN cp -pf ${DOCKER_FILES}/zkEnv.sh ${INSTALL_DIR}/zookeeper/bin/.
+RUN cp -pf ${DOCKER_FILES}/zkServer.sh ${INSTALL_DIR}/zookeeper/bin/.
+ADD ${ZOOKEEPER_LOCN_FILES}/start-zookeeper.sh /home/hduser/
+RUN mkdir -p ${INSTALL_DIR}/zookeeper/data 
+RUN mkdir -p ${INSTALL_DIR}/zookeeper/logs
+RUN mkdir -p ${INSTALL_DIR}/zookeeper/walogs
+
+# Install accumulo
+
+ADD ${ACCUMULO_LOCN_FILES}/accumulo_supervisord.conf /etc/supervisor.d/accumulo_supervisord.conf
+RUN curl -s https://archive.apache.org/dist/accumulo/1.6.4/accumulo-1.6.4-bin.tar.gz | tar -xz -C /opt/
+RUN cd ${INSTALL_DIR} && ln -s ./accumulo-1.6.4 accumulo
+
+USER root
+# Creates native libraries
+
+RUN cd ${INSTALL_DIR}/accumulo && ./bin/build_native_library.sh
+
+# Copies the configuration scripts required to create an accumulo node 
+# configured as a single cluster
+
+USER hduser
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-env.sh ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-metrics.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo.policy.example ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/auditLog.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/gc ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/generic_logger.properties  ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/generic_logger.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/hadoop-metrics2-accumulo.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/log4j.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/masters ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor_logger.properties ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/monitor_logger.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/slaves ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/tracers ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/accumulo-site.xml ${INSTALL_DIR}/accumulo/conf/
+ADD ${ACCUMULO_LOCN_FILES}/start-accumulo.sh /home/hduser/
+ADD ${ACCUMULO_LOCN_FILES}/stop-accumulo.sh /home/hduser/
+
+ADD ${ACCUMULO_LOCN_FILES}/gaffer2-setup.sh /home/hduser/
+RUN mkdir -p  ${INSTALL_DIR}/accumulo/logs  
+
+USER root
+
+
+
+RUN \
+    chown hduser:hadoop ${INSTALL_DIR}/accumulo/logs && \
+    chown -R hduser:hadoop ${INSTALL_DIR}/accumulo-1.6.4 && \
+    chown -R hduser:hadoop ${INSTALL_DIR}/zookeeper-3.3.5 && \
+    chown hduser:hadoop ${INSTALL_DIR}/zookeeper/logs && \
+    chown hduser:hadoop ${INSTALL_DIR}/zookeeper/data && \
+    chown hduser:hadoop ${INSTALL_DIR}/zookeeper/walogs && \
+    chmod +x /home/hduser/start-zookeeper.sh && \
+    chmod +x /home/hduser/start-accumulo.sh && \
+    chmod +x /home/hduser/stop-accumulo.sh && \
+    chmod +x /home/hduser/gaffer2-setup.sh  && \ 
+    chmod 1777 tmp
+
+
+# zookeeper ports
+EXPOSE 2181 2888 3888
+
+# accumulo ports
+EXPOSE 50095 
+
+#Other ports
+EXPOSE 2122 
+
+
+USER hduser
