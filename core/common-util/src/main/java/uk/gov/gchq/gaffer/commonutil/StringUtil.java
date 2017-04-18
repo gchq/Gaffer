@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;

@@ -18,8 +18,8 @@ package uk.gov.gchq.gaffer.function.filter;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.function.Predicate;
 
