@@ -83,7 +83,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
         private Iterator<Entry<Key, Value>> scannerIterator;
         private Element nextElm;
 
-        protected ElementIterator(final Iterator<? extends I_ITEM> idIterator) throws RetrieverException {
+        public ElementIterator(final Iterator<? extends I_ITEM> idIterator) throws RetrieverException {
             idsIterator = idIterator;
             count = 0;
             final Set<Range> ranges = new HashSet<>();
