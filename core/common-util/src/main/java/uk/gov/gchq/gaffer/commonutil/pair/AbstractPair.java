@@ -72,8 +72,10 @@ public abstract class AbstractPair<F, S> implements Pair<F, S> {
             return false;
         }
 
-        if (getClass() != obj.getClass()) {
-            return false;
+        if (this.getClass() != obj.getClass()) {
+            if (!this.getClass().getSuperclass().equals(obj.getClass().getSuperclass())) {
+                return false;
+            }
         }
 
         final AbstractPair<?, ?> other = (AbstractPair<?, ?>) obj;

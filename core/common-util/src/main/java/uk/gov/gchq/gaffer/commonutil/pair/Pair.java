@@ -25,7 +25,7 @@ public interface Pair<F, S> extends Serializable {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
     S getSecond();
 
-    default <F, S> Pair<F, S> of(final F first, final S second) {
+    static <F, S> Pair<F, S> of(final F first, final S second) {
         if (null != first) {
             return new ImmutablePair<>(first, second);
         } else {
