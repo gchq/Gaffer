@@ -1,0 +1,143 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+grant codeBase "file:${java.home}/lib/ext/*" {
+  permission java.security.AllPermission;
+};
+
+// These should all be empty in a fielded system
+grant codeBase "file:${org.apache.accumulo.core.home.dir}/src/server/target/classes/" {
+  permission java.security.AllPermission;
+};
+grant codeBase "file:${org.apache.accumulo.core.home.dir}/src/core/target/classes/" {
+  permission java.security.AllPermission;
+};
+grant codeBase "file:${org.apache.accumulo.core.home.dir}/src/start/target/classes/" {
+  permission java.security.AllPermission;
+};
+grant codeBase "file:${org.apache.accumulo.core.home.dir}/src/examples/target/classes/" {
+  permission java.security.AllPermission;
+};
+
+grant codebase "file:${hadoop.home.dir}/*" {
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  permission java.lang.RuntimePermission "shutdownHooks"; // hadoop libs use executables to discover usernames, groups, etc.
+  permission java.lang.RuntimePermission "loadLibrary.*";
+  permission java.io.FilePermission "<<ALL FILES>>", "read, execute";
+  permission java.io.FilePermission "/tmp", "write, delete";
+  permission java.io.FilePermission "/tmp/-", "write, delete";
+  permission java.io.FilePermission "/", "write";
+  permission java.net.SocketPermission "*", "connect, resolve";
+  permission java.util.PropertyPermission "java.library.path", "read";
+  permission java.util.PropertyPermission "user.dir", "read";
+  permission java.util.PropertyPermission "org.apache.commons.logging.*", "read";
+  permission java.util.PropertyPermission "entityExpansionLimit", "read";
+  permission java.util.PropertyPermission "maxOccurLimit", "read";
+  permission java.util.PropertyPermission "os.name", "read";
+};
+
+grant codebase "file:${hadoop.home.dir}/lib/*" {
+  // monitor's jetty web service
+  permission java.security.SecurityPermission "configurationPermission";
+  permission java.security.SecurityPermission "tablesPermission";
+  permission java.security.SecurityPermission "zookeeperWriterPermission";
+  permission java.security.SecurityPermission "tableManagerPermission";
+  permission java.security.SecurityPermission "transportPoolPermission";
+  permission java.security.SecurityPermission "systemCredentialsPermission";
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  // need to accept web requests, and talk to job tracker, name node, etc.
+  permission java.net.SocketPermission "*", "accept, listen, resolve, connect, resolve";
+  permission java.lang.RuntimePermission "getenv.*";
+  permission java.lang.RuntimePermission "loadLibrary.*";
+  permission java.util.PropertyPermission "org.mortbay.*", "read";
+  permission java.util.PropertyPermission "VERBOSE", "read";
+  permission java.util.PropertyPermission "IGNORED", "read";
+  permission java.util.PropertyPermission "ISO_8859_1", "read";
+  permission java.util.PropertyPermission "org.apache.commons.logging.*", "read";
+  permission java.util.PropertyPermission "accumulo.*", "read";
+  permission java.util.PropertyPermission "org.jfree.*", "read";
+  permission java.util.PropertyPermission "elementAttributeLimit", "read";
+  permission java.util.PropertyPermission "entityExpansionLimit", "read";
+  permission java.util.PropertyPermission "maxOccurLimit", "read";
+  // some resources come out of accumulo jars
+  permission java.lang.RuntimePermission "getClassLoader";
+  permission java.io.FilePermission "${org.apache.accumulo.core.home.dir}/lib/*", "read";
+  permission java.io.FilePermission "${org.apache.accumulo.core.home.dir}/src/-", "read";
+  permission java.io.FilePermission "${hadoop.home.dir}/lib/*", "read";
+  // images are cached in /tmp
+  permission java.io.FilePermission "/tmp/*", "read, write";
+  permission java.io.FilePermission "/", "write";
+};
+
+grant codebase "file:${zookeeper.home.dir}/*" {
+  permission java.net.SocketPermission "*", "connect, resolve";
+  permission java.util.PropertyPermission "user.*", "read";
+  permission java.util.PropertyPermission "java.*", "read";
+  permission java.util.PropertyPermission "zookeeper.*", "read";
+  permission java.util.PropertyPermission "jute.*", "read";
+  permission java.util.PropertyPermission "os.*", "read";
+  // accumulo properties read in callbacks
+  permission java.util.PropertyPermission "accumulo.*", "read";
+  permission java.security.SecurityPermission "configurationPermission";
+  permission java.security.SecurityPermission "tablesPermission";
+  permission java.security.SecurityPermission "zookeeperWriterPermission";
+  permission java.security.SecurityPermission "tableManagerPermission";
+  permission java.security.SecurityPermission "transportPoolPermission";
+  permission java.security.SecurityPermission "systemCredentialsPermission";
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  permission java.lang.RuntimePermission "exitVM";
+};
+
+grant codebase "file:${org.apache.accumulo.core.home.dir}/lib/ext/*" {
+};
+
+grant codebase "file:${org.apache.accumulo.core.home.dir}/lib/*" {
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  // logging, configuration and getting user id
+  permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute, delete";
+  permission java.util.PropertyPermission "*", "read, write";
+  permission java.lang.RuntimePermission "getenv.*";
+  permission java.lang.RuntimePermission "getClassLoader";
+  permission java.lang.RuntimePermission "loadLibrary.*";
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+  permission java.lang.RuntimePermission "selectorProvider";
+  permission java.lang.RuntimePermission "accessClassInPackage.*";
+  permission java.lang.RuntimePermission "readFileDescriptor";
+  permission java.lang.RuntimePermission "writeFileDescriptor";
+  permission java.lang.RuntimePermission "modifyThread";
+  permission java.lang.RuntimePermission "modifyThreadGroup";
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.lang.RuntimePermission "setContextClassLoader";
+  permission java.lang.RuntimePermission "exitVM";
+  permission java.lang.RuntimePermission "shutdownHooks";
+  permission java.security.SecurityPermission "getPolicy";
+  permission java.security.SecurityPermission "getProperty.*";
+  permission java.security.SecurityPermission "putProviderProperty.*";
+  permission java.security.SecurityPermission "setSystemScope";
+  permission java.security.SecurityPermission "configurationPermission";
+  permission java.security.SecurityPermission "tablesPermission";
+  permission java.security.SecurityPermission "zookeeperWriterPermission";
+  permission java.security.SecurityPermission "tableManagerPermission";
+  permission java.security.SecurityPermission "transportPoolPermission";
+  permission java.security.SecurityPermission "systemCredentialsPermission";
+  permission java.util.logging.LoggingPermission "control";
+  permission java.net.NetPermission "getProxySelector";
+  permission javax.management.MBeanServerPermission "createMBeanServer";
+  permission javax.management.MBeanTrustPermission "register";
+  permission javax.management.MBeanPermission "*", "registerMBean";
+  permission java.net.SocketPermission "*", "accept, connect, listen, resolve";
+};
