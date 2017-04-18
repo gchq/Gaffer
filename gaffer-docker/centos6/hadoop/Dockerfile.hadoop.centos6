@@ -1,0 +1,143 @@
+###################################################################
+# Creates Base Image for pseudo distributed hadoop 
+#
+# The image inherits the dependency packages required for
+# the installation of hadoop from the gaffer-docker/centos:base
+# image
+###################################################################
+
+# Name of the developer
+
+FROM gaffer-docker/centos6:base
+
+# Dockerfile metadata
+
+MAINTAINER ng10developer 
+
+
+LABEL com.gaffer-docker.version.is-beta="yes" \
+      com.gaffer-docker.version.is-production="no" \
+      com.gaffer-docker.version="0.3.2-beta" \
+      com.gaffer-docker.release-date="2016-04-27" \
+      com.gaffer-docker.description="Hadoop Docker Image"
+
+# directory where docker setup files are temporary stored
+ENV DOCKER_FILES /usr/local/docker_files
+ENV JAVA_INSTALL /opt/jvm
+ENV HD_USER hduser
+ENV HD_USER_GROUP hadoop
+ENV HD_USER_HOME /home/hduser
+ENV HD_USER_PASS hduser
+ENV INSTALL_DIR /opt
+# location of configuration files used to configure hadoop
+ENV SETUP_LOCN_FILES setup_files
+ENV HADOOP_LOCN_FILES hadoop
+ENV HADOOP_TMP_DIR /home/hduser/tmp
+# Directory used for supervisor log
+ENV SUPERVISOR_LOG_DIR /var/log/hadoop
+
+USER root
+# Create the group and user for hadoop , hduser
+# User will be used to run hadoop services instead of root
+RUN \
+    groupadd -g 1000 hadoop  && \
+    useradd -u 1000 hduser -d /home/hduser -m -s /bin/bash -g hadoop && \
+    echo 'hduser ALL=(ALL:ALL) ALL' >> /etc/sudoers && \
+    export uid=1000 gid=1000 && \
+    mkdir -p ${INSTALL_DIR} && \
+    mkdir -p /app && \
+    chown -R  hduser:hadoop ${INSTALL_DIR} && \
+    chown -R  hduser:hadoop /app && \
+    # Add files
+    mkdir -p ${DOCKER_FILES} && \
+    chown hduser:hadoop ${DOCKER_FILES} && \
+    echo 'hduser:hduser'| chpasswd  && \
+    mkdir -p ${SUPERVISOR_LOG_DIR} && \
+    chown -R hduser:hadoop ${SUPERVISOR_LOG_DIR} 
+
+
+USER hduser
+ADD ${SETUP_LOCN_FILES}/bashrc ${DOCKER_FILES}/
+ADD ${SETUP_LOCN_FILES}/ssh_config ${DOCKER_FILES}/
+
+USER root
+
+# Configure passwordless ssh for hduser 
+
+RUN \
+mkdir -p /home/hduser/.ssh  && \
+      chmod 777 /etc/ssh/ssh_*_key && \
+      ssh-keygen -t rsa -f /home/hduser/.ssh/id_rsa -P '' && \
+      cat /home/hduser/.ssh/id_rsa.pub >> /home/hduser/.ssh/authorized_keys && \
+      mv ${DOCKER_FILES}/ssh_config /home/hduser/.ssh/config  && \
+      chmod 600 /home/hduser/.ssh/authorized_keys && \
+      chmod 600 /home/hduser/.ssh/config  && \
+      chmod 700 /home/hduser/.ssh && \
+      chmod 777 /etc/ssh/sshd_config && \
+      chown -R hduser:hadoop /home/hduser/.ssh 
+
+
+ 
+USER hduser
+
+# Install JAVA
+RUN mkdir -p ${INSTALL_DIR}/jvm
+
+RUN curl -L -H "Cookie: oraclelicense=accept-securebackup-cookie" -k "https://edelivery.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.tar.gz" | tar -xz -C /opt/jvm/
+
+RUN ln -s ${INSTALL_DIR}/jvm/jdk1.7.0_79 ${INSTALL_DIR}/jvm/java
+
+ENV JAVA_HOME ${INSTALL_DIR}/java
+ENV PATH $PATH:${JAVA_HOME}/bin
+
+
+#  Install hadoop
+ENV HADOOP_DATANODE /home/hduser/hadoopdata/hdfs/datanode
+ENV HADOOP_NAMENODE /home/hduser/hadoopdata/hdfs/namenode
+ENV HADOOP_TMP_DIR /app/hadoop/tmp
+
+RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz | tar -xz -C /opt/
+
+RUN cd ${INSTALL_DIR} && ln -s ./hadoop-2.6.0 hadoop
+RUN mv ${DOCKER_FILES}/bashrc /home/hduser/.bashrc 
+ADD ${HADOOP_LOCN_FILES}/hadoop-env.sh  ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+ADD ${HADOOP_LOCN_FILES}/core-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+ADD ${HADOOP_LOCN_FILES}/hdfs-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+ADD ${HADOOP_LOCN_FILES}/mapred-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+
+ADD ${HADOOP_LOCN_FILES}/yarn-site.xml ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+ADD ${HADOOP_LOCN_FILES}/slaves ${INSTALL_DIR}/hadoop/etc/hadoop/ 
+ADD ${HADOOP_LOCN_FILES}/start-hadoop.sh /home/hduser/
+ADD ${HADOOP_LOCN_FILES}/stop-hadoop.sh /home/hduser/
+ADD ${HADOOP_LOCN_FILES}/run-wordcount.sh /home/hduser/
+
+USER root
+
+# Creates scripts to start and stop hadoop
+
+RUN \
+    chmod +x /home/hduser/start-hadoop.sh && \
+    chmod +x /home/hduser/stop-hadoop.sh && \
+    chmod +x /home/hduser/run-wordcount.sh && \
+    chown -R hduser:hadoop $INSTALL_DIR/hadoop-2.6.0  && \ 
+    chown hduser:hadoop /home/hduser/run-wordcount.sh && \
+    chown hduser:hadoop /home/hduser/start-hadoop.sh && \
+    chown hduser:hadoop /home/hduser/stop-hadoop.sh && \
+    chmod 1777 tmp
+
+# Hdfs ports
+EXPOSE 50010 50020 50070 50075 50090 8020 9000
+# Mapred ports
+EXPOSE 19888
+#Yarn ports
+EXPOSE 8030 8031 8032 8033 8040 8042 8088
+
+
+#Other ports
+EXPOSE 49707 2122 
+
+
+USER hduser
+RUN mkdir -p $HADOOP_DATANODE
+RUN mkdir -p $HADOOP_NAMENODE
+RUN mkdir -p $HADOOP_TMP_DIR
