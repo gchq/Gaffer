@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -56,16 +55,52 @@ import static org.junit.Assert.fail;
 public class AccumuloSingleIDRetrieverTest {
 
     private static final int numEntries = 1000;
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(AccumuloSingleIDRetrieverTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloSingleIDRetrieverTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloSingleIDRetrieverTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloSingleIDRetrieverTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+    }
+
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
+        final List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < numEntries; i++) {
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i).build();
+
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .source("" + i)
+                                                .destination("B")
+                                                .directed(false).build();
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(true).build();
+
+            elements.add(edge);
+            elements.add(edge2);
+            elements.add(entity);
+        }
+        try {
+            store.execute(new AddElements.Builder().input(elements)
+                                                   .build(), new User());
+        } catch (final OperationException e) {
+            fail("Couldn't add element: " + e);
+        }
     }
 
     @Before
@@ -74,12 +109,6 @@ public class AccumuloSingleIDRetrieverTest {
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
     }
 
     @Test
@@ -101,9 +130,13 @@ public class AccumuloSingleIDRetrieverTest {
         for (int i = 0; i < numEntries; i++) {
             ids.add(new EntitySeed("" + i));
         }
-        final View view = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
+        final View view = new View.Builder().edge(TestGroups.EDGE)
+                                            .entity(TestGroups.ENTITY)
+                                            .build();
 
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         try {
             final AccumuloSingleIDRetriever retriever = new AccumuloSingleIDRetriever(store, operation, new User());
             assertEquals(numEntries * 3, Iterables.size(retriever));
@@ -131,7 +164,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (final IteratorSettingException e) {
@@ -159,7 +194,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().entity(TestGroups.ENTITY).build();
 
         AccumuloSingleIDRetriever retriever = null;
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         try {
             retriever = new AccumuloSingleIDRetriever(store, operation, user);
         } catch (final IteratorSettingException e) {
@@ -188,7 +225,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever<?> retriever = null;
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         operation.setDirectedType(DirectedType.UNDIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
@@ -222,7 +261,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever<?> retriever = null;
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         operation.setDirectedType(DirectedType.DIRECTED);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
@@ -256,7 +297,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever<?> retriever = null;
-        final GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        final GetElements operation = new GetElements.Builder().view(view)
+                                                               .input(ids)
+                                                               .build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
@@ -289,7 +332,9 @@ public class AccumuloSingleIDRetrieverTest {
         final View view = new View.Builder().edge(TestGroups.EDGE).build();
 
         AccumuloSingleIDRetriever<?> retriever = null;
-        GetElements operation = new GetElements.Builder().view(view).input(ids).build();
+        GetElements operation = new GetElements.Builder().view(view)
+                                                         .input(ids)
+                                                         .build();
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
         try {
             retriever = new AccumuloSingleIDRetriever<>(store, operation, user);
@@ -303,32 +348,5 @@ public class AccumuloSingleIDRetrieverTest {
         }
         //Should find both i-B and i-C edges.
         assertEquals(numEntries * 2, count);
-    }
-
-    private static void setupGraph(final AccumuloStore store, final int numEntries) {
-        final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < numEntries; i++) {
-            final Entity entity = TestElements.getEntity();
-            entity.setVertex("" + i);
-
-            final Edge edge = TestElements.getEdge();
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(false);
-
-            final Edge edge2 = TestElements.getEdge();
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-
-            elements.add(edge);
-            elements.add(edge2);
-            elements.add(entity);
-        }
-        try {
-            store.execute(new AddElements.Builder().input(elements).build(), new User());
-        } catch (final OperationException e) {
-            fail("Couldn't add element: " + e);
-        }
     }
 }

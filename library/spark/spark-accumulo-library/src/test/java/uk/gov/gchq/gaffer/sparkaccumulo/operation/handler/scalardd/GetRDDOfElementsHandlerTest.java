@@ -23,7 +23,6 @@ import org.apache.spark.rdd.RDD;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -60,20 +59,20 @@ public class GetRDDOfElementsHandlerTest {
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = TestElements.getEntity();
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i).build();
 
-            final Edge edge1 = TestElements.getEdge();
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty("count", 2);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("B")
+                                                 .directed(false)
+                                                 .property("count", 2).build();
 
-            final Edge edge2 = TestElements.getEdge();
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty("count", 4);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(false)
+                                                 .property("count", 4).build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -112,18 +111,19 @@ public class GetRDDOfElementsHandlerTest {
         results.addAll(Arrays.asList(returnedElements));
 
         final Set<Element> expectedElements = new HashSet<>();
-        final Entity entity1 = TestElements.getEntity();
-        entity1.setVertex("1");
-        final Edge edge1B = TestElements.getEdge();
-        edge1B.setSource("1");
-        edge1B.setDestination("B");
-        edge1B.setDirected(false);
-        edge1B.putProperty("count", 2);
-        final Edge edge1C = TestElements.getEdge();
-        edge1C.setSource("1");
-        edge1C.setDestination("C");
-        edge1C.setDirected(false);
-        edge1C.putProperty("count", 4);
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .vertex("1").build();
+        final Edge edge1B = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("1")
+                                              .destination("B")
+                                              .directed(false)
+                                              .property("count", 2)
+                                              .build();
+        final Edge edge1C = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("1")
+                                              .destination("C")
+                                              .directed(false)
+                                              .property("count", 4).build();
         expectedElements.add(entity1);
         expectedElements.add(edge1B);
         expectedElements.add(edge1C);
@@ -189,18 +189,18 @@ public class GetRDDOfElementsHandlerTest {
         results.clear();
         returnedElements = (Element[]) rdd.collect();
         results.addAll(Arrays.asList(returnedElements));
-        final Entity entity5 = TestElements.getEntity();
-        entity5.setVertex("5");
-        final Edge edge5B = TestElements.getEdge();
-        edge5B.setSource("5");
-        edge5B.setDestination("B");
-        edge5B.setDirected(false);
-        edge5B.putProperty("count", 2);
-        final Edge edge5C = TestElements.getEdge();
-        edge5C.setSource("5");
-        edge5C.setDestination("C");
-        edge5C.setDirected(false);
-        edge5C.putProperty("count", 4);
+        final Entity entity5 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .vertex("5").build();
+        final Edge edge5B = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("5")
+                                              .destination("B")
+                                              .directed(false)
+                                              .property("count", 2).build();
+        final Edge edge5C = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("5")
+                                              .destination("C")
+                                              .directed(false)
+                                              .property("count", 4).build();
         expectedElements.clear();
         expectedElements.add(entity1);
         expectedElements.add(edge1B);
@@ -224,20 +224,20 @@ public class GetRDDOfElementsHandlerTest {
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = TestElements.getEntity();
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i).build();
 
-            final Edge edge1 = TestElements.getEdge();
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty("count", 2);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("B")
+                                                 .directed(false)
+                                                 .property("count", 2).build();
 
-            final Edge edge2 = TestElements.getEdge();
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty("count", 4);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(false)
+                                                 .property("count", 4).build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -279,11 +279,11 @@ public class GetRDDOfElementsHandlerTest {
         results.addAll(Arrays.asList(returnedElements));
 
         final Set<Element> expectedElements = new HashSet<>();
-        final Edge edge1B = TestElements.getEdge();
-        edge1B.setSource("1");
-        edge1B.setDestination("B");
-        edge1B.setDirected(false);
-        edge1B.putProperty("count", 2);
+        final Edge edge1B = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("1")
+                                              .destination("B")
+                                              .directed(false)
+                                              .property("count", 2).build();
         expectedElements.add(edge1B);
         assertEquals(expectedElements, results);
 
@@ -305,8 +305,8 @@ public class GetRDDOfElementsHandlerTest {
         returnedElements = (Element[]) rdd.collect();
         results.addAll(Arrays.asList(returnedElements));
         expectedElements.clear();
-        final Entity entity1 = TestElements.getEntity();
-        entity1.setVertex("1");
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .vertex("1").build();
         expectedElements.add(entity1);
         assertEquals(expectedElements, results);
 
@@ -348,11 +348,11 @@ public class GetRDDOfElementsHandlerTest {
         results.clear();
         returnedElements = (Element[]) rdd.collect();
         results.addAll(Arrays.asList(returnedElements));
-        final Edge edge5C = TestElements.getEdge();
-        edge5C.setSource("5");
-        edge5C.setDestination("C");
-        edge5C.setDirected(false);
-        edge5C.putProperty("count", 4);
+        final Edge edge5C = new Edge.Builder().group(TestGroups.EDGE)
+                                              .source("5")
+                                              .destination("C")
+                                              .directed(false)
+                                              .property("count", 4).build();
         expectedElements.clear();
         expectedElements.add(edge1B);
         expectedElements.add(edge5C);

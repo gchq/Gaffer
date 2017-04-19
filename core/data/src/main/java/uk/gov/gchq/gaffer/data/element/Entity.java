@@ -61,10 +61,6 @@ public class Entity extends Element implements EntityId {
         return vertex;
     }
 
-    public void setVertex(final Object vertex) {
-        this.vertex = vertex;
-    }
-
     @Override
     public Object getIdentifier(final IdentifierType identifierType) {
         switch (identifierType) {
@@ -79,7 +75,7 @@ public class Entity extends Element implements EntityId {
     public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
         switch (identifierType) {
             case VERTEX:
-                setVertex(propertyToBeSet);
+                this.vertex = propertyToBeSet;
                 break;
             default:
                 LOGGER.error("Unknown identifier type: " + identifierType + " detected.");

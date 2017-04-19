@@ -70,8 +70,10 @@ public class EntityTest extends ElementTest {
         final String propValue = "propValue";
 
         // When
-        final Entity entity = new Entity(TestGroups.ENTITY, vertex);
-        entity.putProperty(TestPropertyNames.STRING, propValue);
+        final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                  .vertex(vertex)
+                                                  .property(TestPropertyNames.STRING, propValue)
+                                                  .build();
 
         // Then
         assertEquals(TestGroups.ENTITY, entity.getGroup());
@@ -116,7 +118,7 @@ public class EntityTest extends ElementTest {
                                                    .property("some property", "some value")
                                                    .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
+        final Entity entity2 = cloneCoreFields(entity1).build();
         entity2.putProperty("some property", "some value");
 
         // When
@@ -135,7 +137,7 @@ public class EntityTest extends ElementTest {
                                                    .property("some property", "some value")
                                                    .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
+        final Entity entity2 = cloneCoreFields(entity1).build();
         entity2.putProperty("some property", "some other value");
 
         // When
@@ -172,8 +174,8 @@ public class EntityTest extends ElementTest {
                                                    .vertex("vertex")
                                                    .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
-        entity2.setVertex("different vertex");
+        final Entity entity2 = cloneCoreFields(entity1).vertex("different vertex")
+                                                       .build();
 
         // When
         boolean isEqual = entity1.equals((Object) entity2);
@@ -186,8 +188,9 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
-        final Entity entity = newElement("group");
-        entity.setVertex(1L);
+        final Entity entity = new Entity.Builder().group("group")
+                                                  .vertex(1L)
+                                                  .build();
 
         final JSONSerialiser serialiser = new JSONSerialiser();
 
@@ -211,11 +214,8 @@ public class EntityTest extends ElementTest {
         return new Entity.Builder().build();
     }
 
-    private Entity cloneCoreFields(final Entity entity) {
-        final Entity newEntity = new Entity.Builder().group(entity.getGroup())
-                                                     .vertex(entity.getVertex())
-                                                     .build();
-
-        return newEntity;
+    private Entity.Builder cloneCoreFields(final Entity entity) {
+        return new Entity.Builder().group(entity.getGroup())
+                                   .vertex(entity.getVertex());
     }
 }

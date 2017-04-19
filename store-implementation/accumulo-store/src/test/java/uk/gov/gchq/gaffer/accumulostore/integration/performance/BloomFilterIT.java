@@ -50,7 +50,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
-import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -117,10 +116,12 @@ public class BloomFilterIT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = TestElements.getEntity();
-            source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-            final Entity destination = TestElements.getEntity();
-            destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
+            final Entity source = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("type" + random.nextInt(Integer.MAX_VALUE))
+                                                      .build();
+            final Entity destination = new Entity.Builder().group(TestGroups.ENTITY)
+                                                           .vertex("type" + random.nextInt(Integer.MAX_VALUE))
+                                                           .build();
             dataSet.add(source);
             dataSet.add(destination);
             final Entity sourceEntity = new Entity.Builder().group(source.getGroup())

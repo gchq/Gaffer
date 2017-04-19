@@ -67,24 +67,12 @@ public class Edge extends Element implements EdgeId {
         return source;
     }
 
-    public void setSource(final Object source) {
-        this.source = source;
-    }
-
     public Object getDestination() {
         return destination;
     }
 
-    public void setDestination(final Object destination) {
-        this.destination = destination;
-    }
-
     public boolean isDirected() {
         return directed;
-    }
-
-    public void setDirected(final boolean directed) {
-        this.directed = directed;
     }
 
     @Override
@@ -105,13 +93,13 @@ public class Edge extends Element implements EdgeId {
     public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
         switch (identifierType) {
             case SOURCE:
-                setSource(propertyToBeSet);
+                source = propertyToBeSet;
                 break;
             case DESTINATION:
-                setDestination(propertyToBeSet);
+                destination = propertyToBeSet;
                 break;
             case DIRECTED:
-                setDirected((boolean) propertyToBeSet);
+                directed = (boolean) propertyToBeSet;
                 break;
             default:
                 LOGGER.error("Unknown identifier type: " + identifierType + " detected.");

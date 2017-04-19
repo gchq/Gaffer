@@ -1149,7 +1149,6 @@ public class GetElementsHandlerTest {
                 .build();
         final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
         // Change a property
-        result.setDestination("BBB");
         result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
 
         // Then

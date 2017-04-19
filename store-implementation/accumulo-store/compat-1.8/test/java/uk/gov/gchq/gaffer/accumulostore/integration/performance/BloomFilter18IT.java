@@ -115,16 +115,16 @@ public class BloomFilter18IT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = TestElements.getEntity();
+            final Entity source = new Entity.Builder().group(TestGroups.ENTITY);
             source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-            final Entity destination = TestElements.getEntity();
+            final Entity destination = new Entity.Builder().group(TestGroups.ENTITY);
             destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
             dataSet.add(source);
             dataSet.add(destination);
             final Entity sourceEntity = new Entity(source.getGroup());
-            sourceEntity.setVertex(source.getVertex());
+            source.vertex(source.getVertex());
             final Entity destinationEntity = new Entity(destination.getGroup());
-            destinationEntity.setVertex(destination.getVertex());
+            destination.vertex(destination.getVertex());
             final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
                     .getVertex(), true);
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));

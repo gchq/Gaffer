@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -60,19 +59,34 @@ import static org.junit.Assert.fail;
 
 public class GetElementsWithinSetHandlerTest {
 
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(GetElementsWithinSetHandlerTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsWithinSetHandlerTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsWithinSetHandlerTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsWithinSetHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
-
-    private static Element expectedEdge1 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element expectedEdge2 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element expectedEdge3 = new Edge(TestGroups.EDGE, "A0", "A23", true);
-    private static Element expectedEntity1 = new Entity(TestGroups.ENTITY, "A0");
-    private static Element expectedEntity2 = new Entity(TestGroups.ENTITY, "A23");
-    private static Element expectedSummarisedEdge = new Edge(TestGroups.EDGE, "A0", "A23", true);
+    private static Edge.Builder expectedEdge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                                  .source("A0")
+                                                                  .destination("A23")
+                                                                  .directed(true);
+    private static Edge.Builder expectedEdge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                                  .source("A0")
+                                                                  .destination("A23")
+                                                                  .directed(true);
+    private static Edge.Builder expectedEdge3 = new Edge.Builder().group(TestGroups.EDGE)
+                                                                  .source("A0")
+                                                                  .destination("A23")
+                                                                  .directed(true);
+    private static Entity.Builder expectedEntity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                                        .vertex("A0");
+    private static Entity.Builder expectedEntity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                                        .vertex("A23");
+    private static Edge.Builder expectedSummarisedEdge = new Edge.Builder().group(TestGroups.EDGE)
+                                                                           .source("A0")
+                                                                           .destination("A23")
+                                                                           .directed(true);
     final Set<EntityId> seeds = new HashSet<>(Arrays.asList(new EntitySeed("A0"), new EntitySeed("A23")));
 
     private User user = new User();
@@ -83,39 +97,122 @@ public class GetElementsWithinSetHandlerTest {
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
     }
 
+    @AfterClass
+    public static void tearDown() {
+        byteEntityStore = null;
+        gaffer1KeyStore = null;
+        defaultView = null;
+    }
+
+    private static void setupGraph(final AccumuloStore store) {
+        try {
+            // Create table
+            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
+            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
+            TableUtils.createTable(store);
+
+            final List<Element> data = new ArrayList<>();
+            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("A0")
+                                                      .property(AccumuloPropertyNames.COUNT, 10000)
+                                                      .build();
+            data.add(entity);
+            for (int i = 1; i < 100; i++) {
+                final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                    .source("A0")
+                                                    .destination("A" + i)
+                                                    .directed(true)
+                                                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                    .property(AccumuloPropertyNames.COUNT, i)
+                                                    .property(AccumuloPropertyNames.PROP_1, 0)
+                                                    .property(AccumuloPropertyNames.PROP_2, 0)
+                                                    .property(AccumuloPropertyNames.PROP_3, 0)
+                                                    .property(AccumuloPropertyNames.PROP_4, 0)
+                                                    .build();
+
+                final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                     .source("A0")
+                                                     .destination("A" + i)
+                                                     .directed(true)
+                                                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                                     .property(AccumuloPropertyNames.COUNT, i)
+                                                     .property(AccumuloPropertyNames.PROP_1, 0)
+                                                     .property(AccumuloPropertyNames.PROP_2, 0)
+                                                     .property(AccumuloPropertyNames.PROP_3, 0)
+                                                     .property(AccumuloPropertyNames.PROP_4, 0)
+                                                     .build();
+
+                final Edge edge3 = new Edge.Builder().group(TestGroups.EDGE)
+                                                     .source("A0")
+                                                     .destination("A" + i)
+                                                     .directed(true)
+                                                     .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                                                     .property(AccumuloPropertyNames.COUNT, i)
+                                                     .property(AccumuloPropertyNames.PROP_1, 0)
+                                                     .property(AccumuloPropertyNames.PROP_2, 0)
+                                                     .property(AccumuloPropertyNames.PROP_3, 0)
+                                                     .property(AccumuloPropertyNames.PROP_4, 0)
+                                                     .build();
+
+                data.add(edge);
+                data.add(edge2);
+                data.add(edge3);
+
+                final Entity edgeEntity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                              .vertex("A" + i)
+                                                              .property(AccumuloPropertyNames.COUNT, i)
+                                                              .build();
+                data.add(edgeEntity);
+            }
+            final User user = new User();
+            addElements(data, user, store);
+        } catch (final TableExistsException | StoreException e) {
+            fail("Failed to set up graph in Accumulo with exception: " + e);
+        }
+    }
+
+    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
+        try {
+            store.execute(new AddElements.Builder().input(data).build(), user);
+        } catch (final OperationException e) {
+            fail("Failed to set up graph in Accumulo with exception: " + e);
+        }
+    }
+
     @Before
     public void reInitialise() throws StoreException {
-        expectedEdge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        expectedEdge1.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        expectedEdge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        expectedEdge1.property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
+        expectedEdge1.property(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge1.property(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge1.property(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge1.property(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge1.property(AccumuloPropertyNames.PROP_4, 0);
 
-        expectedEdge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-        expectedEdge2.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        expectedEdge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        expectedEdge2.property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
+        expectedEdge2.property(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge2.property(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge2.property(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge2.property(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge2.property(AccumuloPropertyNames.PROP_4, 0);
 
-        expectedEdge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-        expectedEdge3.putProperty(AccumuloPropertyNames.COUNT, 23);
-        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        expectedEdge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        expectedEdge3.property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
+        expectedEdge3.property(AccumuloPropertyNames.COUNT, 23);
+        expectedEdge3.property(AccumuloPropertyNames.PROP_1, 0);
+        expectedEdge3.property(AccumuloPropertyNames.PROP_2, 0);
+        expectedEdge3.property(AccumuloPropertyNames.PROP_3, 0);
+        expectedEdge3.property(AccumuloPropertyNames.PROP_4, 0);
 
-        expectedEntity1.putProperty(AccumuloPropertyNames.COUNT, 10000);
+        expectedEntity1.property(AccumuloPropertyNames.COUNT, 10000);
 
-        expectedEntity2.putProperty(AccumuloPropertyNames.COUNT, 23);
+        expectedEntity2.property(AccumuloPropertyNames.COUNT, 23);
 
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.COUNT, 23 * 3);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        expectedSummarisedEdge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.COLUMN_QUALIFIER, 6);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.COUNT, 23 * 3);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.PROP_1, 0);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.PROP_2, 0);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.PROP_3, 0);
+        expectedSummarisedEdge.property(AccumuloPropertyNames.PROP_4, 0);
 
         defaultView = new View.Builder()
                 .edge(TestGroups.EDGE)
@@ -126,13 +223,6 @@ public class GetElementsWithinSetHandlerTest {
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        byteEntityStore = null;
-        gaffer1KeyStore = null;
-        defaultView = null;
     }
 
     @Test
@@ -146,13 +236,18 @@ public class GetElementsWithinSetHandlerTest {
     }
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(defaultView).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .view(defaultView)
+                .input(seeds)
+                .build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //Without query compaction the result size should be 5
         assertEquals(5, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEdge1, expectedEdge2, expectedEdge3, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining
+                .hasItems(expectedEdge1.build(), expectedEdge2.build(), expectedEdge3
+                        .build(), expectedEntity1.build(), expectedEntity2.build()));
         elements.close();
     }
 
@@ -178,13 +273,18 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .view(view)
+                .input(seeds)
+                .build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //After query compaction the result size should be 3
         assertEquals(3, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedSummarisedEdge, expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining
+                .hasItems(expectedSummarisedEdge.build(), expectedEntity1.build(), expectedEntity2
+                        .build()));
         elements.close();
     }
 
@@ -207,7 +307,10 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .view(view)
+                .input(seeds)
+                .build();
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
@@ -216,7 +319,8 @@ public class GetElementsWithinSetHandlerTest {
 
         //After query compaction the result size should be 1
         assertEquals(1, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItem(expectedSummarisedEdge));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining
+                .hasItem(expectedSummarisedEdge.build()));
         elements.close();
     }
 
@@ -236,85 +340,18 @@ public class GetElementsWithinSetHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder().view(view).input(seeds).build();
+        final GetElementsWithinSet operation = new GetElementsWithinSet.Builder()
+                .view(view)
+                .input(seeds)
+                .build();
 
         final GetElementsWithinSetHandler handler = new GetElementsWithinSetHandler();
         final CloseableIterable<? extends Element> elements = handler.doOperation(operation, user, store);
 
         //The result size should be 2
         assertEquals(2, Iterables.size(elements));
-        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining.hasItems(expectedEntity1, expectedEntity2));
+        assertThat((CloseableIterable<Element>) elements, IsCollectionContaining
+                .hasItems(expectedEntity1.build(), expectedEntity2.build()));
         elements.close();
-    }
-
-    private static void setupGraph(final AccumuloStore store) {
-        try {
-            // Create table
-            // (this method creates the table, removes the versioning iterator, and adds the SetOfStatisticsCombiner iterator,
-            // and sets the age off iterator to age data off after it is more than ageOffTimeInMilliseconds milliseconds old).
-            TableUtils.createTable(store);
-
-            final List<Element> data = new ArrayList<>();
-            // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = TestElements.getEntity();
-            entity.setVertex("A0");
-            entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
-            data.add(entity);
-            for (int i = 1; i < 100; i++) {
-                final Edge edge = TestElements.getEdge();
-                edge.setSource("A0");
-                edge.setDestination("A" + i);
-                edge.setDirected(true);
-                edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                edge.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
-                edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
-                edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
-                edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
-
-                final Edge edge2 = TestElements.getEdge();
-                edge2.setSource("A0");
-                edge2.setDestination("A" + i);
-                edge2.setDirected(true);
-                edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-                edge2.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
-                edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
-                edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
-                edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
-
-                final Edge edge3 = TestElements.getEdge();
-                edge3.setSource("A0");
-                edge3.setDestination("A" + i);
-                edge3.setDirected(true);
-                edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-                edge3.putProperty(AccumuloPropertyNames.COUNT, i);
-                edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
-                edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
-                edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
-                edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
-
-                data.add(edge);
-                data.add(edge2);
-                data.add(edge3);
-
-                final Entity edgeEntity = TestElements.getEntity();
-                edgeEntity.setVertex("A" + i);
-                edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edgeEntity);
-            }
-            final User user = new User();
-            addElements(data, user, store);
-        } catch (final TableExistsException | StoreException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
-    }
-
-    private static void addElements(final Iterable<Element> data, final User user, final AccumuloStore store) {
-        try {
-            store.execute(new AddElements.Builder().input(data).build(), user);
-        } catch (final OperationException e) {
-            fail("Failed to set up graph in Accumulo with exception: " + e);
-        }
     }
 }
