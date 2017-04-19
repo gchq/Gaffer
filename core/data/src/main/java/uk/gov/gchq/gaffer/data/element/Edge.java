@@ -17,11 +17,18 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Edge.Builder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -33,6 +40,7 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
  *
  * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
+@JsonDeserialize(builder = Builder.class)
 public class Edge extends Element implements EdgeId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
     private static final long serialVersionUID = -5596452468277807842L;
@@ -40,19 +48,19 @@ public class Edge extends Element implements EdgeId {
     private Object destination;
     private boolean directed;
 
-    Edge() {
-        super();
-    }
-
-    public Edge(final String group) {
-        super(group);
-    }
-
     public Edge(final String group, final Object source, final Object destination, final boolean directed) {
         super(group);
         this.source = source;
         this.destination = destination;
         this.directed = directed;
+    }
+
+    private Edge(final Builder builder) {
+        super(builder.group);
+        this.source = builder.source;
+        this.destination = builder.destination;
+        this.directed = builder.directed;
+        builder.properties.forEach((n, v) -> this.putProperty(n, v));
     }
 
     public Object getSource() {
@@ -172,36 +180,55 @@ public class Edge extends Element implements EdgeId {
                 + "} ";
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
-        private final Edge edge = new Edge();
+        private Object source;
+        private Object destination;
+        private boolean directed;
+        private String group = "UNKNOWN";
+        private final Map<String, Object> properties = new HashMap<>();
 
         public Builder group(final String group) {
-            edge.setGroup(group);
+            this.group = group;
             return this;
         }
 
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public Builder source(final Object source) {
-            edge.setSource(source);
+            this.source = source;
             return this;
         }
 
-        public Builder dest(final Object dest) {
-            edge.setDestination(dest);
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        public Builder destination(final Object destination) {
+            this.destination = destination;
             return this;
         }
 
         public Builder directed(final boolean directed) {
-            edge.setDirected(directed);
+            this.directed = directed;
+            return this;
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        public Builder properties(final Map<String, Object> properties) {
+            this.properties.putAll(properties);
             return this;
         }
 
         public Builder property(final String name, final Object value) {
-            edge.putProperty(name, value);
+           this.properties.put(name, value);
+            return this;
+        }
+
+        @JsonProperty("class")
+        public Builder className(final String className) {
+            // ignore the className as it will be picked up by the JsonTypeInfo annotation.
             return this;
         }
 
         public Edge build() {
-            return edge;
+            return new Edge(this);
         }
     }
 }

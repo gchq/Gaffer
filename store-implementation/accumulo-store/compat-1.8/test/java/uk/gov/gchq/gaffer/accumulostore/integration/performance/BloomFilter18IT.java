@@ -115,9 +115,9 @@ public class BloomFilter18IT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = new Entity(TestGroups.ENTITY);
+            final Entity source = TestElements.getEntity();
             source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-            final Entity destination = new Entity(TestGroups.ENTITY);
+            final Entity destination = TestElements.getEntity();
             destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
             dataSet.add(source);
             dataSet.add(destination);

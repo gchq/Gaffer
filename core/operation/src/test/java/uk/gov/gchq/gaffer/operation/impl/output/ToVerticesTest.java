@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -78,7 +79,7 @@ public class ToVerticesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final ToVertices toVertices = new ToVertices.Builder()
-                .input(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2))
+                .input(TestElements.getEntity(), TestElements.getEntity_2())
                 .edgeVertices(EdgeVertices.BOTH)
                 .build();
 

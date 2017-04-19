@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -88,7 +89,7 @@ public class AggregatorIteratorTest {
 
     private void test(final AccumuloStore store) throws OperationException {
         // Given
-        final Edge expectedResult = new Edge(TestGroups.EDGE);
+        final Edge expectedResult = TestElements.getEdge();
         expectedResult.setSource("1");
         expectedResult.setDestination("2");
         expectedResult.setDirected(true);
@@ -99,7 +100,7 @@ public class AggregatorIteratorTest {
         expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
         expectedResult.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
-        final Edge edge1 = new Edge(TestGroups.EDGE);
+        final Edge edge1 = TestElements.getEdge();
         edge1.setSource("1");
         edge1.setDestination("2");
         edge1.setDirected(true);
@@ -110,7 +111,7 @@ public class AggregatorIteratorTest {
         edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
         edge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-        final Edge edge2 = new Edge(TestGroups.EDGE);
+        final Edge edge2 = TestElements.getEdge();
         edge2.setSource("1");
         edge2.setDestination("2");
         edge2.setDirected(true);
@@ -121,7 +122,7 @@ public class AggregatorIteratorTest {
         edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
         edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
 
-        final Edge edge3 = new Edge(TestGroups.EDGE);
+        final Edge edge3 = TestElements.getEdge();
         edge3.setSource("1");
         edge3.setDestination("2");
         edge3.setDirected(true);

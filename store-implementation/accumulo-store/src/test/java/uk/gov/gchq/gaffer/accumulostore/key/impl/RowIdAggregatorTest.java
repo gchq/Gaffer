@@ -69,12 +69,13 @@ import static uk.gov.gchq.gaffer.accumulostore.utils.TableUtils.createTable;
 
 public class RowIdAggregatorTest {
 
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(RowIdAggregatorTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(RowIdAggregatorTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(RowIdAggregatorTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(RowIdAggregatorTest.class, "/accumuloStoreClassicKeys.properties"));
-
     private static AccumuloElementConverter byteEntityElementConverter;
     private static AccumuloElementConverter gaffer1ElementConverter;
 
@@ -86,6 +87,12 @@ public class RowIdAggregatorTest {
         byteEntityElementConverter = new ByteEntityAccumuloElementConverter(schema);
     }
 
+    @AfterClass
+    public static void tearDown() {
+        gaffer1KeyStore = null;
+        byteEntityStore = null;
+    }
+
     @Before
     public void reInitialise() throws StoreException, TableExistsException {
         byteEntityStore.initialise(schema, PROPERTIES);
@@ -93,13 +100,6 @@ public class RowIdAggregatorTest {
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }
-
-    @AfterClass
-    public static void tearDown() {
-        gaffer1KeyStore = null;
-        byteEntityStore = null;
-    }
-
 
     @Test
     public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
@@ -128,75 +128,82 @@ public class RowIdAggregatorTest {
             properties3.put(AccumuloPropertyNames.COUNT, 2);
 
             // Create edge
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("2");
-            edge.setDestination("1");
-            edge.setDirected(true);
-            edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .source("2")
+                                                .destination("1")
+                                                .directed(true)
+                                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                .property(AccumuloPropertyNames.PROP_1, 0)
+                                                .property(AccumuloPropertyNames.PROP_2, 0)
+                                                .property(AccumuloPropertyNames.PROP_3, 0)
+                                                .property(AccumuloPropertyNames.PROP_4, 0)
+                                                .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("B");
-            edge2.setDestination("Z");
-            edge2.setDirected(true);
-            edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge2.putProperty(AccumuloPropertyNames.PROP_1, 1);
-            edge2.putProperty(AccumuloPropertyNames.PROP_2, 1);
-            edge2.putProperty(AccumuloPropertyNames.PROP_3, 1);
-            edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("B")
+                                                 .destination("Z")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                 .property(AccumuloPropertyNames.PROP_1, 1)
+                                                 .property(AccumuloPropertyNames.PROP_2, 1)
+                                                 .property(AccumuloPropertyNames.PROP_3, 1)
+                                                 .property(AccumuloPropertyNames.PROP_4, 1)
+                                                 .build();
 
-            final Edge edge3 = new Edge(TestGroups.EDGE);
-            edge3.setSource("3");
-            edge3.setDestination("8");
-            edge3.setDirected(true);
-            edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge3 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("3")
+                                                 .destination("8")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                 .property(AccumuloPropertyNames.PROP_1, 0)
+                                                 .property(AccumuloPropertyNames.PROP_2, 0)
+                                                 .property(AccumuloPropertyNames.PROP_3, 0)
+                                                 .property(AccumuloPropertyNames.PROP_4, 0)
+                                                 .build();
 
-            final Edge edge6 = new Edge("BasicEdge2");
-            edge6.setSource("1");
-            edge6.setDestination("5");
-            edge6.setDirected(true);
-            edge6.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            edge6.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge6.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge6.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge6.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge6 = new Edge.Builder().group("BasicEdge2")
+                                                 .source("1")
+                                                 .destination("5")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                                 .property(AccumuloPropertyNames.PROP_1, 0)
+                                                 .property(AccumuloPropertyNames.PROP_2, 0)
+                                                 .property(AccumuloPropertyNames.PROP_3, 0)
+                                                 .property(AccumuloPropertyNames.PROP_4, 0)
+                                                 .build();
 
-            final Edge edge7 = new Edge("BasicEdge2");
-            edge7.setSource("2");
-            edge7.setDestination("6");
-            edge7.setDirected(true);
-            edge7.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge7.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge7.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge7.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge7.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge7 = new Edge.Builder().group("BasicEdge2")
+                                                 .source("2")
+                                                 .destination("6")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                 .property(AccumuloPropertyNames.PROP_1, 0)
+                                                 .property(AccumuloPropertyNames.PROP_2, 0)
+                                                 .property(AccumuloPropertyNames.PROP_3, 0)
+                                                 .property(AccumuloPropertyNames.PROP_4, 0)
+                                                 .build();
 
-            final Edge edge8 = new Edge("BasicEdge2");
-            edge8.setSource("4");
-            edge8.setDestination("8");
-            edge8.setDirected(true);
-            edge8.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            edge8.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge8.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge8.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge8.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge8 = new Edge.Builder().group("BasicEdge2")
+                                                 .source("4")
+                                                 .destination("8")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                                 .property(AccumuloPropertyNames.PROP_1, 0)
+                                                 .property(AccumuloPropertyNames.PROP_2, 0)
+                                                 .property(AccumuloPropertyNames.PROP_3, 0)
+                                                 .property(AccumuloPropertyNames.PROP_4, 0)
+                                                 .build();
 
-            final Edge edge9 = new Edge("BasicEdge2");
-            edge9.setSource("5");
-            edge9.setDestination("9");
-            edge9.setDirected(true);
-            edge9.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            edge9.putProperty(AccumuloPropertyNames.PROP_1, 0);
-            edge9.putProperty(AccumuloPropertyNames.PROP_2, 0);
-            edge9.putProperty(AccumuloPropertyNames.PROP_3, 0);
-            edge9.putProperty(AccumuloPropertyNames.PROP_4, 0);
+            final Edge edge9 = new Edge.Builder().group("BasicEdge2")
+                                                 .source("5")
+                                                 .destination("9")
+                                                 .directed(true)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                                 .property(AccumuloPropertyNames.PROP_1, 0)
+                                                 .property(AccumuloPropertyNames.PROP_2, 0)
+                                                 .property(AccumuloPropertyNames.PROP_3, 0)
+                                                 .property(AccumuloPropertyNames.PROP_4, 0)
+                                                 .build();
 
             // Accumulo key
             final Key key = elementConverter.getKeysFromEdge(edge).getFirst();
@@ -216,30 +223,41 @@ public class RowIdAggregatorTest {
 
             //Create mutation
             final Mutation m1 = new Mutation(key.getRow());
-            m1.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()), key.getTimestamp(), value1);
+            m1.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key
+                    .getColumnVisibility()), key.getTimestamp(), value1);
             final Mutation m2 = new Mutation(key.getRow());
-            m2.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()), key.getTimestamp(), value2);
+            m2.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key
+                    .getColumnVisibility()), key.getTimestamp(), value2);
             final Mutation m3 = new Mutation(key.getRow());
-            m3.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key.getColumnVisibility()), key.getTimestamp(), value3);
+            m3.put(key.getColumnFamily(), key.getColumnQualifier(), new ColumnVisibility(key
+                    .getColumnVisibility()), key.getTimestamp(), value3);
             final Mutation m4 = new Mutation(key2.getRow());
-            m4.put(key2.getColumnFamily(), key2.getColumnQualifier(), new ColumnVisibility(key2.getColumnVisibility()), key2.getTimestamp(), value1);
+            m4.put(key2.getColumnFamily(), key2.getColumnQualifier(), new ColumnVisibility(key2
+                    .getColumnVisibility()), key2.getTimestamp(), value1);
             final Mutation m5 = new Mutation(key.getRow());
-            m5.put(key3.getColumnFamily(), key3.getColumnQualifier(), new ColumnVisibility(key3.getColumnVisibility()), key3.getTimestamp(), value1);
+            m5.put(key3.getColumnFamily(), key3.getColumnQualifier(), new ColumnVisibility(key3
+                    .getColumnVisibility()), key3.getTimestamp(), value1);
             final Mutation m6 = new Mutation(key4.getRow());
-            m6.put(key4.getColumnFamily(), key4.getColumnQualifier(), new ColumnVisibility(key4.getColumnVisibility()), key4.getTimestamp(), value4);
+            m6.put(key4.getColumnFamily(), key4.getColumnQualifier(), new ColumnVisibility(key4
+                    .getColumnVisibility()), key4.getTimestamp(), value4);
             final Mutation m7 = new Mutation(key5.getRow());
-            m7.put(key5.getColumnFamily(), key5.getColumnQualifier(), new ColumnVisibility(key5.getColumnVisibility()), key5.getTimestamp(), value5);
+            m7.put(key5.getColumnFamily(), key5.getColumnQualifier(), new ColumnVisibility(key5
+                    .getColumnVisibility()), key5.getTimestamp(), value5);
             final Mutation m8 = new Mutation(key6.getRow());
-            m8.put(key6.getColumnFamily(), key6.getColumnQualifier(), new ColumnVisibility(key6.getColumnVisibility()), key6.getTimestamp(), value5);
+            m8.put(key6.getColumnFamily(), key6.getColumnQualifier(), new ColumnVisibility(key6
+                    .getColumnVisibility()), key6.getTimestamp(), value5);
             final Mutation m9 = new Mutation(key7.getRow());
-            m9.put(key7.getColumnFamily(), key7.getColumnQualifier(), new ColumnVisibility(key7.getColumnVisibility()), key7.getTimestamp(), value5);
+            m9.put(key7.getColumnFamily(), key7.getColumnQualifier(), new ColumnVisibility(key7
+                    .getColumnVisibility()), key7.getTimestamp(), value5);
 
             // Write mutation
             final BatchWriterConfig writerConfig = new BatchWriterConfig();
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection()
+                                            .createBatchWriter(store.getProperties()
+                                                                    .getTable(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -253,9 +271,13 @@ public class RowIdAggregatorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
+            final BatchScanner scanner = store.getConnection()
+                                              .createBatchScanner(store.getProperties()
+                                                                       .getTable(), authorizations, 1000);
             try {
-                scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
+                scanner.addScanIterator(store.getKeyPackage()
+                                             .getIteratorFactory()
+                                             .getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
             } catch (final IteratorSettingException e) {
                 fail(e.getMessage());
             }
@@ -271,13 +293,15 @@ public class RowIdAggregatorTest {
             scanner.setRanges(Arrays.asList(r, r2));
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
-            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry
+                    .getValue());
 
-            Edge expectedEdge = new Edge("BasicEdge2");
-            expectedEdge.setSource("4");
-            expectedEdge.setDestination("8");
-            expectedEdge.setDirected(true);
-            expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
+            Edge expectedEdge = new Edge.Builder().group("BasicEdge2")
+                                                  .source("4")
+                                                  .destination("8")
+                                                  .directed(true)
+                                                  .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
+                                                  .build();
             expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 3);
 
             assertEquals(expectedEdge, readEdge);
@@ -287,19 +311,21 @@ public class RowIdAggregatorTest {
             assertTrue(it.hasNext());
             entry = it.next();
             readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
-            expectedEdge = new Edge("BasicEdge2");
-            expectedEdge.setSource("5");
-            expectedEdge.setDestination("9");
-            expectedEdge.setDirected(true);
-            expectedEdge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-            expectedEdge.putProperty(AccumuloPropertyNames.COUNT, 1);
+            expectedEdge = new Edge.Builder().group("BasicEdge2")
+                                             .source("5")
+                                             .destination("9")
+                                             .directed(true)
+                                             .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+                                             .property(AccumuloPropertyNames.COUNT, 1)
+                                             .build();
             assertEquals(expectedEdge, readEdge);
             //Check no additional rows are found. (For a table of this size we shouldn't see this)
             if (it.hasNext()) {
                 fail("Additional row found.");
             }
         } catch (final AccumuloException | TableExistsException | TableNotFoundException e) {
-            fail(this.getClass().getSimpleName() + " failed with exception: " + e);
+            fail(this.getClass()
+                     .getSimpleName() + " failed with exception: " + e);
         }
     }
 

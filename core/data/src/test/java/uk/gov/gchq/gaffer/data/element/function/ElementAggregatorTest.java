@@ -248,8 +248,8 @@ public class ElementAggregatorTest {
     public void shouldAggregateWithNoPropertiesOrFunctions() {
         // Given
         final ElementAggregator aggregator = new ElementAggregator();
-        final Edge edge1 = new Edge("group");
-        final Edge edge2 = new Edge("group");
+        final Edge edge1 = new Edge.Builder().group("group").build();
+        final Edge edge2 = new Edge.Builder().group("group").build();
 
         // When - aggregate and set state
         final Element result = aggregator.apply(edge1, edge2);

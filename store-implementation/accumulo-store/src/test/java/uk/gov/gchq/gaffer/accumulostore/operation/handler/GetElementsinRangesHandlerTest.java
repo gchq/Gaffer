@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -309,7 +310,7 @@ public class GetElementsinRangesHandlerTest {
                 s = "0" + s;
             }
 
-            final Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = TestElements.getEdge();
             edge.setSource(s);
 
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
@@ -317,14 +318,14 @@ public class GetElementsinRangesHandlerTest {
             edge.setDirected(true);
             elements.add(edge);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource(s);
             edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
             edge2.setDestination("B");
             edge2.setDirected(true);
             elements.add(edge2);
 
-            final Edge edge3 = new Edge(TestGroups.EDGE);
+            final Edge edge3 = TestElements.getEdge();
             edge3.setSource(s);
             edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
             edge3.setDestination("B");

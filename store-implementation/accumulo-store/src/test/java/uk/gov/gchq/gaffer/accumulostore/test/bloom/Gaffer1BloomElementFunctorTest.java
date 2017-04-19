@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloEle
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
@@ -58,7 +59,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeEntity() throws AccumuloElementConversionException {
         // Create Range formed from one entity and shouldRetieveElementsInRangeBetweenSeeds
-        final Entity entity1 = new Entity(TestGroups.ENTITY);
+        final Entity entity1 = TestElements.getEntity();
         entity1.setVertex(1);
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
         final Range range1 = new Range(key1, true, key1, true);
@@ -66,7 +67,7 @@ public class Gaffer1BloomElementFunctorTest {
         assertTrue(elementFunctor.transform(range1).equals(expectedBloomKey1));
 
         // Create Range formed from two entities and shouldRetieveElementsInRangeBetweenSeeds - should get null
-        final Entity entity2 = new Entity(TestGroups.ENTITY);
+        final Entity entity2 = TestElements.getEntity();
         entity2.setVertex(2);
         final Key key2 = elementConverter.getKeyFromEntity(entity2);
         final Range range2 = new Range(key1, true, key2, true);
@@ -76,7 +77,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformKeyEntity() throws AccumuloElementConversionException {
         // Create Key formed from entity and shouldRetieveElementsInRangeBetweenSeeds
-        final Entity entity1 = new Entity(TestGroups.ENTITY);
+        final Entity entity1 = TestElements.getEntity();
         entity1.setVertex(1);
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
@@ -86,7 +87,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeEdge() throws AccumuloElementConversionException {
         // Create Range formed from one edge and shouldRetieveElementsInRangeBetweenSeeds
-        final Edge edge1 = new Edge(TestGroups.EDGE);
+        final Edge edge1 = TestElements.getEdge();
         edge1.setSource(1);
         edge1.setDestination(2);
         final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
@@ -106,7 +107,7 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformKeyEdge() throws AccumuloElementConversionException {
         // Create Key formed from edge and shouldRetieveElementsInRangeBetweenSeeds
-        final Edge edge1 = new Edge(TestGroups.EDGE);
+        final Edge edge1 = TestElements.getEdge();
         edge1.setSource(1);
         edge1.setDestination(2);
         final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);
@@ -121,13 +122,13 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeFromEntityToEntityAndSomeEdges() throws AccumuloElementConversionException {
         // Create entity
-        final Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity = TestElements.getEntity();
         entity.setVertex(1);
         //        String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
         final Key key1 = elementConverter.getKeyFromEntity(entity);
 
         // Create edge from that entity
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setSource(1);
         edge.setDestination(2);
         //        String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
@@ -148,7 +149,7 @@ public class Gaffer1BloomElementFunctorTest {
     public void shouldTransformRangeWhenUsingRangeNotExact() {
         try {
             // Create SimpleEntity
-            final Entity simpleEntity = new Entity(TestGroups.ENTITY);
+            final Entity simpleEntity = TestElements.getEntity();
             simpleEntity.setVertex("1");
             final Key key = elementConverter.getKeyFromEntity(simpleEntity);
             final Range range = Range.exact(key.getRow());
@@ -164,7 +165,7 @@ public class Gaffer1BloomElementFunctorTest {
     public void shouldTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
             // Create Range with unspecified start key and shouldRetieveElementsInRangeBetweenSeeds - should get null
-            final Edge edge1 = new Edge(TestGroups.EDGE);
+            final Edge edge1 = TestElements.getEdge();
             edge1.setSource("3");
             edge1.setDestination("4");
             final Pair<Key> keys = elementConverter.getKeysFromEdge(edge1);

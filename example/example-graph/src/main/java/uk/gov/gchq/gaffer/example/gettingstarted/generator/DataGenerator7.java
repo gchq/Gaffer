@@ -25,10 +25,10 @@ public class DataGenerator7 implements OneToOneElementGenerator<String> {
     @Override
     public Element _apply(final String line) {
         final String[] t = line.split(",");
-        final Edge edge = new Edge("data");
-        edge.setSource(t[0]);
-        edge.setDestination(t[1]);
-        edge.setDirected(true);
+        final Edge.Builder builder = new Edge.Builder().group("data")
+                                                       .source(t[0])
+                                                       .destination(t[1])
+                                                       .directed(true);
 
         final int count;
         if (t.length > 2 && null != t[2]) {
@@ -36,7 +36,7 @@ public class DataGenerator7 implements OneToOneElementGenerator<String> {
         } else {
             count = 1;
         }
-        edge.putProperty("count", count);
-        return edge;
+        builder.property("count", count);
+        return builder.build();
     }
 }

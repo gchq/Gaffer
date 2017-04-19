@@ -36,7 +36,7 @@ public class DataGenerator11 implements OneToManyElementGenerator<String> {
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
-                    .dest("B")
+                    .destination("B")
                     .property("doublesUnion", doublesUnion)
                     .build();
             elements.add(edge);

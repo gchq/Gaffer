@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -116,16 +117,17 @@ public class BloomFilterIT {
         final HashSet<Key> keysSet = new HashSet<>();
         final HashSet<Entity> dataSet = new HashSet<>();
         for (int i = 0; i < 100000; i++) {
-            final Entity source = new Entity(TestGroups.ENTITY);
+            final Entity source = TestElements.getEntity();
             source.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
-            final Entity destination = new Entity(TestGroups.ENTITY);
+            final Entity destination = TestElements.getEntity();
             destination.setVertex("type" + random.nextInt(Integer.MAX_VALUE));
             dataSet.add(source);
             dataSet.add(destination);
-            final Entity sourceEntity = new Entity(source.getGroup());
-            sourceEntity.setVertex(source.getVertex());
-            final Entity destinationEntity = new Entity(destination.getGroup());
-            destinationEntity.setVertex(destination.getVertex());
+            final Entity sourceEntity = new Entity.Builder().group(source.getGroup())
+                                                            .vertex(source.getVertex())
+                                                            .build();
+            final Entity destinationEntity = new Entity.Builder().group(destination
+                    .getGroup()).vertex(destination.getVertex()).build();
             final Edge edge = new Edge(TestGroups.EDGE, source.getVertex(), destination
                     .getVertex(), true);
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
@@ -164,14 +166,15 @@ public class BloomFilterIT {
             file.delete();
         }
 
-        final FileSKVWriter writer = FileOperations.getInstance().openWriter(filename, fs, conf, accumuloConf);
+        final FileSKVWriter writer = FileOperations.getInstance()
+                                                   .openWriter(filename, fs, conf, accumuloConf);
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                        .getGroup()
-                        .equals(TestGroups.ENTITY)) {
+                                    .getGroup()
+                                    .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -182,7 +185,8 @@ public class BloomFilterIT {
         }
 
         // Reader
-        final FileSKVIterator reader = FileOperations.getInstance().openReader(filename, false, fs, conf, accumuloConf);
+        final FileSKVIterator reader = FileOperations.getInstance()
+                                                     .openReader(filename, false, fs, conf, accumuloConf);
         try {
             // Calculate random look up rate - run it 3 times and take best
             final int numTrials = 5;

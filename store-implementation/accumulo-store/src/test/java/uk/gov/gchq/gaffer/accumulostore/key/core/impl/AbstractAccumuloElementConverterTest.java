@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -64,7 +65,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterFromBasicEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
@@ -82,7 +83,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterFromBasicEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity = TestElements.getEntity();
         entity.setVertex("3");
 
         // When
@@ -96,7 +97,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(false);
@@ -116,7 +117,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity = TestElements.getEntity();
         entity.setVertex("3");
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
@@ -132,7 +133,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
@@ -152,7 +153,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldReturnAccumuloKeyConverterMultipleCQPropertiesEntity() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
+        final Entity entity = TestElements.getEntity();
         entity.setVertex("3");
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
@@ -168,7 +169,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
@@ -190,7 +191,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setDestination("2");
         edge.setSource("1");
         edge.setDirected(true);
@@ -213,7 +214,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     @Test
     public void shouldSkipNullPropertyValuesWhenCreatingAccumuloKey() throws SchemaException, AccumuloElementConversionException, IOException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE);
+        final Edge edge = TestElements.getEdge();
         edge.setSource("1");
         edge.setDestination("2");
         edge.setDirected(true);

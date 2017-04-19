@@ -2,6 +2,7 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -80,14 +81,14 @@ public class AccumuloTestData {
         EDGE_A_B_1.putProperty(AccumuloPropertyNames.COUNT, 1);
         EDGE_A_B_2.putProperty(AccumuloPropertyNames.COUNT, 2);
 
-        EDGE_C_D_UNDIRECTED = new Edge(TestGroups.EDGE);
+        EDGE_C_D_UNDIRECTED = TestElements.getEdge();
         EDGE_C_D_UNDIRECTED.setSource("C");
         EDGE_C_D_UNDIRECTED.setDestination("D");
         EDGE_C_D_UNDIRECTED.setDirected(false);
         EDGE_C_D_UNDIRECTED.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
         EDGE_C_D_UNDIRECTED.putProperty(AccumuloPropertyNames.COUNT, 1);
 
-        EDGE_C_D_DIRECTED = new Edge(TestGroups.EDGE);
+        EDGE_C_D_DIRECTED = TestElements.getEdge();
         EDGE_C_D_DIRECTED.setSource("C");
         EDGE_C_D_DIRECTED.setDestination("D");
         EDGE_C_D_DIRECTED.setDirected(true);

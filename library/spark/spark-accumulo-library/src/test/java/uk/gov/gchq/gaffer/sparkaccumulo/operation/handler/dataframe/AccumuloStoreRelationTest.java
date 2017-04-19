@@ -25,6 +25,7 @@ import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -57,6 +58,76 @@ import static org.junit.Assert.assertEquals;
  */
 public class AccumuloStoreRelationTest {
 
+    private static Schema getSchema() {
+        return Schema.fromJson(AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataSchema.json"),
+                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataTypes.json"),
+                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/storeTypes.json"));
+    }
+
+    private static View getViewFromSchema(final Schema schema) {
+        return new View.Builder()
+                .entities(schema.getEntityGroups())
+                .edges(schema.getEdgeGroups())
+                .build();
+    }
+
+    private static void addElements(final Store store) throws OperationException {
+        store.execute(new AddElements.Builder().input(getElements())
+                                               .build(), new User());
+    }
+
+    private static List<Element> getElements() {
+        final List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i)
+                                                      .property("columnQualifier", 1)
+                                                      .property("property1", i)
+                                                      .property("property2", 3.0F)
+                                                      .property("property3", 4.0D)
+                                                      .property("property4", i * 2L)
+                                                      .property("count", 6L)
+                                                      .build();
+
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("B")
+                                                 .directed(true)
+                                                 .property("columnQualifier", 1)
+                                                 .property("property1", 2)
+                                                 .property("property2", 3.0F)
+                                                 .property("property3", 4.0D)
+                                                 .property("property4", 5L)
+                                                 .property("count", 100L)
+                                                 .build();
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(true)
+                                                 .property("columnQualifier", 6)
+                                                 .property("property1", 7)
+                                                 .property("property2", 8.0F)
+                                                 .property("property3", 9.0D)
+                                                 .property("property4", 10L)
+                                                 .property("count", i * 200L)
+                                                 .build();
+
+            final Edge edge3 = new Edge.Builder().group(TestGroups.EDGE_2)
+                                                 .source("" + i)
+                                                 .destination("D")
+                                                 .directed(true)
+                                                 .property("property1", 1000)
+                                                 .build();
+
+            elements.add(edge1);
+            elements.add(edge2);
+            elements.add(edge3);
+            elements.add(entity);
+        }
+        return elements;
+    }
+
     @Test
     public void testBuildScanFullView() throws OperationException, StoreException {
         final Schema schema = getSchema();
@@ -68,11 +139,12 @@ public class AccumuloStoreRelationTest {
     @Test
     public void testBuildScanRestrictViewToOneGroup() throws OperationException, StoreException {
         final View view = new View.Builder()
-                .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
+                .edge(TestGroups.EDGE)
                 .build();
 
         final Predicate<Element> returnElement = (Element element) ->
-                element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
+                element.getGroup()
+                       .equals(TestGroups.EDGE);
         testBuildScanWithView("testBuildScanRestrictViewToOneGroup", view, returnElement);
     }
 
@@ -81,13 +153,14 @@ public class AccumuloStoreRelationTest {
         final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
         filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), "property1"));
         final View view = new View.Builder()
-                .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP, new ViewElementDefinition.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                         .postAggregationFilterFunctions(filters)
                         .build())
                 .build();
 
         final Predicate<Element> returnElement = (Element element) ->
-                element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
+                element.getGroup()
+                       .equals(TestGroups.EDGE)
                         && ((Integer) element.getProperty("property1")) > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
     }
@@ -104,7 +177,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections.emptyList(), view,
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections
+                .emptyList(), view,
                 store, new User());
         final RDD<Row> rdd = relation.buildScan();
         final Row[] returnedElements = (Row[]) rdd.collect();
@@ -118,7 +192,8 @@ public class AccumuloStoreRelationTest {
         //  - Expected results are:
         final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
                 new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter.getUsedProperties(),
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(schemaConverter
+                .getUsedProperties(),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
@@ -140,7 +215,7 @@ public class AccumuloStoreRelationTest {
     }
 
     private void testBuildScanSpecifyColumnsWithView(final String name, final View view, final String[] requiredColumns,
-                                                     final Predicate<Element> returnElement)
+            final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
         final SQLContext sqlContext = getSqlContext(name);
@@ -152,7 +227,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections.emptyList(), view,
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections
+                .emptyList(), view,
                 store, new User());
         final RDD<Row> rdd = relation.buildScan(requiredColumns);
         final Row[] returnedElements = (Row[]) rdd.collect();
@@ -166,7 +242,8 @@ public class AccumuloStoreRelationTest {
         //  - Expected results are:
         final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
                 new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays
+                .asList(requiredColumns)),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
@@ -187,14 +264,15 @@ public class AccumuloStoreRelationTest {
         requiredColumns[0] = "property1";
         final Filter[] filters = new Filter[1];
         filters[0] = new GreaterThan("property1", 4);
-        final Predicate<Element> returnElement = (Element element) -> ((Integer) element.getProperty("property1")) > 4;
+        final Predicate<Element> returnElement = (Element element) -> ((Integer) element
+                .getProperty("property1")) > 4;
         testBuildScanSpecifyColumnsAndFiltersWithView("testBuildScanSpecifyColumnsAndFiltersFullView", view,
                 requiredColumns, filters, returnElement);
     }
 
     private void testBuildScanSpecifyColumnsAndFiltersWithView(final String name, final View view,
-                                                               final String[] requiredColumns, final Filter[] filters,
-                                                               final Predicate<Element> returnElement)
+            final String[] requiredColumns, final Filter[] filters,
+            final Predicate<Element> returnElement)
             throws OperationException, StoreException {
         // Given
         final SQLContext sqlContext = getSqlContext(name);
@@ -206,7 +284,8 @@ public class AccumuloStoreRelationTest {
         addElements(store);
 
         // When
-        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections.emptyList(), view,
+        final AccumuloStoreRelation relation = new AccumuloStoreRelation(sqlContext, Collections
+                .emptyList(), view,
                 store, new User());
         final RDD<Row> rdd = relation.buildScan(requiredColumns, filters);
         final Row[] returnedElements = (Row[]) rdd.collect();
@@ -220,7 +299,8 @@ public class AccumuloStoreRelationTest {
         //  - Expected results are:
         final SchemaToStructTypeConverter schemaConverter = new SchemaToStructTypeConverter(schema, view,
                 new ArrayList<>());
-        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays.asList(requiredColumns)),
+        final ConvertElementToRow elementConverter = new ConvertElementToRow(new LinkedHashSet<>(Arrays
+                .asList(requiredColumns)),
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
@@ -232,23 +312,6 @@ public class AccumuloStoreRelationTest {
         sqlContext.sparkContext().stop();
     }
 
-    private static Schema getSchema() {
-        return Schema.fromJson(AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataSchema.json"),
-                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/dataTypes.json"),
-                AccumuloStoreRelationTest.class.getResourceAsStream("/schema-DataFrame/storeTypes.json"));
-    }
-
-    private static View getViewFromSchema(final Schema schema) {
-        return new View.Builder()
-                .entities(schema.getEntityGroups())
-                .edges(schema.getEdgeGroups())
-                .build();
-    }
-
-    private static void addElements(final Store store) throws OperationException {
-        store.execute(new AddElements.Builder().input(getElements()).build(), new User());
-    }
-
     private SQLContext getSqlContext(final String appName) {
         final SparkConf sparkConf = new SparkConf()
                 .setMaster("local")
@@ -257,53 +320,5 @@ public class AccumuloStoreRelationTest {
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
         return new SQLContext(new SparkContext(sparkConf));
-    }
-
-    private static List<Element> getElements() {
-        final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(GetDataFrameOfElementsHandlerTest.ENTITY_GROUP);
-            entity.setVertex("" + i);
-            entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", i);
-            entity.putProperty("property2", 3.0F);
-            entity.putProperty("property3", 4.0D);
-            entity.putProperty("property4", i * 2L);
-            entity.putProperty("count", 6L);
-
-            final Edge edge1 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(true);
-            edge1.putProperty("columnQualifier", 1);
-            edge1.putProperty("property1", 2);
-            edge1.putProperty("property2", 3.0F);
-            edge1.putProperty("property3", 4.0D);
-            edge1.putProperty("property4", 5L);
-            edge1.putProperty("count", 100L);
-
-            final Edge edge2 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("columnQualifier", 6);
-            edge2.putProperty("property1", 7);
-            edge2.putProperty("property2", 8.0F);
-            edge2.putProperty("property3", 9.0D);
-            edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", i * 200L);
-
-            final Edge edge3 = new Edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP2);
-            edge3.setSource("" + i);
-            edge3.setDestination("D");
-            edge3.setDirected(true);
-            edge3.putProperty("property1", 1000);
-
-            elements.add(edge1);
-            elements.add(edge2);
-            elements.add(edge3);
-            elements.add(entity);
-        }
-        return elements;
     }
 }

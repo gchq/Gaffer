@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -106,7 +107,7 @@ public class AccumuloRangeIDRetrieverTest {
     private static void setupGraph(final AccumuloStore store, int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            final Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = TestElements.getEdge();
             String s = "" + i;
             while (s.length() < 4) {
                 s = "0" + s;

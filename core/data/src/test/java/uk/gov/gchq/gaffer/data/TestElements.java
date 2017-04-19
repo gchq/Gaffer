@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.data;
 
-package uk.gov.gchq.gaffer.example.gettingstarted.generator;
-
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
+import uk.gov.gchq.gaffer.data.element.Entity;
 
-public class DataGenerator1 implements OneToOneElementGenerator<String> {
+public class TestElements {
 
-    @Override
-    public Element _apply(final String line) {
-        final String[] t = line.split(",");
-        return new Edge.Builder().group("data")
-                                 .source(t[0])
-                                 .destination(t[1])
-                                 .directed(false)
-                                 .property("count", 1)
+    // Edges
+    public static Edge getEdge() {
+        return new Edge.Builder().group(TestGroups.EDGE)
                                  .build();
+    }
+
+    // Entities
+    public static Entity getEntity() {
+        return new Entity.Builder().group(TestGroups.ENTITY)
+                                   .build();
+    }
+
+    public static Entity getEntity_2() {
+        return new Entity.Builder().group(TestGroups.ENTITY_2)
+                                   .build();
     }
 }

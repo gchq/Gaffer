@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -53,7 +54,7 @@ public class CountGroupsTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         // Given
         final CountGroups countGroups = new CountGroups.Builder()
-                .input(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2))
+                .input(TestElements.getEntity(), TestElements.getEntity_2())
                 .limit(1)
                 .build();
 
@@ -61,6 +62,6 @@ public class CountGroupsTest implements OperationTest {
         assertThat(countGroups.getInput(), is(notNullValue()));
         assertThat(countGroups.getInput(), iterableWithSize(2));
         assertThat(countGroups.getLimit(), is(1));
-        assertThat(countGroups.getInput(), containsInAnyOrder(new Entity(TestGroups.ENTITY), new Entity(TestGroups.ENTITY_2)));
+        assertThat(countGroups.getInput(), containsInAnyOrder(TestElements.getEntity(), TestElements.getEntity_2()));
     }
 }

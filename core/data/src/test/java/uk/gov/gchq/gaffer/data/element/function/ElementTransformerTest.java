@@ -67,7 +67,7 @@ public class ElementTransformerTest {
                 .project("prop3")
                 .build();
 
-        final Entity element = new Entity("test");
+        final Entity element = new Entity.Builder().group("test").build();
         element.putProperty("prop1", "value");
         element.putProperty("prop2", 1);
 
@@ -88,7 +88,7 @@ public class ElementTransformerTest {
                 .project("prop3")
                 .build();
 
-        final Entity element = new Entity("test");
+        final Entity element = new Entity.Builder().group("test").build();
         element.putProperty("prop1", "value");
         element.putProperty("prop2", 1);
 

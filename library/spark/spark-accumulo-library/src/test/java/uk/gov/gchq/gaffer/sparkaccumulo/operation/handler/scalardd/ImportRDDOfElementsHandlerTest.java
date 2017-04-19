@@ -27,6 +27,7 @@ import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -60,16 +61,16 @@ public class ImportRDDOfElementsHandlerTest {
 
         final ArrayBuffer<Element> elements = new ArrayBuffer<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("" + i);
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
+            final Edge edge1 = TestElements.getEdge();
             edge1.setSource("" + i);
             edge1.setDestination("B");
             edge1.setDirected(false);
             edge1.putProperty(TestPropertyNames.COUNT, 2);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(false);

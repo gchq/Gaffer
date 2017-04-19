@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -475,12 +476,12 @@ public class AccumuloIDWithinSetRetrieverTest {
 
             final Set<Element> data = new HashSet<>();
             // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("A0");
             entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
             data.add(entity);
             for (int i = 1; i < 100; i++) {
-                final Edge edge = new Edge(TestGroups.EDGE);
+                final Edge edge = TestElements.getEdge();
                 edge.setSource("A0");
                 edge.setDestination("A" + i);
                 edge.setDirected(true);
@@ -488,7 +489,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                 edge.putProperty(AccumuloPropertyNames.COUNT, i);
                 data.add(edge);
 
-                final Entity edgeEntity = new Entity(TestGroups.ENTITY);
+                final Entity edgeEntity = TestElements.getEntity();
                 edgeEntity.setVertex("A" + i);
                 edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
                 data.add(edgeEntity);

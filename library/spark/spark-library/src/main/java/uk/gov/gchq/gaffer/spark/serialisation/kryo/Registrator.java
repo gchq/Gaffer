@@ -53,7 +53,7 @@ class KryoEntitySerializer extends Serializer<Entity> {
     @Override
     public Entity read(final Kryo kryo, final Input input, final Class<Entity> type) {
         final String group = input.readString();
-        final Entity entity = new Entity(group);
+        final Entity entity = new Entity.Builder().group(group).build();
         final Registration reg = kryo.readClass(input);
         entity.setVertex(kryo.readObject(input, reg.getType()));
         entity.copyProperties(kryo.readObjectOrNull(input, Properties.class));
@@ -77,7 +77,7 @@ class KryoEdgeSerializer extends Serializer<Edge> {
     @Override
     public Edge read(final Kryo kryo, final Input input, final Class<Edge> type) {
         final String group = input.readString();
-        final Edge edge = new Edge(group);
+        final Edge edge = new Edge.Builder().group(group).build();
         Registration reg = kryo.readClass(input);
         edge.setSource(kryo.readObject(input, reg.getType()));
         reg = kryo.readClass(input);

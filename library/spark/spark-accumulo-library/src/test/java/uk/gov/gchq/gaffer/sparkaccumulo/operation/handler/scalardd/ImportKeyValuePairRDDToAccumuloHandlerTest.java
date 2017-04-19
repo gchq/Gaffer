@@ -30,8 +30,8 @@ import scala.reflect.ClassTag;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -54,9 +54,12 @@ import static org.junit.Assert.fail;
 
 public class ImportKeyValuePairRDDToAccumuloHandlerTest {
 
-    private static final ClassTag<Element> ELEMENT_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Element.class);
-    private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(Tuple2.class);
-    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$.apply(AccumuloElementConverter.class);
+    private static final ClassTag<Element> ELEMENT_CLASS_TAG = scala.reflect.ClassTag$.MODULE$
+            .apply(Element.class);
+    private static final ClassTag<Tuple2<Key, Value>> TUPLE2_CLASS_TAG = scala.reflect.ClassTag$.MODULE$
+            .apply(Tuple2.class);
+    private static final ClassTag<AccumuloElementConverter> ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG = scala.reflect.ClassTag$.MODULE$
+            .apply(AccumuloElementConverter.class);
 
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
@@ -70,16 +73,16 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
 
         final ArrayBuffer<Element> elements = new ArrayBuffer<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("" + i);
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
+            final Edge edge1 = TestElements.getEdge();
             edge1.setSource("" + i);
             edge1.setDestination("B");
             edge1.setDirected(false);
             edge1.putProperty(TestPropertyNames.COUNT, 2);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(false);
@@ -104,15 +107,23 @@ public class ImportKeyValuePairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final String outputPath = this.getClass()
+                                      .getResource("/")
+                                      .getPath()
+                                      .toString() + "load";
+        final String failurePath = this.getClass()
+                                       .getResource("/")
+                                       .getPath()
+                                       .toString() + "failure";
         final File file = new File(outputPath);
         if (file.exists()) {
             FileUtils.forceDelete(file);
         }
 
-        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
-        final RDD<Tuple2<Key, Value>> elementRDD = sparkContext.parallelize(elements, 1, ELEMENT_CLASS_TAG).flatMap(func, TUPLE2_CLASS_TAG);
+        final ElementConverterFunction func = new ElementConverterFunction(sparkContext
+                .broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema()), ACCUMULO_ELEMENT_CONVERTER_CLASS_TAG));
+        final RDD<Tuple2<Key, Value>> elementRDD = sparkContext.parallelize(elements, 1, ELEMENT_CLASS_TAG)
+                                                               .flatMap(func, TUPLE2_CLASS_TAG);
         final ImportKeyValuePairRDDToAccumulo addRdd = new ImportKeyValuePairRDDToAccumulo.Builder()
                 .input(elementRDD)
                 .outputPath(outputPath)

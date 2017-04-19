@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -307,15 +308,15 @@ public class AccumuloSingleIDRetrieverTest {
     private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("" + i);
 
-            final Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = TestElements.getEdge();
             edge.setSource("" + i);
             edge.setDestination("B");
             edge.setDirected(false);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(true);

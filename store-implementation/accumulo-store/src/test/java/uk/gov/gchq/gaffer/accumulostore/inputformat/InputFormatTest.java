@@ -40,6 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -72,17 +73,17 @@ public class InputFormatTest {
 
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("" + i);
             entity.putProperty("property1", 1);
 
-            final Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = TestElements.getEdge();
             edge.setSource("" + i);
             edge.setDestination("B");
             edge.setDirected(true);
             edge.putProperty("property1", 2);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(true);
@@ -93,19 +94,19 @@ public class InputFormatTest {
             DATA.add(entity);
         }
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("" + i);
             entity.putProperty("property1", 1);
             entity.putProperty("visibility", "public");
 
-            final Edge edge = new Edge(TestGroups.EDGE);
+            final Edge edge = TestElements.getEdge();
             edge.setSource("" + i);
             edge.setDestination("B");
             edge.setDirected(true);
             edge.putProperty("property1", 2);
             edge.putProperty("visibility", "private");
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = TestElements.getEdge();
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(true);

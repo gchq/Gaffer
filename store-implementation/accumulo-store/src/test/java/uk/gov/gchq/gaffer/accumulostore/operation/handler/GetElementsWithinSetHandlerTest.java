@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -255,12 +256,12 @@ public class GetElementsWithinSetHandlerTest {
 
             final List<Element> data = new ArrayList<>();
             // Create edges A0 -> A1, A0 -> A2, ..., A0 -> A99. Also create an Entity for each.
-            final Entity entity = new Entity(TestGroups.ENTITY);
+            final Entity entity = TestElements.getEntity();
             entity.setVertex("A0");
             entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
             data.add(entity);
             for (int i = 1; i < 100; i++) {
-                final Edge edge = new Edge(TestGroups.EDGE);
+                final Edge edge = TestElements.getEdge();
                 edge.setSource("A0");
                 edge.setDestination("A" + i);
                 edge.setDirected(true);
@@ -271,7 +272,7 @@ public class GetElementsWithinSetHandlerTest {
                 edge.putProperty(AccumuloPropertyNames.PROP_3, 0);
                 edge.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-                final Edge edge2 = new Edge(TestGroups.EDGE);
+                final Edge edge2 = TestElements.getEdge();
                 edge2.setSource("A0");
                 edge2.setDestination("A" + i);
                 edge2.setDirected(true);
@@ -282,7 +283,7 @@ public class GetElementsWithinSetHandlerTest {
                 edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
                 edge2.putProperty(AccumuloPropertyNames.PROP_4, 0);
 
-                final Edge edge3 = new Edge(TestGroups.EDGE);
+                final Edge edge3 = TestElements.getEdge();
                 edge3.setSource("A0");
                 edge3.setDestination("A" + i);
                 edge3.setDirected(true);
@@ -297,7 +298,7 @@ public class GetElementsWithinSetHandlerTest {
                 data.add(edge2);
                 data.add(edge3);
 
-                final Entity edgeEntity = new Entity(TestGroups.ENTITY);
+                final Entity edgeEntity = TestElements.getEntity();
                 edgeEntity.setVertex("A" + i);
                 edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
                 data.add(edgeEntity);

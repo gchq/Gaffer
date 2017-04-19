@@ -28,7 +28,7 @@ public class DataGenerator14 implements OneToOneElementGenerator<String> {
         final Edge.Builder builder = new Edge.Builder()
                 .group(t[2])
                 .source(t[0])
-                .dest(t[1])
+                .destination(t[1])
                 .directed(false)
                 .property("count", 1);
 
