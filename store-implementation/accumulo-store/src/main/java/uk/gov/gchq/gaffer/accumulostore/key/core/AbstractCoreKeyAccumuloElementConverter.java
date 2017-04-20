@@ -467,7 +467,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected abstract Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException;
 
-    protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey,
+    protected abstract boolean[] getSourceAndDestinationFromRowKey(final byte[] rowKey,
                                                                  final byte[][] sourceValueDestinationValue, final Map<String, String> options)
             throws AccumuloElementConversionException;
 
@@ -492,7 +492,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected Edge getEdgeFromKey(final Key key, final Map<String, String> options)
             throws AccumuloElementConversionException {
         final byte[][] result = new byte[3][];
-        final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
+        final boolean[] directedReversedValues = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
         String group;
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);
@@ -500,8 +500,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
         try {
-            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
-                    getVertexSerialiser().deserialise(result[1]), directed);
+            final Edge edge = new Edge.Builder().group(group)
+                                                .source(getVertexSerialiser().deserialise(result[0]))
+                                                .destination(getVertexSerialiser()
+                                                        .deserialise(result[1]))
+                                                .directed(directedReversedValues[0])
+                                                .reversed(directedReversedValues[1])
+                                                .build();
             addPropertiesToElement(edge, key);
             return edge;
         } catch (final SerialisationException e) {

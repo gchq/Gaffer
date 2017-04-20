@@ -47,26 +47,26 @@ public class EntityIdExtractorTest {
     public void shouldGetSourceFromEdge() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.SOURCE);
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
+        final Edge edge = new Edge(TestGroups.EDGE, "a", "b", false);
 
         // When
         final EntityId seed = extractor._apply(edge);
 
         // Then
-        assertEquals("source", seed.getVertex());
+        assertEquals("a", seed.getVertex());
     }
 
     @Test
     public void shouldGetDestinationFromEdge() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DESTINATION);
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
+        final Edge edge = new Edge(TestGroups.EDGE, "a", "b", false);
 
         // When
         final EntityId seed = extractor._apply(edge);
 
         // Then
-        assertEquals("destination", seed.getVertex());
+        assertEquals("b", seed.getVertex());
     }
 
     @Test

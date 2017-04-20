@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 public abstract class Element implements ElementId {
     public static final String DEFAULT_GROUP = "UNKNOWN";
 
-    private Properties properties;
+    protected Properties properties;
     private String group;
 
     Element() {

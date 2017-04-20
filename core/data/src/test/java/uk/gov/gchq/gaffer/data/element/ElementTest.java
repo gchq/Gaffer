@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -177,5 +176,5 @@ public abstract class ElementTest {
     }
 
     @Test
-    public abstract void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException, JsonProcessingException;
+    public abstract void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException;
 }

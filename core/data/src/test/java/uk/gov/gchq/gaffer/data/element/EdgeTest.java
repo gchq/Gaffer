@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,17 +25,23 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EdgeTest extends ElementTest {
 
+    @Override
     @Test
     public void shouldSetAndGetFields() {
         // Given
@@ -116,6 +122,7 @@ public class EdgeTest extends ElementTest {
         assertEquals(edge, clone);
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
@@ -153,6 +160,7 @@ public class EdgeTest extends ElementTest {
         assertTrue(isEqual);
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
@@ -195,6 +203,7 @@ public class EdgeTest extends ElementTest {
         assertNotEquals(edge1.hashCode(), edge2.hashCode());
     }
 
+    @Override
     @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
@@ -320,27 +329,194 @@ public class EdgeTest extends ElementTest {
         assertFalse(edge1.hashCode() == edge2.hashCode());
     }
 
+    @Override
     @Test
-    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException, JsonProcessingException {
+    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
         final Edge edge = new Edge.Builder().group("group")
                                             .source(1L)
                                             .destination(new Date(2L))
-                                            .directed(true).build();
+                                            .directed(true)
+                                            .build();
 
         final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
         final byte[] serialisedElement = serialiser.serialise(edge);
-
-        final ObjectMapper mapper = new ObjectMapper();
-        System.out.println(mapper.writeValueAsString(edge));
-
         final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
                 .getClass());
 
         // Then
         assertEquals(edge, deserialisedElement);
+    }
+
+    @Test
+    public void shouldSwapVerticesIfSourceIsGreaterThanDestination_toString() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .directed(false)
+                                            .source(new Vertex("2"))
+                                            .destination(new Vertex("1"))
+                                            .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Vertex("1")));
+        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+    }
+
+    @Test
+    public void shouldNotSwapVerticesIfSourceIsLessThanDestination_toString() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .directed(false)
+                                            .source(new Vertex("1"))
+                                            .destination(new Vertex("2"))
+                                            .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Vertex("1")));
+        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+    }
+
+    @Test
+    public void shouldSwapVerticesIfSourceIsGreaterThanDestination_comparable() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .directed(false)
+                                            .source(new Integer(2))
+                                            .destination(new Integer(1))
+                                            .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Integer(1)));
+        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+    }
+
+    @Test
+    public void shouldNotSwapVerticesIfSourceIsLessThanDestination_comparable() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .directed(false)
+                                            .source(new Integer(1))
+                                            .destination(new Integer(2))
+                                            .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Integer(1)));
+        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+    }
+
+    @Test
+    public void shouldFailToConsistentlySwapVerticesWithNoToStringImplementation() {
+        // Given
+        final List<Edge> edges = new ArrayList<>();
+        final List<Vertex2> sources = new ArrayList<>();
+        final List<Vertex2> destinations = new ArrayList<>();
+
+        // Create a load of edges with Vertex2 objects as source and destination.
+        // Vertex2 has no toString method and does not implement Comparable, so
+        // this should result in Edges being created with different sources and
+        // destinations.
+        for (int i = 0;  i < 1000; i ++) {
+            final Vertex2 source = new Vertex2("1");
+            final Vertex2 destination = new Vertex2("2");
+
+            sources.add(source);
+            destinations.add(destination);
+        }
+
+        for (int i = 0;  i < 1000; i ++) {
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .directed(false)
+                                                .source(sources.get(i))
+                                                .destination(destinations.get(i))
+                                                .build();
+
+            edges.add(edge);
+        }
+
+        // Then
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), greaterThan(1L));
+    }
+
+    @Test
+    public void shouldNotFailToConsistentlySwapVerticesWithStringImplementation() {
+        // Opposite to shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
+        // showing that Edges which implement toString, equals and hashCode are
+        // consistently created with source and destination the correct way round
+
+        // Given
+        final List<Edge> edges = new ArrayList<>();
+        final List<Vertex> sources = new ArrayList<>();
+        final List<Vertex> destinations = new ArrayList<>();
+
+        for (int i = 0;  i < 1000; i ++) {
+            final Vertex source = new Vertex("1");
+            final Vertex destination = new Vertex("2");
+
+            sources.add(source);
+            destinations.add(destination);
+        }
+
+        for (int i = 0;  i < 1000; i ++) {
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .directed(false)
+                                                .source(sources.get(i))
+                                                .destination(destinations.get(i))
+                                                .build();
+
+            edges.add(edge);
+        }
+
+        // Then
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), equalTo(1L));
+    }
+
+    @Test
+    public void shouldReinitialise() {
+        // Given
+        final Edge edge1 = new Edge(TestGroups.EDGE, 1, 2, false);
+        final Edge edge2 = new Edge(TestGroups.EDGE_2, 3, 4, false);
+
+        // When
+        edge1.reinitialise(TestGroups.EDGE_2, 3, 4, false);
+
+        // Then
+        assertThat(edge1, equalTo(edge2));
+    }
+
+    @Test
+    public void shouldFallbackToToStringComparisonIfSourceAndDestinationHaveDifferentTypes() {
+        // Given
+        final Edge edge1 = new Edge(TestGroups.EDGE, 1, "2", false);
+        final Edge edge2 = new Edge(TestGroups.EDGE, "2", 1, false);
+
+        // Then
+        assertThat(edge1, equalTo(edge2));
+    }
+
+    @Test
+    public void shouldSkipVertexOrderingIfEdgeIsReversed() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                    .source("2")
+                                                    .destination("1")
+                                                    .directed(false)
+                                                    .build();
+
+        final Edge reversedEdge = new Edge.Builder().group(TestGroups.EDGE)
+                                                    .source("2")
+                                                    .destination("1")
+                                                    .directed(false)
+                                                    .reversed(true)
+                                                    .build();
+        // Then
+        assertThat(edge.getSource(), equalTo("1"));
+        assertThat(edge.getDestination(), equalTo("2"));
+        assertThat(reversedEdge.getSource(), equalTo("2"));
+        assertThat(reversedEdge.getDestination(), equalTo("1"));
     }
 
     @Override
@@ -371,5 +547,58 @@ public class EdgeTest extends ElementTest {
         }
 
         return newEdge;
+    }
+
+    private class Vertex {
+        private final String property;
+
+        public Vertex(final String property) {
+            this.property = property;
+        }
+
+        public String getProperty() {
+            return property;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final Vertex vertex = (Vertex) o;
+
+            return new EqualsBuilder()
+                    .append(property, vertex.property)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(property)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "Vertex[property=" + property + "]";
+        }
+    }
+
+    private class Vertex2 {
+        private final String property;
+
+        public Vertex2(final String property) {
+            this.property = property;
+        }
+
+        public String getProperty() {
+            return property;
+        }
     }
 }

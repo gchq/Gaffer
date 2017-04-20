@@ -86,10 +86,9 @@ public class GetAdjacentIdsHandler implements
             // Apply view
             // Extract adjacent nodes
             Stream<? extends EntityId> entityIdStream = Streams.toParallelStream(getAdjacentIds.getInput());
-            Stream<Pair<EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
+            Stream<? extends Pair<? extends EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
                     .map(entityId -> {
-                        final Set<Element> elements = GetElementsHandler
-                                .getRelevantElements(mapImpl, entityId, getElements);
+                        final Set<Element> elements = GetElementsHandler.getRelevantElements(mapImpl, entityId, getElements);
                         elements.removeIf(e -> e instanceof Entity || !getAdjacentIds.validateFlags(((Edge) e)));
                         return new Pair<>(entityId, elements);
                     })
