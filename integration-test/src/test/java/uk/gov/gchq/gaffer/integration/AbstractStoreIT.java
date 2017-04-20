@@ -72,10 +72,10 @@ public abstract class AbstractStoreIT {
     protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
 
     // Identifier prefixes
-    public static final String SOURCE = "source";
-    public static final String DEST = "destination";
-    public static final String SOURCE_DIR = "sourceDir";
-    public static final String DEST_DIR = "destDir";
+    public static final String SOURCE = "a";
+    public static final String DEST = "b";
+    public static final String SOURCE_DIR = "aDir";
+    public static final String DEST_DIR = "bDir";
     public static final String A = "A";
     public static final String B = "B";
     public static final String C = "C";

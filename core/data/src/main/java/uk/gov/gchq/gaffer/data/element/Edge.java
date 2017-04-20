@@ -53,6 +53,7 @@ public class Edge extends Element implements EdgeId {
         this.source = source;
         this.destination = destination;
         this.directed = directed;
+        orderVertices();
     }
 
     private Edge(final Builder builder) {
@@ -61,6 +62,7 @@ public class Edge extends Element implements EdgeId {
         this.destination = builder.destination;
         this.directed = builder.directed;
         builder.properties.forEach((n, v) -> this.putProperty(n, v));
+        orderVertices();
     }
 
     public Object getSource() {
@@ -104,6 +106,27 @@ public class Edge extends Element implements EdgeId {
             default:
                 LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
         }
+    }
+
+    private void orderVertices() {
+        if (null != source && null != destination) {
+            if (!directed) {
+                if (source instanceof Comparable && destination instanceof Comparable) {
+                    if (((Comparable) source).compareTo((Comparable) destination) > 0) {
+                        swapVertices();
+                    }
+                } else if (source.toString()
+                                 .compareTo(destination.toString()) > 0) {
+                    swapVertices();
+                }
+            }
+        }
+    }
+
+    private void swapVertices() {
+        final Object tmp = this.source;
+        this.source = this.destination;
+        this.destination = tmp;
     }
 
     @Override
