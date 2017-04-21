@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -33,7 +34,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link MapStore}.
@@ -60,7 +60,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         final Map<String, Set<String>> groupToNonGroupByProperties = mapImpl.groupToNonGroupByProperties;
         final Map<Element, Properties> elementToProperties = mapImpl.elementToProperties;
 
-        StreamSupport.stream(elements.spliterator(), false)
+        Streams.toStream(elements)
                 .forEach(element -> {
                     // Update main map of element with group-by properties to properties
                     final Element elementWithGroupByProperties = updateElementToProperties(schema,

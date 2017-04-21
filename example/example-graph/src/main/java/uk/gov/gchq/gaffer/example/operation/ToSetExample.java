@@ -20,43 +20,42 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.Deduplicate;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import java.util.Set;
 
-public class DeduplicateExample extends OperationExample {
-    public static void main(final String[] args) throws OperationException {
-        new DeduplicateExample().run();
+public class ToSetExample extends OperationExample {
+    public ToSetExample() {
+        super(ToSet.class, "Note - conversion into a Set is done using an in memory LinkedHashSet, so it is not advised for a large number of results.");
     }
 
-    public DeduplicateExample() {
-        super(Deduplicate.class, "Note - deduplication is done using an in memory HashSet, so it is not advised for a large number of results.");
+    public static void main(final String[] args) throws OperationException {
+        new ToSetExample().run();
     }
 
     @Override
     public void runExamples() {
-        withoutDeduplicatingEdges();
-        withDeduplicateEdgesChain();
+        withoutToSetOperation();
+        withToSetOperation();
     }
 
-    public CloseableIterable<? extends Element> withoutDeduplicatingEdges() {
+    public CloseableIterable<? extends Element> withoutToSetOperation() {
         // ---------------------------------------------------------
         final GetElements operation = new GetElements.Builder()
-                .input(new EntitySeed(1))
-                .input(new EntitySeed(2))
+                .input(new EntitySeed(1), new EntitySeed(2))
                 .build();
         // ---------------------------------------------------------
 
         return runExample(operation);
     }
 
-    public Iterable<? extends Element> withDeduplicateEdgesChain() {
+    public Set<? extends Element> withToSetOperation() {
         // ---------------------------------------------------------
-        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+        final OperationChain<Set<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
-                        .input(new EntitySeed(1))
-                        .input(new EntitySeed(2))
+                        .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
-                .then(new Deduplicate<>())
+                .then(new ToSet<>())
                 .build();
         // ---------------------------------------------------------
 

@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -40,7 +41,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetAdjacentIds} operation on the {@link MapStore}.
@@ -85,7 +85,7 @@ public class GetAdjacentIdsHandler implements
             // Create full Element
             // Apply view
             // Extract adjacent nodes
-            Stream<? extends EntityId> entityIdStream = StreamSupport.stream(getAdjacentIds.getInput().spliterator(), true);
+            Stream<? extends EntityId> entityIdStream = Streams.toParallelStream(getAdjacentIds.getInput());
             Stream<Pair<EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
                     .map(entityId -> {
                         final Set<Element> elements = GetElementsHandler

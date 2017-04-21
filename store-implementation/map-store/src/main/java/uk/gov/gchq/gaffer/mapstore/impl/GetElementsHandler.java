@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -50,7 +51,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 
@@ -91,7 +91,7 @@ public class GetElementsHandler
 
         @Override
         public CloseableIterator<Element> iterator() {
-            final Stream<Set<Element>> elementsSets = StreamSupport.stream(getElements.getInput().spliterator(), true)
+            final Stream<Set<Element>> elementsSets = Streams.toParallelStream(getElements.getInput())
                     .map(elementId -> getRelevantElements(mapImpl, elementId, getElements));
             final Stream<Element> elements = elementsSets.flatMap(s -> s.stream());
             final Stream<Element> elementsAfterIncludeEntitiesEdgesOption =

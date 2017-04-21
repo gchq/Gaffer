@@ -15,11 +15,11 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import java.util.stream.StreamSupport;
 
 public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
 
@@ -29,6 +29,6 @@ public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
         if (null == operation.getInput()) {
             throw new OperationException("Count operation has null iterable of items");
         }
-        return StreamSupport.stream(operation.getInput().spliterator(), true).count();
+        return Streams.toParallelStream(operation.getInput()).count();
     }
 }

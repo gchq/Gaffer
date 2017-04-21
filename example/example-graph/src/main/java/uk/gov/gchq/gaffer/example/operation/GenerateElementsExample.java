@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.example.operation.generator.DataGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import java.util.Arrays;
 
 public class GenerateElementsExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -42,7 +41,7 @@ public class GenerateElementsExample extends OperationExample {
     public Iterable<? extends Element> generateElementsFromStrings() {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
-                .input(Arrays.asList("1,1", "1,2,1"))
+                .input("1,1", "1,2,1")
                 .generator(new DataGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -53,9 +52,8 @@ public class GenerateElementsExample extends OperationExample {
     public Iterable<? extends Element> generateElementsFromDomainObjects() {
         // ---------------------------------------------------------
         final GenerateElements<Object> operation = new GenerateElements.Builder<>()
-                .input(Arrays.asList(
-                        new DomainObject1(1, 1),
-                        new DomainObject2(1, 2, 1)))
+                .input(new DomainObject1(1, 1),
+                        new DomainObject2(1, 2, 1))
                 .generator(new DomainObjectGenerator())
                 .build();
         // ---------------------------------------------------------

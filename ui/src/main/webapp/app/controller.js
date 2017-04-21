@@ -271,6 +271,10 @@ angular.module('app').controller('AppController',
     }
 
     var parseVertex = function(vertex) {
+        if(typeof vertex === 'string' || vertex instanceof String) {
+            vertex = "\"" + vertex + "\"";
+        }
+
         try {
              JSON.parse(vertex);
         } catch(err) {

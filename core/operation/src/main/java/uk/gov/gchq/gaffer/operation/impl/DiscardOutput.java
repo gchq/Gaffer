@@ -33,7 +33,8 @@ public class DiscardOutput implements
         // No action required
     }
 
-    public static final class Builder extends BaseBuilder<DiscardOutput, Builder> {
+    public static final class Builder extends BaseBuilder<DiscardOutput, Builder>
+            implements Input.Builder<DiscardOutput, Object, Builder> {
         public Builder() {
             super(new DiscardOutput());
         }

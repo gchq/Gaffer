@@ -28,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
