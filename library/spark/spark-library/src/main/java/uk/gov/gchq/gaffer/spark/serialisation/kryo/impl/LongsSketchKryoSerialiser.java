@@ -15,45 +15,45 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.yahoo.sketches.frequencies.LongsSketch;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 
 /**
- * * A Kryo {@link Serializer} for a {@link HyperLogLogPlus}.
+ * A Kryo {@link Serializer} for a {@link LongsSketch}.
  */
-public class HyperLogLogPlusKryoSerialiser extends Serializer<HyperLogLogPlus>  {
-    private HyperLogLogPlusSerialiser serialiser;
+public class LongsSketchKryoSerialiser extends Serializer<LongsSketch> {
+    private LongsSketchSerialiser serialiser;
 
-    public HyperLogLogPlusKryoSerialiser() {
-        this.serialiser = new HyperLogLogPlusSerialiser();
+    public LongsSketchKryoSerialiser() {
+        this.serialiser = new LongsSketchSerialiser();
     }
 
     @Override
-    public void write(final Kryo kryo, final Output output, final HyperLogLogPlus hyperLogLogPlus) {
+    public void write(final Kryo kryo, final Output output, final LongsSketch longsSketch) {
         final byte[] serialised;
         try {
-            serialised = serialiser.serialise(hyperLogLogPlus);
+            serialised = serialiser.serialise(longsSketch);
         } catch (final SerialisationException e) {
-            throw new GafferRuntimeException("Exception serialising HyperLogLogPlus to a byte array");
+            throw new GafferRuntimeException("Exception serialising LongsSketch to a byte array");
         }
         output.writeInt(serialised.length);
         output.writeBytes(serialised);
     }
 
     @Override
-    public HyperLogLogPlus read(final Kryo kryo, final Input input, final Class<HyperLogLogPlus> type) {
+    public LongsSketch read(final Kryo kryo, final Input input, final Class<LongsSketch> type) {
         final int serialisedLength = input.readInt();
         final byte[] serialised = input.readBytes(serialisedLength);
         try {
             return serialiser.deserialise(serialised);
         } catch (final SerialisationException e) {
-            throw new GafferRuntimeException("Exception deserialising HyperLogLogPlus from a byte array", e);
+            throw new GafferRuntimeException("Exception deserialising LongsSketch from a byte array", e);
         }
     }
 }

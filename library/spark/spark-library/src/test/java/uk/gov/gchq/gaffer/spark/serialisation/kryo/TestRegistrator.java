@@ -17,14 +17,16 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
+import com.yahoo.sketches.frequencies.LongsSketch;
+import com.yahoo.sketches.quantiles.DoublesUnion;
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import com.yahoo.sketches.theta.Union;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerialiser;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.*;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 import static org.junit.Assert.assertEquals;
@@ -53,6 +55,12 @@ public class TestRegistrator {
         assertTrue(kryo.getRegistration(FreqMap.class).getId() > 0);
 
         // HyperLogLogPlus
-        assertEquals(HyperLogLogPlusKryoSerialiser.class, kryo.getSerializer(HyperLogLogPlus.class).getClass());
+        assertEquals(HyperLogLogPlusKryoSerializer.class, kryo.getSerializer(HyperLogLogPlus.class).getClass());
+
+        // DataSketches - TODO - check
+        assertEquals(LongsSketchKryoSerialiser.class, kryo.getSerializer(LongsSketch.class).getClass());
+        assertEquals(DoublesUnionKryoSerializer.class, kryo.getSerializer(DoublesUnion.class).getClass());
+        assertEquals(ReservoirLongsUnionKryoSerializer.class, kryo.getSerializer(ReservoirLongsUnion.class).getClass());
+        assertEquals(UnionKryoSerializer.class, kryo.getSerializer(Union.class).getClass());
     }
 }

@@ -17,13 +17,21 @@ package uk.gov.gchq.gaffer.spark.serialisation.kryo;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
+import com.yahoo.sketches.frequencies.LongsSketch;
+import com.yahoo.sketches.quantiles.DoublesUnion;
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import com.yahoo.sketches.theta.Union;
 import org.apache.spark.serializer.KryoRegistrator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.DoublesUnionKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EdgeKryoSerializer;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.EntityKryoSerializer;
-import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerialiser;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.HyperLogLogPlusKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.LongsSketchKryoSerialiser;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.ReservoirLongsUnionKryoSerializer;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.impl.UnionKryoSerializer;
 import uk.gov.gchq.gaffer.types.FreqMap;
 
 /**
@@ -38,6 +46,10 @@ public class Registrator implements KryoRegistrator {
         kryo.register(Edge.class, new EdgeKryoSerializer());
         kryo.register(Properties.class);
         kryo.register(FreqMap.class);
-        kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerialiser());
+        kryo.register(HyperLogLogPlus.class, new HyperLogLogPlusKryoSerializer());
+        kryo.register(LongsSketch.class, new LongsSketchKryoSerialiser());
+        kryo.register(DoublesUnion.class, new DoublesUnionKryoSerializer());
+        kryo.register(ReservoirLongsUnion.class, new ReservoirLongsUnionKryoSerializer());
+        kryo.register(Union.class, new UnionKryoSerializer());
     }
 }

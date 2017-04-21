@@ -15,21 +15,21 @@
  */
 package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.yahoo.sketches.quantiles.DoublesUnion;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class TestHyperLogLogPlusKryoSerialiser {
+public class TestDoublesUnionKryoSerialiser {
+    private static final double DELTA = 0.01D;
     private final Kryo kryo = new Kryo();
 
     @Before
@@ -38,30 +38,31 @@ public class TestHyperLogLogPlusKryoSerialiser {
     }
 
     @Test
-    public void testHyperLogLogPlusKryoSerialiser() {
-        // HyperLogLogPlus with p = 5, sp = 5
-        final HyperLogLogPlus hyperLogLogPlus = new HyperLogLogPlus(5, 5);
-        IntStream.range(0, 1000).forEach(i -> hyperLogLogPlus.offer("" + i));
-        test(hyperLogLogPlus);
+    public void testDoublesUnionKryoSerialiser() {
+        final DoublesUnion union = DoublesUnion.builder().build();
+        union.update(1.0D);
+        union.update(2.0D);
+        union.update(3.0D);
+        test(union);
 
-        // HyperLogLogPlus with p = 15
-        final HyperLogLogPlus hyperLogLogPlus2 = new HyperLogLogPlus(15);
-        IntStream.range(0, 10000).forEach(i -> hyperLogLogPlus2.offer("" + i));
-        test(hyperLogLogPlus2);
+//        final DoublesUnion emptyUnion = DoublesUnion.builder().build();
+//        test(emptyUnion);
     }
 
-    private void test(final HyperLogLogPlus hyperLogLogPlus) {
+    private void test(final DoublesUnion doublesUnion) {
+        final double quantile = doublesUnion.getResult().getQuantile(0.5D);
+
         // When
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final Output output = new Output(baos);
-        kryo.writeObject(output, hyperLogLogPlus);
+        kryo.writeObject(output, doublesUnion);
         output.close();
         final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         final Input input = new Input(bais);
-        final HyperLogLogPlus read = kryo.readObject(input, HyperLogLogPlus.class);
+        final DoublesUnion read = kryo.readObject(input, DoublesUnion.class);
         input.close();
 
         // Then
-        assertEquals(hyperLogLogPlus.cardinality(), read.cardinality());
+        assertEquals(quantile, read.getResult().getQuantile(0.5D), DELTA);
     }
 }
