@@ -177,5 +177,5 @@ public abstract class ElementTest {
     }
 
     @Test
-    public abstract void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException, JsonProcessingException;
+    public abstract void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException;
 }

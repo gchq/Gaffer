@@ -47,10 +47,6 @@ public class ToVerticesTest implements OperationTest {
                 .edgeVertices(EdgeVertices.BOTH)
                 .build();
 
-        final ObjectMapper mapper = JSONSerialiser.createDefaultMapper();
-
-        System.out.println(mapper.writeValueAsString(op));
-
         // When
         byte[] json = serialiser.serialise(op, true);
         final ToVertices deserialisedOp = serialiser.deserialise(json, ToVertices.class);

@@ -331,7 +331,7 @@ public class EdgeTest extends ElementTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException, JsonProcessingException {
+    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
         final Edge edge = new Edge.Builder().group("group")
                                             .source(1L)
@@ -343,10 +343,6 @@ public class EdgeTest extends ElementTest {
 
         // When
         final byte[] serialisedElement = serialiser.serialise(edge);
-
-        final ObjectMapper mapper = new ObjectMapper();
-        System.out.println(mapper.writeValueAsString(edge));
-
         final Edge deserialisedElement = serialiser.deserialise(serialisedElement, edge
                 .getClass());
 
@@ -440,8 +436,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().distinct().count(), greaterThan(1L));
-        assertThat(edges.stream().distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), greaterThan(1L));
     }
 
     @Test
@@ -474,8 +470,8 @@ public class EdgeTest extends ElementTest {
         }
 
         // Then
-        assertThat(edges.stream().distinct().count(), equalTo(1L));
-        assertThat(edges.stream().distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), equalTo(1L));
     }
 
     @Override

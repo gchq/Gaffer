@@ -61,7 +61,7 @@ public class Edge extends Element implements EdgeId {
         this.source = builder.source;
         this.destination = builder.destination;
         this.directed = builder.directed;
-        builder.properties.forEach((n, v) -> this.putProperty(n, v));
+        this.properties = builder.properties;
         orderVertices();
     }
 
@@ -197,7 +197,7 @@ public class Edge extends Element implements EdgeId {
         private Object destination;
         private boolean directed;
         private String group = "UNKNOWN";
-        private final Map<String, Object> properties = new HashMap<>();
+        private final Properties properties = new Properties();
 
         public Builder group(final String group) {
             this.group = group;

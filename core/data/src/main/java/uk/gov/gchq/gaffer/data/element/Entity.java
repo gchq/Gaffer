@@ -54,7 +54,7 @@ public class Entity extends Element implements EntityId {
     public Entity(final Builder builder) {
         super(builder.group);
         this.vertex = builder.vertex;
-        builder.properties.forEach((n, v) -> putProperty(n, v));
+        this.properties = builder.properties;
     }
 
     public Object getVertex() {
@@ -120,7 +120,7 @@ public class Entity extends Element implements EntityId {
     public static class Builder {
         private String group = "UNKNOWN";
         private Object vertex;
-        private Map<String, Object> properties = new HashMap<>();
+        private Properties properties = new Properties();
 
         public Builder group(final String group) {
             this.group = group;
