@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -27,7 +28,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.Pair;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -66,7 +66,7 @@ public class ElementSerialisationTest {
         edge.setDirected(true);
 
         // When
-        final Pair<byte[]> keys = serialisation.getRowKeys(edge);
+        final SimplePair<byte[]> keys = serialisation.getRowKeys(edge);
 
         // Then
         final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst());
@@ -157,7 +157,7 @@ public class ElementSerialisationTest {
         edge.setSource("1");
         edge.setDirected(true);
 
-        final Pair<byte[]> keys = serialisation.getRowKeys(edge);
+        final SimplePair<byte[]> keys = serialisation.getRowKeys(edge);
         final Map<String, String> options = new HashMap<>();
 
         // When
@@ -177,7 +177,7 @@ public class ElementSerialisationTest {
         edge.setSource("1");
         edge.setDirected(true);
 
-        final Pair<byte[]> keys = serialisation.getRowKeys(edge);
+        final SimplePair<byte[]> keys = serialisation.getRowKeys(edge);
         final Map<String, String> options = new HashMap<>();
         options.put(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 

@@ -100,6 +100,6 @@ public class Pair<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Pair{" + "first=" + first + ", second=" + second + '}';
+        return "AbstractPair{" + "first=" + first + ", second=" + second + '}';
     }
 }
