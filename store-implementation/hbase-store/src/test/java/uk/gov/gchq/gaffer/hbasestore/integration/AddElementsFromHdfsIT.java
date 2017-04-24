@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
 import com.google.common.collect.Lists;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -158,8 +160,8 @@ public class AddElementsFromHdfsIT {
     private JobConf createLocalConf() {
         // Set up local conf
         final JobConf conf = new JobConf();
-        conf.set("fs.defaultFS", "file:///");
-        conf.set("mapreduce.jobtracker.address", "local");
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
+        conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
 
         return conf;
     }

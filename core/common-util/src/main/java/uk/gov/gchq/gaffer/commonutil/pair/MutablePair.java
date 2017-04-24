@@ -19,6 +19,7 @@ public class MutablePair<F, S> extends AbstractPair<F, S> {
     private static final long serialVersionUID = 6533436107353534068L;
 
     public MutablePair() {
+        super();
     }
 
     public MutablePair(final F first) {

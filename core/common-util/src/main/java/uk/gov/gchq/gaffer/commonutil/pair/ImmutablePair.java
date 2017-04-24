@@ -19,6 +19,7 @@ public class ImmutablePair<F, S> extends AbstractPair<F, S> {
     private static final long serialVersionUID = 2796855577640632366L;
 
     public ImmutablePair() {
+        super();
     }
 
     public ImmutablePair(final F first) {
