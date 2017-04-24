@@ -23,6 +23,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -193,6 +194,12 @@ public class StoreProperties implements Cloneable {
     }
 
     public String getOperationDeclarationPaths() {
+        try {
+            final String operationDeclarationsPath = get(OPERATION_DECLARATIONS);
+        } catch (final NullPointerException e) {
+            throw new IllegalArgumentException("The operations declaration path was not set." +
+                    "Please check the store.properties file.", e);
+        }
         return get(OPERATION_DECLARATIONS);
     }
 
