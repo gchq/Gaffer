@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
@@ -35,7 +35,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
 
     @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
-        final SimplePair<Put> puts = serialisation.getPuts(element);
+        final Pair<Put, Put> puts = serialisation.getPuts(element);
         context.write(new ImmutableBytesWritable(puts.getFirst().getRow()), puts.getFirst());
         if (null != puts.getSecond()) {
             context.write(new ImmutableBytesWritable(puts.getSecond().getRow()), puts.getSecond());

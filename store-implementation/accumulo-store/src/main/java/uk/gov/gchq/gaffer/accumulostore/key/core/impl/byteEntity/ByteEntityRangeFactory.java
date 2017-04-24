@@ -21,8 +21,8 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
@@ -191,7 +191,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                             new Range(getUnDirectedEdgeKey(serialisedVertex, false), true,
                                     getUnDirectedEdgeKey(serialisedVertex, true), true));
                 } else {
-                    final Pair<Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
+                    final Pair<Key, Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
                     return Collections.singletonList(new Range(keys.getFirst(), false, keys.getSecond(), false));
                 }
             }
@@ -250,7 +250,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
-    private Pair<Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
+    private Pair<Key, Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;

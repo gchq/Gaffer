@@ -17,26 +17,21 @@ package uk.gov.gchq.gaffer.commonutil.pair;
 
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class PairTest {
 
     @Test
-    public void shouldCreateImmutablePair() throws Exception {
+    public void shouldCreateMutablePair() throws Exception {
         // Given
-        final Pair<Integer, String> pair = new ImmutablePair<>(0, "foo");
-        final Pair<Object, String> pair2 = new ImmutablePair<>(null, "bar");
+        final Pair<Integer, String> pair = new Pair<>(0, "foo");
+        final Pair<Object, String> pair2 = new Pair<>(null, "bar");
 
         // Then
-        assertTrue(pair instanceof ImmutablePair<?, ?>);
-        assertTrue(pair2 instanceof ImmutablePair<?, ?>);
+        assertTrue(pair instanceof Pair<?, ?>);
+        assertTrue(pair2 instanceof Pair<?, ?>);
 
         assertEquals(0, pair.getFirst().intValue());
         assertNull(pair2.getFirst());
@@ -46,40 +41,23 @@ public class PairTest {
     }
 
     @Test
-    public void differentPairTypesWithSameContentsShouldBeEqual() throws Exception {
+    public void shouldBeAbleToMutateMutablePair() {
+        // Given
+        final Pair<Integer, String> pair = new Pair<>(0);
+        final Pair<Object, String> pair2 = new Pair<>();
+
         // When
-        final ImmutablePair<Integer, String> pair = new ImmutablePair<>(0, "foo");
-        final MutablePair<Integer, String> pair2 = new MutablePair<>(0, "foo");
-        final HashSet<Pair<Integer, String>> set = new HashSet<>();
-
-        assertEquals(pair, pair2);
-        assertEquals(pair.hashCode(), pair2.hashCode());
-
-        // Given
-        set.add(pair);
-        pair2.setSecond("bar");
+        pair.setFirst(1);
+        pair2.setSecond("baz");
 
         // Then
-        assertTrue(set.contains(pair));
-        assertFalse(pair.equals(pair2));
-        assertFalse(pair.hashCode() == pair2.hashCode());
-    }
+        assertTrue(pair instanceof Pair<?, ?>);
+        assertTrue(pair2 instanceof Pair<?, ?>);
 
-    @Test
-    public void shouldCreateImmutablePairObjectViaStaticFactoryMethod() {
-        // Given
-        final Pair<String, String> pair = Pair.of("foo", "bar");
+        assertEquals(1, pair.getFirst().intValue());
+        assertEquals("baz", pair2.getSecond());
 
-        // Then
-        assertTrue(pair instanceof ImmutablePair<?, ?>);
-
-        assertEquals("foo", pair.getFirst());
-        assertEquals("bar", pair.getSecond());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldGetExceptionIfFirstArgumentIsNullInStaticFactoryMethod() {
-        // Given
-        final Pair<String, String> pair = Pair.of(null, "bar");
+        assertNull(pair.getSecond());
+        assertNull(pair2.getFirst());
     }
 }
