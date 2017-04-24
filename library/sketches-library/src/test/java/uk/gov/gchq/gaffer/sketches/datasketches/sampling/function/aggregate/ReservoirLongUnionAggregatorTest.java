@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate;
 
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
