@@ -147,7 +147,7 @@ public class GafferResultCacheExporterTest {
         assertEquals(Collections.emptyList(), Lists.newArrayList(cachedResults));
     }
 
-    private List<Element> createCachedEdges(final Object timestamp, Object... values) {
+    private List<Element> createCachedEdges(final Object timestamp, final Object... values) {
         return Arrays.asList(
                 new Edge.Builder()
                         .group("result")

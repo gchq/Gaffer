@@ -28,7 +28,7 @@ public class ParameterisedTestObject<K> implements Serializable {
         return x;
     }
 
-    public void setX(String x) {
+    public void setX(final String x) {
         this.x = x;
     }
 
@@ -36,7 +36,7 @@ public class ParameterisedTestObject<K> implements Serializable {
         return k;
     }
 
-    public void setK(K k) {
+    public void setK(final K k) {
         this.k = k;
     }
 

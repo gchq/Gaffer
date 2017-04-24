@@ -191,7 +191,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1,3", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
     }
 
-    protected void shouldGetAllElements(final boolean includeEntities, boolean includeEdges, final DirectedType directedType) throws Exception {
+    protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {

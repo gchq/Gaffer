@@ -133,7 +133,7 @@ public class ExamplesServiceTest {
         assertTrue(viewValidator.validate(view, schema, false).isValid());
     }
 
-    private void shouldSerialiseAndDeserialiseOperation(Operation operation) throws IOException {
+    private void shouldSerialiseAndDeserialiseOperation(final Operation operation) throws IOException {
         //Given
 
         // When

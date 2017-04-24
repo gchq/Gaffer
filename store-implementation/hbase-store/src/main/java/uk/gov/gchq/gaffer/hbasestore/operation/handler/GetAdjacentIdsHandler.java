@@ -53,7 +53,7 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
             throws OperationException {
         if (null == op.getInput()) {
             // If null seeds no results are returned
-            return new WrappedCloseableIterable<>(Collections.emptyList());
+            return new WrappedCloseableIterable<>();
         }
 
         final HBaseRetriever<?> edgeRetriever;

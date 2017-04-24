@@ -20,7 +20,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 public class ExampleAggregateFunction extends KorypheBinaryOperator<Object> {
     @Override
-    public Object _apply(Object a, Object b) {
+    public Object _apply(final Object a, final Object b) {
         return a;
     }
 }

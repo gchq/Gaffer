@@ -103,7 +103,7 @@ public class AccumuloRangeIDRetrieverTest {
         }
     }
 
-    private static void setupGraph(final AccumuloStore store, int numEntries) {
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
             final Edge edge = new Edge(TestGroups.EDGE);
