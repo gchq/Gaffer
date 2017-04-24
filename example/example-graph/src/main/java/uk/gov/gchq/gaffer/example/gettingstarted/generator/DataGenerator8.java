@@ -24,8 +24,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class DataGenerator8 implements OneToOneElementGenerator<String> {
+
+    public static final long DAY_MINUS_1_MILLISECOND = TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS) - 1;
 
     @Override
     public Element _apply(final String line) {
@@ -38,12 +41,11 @@ public class DataGenerator8 implements OneToOneElementGenerator<String> {
                 .property("visibility", t[3])
                 .property("count", 1L);
 
-        final Date startDate;
         try {
-            startDate = DateUtils.truncate(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(t[2]), Calendar.DAY_OF_MONTH);
+            final Date startDate = DateUtils.truncate(new SimpleDateFormat("dd/MM/yyyy HH:mm").parse(t[2]), Calendar.DAY_OF_MONTH);
             edgeBuilder
                     .property("startDate", startDate)
-                    .property("endDate", DateUtils.addDays(startDate, 1));
+                    .property("endDate", DateUtils.addMilliseconds(startDate, (int) DAY_MINUS_1_MILLISECOND));
         } catch (final ParseException e) {
             throw new IllegalArgumentException("Unable to parse date", e);
         }
