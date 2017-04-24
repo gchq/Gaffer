@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge.Builder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
