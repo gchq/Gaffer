@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import uk.gov.gchq.gaffer.data.element.Element;

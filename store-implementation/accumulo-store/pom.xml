@@ -148,7 +148,7 @@
                                     <include>org.slf4j:slf4j-api</include>
                                     <include>com.google.guava*
                                     </include>
-                                    <include>org.apache.commons:commons-lang
+                                    <include>org.apache.commons:commons-lang3
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream

@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
