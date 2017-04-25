@@ -16,6 +16,9 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
@@ -30,12 +33,22 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 public class LoadAndQuery8Test {
+    private static final Date JAN_01_16_END;
+
+    static {
+        try {
+            JAN_01_16_END = new SimpleDateFormat("dd/MM/yy/hh/mm/ss/SSS").parse("01/01/16/23/59/59/999");
+        } catch (final ParseException e) {
+            throw new IllegalArgumentException("Unable to parse date", e);
+        }
+    }
+
     private static final String RESOURCE_PREFIX = "/example/gettingstarted/";
     private static final String RESOURCE_EXAMPLE_PREFIX = RESOURCE_PREFIX + "8/";
     public static final String COUNT = "count";
@@ -92,7 +105,7 @@ public class LoadAndQuery8Test {
                         .property(COUNT, 4L)
                         .property(VISIBILITY, "public")
                         .property(START_DATE, LoadAndQuery8.JAN_01_16)
-                        .property(END_DATE, LoadAndQuery8.JAN_02_16)
+                        .property(END_DATE, JAN_01_16_END)
                         .build(),
                 new Edge.Builder()
                         .source("1")
@@ -102,7 +115,7 @@ public class LoadAndQuery8Test {
                         .property(COUNT, 2L)
                         .property(VISIBILITY, "public")
                         .property(START_DATE, LoadAndQuery8.JAN_01_16)
-                        .property(END_DATE, LoadAndQuery8.JAN_02_16)
+                        .property(END_DATE, JAN_01_16_END)
                         .build()
         };
 
