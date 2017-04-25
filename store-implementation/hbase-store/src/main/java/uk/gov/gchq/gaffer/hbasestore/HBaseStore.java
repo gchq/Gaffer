@@ -80,7 +80,6 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class HBaseStore extends Store {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     public static final Set<StoreTrait> TRAITS =
             Collections.unmodifiableSet(Sets.newHashSet(
                     ORDERED,
@@ -93,6 +92,7 @@ public class HBaseStore extends Store {
                     QUERY_AGGREGATION,
                     STORE_VALIDATION
             ));
+    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
     private Connection connection;
 
     @Override
