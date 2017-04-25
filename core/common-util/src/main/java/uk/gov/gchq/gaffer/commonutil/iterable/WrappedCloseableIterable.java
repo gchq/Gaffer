@@ -17,13 +17,14 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
     private final Iterable<T> iterable;
 
     public WrappedCloseableIterable() {
-        this(null);
+        this(Collections.emptyList());
     }
 
     public WrappedCloseableIterable(final Iterable<T> iterable) {

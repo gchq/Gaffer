@@ -35,7 +35,7 @@ public final class StringUtil {
     public static String toString(final byte[] bytes) {
         try {
             return new String(bytes, CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException("Unable to convert bytes to string", e);
         }
     }
@@ -46,7 +46,7 @@ public final class StringUtil {
         }
         try {
             return string.getBytes(CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException("Unable to convert bytes to string", e);
         }
     }
@@ -121,7 +121,7 @@ public final class StringUtil {
         for (final String processorClassName : classNames) {
             try {
                 classes.add(Class.forName(processorClassName).asSubclass(clazz));
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 throw new RuntimeException("Invalid class: " + processorClassName
                         + ". Should be an implementation of " + clazz.getName(), e);
             }

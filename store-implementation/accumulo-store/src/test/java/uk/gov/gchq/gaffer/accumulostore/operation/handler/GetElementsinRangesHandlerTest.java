@@ -26,10 +26,10 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -99,7 +99,7 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldReturnElementsNoSummarisation(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
@@ -135,10 +135,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldSummarise(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId, ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -186,10 +186,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldSummariseOutGoingEdgesOnly(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("C")));
+        simpleEntityRanges.add(new Pair<ElementId, ElementId>(new EntitySeed("0"), new EntitySeed("C")));
 
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
@@ -239,11 +239,11 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldHaveNoIncomingEdges(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         final User user = new User();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId, ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()
@@ -276,10 +276,10 @@ public class GetElementsinRangesHandlerTest {
 
     private void shouldReturnNothingWhenNoEdgesSet(final AccumuloStore store) throws OperationException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
-        simpleEntityRanges.add(new Pair<ElementId>(new EntitySeed("0"), new EntitySeed("1")));
+        simpleEntityRanges.add(new Pair<ElementId, ElementId>(new EntitySeed("0"), new EntitySeed("1")));
         final View view = new View.Builder(defaultView)
                 .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                         .groupBy()

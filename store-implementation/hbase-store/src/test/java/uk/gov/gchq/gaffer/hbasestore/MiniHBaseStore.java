@@ -18,13 +18,16 @@ package uk.gov.gchq.gaffer.hbasestore;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.codec.KeyValueCodecWithTags;
+import org.apache.hadoop.hbase.io.hfile.HFile;
 import org.apache.hadoop.hbase.protobuf.generated.VisibilityLabelsProtos;
+import org.apache.hadoop.hbase.security.Superusers;
 import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.visibility.ScanLabelGenerator;
 import org.apache.hadoop.hbase.security.visibility.SimpleScanLabelGenerator;
@@ -32,6 +35,7 @@ import org.apache.hadoop.hbase.security.visibility.VisibilityClient;
 import org.apache.hadoop.hbase.security.visibility.VisibilityConstants;
 import org.apache.hadoop.hbase.security.visibility.VisibilityTestUtil;
 import org.apache.hadoop.hbase.security.visibility.VisibilityUtils;
+import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -52,6 +56,7 @@ public class MiniHBaseStore extends HBaseStore {
      * Comma separated visibilities for use with the Mini HBase store.
      */
     public static final String MINI_HBASE_VISIBILITIES = "hbase.mini.visibilities";
+    public static final String ADMIN_USERNAME = "admin";
 
     private static HBaseTestingUtility utility;
     private static Connection connection;
@@ -70,7 +75,7 @@ public class MiniHBaseStore extends HBaseStore {
                 utility = new HBaseTestingUtility(conf);
                 utility.startMiniCluster();
                 utility.waitTableEnabled(VisibilityConstants.LABELS_TABLE_NAME.getName(), 50000);
-                conf.set("fs.defaultFS", "file:///");
+                conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
                 addLabels(getMiniHBaseVisibilities(properties));
             } catch (final Exception e) {
                 throw new StoreException(e);
@@ -139,10 +144,10 @@ public class MiniHBaseStore extends HBaseStore {
     private Configuration setupConf() throws IOException {
         final Configuration conf = HBaseConfiguration.create();
         VisibilityTestUtil.enableVisiblityLabels(conf);
-        conf.set("hbase.superuser", "admin");
-        conf.setInt("hfile.format.version", 3);
-        conf.set("mapreduce.jobtracker.address", "local");
-        conf.set("fs.defaultFS", "file:///");
+        conf.set(Superusers.SUPERUSER_CONF_KEY, ADMIN_USERNAME);
+        conf.setInt(HFile.FORMAT_VERSION_KEY, HFile.MIN_FORMAT_VERSION_WITH_TAGS);
+        conf.set(JTConfig.JT_IPC_ADDRESS, JTConfig.LOCAL_FRAMEWORK_NAME);
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, CommonConfigurationKeysPublic.FS_DEFAULT_NAME_DEFAULT);
         conf.setClass(VisibilityUtils.VISIBILITY_LABEL_GENERATOR_CLASS, SimpleScanLabelGenerator.class,
                 ScanLabelGenerator.class);
         conf.set(HConstants.REPLICATION_CODEC_CONF_KEY, KeyValueCodecWithTags.class.getName());

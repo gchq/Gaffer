@@ -123,7 +123,7 @@ public final class TableUtils {
                     // If the table exists then it must have been created in a different thread.
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Failed to check if table " + tableName + " exists", e);
         }
     }

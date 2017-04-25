@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
-import java.util.Collections;
 
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
     @Override
@@ -38,7 +37,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
     private CloseableIterable<? extends Element> doOperation(final GetElements operation, final User user, final HBaseStore store) throws OperationException {
         if (null == operation.getInput()) {
             // If null seeds no results are returned
-            return new WrappedCloseableIterable<>(Collections.emptyList());
+            return new WrappedCloseableIterable<>();
         }
 
         try {
