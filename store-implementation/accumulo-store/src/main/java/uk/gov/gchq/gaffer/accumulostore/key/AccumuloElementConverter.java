@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -43,7 +43,7 @@ public interface AccumuloElementConverter {
      * @return The key(s) that represent the given element.
      * @throws AccumuloElementConversionException If conversion fails
      */
-    Pair<Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException;
+    Pair<Key, Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException;
 
     /**
      * Converts an {@link uk.gov.gchq.gaffer.data.element.Edge} to a pair of
@@ -53,7 +53,7 @@ public interface AccumuloElementConverter {
      * @return The key(s) that represent the given edge
      * @throws AccumuloElementConversionException If conversion fails
      */
-    Pair<Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException;
+    Pair<Key, Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException;
 
     /**
      * Converts an {@link uk.gov.gchq.gaffer.data.element.Entity} to a

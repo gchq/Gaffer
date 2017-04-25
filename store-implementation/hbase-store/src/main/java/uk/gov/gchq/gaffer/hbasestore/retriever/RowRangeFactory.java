@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hbasestore.retriever;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -183,7 +183,7 @@ public class RowRangeFactory {
                             new RowRange(getUndirectedEdgeRowId(serialisedVertex, false), true,
                                     getUndirectedEdgeRowId(serialisedVertex, true), true));
                 } else {
-                    final SimplePair<byte[]> keys = getAllEdgeOnlyRowIds(serialisedVertex);
+                    final Pair<byte[], byte[]> keys = getAllEdgeOnlyRowIds(serialisedVertex);
                     return Collections.singletonList(new RowRange(keys.getFirst(), false, keys.getSecond(), false));
                 }
             }
@@ -269,7 +269,7 @@ public class RowRangeFactory {
         return key;
     }
 
-    private SimplePair<byte[]> getAllEdgeOnlyRowIds(final byte[] serialisedVertex) {
+    private Pair<byte[], byte[]> getAllEdgeOnlyRowIds(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         endKeyBytes[serialisedVertex.length + 1] = HBaseStoreConstants.UNDIRECTED_EDGE;
@@ -278,6 +278,6 @@ public class RowRangeFactory {
         startKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         startKeyBytes[serialisedVertex.length + 1] = HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE;
         startKeyBytes[serialisedVertex.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        return new SimplePair<>(startKeyBytes, endKeyBytes);
+        return new Pair<>(startKeyBytes, endKeyBytes);
     }
 }

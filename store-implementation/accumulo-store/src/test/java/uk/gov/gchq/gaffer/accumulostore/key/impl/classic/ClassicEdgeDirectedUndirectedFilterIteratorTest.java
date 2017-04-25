@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloEle
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicEdgeDirectedUndirectedFilterIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -76,7 +76,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertTrue("Failed for edge: " + edge.toString(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -101,7 +101,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -126,7 +126,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), !edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -151,7 +151,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (final Edge edge : EDGES) {
             final boolean expectedResult = edge.isDirected();
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -175,7 +175,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (final Edge edge : EDGES) {
             final boolean expectedResult = !edge.isDirected();
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -199,7 +199,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), false, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -224,7 +224,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             final boolean expectedResult = edge.isDirected();
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
