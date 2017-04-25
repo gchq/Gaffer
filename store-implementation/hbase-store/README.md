@@ -32,6 +32,8 @@ Introduction
 
 This is a Gaffer Store implementation using Apache HBase.
 
+Please note that this HBase Store has not been extensively tested.
+
 This store implements the following Gaffer features:
 - Visibility - user-defined visibility settings to prevent authorised access to records which a user does not have permissions to see.
   Implemented using the HBase Cell Visibility Labels.
@@ -44,9 +46,9 @@ This store implements the following Gaffer features:
 - Store Validation - HBase's coprocessors are used to validate the elements in the background so ensure old/invalid data is deleted.
 
 
-This Gaffer store implementation is very similar to the HBase Store. 
+This Gaffer store implementation is very similar to the Accumulo Store. 
 One main difference is that due to constraints with HBase's column families the Gaffer group is store at the beginning of the column qualifier - this means filtering on groups is not as efficient as in HBase.
-Please note that currently this store does not implement some of the advanced operations provided in the HBase store.
+Please note that currently this store does not implement some of the advanced operations provided in the Accumulo store.
 
 - Scalability to large volumes of data;
 - The ability to store any properties (subject to serialisers being provided if Gaffer is not aware of the objects);
