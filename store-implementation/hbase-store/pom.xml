@@ -193,7 +193,7 @@
                         <configuration>
                             <shadedArtifactAttached>true
                             </shadedArtifactAttached>
-                            <shadedClassifierName>iterators
+                            <shadedClassifierName>deploy
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
