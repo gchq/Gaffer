@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
@@ -168,39 +167,47 @@ public abstract class StreamUtil {
         return schemas;
     }
 
-
-    public static InputStream[] openStream(final String... urls) throws IOException {
+    public static InputStream[] openStreams(final boolean isLogging, final URL... urls) throws IOException {
         final InputStream[] rtn = new InputStream[urls.length];
-        int count = 0;
-        for (final String url : urls) {
-            rtn[count++] = openStream(url);
+        for (int pos = 0; pos < urls.length; pos++) {
+            try {
+                rtn[pos] = openStream(urls[pos], isLogging);
+            } catch (Exception e) {
+                int closedStreamsCount = closeAllInputStreams(rtn);
+                if (isLogging) {
+                    LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                }
+                throw e;
+            }
         }
         return rtn;
     }
 
-    public static InputStream openStream(final String url) throws IOException {
-        try {
-            return openStream(new URL(url));
-        } catch (MalformedURLException e) {
-            LOGGER.error("MalformedURLException for given string: " + url, e);
-            throw e;
+    private static int closeAllInputStreams(final InputStream[] inputStreams) throws IOException {
+        int closedStreamsCount = 0;
+        for (final InputStream stream : inputStreams) {
+            stream.close();
+            closedStreamsCount++;
         }
+        return closedStreamsCount;
     }
 
     public static InputStream[] openStreams(final URL... urls) throws IOException {
-        final InputStream[] rtn = new InputStream[urls.length];
-        int count = 0;
-        for (final URL url : urls) {
-            rtn[count++] = openStream(url);
-        }
-        return rtn;
+        return openStreams(true, urls);
     }
 
+
     public static InputStream openStream(final URL url) throws IOException {
+        return openStream(url, true);
+    }
+
+    public static InputStream openStream(final URL url, final boolean isLogging) throws IOException {
         try {
             return url.openStream();
         } catch (IOException e) {
-            LOGGER.error("Failed to create input stream: " + url, e);
+            if (isLogging) {
+                LOGGER.error("Failed to create input stream: " + url, e);
+            }
             throw e;
         }
     }
