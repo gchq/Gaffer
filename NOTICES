@@ -36,7 +36,7 @@ Apache Avro (org.apache.avro:avro:1.7.7, org.apache.avro:avro-mapred:1.7.7):
 - Apache License, Version 2.0
 
 
-Apache Commons Lang (commons-lang:commons-lang:2.6):
+Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
 
 - Apache License, Version 2.0
 
