@@ -19,16 +19,16 @@ package uk.gov.gchq.gaffer.hbasestore.retriever;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.BatchedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.AlwaysValid;
 import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -45,6 +45,7 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +64,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     private final byte[] extraProcessors;
 
     private CloseableIterator<Element> iterator;
+    private Iterator<? extends ElementId> idsIterator;
 
     public HBaseRetriever(final HBaseStore store,
                           final OP operation,
@@ -90,63 +92,32 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
     }
 
     @Override
-    public void close() {
-        if (iterator != null) {
-            iterator.close();
-            iterator = null;
-        }
-    }
-
-    @Override
     public CloseableIterator<Element> iterator() {
         // By design, only 1 iterator can be open at a time
         close();
 
-        final ResultScanner scanner = getScanner();
-        if (null != scanner) {
-            iterator = new HBaseRetrieverIterable(scanner).iterator();
+        if (null != ids) {
+            idsIterator = ids.iterator();
+            iterator = new HBaseRetrieverIterable(new BatchedResultScanner()).iterator();
         } else {
-            iterator = new WrappedCloseableIterator<>(Collections.emptyIterator());
+            iterator = new HBaseRetrieverIterable(createScanner()).iterator();
         }
 
         return iterator;
     }
 
-    private ResultScanner getScanner() {
-        Table table = null;
-        try {
-            final Scan scan = new Scan();
+    @Override
+    public void close() {
+        if (iterator != null) {
+            iterator.close();
+            iterator = null;
+        }
 
-            if (null != ids) {
-                final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
-                for (final ElementId id : ids) {
-                    rowRanges.addAll(rowRangeFactory.getRowRange(id, operation));
-                }
-
-                // At least 1 id is required - otherwise no results are returned
-                if (rowRanges.isEmpty()) {
-                    return null;
-                }
-                scan.setFilter(new MultiRowRangeFilter(rowRanges));
+        if (idsIterator != null) {
+            if (idsIterator instanceof Closeable) {
+                IOUtils.closeQuietly(((Closeable) idsIterator));
             }
-
-            scan.setAuthorizations(authorisations);
-            scan.setAttribute(HBaseStoreConstants.SCHEMA, store.getSchema().toCompactJson());
-            scan.setAttribute(HBaseStoreConstants.VIEW, operation.getView().toCompactJson());
-            if (null != operation.getDirectedType()) {
-                scan.setAttribute(HBaseStoreConstants.DIRECTED_TYPE, Bytes.toBytes(operation.getDirectedType().name()));
-            }
-            if (null != extraProcessors) {
-                scan.setAttribute(HBaseStoreConstants.EXTRA_PROCESSORS, extraProcessors);
-            }
-            scan.setMaxVersions();
-            table = store.getTable();
-            return table.getScanner(scan);
-        } catch (final IOException | StoreException e) {
-            if (null != table) {
-                IOUtils.closeQuietly(table);
-            }
-            throw new RuntimeException(e);
+            idsIterator = null;
         }
     }
 
@@ -170,17 +141,73 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         return validator.validateTransform(element);
     }
 
-    private final class HBaseRetrieverIterable extends TransformOneToManyIterable<Result, Element> {
-        private final ResultScanner scanner;
+    private CloseableIterable<Result> createScanner() {
+        // End of input ids
+        if (null != idsIterator && !idsIterator.hasNext()) {
+            return null;
+        }
 
-        private HBaseRetrieverIterable(final ResultScanner scanner) {
+        Table table = null;
+        try {
+            final Scan scan = new Scan();
+
+            if (null != idsIterator) {
+                final List<MultiRowRangeFilter.RowRange> rowRanges = new ArrayList<>();
+                final int maxEntriesForBatchScanner = store.getProperties().getMaxEntriesForBatchScanner();
+                int count = 0;
+                while (idsIterator.hasNext() && count < maxEntriesForBatchScanner) {
+                    count++;
+                    rowRanges.addAll(rowRangeFactory.getRowRange(idsIterator.next(), operation));
+                }
+
+                if (rowRanges.isEmpty()) {
+                    return new WrappedCloseableIterable<>(Collections.emptyList());
+                }
+
+                scan.setFilter(new MultiRowRangeFilter(rowRanges));
+            }
+
+            scan.setAuthorizations(authorisations);
+            scan.setAttribute(HBaseStoreConstants.SCHEMA, store.getSchema().toCompactJson());
+            scan.setAttribute(HBaseStoreConstants.VIEW, operation.getView().toCompactJson());
+            if (null != operation.getDirectedType()) {
+                scan.setAttribute(HBaseStoreConstants.DIRECTED_TYPE, Bytes.toBytes(operation.getDirectedType().name()));
+            }
+            if (null != extraProcessors) {
+                scan.setAttribute(HBaseStoreConstants.EXTRA_PROCESSORS, extraProcessors);
+            }
+            scan.setMaxVersions();
+            table = store.getTable();
+            return new WrappedCloseableIterable<>(table.getScanner(scan));
+        } catch (final IOException | StoreException e) {
+            if (null != table) {
+                IOUtils.closeQuietly(table);
+            }
+            throw new RuntimeException(e);
+        }
+    }
+
+    public class BatchedResultScanner extends BatchedIterable<Result> {
+        @Override
+        protected Iterable<Result> createBatch() {
+            return createScanner();
+        }
+    }
+
+    private final class HBaseRetrieverIterable extends TransformOneToManyIterable<Result, Element> {
+        private final CloseableIterable<Result> scanner;
+
+        private HBaseRetrieverIterable(final CloseableIterable<Result> scanner) {
             super(scanner, new AlwaysValid<>(), false, true);
             this.scanner = scanner;
         }
 
         @Override
         public void close() {
-            IOUtils.closeQuietly(scanner);
+            HBaseRetriever.this.close();
+            if (null != scanner) {
+                IOUtils.closeQuietly(scanner);
+            }
         }
 
         @Override

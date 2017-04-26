@@ -122,8 +122,12 @@ public class Edge extends Element implements EdgeId {
                     .toHashCode();
         } else {
             hash = super.hashCode();
-            hash ^= source.hashCode();
-            hash ^= destination.hashCode();
+            if (null != source) {
+                hash ^= source.hashCode();
+            }
+            if (null != destination) {
+                hash ^= destination.hashCode();
+            }
         }
         return hash;
     }
@@ -138,16 +142,16 @@ public class Edge extends Element implements EdgeId {
     public boolean equals(final Edge edge) {
         return null != edge
                 && (new EqualsBuilder()
-                .appendSuper(super.equals(edge))
                 .append(directed, edge.isDirected())
                 .append(source, edge.getSource())
                 .append(destination, edge.getDestination())
+                .appendSuper(super.equals(edge))
                 .isEquals()
                 || new EqualsBuilder()
-                .appendSuper(super.equals(edge))
                 .append(directed, false)
                 .append(source, edge.getDestination())
                 .append(destination, edge.getSource())
+                .appendSuper(super.equals(edge))
                 .isEquals()
         );
     }
