@@ -22,7 +22,10 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -163,6 +166,43 @@ public abstract class StreamUtil {
         }
 
         return schemas;
+    }
+
+
+    public static InputStream[] openStream(final String... urls) throws IOException {
+        final InputStream[] rtn = new InputStream[urls.length];
+        int count = 0;
+        for (final String url : urls) {
+            rtn[count++] = openStream(url);
+        }
+        return rtn;
+    }
+
+    public static InputStream openStream(final String url) throws IOException {
+        try {
+            return openStream(new URL(url));
+        } catch (MalformedURLException e) {
+            LOGGER.error("MalformedURLException for given string: " + url, e);
+            throw e;
+        }
+    }
+
+    public static InputStream[] openStreams(final URL... urls) throws IOException {
+        final InputStream[] rtn = new InputStream[urls.length];
+        int count = 0;
+        for (final URL url : urls) {
+            rtn[count++] = openStream(url);
+        }
+        return rtn;
+    }
+
+    public static InputStream openStream(final URL url) throws IOException {
+        try {
+            return url.openStream();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create input stream: " + url, e);
+            throw e;
+        }
     }
 
     public static InputStream openStream(final Class clazz, final String path) {
