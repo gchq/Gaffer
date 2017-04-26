@@ -4,7 +4,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     },
@@ -12,7 +12,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     },
@@ -20,7 +20,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
         }
       ]
     },
@@ -28,7 +28,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     },
@@ -36,7 +36,7 @@
       "class": "uk.gov.gchq.gaffer.example.films.data.Certificate",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     },
@@ -44,12 +44,12 @@
       "class": "java.lang.Integer",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
           "orEqualTo": true,
           "value": 0
         },
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
           "orEqualTo": true,
           "value": 100
         }
@@ -59,7 +59,7 @@
       "class": "java.lang.Integer",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
           "orEqualTo": true,
           "value": 0
         }

@@ -75,7 +75,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
 
         RoaringBitmapAggregator roaringBitmapAggregator = new RoaringBitmapAggregator();
         RoaringBitmap state = roaringBitmapAggregator.apply(inputBitmap1, null);
-        assertEquals(inputBitmap1, state);
+        assertEquals(state, inputBitmap1);
 
         RoaringBitmap inputBitmap2 = new RoaringBitmap();
         int input3 = 23615003;
@@ -84,7 +84,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
         inputBitmap2.add(input4);
         inputs[2] = input3;
         inputs[3] = input4;
-        state = roaringBitmapAggregator.apply(inputBitmap2, state);
+        state = roaringBitmapAggregator.apply(state, inputBitmap2);
 
         RoaringBitmap inputBitmap3 = new RoaringBitmap();
         int input5 = 23615002;
@@ -93,7 +93,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
         inputBitmap3.add(input6);
         inputs[4] = input5;
         inputs[5] = input6;
-        state = roaringBitmapAggregator.apply(inputBitmap3, state);
+        state = roaringBitmapAggregator.apply(state, inputBitmap3);
 
         Arrays.sort(inputs);
         int outPutBitmapSize = state.getCardinality();

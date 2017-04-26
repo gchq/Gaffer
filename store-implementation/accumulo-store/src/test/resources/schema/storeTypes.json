@@ -2,13 +2,13 @@
   "types": {
     "colQualProperty": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
     },
     "simpleProperty": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
     }

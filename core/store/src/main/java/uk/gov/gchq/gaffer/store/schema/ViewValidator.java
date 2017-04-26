@@ -133,12 +133,12 @@ public class ViewValidator {
             final ElementFilter filter,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
-        if (null != filter && null != filter.getFunctions()) {
-            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getFunctions()) {
-                if (null == adaptedPredicate.getFunction()) {
+        if (null != filter && null != filter.getComponents()) {
+            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
+                if (null == adaptedPredicate.getPredicate()) {
                     result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getFunction());
+                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
                     result.add(inputSig.assignable(getTypeClasses(adaptedPredicate.getSelection(), viewElDef, schemaElDef)));
                 }
             }
@@ -151,8 +151,8 @@ public class ViewValidator {
             final ElementTransformer transformer,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
-        if (null != transformer && null != transformer.getFunctions()) {
-            for (final TupleAdaptedFunction<String, ?, ?> adaptedFunction : transformer.getFunctions()) {
+        if (null != transformer && null != transformer.getComponents()) {
+            for (final TupleAdaptedFunction<String, ?, ?> adaptedFunction : transformer.getComponents()) {
                 if (null == adaptedFunction.getFunction()) {
                     result.addError(transformer.getClass().getSimpleName() + " contains a null function.");
                 } else {

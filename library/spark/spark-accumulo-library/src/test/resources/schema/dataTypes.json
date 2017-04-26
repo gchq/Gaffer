@@ -19,7 +19,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+            "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     }
