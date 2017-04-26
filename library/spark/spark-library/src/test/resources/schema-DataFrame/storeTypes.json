@@ -3,37 +3,37 @@
     "colQualProperty": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "simpleProperty": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "int": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "float": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "long": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "double": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     }
   }

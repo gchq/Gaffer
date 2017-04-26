@@ -25,10 +25,10 @@
             },
             "preAggregationFilterFunctions": [
               {
-                "function": {
-                  "class": "uk.gov.gchq.gaffer.function.filter.Not",
-                  "function": {
-                    "class": "uk.gov.gchq.gaffer.function.filter.IsEqual",
+                "predicate": {
+                  "class": "uk.gov.gchq.koryphe.impl.predicate.Not",
+                  "predicate": {
+                    "class": "uk.gov.gchq.koryphe.impl.predicate.IsEqual",
                     "value": "user02"
                   }
                 },
@@ -40,7 +40,7 @@
             "transformFunctions": [
               {
                 "function": {
-                  "class": "uk.gov.gchq.gaffer.example.films.function.transform.StarRatingTransform"
+                  "class": "uk.gov.gchq.gaffer.example.films.function.StarRatingTransform"
                 },
                 "selection": [
                   "rating",

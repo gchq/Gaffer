@@ -33,9 +33,9 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
+            <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>koryphe</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${koryphe.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

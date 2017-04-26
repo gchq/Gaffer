@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransform;
+import uk.gov.gchq.gaffer.example.gettingstarted.function.MeanTransform;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator4;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;

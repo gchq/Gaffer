@@ -22,7 +22,7 @@
       "validateFunctions": [
         {
           "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsXLessThanY"
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsXLessThanY"
           },
           "selection": ["count", "score"]
         }
