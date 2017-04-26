@@ -97,7 +97,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                             properties.remove(elementDef.getGroupBy());
                             properties.remove(visibilityProperty);
                         }
-                        aggregator.apply(properties, existingElement.getProperties());
+                        aggregator.apply(existingElement.getProperties(), properties);
                     } else {
                         executePuts(table, createPuts(serialisation, keyToElement));
                         keyToElement.clear();
