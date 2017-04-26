@@ -25,9 +25,9 @@
             },
             "preAggregationFilterFunctions": [
               {
-                "function": {
+                "predicate": {
                   "class": "uk.gov.gchq.koryphe.impl.predicate.Not",
-                  "function": {
+                  "predicate": {
                     "class": "uk.gov.gchq.koryphe.impl.predicate.IsEqual",
                     "value": "user02"
                   }

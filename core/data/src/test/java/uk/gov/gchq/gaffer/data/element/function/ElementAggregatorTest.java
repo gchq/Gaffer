@@ -173,7 +173,7 @@ public class ElementAggregatorTest {
 
         // When
         Properties state = aggregator.apply(properties1, properties2);
-        state = aggregator.apply(properties3, state);
+        state = aggregator.apply(state, properties3);
 
         // Then
         assertEquals(1000, state.get("max"));
@@ -209,7 +209,7 @@ public class ElementAggregatorTest {
 
         // When
         Properties state = aggregator.apply(properties1, properties2);
-        state = aggregator.apply(properties3, state);
+        state = aggregator.apply(state, properties3);
 
         // Then
         assertEquals(1000, state.get("max"));
@@ -228,7 +228,7 @@ public class ElementAggregatorTest {
         final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertSame(edge2, result);
+        assertEquals(edge2, result);
         assertTrue(result.getProperties().isEmpty());
     }
 
@@ -257,22 +257,22 @@ public class ElementAggregatorTest {
 
         // Then
         int i = 0;
-        TupleAdaptedBinaryOperator<String, ?> adaptedFunction = aggregator.getFunctions().get(i++);
+        TupleAdaptedBinaryOperator<String, ?> adaptedFunction = aggregator.getComponents().get(i++);
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property1, adaptedFunction.getSelection()[0]);
-        assertSame(func1, adaptedFunction.getFunction());
+        assertSame(func1, adaptedFunction.getBinaryOperator());
 
-        adaptedFunction = aggregator.getFunctions().get(i++);
+        adaptedFunction = aggregator.getComponents().get(i++);
         assertEquals(2, adaptedFunction.getSelection().length);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
-        assertSame(func2, adaptedFunction.getFunction());
+        assertSame(func2, adaptedFunction.getBinaryOperator());
 
-        adaptedFunction = aggregator.getFunctions().get(i++);
-        assertSame(func3, adaptedFunction.getFunction());
+        adaptedFunction = aggregator.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getBinaryOperator());
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        assertEquals(i, aggregator.getFunctions().size());
+        assertEquals(i, aggregator.getComponents().size());
     }
 }

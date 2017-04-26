@@ -54,7 +54,7 @@ public class StringsSketchAggregatorTest extends BinaryOperatorTest {
         ItemsSketch<String> currentState = sketch1;
         assertEquals(1L, currentState.getEstimate("1"));
 
-        currentState = sketchAggregator.apply(sketch2, currentState);
+        currentState = sketchAggregator.apply(currentState, sketch2);
         assertEquals(1L, currentState.getEstimate("1"));
         assertEquals(2L, currentState.getEstimate("3"));
     }

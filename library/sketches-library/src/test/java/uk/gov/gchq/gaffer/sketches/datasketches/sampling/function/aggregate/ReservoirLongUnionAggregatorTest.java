@@ -65,7 +65,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         expectedSamples.add(3L);
         assertEquals(expectedSamples, samples);
 
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(99L, currentState.getResult().getN());
         assertEquals(20L, currentState.getResult().getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present

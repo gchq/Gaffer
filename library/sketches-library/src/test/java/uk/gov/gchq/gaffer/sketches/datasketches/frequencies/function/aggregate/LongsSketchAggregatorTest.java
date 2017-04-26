@@ -53,7 +53,7 @@ public class LongsSketchAggregatorTest extends BinaryOperatorTest {
         LongsSketch currentState = sketch1;
         assertEquals(1L, currentState.getEstimate(1L));
 
-        currentState = sketchAggregator.apply(sketch2, currentState);
+        currentState = sketchAggregator.apply(currentState, sketch2);
         assertEquals(1L, currentState.getEstimate(1L));
         assertEquals(2L, currentState.getEstimate(3L));
     }

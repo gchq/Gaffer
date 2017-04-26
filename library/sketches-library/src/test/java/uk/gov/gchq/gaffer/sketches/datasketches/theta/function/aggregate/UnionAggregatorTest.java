@@ -50,7 +50,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         final UnionAggregator unionAggregator = new UnionAggregator();
         Union currentState = union1;
         assertEquals(2.0D, currentState.getResult().getEstimate(), DELTA);
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(4.0D, currentState.getResult().getEstimate(), DELTA);
     }
 

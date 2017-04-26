@@ -239,9 +239,9 @@ public class FiltersToOperationConverter {
             LOGGER.info("Group = {}: ", entry.getKey());
             for (final TupleAdaptedPredicate<String, ?> cfc : entry.getValue()) {
                 if (null != cfc.getSelection()) {
-                    LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                    LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                 } else {
-                    LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                    LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                 }
             }
         }
@@ -258,9 +258,9 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection()) {
-                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                         } else {
-                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                         }
                     }
                     builder = builder.entity(group, ved);
@@ -280,9 +280,9 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection()) {
-                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                         } else {
-                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                         }
                     }
                     builder = builder.edge(group, ved);

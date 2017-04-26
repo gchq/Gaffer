@@ -53,7 +53,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         HyperLogLogPlusAggregator hyperLogLogPlusAggregator = new HyperLogLogPlusAggregator();
         HyperLogLogPlus currentState = hyperLogLogPlus1;
         assertEquals(2l, currentState.cardinality());
-        currentState = hyperLogLogPlusAggregator.apply(hyperLogLogPlus2, currentState);
+        currentState = hyperLogLogPlusAggregator.apply(currentState, hyperLogLogPlus2);
         assertEquals(4l, currentState.cardinality());
     }
 

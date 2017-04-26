@@ -54,7 +54,7 @@ public class StringsUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(3L, currentState.getResult().getN());
         assertEquals("2", currentState.getResult().getQuantile(0.5D));
 
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(7L, currentState.getResult().getN());
         assertEquals("4", currentState.getResult().getQuantile(0.5D));
     }

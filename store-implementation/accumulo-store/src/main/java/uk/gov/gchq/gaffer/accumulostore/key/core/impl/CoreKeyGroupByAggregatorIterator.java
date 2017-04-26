@@ -47,7 +47,7 @@ public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
         final ElementAggregator aggregator = schema.getElement(group).getAggregator();
         Properties aggregatedProps = properties;
         while (iter.hasNext()) {
-            aggregatedProps = aggregator.apply(iter.next(), aggregatedProps);
+            aggregatedProps = aggregator.apply(aggregatedProps, iter.next());
         }
 
         return aggregatedProps;

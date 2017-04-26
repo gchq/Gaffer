@@ -29,12 +29,12 @@ public class VisibilityAggregatorTest {
         VisibilityAggregator a = new VisibilityAggregator();
         try {
             String state = "public";
-            a.apply("public", state);
-            a.apply("public", state);
-            a.apply("private", state);
-            a.apply("public", state);
-            a.apply("blah", state);
-            a.apply("public", state);
+            a.apply(state, "public");
+            a.apply(state, "public");
+            a.apply(state, "private");
+            a.apply(state, "public");
+            a.apply(state, "blah");
+            a.apply(state, "public");
             fail();
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("Visibility must either be 'public' or 'private'. You supplied blah"));
@@ -45,11 +45,11 @@ public class VisibilityAggregatorTest {
     public void testPrivate() {
         VisibilityAggregator a = new VisibilityAggregator();
         String state = "public";
-        state = a.apply("public", state);
-        state = a.apply("public", state);
-        state = a.apply("private", state);
-        state = a.apply("public", state);
-        state = a.apply("public", state);
+        state = a.apply(state, "public");
+        state = a.apply(state, "public");
+        state = a.apply(state, "private");
+        state = a.apply(state, "public");
+        state = a.apply(state, "public");
         assertEquals("private", state);
     }
 }

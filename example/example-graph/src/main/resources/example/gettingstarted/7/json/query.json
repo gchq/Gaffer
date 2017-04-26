@@ -7,7 +7,7 @@
           "data": {
             "preAggregationFilterFunctions": [
               {
-                "function": {
+                "predicate": {
                   "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
                   "value": 1
                 },
@@ -41,7 +41,7 @@
           "data": {
             "preAggregationFilterFunctions": [
               {
-                "function": {
+                "predicate": {
                   "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
                   "value": 1
                 },

@@ -22,35 +22,35 @@ import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorComposite;
 import java.util.function.BinaryOperator;
 
-public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite {
-    private final PropertiesTuple propertiesTuple = new PropertiesTuple();
+public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<String> {
     private final PropertiesTuple stateTuple = new PropertiesTuple();
+    private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
      * Aggregation requires elements to have the same identifiers and group.
      *
-     * @param element the element to aggregated
      * @param state   the other element to aggregate. This is normally the 'state' where the aggregated results will be set.
+     * @param element the element to aggregated
      * @return Element - the aggregated element
      */
-    public Element apply(final Element element, final Element state) {
+    public Element apply(final Element state, final Element element) {
         if (null == state) {
             return element;
         }
 
-        apply(element.getProperties(), state.getProperties());
+        apply(state.getProperties(), element.getProperties());
         return state;
     }
 
-    public Properties apply(final Properties properties, final Properties state) {
+    public Properties apply(final Properties state, final Properties properties) {
         if (null == state) {
             return properties;
         }
 
         propertiesTuple.setProperties(properties);
         stateTuple.setProperties(state);
-        apply(propertiesTuple, stateTuple);
+        apply(stateTuple, propertiesTuple);
         return state;
     }
 
@@ -86,8 +86,8 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite {
         }
 
         public Builder execute(final BinaryOperator function) {
-            current.setFunction(function);
-            aggregator.getFunctions().add(current);
+            current.setBinaryOperator(function);
+            aggregator.getComponents().add(current);
             return new Builder(aggregator);
         }
     }
