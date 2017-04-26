@@ -10,7 +10,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
         }
       ]
     },

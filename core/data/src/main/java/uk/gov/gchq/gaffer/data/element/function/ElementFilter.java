@@ -21,7 +21,7 @@ import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
 import java.util.function.Predicate;
 
-public class ElementFilter extends TupleAdaptedPredicateComposite {
+public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
     public boolean test(final Element element) {
@@ -61,8 +61,8 @@ public class ElementFilter extends TupleAdaptedPredicateComposite {
         }
 
         public Builder execute(final Predicate function) {
-            current.setFunction(function);
-            filter.getFunctions().add(current);
+            current.setPredicate(function);
+            filter.getComponents().add(current);
             return new Builder(filter);
         }
     }

@@ -191,22 +191,22 @@ public class ElementFilterTest {
 
         // Then
         int i = 0;
-        TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getFunctions().get(i++);
+        TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getComponents().get(i++);
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property1, adaptedFunction.getSelection()[0]);
-        assertSame(func1, adaptedFunction.getFunction());
+        assertSame(func1, adaptedFunction.getPredicate());
 
-        adaptedFunction = filter.getFunctions().get(i++);
+        adaptedFunction = filter.getComponents().get(i++);
         assertEquals(2, adaptedFunction.getSelection().length);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
-        assertSame(func2, adaptedFunction.getFunction());
+        assertSame(func2, adaptedFunction.getPredicate());
 
-        adaptedFunction = filter.getFunctions().get(i++);
-        assertSame(func3, adaptedFunction.getFunction());
+        adaptedFunction = filter.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getPredicate());
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        assertEquals(i, filter.getFunctions().size());
+        assertEquals(i, filter.getComponents().size());
     }
 }

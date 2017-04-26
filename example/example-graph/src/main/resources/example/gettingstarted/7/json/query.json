@@ -7,8 +7,8 @@
           "data": {
             "preAggregationFilterFunctions": [
               {
-                "function": {
-                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+                "predicate": {
+                  "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
                   "value": 1
                 },
                 "selection": ["count"]
@@ -41,8 +41,8 @@
           "data": {
             "preAggregationFilterFunctions": [
               {
-                "function": {
-                  "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+                "predicate": {
+                  "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
                   "value": 1
                 },
                 "selection": ["count"]

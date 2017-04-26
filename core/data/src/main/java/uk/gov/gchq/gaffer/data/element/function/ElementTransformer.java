@@ -21,7 +21,7 @@ import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 import java.util.function.Function;
 
-public class ElementTransformer extends TupleAdaptedFunctionComposite {
+public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
 
     private final ElementTuple elementTuple = new ElementTuple();
 
@@ -79,7 +79,7 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite {
 
         public Builder project(final String... projection) {
             current.setProjection(projection);
-            transformer.getFunctions().add(current);
+            transformer.getComponents().add(current);
             return new Builder(transformer);
         }
     }

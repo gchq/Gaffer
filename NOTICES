@@ -21,6 +21,11 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
+Koryphe (uk.gov.gchq.koryphe:koryphe:0.1):
+
+- Apache License, Version 2.0
+
+
 Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 
 - Apache License, Version 2.0
