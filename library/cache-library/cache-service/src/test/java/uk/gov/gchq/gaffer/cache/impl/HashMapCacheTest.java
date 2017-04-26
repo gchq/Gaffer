@@ -17,9 +17,13 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class HashMapCacheTest {
 
@@ -90,5 +94,28 @@ public class HashMapCacheTest {
 
         // then
         Assert.assertEquals(0, cache.size());
+    }
+
+    @Test
+    public void shouldGetAllKeys() {
+        cache.put("test1", 1);
+        cache.put("test2", 2);
+        cache.put("test3", 3);
+
+        assertEquals(3, cache.size());
+        assertThat(cache.getAllKeys(), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+    }
+
+    @Test
+    public void shouldGetAllValues() {
+        cache.put("test1", 1);
+        cache.put("test2", 2);
+        cache.put("test3", 3);
+        cache.put("duplicate", 3);
+
+        assertEquals(4, cache.size());
+        assertEquals(4, cache.getAllValues().size());
+
+        assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
     }
 }

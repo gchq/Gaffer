@@ -25,12 +25,12 @@ import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.impl.AbstractCacheService;
 
 
 import static uk.gov.gchq.gaffer.cache.util.CacheSystemProperty.CACHE_CONFIG_FILE;
 
-public class HazelcastCacheService implements ICacheService {
+public class HazelcastCacheService extends AbstractCacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
     private static HazelcastInstance hazelcast;
 

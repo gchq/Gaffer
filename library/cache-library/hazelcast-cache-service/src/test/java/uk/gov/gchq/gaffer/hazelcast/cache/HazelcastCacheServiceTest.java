@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hazelcast.cache;
 
 
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
@@ -24,6 +25,10 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class HazelcastCacheServiceTest {
 
@@ -109,5 +114,78 @@ public class HazelcastCacheServiceTest {
         service1.shutdown();
         service.shutdown();
 
+    }
+
+    @Test
+    public void shouldAddEntriesToCache() throws CacheOperationException {
+        initialiseWithTestConfig();
+
+        service.putInCache(CACHE_NAME, "test", 1);
+
+        assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
+    }
+
+    @Test
+    public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+        initialiseWithTestConfig();
+        service.putInCache(CACHE_NAME, "test", 1);
+
+        try {
+            service.putSafeInCache(CACHE_NAME, "test", 2);
+            fail("Expected an exception");
+        } catch (CacheOperationException e) {
+            assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
+        }
+
+        service.putInCache(CACHE_NAME,"test", 2);
+
+        assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
+    }
+
+    @Test
+    public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+        initialiseWithTestConfig();
+        service.putInCache(CACHE_NAME, "test", 1);
+
+        service.removeFromCache(CACHE_NAME, "test");
+        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+    }
+
+    @Test
+    public void shouldBeAbleToClearCache() throws CacheOperationException {
+        initialiseWithTestConfig();
+        service.putInCache(CACHE_NAME, "test1", 1);
+        service.putInCache(CACHE_NAME, "test2", 2);
+        service.putInCache(CACHE_NAME, "test3", 3);
+
+
+        service.clearCache(CACHE_NAME);
+
+        assertEquals(0, service.sizeOfCache(CACHE_NAME));
+    }
+
+    @Test
+    public void shouldGetAllKeysFromCache() throws CacheOperationException {
+        initialiseWithTestConfig();
+        service.putInCache(CACHE_NAME, "test1", 1);
+        service.putInCache(CACHE_NAME, "test2", 2);
+        service.putInCache(CACHE_NAME, "test3", 3);
+
+        assertEquals(3, service.sizeOfCache(CACHE_NAME));
+        assertThat(service.getAllKeysFromCache(CACHE_NAME), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+    }
+
+    @Test
+    public void shouldGetAllValues() throws CacheOperationException {
+        initialiseWithTestConfig();
+        service.putInCache(CACHE_NAME, "test1", 1);
+        service.putInCache(CACHE_NAME, "test2", 2);
+        service.putInCache(CACHE_NAME, "test3", 3);
+        service.putInCache(CACHE_NAME, "duplicate", 3);
+
+        assertEquals(4, service.sizeOfCache(CACHE_NAME));
+        assertEquals(4, service.getAllValuesFromCache(CACHE_NAME).size());
+
+        assertThat(service.getAllValuesFromCache(CACHE_NAME), IsCollectionContaining.hasItems(1, 2, 3));
     }
 }

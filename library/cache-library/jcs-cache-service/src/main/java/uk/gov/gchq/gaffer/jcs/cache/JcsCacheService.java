@@ -24,7 +24,7 @@ import org.apache.jcs.engine.control.CompositeCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
+import uk.gov.gchq.gaffer.cache.impl.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class JcsCacheService implements ICacheService {
+public class JcsCacheService extends AbstractCacheService {
 
     private CompositeCacheManager manager;
     private static final Logger LOGGER = LoggerFactory.getLogger(JcsCacheService.class);

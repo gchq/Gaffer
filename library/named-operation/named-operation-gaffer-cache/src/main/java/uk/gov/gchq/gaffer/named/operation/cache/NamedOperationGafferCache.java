@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -35,12 +34,11 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NamedOperationGafferCache.class);
     private static final String CACHE_NAME = "NamedOperation";
-    private ICache<String, ExtendedNamedOperation> cache = CacheServiceLoader.getService().getCache(CACHE_NAME);
 
 
     @Override
     public CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
-        Set<String> keys = cache.getAllKeys();
+        Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         Set<NamedOperation> executables = new HashSet<>();
         for (final String key : keys) {
             try {
@@ -63,7 +61,7 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
     @Override
     public void clear() throws CacheOperationFailedException {
         try {
-            cache.clear();
+            CacheServiceLoader.getService().clearCache(CACHE_NAME);
         } catch (CacheOperationException e) {
             throw new CacheOperationFailedException("Failed to clear cache", e);
         }
@@ -71,9 +69,9 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
 
     @Override
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
-        cache.remove(name);
+        CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
-        if (cache.get(name) != null) {
+        if (CacheServiceLoader.getService().getFromCache(CACHE_NAME, name) != null) {
             throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
         }
     }
@@ -82,9 +80,9 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
     public void addToCache(final String name, final ExtendedNamedOperation operation, final boolean overwrite) throws CacheOperationFailedException {
         try {
             if (overwrite) {
-                cache.put(name, operation);
+                CacheServiceLoader.getService().putInCache(CACHE_NAME, name, operation);
             } else {
-                cache.putSafe(name, operation);
+                CacheServiceLoader.getService().putSafeInCache(CACHE_NAME, name, operation);
             }
         } catch (CacheOperationException e) {
             throw new CacheOperationFailedException(e);
@@ -93,7 +91,7 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
 
     @Override
     public ExtendedNamedOperation getFromCache(final String name) throws CacheOperationFailedException {
-        ExtendedNamedOperation op = cache.get(name);
+        ExtendedNamedOperation op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
 
         if (op != null) {
             return op;

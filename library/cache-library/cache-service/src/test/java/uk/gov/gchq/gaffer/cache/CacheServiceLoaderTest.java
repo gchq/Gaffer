@@ -17,13 +17,14 @@
 package uk.gov.gchq.gaffer.cache;
 
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
+
+import static org.junit.Assert.assertEquals;
 
 public class CacheServiceLoaderTest {
 
@@ -88,6 +89,6 @@ public class CacheServiceLoaderTest {
         ICacheService component2Service = CacheServiceLoader.getService();
 
         // then
-        Assert.assertEquals(component1Service, component2Service);
+        assertEquals(component1Service, component2Service);
     }
 }

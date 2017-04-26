@@ -24,12 +24,23 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+/**
+ * Bootstrapped when the REST service starts. Looks at a system property to determine the cache service to load.
+ * Then initialises it, after which any component may use {@code CacheServiceLoader.getService()} to get the service
+ * that can retrieve the appropriate cache.
+ */
 @WebListener(value = "Gaffer cache service loader")
 public final class CacheServiceLoader implements ServletContextListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
 
+    /**
+     * Looks at a system property and initialises an appropriate cache service. If no cache service is specified in the
+     * system property, the loader falls back onto a default which is backed by HashMaps.
+     *
+     * @throws IllegalArgumentException if an invalid cache class is specified in the system property
+     */
     public static void initialise() {
         String cacheClass = System.getProperty(CacheSystemProperty.CACHE_SERVICE_CLASS);
 
@@ -47,6 +58,9 @@ public final class CacheServiceLoader implements ServletContextListener {
         service.initialise();
     }
 
+    /**
+     * @return the cache service
+     */
     public static ICacheService getService() {
         return service;
     }
@@ -56,13 +70,23 @@ public final class CacheServiceLoader implements ServletContextListener {
     }
 
 
+    /**
+     * Triggered when the REST service starts
+     * @param servletContextEvent the start up event
+     */
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
         initialise();
     }
 
+    /**
+     * Triggered when the REST service shuts down
+     * @param servletContextEvent the shut down event
+     */
     @Override
     public void contextDestroyed(final ServletContextEvent servletContextEvent) {
-        service.shutdown();
+        if (service != null) {
+            service.shutdown();
+        }
     }
 }

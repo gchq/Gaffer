@@ -16,16 +16,18 @@
 
 package uk.gov.gchq.gaffer.jcs.cache;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.hamcrest.core.IsCollectionContaining;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 
 import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class JcsCacheServiceTest {
 
@@ -39,6 +41,12 @@ public class JcsCacheServiceTest {
     @Before
     public void before() {
         System.clearProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
+    }
+
+    @After
+    public void after() throws CacheOperationException {
+        service.clearCache(TEST_REGION);
+        service.clearCache(ALTERNATIVE_TEST_REGION);
     }
 
     @Test
@@ -113,5 +121,77 @@ public class JcsCacheServiceTest {
 
         cache.clear();
 
+    }
+
+    @Test
+    public void shouldAddEntriesToCache() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test", 1);
+
+        assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+    }
+
+    @Test
+    public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test", 1);
+
+        try {
+            service.putSafeInCache(TEST_REGION, "test", 2);
+            fail("Expected an exception");
+        } catch (CacheOperationException e) {
+            assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
+        }
+
+        service.putInCache(TEST_REGION,"test", 2);
+
+        assertEquals((Integer) 2, service.getFromCache(TEST_REGION, "test"));
+    }
+
+    @Test
+    public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test", 1);
+
+        service.removeFromCache(TEST_REGION, "test");
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
+    }
+
+    @Test
+    public void shouldBeAbleToClearCache() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test1", 1);
+        service.putInCache(TEST_REGION, "test2", 2);
+        service.putInCache(TEST_REGION, "test3", 3);
+
+
+        service.clearCache(TEST_REGION);
+
+        assertEquals(0, service.sizeOfCache(TEST_REGION));
+    }
+
+    @Test
+    public void shouldGetAllKeysFromCache() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test1", 1);
+        service.putInCache(TEST_REGION, "test2", 2);
+        service.putInCache(TEST_REGION, "test3", 3);
+
+        assertEquals(3, service.sizeOfCache(TEST_REGION));
+        assertThat(service.getAllKeysFromCache(TEST_REGION), IsCollectionContaining.hasItems("test1", "test2", "test3"));
+    }
+
+    @Test
+    public void shouldGetAllValues() throws CacheOperationException {
+        service.initialise();
+        service.putInCache(TEST_REGION, "test1", 1);
+        service.putInCache(TEST_REGION, "test2", 2);
+        service.putInCache(TEST_REGION, "test3", 3);
+        service.putInCache(TEST_REGION, "duplicate", 3);
+
+        assertEquals(4, service.sizeOfCache(TEST_REGION));
+        assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
+
+        assertThat(service.getAllValuesFromCache(TEST_REGION), IsCollectionContaining.hasItems(1, 2, 3));
     }
 }

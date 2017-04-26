@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.jobtracker;
 
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
-import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -30,11 +29,11 @@ import java.util.Set;
 public class GafferCacheJobTracker implements JobTracker {
 
     private static final String CACHE_NAME = "JobTracker";
-    private ICache<String, JobDetail> cache;
+
 
     @Override
-    public void initialise(final String unusedConfigPath) {
-        cache = CacheServiceLoader.getService().getCache(CACHE_NAME);
+    public void initialise(final String configPath) {
+        // do nothing
     }
 
     @Override
@@ -42,7 +41,7 @@ public class GafferCacheJobTracker implements JobTracker {
         validateJobDetail(jobDetail);
 
         try {
-            cache.put(jobDetail.getJobId(), jobDetail);
+            CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
         } catch (CacheOperationException e) {
             throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
@@ -50,12 +49,12 @@ public class GafferCacheJobTracker implements JobTracker {
 
     @Override
     public JobDetail getJob(final String jobId, final User user) {
-        return cache.get(jobId);
+        return CacheServiceLoader.getService().getFromCache(CACHE_NAME, jobId);
     }
 
     @Override
     public CloseableIterable<JobDetail> getAllJobs(final User user) {
-        Set<String> jobIds = cache.getAllKeys();
+        Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
         final List<JobDetail> jobs = new ArrayList<>(jobIds.size());
         jobIds.stream()
                 .filter(jobId -> null != jobId)
@@ -72,7 +71,7 @@ public class GafferCacheJobTracker implements JobTracker {
     @Override
     public void clear() {
         try {
-            cache.clear();
+            CacheServiceLoader.getService().clearCache(CACHE_NAME);
         } catch (CacheOperationException e) {
             throw new RuntimeException("Failed to clear job tracker cache", e);
         }

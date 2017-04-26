@@ -16,7 +16,16 @@
 
 package uk.gov.gchq.gaffer.cache;
 
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
+import java.util.Collection;
+import java.util.Set;
+
+/**
+ * The cache service interface which enables the cache service loader to instantiate any service no matter the
+ * implementation. All services should be able to provide a cache and methods to interact with it.
+ *
+ */
 public interface ICacheService {
 
     void initialise();
@@ -24,4 +33,20 @@ public interface ICacheService {
     void shutdown();
 
     <K, V> ICache<K, V> getCache(final String cacheName);
+
+    <K, V> V getFromCache(final String cacheName, final K key);
+
+    <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException;
+
+    <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException;
+
+    <K, V> void removeFromCache(final String cacheName, final K key);
+
+    <K, V> Collection<V> getAllValuesFromCache(final String cacheName);
+
+    <K, V> Set<K> getAllKeysFromCache(final String cacheName);
+
+    int sizeOfCache(final String cacheName);
+
+    void clearCache(final String cacheName) throws CacheOperationException;
 }

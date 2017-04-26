@@ -18,13 +18,12 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.ICacheService;
 
 import java.util.HashMap;
 
-public class HashMapCacheService implements ICacheService {
+public class HashMapCacheService extends AbstractCacheService {
 
-    HashMap<String, HashMapCache> caches = new HashMap<>();
+    private HashMap<String, HashMapCache> caches = new HashMap<>();
 
     @Override
     public void initialise() {
