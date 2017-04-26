@@ -18,9 +18,8 @@ package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.TestElements;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -60,7 +59,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementsToArray() throws OperationException {
         // Given
-        final Element[] originalArray = new Element[]{new Entity("entity"), new Edge("edge")};
+        final Element[] originalArray = new Element[]{TestElements.getEntity(), TestElements.getEdge()};
 
         final Iterable<Element> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<Element> handler = new ToArrayHandler<>();
@@ -78,7 +77,7 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementIdsToArray() throws OperationException {
         // Given
-        final ElementId[] originalArray = new ElementId[]{new EntitySeed("vertex"), new EdgeSeed("src", "dest", true)};
+        final ElementId[] originalArray = new ElementId[]{new EntitySeed("vertex"), new EdgeSeed("src", "destination", true)};
 
         final Iterable<ElementId> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<ElementId> handler = new ToArrayHandler<>();
@@ -97,10 +96,10 @@ public class ToArrayHandlerTest {
     public void shouldConvertIterableOfElementsAndElementIdsToArray() throws OperationException {
         // Given
         final ElementId[] originalArray = new ElementId[]{
-                new Entity("entity"),
-                new Edge("edge"),
+               TestElements.getEntity(),
+                TestElements.getEdge(),
                 new EntitySeed("vertex"),
-                new EdgeSeed("src", "dest", true)
+                new EdgeSeed("src", "destination", true)
         };
 
         final Iterable<ElementId> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
@@ -120,10 +119,10 @@ public class ToArrayHandlerTest {
     public void shouldConvertIterableOfObjectsToArray() throws OperationException {
         // Given
         final Object[] originalArray = new Object[]{
-                new Entity("entity"),
-                new Edge("edge"),
+                TestElements.getEntity(),
+                TestElements.getEdge(),
                 new EntitySeed("vertex"),
-                new EdgeSeed("src", "dest", true),
+                new EdgeSeed("src", "destination", true),
                 1,
                 2,
                 1.5

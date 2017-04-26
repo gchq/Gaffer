@@ -28,6 +28,7 @@ import org.junit.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -61,10 +62,121 @@ import static org.junit.Assert.fail;
  */
 public class GetDataFrameOfElementsHandlerTest {
 
-    static final String ENTITY_GROUP = "BasicEntity";
-    static final String EDGE_GROUP = "BasicEdge";
-    static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
+
+    static List<Element> getElements() {
+        final List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < NUM_ELEMENTS; i++) {
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i)
+                                                      .property("columnQualifier", 1)
+                                                      .property("property1", i)
+                                                      .property("property2", 3.0F)
+                                                      .property("property3", 4.0D)
+                                                      .property("property4", 5L)
+                                                      .property("count", 6L)
+                                                      .build();
+
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("B")
+                                                 .directed(true)
+                                                 .property("columnQualifier", 1)
+                                                 .property("property1", 2)
+                                                 .property("property2", 3.0F)
+                                                 .property("property3", 4.0D)
+                                                 .property("property4", 5L)
+                                                 .property("count", 100L)
+                                                 .build();
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(true)
+                                                 .property("columnQualifier", 6)
+                                                 .property("property1", 7)
+                                                 .property("property2", 8.0F)
+                                                 .property("property3", 9.0D)
+                                                 .property("property4", 10L)
+                                                 .property("count", i * 200L)
+                                                 .build();
+
+            elements.add(edge1);
+            elements.add(edge2);
+            elements.add(entity);
+        }
+        return elements;
+    }
+
+    private static List<Element> getElementsWithNonStandardProperties() {
+        final List<Element> elements = new ArrayList<>();
+
+        final FreqMap freqMap = new FreqMap();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+
+        final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                  .vertex("A")
+                                                  .property("freqMap", freqMap)
+                                                  .property("hllpp", hllpp)
+                                                  .build();
+        elements.add(entity);
+
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .source("B")
+                                            .destination("C")
+                                            .directed(true).build();
+        final FreqMap freqMap2 = new FreqMap();
+        freqMap2.put("Y", 1000L);
+        freqMap2.put("Z", 10000L);
+        edge.putProperty("freqMap", freqMap2);
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        hllpp2.offer("BBB");
+        edge.putProperty("hllpp", hllpp2);
+        elements.add(edge);
+        return elements;
+    }
+
+    private static List<Element> getElementsForUserDefinedConversion() {
+        final List<Element> elements = new ArrayList<>();
+
+        final FreqMap freqMap = new FreqMap();
+        freqMap.put("W", 10L);
+        freqMap.put("X", 100L);
+
+        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
+        hllpp.offer("AAA");
+
+        final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                  .vertex("A")
+                                                  .property("freqMap", freqMap)
+                                                  .property("hllpp", hllpp)
+                                                  .property("myProperty", new MyProperty(10))
+                                                  .build();
+        elements.add(entity);
+
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                            .source("B")
+                                            .destination("C")
+                                            .directed(true).build();
+
+        final FreqMap freqMap2 = new FreqMap();
+        freqMap2.put("Y", 1000L);
+        freqMap2.put("Z", 10000L);
+        edge.putProperty("freqMap", freqMap2);
+
+        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
+        hllpp2.offer("AAA");
+        hllpp2.offer("BBB");
+        edge.putProperty("hllpp", hllpp2);
+        edge.putProperty("myProperty", new MyProperty(50));
+        elements.add(edge);
+        return elements;
+    }
 
     @Test
     public void checkGetCorrectElementsInDataFrame() throws OperationException {
@@ -74,14 +186,14 @@ public class GetDataFrameOfElementsHandlerTest {
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().edge(EDGE_GROUP).build())
+                .view(new View.Builder().edge(TestGroups.EDGE).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields1 = new MutableList<>();
-            fields1.appendElem(EDGE_GROUP);
+            fields1.appendElem(TestGroups.EDGE);
             fields1.appendElem("" + i);
             fields1.appendElem("B");
             fields1.appendElem(1);
@@ -92,7 +204,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem(100L);
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final MutableList<Object> fields2 = new MutableList<>();
-            fields2.appendElem(EDGE_GROUP);
+            fields2.appendElem(TestGroups.EDGE);
             fields2.appendElem("" + i);
             fields2.appendElem("C");
             fields2.appendElem(6);
@@ -108,7 +220,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
         results.clear();
@@ -117,7 +229,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
-            fields1.appendElem(ENTITY_GROUP);
+            fields1.appendElem(TestGroups.ENTITY);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(i);
@@ -140,14 +252,16 @@ public class GetDataFrameOfElementsHandlerTest {
         // Use entity and edges group - check get correct data
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY)
+                                        .edge(TestGroups.EDGE)
+                                        .build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         final Set<Row> results = new HashSet<>(dataFrame.collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields1 = new MutableList<>();
-            fields1.appendElem(EDGE_GROUP);
+            fields1.appendElem(TestGroups.EDGE);
             fields1.appendElem(null);
             fields1.appendElem(1);
             fields1.appendElem(2);
@@ -159,7 +273,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields1.appendElem("B");
             expectedRows.add(Row$.MODULE$.fromSeq(fields1));
             final MutableList<Object> fields2 = new MutableList<>();
-            fields2.appendElem(EDGE_GROUP);
+            fields2.appendElem(TestGroups.EDGE);
             fields2.appendElem(null);
             fields2.appendElem(6);
             fields2.appendElem(7);
@@ -171,7 +285,7 @@ public class GetDataFrameOfElementsHandlerTest {
             fields2.appendElem("C");
             expectedRows.add(Row$.MODULE$.fromSeq(fields2));
             final MutableList<Object> fields3 = new MutableList<>();
-            fields3.appendElem(ENTITY_GROUP);
+            fields3.appendElem(TestGroups.ENTITY);
             fields3.appendElem("" + i);
             fields3.appendElem(1);
             fields3.appendElem(i);
@@ -188,7 +302,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
         results.clear();
@@ -197,7 +311,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
-            fields1.appendElem(ENTITY_GROUP);
+            fields1.appendElem(TestGroups.ENTITY);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(i);
@@ -220,12 +334,13 @@ public class GetDataFrameOfElementsHandlerTest {
         // Get all edges
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().edge(EDGE_GROUP).build())
+                .view(new View.Builder().edge(TestGroups.EDGE).build())
                 .build();
         final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
 
         // Check get correct rows when ask for src, dst and property2 columns
-        Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2").collectAsList());
+        Set<Row> results = new HashSet<>(dataFrame.select("src", "dst", "property2")
+                                                  .collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             MutableList<Object> fields1 = new MutableList<>();
@@ -265,16 +380,17 @@ public class GetDataFrameOfElementsHandlerTest {
         // Get DataFrame
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().edge(EDGE_GROUP).build())
+                .view(new View.Builder().edge(TestGroups.EDGE).build())
                 .build();
         final Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
 
         // Check get correct rows when ask for all columns but only rows where property2 > 4.0
-        Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0").collectAsList());
+        Set<Row> results = new HashSet<>(dataFrame.filter("property2 > 4.0")
+                                                  .collectAsList());
         final Set<Row> expectedRows = new HashSet<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields = new MutableList<>();
-            fields.appendElem(EDGE_GROUP);
+            fields.appendElem(TestGroups.EDGE);
             fields.appendElem("" + i);
             fields.appendElem("C");
             fields.appendElem(6);
@@ -288,7 +404,9 @@ public class GetDataFrameOfElementsHandlerTest {
         assertEquals(expectedRows, results);
 
         // Check get correct rows when ask for columns property2 and property3 but only rows where property2 > 4.0
-        results = new HashSet<>(dataFrame.select("property2", "property3").filter("property2 > 4.0").collectAsList());
+        results = new HashSet<>(dataFrame.select("property2", "property3")
+                                         .filter("property2 > 4.0")
+                                         .collectAsList());
         expectedRows.clear();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields = new MutableList<>();
@@ -309,7 +427,9 @@ public class GetDataFrameOfElementsHandlerTest {
         // Use entity and edges group - check get correct data
         final GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).edge(EDGE_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY)
+                                        .edge(TestGroups.EDGE)
+                                        .build())
                 .build();
         // NB Catch the exception rather than using expected annotation on test to ensure that the SparkContext
         // is shut down.
@@ -330,7 +450,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Edges group - check get correct edges
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().edge(EDGE_GROUP).build())
+                .view(new View.Builder().edge(TestGroups.EDGE).build())
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
         Set<Row> results = new HashSet<>(dataFrame.collectAsList());
@@ -339,7 +459,7 @@ public class GetDataFrameOfElementsHandlerTest {
         Map<String, Long> freqMap = Map$.MODULE$.empty();
         freqMap.put("Y", 1000L);
         freqMap.put("Z", 10000L);
-        fields1.appendElem(EDGE_GROUP);
+        fields1.appendElem(TestGroups.EDGE);
         fields1.appendElem("B");
         fields1.appendElem("C");
         fields1.appendElem(freqMap);
@@ -353,7 +473,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY).build())
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
         results.clear();
@@ -363,7 +483,7 @@ public class GetDataFrameOfElementsHandlerTest {
         freqMap.clear();
         freqMap.put("W", 10L);
         freqMap.put("X", 100L);
-        fields1.appendElem(ENTITY_GROUP);
+        fields1.appendElem(TestGroups.ENTITY);
         fields1.appendElem("A");
         fields1.appendElem(freqMap);
         final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
@@ -385,7 +505,7 @@ public class GetDataFrameOfElementsHandlerTest {
         converters.add(new MyPropertyConverter());
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().edge(EDGE_GROUP).build())
+                .view(new View.Builder().edge(TestGroups.EDGE).build())
                 .converters(converters)
                 .build();
         Dataset<Row> dataFrame = graph.execute(dfOperation, new User());
@@ -395,7 +515,7 @@ public class GetDataFrameOfElementsHandlerTest {
         Map<String, Long> freqMap = Map$.MODULE$.empty();
         freqMap.put("Y", 1000L);
         freqMap.put("Z", 10000L);
-        fields1.appendElem(EDGE_GROUP);
+        fields1.appendElem(TestGroups.EDGE);
         fields1.appendElem("B");
         fields1.appendElem("C");
         fields1.appendElem(freqMap);
@@ -410,7 +530,7 @@ public class GetDataFrameOfElementsHandlerTest {
         // Entities group - check get correct entities
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
-                .view(new View.Builder().entity(ENTITY_GROUP).build())
+                .view(new View.Builder().entity(TestGroups.ENTITY).build())
                 .converters(converters)
                 .build();
         dataFrame = graph.execute(dfOperation, new User());
@@ -421,7 +541,7 @@ public class GetDataFrameOfElementsHandlerTest {
         freqMap.clear();
         freqMap.put("W", 10L);
         freqMap.put("X", 100L);
-        fields1.appendElem(ENTITY_GROUP);
+        fields1.appendElem(TestGroups.ENTITY);
         fields1.appendElem("A");
         fields1.appendElem(freqMap);
         final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
@@ -443,7 +563,7 @@ public class GetDataFrameOfElementsHandlerTest {
         GetDataFrameOfElements dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder()
-                        .edge(EDGE_GROUP, new ViewElementDefinition.Builder()
+                        .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
                                         .select("count")
                                         .execute(new IsMoreThan(800L))
@@ -457,7 +577,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 0; i < NUM_ELEMENTS; i++) {
             if (i * 200L > 800L) {
                 final MutableList<Object> fields2 = new MutableList<>();
-                fields2.appendElem(EDGE_GROUP);
+                fields2.appendElem(TestGroups.EDGE);
                 fields2.appendElem("" + i);
                 fields2.appendElem("C");
                 fields2.appendElem(6);
@@ -475,7 +595,7 @@ public class GetDataFrameOfElementsHandlerTest {
         dfOperation = new GetDataFrameOfElements.Builder()
                 .sqlContext(sqlContext)
                 .view(new View.Builder()
-                        .entity(ENTITY_GROUP, new ViewElementDefinition.Builder()
+                        .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .postAggregationFilter(new ElementFilter.Builder()
                                         .select("property1")
                                         .execute(new IsMoreThan(1))
@@ -490,7 +610,7 @@ public class GetDataFrameOfElementsHandlerTest {
         for (int i = 2; i < NUM_ELEMENTS; i++) {
             final MutableList<Object> fields1 = new MutableList<>();
             fields1.clear();
-            fields1.appendElem(ENTITY_GROUP);
+            fields1.appendElem(TestGroups.ENTITY);
             fields1.appendElem("" + i);
             fields1.appendElem(1);
             fields1.appendElem(i);
@@ -512,7 +632,8 @@ public class GetDataFrameOfElementsHandlerTest {
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
                 .storeProperties(getClass().getResourceAsStream("/store.properties"))
                 .build();
-        graph.execute(new AddElements.Builder().input(elements).build(), new User());
+        graph.execute(new AddElements.Builder().input(elements)
+                                               .build(), new User());
         return graph;
     }
 
@@ -524,105 +645,6 @@ public class GetDataFrameOfElementsHandlerTest {
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
         return new SQLContext(new SparkContext(sparkConf));
-    }
-
-    static List<Element> getElements() {
-        final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
-            entity.setVertex("" + i);
-            entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", i);
-            entity.putProperty("property2", 3.0F);
-            entity.putProperty("property3", 4.0D);
-            entity.putProperty("property4", 5L);
-            entity.putProperty("count", 6L);
-
-            final Edge edge1 = new Edge(EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(true);
-            edge1.putProperty("columnQualifier", 1);
-            edge1.putProperty("property1", 2);
-            edge1.putProperty("property2", 3.0F);
-            edge1.putProperty("property3", 4.0D);
-            edge1.putProperty("property4", 5L);
-            edge1.putProperty("count", 100L);
-
-            final Edge edge2 = new Edge(EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("columnQualifier", 6);
-            edge2.putProperty("property1", 7);
-            edge2.putProperty("property2", 8.0F);
-            edge2.putProperty("property3", 9.0D);
-            edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", i * 200L);
-
-            elements.add(edge1);
-            elements.add(edge2);
-            elements.add(entity);
-        }
-        return elements;
-    }
-
-    private static List<Element> getElementsWithNonStandardProperties() {
-        final List<Element> elements = new ArrayList<>();
-        final Entity entity = new Entity(ENTITY_GROUP);
-        entity.setVertex("A");
-        final FreqMap freqMap = new FreqMap();
-        freqMap.put("W", 10L);
-        freqMap.put("X", 100L);
-        entity.putProperty("freqMap", freqMap);
-        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
-        hllpp.offer("AAA");
-        entity.putProperty("hllpp", hllpp);
-        elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
-        edge.setSource("B");
-        edge.setDestination("C");
-        edge.setDirected(true);
-        final FreqMap freqMap2 = new FreqMap();
-        freqMap2.put("Y", 1000L);
-        freqMap2.put("Z", 10000L);
-        edge.putProperty("freqMap", freqMap2);
-        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
-        hllpp2.offer("AAA");
-        hllpp2.offer("BBB");
-        edge.putProperty("hllpp", hllpp2);
-        elements.add(edge);
-        return elements;
-    }
-
-    private static List<Element> getElementsForUserDefinedConversion() {
-        final List<Element> elements = new ArrayList<>();
-        final Entity entity = new Entity(ENTITY_GROUP);
-        entity.setVertex("A");
-        final FreqMap freqMap = new FreqMap();
-        freqMap.put("W", 10L);
-        freqMap.put("X", 100L);
-        entity.putProperty("freqMap", freqMap);
-        final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
-        hllpp.offer("AAA");
-        entity.putProperty("hllpp", hllpp);
-        entity.putProperty("myProperty", new MyProperty(10));
-        elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
-        edge.setSource("B");
-        edge.setDestination("C");
-        edge.setDirected(true);
-        final FreqMap freqMap2 = new FreqMap();
-        freqMap2.put("Y", 1000L);
-        freqMap2.put("Z", 10000L);
-        edge.putProperty("freqMap", freqMap2);
-        final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
-        hllpp2.offer("AAA");
-        hllpp2.offer("BBB");
-        edge.putProperty("hllpp", hllpp2);
-        edge.putProperty("myProperty", new MyProperty(50));
-        elements.add(edge);
-        return elements;
     }
 
     private static class MyPropertyConverter implements Converter, Serializable {

@@ -24,16 +24,10 @@ public interface EdgeId extends ElementId {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     Object getSource();
 
-    void setSource(final Object source);
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     Object getDestination();
 
-    void setDestination(final Object destination);
-
     boolean isDirected();
-
-    void setDirected(final boolean directed);
 
     default boolean isEqual(final ElementId that) {
         return that instanceof EdgeId && isEqual((EdgeId) that);

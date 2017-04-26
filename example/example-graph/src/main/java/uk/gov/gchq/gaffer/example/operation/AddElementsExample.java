@@ -51,7 +51,7 @@ public class AddElementsExample extends OperationExample {
                                 .build(),
                         new Edge.Builder()
                                 .group("edge")
-                                .source(5).dest(6).directed(true)
+                                .source(5).destination(6).directed(true)
                                 .property("count", 1)
                                 .build())
                 .build();
@@ -63,7 +63,7 @@ public class AddElementsExample extends OperationExample {
                 + "                                .build(),\n"
                 + "                        new Edge.Builder()\n"
                 + "                                .group(\"edge\")\n"
-                + "                                .source(5).dest(6).directed(true)\n"
+                + "                                .source(5).destination(6).directed(true)\n"
                 + "                                .property(\"count\", 1)\n"
                 + "                                .build())\n"
                 + "                .build();");

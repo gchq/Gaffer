@@ -130,7 +130,7 @@ public class ElementPreAggregationFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "source", "destination", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -156,7 +156,7 @@ public class ElementPreAggregationFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
+        final Element element = new Edge(TestGroups.EDGE, "source", "destination", true);
         final Pair<Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 

@@ -25,11 +25,10 @@ public class DataGenerator5 implements OneToOneElementGenerator<String> {
     @Override
     public Element _apply(final String line) {
         final String[] t = line.split(",");
-        final Edge edge = new Edge(t[2]);
-        edge.setSource(t[0]);
-        edge.setDestination(t[1]);
-        edge.putProperty("count", 1);
-        edge.putProperty("visibility", t[3]);
-        return edge;
+        return new Edge.Builder().group(t[2]).source(t[0])
+                                 .destination(t[1])
+                                 .property("count", 1)
+                                 .property("visibility", t[3])
+                                 .build();
     }
 }

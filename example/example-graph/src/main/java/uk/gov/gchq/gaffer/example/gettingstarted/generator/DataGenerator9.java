@@ -30,7 +30,7 @@ public class DataGenerator9 implements OneToManyElementGenerator<String> {
         final String[] t = line.split(",");
         final Edge edge = new Edge.Builder()
                 .group(t[0])
-                .source(t[1]).dest(t[2]).directed(false)
+                .source(t[1]).destination(t[2]).directed(false)
                 .property("count", 1)
                 .build();
 

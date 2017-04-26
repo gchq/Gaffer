@@ -88,49 +88,53 @@ public class AggregatorIteratorTest {
 
     private void test(final AccumuloStore store) throws OperationException {
         // Given
-        final Edge expectedResult = new Edge(TestGroups.EDGE);
-        expectedResult.setSource("1");
-        expectedResult.setDestination("2");
-        expectedResult.setDirected(true);
-        expectedResult.putProperty(AccumuloPropertyNames.COUNT, 13);
-        expectedResult.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        expectedResult.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        expectedResult.putProperty(AccumuloPropertyNames.PROP_3, 1);
-        expectedResult.putProperty(AccumuloPropertyNames.PROP_4, 1);
+        final Edge expectedResult = new Edge.Builder().group(TestGroups.EDGE)
+                                                      .source("1")
+                                                      .destination("2")
+                                                      .directed(true)
+                                                      .property(AccumuloPropertyNames.COUNT, 13)
+                                                      .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                      .property(AccumuloPropertyNames.PROP_1, 0)
+                                                      .property(AccumuloPropertyNames.PROP_2, 0)
+                                                      .property(AccumuloPropertyNames.PROP_3, 1)
+                                                      .property(AccumuloPropertyNames.PROP_4, 1)
+                                                      .build();
 
-        final Edge edge1 = new Edge(TestGroups.EDGE);
-        edge1.setSource("1");
-        edge1.setDestination("2");
-        edge1.setDirected(true);
-        edge1.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge1.putProperty(AccumuloPropertyNames.COUNT, 1);
-        edge1.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        edge1.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        edge1.putProperty(AccumuloPropertyNames.PROP_3, 1);
-        edge1.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                             .source("1")
+                                             .destination("2")
+                                             .directed(true)
+                                             .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                             .property(AccumuloPropertyNames.COUNT, 1)
+                                             .property(AccumuloPropertyNames.PROP_1, 0)
+                                             .property(AccumuloPropertyNames.PROP_2, 0)
+                                             .property(AccumuloPropertyNames.PROP_3, 1)
+                                             .property(AccumuloPropertyNames.PROP_4, 0)
+                                             .build();
 
-        final Edge edge2 = new Edge(TestGroups.EDGE);
-        edge2.setSource("1");
-        edge2.setDestination("2");
-        edge2.setDirected(true);
-        edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge2.putProperty(AccumuloPropertyNames.COUNT, 2);
-        edge2.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        edge2.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        edge2.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        edge2.putProperty(AccumuloPropertyNames.PROP_4, 1);
+        final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                             .source("1")
+                                             .destination("2")
+                                             .directed(true)
+                                             .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                             .property(AccumuloPropertyNames.COUNT, 2)
+                                             .property(AccumuloPropertyNames.PROP_1, 0)
+                                             .property(AccumuloPropertyNames.PROP_2, 0)
+                                             .property(AccumuloPropertyNames.PROP_3, 0)
+                                             .property(AccumuloPropertyNames.PROP_4, 1)
+                                             .build();
 
-        final Edge edge3 = new Edge(TestGroups.EDGE);
-        edge3.setSource("1");
-        edge3.setDestination("2");
-        edge3.setDirected(true);
-        edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        edge3.putProperty(AccumuloPropertyNames.COUNT, 10);
-        edge3.putProperty(AccumuloPropertyNames.PROP_1, 0);
-        edge3.putProperty(AccumuloPropertyNames.PROP_2, 0);
-        edge3.putProperty(AccumuloPropertyNames.PROP_3, 0);
-        edge3.putProperty(AccumuloPropertyNames.PROP_4, 0);
+        final Edge edge3 = new Edge.Builder().group(TestGroups.EDGE)
+                                             .source("1")
+                                             .destination("2")
+                                             .directed(true)
+                                             .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                             .property(AccumuloPropertyNames.COUNT, 10)
+                                             .property(AccumuloPropertyNames.PROP_1, 0)
+                                             .property(AccumuloPropertyNames.PROP_2, 0)
+                                             .property(AccumuloPropertyNames.PROP_3, 0)
+                                             .property(AccumuloPropertyNames.PROP_4, 0)
+                                             .build();
 
         final User user = new User();
         store.execute(new AddElements.Builder()

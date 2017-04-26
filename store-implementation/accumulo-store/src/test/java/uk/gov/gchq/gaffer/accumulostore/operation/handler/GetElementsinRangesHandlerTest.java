@@ -54,14 +54,15 @@ import static org.junit.Assert.fail;
 
 public class GetElementsinRangesHandlerTest {
 
+    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsinRangesHandlerTest.class));
+    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil
+            .storeProps(GetElementsinRangesHandlerTest.class));
+    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties
+            .loadStoreProperties(StreamUtil.openStream(GetElementsinRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
+    private static final User user = new User();
     private static View defaultView;
     private static AccumuloStore byteEntityStore;
     private static AccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(GetElementsinRangesHandlerTest.class));
-    private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(GetElementsinRangesHandlerTest.class));
-    private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(GetElementsinRangesHandlerTest.class, "/accumuloStoreClassicKeys.properties"));
-
-    private static final User user = new User();
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
@@ -70,21 +71,62 @@ public class GetElementsinRangesHandlerTest {
 
     }
 
-    @Before
-    public void reInitialise() throws StoreException {
-        defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
-
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
-        setupGraph(byteEntityStore, 1000);
-        setupGraph(gaffer1KeyStore, 1000);
-    }
-
     @AfterClass
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
         defaultView = null;
+    }
+
+    private static void setupGraph(final AccumuloStore store, final int numEntries) {
+        final List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < numEntries; i++) {
+
+            String s = "" + i;
+            while (s.length() < 4) {
+                s = "0" + s;
+            }
+
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .source(s)
+                                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                                                .destination("B")
+                                                .directed(true).build();
+            elements.add(edge);
+
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source(s)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                                                 .destination("B")
+                                                 .directed(true).build();
+            elements.add(edge2);
+
+            final Edge edge3 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source(s)
+                                                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
+                                                 .destination("B")
+                                                 .directed(true).build();
+            elements.add(edge3);
+        }
+
+        try {
+            store.execute(new AddElements.Builder().input(elements)
+                                                   .build(), user);
+        } catch (final OperationException e) {
+            fail("Couldn't add element: " + e);
+        }
+    }
+
+    @Before
+    public void reInitialise() throws StoreException {
+        defaultView = new View.Builder().edge(TestGroups.EDGE)
+                                        .entity(TestGroups.ENTITY)
+                                        .build();
+
+        byteEntityStore.initialise(schema, PROPERTIES);
+        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        setupGraph(byteEntityStore, 1000);
+        setupGraph(gaffer1KeyStore, 1000);
     }
 
     @Test
@@ -104,7 +146,9 @@ public class GetElementsinRangesHandlerTest {
 
         //get Everything between 0 and 1 (Note we are using strings and string serialisers, with this ordering 0999 is before 1)
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0"), new EntitySeed("1")));
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(defaultView).input(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(defaultView)
+                                                                               .input(simpleEntityRanges)
+                                                                               .build();
 
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         CloseableIterable<? extends Element> elementsInRanges = handler.doOperation(operation, user, store);
@@ -147,7 +191,9 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view)
+                                                                               .input(simpleEntityRanges)
+                                                                               .build();
         final GetElementsInRangesHandler handler = new GetElementsInRangesHandler();
         final CloseableIterable<? extends Element> elementsInRange = handler.doOperation(operation, user, store);
         int count = 0;
@@ -199,7 +245,9 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view)
+                                                                               .input(simpleEntityRanges)
+                                                                               .build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.OUTGOING);
@@ -252,7 +300,9 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view)
+                                                                               .input(simpleEntityRanges)
+                                                                               .build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setIncludeIncomingOutGoing(IncludeIncomingOutgoingType.INCOMING);
@@ -288,7 +338,9 @@ public class GetElementsinRangesHandlerTest {
                         .groupBy()
                         .build())
                 .build();
-        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view).input(simpleEntityRanges).build();
+        final GetElementsInRanges operation = new GetElementsInRanges.Builder().view(view)
+                                                                               .input(simpleEntityRanges)
+                                                                               .build();
 
         //All Edges stored should be outgoing from our provided seeds.
         operation.setDirectedType(DirectedType.UNDIRECTED);
@@ -298,45 +350,6 @@ public class GetElementsinRangesHandlerTest {
         //There should be no incoming edges to the provided range
         assertEquals(0, count);
         elements.close();
-    }
-
-    private static void setupGraph(final AccumuloStore store, final int numEntries) {
-        final List<Element> elements = new ArrayList<>();
-        for (int i = 0; i < numEntries; i++) {
-
-            String s = "" + i;
-            while (s.length() < 4) {
-                s = "0" + s;
-            }
-
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(s);
-
-            edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            elements.add(edge);
-
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource(s);
-            edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-            edge2.setDestination("B");
-            edge2.setDirected(true);
-            elements.add(edge2);
-
-            final Edge edge3 = new Edge(TestGroups.EDGE);
-            edge3.setSource(s);
-            edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
-            edge3.setDestination("B");
-            edge3.setDirected(true);
-            elements.add(edge3);
-        }
-
-        try {
-            store.execute(new AddElements.Builder().input(elements).build(), user);
-        } catch (final OperationException e) {
-            fail("Couldn't add element: " + e);
-        }
     }
 
 }

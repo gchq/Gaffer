@@ -35,10 +35,9 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldSetAndGetFields() {
         // Given
-        final Entity entity = new Entity("group");
-
-        // When
-        entity.setVertex("identifier");
+        final Entity entity = new Entity.Builder().group("group")
+                                                  .vertex("identifier")
+                                                  .build();
 
         // Then
         assertEquals("group", entity.getGroup());
@@ -71,8 +70,10 @@ public class EntityTest extends ElementTest {
         final String propValue = "propValue";
 
         // When
-        final Entity entity = new Entity(TestGroups.ENTITY, vertex);
-        entity.putProperty(TestPropertyNames.STRING, propValue);
+        final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                  .vertex(vertex)
+                                                  .property(TestPropertyNames.STRING, propValue)
+                                                  .build();
 
         // Then
         assertEquals(TestGroups.ENTITY, entity.getGroup());
@@ -97,8 +98,9 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
-        final Entity entity = new Entity("group");
-        entity.setVertex("identifier");
+        final Entity entity = new Entity.Builder().group("group")
+                                                  .vertex("identifier")
+                                                  .build();
 
         // When
         boolean isEqual = entity.equals(entity);
@@ -111,11 +113,12 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
-        final Entity entity1 = new Entity("group");
-        entity1.setVertex("identifier");
-        entity1.putProperty("some property", "some value");
+        final Entity entity1 = new Entity.Builder().group("group")
+                                                   .vertex("identifier")
+                                                   .property("some property", "some value")
+                                                   .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
+        final Entity entity2 = cloneCoreFields(entity1).build();
         entity2.putProperty("some property", "some value");
 
         // When
@@ -129,11 +132,12 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenPropertyIsDifferent() {
         // Given
-        final Entity entity1 = new Entity("group");
-        entity1.setVertex("identifier");
-        entity1.putProperty("some property", "some value");
+        final Entity entity1 = new Entity.Builder().group("group")
+                                                   .vertex("identifier")
+                                                   .property("some property", "some value")
+                                                   .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
+        final Entity entity2 = cloneCoreFields(entity1).build();
         entity2.putProperty("some property", "some other value");
 
         // When
@@ -147,11 +151,13 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
-        final Entity entity1 = new Entity("group");
-        entity1.setVertex("vertex");
+        final Entity entity1 = new Entity.Builder().group("group")
+                                                   .vertex("vertex")
+                                                   .build();
 
-        final Entity entity2 = new Entity("a different group");
-        entity2.setVertex(entity1.getVertex());
+        final Entity entity2 = new Entity.Builder().group("a different group")
+                                                   .vertex(entity1.getVertex())
+                                                   .build();
 
         // When
         boolean isEqual = entity1.equals((Object) entity2);
@@ -164,11 +170,12 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenIdentifierIsDifferent() {
         // Given
-        final Entity entity1 = new Entity("group");
-        entity1.setVertex("vertex");
+        final Entity entity1 = new Entity.Builder().group("group")
+                                                   .vertex("vertex")
+                                                   .build();
 
-        final Entity entity2 = cloneCoreFields(entity1);
-        entity2.setVertex("different vertex");
+        final Entity entity2 = cloneCoreFields(entity1).vertex("different vertex")
+                                                       .build();
 
         // When
         boolean isEqual = entity1.equals((Object) entity2);
@@ -181,14 +188,16 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
-        final Entity entity = newElement("group");
-        entity.setVertex(1L);
+        final Entity entity = new Entity.Builder().group("group")
+                                                  .vertex(1L)
+                                                  .build();
 
         final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
         final byte[] serialisedElement = serialiser.serialise(entity);
-        final Entity deserialisedElement = serialiser.deserialise(serialisedElement, entity.getClass());
+        final Entity deserialisedElement = serialiser.deserialise(serialisedElement, entity
+                .getClass());
 
         // Then
         assertEquals(entity, deserialisedElement);
@@ -196,18 +205,17 @@ public class EntityTest extends ElementTest {
 
     @Override
     protected Entity newElement(final String group) {
-        return new Entity(group);
+        return new Entity.Builder().group(group)
+                                   .build();
     }
 
     @Override
     protected Entity newElement() {
-        return new Entity();
+        return new Entity.Builder().build();
     }
 
-    private Entity cloneCoreFields(final Entity entity) {
-        final Entity newEntity = new Entity(entity.getGroup());
-        newEntity.setVertex(entity.getVertex());
-
-        return newEntity;
+    private Entity.Builder cloneCoreFields(final Entity entity) {
+        return new Entity.Builder().group(entity.getGroup())
+                                   .vertex(entity.getVertex());
     }
 }

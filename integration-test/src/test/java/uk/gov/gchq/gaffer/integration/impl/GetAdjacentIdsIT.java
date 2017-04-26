@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -48,6 +49,7 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
+    @Ignore
     @Test
     public void shouldGetEntityIds() throws Exception {
         for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {

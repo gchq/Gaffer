@@ -144,7 +144,7 @@ public class GenerateElementsExample extends OperationExample {
                 return new Edge.Builder()
                         .group("edge")
                         .source(obj1.a)
-                        .dest(obj1.b)
+                        .destination(obj1.b)
                         .directed(true)
                         .property("count", obj1.c)
                         .build();

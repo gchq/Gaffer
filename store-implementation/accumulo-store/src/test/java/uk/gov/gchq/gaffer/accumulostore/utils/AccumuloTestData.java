@@ -80,19 +80,19 @@ public class AccumuloTestData {
         EDGE_A_B_1.putProperty(AccumuloPropertyNames.COUNT, 1);
         EDGE_A_B_2.putProperty(AccumuloPropertyNames.COUNT, 2);
 
-        EDGE_C_D_UNDIRECTED = new Edge(TestGroups.EDGE);
-        EDGE_C_D_UNDIRECTED.setSource("C");
-        EDGE_C_D_UNDIRECTED.setDestination("D");
-        EDGE_C_D_UNDIRECTED.setDirected(false);
-        EDGE_C_D_UNDIRECTED.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-        EDGE_C_D_UNDIRECTED.putProperty(AccumuloPropertyNames.COUNT, 1);
+        EDGE_C_D_UNDIRECTED = new Edge.Builder().group(TestGroups.EDGE)
+        .source("C")
+        .destination("D")
+        .directed(false)
+        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+        .property(AccumuloPropertyNames.COUNT, 1).build();
 
-        EDGE_C_D_DIRECTED = new Edge(TestGroups.EDGE);
-        EDGE_C_D_DIRECTED.setSource("C");
-        EDGE_C_D_DIRECTED.setDestination("D");
-        EDGE_C_D_DIRECTED.setDirected(true);
-        EDGE_C_D_DIRECTED.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 2);
-        EDGE_C_D_DIRECTED.putProperty(AccumuloPropertyNames.COUNT, 1);
+        EDGE_C_D_DIRECTED = new Edge.Builder().group(TestGroups.EDGE)
+        .source("C")
+        .destination("D")
+        .directed(true)
+        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 2)
+        .property(AccumuloPropertyNames.COUNT, 1).build();
 
         A0_ENTITY = new Entity(TestGroups.ENTITY, "A0");
         A0_ENTITY.putProperty(AccumuloPropertyNames.COUNT, 10000);

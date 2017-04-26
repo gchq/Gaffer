@@ -49,7 +49,7 @@ public class AbstractRestApiIT {
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("1")
-                    .dest("2")
+                    .destination("2")
                     .directed(true)
                     .property(TestPropertyNames.COUNT, 3)
                     .build()};

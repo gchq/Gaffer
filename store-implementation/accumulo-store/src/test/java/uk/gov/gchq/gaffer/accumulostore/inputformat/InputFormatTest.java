@@ -61,56 +61,57 @@ import static org.junit.Assert.fail;
 
 public class InputFormatTest {
 
-    private enum KeyPackage {
-        BYTE_ENTITY_KEY_PACKAGE,
-        CLASSIC_KEY_PACKAGE
-    }
-
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
 
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
-            entity.putProperty("property1", 1);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i)
+                                                      .property("property1", 1)
+                                                      .build();
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            edge.putProperty("property1", 2);
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .source("" + i)
+                                                .destination("B")
+                                                .directed(true)
+                                                .property("property1", 2)
+                                                .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("property2", 3);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(true)
+                                                 .property("property2", 3)
+                                                 .build();
 
             DATA.add(edge);
             DATA.add(edge2);
             DATA.add(entity);
         }
         for (int i = 0; i < NUM_ENTRIES; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
-            entity.putProperty("property1", 1);
-            entity.putProperty("visibility", "public");
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i)
+                                                      .property("property1", 1)
+                                                      .property("visibility", "public")
+                                                      .build();
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            edge.putProperty("property1", 2);
-            edge.putProperty("visibility", "private");
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                                                .source("" + i)
+                                                .destination("B")
+                                                .directed(true)
+                                                .property("property1", 2)
+                                                .property("visibility", "private")
+                                                .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("property2", 3);
-            edge2.putProperty("visibility", "public");
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(true)
+                                                 .property("property2", 3)
+                                                 .property("visibility", "public")
+                                                 .build();
 
             DATA_WITH_VISIBILITIES.add(edge);
             DATA_WITH_VISIBILITIES.add(edge2);
@@ -221,15 +222,16 @@ public class InputFormatTest {
     }
 
     private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
-                                                       final KeyPackage kp,
-                                                       final List<Element> data,
-                                                       final View view,
-                                                       final User user,
-                                                       final String instanceName,
-                                                       final Set<String> expectedResults)
+            final KeyPackage kp,
+            final List<Element> data,
+            final View view,
+            final User user,
+            final String instanceName,
+            final Set<String> expectedResults)
             throws Exception {
         final AccumuloStore store = new MockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil
+                .storeProps(getClass()));
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
@@ -276,7 +278,8 @@ public class InputFormatTest {
 
     private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements.Builder().input(data).build(), new User());
+            store.execute(new AddElements.Builder().input(data)
+                                                   .build(), new User());
         } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }
@@ -293,11 +296,27 @@ public class InputFormatTest {
 
     private Schema getSchemaWithVisibilities() {
         final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
+                this.getClass()
+                    .getResourceAsStream("/schemaWithVisibilities/dataSchemaWithVisibilities.json"),
+                this.getClass()
+                    .getResourceAsStream("/schemaWithVisibilities/dataTypes.json"),
+                this.getClass()
+                    .getResourceAsStream("/schemaWithVisibilities/storeSchema.json"),
+                this.getClass()
+                    .getResourceAsStream("/schemaWithVisibilities/storeTypes.json"));
         return schema;
+    }
+
+    private enum KeyPackage {
+        BYTE_ENTITY_KEY_PACKAGE,
+        CLASSIC_KEY_PACKAGE
+    }
+
+    private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
+
+        protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
+            context.write(new Text(key.toString()), nw);
+        }
     }
 
     private class Driver extends Configured implements Tool {
@@ -327,13 +346,6 @@ public class InputFormatTest {
             job.waitForCompletion(true);
 
             return job.isSuccessful() ? 0 : 1;
-        }
-    }
-
-    private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
-
-        protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
-            context.write(new Text(key.toString()), nw);
         }
     }
 

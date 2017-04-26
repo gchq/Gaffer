@@ -80,7 +80,7 @@ public class LoadAndQuery3Test {
                 new Edge.Builder()
                         .group(GROUP)
                         .source("1")
-                        .dest("2")
+                        .destination("2")
                         .directed(false)
                         .property(COUNT, 5)
                         .build()

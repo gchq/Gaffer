@@ -64,20 +64,22 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                                                      .vertex("" + i).build();
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty(TestPropertyNames.COUNT, 2);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("B")
+                                                 .directed(false)
+                                                 .property(TestPropertyNames.COUNT, 2)
+                                                 .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty(TestPropertyNames.COUNT, 4);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                                                 .source("" + i)
+                                                 .destination("C")
+                                                 .directed(false)
+                                                 .property(TestPropertyNames.COUNT, 4)
+                                                 .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -98,15 +100,23 @@ public class ImportKeyValueJavaPairRDDToAccumuloHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final String outputPath = this.getClass()
+                                      .getResource("/")
+                                      .getPath()
+                                      .toString() + "load";
+        final String failurePath = this.getClass()
+                                       .getResource("/")
+                                       .getPath()
+                                       .toString() + "failure";
         final File file = new File(outputPath);
         if (file.exists()) {
             FileUtils.forceDelete(file);
         }
 
-        final ElementConverterFunction func = new ElementConverterFunction(sparkContext.broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
-        final JavaPairRDD<Key, Value> elementJavaRDD = sparkContext.parallelize(elements).flatMapToPair(func);
+        final ElementConverterFunction func = new ElementConverterFunction(sparkContext
+                .broadcast(new ByteEntityAccumuloElementConverter(graph1.getSchema())));
+        final JavaPairRDD<Key, Value> elementJavaRDD = sparkContext.parallelize(elements)
+                                                                   .flatMapToPair(func);
         final ImportKeyValueJavaPairRDDToAccumulo addRdd = new ImportKeyValueJavaPairRDDToAccumulo.Builder()
                 .input(elementJavaRDD)
                 .outputPath(outputPath)

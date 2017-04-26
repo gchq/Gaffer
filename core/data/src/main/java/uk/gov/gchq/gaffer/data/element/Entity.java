@@ -17,11 +17,17 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Entity.Builder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import java.util.Map;
 
 /**
  * An <code>Entity</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
@@ -33,30 +39,25 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
  *
  * @see uk.gov.gchq.gaffer.data.element.Entity.Builder
  */
+@JsonDeserialize(builder = Builder.class)
 public class Entity extends Element implements EntityId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Entity.class);
     private static final long serialVersionUID = 2863628004463113755L;
     private Object vertex;
-
-    Entity() {
-        super();
-    }
-
-    public Entity(final String group) {
-        super(group);
-    }
 
     public Entity(final String group, final Object vertex) {
         super(group);
         this.vertex = vertex;
     }
 
-    public Object getVertex() {
-        return vertex;
+    public Entity(final Builder builder) {
+        super(builder.group);
+        this.vertex = builder.vertex;
+        this.properties = builder.properties;
     }
 
-    public void setVertex(final Object vertex) {
-        this.vertex = vertex;
+    public Object getVertex() {
+        return vertex;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class Entity extends Element implements EntityId {
     public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
         switch (identifierType) {
             case VERTEX:
-                setVertex(propertyToBeSet);
+                this.vertex = propertyToBeSet;
                 break;
             default:
                 LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
@@ -113,26 +114,43 @@ public class Entity extends Element implements EntityId {
         return "Entity{vertex=" + vertex + super.toString() + "} ";
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     public static class Builder {
-        private final Entity entity = new Entity();
+        private String group = "UNKNOWN";
+        private Object vertex;
+        private Properties properties = new Properties();
 
         public Builder group(final String group) {
-            entity.setGroup(group);
+            this.group = group;
             return this;
         }
 
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public Builder vertex(final Object vertex) {
-            entity.setVertex(vertex);
+            this.vertex = vertex;
+            return this;
+        }
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+        public Builder properties(final Map<String, Object> properties) {
+            this.properties.putAll(properties);
             return this;
         }
 
         public Builder property(final String name, final Object value) {
-            entity.putProperty(name, value);
+            this.properties.put(name, value);
+            return this;
+        }
+
+        @JsonProperty("class")
+        public Builder className(final String className) {
+            // ignore the className as it will be picked up by the JsonTypeInfo annotation.
             return this;
         }
 
         public Entity build() {
-            return entity;
+            return new Entity(this);
         }
     }
 }

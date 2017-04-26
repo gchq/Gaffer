@@ -99,7 +99,7 @@ public class GafferResultCacheExporter implements Exporter {
                     return new Edge.Builder()
                             .group("result")
                             .source(jobId)
-                            .dest(key)
+                            .destination(key)
                             .directed(true)
                             .property("opAuths", requiredOpAuths)
                             .property("timestamp", timestamp)
