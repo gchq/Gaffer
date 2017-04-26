@@ -15,95 +15,28 @@
  */
 package uk.gov.gchq.gaffer.function.aggregate;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
 import uk.gov.gchq.gaffer.types.IntegerFreqMap;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 import java.util.Map.Entry;
 
 /**
- * An <code>FreqMapAggregator</code> is a {@link SimpleAggregateFunction} that takes in
+ * An <code>FreqMapAggregator</code> is a {@link KorypheBinaryOperator} that takes in
  * {@link IntegerFreqMap}s and merges the frequencies together.
  *
- * @deprecated use {@link uk.gov.gchq.gaffer.types.FreqMap} with {@link FreqMapAggregator}.
+ * @deprecated use {@link uk.gov.gchq.gaffer.types.IntegerFreqMap} with {@link FreqMapAggregator}.
  */
-@Inputs(IntegerFreqMap.class)
-@Outputs(IntegerFreqMap.class)
 @Deprecated
-public class IntegerFreqMapAggregator extends SimpleAggregateFunction<IntegerFreqMap> {
-    private IntegerFreqMap frequencyMap;
-
+public class IntegerFreqMapAggregator extends KorypheBinaryOperator<IntegerFreqMap> {
     @Override
-    protected void _aggregate(final IntegerFreqMap input) {
-        if (null != input) {
-            if (null == frequencyMap) {
-                frequencyMap = new IntegerFreqMap(input);
+    public IntegerFreqMap _apply(final IntegerFreqMap a, final IntegerFreqMap b) {
+        for (final Entry<String, Integer> entry : b.entrySet()) {
+            if (a.containsKey(entry.getKey())) {
+                a.put(entry.getKey(), a.get(entry.getKey()) + entry.getValue());
             } else {
-                for (final Entry<String, Integer> entry : input.entrySet()) {
-                    if (frequencyMap.containsKey(entry.getKey())) {
-                        frequencyMap.put(entry.getKey(), frequencyMap.get(entry.getKey()) + entry.getValue());
-                    } else {
-                        frequencyMap.put(entry.getKey(), entry.getValue());
-                    }
-                }
+                a.put(entry.getKey(), entry.getValue());
             }
         }
-    }
 
-    @Override
-    public void init() {
-        frequencyMap = null;
-    }
-
-    @Override
-    protected IntegerFreqMap _state() {
-        return frequencyMap;
-    }
-
-    @Override
-    public IntegerFreqMapAggregator statelessClone() {
-        final IntegerFreqMapAggregator aggregator = new IntegerFreqMapAggregator();
-        aggregator.init();
-        return aggregator;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final IntegerFreqMapAggregator that = (IntegerFreqMapAggregator) o;
-
-        return new EqualsBuilder()
-                .append(inputs, that.inputs)
-                .append(outputs, that.outputs)
-                .append(frequencyMap, that.frequencyMap)
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(inputs)
-                .append(outputs)
-                .append(frequencyMap)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("inputs", inputs)
-                .append("outputs", outputs)
-                .append("frequencyMap", frequencyMap)
-                .toString();
+        return a;
     }
 }

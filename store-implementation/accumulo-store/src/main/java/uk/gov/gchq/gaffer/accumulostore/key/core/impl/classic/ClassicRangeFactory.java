@@ -21,17 +21,19 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.operation.GetOperation.SeedMatchingType;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -42,16 +44,18 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> List<Range> getRange(final Object vertex, final T operation,
-                                                                  final IncludeEdgeType includeEdgesParam) throws RangeFactoryException {
-        final IncludeEdgeType includeEdges;
+    protected List<Range> getRange(final Object vertex, final GraphFilters operation,
+                                   final boolean includeEdgesParam) throws RangeFactoryException {
+        final boolean includeEdges;
         final boolean includeEntities;
-        if (SeedMatchingType.EQUAL.equals(operation.getSeedMatching())) {
-            includeEdges = IncludeEdgeType.NONE;
+        final boolean seedEqual = operation instanceof SeedMatching
+                && SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
+        if (seedEqual) {
+            includeEdges = false;
             includeEntities = true;
         } else {
             includeEdges = includeEdgesParam;
-            includeEntities = operation.isIncludeEntities();
+            includeEntities = operation.getView().hasEntities();
         }
 
         byte[] serialisedVertex;
@@ -60,12 +64,11 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
-        final boolean returnEdges = includeEdges != IncludeEdgeType.NONE;
-        if (!includeEntities && !returnEdges) {
+        if (!includeEntities && !includeEdges) {
             throw new IllegalArgumentException(
                     "Need to include either Entities or Edges or both when getting Range from a type and value");
         }
-        if (includeEntities && returnEdges) {
+        if (includeEntities && includeEdges) {
             return Collections.singletonList(getRange(serialisedVertex));
         } else if (includeEntities) {
             return Collections.singletonList(getEntityRangeFromVertex(serialisedVertex));
@@ -75,10 +78,12 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected <T extends GetElementsOperation<?, ?>> Key getKeyFromEdgeSeed(final EdgeSeed seed, final T operation,
-                                                                    final boolean endKey) throws RangeFactoryException {
+    protected Key getKeyFromEdgeId(final EdgeId seed, final GraphFilters operation,
+                                   final boolean endKey) throws RangeFactoryException {
+        final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
+
         final byte directionFlag1 = seed.isDirected()
-                ? (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING
+                ? (inOutType == IncludeIncomingOutgoingType.INCOMING
                 ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
                 : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE)
                 : ClassicBytePositions.UNDIRECTED_EDGE;
@@ -126,7 +131,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         // and outgoing so we use the reversed key when looking up incoming.
         byte[] firstValue;
         byte[] secondValue;
-        if (operation.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING) {
+        if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
             firstValue = destination;
             secondValue = source;
         } else {

@@ -23,12 +23,12 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class DataGenerator11 extends OneToManyElementGenerator<String> {
+public class DataGenerator11 implements OneToManyElementGenerator<String> {
     // Fix the seed so that the results are consistent
     private static final Random RANDOM = new Random(123456789L);
 
     @Override
-    public Iterable<Element> getElements(final String line) {
+    public Iterable<Element> _apply(final String line) {
         final Set<Element> elements = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
             final DoublesUnion doublesUnion = DoublesUnion.builder().build();
@@ -42,10 +42,5 @@ public class DataGenerator11 extends OneToManyElementGenerator<String> {
             elements.add(edge);
         }
         return elements;
-    }
-
-    @Override
-    public Iterable<String> getObjects(final Iterable<Element> elements) {
-        throw new UnsupportedOperationException();
     }
 }

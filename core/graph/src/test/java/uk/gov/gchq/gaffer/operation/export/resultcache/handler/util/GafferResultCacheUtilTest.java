@@ -76,15 +76,14 @@ public class GafferResultCacheUtilTest {
 
 
         // When
-        final boolean isValid = schema.validate();
+        final boolean isValid = schema.validate().isValid();
 
 
         // Then
         assertTrue(isValid);
-        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) (schema.getType("timestamp").getValidator().getFunctions().get(0).getFunction())).getAgeOffTime());
+        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) (schema.getType("timestamp").getValidateFunctions().get(0))).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
-        assertTrue(schema.validate());
     }
 
     @Test
@@ -94,13 +93,12 @@ public class GafferResultCacheUtilTest {
         final Schema schema = graph.getSchema();
 
         // When
-        final boolean isValid = schema.validate();
+        final boolean isValid = schema.validate().isValid();
 
         // Then
         assertTrue(isValid);
-        assertNull(schema.getType("timestamp").getValidator());
+        assertNull(schema.getType("timestamp").getValidateFunctions());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertTrue(new ElementValidator(schema).validate(oldEdge));
-        assertTrue(schema.validate());
     }
 }

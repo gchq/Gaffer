@@ -18,23 +18,22 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class IsMoreThanTest extends FilterFunctionTest {
+public class IsMoreThanTest extends PredicateTest {
     @Test
     public void shouldAcceptTheValueWhenMoreThan() {
         // Given
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.isValid(6);
+        boolean accepted = filter.test(6);
 
         // Then
         assertTrue(accepted);
@@ -46,7 +45,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.isValid(6);
+        boolean accepted = filter.test(6);
 
         // Then
         assertTrue(accepted);
@@ -58,7 +57,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.isValid(4);
+        boolean accepted = filter.test(4);
 
         // Then
         assertFalse(accepted);
@@ -70,7 +69,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.isValid(4);
+        boolean accepted = filter.test(4);
 
         // Then
         assertFalse(accepted);
@@ -82,7 +81,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5);
 
         // When
-        boolean accepted = filter.isValid(5);
+        boolean accepted = filter.test(5);
 
         // Then
         assertFalse(accepted);
@@ -95,23 +94,10 @@ public class IsMoreThanTest extends FilterFunctionTest {
         final IsMoreThan filter = new IsMoreThan(5, true);
 
         // When
-        boolean accepted = filter.isValid(5);
+        boolean accepted = filter.test(5);
 
         // Then
         assertTrue(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final IsMoreThan filter = new IsMoreThan(5);
-
-        // When
-        final IsMoreThan clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertEquals(5, clonedFilter.getControlValue());
     }
 
     @Test
@@ -139,7 +125,7 @@ public class IsMoreThanTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<IsMoreThan> getFunctionClass() {
+    protected Class<IsMoreThan> getPredicateClass() {
         return IsMoreThan.class;
     }
 

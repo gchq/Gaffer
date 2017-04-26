@@ -26,7 +26,7 @@ In the dataTypes file we specify validation conditions. You’ll see that we’v
 
 ${DATA_TYPES_JSON}
 
-Our ViewElementDefinition allows us to override this by using a ${FILTER_FUNCTION_JAVADOC} function.
+Our ViewElementDefinition allows us to override this by using a Java Predicate.
 
 If we run the query, we now get only those vertex `”1”` Edges where the `”count”` > 3:
 

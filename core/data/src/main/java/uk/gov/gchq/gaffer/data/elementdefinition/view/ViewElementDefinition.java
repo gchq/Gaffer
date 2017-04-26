@@ -29,11 +29,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -128,7 +126,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("preAggregationFilterFunctions")
-    public List<ConsumerFunctionContext<String, FilterFunction>> getPreAggregationFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
         return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
     }
 
@@ -138,7 +136,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("postAggregationFilterFunctions")
-    public List<ConsumerFunctionContext<String, FilterFunction>> getPostAggregationFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPostAggregationFilterFunctions() {
         return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
     }
 
@@ -148,7 +146,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("postTransformFilterFunctions")
-    public List<ConsumerFunctionContext<String, FilterFunction>> getPostTransformFilterFunctions() {
+    public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
     }
 
@@ -158,7 +156,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     }
 
     @JsonGetter("transformFunctions")
-    public List<ConsumerProducerFunctionContext<String, TransformFunction>> getTransformFunctions() {
+    public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
         return null != transformer ? transformer.getFunctions() : null;
     }
 
@@ -172,7 +170,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }
@@ -267,9 +265,9 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS preAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+        public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
-            getElementDef().preAggregationFilter.addFunctions(filterFunctions);
+            getElementDef().preAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
         }
 
@@ -283,9 +281,9 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS postAggregationFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+        public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postAggregationFilter = new ElementFilter();
-            getElementDef().postAggregationFilter.addFunctions(filterFunctions);
+            getElementDef().postAggregationFilter.getFunctions().addAll(filterFunctions);
             return self();
         }
 
@@ -299,9 +297,9 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS postTransformFilterFunctions(final List<ConsumerFunctionContext<String, FilterFunction>> filterFunctions) {
+        public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postTransformFilter = new ElementFilter();
-            getElementDef().postTransformFilter.addFunctions(filterFunctions);
+            getElementDef().postTransformFilter.getFunctions().addAll(filterFunctions);
             return self();
         }
 
@@ -310,9 +308,9 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             return self();
         }
 
-        public CHILD_CLASS transformFunctions(final List<ConsumerProducerFunctionContext<String, TransformFunction>> transformFunctions) {
+        public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
-            getElementDef().transformer.addFunctions(transformFunctions);
+            getElementDef().transformer.getFunctions().addAll(transformFunctions);
             return self();
         }
 
@@ -333,7 +331,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         protected CHILD_CLASS json(final byte[] jsonBytes, final Class<? extends ViewElementDefinition> clazz) throws SchemaException {
             try {
                 merge(JSON_SERIALISER.deserialise(jsonBytes, clazz));
-            } catch (SerialisationException e) {
+            } catch (final SerialisationException e) {
                 throw new SchemaException("Unable to deserialise json", e);
             }
             return self();
@@ -357,25 +355,25 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             if (null == getElementDef().preAggregationFilter) {
                 getElementDef().preAggregationFilter = elementDef.preAggregationFilter;
             } else if (null != elementDef.preAggregationFilter) {
-                getElementDef().preAggregationFilter.addFunctions(elementDef.preAggregationFilter.getFunctions());
+                getElementDef().preAggregationFilter.getFunctions().addAll(elementDef.preAggregationFilter.getFunctions());
             }
 
             if (null == getElementDef().postAggregationFilter) {
                 getElementDef().postAggregationFilter = elementDef.postAggregationFilter;
             } else if (null != elementDef.postAggregationFilter) {
-                getElementDef().postAggregationFilter.addFunctions(elementDef.postAggregationFilter.getFunctions());
+                getElementDef().postAggregationFilter.getFunctions().addAll(elementDef.postAggregationFilter.getFunctions());
             }
 
             if (null == getElementDef().postTransformFilter) {
                 getElementDef().postTransformFilter = elementDef.postTransformFilter;
             } else if (null != elementDef.postTransformFilter) {
-                getElementDef().postTransformFilter.addFunctions(elementDef.postTransformFilter.getFunctions());
+                getElementDef().postTransformFilter.getFunctions().addAll(elementDef.postTransformFilter.getFunctions());
             }
 
             if (null == getElementDef().transformer) {
                 getElementDef().transformer = elementDef.transformer;
             } else if (null != elementDef.transformer) {
-                getElementDef().transformer.addFunctions(elementDef.transformer.getFunctions());
+                getElementDef().transformer.getFunctions().addAll(elementDef.transformer.getFunctions());
             }
 
             if (null != elementDef.getGroupBy()) {

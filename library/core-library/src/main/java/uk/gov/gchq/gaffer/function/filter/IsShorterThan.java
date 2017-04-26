@@ -18,21 +18,19 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * An <code>IsShorterThan</code> is a {@link SimpleFilterFunction} that checks that the input
+ * An <code>IsShorterThan</code> is a {@link java.util.function.Predicate} that checks that the input
  * object has a length less than a maximum length. There is also an orEqualTo flag that can be set to allow
  * the input object length to be less than or equal to the maximum length.
  * <p>
  * Allowed object types are {@link String}s, arrays, {@link Collection}s and {@link Map}s.
  * Additional object types can easily be added by modifying the getLength(Object) method.
  */
-@Inputs(Object.class)
-public class IsShorterThan extends SimpleFilterFunction<Object> {
+public class IsShorterThan extends KoryphePredicate<Object> {
     private int maxLength;
     private boolean orEqualTo;
 
@@ -60,15 +58,8 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
         this.orEqualTo = orEqualTo;
     }
 
-    public IsShorterThan statelessClone() {
-        IsShorterThan clone = new IsShorterThan(maxLength);
-        clone.setOrEqualTo(orEqualTo);
-
-        return clone;
-    }
-
     @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         if (null == input) {
             return true;
         }
@@ -103,14 +94,12 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final IsShorterThan that = (IsShorterThan) o;
-
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(maxLength, that.maxLength)
                 .append(orEqualTo, that.orEqualTo)
                 .isEquals();
@@ -119,7 +108,6 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(maxLength)
                 .append(orEqualTo)
                 .toHashCode();
@@ -128,7 +116,6 @@ public class IsShorterThan extends SimpleFilterFunction<Object> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("maxLength", maxLength)
                 .append("orEqualTo", orEqualTo)
                 .toString();

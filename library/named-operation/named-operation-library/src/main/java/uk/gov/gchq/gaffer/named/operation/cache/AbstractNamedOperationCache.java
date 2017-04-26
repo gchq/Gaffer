@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
 public abstract class AbstractNamedOperationCache implements INamedOperationCache {
@@ -27,20 +26,20 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
     /**
      * If the user is just adding to the cache, ie the overwrite flag is set to false, then no security is added.
      * However if the user is overwriting the named operation stored in the cache, then their opAuths must be checked
-     * against the write roles associated with the {@link ExtendedNamedOperation}. If it turns out the user is overwriting a
-     * non-existent ExtendedNamedOperation, then the users ExtendedNamedOperation will be added normally.
+     * against the write roles associated with the {@link NamedOperationDetail}. If it turns out the user is overwriting a
+     * non-existent NamedOperationDetail, then the users NamedOperationDetail will be added normally.
      *
-     * @param namedOperation The ExtendedNamedOperation that the user wants to store
+     * @param namedOperation The NamedOperationDetail that the user wants to store
      * @param overwrite      Flag relating to whether the user is adding (false) or updating/overwriting (true)
-     * @throws CacheOperationFailedException thrown if the user doesn't have write access to the ExtendedNamedOperation requested,
+     * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
     @Override
-    public void addNamedOperation(final ExtendedNamedOperation namedOperation, final boolean overwrite, final User user) throws CacheOperationFailedException {
+    public void addNamedOperation(final NamedOperationDetail namedOperation, final boolean overwrite, final User user) throws CacheOperationFailedException {
         String name;
         try {
             name = namedOperation.getOperationName();
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             throw new CacheOperationFailedException("NamedOperation cannot be null", e);
         }
         if (name == null) {
@@ -51,11 +50,11 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
             return;
         }
 
-        ExtendedNamedOperation existing = null;
+        NamedOperationDetail existing = null;
 
         try {
             existing = getFromCache(name);
-        } catch (CacheOperationFailedException e) { // if there is no existing named Operation add one
+        } catch (final CacheOperationFailedException e) { // if there is no existing named Operation add one
             addToCache(name, namedOperation, false);
             return;
         }
@@ -67,20 +66,20 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
     }
 
     /**
-     * Checks whether a {@link User} has write access to the cache. If they do then the ExtendedNamedOperation and name is
-     * removed from the cache. If they don't or the ExtendedNamedOperation doesn't exist then an Exception is thrown.
+     * Checks whether a {@link User} has write access to the cache. If they do then the NamedOperationDetail and name is
+     * removed from the cache. If they don't or the NamedOperationDetail doesn't exist then an Exception is thrown.
      *
-     * @param name The name of the ExtendedNamedOperation a user would like to delete
+     * @param name The name of the NamedOperationDetail a user would like to delete
      * @param user A {@link User} object that can optionally be used for checking permissions
-     * @throws CacheOperationFailedException Thrown when the ExtendedNamedOperation doesn't exist or the User doesn't have
-     *                                       write permission on the ExtendedNamedOperation.
+     * @throws CacheOperationFailedException Thrown when the NamedOperationDetail doesn't exist or the User doesn't have
+     *                                       write permission on the NamedOperationDetail.
      */
     @Override
     public void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException {
         if (name == null) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
         }
-        ExtendedNamedOperation existing = getFromCache(name);
+        NamedOperationDetail existing = getFromCache(name);
         if (existing.hasWriteAccess(user)) {
             deleteFromCache(name);
         } else {
@@ -90,19 +89,19 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
     }
 
     /**
-     * First gets the ExtendedNamedOperation in question and checks whether the user has read access before returning the value.
-     * If the ExtendedNamedOperation doesn't exist or the User doesn't have permission to read this ExtendedNamedOperation, then an
+     * First gets the NamedOperationDetail in question and checks whether the user has read access before returning the value.
+     * If the NamedOperationDetail doesn't exist or the User doesn't have permission to read this NamedOperationDetail, then an
      * exception is thrown.
      *
-     * @param name The name of the ExtendedNamedOperation held in the cache.
+     * @param name The name of the NamedOperationDetail held in the cache.
      * @param user The {@link User} object that is used for checking read permissions.
-     * @return ExtendedNamedOperation
-     * @throws CacheOperationFailedException thrown if the ExtendedNamedOperation doesn't exist or the User doesn't have permission
+     * @return NamedOperationDetail
+     * @throws CacheOperationFailedException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
      *                                       to read it.
      */
     @Override
-    public ExtendedNamedOperation getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
-        ExtendedNamedOperation op = getFromCache(name);
+    public NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
+        NamedOperationDetail op = getFromCache(name);
         if (op.hasReadAccess(user)) {
             return op;
         } else {
@@ -112,14 +111,14 @@ public abstract class AbstractNamedOperationCache implements INamedOperationCach
 
 
     @Override
-    public abstract CloseableIterable<NamedOperation> getAllNamedOperations(User user, boolean simple);
+    public abstract CloseableIterable<NamedOperationDetail> getAllNamedOperations(User user);
 
     @Override
     public abstract void clear() throws CacheOperationFailedException;
 
     public abstract void deleteFromCache(String name) throws CacheOperationFailedException;
 
-    public abstract void addToCache(String name, ExtendedNamedOperation operation, boolean overwrite) throws CacheOperationFailedException;
+    public abstract void addToCache(String name, NamedOperationDetail operation, boolean overwrite) throws CacheOperationFailedException;
 
-    public abstract ExtendedNamedOperation getFromCache(String name) throws CacheOperationFailedException;
+    public abstract NamedOperationDetail getFromCache(String name) throws CacheOperationFailedException;
 }

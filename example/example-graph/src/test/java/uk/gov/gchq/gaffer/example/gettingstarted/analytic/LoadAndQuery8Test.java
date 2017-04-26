@@ -16,24 +16,39 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.user.User;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-
 public class LoadAndQuery8Test {
+    private static final Date JAN_01_16_END;
+
+    static {
+        try {
+            JAN_01_16_END = new SimpleDateFormat("dd/MM/yy/hh/mm/ss/SSS").parse("01/01/16/23/59/59/999");
+        } catch (final ParseException e) {
+            throw new IllegalArgumentException("Unable to parse date", e);
+        }
+    }
+
     private static final String RESOURCE_PREFIX = "/example/gettingstarted/";
     private static final String RESOURCE_EXAMPLE_PREFIX = RESOURCE_PREFIX + "8/";
     public static final String COUNT = "count";
@@ -48,7 +63,7 @@ public class LoadAndQuery8Test {
         final LoadAndQuery8 query = new LoadAndQuery8();
 
         // When
-        final Iterable<Edge> results = query.run();
+        final CloseableIterable<? extends Element> results = query.run();
 
         // Then
         verifyResults(results);
@@ -64,7 +79,7 @@ public class LoadAndQuery8Test {
 
         final JSONSerialiser serialiser = new JSONSerialiser();
         final OperationChain<?> addOpChain = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), OperationChain.class);
-        final GetAllEdges getAllEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllEdges.class);
+        final GetAllElements getAllEdges = serialiser.deserialise(StreamUtil.openStream(LoadAndQuery.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetAllElements.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -74,13 +89,13 @@ public class LoadAndQuery8Test {
 
         // When
         graph.execute(addOpChain, publicUser); // Execute the add operation chain on the graph
-        final Iterable<Edge> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(getAllEdges, publicUser); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);
     }
 
-    private void verifyResults(final Iterable<Edge> resultsItr) {
+    private void verifyResults(final CloseableIterable<? extends Element> resultsItr) {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("1")
@@ -90,7 +105,7 @@ public class LoadAndQuery8Test {
                         .property(COUNT, 4L)
                         .property(VISIBILITY, "public")
                         .property(START_DATE, LoadAndQuery8.JAN_01_16)
-                        .property(END_DATE, LoadAndQuery8.JAN_02_16)
+                        .property(END_DATE, JAN_01_16_END)
                         .build(),
                 new Edge.Builder()
                         .source("1")
@@ -100,11 +115,11 @@ public class LoadAndQuery8Test {
                         .property(COUNT, 2L)
                         .property(VISIBILITY, "public")
                         .property(START_DATE, LoadAndQuery8.JAN_01_16)
-                        .property(END_DATE, LoadAndQuery8.JAN_02_16)
+                        .property(END_DATE, JAN_01_16_END)
                         .build()
         };
 
-        final List<Edge> results = Lists.newArrayList(resultsItr);
+        final List<Element> results = Lists.newArrayList(resultsItr);
         assertEquals(expectedResults.length, results.size());
         assertThat(results, IsCollectionContaining.hasItems(expectedResults));
     }

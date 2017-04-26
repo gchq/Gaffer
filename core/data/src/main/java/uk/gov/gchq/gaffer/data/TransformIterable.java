@@ -27,12 +27,12 @@ import java.util.NoSuchElementException;
  * A <code>TransformIterable</code> allows {@link java.lang.Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
  *
- * @param <INPUT>  The input iterable type.
- * @param <OUTPUT> the output iterable type.
+ * @param <I> The input iterable type.
+ * @param <O> the output iterable type.
  */
-public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableIterable<OUTPUT> {
-    private final Iterable<INPUT> input;
-    private final Validator<INPUT> validator;
+public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
+    private final Iterable<? extends I> input;
+    private final Validator<I> validator;
     private final boolean skipInvalid;
     private final boolean autoClose;
 
@@ -41,7 +41,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      *
      * @param input the input {@link java.lang.Iterable}
      */
-    public TransformIterable(final Iterable<INPUT> input) {
+    public TransformIterable(final Iterable<? extends I> input) {
         this(input, new AlwaysValid<>(), false);
     }
 
@@ -52,7 +52,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param input     the input {@link java.lang.Iterable}
      * @param validator the {@link uk.gov.gchq.gaffer.data.Validator}
      */
-    public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
     }
 
@@ -64,7 +64,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param validator   the {@link uk.gov.gchq.gaffer.data.Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
-    public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
         this(input, validator, skipInvalid, false);
     }
 
@@ -76,7 +76,7 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
-    public TransformIterable(final Iterable<INPUT> input, final Validator<INPUT> validator, final boolean skipInvalid, final boolean autoClose) {
+    public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid, final boolean autoClose) {
         if (null == input) {
             throw new IllegalArgumentException("Input iterable is required");
         }
@@ -88,10 +88,10 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
 
 
     /**
-     * @return an {@link java.util.Iterator} that lazy transforms the INPUT items to OUTPUT items
+     * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
-    public CloseableIterator<OUTPUT> iterator() {
-        return new CloseableIterator<OUTPUT>() {
+    public CloseableIterator<O> iterator() {
+        return new CloseableIterator<O>() {
             @Override
             public void close() {
                 if (inputItr instanceof Closeable) {
@@ -99,16 +99,16 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
                 }
             }
 
-            private final Iterator<INPUT> inputItr = input.iterator();
+            private final Iterator<? extends I> inputItr = input.iterator();
 
-            private OUTPUT nextElement;
+            private O nextElement;
             private Boolean hasNext;
 
             @Override
             public boolean hasNext() {
                 if (null == hasNext) {
                     while (inputItr.hasNext()) {
-                        final INPUT possibleNext = inputItr.next();
+                        final I possibleNext = inputItr.next();
                         if (validator.validate(possibleNext)) {
                             nextElement = transform(possibleNext);
                             hasNext = true;
@@ -132,14 +132,14 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
             }
 
             @Override
-            public OUTPUT next() {
+            public O next() {
                 if (null == hasNext) {
                     if (!hasNext()) {
                         throw new NoSuchElementException("Reached the end of the iterator");
                     }
                 }
 
-                final OUTPUT elementToReturn = nextElement;
+                final O elementToReturn = nextElement;
                 nextElement = null;
                 hasNext = null;
 
@@ -161,26 +161,26 @@ public abstract class TransformIterable<INPUT, OUTPUT> implements CloseableItera
     }
 
     /**
-     * Transforms the INPUT item into an OUTPUT item
+     * Transforms the I item into an O item
      *
-     * @param item the INPUT item to be transformed
-     * @return the transformed OUTPUT item
+     * @param item the I item to be transformed
+     * @return the transformed O item
      */
-    protected abstract OUTPUT transform(final INPUT item);
+    protected abstract O transform(final I item);
 
     /**
      * Handles an invalid item. Simply throws an {@link java.lang.IllegalArgumentException} explaining that the item is
      * invalid. Override this method to handle invalid items differently.
      *
-     * @param item the invalid INPUT item
+     * @param item the invalid I item
      * @throws IllegalArgumentException always thrown unless this method is overridden.
      */
-    protected void handleInvalidItem(final INPUT item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final I item) throws IllegalArgumentException {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }
 
-    protected Iterable<INPUT> getInput() {
+    protected Iterable<? extends I> getInput() {
         return this.input;
     }
 

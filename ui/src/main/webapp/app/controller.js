@@ -201,7 +201,7 @@ angular.module('app').controller('AppController',
             } catch(err) {
                jsonVertex = vertex;
             }
-            operation.seeds.push({
+            operation.input.push({
                       "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
                       "vertex": jsonVertex
                    });
@@ -271,6 +271,10 @@ angular.module('app').controller('AppController',
     }
 
     var parseVertex = function(vertex) {
+        if(typeof vertex === 'string' || vertex instanceof String) {
+            vertex = "\"" + vertex + "\"";
+        }
+
         try {
              JSON.parse(vertex);
         } catch(err) {
@@ -324,13 +328,24 @@ angular.module('app').controller('AppController',
     var createOperation = function() {
         return {
             class: "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
-            resultLimit:  settings.resultLimit,
-            deduplicate: true,
-            seeds: [],
+            input: [],
             view: {
                 entities: {},
                 edges: {}
             }
+        };
+    }
+
+    var createLimitOperation = function() {
+        return {
+            class: "uk.gov.gchq.gaffer.operation.impl.Limit",
+            resultLimit: settings.resultLimit
+        };
+    }
+
+    var createDeduplicateOperation = function() {
+        return {
+            class: "uk.gov.gchq.gaffer.operation.impl.Deduplicate",
         };
     }
 
@@ -352,7 +367,7 @@ angular.module('app').controller('AppController',
         var operation = createBuildQueryOperation();
         $scope.operations.push(operation);
         $scope.resetBuildQuery();
-        raw.execute(JSON.stringify({operations: [operation]}));
+        raw.execute(JSON.stringify({operations: [operation, createLimitOperation(), createDeduplicateOperation()]}));
     };
 
     var createCountOperation = function() {
@@ -385,7 +400,7 @@ angular.module('app').controller('AppController',
         $scope.clearResults();
         $scope.resetBuildQuery();
        for(var i in $scope.operations) {
-           raw.execute(JSON.stringify({operations: [$scope.operations[i]]}));
+           raw.execute(JSON.stringify({operations: [$scope.operations[i], createLimitOperation(), createDeduplicateOperation()]}));
        }
     }
 

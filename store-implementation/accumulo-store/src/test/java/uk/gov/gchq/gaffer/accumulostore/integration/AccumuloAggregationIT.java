@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -41,7 +41,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -84,16 +83,21 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
+        graph.execute(new AddElements.Builder()
+                        .input(entity1, entity2, entity3)
+                        .build(),
+                USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
-                .view(new View())
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -142,11 +146,11 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2, entity3)), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2, entity3).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER)
@@ -155,7 +159,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -195,11 +199,11 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy()
@@ -208,7 +212,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -239,11 +243,11 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
@@ -252,7 +256,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -283,11 +287,11 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
 
-        graph.execute(new AddElements(Arrays.asList((Element) entity1, entity2)), USER);
+        graph.execute(new AddElements.Builder().input(entity1, entity2).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
@@ -296,7 +300,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -358,32 +362,30 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements(
-                Arrays.asList(
-                        (Element) entity1,
-                        entity2,
-                        entity3,
-                        entity4,
-                        entity5,
-                        entity6,
-                        entity7
-                )), USER);
+        graph.execute(new AddElements.Builder().input(
+                entity1,
+                entity2,
+                entity3,
+                entity4,
+                entity5,
+                entity6,
+                entity7
+        ).build(), USER);
 
         // Duplicate the entities to check they are aggregated properly
-        graph.execute(new AddElements(
-                Arrays.asList(
-                        (Element) entity1,
-                        entity2,
-                        entity3,
-                        entity4,
-                        entity5,
-                        entity6,
-                        entity7
-                )), USER);
+        graph.execute(new AddElements.Builder().input(
+                entity1,
+                entity2,
+                entity3,
+                entity4,
+                entity5,
+                entity6,
+                entity7
+        ).build(), USER);
 
         // Given
-        final GetEntities<EntitySeed> getElements = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed(VERTEX))
+        final GetElements getElements = new GetElements.Builder()
+                .input(new EntitySeed(VERTEX))
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER, AccumuloPropertyNames.COLUMN_QUALIFIER_2)
@@ -392,7 +394,7 @@ public class AccumuloAggregationIT {
                 .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getElements, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getElements, USER));
 
         // Then
         assertNotNull(results);
@@ -483,34 +485,37 @@ public class AccumuloAggregationIT {
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .build();
 
-        graph.execute(new AddElements(
-                Arrays.asList(
-                        (Element) entity1,
-                        entity2,
-                        entity3,
-                        entity4,
-                        entity5,
-                        entity6,
-                        entity7
-                )), USER);
+        graph.execute(new AddElements.Builder().input(
+                entity1,
+                entity2,
+                entity3,
+                entity4,
+                entity5,
+                entity6,
+                entity7
+        ).build(), USER);
 
         // Duplicate the entities to check they are not aggregated
-        graph.execute(new AddElements(
-                Arrays.asList(
-                        (Element) entity1,
-                        entity2,
-                        entity3,
-                        entity4,
-                        entity5,
-                        entity6,
-                        entity7
-                )), USER);
+        graph.execute(new AddElements.Builder()
+                        .input(entity1,
+                                entity2,
+                                entity3,
+                                entity4,
+                                entity5,
+                                entity6,
+                                entity7)
+                        .build(),
+                USER);
 
         // Given
-        final GetAllEntities getAllEntities = new GetAllEntities();
+        final GetAllElements getAllEntities = new GetAllElements.Builder()
+                .view(new View.Builder()
+                        .entity(TestGroups.ENTITY)
+                        .build())
+                .build();
 
         // When
-        final List<Entity> results = Lists.newArrayList(graph.execute(getAllEntities, USER));
+        final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, USER));
 
         // Then
         assertNotNull(results);

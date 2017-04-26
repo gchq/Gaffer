@@ -4,9 +4,7 @@
       "class": "java.lang.String",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.Exists"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
         }
       ]
     },
@@ -17,9 +15,7 @@
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
-          "function": {
-            "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
-          }
+          "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
         }
       ]
     }

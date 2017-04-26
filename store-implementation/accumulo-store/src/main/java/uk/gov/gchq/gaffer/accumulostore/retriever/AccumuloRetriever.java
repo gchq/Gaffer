@@ -32,24 +32,24 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP_TYPE extends GetElementsOperation<?, ?>> implements CloseableIterable<Element> {
+public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> implements CloseableIterable<Element> {
     protected CloseableIterator<Element> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final User user;
     protected final RangeFactory rangeFactory;
     protected final IteratorSettingFactory iteratorSettingFactory;
-    protected final OP_TYPE operation;
+    protected final OP operation;
     protected final AccumuloElementConverter elementConverter;
     protected final IteratorSetting[] iteratorSettings;
 
-    protected AccumuloRetriever(final AccumuloStore store, final OP_TYPE operation,
+    protected AccumuloRetriever(final AccumuloStore store, final OP operation,
                                 final User user, final IteratorSetting... iteratorSettings)
             throws StoreException {
         this.store = store;
@@ -122,27 +122,22 @@ public abstract class AccumuloRetriever<OP_TYPE extends GetElementsOperation<?, 
         }
         scanner.setRanges(ranges);
 
-        // Currently hard links element class to column family position.
-        if (IncludeEdgeType.NONE != operation.getIncludeEdges()) {
-            for (final String col : operation.getView().getEdgeGroups()) {
-                scanner.fetchColumnFamily(new Text(col));
-            }
+        for (final String col : operation.getView().getEdgeGroups()) {
+            scanner.fetchColumnFamily(new Text(col));
         }
-        if (operation.isIncludeEntities()) {
-            for (final String col : operation.getView().getEntityGroups()) {
-                scanner.fetchColumnFamily(new Text(col));
-            }
+        for (final String col : operation.getView().getEntityGroups()) {
+            scanner.fetchColumnFamily(new Text(col));
         }
         return scanner;
     }
 
     protected void transform(final Element element, final ElementTransformer transformer) {
         if (transformer != null) {
-            transformer.transform(element);
+            transformer.apply(element);
         }
     }
 
     protected boolean postFilter(final Element element, final ElementFilter postFilter) {
-        return postFilter != null ? postFilter.filter(element) : true;
+        return postFilter == null || postFilter.test(element);
     }
 }

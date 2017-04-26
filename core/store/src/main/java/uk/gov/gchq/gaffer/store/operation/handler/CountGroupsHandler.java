@@ -24,15 +24,15 @@ import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class CountGroupsHandler implements OperationHandler<CountGroups, GroupCounts> {
+public class CountGroupsHandler implements OutputOperationHandler<CountGroups, GroupCounts> {
     @Override
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
             throws OperationException {
         int count = 0;
         final GroupCounts groupCounts = new GroupCounts();
-        if (null != operation.getElements()) {
-            for (final Element element : operation.getElements()) {
+        if (null != operation.getInput()) {
+            for (final Element element : operation.getInput()) {
                 if (null != operation.getLimit()) {
                     count++;
                     if (count > operation.getLimit()) {

@@ -15,10 +15,9 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import java.util.Map;
 
 
 /**
@@ -26,8 +25,9 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see SplitTable.Builder
  */
-public class SplitTable extends AbstractOperation<String, Void> implements VoidOutput<String> {
+public class SplitTable implements Operation, Options {
     private String inputPath;
+    private Map<String, String> options;
 
     public String getInputPath() {
         return inputPath;
@@ -38,26 +38,24 @@ public class SplitTable extends AbstractOperation<String, Void> implements VoidO
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
+    public Map<String, String> getOptions() {
+        return options;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<SplitTable, String, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<SplitTable, Builder>
+            implements Options.Builder<SplitTable, Builder> {
+        public Builder() {
             super(new SplitTable());
         }
 
-        public CHILD_CLASS inputPath(final String inputPath) {
-            op.setInputPath(inputPath);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder inputPath(final String inputPath) {
+            _getOp().setInputPath(inputPath);
+            return _self();
         }
     }
 }

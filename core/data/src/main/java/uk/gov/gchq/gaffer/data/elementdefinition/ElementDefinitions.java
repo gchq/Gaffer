@@ -68,7 +68,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }
@@ -126,9 +126,18 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @JsonIgnore
+    public boolean hasEntities() {
+        return null != entities && !entities.isEmpty();
+    }
+
+    @JsonIgnore
+    public boolean hasEdges() {
+        return null != edges && !edges.isEmpty();
+    }
+
+    @JsonIgnore
     public boolean hasGroups() {
-        return (null != entities && !entities.isEmpty())
-                || (null != edges && !edges.isEmpty());
+        return hasEntities() || hasEdges();
     }
 
     public Map<String, EDGE_DEF> getEdges() {
@@ -283,20 +292,24 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
         public CHILD_CLASS json(final Class<? extends ELEMENT_DEFS> clazz, final Object[] jsonItems) throws SchemaException {
             for (final Object jsonItem : jsonItems) {
-                final ELEMENT_DEFS elDefsTmp;
                 try {
                     if (jsonItem instanceof InputStream) {
-                        elDefsTmp = JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz);
+                        merge(JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz));
                     } else if (jsonItem instanceof Path) {
-                        elDefsTmp = JSON_SERIALISER.deserialise(Files.readAllBytes((Path) jsonItem), clazz);
+                        final Path path = (Path) jsonItem;
+                        if (Files.isDirectory(path)) {
+                            for (final Path filePath : Files.newDirectoryStream(path)) {
+                                merge(JSON_SERIALISER.deserialise(Files.readAllBytes(filePath), clazz));
+                            }
+                        } else {
+                            merge(JSON_SERIALISER.deserialise(Files.readAllBytes(path), clazz));
+                        }
                     } else {
-                        elDefsTmp = JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz);
+                        merge(JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz));
                     }
                 } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);
                 }
-
-                merge(elDefsTmp);
             }
 
             return self();

@@ -20,16 +20,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>IsMoreThan</code> is a {@link SimpleFilterFunction} that checks that the input
+ * An <code>IsMoreThan</code> is a {@link java.util.function.Predicate} that checks that the input
  * {@link Comparable} is more than a control value. There is also an orEqualTo flag that can be set to allow
  * the input value to be more than or equal to the control value.
  */
-@Inputs(Comparable.class)
-public class IsMoreThan extends SimpleFilterFunction<Comparable> {
+public class IsMoreThan extends KoryphePredicate<Comparable> {
     private Comparable controlValue;
     private boolean orEqualTo;
 
@@ -64,15 +62,8 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
         this.orEqualTo = orEqualTo;
     }
 
-    public IsMoreThan statelessClone() {
-        final IsMoreThan clone = new IsMoreThan(controlValue);
-        clone.setOrEqualTo(orEqualTo);
-
-        return clone;
-    }
-
     @Override
-    public boolean isValid(final Comparable input) {
+    public boolean test(final Comparable input) {
         if (null == input
                 || !controlValue.getClass().isAssignableFrom(input.getClass())) {
             return false;
@@ -92,14 +83,12 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final IsMoreThan that = (IsMoreThan) o;
-
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(orEqualTo, that.orEqualTo)
                 .append(controlValue, that.controlValue)
                 .isEquals();
@@ -108,7 +97,6 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(controlValue)
                 .append(orEqualTo)
                 .toHashCode();
@@ -117,7 +105,6 @@ public class IsMoreThan extends SimpleFilterFunction<Comparable> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("controlValue", controlValue)
                 .append("orEqualTo", orEqualTo)
                 .toString();

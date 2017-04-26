@@ -57,7 +57,7 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
 
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-            final IteratorEnvironment env) throws IOException {
+                     final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         validateOptions(options);
     }
@@ -70,7 +70,7 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
-        if (!options.containsKey(AccumuloStoreConstants.NO_EDGES)) {
+        if (options.containsKey(AccumuloStoreConstants.INCLUDE_EDGES)) {
             edges = true;
         }
         return true;
@@ -80,7 +80,7 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions())
                 .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
-                .addNamedOption(AccumuloStoreConstants.NO_EDGES, "Optional: Set if no edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_EDGES, "Optional: Set if edges should be returned")
                 .setIteratorName(AccumuloStoreConstants.RANGE_ELEMENT_PROPERTY_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(
                         "Only returns Entities or Edges that are directed undirected incoming or outgoing as specified by the user's options")

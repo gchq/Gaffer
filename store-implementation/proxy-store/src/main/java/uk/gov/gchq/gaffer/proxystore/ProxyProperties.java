@@ -139,7 +139,7 @@ public class ProxyProperties extends StoreProperties {
             contextRoot = removeSuffix("/", contextRoot);
             return new URL(protocol, getGafferHost(), getGafferPort(),
                     contextRoot + urlSuffix);
-        } catch (MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new IllegalArgumentException("Could not create Gaffer URL from host (" + getGafferHost()
                     + "), port (" + getGafferPort()
                     + ") and context root (" + getGafferContextRoot() + ")", e);

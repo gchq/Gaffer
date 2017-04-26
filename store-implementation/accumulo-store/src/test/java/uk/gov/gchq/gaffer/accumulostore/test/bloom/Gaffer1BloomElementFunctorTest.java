@@ -43,7 +43,7 @@ public class Gaffer1BloomElementFunctorTest {
     private AccumuloElementConverter elementConverter;
     private Schema schema;
 
-    private final static CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
+    private static final CoreKeyBloomFunctor elementFunctor = new CoreKeyBloomFunctor();
 
     @Before
     public void setup() {
@@ -155,7 +155,7 @@ public class Gaffer1BloomElementFunctorTest {
             final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
             assertNotNull(elementFunctor.transform(range));
             assertEquals(expectedBloomKey1, elementFunctor.transform(range));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
     }
@@ -174,7 +174,7 @@ public class Gaffer1BloomElementFunctorTest {
             // Create Range with unspecified end key and shouldRetieveElementsInRangeBetweenSeeds - should get null
             final Range range2 = new Range(keys.getFirst().getRow(), true, null, true);
             assertNull(elementFunctor.transform(range2));
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             fail("ConversionException " + e);
         }
     }

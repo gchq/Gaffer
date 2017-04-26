@@ -16,15 +16,11 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import java.io.Serializable;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map.Entry;
 
 /**
@@ -42,8 +38,7 @@ import java.util.Map.Entry;
  * <p>
  * Equals has been overridden to check groups are equal. NOTE - it does not compare property values.
  */
-@JsonTypeInfo(use = Id.CLASS, include = As.EXISTING_PROPERTY, property = "class")
-public abstract class Element implements Serializable {
+public abstract class Element implements ElementId {
     public static final String DEFAULT_GROUP = "UNKNOWN";
 
     private Properties properties;
@@ -59,12 +54,14 @@ public abstract class Element implements Serializable {
     }
 
     public void putProperty(final String name, final Object value) {
-            properties.put(name, value);
+        properties.put(name, value);
     }
 
     public void copyProperties(final Properties properties) {
-        for (final Entry<String, Object> entry : properties.entrySet()) {
-            putProperty(entry.getKey(), entry.getValue());
+        if (null != properties) {
+            for (final Entry<String, Object> entry : properties.entrySet()) {
+                putProperty(entry.getKey(), entry.getValue());
+            }
         }
     }
 
@@ -72,7 +69,7 @@ public abstract class Element implements Serializable {
         return properties.get(name);
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Properties getProperties() {
         return properties;
     }
@@ -85,6 +82,7 @@ public abstract class Element implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder(13, 17)
                 .append(group)
+                .append(properties)
                 .toHashCode();
     }
 
@@ -150,16 +148,6 @@ public abstract class Element implements Serializable {
     public String toString() {
         return ", group='" + group
                 + "\', properties=" + properties;
-    }
-
-    @JsonGetter("class")
-    String getClassName() {
-        return getClass().getName();
-    }
-
-    @JsonSetter("class")
-    void setClassName(final String className) {
-        // ignore the className as it will be picked up by the JsonTypeInfo annotation.
     }
 }
 

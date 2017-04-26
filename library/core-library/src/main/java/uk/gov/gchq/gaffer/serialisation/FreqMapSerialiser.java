@@ -83,7 +83,7 @@ public class FreqMapSerialiser implements Serialisation<FreqMap> {
                     if (i > lastDelimiter) {
                         try {
                             key = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8);
-                        } catch (UnsupportedEncodingException e) {
+                        } catch (final UnsupportedEncodingException e) {
                             throw new SerialisationException("Failed to deserialise a key from a FreqMap", e);
                         }
                     } else {

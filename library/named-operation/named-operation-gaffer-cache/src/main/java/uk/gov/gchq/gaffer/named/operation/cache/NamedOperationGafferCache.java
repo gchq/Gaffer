@@ -23,8 +23,7 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.util.HashSet;
@@ -37,18 +36,14 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
 
 
     @Override
-    public CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple) {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {
         Set<String> keys = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
-        Set<NamedOperation> executables = new HashSet<>();
+        Set<NamedOperationDetail> executables = new HashSet<>();
         for (final String key : keys) {
             try {
-                ExtendedNamedOperation op = getFromCache(key);
+                NamedOperationDetail op = getFromCache(key);
                 if (op.hasReadAccess(user)) {
-                    if (simple) {
-                        executables.add(op.getBasic());
-                    } else {
-                        executables.add(op);
-                    }
+                    executables.add(op);
                 }
             } catch (CacheOperationFailedException e) {
                 LOGGER.error(e.getMessage(), e);
@@ -77,7 +72,7 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
     }
 
     @Override
-    public void addToCache(final String name, final ExtendedNamedOperation operation, final boolean overwrite) throws CacheOperationFailedException {
+    public void addToCache(final String name, final NamedOperationDetail operation, final boolean overwrite) throws CacheOperationFailedException {
         try {
             if (overwrite) {
                 CacheServiceLoader.getService().putInCache(CACHE_NAME, name, operation);
@@ -90,8 +85,11 @@ public class NamedOperationGafferCache extends AbstractNamedOperationCache {
     }
 
     @Override
-    public ExtendedNamedOperation getFromCache(final String name) throws CacheOperationFailedException {
-        ExtendedNamedOperation op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
+    public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
+        if (name == null) {
+            throw new CacheOperationFailedException("Operation name cannot be null");
+        }
+        NamedOperationDetail op = CacheServiceLoader.getService().getFromCache(CACHE_NAME, name);
 
         if (op != null) {
             return op;

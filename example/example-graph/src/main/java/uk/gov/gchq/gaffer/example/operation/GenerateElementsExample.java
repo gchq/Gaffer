@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.operation;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -23,7 +22,6 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.example.operation.generator.DataGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import java.util.Arrays;
 
 public class GenerateElementsExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -40,10 +38,10 @@ public class GenerateElementsExample extends OperationExample {
         generateElementsFromDomainObjects();
     }
 
-    public CloseableIterable<Element> generateElementsFromStrings() {
+    public Iterable<? extends Element> generateElementsFromStrings() {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
-                .objects(Arrays.asList("1,1", "1,2,1"))
+                .input("1,1", "1,2,1")
                 .generator(new DataGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -51,12 +49,11 @@ public class GenerateElementsExample extends OperationExample {
         return runExample(operation);
     }
 
-    public CloseableIterable<Element> generateElementsFromDomainObjects() {
+    public Iterable<? extends Element> generateElementsFromDomainObjects() {
         // ---------------------------------------------------------
         final GenerateElements<Object> operation = new GenerateElements.Builder<>()
-                .objects(Arrays.asList(
-                        new DomainObject1(1, 1),
-                        new DomainObject2(1, 2, 1)))
+                .input(new DomainObject1(1, 1),
+                        new DomainObject2(1, 2, 1))
                 .generator(new DomainObjectGenerator())
                 .build();
         // ---------------------------------------------------------
@@ -132,9 +129,9 @@ public class GenerateElementsExample extends OperationExample {
         }
     }
 
-    public static class DomainObjectGenerator extends OneToOneElementGenerator<Object> {
+    public static class DomainObjectGenerator implements OneToOneElementGenerator<Object> {
         @Override
-        public Element getElement(final Object domainObject) {
+        public Element _apply(final Object domainObject) {
             if (domainObject instanceof DomainObject1) {
                 final DomainObject1 obj1 = (DomainObject1) domainObject;
                 return new Entity.Builder()
@@ -154,11 +151,6 @@ public class GenerateElementsExample extends OperationExample {
             } else {
                 throw new IllegalArgumentException("Unsupported domain object");
             }
-        }
-
-        @Override
-        public Object getObject(final Element element) {
-            throw new UnsupportedOperationException("Getting objects is not supported");
         }
     }
 }

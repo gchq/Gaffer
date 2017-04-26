@@ -27,21 +27,20 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-public class GetElementsBetweenSetsHandler
-        implements OperationHandler<GetElementsBetweenSets<Element>, CloseableIterable<? extends Element>> {
+public class GetElementsBetweenSetsHandler implements OutputOperationHandler<GetElementsBetweenSets, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
-                                         final Context context, final Store store)
+    public CloseableIterable<? extends Element> doOperation(final GetElementsBetweenSets operation,
+                                                            final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
-    public CloseableIterable<Element> doOperation(final GetElementsBetweenSets<Element> operation,
-                                         final User user, final AccumuloStore store)
+    public CloseableIterable<? extends Element> doOperation(final GetElementsBetweenSets operation,
+                                                            final User user, final AccumuloStore store)
             throws OperationException {
         try {
             final IteratorSettingFactory iteratorFactory = store.getKeyPackage().getIteratorFactory();
@@ -49,7 +48,7 @@ public class GetElementsBetweenSetsHandler
                     iteratorFactory.getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                     iteratorFactory.getEdgeEntityDirectionFilterIteratorSetting(operation),
                     iteratorFactory.getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
-        } catch (IteratorSettingException | StoreException e) {
+        } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);
         }
     }

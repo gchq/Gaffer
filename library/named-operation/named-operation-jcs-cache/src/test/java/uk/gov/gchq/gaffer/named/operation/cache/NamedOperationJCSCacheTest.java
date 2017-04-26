@@ -22,11 +22,10 @@ import com.google.common.collect.Sets;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +44,15 @@ public class NamedOperationJCSCacheTest {
     private User advancedUser = new User.Builder().opAuths(GAFFER_USER, ADVANCED_GAFFER_USER).userId("456").build();
     private OperationChain standardOpChain = new OperationChain.Builder().first(new AddElements()).build();
     private OperationChain alternativeOpChain = new OperationChain.Builder().
-            first(new GetEntities.Builder<>().build())
+            first(new GetElements.Builder().build())
             .build();
     private static final String OPERATION_NAME = "New operation";
+    private static final String OPERATION_NAME_2 = "New operation 2";
     private NamedOperationJCSCache cache = new NamedOperationJCSCache();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-    private ExtendedNamedOperation standard = new ExtendedNamedOperation.Builder()
+    private NamedOperationDetail standard = new NamedOperationDetail.Builder()
             .operationName(OPERATION_NAME)
             .description("standard operation")
             .creatorId(standardUser.getUserId())
@@ -61,8 +61,16 @@ public class NamedOperationJCSCacheTest {
             .operationChain(standardOpChain)
             .build();
 
+    private NamedOperationDetail standard2 = new NamedOperationDetail.Builder()
+            .operationName(OPERATION_NAME_2)
+            .description("standard operation 2")
+            .creatorId(standardUser.getUserId())
+            .readers(readers)
+            .writers(writers)
+            .operationChain(standardOpChain)
+            .build();
 
-    private ExtendedNamedOperation alternative = new ExtendedNamedOperation.Builder()
+    private NamedOperationDetail alternative = new NamedOperationDetail.Builder()
             .operationName(OPERATION_NAME)
             .description("alternative operation")
             .creatorId(advancedUser.getUserId())
@@ -84,7 +92,7 @@ public class NamedOperationJCSCacheTest {
     @Test
     public void shouldAddNamedOperation() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        ExtendedNamedOperation namedOperation = cache.getNamedOperation(OPERATION_NAME, standardUser);
+        NamedOperationDetail namedOperation = cache.getNamedOperation(OPERATION_NAME, standardUser);
 
         assertEquals(standard, namedOperation);
 
@@ -95,14 +103,6 @@ public class NamedOperationJCSCacheTest {
         cache.addNamedOperation(standard, false, standardUser);
         exception.expect(CacheOperationFailedException.class);
         cache.addNamedOperation(alternative, false, advancedUser);
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenAddingIfKeyIsNull() throws CacheOperationFailedException {
-        ExtendedNamedOperation op = standard;
-        op.setOperationName(null);
-        exception.expect(CacheOperationFailedException.class);
-        cache.addNamedOperation(op, false, standardUser);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class NamedOperationJCSCacheTest {
 
     @Test
     public void shouldAllowUsersReadAccessToTheirOwnNamedOperations() throws CacheOperationFailedException {
-        ExtendedNamedOperation op = new ExtendedNamedOperation.Builder()
+        NamedOperationDetail op = new NamedOperationDetail.Builder()
                 .operationName(OPERATION_NAME)
                 .creatorId(standardUser.getUserId())
                 .operationChain(standardOpChain)
@@ -153,7 +153,7 @@ public class NamedOperationJCSCacheTest {
 
     @Test
     public void shouldAllowUsersWriteAccessToTheirOwnOperations() throws CacheOperationFailedException {
-        ExtendedNamedOperation op = new ExtendedNamedOperation.Builder()
+        NamedOperationDetail op = new NamedOperationDetail.Builder()
                 .operationName(OPERATION_NAME)
                 .creatorId(standardUser.getUserId())
                 .operationChain(standardOpChain)
@@ -191,21 +191,20 @@ public class NamedOperationJCSCacheTest {
 
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
-        CloseableIterable<NamedOperation> ops = cache.getAllNamedOperations(standardUser, true);
+        CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
         assert (Iterables.size(ops) == 0);
     }
 
     @Test
     public void shouldReturnSetOfNamedOperationsThatAUserCanExecute() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
-        ExtendedNamedOperation alt = alternative;
-        alt.setOperationName("alt");
+        NamedOperationDetail alt = standard2;
         cache.addNamedOperation(alt, false, advancedUser);
 
-        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, true));
+        Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
-        assert (actual.contains(standard.getBasic()));
-        assert (actual.contains(alt.getBasic()));
+        assert (actual.contains(standard));
+        assert (actual.contains(alt));
         assert (actual.size() == 2);
     }
 
@@ -213,7 +212,7 @@ public class NamedOperationJCSCacheTest {
     public void shouldNotReturnANamedOperationThatAUserCannotExecute() throws CacheOperationFailedException {
         cache.addNamedOperation(standard, false, standardUser);
 
-        ExtendedNamedOperation noReadAccess = new ExtendedNamedOperation.Builder()
+        NamedOperationDetail noReadAccess = new NamedOperationDetail.Builder()
                 .creatorId(advancedUser.getUserId())
                 .description("an operation that a standard user cannot execute")
                 .operationName("test")
@@ -223,22 +222,9 @@ public class NamedOperationJCSCacheTest {
                 .build();
         cache.addNamedOperation(noReadAccess, false, advancedUser);
 
-        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, true));
+        Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
-        assert (actual.contains(standard.getBasic()));
-        assert (actual.size() == 1);
-    }
-
-    @Test
-    public void shouldBeAbleToReturnFullExtendedOperationChain() throws CacheOperationFailedException {
-        cache.addNamedOperation(standard, false, standardUser);
-        ExtendedNamedOperation alt = alternative;
-        alt.setOperationName("alt");
-        cache.addNamedOperation(alt, false, advancedUser);
-
-        Set<NamedOperation> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser, false));
         assert (actual.contains(standard));
-        assert (actual.contains(alt));
-        assert (actual.size() == 2);
+        assert (actual.size() == 1);
     }
 }

@@ -35,7 +35,7 @@ public class CountGroupsIT extends AbstractStoreIT {
 
         // When
         final GroupCounts counts = graph.execute(new Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups())
                 .build(), user);
 
@@ -57,7 +57,7 @@ public class CountGroupsIT extends AbstractStoreIT {
 
         // When
         final GroupCounts counts = graph.execute(new Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups(limit))
                 .build(), user);
 
@@ -79,7 +79,7 @@ public class CountGroupsIT extends AbstractStoreIT {
 
         // When
         final GroupCounts counts = graph.execute(new Builder()
-                .first(new GetAllElements<>())
+                .first(new GetAllElements())
                 .then(new CountGroups(limit))
                 .build(), user);
 

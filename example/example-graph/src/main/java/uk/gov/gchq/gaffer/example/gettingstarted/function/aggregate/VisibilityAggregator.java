@@ -16,41 +16,25 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.function.aggregate;
 
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.SimpleAggregateFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
-@Inputs(String.class)
-@Outputs(String.class)
-public class VisibilityAggregator extends SimpleAggregateFunction<String> {
-
-    private String result;
+public class VisibilityAggregator extends KorypheBinaryOperator<String> {
 
     @Override
-    public void init() {
-        result = "public";
+    public String _apply(final String input1, final String input2) {
+        validateInput(input1);
+        validateInput(input2);
+
+        if ("private".equals(input1) || "public".equals(input2)) {
+            return "private";
+        }
+
+        return "public";
     }
 
-    @Override
-    protected void _aggregate(final String input) {
+    private void validateInput(final String input) {
         if (!(input.equals("public") || input.equals("private"))) {
             throw new IllegalArgumentException("Visibility must either be 'public' or 'private'. You supplied " + input);
         }
-        if (input.equals("private")) {
-            result = "private";
-        }
-    }
-
-    @Override
-    protected String _state() {
-        return result;
-    }
-
-    @Override
-    public AggregateFunction statelessClone() {
-        final VisibilityAggregator visibilityAggregator = new VisibilityAggregator();
-        visibilityAggregator.init();
-        return visibilityAggregator;
     }
 }

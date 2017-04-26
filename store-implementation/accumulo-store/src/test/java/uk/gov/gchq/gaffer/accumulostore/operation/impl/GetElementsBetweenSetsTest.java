@@ -5,15 +5,14 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import java.util.Arrays;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GetElementsBetweenSetsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -22,9 +21,10 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final GetElementsBetweenSets op = new GetElementsBetweenSets(
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1),
-                Arrays.asList(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2));
+        final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1)
+                .inputB(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2)
+                .build();
 
         // When
         byte[] json = serialiser.serialise(op, true);
@@ -32,12 +32,12 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets deserialisedOp = serialiser.deserialise(json, GetElementsBetweenSets.class);
 
         // Then
-        final Iterator itrSeedsA = deserialisedOp.getSeeds().iterator();
+        final Iterator itrSeedsA = deserialisedOp.getInput().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_1, itrSeedsA.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_1, itrSeedsA.next());
         assertFalse(itrSeedsA.hasNext());
 
-        final Iterator itrSeedsB = deserialisedOp.getSeedsB().iterator();
+        final Iterator itrSeedsB = deserialisedOp.getInputB().iterator();
         assertEquals(AccumuloTestData.SEED_SOURCE_2, itrSeedsB.next());
         assertEquals(AccumuloTestData.SEED_DESTINATION_2, itrSeedsB.next());
         assertFalse(itrSeedsB.hasNext());
@@ -47,18 +47,21 @@ public class GetElementsBetweenSetsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder<>().addSeed(AccumuloTestData.SEED_B)
-                .addSeedB(AccumuloTestData.SEED_A).includeEdges(GetOperation.IncludeEdgeType.UNDIRECTED)
-                .includeEntities(true).inOutType(GetOperation.IncludeIncomingOutgoingType.INCOMING)
-                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true").populateProperties(false)
-                .view(new View.Builder().edge("testEdgeGroup").build()).build();
+        final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
+                .input(AccumuloTestData.SEED_B)
+                .inputB(AccumuloTestData.SEED_A)
+                .directedType(GraphFilters.DirectedType.UNDIRECTED)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
+                .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
+                .view(new View.Builder()
+                        .edge("testEdgeGroup")
+                        .build())
+                .build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertTrue(getElementsBetweenSets.isIncludeEntities());
-        assertEquals(GetOperation.IncludeEdgeType.UNDIRECTED, getElementsBetweenSets.getIncludeEdges());
-        assertEquals(GetOperation.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
-        assertFalse(getElementsBetweenSets.isPopulateProperties());
+        assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
-        assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getSeedsB().iterator().next());
+        assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());
         assertNotNull(getElementsBetweenSets.getView());
     }
 }

@@ -15,26 +15,15 @@
  */
 package uk.gov.gchq.gaffer.function.filter;
 
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
 /**
- * An <code>Exists</code> is a {@link SimpleFilterFunction} that simply checks the input object
+ * An <code>Exists</code> is a {@link java.util.function.Predicate} that simply checks the input object
  * is not null.
  */
-@Inputs(Object.class)
-public class Exists extends SimpleFilterFunction<Object> {
-
-    public Exists() {
-        // Required for serialisation
-    }
-
-    public Exists statelessClone() {
-        return new Exists();
-    }
-
+public class Exists extends KoryphePredicate<Object> {
     @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         return null != input;
     }
 }

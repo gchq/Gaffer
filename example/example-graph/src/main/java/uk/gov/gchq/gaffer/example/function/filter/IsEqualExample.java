@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.example.function.filter;
 
 import uk.gov.gchq.gaffer.function.filter.IsEqual;
 
-public class IsEqualExample extends FilterFunctionExample {
+public class IsEqualExample extends PredicateExample {
     public static void main(final String[] args) {
         new IsEqualExample().run();
     }

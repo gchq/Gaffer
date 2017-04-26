@@ -16,16 +16,15 @@
 
 package uk.gov.gchq.gaffer.example.operation.generator;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-public class DataGenerator extends OneToOneElementGenerator<String> {
+public class DataGenerator implements OneToOneElementGenerator<String> {
 
     @Override
-    public Element getElement(final String line) {
+    public Element _apply(final String line) {
         final String[] t = line.split(",");
 
         final Element element;
@@ -46,17 +45,5 @@ public class DataGenerator extends OneToOneElementGenerator<String> {
         }
 
         return element;
-    }
-
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
-    @Override
-    public String getObject(final Element element) {
-        if (element instanceof Entity) {
-            final Entity entity = ((Entity) element);
-            return entity.getVertex() + "," + entity.getProperty("count");
-        } else {
-            final Edge edge = ((Edge) element);
-            return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");
-        }
     }
 }

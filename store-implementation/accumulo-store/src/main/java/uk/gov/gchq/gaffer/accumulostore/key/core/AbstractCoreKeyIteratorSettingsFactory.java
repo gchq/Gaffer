@@ -119,25 +119,29 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         String visibilityProp = schema.getVisibilityProperty();
         for (final String edgeGroup : view.getEdgeGroups()) {
             SchemaEdgeDefinition edgeDefinition = schema.getEdge(edgeGroup);
-            if (edgeDefinition.containsProperty(visibilityProp)) {
-                return true;
-            }
-            ViewElementDefinition viewElementDefinition = view.getEdge(edgeGroup);
-            if (viewElementDefinition.getGroupBy() != null) {
-                if (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+            if (null != edgeDefinition) {
+                if (edgeDefinition.containsProperty(visibilityProp)) {
                     return true;
+                }
+                ViewElementDefinition viewElementDefinition = view.getEdge(edgeGroup);
+                if (null != viewElementDefinition && viewElementDefinition.getGroupBy() != null) {
+                    if (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+                        return true;
+                    }
                 }
             }
         }
         for (final String entityGroup : view.getEntityGroups()) {
             SchemaEntityDefinition entityDefinition = schema.getEntity(entityGroup);
-            if (entityDefinition.containsProperty(visibilityProp)) {
-                return true;
-            }
-            ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
-            if (viewElementDefinition.getGroupBy() != null) {
-                if (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+            if (null != entityDefinition) {
+                if (entityDefinition.containsProperty(visibilityProp)) {
                     return true;
+                }
+                ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
+                if (viewElementDefinition.getGroupBy() != null) {
+                    if (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
+                        return true;
+                    }
                 }
             }
         }

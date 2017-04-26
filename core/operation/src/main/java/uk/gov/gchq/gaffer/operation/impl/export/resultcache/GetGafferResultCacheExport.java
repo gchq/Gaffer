@@ -16,24 +16,52 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.Export;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-public class GetGafferResultCacheExport extends GetExport {
-    public abstract static class BaseBuilder<OP extends GetGafferResultCacheExport, CHILD_CLASS extends BaseBuilder<OP, ?>>
-            extends GetExport.BaseBuilder<OP, CHILD_CLASS> {
-        protected BaseBuilder(final OP export) {
-            super(export);
-        }
+public class GetGafferResultCacheExport implements
+        Operation,
+        GetExport,
+        Output<CloseableIterable<?>> {
+    private String jobId;
+    private String key = Export.DEFAULT_KEY;
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public static final class Builder extends BaseBuilder<GetGafferResultCacheExport, Builder> {
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getJobId() {
+        return jobId;
+    }
+
+    @Override
+    public void setJobId(final String jobId) {
+        this.jobId = jobId;
+    }
+
+    @Override
+    public TypeReference<CloseableIterable<?>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
+    }
+
+    public static class Builder
+            extends Operation.BaseBuilder<GetGafferResultCacheExport, Builder>
+            implements GetExport.Builder<GetGafferResultCacheExport, Builder>,
+            Output.Builder<GetGafferResultCacheExport, CloseableIterable<?>, Builder> {
         public Builder() {
             super(new GetGafferResultCacheExport());
-        }
-
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

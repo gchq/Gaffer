@@ -18,16 +18,15 @@ package uk.gov.gchq.gaffer.function.filter;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class AgeOffTest extends FilterFunctionTest {
+public class AgeOffTest extends PredicateTest {
     public static final int MINUTE_IN_MILLISECONDS = 60000;
     public static final long CUSTOM_AGE_OFF = 100000;
 
@@ -77,7 +76,7 @@ public class AgeOffTest extends FilterFunctionTest {
         final AgeOff filter = new AgeOff(CUSTOM_AGE_OFF);
 
         // When
-        final boolean accepted = filter.isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF + MINUTE_IN_MILLISECONDS);
+        final boolean accepted = filter.test(System.currentTimeMillis() - CUSTOM_AGE_OFF + MINUTE_IN_MILLISECONDS);
 
         // Then
         assertTrue(accepted);
@@ -89,23 +88,10 @@ public class AgeOffTest extends FilterFunctionTest {
         final AgeOff filter = new AgeOff(CUSTOM_AGE_OFF);
 
         // When
-        final boolean accepted = filter.isValid(System.currentTimeMillis() - CUSTOM_AGE_OFF - MINUTE_IN_MILLISECONDS);
+        final boolean accepted = filter.test(System.currentTimeMillis() - CUSTOM_AGE_OFF - MINUTE_IN_MILLISECONDS);
 
         // Then
         assertFalse(accepted);
-    }
-
-    @Test
-    public void shouldClone() {
-        // Given
-        final AgeOff filter = new AgeOff(CUSTOM_AGE_OFF);
-
-        // When
-        final AgeOff clonedFilter = filter.statelessClone();
-
-        // Then
-        assertNotSame(filter, clonedFilter);
-        assertNotSame(CUSTOM_AGE_OFF, clonedFilter.getAgeOffTime());
     }
 
     @Test
@@ -131,7 +117,7 @@ public class AgeOffTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<AgeOff> getFunctionClass() {
+    protected Class<AgeOff> getPredicateClass() {
         return AgeOff.class;
     }
 

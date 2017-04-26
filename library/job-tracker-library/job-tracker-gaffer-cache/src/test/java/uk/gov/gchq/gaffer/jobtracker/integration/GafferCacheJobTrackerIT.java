@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hazelcast.cache.HazelcastCacheService;
 import uk.gov.gchq.gaffer.jcs.cache.JcsCacheService;
@@ -33,7 +33,8 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -126,7 +127,10 @@ public class GafferCacheJobTrackerIT {
 
 
         // Given
-        final OperationChain<CloseableIterable<Edge>> opChain = new OperationChain<>(new GetAllEdges());
+        final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetAllElements.Builder()
+                        .build())
+                .build();
         final User user = new User("user01");
 
         // When
@@ -152,9 +156,11 @@ public class GafferCacheJobTrackerIT {
     private void shouldAddJobIdToJobTrackerWhenExecute() throws OperationException, IOException, InterruptedException {
         // Given
         final OperationChain<JobDetail> opChain = new OperationChain.Builder()
-                .first(new GetAllEdges())
+                .first(new GetAllElements())
+                .then(new DiscardOutput())
                 .then(new GetJobDetails())
                 .build();
+
         final User user = new User("user01");
 
         // When

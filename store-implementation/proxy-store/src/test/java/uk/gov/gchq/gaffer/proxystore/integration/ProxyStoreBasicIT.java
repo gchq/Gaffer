@@ -82,7 +82,7 @@ public class ProxyStoreBasicIT {
                     .property(TestPropertyNames.COUNT, 1)
                     .build(),
             new Edge.Builder()
-                    .group(TestGroups.ENTITY)
+                    .group(TestGroups.EDGE)
                     .source("1")
                     .dest("2")
                     .directed(true)
@@ -122,11 +122,11 @@ public class ProxyStoreBasicIT {
 
 
         // When - Get
-        final CloseableIterable<Element> results = graph.execute(new GetAllElements<>(), USER);
+        final CloseableIterable<? extends Element> results = graph.execute(new GetAllElements(), USER);
 
         // Then
         assertEquals(DEFAULT_ELEMENTS.length, Iterables.size(results));
-        assertThat(results, hasItems(DEFAULT_ELEMENTS));
+        assertThat((CloseableIterable<Element>) results, hasItems(DEFAULT_ELEMENTS));
     }
 
     @Test
@@ -135,25 +135,24 @@ public class ProxyStoreBasicIT {
         addDefaultElements();
 
         // When
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
-        assertEquals(2, Iterables.size(results));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertEquals(1, Iterables.size(results));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
     }
 
     @Test
     public void shouldAddElementsViaAJob() throws Exception {
         // Add elements
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         JobDetail jobDetail = graph.executeJob(new OperationChain<>(add), USER);
 
@@ -166,18 +165,19 @@ public class ProxyStoreBasicIT {
         }
 
         // Get elements
-        final GetElements<EntitySeed, Element> getElements = new GetElements.Builder<EntitySeed, Element>()
+        final GetElements getElements = new GetElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
+                        .edge(TestGroups.EDGE)
                         .build())
-                .addSeed(new EntitySeed("1"))
+                .input(new EntitySeed("1"))
                 .build();
-        CloseableIterable<Element> results = graph.execute(getElements, USER);
+        CloseableIterable<? extends Element> results = graph.execute(getElements, USER);
 
         // Then
         assertEquals(2, Iterables.size(results));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[0]));
-        assertThat(results, hasItem(DEFAULT_ELEMENTS[2]));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[0]));
+        assertThat((CloseableIterable<Element>) results, hasItem(DEFAULT_ELEMENTS[2]));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class ProxyStoreBasicIT {
 
     private void addDefaultElements() throws OperationException {
         final AddElements add = new AddElements.Builder()
-                .elements(DEFAULT_ELEMENTS)
+                .input(DEFAULT_ELEMENTS)
                 .build();
         graph.execute(add, USER);
     }

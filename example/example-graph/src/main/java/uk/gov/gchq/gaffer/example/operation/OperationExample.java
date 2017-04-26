@@ -26,9 +26,11 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public abstract class OperationExample extends Example {
     private final Graph graph = createExampleGraph();
@@ -50,7 +52,7 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
-    protected void runExampleNoResult(final Operation<?, Void> operation) {
+    protected void runExampleNoResult(final Operation operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
@@ -58,14 +60,14 @@ public abstract class OperationExample extends Example {
 
         try {
             getGraph().execute(operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
         log(METHOD_DIVIDER);
     }
 
-    protected <RESULT_TYPE> RESULT_TYPE runExample(final Operation<?, RESULT_TYPE> operation) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(final Output<RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "example/example-graph", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
@@ -76,7 +78,7 @@ public abstract class OperationExample extends Example {
         try {
             results = getGraph().execute(
                     operation, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -96,7 +98,7 @@ public abstract class OperationExample extends Example {
         try {
             result = getGraph().execute(
                     operationChain, new User("user01"));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 
@@ -106,7 +108,7 @@ public abstract class OperationExample extends Example {
         return result;
     }
 
-    private <RESULT_TYPE> void logResult(final RESULT_TYPE result) {
+    public <RESULT_TYPE> void logResult(final RESULT_TYPE result) {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
@@ -124,6 +126,14 @@ public abstract class OperationExample extends Example {
                 } else {
                     log("    " + entry.getValue().toString());
                 }
+            }
+        } else if (result instanceof Stream) {
+            final Stream stream = (Stream) result;
+            stream.forEach(item -> log(item.toString()));
+        } else if (result instanceof Object[]) {
+            final Object[] array = (Object[]) result;
+            for (int i = 0; i < array.length; i++) {
+                log(array[i].toString());
             }
         } else {
             log(result.toString());
@@ -156,14 +166,14 @@ public abstract class OperationExample extends Example {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(dataGenerator)
-                        .objects(data)
+                        .input(data)
                         .build())
                 .then(new AddElements())
                 .build();
 
         try {
             graph.execute(addOpChain, new User());
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException(e);
         }
 

@@ -16,18 +16,12 @@
 
 package uk.gov.gchq.gaffer.function;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
 
-@Inputs(Object.class)
-public class ExampleFilterFunction extends SimpleFilterFunction<Object> {
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 
+public class ExampleFilterFunction extends KoryphePredicate<Object> {
     @Override
-    public ExampleFilterFunction statelessClone() {
-        return new ExampleFilterFunction();
-    }
-
-    @Override
-    public boolean isValid(final Object input) {
+    public boolean test(final Object input) {
         return false;
     }
 }

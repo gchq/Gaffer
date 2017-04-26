@@ -2,16 +2,14 @@ package uk.gov.gchq.gaffer.named.operation.cache.integration;
 
 
 import com.google.common.collect.Lists;
+import org.apache.avro.generic.GenericData;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.*;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationJCSCache;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -36,7 +34,7 @@ public class NamedOperationJCSCacheIT {
         .name("op")
         .description("test operation")
         .operationChain(new OperationChain.Builder()
-                .first(new GetAllElements.Builder<Entity>()
+                .first(new GetAllElements.Builder()
                         .build())
                 .build())
         .build();
@@ -68,14 +66,17 @@ public class NamedOperationJCSCacheIT {
         // when
         graph.execute(add, user);
 
-        NamedOperation expectedNamedOp = new NamedOperation.Builder()
-                .name("op")
+        NamedOperationDetail expectedNamedOp  = new NamedOperationDetail.Builder()
+                .operationName(add.getOperationName())
+                .description(add.getDescription())
+                .operationChain(add.getOperationChain())
+                .creatorId(user.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
                 .build();
 
-        expectedNamedOp.setDescription("test operation");
-
-        List<NamedOperation> expected = Lists.newArrayList(expectedNamedOp);
-        List<NamedOperation> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
+        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
 
         // then
         assertEquals(1, results.size());
@@ -96,7 +97,7 @@ public class NamedOperationJCSCacheIT {
         // when
         graph.execute(del, user);
 
-        List<NamedOperation> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
 
         // then
         assertEquals(0, results.size());
@@ -120,15 +121,19 @@ public class NamedOperationJCSCacheIT {
         // when
         graph.execute(update, user);
 
-        List<NamedOperation> results = Lists.newArrayList(graph.execute(get, user));
+        List<NamedOperationDetail> results = Lists.newArrayList(graph.execute(get, user));
 
-        NamedOperation expectedNamedOp = new NamedOperation.Builder()
-                .name(update.getOperationName())
+        NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
+                .operationName(update.getOperationName())
+                .operationChain(update.getOperationChain())
+                .description(update.getDescription())
+                .creatorId(user.getUserId())
+                .readers(new ArrayList<>())
+                .writers(new ArrayList<>())
                 .build();
 
-        expectedNamedOp.setDescription(update.getDescription());
 
-        ArrayList<NamedOperation> expected = Lists.newArrayList(expectedNamedOp);
+        ArrayList<NamedOperationDetail> expected = Lists.newArrayList(expectedNamedOp);
 
         // then
         assertEquals(expected.size(), results.size());

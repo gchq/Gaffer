@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator12;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -28,9 +28,8 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Collections;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
         new LoadAndQuery12().run();
     }
 
-    public Iterable<Entity> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -66,7 +65,7 @@ public class LoadAndQuery12 extends LoadAndQuery {
         final OperationChain addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new DataGenerator12())
-                        .objects(dummyData)
+                        .input(dummyData)
                         .build())
                 .then(new AddElements())
                 .build();
@@ -74,32 +73,32 @@ public class LoadAndQuery12 extends LoadAndQuery {
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
         log("Added the edge A-B 1000 times each time with a ReservoirItemsUnion<String> containing a random string."
-            + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
-            + " ReservoirItemsUnion<String> containing the destination node.");
+                + " Also added 500 edges X-Y0, X-Y1, ..., X-Y499 each and for each an Entity on X with a"
+                + " ReservoirItemsUnion<String> containing the destination node.");
 
 
         // [get red edge] Get the red edge
         // ---------------------------------------------------------
-        final GetAllEdges getAllEdges = new GetAllEdges.Builder()
+        final GetAllElements getAllEdges = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge("red")
                         .build())
                 .build();
-        final Iterable<Edge> allEdges = graph.execute(getAllEdges, user);
+        final CloseableIterable<? extends Element> allEdges = graph.execute(getAllEdges, user);
         // ---------------------------------------------------------
         log("\nThe red edge A-B:");
-        for (final Edge edge : allEdges) {
+        for (final Element edge : allEdges) {
             log("GET_A-B_EDGE_RESULT", edge.toString());
         }
 
 
         // [get strings sample from the red edge] Get the edge A-B and print out the sample of strings
         // ---------------------------------------------------------
-        final GetEdges<EdgeSeed> query = new GetEdges.Builder<EdgeSeed>()
-                .addSeed(new EdgeSeed("A", "B", false))
+        final GetElements query = new GetElements.Builder()
+                .input(new EdgeSeed("A", "B", false))
                 .build();
-        final Iterable<Edge> edges = graph.execute(query, user);
-        final Edge edge = edges.iterator().next();
+        final CloseableIterable<? extends Element> edges = graph.execute(query, user);
+        final Element edge = edges.iterator().next();
         final ReservoirItemsSketch<String> stringsSketch = ((ReservoirItemsUnion<String>) edge.getProperty("stringsSample"))
                 .getResult();
         final String[] samples = stringsSketch.getSamples();
@@ -117,11 +116,11 @@ public class LoadAndQuery12 extends LoadAndQuery {
 
         // [get sample from the blue entity] Get the entity Y and print a sample of the neighbours
         // ---------------------------------------------------------
-        final GetEntities<EntitySeed> query2 = new GetEntities.Builder<EntitySeed>()
-                .addSeed(new EntitySeed("X"))
+        final GetElements query2 = new GetElements.Builder()
+                .input(new EntitySeed("X"))
                 .build();
-        final Iterable<Entity> entities = graph.execute(query2, user);
-        final Entity entity = entities.iterator().next();
+        final CloseableIterable<? extends Element> entities = graph.execute(query2, user);
+        final Element entity = entities.iterator().next();
         final ReservoirItemsSketch<String> neighboursSketch = ((ReservoirItemsUnion<String>) entity.getProperty("neighboursSample"))
                 .getResult();
         final String[] neighboursSample = neighboursSketch.getSamples();

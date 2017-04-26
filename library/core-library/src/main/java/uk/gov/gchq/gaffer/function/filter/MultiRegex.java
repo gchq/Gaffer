@@ -20,15 +20,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.function.SimpleFilterFunction;
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
+import uk.gov.gchq.koryphe.predicate.KoryphePredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Inputs(String.class)
-public class MultiRegex extends SimpleFilterFunction<String> {
+public class MultiRegex extends KoryphePredicate<String> {
     private Pattern[] patterns;
 
     public MultiRegex() {
@@ -54,7 +52,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     }
 
     @Override
-    public boolean isValid(final String input) {
+    public boolean test(final String input) {
         if (null == input || input.getClass() != String.class) {
             return false;
         }
@@ -67,24 +65,18 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     }
 
     @Override
-    public MultiRegex statelessClone() {
-        return new MultiRegex(patterns);
-    }
-
-    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (null == o || !getClass().equals(o.getClass())) {
             return false;
         }
 
         final MultiRegex that = (MultiRegex) o;
 
         return new EqualsBuilder()
-                .append(inputs, that.inputs)
                 .append(patternsToStrings(patterns), patternsToStrings(that.patterns))
                 .isEquals();
     }
@@ -92,7 +84,6 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(inputs)
                 .append(patternsToStrings(patterns))
                 .toHashCode();
     }
@@ -100,7 +91,6 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("inputs", inputs)
                 .append("patterns", patterns)
                 .toString();
     }
@@ -108,7 +98,7 @@ public class MultiRegex extends SimpleFilterFunction<String> {
     /**
      * Utility method to convert an array of {@link Pattern}s to
      * and array of {@link String}s.
-     *
+     * <p>
      * This is required since the Pattern class does not override {@link Object#equals(Object)}
      * or {@link Object#hashCode()}
      *

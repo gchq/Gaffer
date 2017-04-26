@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.example.gettingstarted.function.aggregate;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,14 +28,15 @@ public class VisibilityAggregatorTest {
     public void testException() {
         VisibilityAggregator a = new VisibilityAggregator();
         try {
-            a.aggregate(new Object[]{"public"});
-            a.aggregate(new Object[]{"public"});
-            a.aggregate(new Object[]{"private"});
-            a.aggregate(new Object[]{"public"});
-            a.aggregate(new Object[]{"blah"});
-            a.aggregate(new Object[]{"public"});
+            String state = "public";
+            a.apply("public", state);
+            a.apply("public", state);
+            a.apply("private", state);
+            a.apply("public", state);
+            a.apply("blah", state);
+            a.apply("public", state);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().equals("Visibility must either be 'public' or 'private'. You supplied blah"));
         }
     }
@@ -42,11 +44,12 @@ public class VisibilityAggregatorTest {
     @Test
     public void testPrivate() {
         VisibilityAggregator a = new VisibilityAggregator();
-        a.aggregate(new Object[]{"public"});
-        a.aggregate(new Object[]{"public"});
-        a.aggregate(new Object[]{"private"});
-        a.aggregate(new Object[]{"public"});
-        a.aggregate(new Object[]{"public"});
-        assertTrue(a.state()[0].toString().equals("private"));
+        String state = "public";
+        state = a.apply("public", state);
+        state = a.apply("public", state);
+        state = a.apply("private", state);
+        state = a.apply("public", state);
+        state = a.apply("public", state);
+        assertEquals("private", state);
     }
 }

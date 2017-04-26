@@ -55,13 +55,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             .vertexSerialiser(new StringSerialiser())
             .build();
 
-    private static final List<Element> ELEMENTS = Arrays.asList(
+    private static final List<Element> ELEMENTS = Arrays.asList(new Element[]{
             new Edge(TestGroups.EDGE, "vertexA", "vertexB", true),
             new Edge(TestGroups.EDGE, "vertexD", "vertexC", true),
             new Edge(TestGroups.EDGE, "vertexE", "vertexE", true),
             new Edge(TestGroups.EDGE, "vertexF", "vertexG", false),
             new Edge(TestGroups.EDGE, "vertexH", "vertexH", false),
-            new Entity(TestGroups.ENTITY, "vertexI")
+            new Entity(TestGroups.ENTITY, "vertexI")}
     );
 
     private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(SCHEMA);
@@ -73,6 +73,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -98,6 +99,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -124,6 +126,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -148,6 +151,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -172,6 +176,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -196,6 +201,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -220,6 +226,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -242,7 +249,6 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.NO_EDGES, "true");
             put(AccumuloStoreConstants.INCLUDE_ENTITIES, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};

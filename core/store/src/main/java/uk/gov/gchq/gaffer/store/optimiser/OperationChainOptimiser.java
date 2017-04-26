@@ -31,8 +31,8 @@ public interface OperationChainOptimiser {
      * Alternatively, the preferred approach is to override addPreOperations, optimiseCurrentOperation or addPostOperations
      *
      * @param operationChain the operation chain to optimise
-     * @param <OUTPUT>       the operation output type
+     * @param <O>       the operation output type
      * @return the optimised operation chain
      */
-    <OUTPUT> OperationChain<OUTPUT> optimise(final OperationChain<OUTPUT> operationChain);
+    <O> OperationChain<O> optimise(final OperationChain<O> operationChain);
 }
