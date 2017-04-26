@@ -131,7 +131,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
                                                 .select("startDate")
                                                 .execute(new IsMoreThan(JAN_01_16, true))
                                                 .select("endDate")
-                                                .execute(new IsLessThan(JAN_02_16, true))
+                                                .execute(new IsLessThan(JAN_02_16, false))
                                                 .build()
                                 )
                                 .groupBy() // set the group by properties to 'none'
