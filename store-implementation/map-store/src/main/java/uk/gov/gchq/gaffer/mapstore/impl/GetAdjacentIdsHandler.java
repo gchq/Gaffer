@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,7 +30,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.utils.Pair;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -86,10 +86,9 @@ public class GetAdjacentIdsHandler implements
             // Apply view
             // Extract adjacent nodes
             Stream<? extends EntityId> entityIdStream = Streams.toParallelStream(getAdjacentIds.getInput());
-            Stream<Pair<EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
+            Stream<? extends Pair<? extends EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
                     .map(entityId -> {
-                        final Set<Element> elements = GetElementsHandler
-                                .getRelevantElements(mapImpl, entityId, getElements);
+                        final Set<Element> elements = GetElementsHandler.getRelevantElements(mapImpl, entityId, getElements);
                         elements.removeIf(e -> e instanceof Entity || !getAdjacentIds.validateFlags(((Edge) e)));
                         return new Pair<>(entityId, elements);
                     })

@@ -32,9 +32,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.IsIn;
-import uk.gov.gchq.gaffer.function.transform.Concat;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -191,7 +191,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1,3", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
     }
 
-    protected void shouldGetAllElements(final boolean includeEntities, boolean includeEdges, final DirectedType directedType) throws Exception {
+    protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {

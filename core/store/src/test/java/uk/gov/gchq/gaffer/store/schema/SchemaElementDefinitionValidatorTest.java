@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.assertFalse;
@@ -227,10 +227,10 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         final Map<String, String> properties = new HashMap<>();
-        properties.put(TestPropertyNames.PROP_1, "string");
+        properties.put(TestPropertyNames.PROP_1, "int");
         properties.put(TestPropertyNames.PROP_2, "int");
-        final BiFunction<String, Integer, Integer> function1 = mock(BiFunction.class);
-        final BiFunction function2 = mock(BiFunction.class);
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final BinaryOperator function2 = mock(BinaryOperator.class);
         final ElementAggregator aggregator = new ElementAggregator.Builder()
                 .select(TestPropertyNames.PROP_1)
                 .execute(function1)
@@ -243,7 +243,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
         given(elementDef.getAggregator()).willReturn(aggregator);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
 
         // When
@@ -274,7 +274,7 @@ public class SchemaElementDefinitionValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenNoBiFunctionAndBiFunctionsAreRequired() {
+    public void shouldValidateAndReturnFalseWhenNoBinaryOperatorAndBinaryOperatorsAreRequired() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
@@ -298,14 +298,14 @@ public class SchemaElementDefinitionValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnBiFunction() {
+    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnBinaryOperator() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
         final Map<String, String> properties = new HashMap<>();
         properties.put(TestPropertyNames.PROP_1, "string");
         properties.put(TestPropertyNames.PROP_2, "int");
-        final BiFunction<String, Integer, Integer> function1 = mock(BiFunction.class);
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
         final ElementAggregator aggregator = new ElementAggregator.Builder()
                 .select(TestPropertyNames.PROP_1)
                 .execute(function1)

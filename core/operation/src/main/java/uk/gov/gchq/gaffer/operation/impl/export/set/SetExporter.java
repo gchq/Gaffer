@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
 import com.google.common.collect.Iterables;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.LimitedCloseableIterable;
 import uk.gov.gchq.gaffer.operation.export.Exporter;
