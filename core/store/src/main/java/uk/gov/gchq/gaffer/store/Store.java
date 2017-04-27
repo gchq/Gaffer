@@ -342,22 +342,28 @@ public abstract class Store {
     }
 
     public void validateSchemas() {
-        final ValidationResult validationResult = schema.validate();
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == schema) {
+            validationResult.addError("Schema is missing");
+        } else {
+            validationResult.add(schema.validate());
 
-        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-        schemaElements.putAll(getSchema().getEdges());
-        schemaElements.putAll(getSchema().getEntities());
-        for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-            for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
-                if (null == serialisation) {
-                    validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
-                } else if (!serialisation.canHandle(propertyClass)) {
-                    validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+            final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+            schemaElements.putAll(getSchema().getEdges());
+            schemaElements.putAll(getSchema().getEntities());
+            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+                    if (null == serialisation) {
+                        validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                    } else if (!serialisation.canHandle(propertyClass)) {
+                        validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+                    }
                 }
             }
         }
+
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. " + validationResult.getErrorString());
         }

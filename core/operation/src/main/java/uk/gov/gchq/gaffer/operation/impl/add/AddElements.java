@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.impl.add;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -60,6 +61,12 @@ public class AddElements implements
     @Override
     public void setSkipInvalidElements(final boolean skipInvalidElements) {
         this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
+    @Override
+    public Object[] createInputArray() {
+        return MultiInput.super.createInputArray();
     }
 
     @Override

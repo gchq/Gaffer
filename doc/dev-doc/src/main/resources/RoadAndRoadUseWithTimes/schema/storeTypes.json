@@ -1,0 +1,19 @@
+{
+  "types": {
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "date.earliest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Min"
+      }
+    },
+    "date.latest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+      }
+    }
+  }
+}

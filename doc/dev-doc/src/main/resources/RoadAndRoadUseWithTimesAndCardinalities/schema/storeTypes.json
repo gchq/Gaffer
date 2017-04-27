@@ -1,0 +1,30 @@
+{
+  "types": {
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "date.earliest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Min"
+      }
+    },
+    "date.latest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+      }
+    },
+    "set": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.CollectionConcat"
+      }
+    },
+    "hllp": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.function.aggregate.HyperLogLogPlusAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+    }
+  }
+}

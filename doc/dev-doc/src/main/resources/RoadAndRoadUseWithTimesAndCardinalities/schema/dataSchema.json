@@ -1,0 +1,36 @@
+{
+  "edges": {
+    "RoadUse": {
+      "source": "junction",
+      "destination": "junction",
+      "directed": "true",
+      "properties": {
+        "count": "count.int",
+        "startDate": "date.earliest",
+        "endDate": "date.latest"
+      },
+      "groupBy": [
+        "startDate",
+        "endDate"
+      ]
+    },
+    "RoadHasJunction": {
+      "source": "road",
+      "destination": "junction",
+      "directed": "true"
+    }
+  },
+  "entities": {
+    "Cardinality": {
+      "vertex": "anyVertex",
+      "properties": {
+        "edgeGroup": "set",
+        "hllp": "hllp",
+        "count": "count.int"
+      },
+      "groupBy": [
+        "edgeGroup"
+      ]
+    }
+  }
+}

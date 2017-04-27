@@ -1,0 +1,14 @@
+{
+  "types": {
+    "count.int": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "visibility": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.doc.dev.function.aggregate.VisibilityAggregator"
+      }
+    }
+  }
+}

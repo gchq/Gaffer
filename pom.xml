@@ -36,6 +36,7 @@
         <module>rest-api</module>
         <module>ui</module>
         <module>example</module>
+        <module>doc</module>
     </modules>
 
     <properties>
@@ -603,22 +604,24 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${checkstyle.plugin.version}</version>
                 <configuration>
-                    <configLocation>docs/checkstyle.xml</configLocation>
+                    <configLocation>code-style/checkstyle.xml</configLocation>
                     <encoding>UTF-8</encoding>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
-                    <headerLocation>docs/licenseHeader.txt</headerLocation>
+                    <headerLocation>code-style/licenseHeader.txt
+                    </headerLocation>
                 </configuration>
                 <executions>
                     <execution>
                         <id>validate</id>
                         <phase>test</phase>
                         <configuration>
-                            <configLocation>docs/checkstyle.xml</configLocation>
+                            <configLocation>code-style/checkstyle.xml
+                            </configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <headerLocation>docs/licenseHeader.txt
+                            <headerLocation>code-style/licenseHeader.txt
                             </headerLocation>
                         </configuration>
                         <goals>

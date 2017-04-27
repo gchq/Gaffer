@@ -1,0 +1,96 @@
+{
+  "types": {
+    "road": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "junction": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "location": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "coordinate": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "region": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "count.long": {
+      "class": "java.lang.Long",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": {
+            "java.lang.Long": 0
+          }
+        }
+      ]
+    },
+    "date.earliest": {
+      "class": "java.util.Date",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "date.latest": {
+      "class": "java.util.Date",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "counts.freqmap": {
+      "class": "uk.gov.gchq.gaffer.types.FreqMap",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+        }
+      ]
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.IsFalse"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "types": {
+    "count.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+      }
+    },
+    "counts.freqmap": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator"
+      }
+    },
+    "date.earliest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Min"
+      }
+    },
+    "date.latest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "types": {
+    "junction": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "road": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "count.int": {
+      "class": "java.lang.Integer",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+          "orEqualTo": true,
+          "value": 0
+        }
+      ]
+    },
+    "visibility": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.Exists"
+        }
+      ]
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.gaffer.function.filter.IsTrue"
+        }
+      ]
+    }
+  }
+}

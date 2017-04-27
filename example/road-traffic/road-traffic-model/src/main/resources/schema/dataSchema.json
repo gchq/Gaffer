@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "JunctionUse": {
+      "vertex": "junction",
+      "properties": {
+        "trafficByType": "counts.freqmap",
+        "totalCount": "count.long",
+        "startTime": "date.earliest",
+        "endTime": "date.latest"
+      },
+      "groupBy": [
+        "startTime",
+        "endTime"
+      ]
+    }
+  },
+  "edges": {
+    "RegionContainsLocation": {
+      "source": "region",
+      "destination": "location",
+      "directed": "true"
+    },
+    "LocationContainsRoad": {
+      "source": "location",
+      "destination": "road",
+      "directed": "true"
+    },
+    "RoadHasJunction": {
+      "source": "road",
+      "destination": "junction",
+      "directed": "true"
+    },
+    "JunctionLocatedAt": {
+      "source": "junction",
+      "destination": "coordinate",
+      "directed": "true"
+    },
+    "RoadUse": {
+      "source": "junction",
+      "destination": "junction",
+      "directed": "true",
+      "properties": {
+        "startTime": "date.earliest",
+        "endTime": "date.latest",
+        "totalCount": "count.long",
+        "countByVehicleType": "counts.freqmap"
+      },
+      "groupBy": [
+        "startTime",
+        "endTime"
+      ]
+    }
+  }
+}

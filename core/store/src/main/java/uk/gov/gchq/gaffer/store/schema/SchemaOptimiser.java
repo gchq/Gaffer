@@ -42,7 +42,7 @@ public class SchemaOptimiser {
     }
 
     public Schema optimise(final Schema schema, final boolean isStoreOrdered) {
-        if (null != schema.getTypes()) {
+        if (null != schema && null != schema.getTypes()) {
             return new Schema.Builder()
                     .merge(schema)
                     .types(getOptimisedTypes(schema, isStoreOrdered))

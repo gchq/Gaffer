@@ -1,0 +1,17 @@
+{
+  "edges": {
+    "RoadUse": {
+      "source": "junction",
+      "destination": "junction",
+      "directed": "true",
+      "properties": {
+        "count": "count.int"
+      }
+    },
+    "RoadHasJunction": {
+      "source": "road",
+      "destination": "junction",
+      "directed": "true"
+    }
+  }
+}

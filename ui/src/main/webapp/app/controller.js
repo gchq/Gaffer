@@ -345,7 +345,7 @@ angular.module('app').controller('AppController',
 
     var createDeduplicateOperation = function() {
         return {
-            class: "uk.gov.gchq.gaffer.operation.impl.Deduplicate",
+            class: "uk.gov.gchq.gaffer.operation.impl.output.ToSet",
         };
     }
 
