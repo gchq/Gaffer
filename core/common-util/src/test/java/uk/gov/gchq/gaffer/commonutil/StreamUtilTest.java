@@ -25,7 +25,11 @@ public class StreamUtilTest {
         final InputStream[] inputStreams = StreamUtil.openStreams(resource);
 
         //Then
-        assertNotNull(inputStreams);
-        assertFalse("InputStreams length is 0", inputStreams.length == 0);
+        try {
+            assertNotNull(inputStreams);
+            assertFalse("InputStreams length is 0", inputStreams.length == 0);
+        } finally {
+            StreamUtil.closeStreams(inputStreams);
+        }
     }
 }
