@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 
-import uk.gov.gchq.gaffer.function.filter.AreEqual;
-import uk.gov.gchq.gaffer.function.filter.Exists;
-import uk.gov.gchq.gaffer.function.filter.Not;
+import uk.gov.gchq.koryphe.impl.predicate.AreEqual;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 public class NotExample extends PredicateExample {

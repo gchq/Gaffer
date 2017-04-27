@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-import uk.gov.gchq.gaffer.function.filter.IsXMoreThanY;
+import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 public class IsXMoreThanYExample extends PredicateExample {

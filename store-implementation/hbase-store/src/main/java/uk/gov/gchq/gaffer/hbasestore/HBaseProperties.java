@@ -32,7 +32,10 @@ public class HBaseProperties extends StoreProperties {
     public static final String TABLE = "hbase.table";
     public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
     public static final String DEPENDENCY_JARS_HDFS_DIR_PATH = "hbase.hdfs.jars.path";
+    public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "hbase.entriesForBatchScanner";
+
     public static final int WRITE_BUFFER_SIZE_DEFAULT = 1000000;
+    public static final String MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT = "50000";
 
     public HBaseProperties() {
         super();
@@ -108,4 +111,26 @@ public class HBaseProperties extends StoreProperties {
     public void setWriteBufferSize(final int size) {
         set(WRITE_BUFFER_SIZE, String.valueOf(size));
     }
+
+    /**
+     * Get the max number of items that should be read into the scanner at any
+     * one time
+     *
+     * @return An integer representing the max number of items that should be
+     * read into the scanner at any one time
+     */
+    public int getMaxEntriesForBatchScanner() {
+        return Integer.parseInt(get(MAX_ENTRIES_FOR_BATCH_SCANNER, MAX_ENTRIES_FOR_BATCH_SCANNER_DEFAULT));
+    }
+
+    /**
+     * Set the max number of items that should be read into the scanner at any
+     * one time
+     *
+     * @param maxEntriesForBatchScanner the max number of items that should be read into the scanner at any one time
+     */
+    public void setMaxEntriesForBatchScanner(final String maxEntriesForBatchScanner) {
+        set(MAX_ENTRIES_FOR_BATCH_SCANNER, maxEntriesForBatchScanner);
+    }
+
 }

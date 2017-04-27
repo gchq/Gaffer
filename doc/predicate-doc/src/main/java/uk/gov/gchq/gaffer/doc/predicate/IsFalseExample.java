@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 
-import uk.gov.gchq.gaffer.function.filter.IsFalse;
+import uk.gov.gchq.koryphe.impl.predicate.IsFalse;
 
 public class IsFalseExample extends PredicateExample {
     public static void main(final String[] args) {

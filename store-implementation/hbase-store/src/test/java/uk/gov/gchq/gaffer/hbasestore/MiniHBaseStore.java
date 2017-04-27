@@ -83,13 +83,8 @@ public class MiniHBaseStore extends HBaseStore {
         }
 
         super.initialise(schema, properties);
-
-        try {
-            TableUtils.deleteAllRows(this, getMiniHBaseVisibilities(properties));
-        } catch (final StoreException e) {
-            TableUtils.dropTable(this);
-            TableUtils.createTable(this);
-        }
+        TableUtils.dropTable(this);
+        super.initialise(schema, properties);
     }
 
     @Override

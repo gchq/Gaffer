@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 public class IsEqualExample extends PredicateExample {
     public static void main(final String[] args) {

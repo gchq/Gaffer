@@ -77,7 +77,7 @@ public class AggregatorIterator extends Combiner {
             } catch (final AccumuloElementConversionException e) {
                 throw new AggregationException("Failed to recreate a graph element from a key and value", e);
             }
-            aggregatedProps = aggregator.apply(properties, aggregatedProps);
+            aggregatedProps = aggregator.apply(aggregatedProps, properties);
         }
         try {
             return elementConverter.getValueFromProperties(group, aggregatedProps);

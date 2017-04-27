@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-import uk.gov.gchq.gaffer.function.filter.IsIn;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 
 public class IsInExample extends PredicateExample {
     public static void main(final String[] args) {

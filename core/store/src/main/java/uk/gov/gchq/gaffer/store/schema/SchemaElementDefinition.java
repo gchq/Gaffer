@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -31,9 +31,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.tuple.Tuple;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -198,7 +198,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = new ElementFilter();
         if (null != validator) {
-            fullValidator.setFunctions(new ArrayList<>(validator.getFunctions()));
+            fullValidator.setComponents(new ArrayList<>(validator.getComponents()));
         }
         for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
             final String key = entry.getKey().name();
@@ -222,7 +222,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonGetter("validateFunctions")
     public TupleAdaptedPredicate[] getOriginalValidateFunctions() {
         if (null != validator) {
-            final List<TupleAdaptedPredicate<String, ?>> functions = validator.getFunctions();
+            final List<TupleAdaptedPredicate<String, ?>> functions = validator.getComponents();
             return functions.toArray(new TupleAdaptedPredicate[functions.size()]);
         }
 
@@ -298,8 +298,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final TypeDefinition type = getTypeDef(classOrTypeName);
         if (null != type.getValidateFunctions()) {
             for (final Predicate<?> predicate : type.getValidateFunctions()) {
-                fullValidator.getFunctions().add(
-                        new TupleAdaptedPredicate<>(predicate, key));
+                fullValidator.getComponents().add(new TupleAdaptedPredicate<>(predicate, key));
             }
         }
     }
@@ -307,16 +306,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private void addTypeAggregateFunction(final ElementAggregator aggregator, final String key, final String typeName) {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
-            aggregator.getFunctions().add(
-                    new TupleAdaptedBiFunction<>(type.getAggregateFunction(), key));
+            aggregator.getComponents().add(new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), key));
         }
     }
 
     private void addIsAFunction(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
-        fullValidator.getFunctions().add(
+        fullValidator.getComponents().add(
                 new TupleAdaptedPredicate<>(
-                        new IsA(getTypeDef(classOrTypeName).getClazz()),
-                        key));
+                        new IsA(getTypeDef(classOrTypeName).getClazz()), key));
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
@@ -424,7 +421,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             if (null == getElementDef().validator) {
                 getElementDef().validator = new ElementFilter();
             }
-            getElementDef().validator.getFunctions().addAll(predicates);
+            getElementDef().validator.getComponents().addAll(predicates);
             return self();
         }
 
@@ -434,13 +431,13 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             if (null == getElementDef().validator) {
                 getElementDef().validator = new ElementFilter();
             }
-            Collections.addAll(getElementDef().validator.getFunctions(), predicates);
+            Collections.addAll(getElementDef().validator.getComponents(), predicates);
             return self();
         }
 
         @JsonIgnore
         public final CHILD_CLASS validateFunctions(final ElementFilter elementFilter) {
-            return validateFunctions((List<TupleAdaptedPredicate<String, Tuple<String>>>) (List) elementFilter.getFunctions());
+            return validateFunctions((List<TupleAdaptedPredicate<String, Tuple<String>>>) (List) elementFilter.getComponents());
         }
 
         public CHILD_CLASS groupBy(final String... propertyName) {
@@ -488,7 +485,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             if (null == getElementDef().validator) {
                 getElementDef().validator = elementDef.validator;
             } else if (null != elementDef.getOriginalValidateFunctions()) {
-                getElementDef().validator.getFunctions().addAll(elementDef.validator.getFunctions());
+                getElementDef().validator.getComponents().addAll(elementDef.validator.getComponents());
             }
 
             getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);

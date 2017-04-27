@@ -23,15 +23,15 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -70,7 +70,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
 
         // Then
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
@@ -103,7 +103,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -121,7 +121,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(entity);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
         final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -139,7 +139,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond());
 
         // Then
@@ -157,7 +157,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(entity);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
         final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -174,7 +174,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
 
         // When
@@ -196,7 +196,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
@@ -220,7 +220,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, null);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         Properties properties = converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, keys.getFirst().getColumnQualifierData().getBackingArray());
 
         // Then

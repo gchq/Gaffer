@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.koryphe.predicate.IsA;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.impl.predicate.IsA;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
 import java.io.InputStream;
@@ -125,46 +125,46 @@ public class SchemaTest {
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
-        final List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getFunctions();
+        final List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getComponents();
         int index = 0;
 
         TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(IdentifierType.SOURCE.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(IdentifierType.DESTINATION.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(IdentifierType.DIRECTED.name(), tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof ExampleFilterFunction);
+        assertTrue(tuplePredicate.getPredicate() instanceof ExampleFilterFunction);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(TestPropertyNames.PROP_2, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(TestPropertyNames.DATE, tuplePredicate.getSelection()[0]);
 
         tuplePredicate = valContexts.get(index++);
-        assertTrue(tuplePredicate.getFunction() instanceof IsA);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
         assertEquals(1, tuplePredicate.getSelection().length);
         assertEquals(TestPropertyNames.TIMESTAMP, tuplePredicate.getSelection()[0]);
 
@@ -189,16 +189,16 @@ public class SchemaTest {
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
 
         final ElementAggregator aggregator = edgeDefinition.getAggregator();
-        final List<TupleAdaptedBiFunction<String, ?, ?>> aggContexts = aggregator.getFunctions();
+        final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
         assertEquals(3, aggContexts.size());
 
-        TupleAdaptedBiFunction<String, ?, ?> aggContext = aggContexts.get(0);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+        TupleAdaptedBinaryOperator<String, ?> aggContext = aggContexts.get(0);
+        assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.PROP_2, aggContext.getSelection()[0]);
 
         aggContext = aggContexts.get(1);
-        assertTrue(aggContext.getFunction() instanceof ExampleAggregateFunction);
+        assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
     }
@@ -323,7 +323,7 @@ public class SchemaTest {
                 "      \"source\" : \"id.string\",%n" +
                 "      \"destination\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
-                "        \"function\" : {%n" +
+                "        \"predicate\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +
@@ -341,7 +341,7 @@ public class SchemaTest {
                 "      \"description\" : \"Edge description\",%n" +
                 "      \"vertex\" : \"id.string\",%n" +
                 "      \"validateFunctions\" : [ {%n" +
-                "        \"function\" : {%n" +
+                "        \"predicate\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
                 "        \"selection\" : [ \"property1\" ]%n" +

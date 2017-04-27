@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.utils;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.pair.ImmutablePair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
@@ -35,7 +35,7 @@ public class ElementClonerTest {
 
         // Then
         Streams.toStream(GetAllElementsHandlerTest.getElements())
-                .map(element -> new ImmutablePair<>(element, ElementCloner.cloneElement(element, mapStore.getSchema())))
+                .map(element -> new Pair<>(element, ElementCloner.cloneElement(element, mapStore.getSchema())))
                 .forEach(pair -> assertEquals(pair.getFirst(), pair.getSecond()));
     }
 }

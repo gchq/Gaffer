@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-import uk.gov.gchq.gaffer.function.filter.MapContains;
+import uk.gov.gchq.koryphe.impl.predicate.MapContains;
 import java.util.HashMap;
 import java.util.Map;
 

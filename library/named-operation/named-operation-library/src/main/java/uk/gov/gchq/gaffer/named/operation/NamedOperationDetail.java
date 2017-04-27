@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -105,6 +105,7 @@ public class NamedOperationDetail implements Serializable {
         final NamedOperationDetail op = (NamedOperationDetail) o;
 
         return new EqualsBuilder()
+                .append(operationName, op.operationName)
                 .append(creatorId, op.creatorId)
                 .append(operations, op.operations)
                 .append(readAccessRoles, op.readAccessRoles)
@@ -115,6 +116,7 @@ public class NamedOperationDetail implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
+                .append(operationName)
                 .append(creatorId)
                 .append(operations)
                 .append(readAccessRoles)

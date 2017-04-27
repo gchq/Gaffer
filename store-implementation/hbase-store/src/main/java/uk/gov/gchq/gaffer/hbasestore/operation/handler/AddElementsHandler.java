@@ -16,10 +16,9 @@
 
 package uk.gov.gchq.gaffer.hbasestore.operation.handler;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
-import uk.gov.gchq.gaffer.commonutil.pair.SimplePair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -31,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.element.ElementKey;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
             final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());
             final int batchSize = store.getProperties().getWriteBufferSize();
-            final Map<Integer, Element> keyToElement = new HashMap<>(batchSize);
+            final Map<ElementKey, Element> keyToElement = new HashMap<>(batchSize);
             final Map<String, ElementAggregator> aggregators = new HashMap<>(store.getSchema().getEdges().size() + store.getSchema().getEntities().size());
             while (elements.hasNext()) {
                 keyToElement.clear();
@@ -80,15 +80,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         continue;
                     }
 
-                    final int keyHashCode = new HashCodeBuilder(17, 37)
-                            .append(serialisation.getRowKeys(element).getFirst())
-                            .append(serialisation.getColumnVisibility(element))
-                            .append(serialisation.getColumnQualifier(element))
-                            .append(serialisation.getColumnVisibility(element))
-                            .toHashCode();
-                    final Element existingElement = keyToElement.get(keyHashCode);
+                    final ElementKey elementKey = ElementKey.create(element, store.getSchema());
+                    final Element existingElement = keyToElement.get(elementKey);
                     if (null == existingElement) {
-                        keyToElement.put(keyHashCode, element);
+                        keyToElement.put(elementKey, element);
                     } else if (hasAggregators) {
                         ElementAggregator aggregator = aggregators.get(existingElement.getGroup());
                         final SchemaElementDefinition elementDef = store.getSchema().getElement(existingElement.getGroup());
@@ -102,12 +97,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                             properties.remove(elementDef.getGroupBy());
                             properties.remove(visibilityProperty);
                         }
-                        aggregator.apply(properties, existingElement.getProperties());
+                        aggregator.apply(existingElement.getProperties(), properties);
                     } else {
                         executePuts(table, createPuts(serialisation, keyToElement));
                         keyToElement.clear();
                         i = 0;
-                        keyToElement.put(keyHashCode, element);
+                        keyToElement.put(elementKey, element);
                     }
                 }
 
@@ -118,11 +113,11 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private List<Put> createPuts(final ElementSerialisation serialisation, final Map<Integer, Element> keyToElement) throws SerialisationException {
+    private List<Put> createPuts(final ElementSerialisation serialisation, final Map<ElementKey, Element> keyToElement) throws SerialisationException {
         final Collection<Element> elementBatch = keyToElement.values();
         final List<Put> puts = new ArrayList<>(elementBatch.size());
         for (final Element element : elementBatch) {
-            final SimplePair<Put> putPair = serialisation.getPuts(element);
+            final Pair<Put, Put> putPair = serialisation.getPuts(element);
             puts.add(putPair.getFirst());
             if (null != putPair.getSecond()) {
                 puts.add(putPair.getSecond());

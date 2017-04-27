@@ -22,8 +22,8 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.doc.operation.OperationExample;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 public class GetElementsBetweenSetsExample extends OperationExample {
     public static void main(final String[] args) {

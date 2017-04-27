@@ -17,7 +17,10 @@
 package uk.gov.gchq.gaffer.traffic.generator;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public enum RoadTrafficDataField {
     Region_Name,
@@ -52,7 +55,7 @@ public enum RoadTrafficDataField {
     HGV,
     AMV;
 
-    public static final RoadTrafficDataField[] VEHICLE_COUNTS = {PC, WMV2, CAR, BUS, LGV, HGVR2, HGVR3, HGVR4, HGVA3, HGVA5, HGVA6, HGV, AMV};
+    public static final List<RoadTrafficDataField> VEHICLE_COUNTS = Collections.unmodifiableList(Arrays.asList(PC, WMV2, CAR, BUS, LGV, HGVR2, HGVR3, HGVR4, HGVA3, HGVA5, HGVA6, HGV, AMV));
 
     public int index() {
         return ordinal();

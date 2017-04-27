@@ -16,28 +16,15 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-/**
- * This runner will run all getting started walkthroughs.
- */
 public class AbstractWalkthroughRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWalkthroughRunner.class);
@@ -104,36 +91,5 @@ public class AbstractWalkthroughRunner {
             index++;
         }
         LOGGER.info("\n");
-    }
-
-    private static <CLASS> List<Class<? extends CLASS>> getSubClasses(final Class<CLASS> clazz) {
-        final Set<URL> urls = new HashSet<>(ClasspathHelper.forPackage("uk.gov.gchq.gaffer.example"));
-
-        final List<Class<? extends CLASS>> classes = new ArrayList<>(new Reflections(urls).getSubTypesOf(clazz));
-        keepPublicConcreteClasses(classes);
-        Collections.sort(classes, new Comparator<Class>() {
-            @Override
-            public int compare(final Class class1, final Class class2) {
-                final int class1Number = Integer.parseInt(class1.getName().replaceAll(clazz.getName(), ""));
-                final int class2Number = Integer.parseInt(class2.getName().replaceAll(clazz.getName(), ""));
-                return class1Number - class2Number;
-            }
-        });
-
-        return classes;
-    }
-
-    private static void keepPublicConcreteClasses(final List classes) {
-        if (null != classes) {
-            final Iterator<Class> itr = classes.iterator();
-            for (Class clazz = null; itr.hasNext(); clazz = itr.next()) {
-                if (null != clazz) {
-                    final int modifiers = clazz.getModifiers();
-                    if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || Modifier.isPrivate(modifiers) || Modifier.isProtected(modifiers)) {
-                        itr.remove();
-                    }
-                }
-            }
-        }
     }
 }

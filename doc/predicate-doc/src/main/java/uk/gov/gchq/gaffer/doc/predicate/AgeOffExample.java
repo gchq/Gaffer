@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 public class AgeOffExample extends PredicateExample {
     private long now = System.currentTimeMillis();

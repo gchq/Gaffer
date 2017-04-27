@@ -15,8 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
-
-import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsA;
 
 public class IsAExample extends PredicateExample {
     public static void main(final String[] args) {

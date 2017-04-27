@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 
-import uk.gov.gchq.gaffer.function.filter.AreEqual;
+import uk.gov.gchq.koryphe.impl.predicate.AreEqual;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 public class AreEqualExample extends PredicateExample {

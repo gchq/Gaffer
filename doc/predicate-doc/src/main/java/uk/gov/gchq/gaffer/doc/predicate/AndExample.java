@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 
-import uk.gov.gchq.gaffer.function.filter.And;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.And;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple1;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;

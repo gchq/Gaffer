@@ -2,22 +2,22 @@
   "types": {
     "count.long": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "counts.freqmap": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator"
+        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
       }
     },
     "date.earliest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Min"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Min"
       }
     },
     "date.latest": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
       }
     }
   }

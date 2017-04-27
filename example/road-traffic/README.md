@@ -144,7 +144,7 @@ Scroll to zoom in/out.
 - Enter the following startTime filter:
 ```
 property: startTime
-function: uk.gov.gchq.gaffer.function.filter.IsMoreThan
+function: uk.gov.gchq.koryphe.impl.predicate.IsMoreThan
 orEqualTo: true
 value: {"java.util.Date": 1115100000000}
 ```
@@ -152,7 +152,7 @@ value: {"java.util.Date": 1115100000000}
 - Enter the following endTime filter:
 ```
 property: endTime
-function: uk.gov.gchq.gaffer.function.filter.IsLessThan
+function: uk.gov.gchq.koryphe.impl.predicate.IsLessThan
 orEqualTo: true
 value: {"java.util.Date": 1115103600000}
 ```
@@ -193,7 +193,7 @@ Clicking the 'Raw' tab at the top of the UI displays the Json constructed and ha
 - Enter the following startTime filter:
 ```
 property: startTime
-function: uk.gov.gchq.gaffer.function.filter.IsMoreThan
+function: uk.gov.gchq.koryphe.impl.predicate.IsMoreThan
 orEqualTo: true
 value: {"java.util.Date": 1115100000000}
 ```
@@ -201,7 +201,7 @@ value: {"java.util.Date": 1115100000000}
 - Enter the following endTime filter:
 ```
 property: endTime
-function: uk.gov.gchq.gaffer.function.filter.IsLessThan
+function: uk.gov.gchq.koryphe.impl.predicate.IsLessThan
 orEqualTo: true
 value: {"java.util.Date": 1115107200000}
 ```

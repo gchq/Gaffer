@@ -2,12 +2,12 @@
   "types": {
     "string": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.StringConcat"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
       }
     },
     "int": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     }
   }

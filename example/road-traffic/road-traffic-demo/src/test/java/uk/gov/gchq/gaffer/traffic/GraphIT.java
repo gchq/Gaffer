@@ -27,7 +27,7 @@ public class GraphIT {
 
         final OperationChain<Void> populateChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
-                        .input(IOUtils.readLines(StreamUtil.openStream(GraphIT.class, "sampleData.csv")))
+                        .input(IOUtils.readLines(StreamUtil.openStream(GraphIT.class, "roadTrafficSampleData.csv")))
                         .generator(new RoadTrafficElementGenerator())
                         .build())
                 .then(new AddElements.Builder()
