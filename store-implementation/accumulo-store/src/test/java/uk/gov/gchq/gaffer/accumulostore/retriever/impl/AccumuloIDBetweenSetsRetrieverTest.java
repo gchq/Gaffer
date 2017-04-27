@@ -225,7 +225,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         shouldDealWithDirectedEdgesOnlyOption(false, gaffer1KeyStore);
     }
 
-    private void shouldDealWithDirectedEdgesOnlyOption(boolean loadIntoMemory, AccumuloStore store) {
+    private void shouldDealWithDirectedEdgesOnlyOption(final boolean loadIntoMemory, final AccumuloStore store) {
         try {
 
             final Set<Element> data = new HashSet<>();

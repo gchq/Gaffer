@@ -20,7 +20,7 @@ import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -48,7 +48,7 @@ public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
 
     @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
-        final Pair<Key> keyPair;
+        final Pair<Key, Key> keyPair;
         try {
             keyPair = elementConverter.getKeysFromElement(element);
         } catch (final AccumuloElementConversionException e) {

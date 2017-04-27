@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,54 +14,53 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.accumulostore.utils;
+package uk.gov.gchq.gaffer.commonutil.pair;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * A simple class to contain a pair of items.
  *
- * @param <T> type of items in the pair
+ * @param <F> type of first item in the pair
+ * @param <S> type of second item in the pair
  */
-public class Pair<T> implements Serializable {
+public class Pair<F, S> {
     private static final long serialVersionUID = 4769405415756562347L;
-    private T first;
-    private T second;
+
+    private F first;
+    private S second;
 
     public Pair() {
     }
 
-    public Pair(final T first, final T second) {
+    public Pair(final F first) {
+        this(first, null);
+    }
+
+    public Pair(final F first, final S second) {
         this.first = first;
         this.second = second;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    public T getFirst() {
+    public F getFirst() {
         return first;
     }
 
-    public void setFirst(final T first) {
+    public void setFirst(final F first) {
         this.first = first;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    public T getSecond() {
+    public S getSecond() {
         return second;
     }
 
-    public void setSecond(final T second) {
+    public void setSecond(final S second) {
         this.second = second;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((first == null) ? 0 : first.hashCode());
-        result = prime * result + ((second == null) ? 0 : second.hashCode());
-        return result;
     }
 
     @Override
@@ -70,36 +69,29 @@ public class Pair<T> implements Serializable {
             return true;
         }
 
-        if (obj == null) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+        final Pair<?, ?> pair = (Pair<?, ?>) obj;
 
-        final Pair<?> other = (Pair<?>) obj;
-        if (first == null) {
-            if (other.first != null) {
-                return false;
-            }
-        } else if (!first.equals(other.first)) {
-            return false;
-        }
+        return new EqualsBuilder().append(first, pair.first)
+                                  .append(second, pair.second)
+                                  .isEquals();
+    }
 
-        if (second == null) {
-            if (other.second != null) {
-                return false;
-            }
-        } else if (!second.equals(other.second)) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(first)
+                                          .append(second)
+                                          .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "Pair{" + "first=" + first + ", second=" + second + '}';
+        return new ToStringBuilder(this)
+                .append("first", first)
+                .append("second", second)
+                .toString();
     }
 }

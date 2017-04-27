@@ -69,7 +69,7 @@ public class SchemaElementDefinitionValidator {
                 if (null == elementDef.getIdentifierClass(idType)) {
                     result.addError("Class for " + idType + " could not be found.");
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 result.addError("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
             }
         }
@@ -82,7 +82,7 @@ public class SchemaElementDefinitionValidator {
                     if (null == elementDef.getPropertyClass(propertyName)) {
                         result.addError("Class for " + propertyName + " could not be found.");
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (final IllegalArgumentException e) {
                     result.addError("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
                 }
             }

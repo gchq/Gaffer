@@ -159,4 +159,11 @@ public class ElementValidator implements Validator<Element> {
         }
     }
 
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public View getView() {
+        return view;
+    }
 }

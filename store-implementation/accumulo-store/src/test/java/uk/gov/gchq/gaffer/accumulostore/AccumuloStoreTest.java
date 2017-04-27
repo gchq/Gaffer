@@ -117,7 +117,7 @@ public class AccumuloStoreTest {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(AccumuloStore store) throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -182,7 +182,7 @@ public class AccumuloStoreTest {
         testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
     }
 
-    public void testStoreReturnsHandlersForRegisteredOperations(MockAccumuloStore store) throws StoreException {
+    public void testStoreReturnsHandlersForRegisteredOperations(final MockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
@@ -207,7 +207,7 @@ public class AccumuloStoreTest {
     }
 
 
-    public void testRequestForNullHandlerManaged(MockAccumuloStore store) {
+    public void testRequestForNullHandlerManaged(final MockAccumuloStore store) {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
@@ -222,7 +222,7 @@ public class AccumuloStoreTest {
         testStoreTraits(byteEntityStore);
     }
 
-    public void testStoreTraits(AccumuloStore store) {
+    public void testStoreTraits(final AccumuloStore store) {
         final Collection<StoreTrait> traits = store.getTraits();
         assertNotNull(traits);
         assertTrue("Collection size should be 8", traits.size() == 9);
