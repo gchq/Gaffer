@@ -31,13 +31,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QueryForAGroup extends DevWalkthrough {
-    public QueryForAGroup() {
-        super("Querying for specific Groups", "RoadUse/data.txt", "RoadAndRoadUse/schema", RoadAndRoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new QueryForAGroup().run();
+public class MultipleEdges extends DevWalkthrough {
+    public MultipleEdges() {
+        super("Multiple Edges", "RoadAndRoadUse", RoadAndRoadUseElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -90,7 +86,7 @@ public class QueryForAGroup extends DevWalkthrough {
         log("\nAll edges containing vertex 10");
         log("\nNotice that the edges are aggregated within their groups");
         for (final Element e : allColoursResults) {
-            log("GET_RELATED_EDGES_RESULT", e.toString());
+            log("GET_ELEMENTS_RESULT", e.toString());
         }
 
 
@@ -107,9 +103,14 @@ public class QueryForAGroup extends DevWalkthrough {
         // ---------------------------------------------------------
         log("\nAll RoadHasJunction edges containing vertex 10\n");
         for (final Element e : redResults) {
-            log("GET_RELATED_RED_EDGES_RESULT", e.toString());
+            log("GET_ROAD_HAS_JUNCTION_EDGES_RESULT", e.toString());
         }
 
         return redResults;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new MultipleEdges();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

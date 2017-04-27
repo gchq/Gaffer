@@ -2,42 +2,29 @@ ${HEADER}
 
 ${CODE_LINK}
 
-In this example we’ll look at how to query for a some Edges and then add a new property to the Edges in the result set.
+In this example we’ll look at how to query for a some Edges and then add a new transient property to the Edges in the result set.
+Again, we will just use the same schema and data as in the previous walkthough. 
 
-The consists of pairs of integers as usual, but this time we have an extra value associated with each pair:
+A transient property is just a property that is not persisted, simply created at query time by a transform function. We’ll create a 'description' transient property that will summarise the contents of the aggregated Edges.
 
-${DATA}
+To do this we need a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html). Here is our ${DESCRIPTION_TRANSFORM_LINK}.
 
-From this we’ll create edges with a `”count”` property as usual and an additional property, we’ll call it `”thing”` derived from the third value in the data file:
+This transform function takes 3 values, the `”SOURCE”` vertex, the `”DESTINATION”` vertex and `”count”` property and produces a description string.
 
-```
-${GENERATED_EDGES}
-```
-
-Then we run a ${GET_RELATED_EDGES_JAVADOC} query for vertex `”1”` like we’ve done before to get the aggregated results:
-
-```
-${GET_RELATED_EDGES_RESULT}
-```
-
-Nothing we haven’t seen before.
-
-Now we’ll add a new property to these results at query time. This is an example of a transient property - a property that is not persisted, just created at query time by transform functions. We’ll calculate the mean value of `”thing”` for each Edge summary.
-
-To do this we create an ${ELEMENT_TRANSFORMER_JAVADOC}:
+This transform function then needs to be configured using an [ElementTransformer](http://gchq.github.io/Gaffer/uk/gov/gchq/gaffer/data/element/function/ElementTransformer.html):
 
 ${TRANSFORM_SNIPPET}
 
-This `select`s the `”count”` and `”thing”` properties and maps, or `projects`, them into the `”mean”` property. The ${FUNCTION_JAVADOC} that does the mapping is a [Function](https://docs.oracle.com/javase/8/docs/api/java/util/predicate/Function.html); in this case a ${MEAN_TRANSFORM_LINK}.
+Here you can see we `select` the `”SOURCE”` vertex, the `”DESTINATION”` vertex and `”count”` property and `project`, them into the new `”description”` transient property.
 
-We add the new `”mean”` property to the result Edge set using a `View` and then execute the operation.
+We add the new `”description”` property to the result Edge using a `View` and then execute the operation.
 
 ${GET_SNIPPET}
 
-If you run the query you’ll get:
+This produces the following result:
 
 ```
-${GET_RELATED_ELEMENTS_WITH_DESCRIPTION_RESULT}
+${GET_ELEMENTS_WITH_DESCRIPTION_RESULT}
 ```
 
-Comparing with the previous query we’ve now got a new `”mean”` property on the results.
+As you can see we’ve now got a new `”description”` property on each Edge.

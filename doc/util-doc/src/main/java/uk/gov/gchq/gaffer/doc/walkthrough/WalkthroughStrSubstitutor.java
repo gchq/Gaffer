@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -95,7 +96,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("DATA",
                 "\n```csv\n" + getResource(dataPath, exampleClass) + "\n```\n");
         if (null != elementGenerator) {
-            params.put("DATA_GENERATOR_JAVA",
+            params.put("ELEMENT_GENERATOR_JAVA",
                     JavaSourceUtil.getJava(elementGenerator.getName(), modulePath));
         }
         params.put("STORE_PROPERTIES",
@@ -127,12 +128,13 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("MOCK_ACCUMULO_STORE_JAVADOC", getJavaDocLink(MockAccumuloStore.class));
         params.put("GRAPH_JAVADOC", getJavaDocLink(Graph.class));
         params.put("ELEMENT_GENERATOR_JAVADOC", getJavaDocLink(ElementGenerator.class));
+        params.put("OBJECT_GENERATOR_JAVADOC", getJavaDocLink(ObjectGenerator.class));
         params.put("ELEMENT_JAVADOC", getJavaDocLink(Element.class));
         params.put("SCHEMA_JAVADOC", getJavaDocLink(Schema.class));
         params.put("PROPERTIES_JAVADOC", getJavaDocLink(Properties.class));
         params.put("ADD_ELEMENTS_JAVADOC", getJavaDocLink(AddElements.class));
         params.put("OPERATION_JAVADOC", getJavaDocLink(Operation.class));
-        params.put("GET_RELATED_EDGES_JAVADOC", getJavaDocLink(GetElements.class));
+        params.put("GET_ELEMENTS_JAVADOC", getJavaDocLink(GetElements.class));
         params.put("VIEW_JAVADOC", getJavaDocLink(View.class));
         params.put("SUM_JAVADOC", getJavaDocLink(Sum.class));
         params.put("EXISTS_JAVADOC", getJavaDocLink(Exists.class));
@@ -224,5 +226,9 @@ public abstract class WalkthroughStrSubstitutor {
     public static String getGitHubCodeLink(final String className, final String modulePath) {
         final String simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
         return "[" + simpleClassName + "](" + GITHUB_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replaceAll("\\.", "/") + ".java)";
+    }
+
+    public static String getGitHubFileLink(final String displayName, final String path) {
+        return "[" + displayName + "](" + GITHUB_URL_PREFIX + path + ")";
     }
 }

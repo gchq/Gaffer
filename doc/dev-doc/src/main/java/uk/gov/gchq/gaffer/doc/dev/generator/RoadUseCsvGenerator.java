@@ -16,17 +16,14 @@
 
 package uk.gov.gchq.gaffer.doc.dev.generator;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToOneObjectGenerator;
 
 public class RoadUseCsvGenerator implements OneToOneObjectGenerator<String> {
-
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public String _apply(final Element element) {
-        if (!"RoadUse".equals(element.getGroup())) {
+        if (!(element instanceof Edge && "RoadUse".equals(element.getGroup()))) {
             throw new UnsupportedOperationException("Only RoadUse edges should be used");
         }
 

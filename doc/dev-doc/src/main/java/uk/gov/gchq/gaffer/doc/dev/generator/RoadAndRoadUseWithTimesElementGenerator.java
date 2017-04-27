@@ -42,7 +42,7 @@ public class RoadAndRoadUseWithTimesElementGenerator implements OneToManyElement
         }
 
         final Date startDate = DateUtils.truncate(timestamp, Calendar.DAY_OF_MONTH);
-        final Date endDate = DateUtils.addDays(startDate, 1);
+        final Date endDate = DateUtils.addMilliseconds(DateUtils.addDays(startDate, 1), -1);
 
         return Arrays.asList(
                 new Edge.Builder()

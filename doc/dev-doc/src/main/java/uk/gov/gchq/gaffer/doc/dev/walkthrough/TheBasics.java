@@ -31,11 +31,7 @@ import java.util.List;
 
 public class TheBasics extends DevWalkthrough {
     public TheBasics() {
-        super("The basics", "RoadUse/data.txt", "RoadUse/schema", RoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new TheBasics().run();
+        super("The basics", "RoadUse", RoadUseElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -91,9 +87,14 @@ public class TheBasics extends DevWalkthrough {
         // ---------------------------------------------------------
         log("All edges containing the vertex 10. The counts have been aggregated.");
         for (final Element e : results) {
-            log("GET_RELATED_EDGES_RESULT", e.toString());
+            log("GET_ELEMENTS_RESULT", e.toString());
         }
 
         return results;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new TheBasics();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

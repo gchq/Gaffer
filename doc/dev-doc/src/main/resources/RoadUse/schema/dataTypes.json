@@ -1,14 +1,11 @@
 {
   "types": {
     "junction": {
-      "class": "java.lang.String",
-      "validateFunctions": [
-        {
-          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
-        }
-      ]
+      "description": "A road junction represented by a String.",
+      "class": "java.lang.String"
     },
     "count.int": {
+      "description": "An integer count that must be greater than or equal to 0.",
       "class": "java.lang.Integer",
       "validateFunctions": [
         {
@@ -19,6 +16,7 @@
       ]
     },
     "true": {
+      "description": "A simple boolean that must always be true.",
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {

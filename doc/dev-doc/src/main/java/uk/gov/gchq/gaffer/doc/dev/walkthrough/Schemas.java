@@ -24,11 +24,7 @@ import java.io.UnsupportedEncodingException;
 
 public class Schemas extends DevWalkthrough {
     public Schemas() {
-        super("Schemas", "RoadAndRoadUseWithTimes/data.txt", "RoadAndRoadUseWithTimesAndCardinalities/schema", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Schemas().run();
+        super("Schemas", "RoadAndRoadUseWithTimesAndCardinalities", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
     }
 
     public Schema run() throws OperationException {
@@ -48,5 +44,10 @@ public class Schemas extends DevWalkthrough {
         }
 
         return schema;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Schemas();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

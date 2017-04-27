@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.doc.dev.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
 import uk.gov.gchq.gaffer.doc.util.DataUtils;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -35,14 +34,11 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 public class Cardinalities extends DevWalkthrough {
     public Cardinalities() {
-        super("Cardinalities", "RoadAndRoadUseWithTimes/data.txt", "RoadAndRoadUseWithTimesAndCardinalities/schema", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Cardinalities().run();
+        super("Cardinalities", "RoadAndRoadUseWithTimes", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -142,5 +138,10 @@ public class Cardinalities extends DevWalkthrough {
         log("CARDINALITY_OF_1_RESULT", "Vertex " + ((Entity) redCardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) redCardinality.getProperty("hllp")).cardinality());
 
         return allSummarisedCardinalities;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Cardinalities();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

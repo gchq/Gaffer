@@ -36,11 +36,7 @@ import java.util.List;
 
 public class Filtering extends DevWalkthrough {
     public Filtering() {
-        super("Filtering", "RoadUse/data.txt", "RoadAndRoadUse/schema", RoadAndRoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Filtering().run();
+        super("Filtering", "RoadAndRoadUse", RoadAndRoadUseElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -87,21 +83,25 @@ public class Filtering extends DevWalkthrough {
         log("\nAll elements related to vertex 10. The counts have been aggregated\n");
         // [get simple] get all the edges that contain the vertex "10"
         // ---------------------------------------------------------
+        final View view = new View.Builder()
+                .edge("RoadUse")
+                .build();
         final GetElements getRelatedElement = new GetElements.Builder()
                 .input(new EntitySeed("10"))
+                .view(view)
                 .build();
         final CloseableIterable<? extends Element> results = graph.execute(getRelatedElement, user);
         // ---------------------------------------------------------
         for (final Element e : results) {
-            log("GET_RELATED_EDGES_RESULT", e.toString());
+            log("GET_ELEMENTS_RESULT", e.toString());
         }
 
 
         // [get] rerun previous query with a filter to return only edges with a count more than 2
         // ---------------------------------------------------------
-        final View view = new View.Builder()
+        final View viewWithFilter = new View.Builder()
                 .edge("RoadUse", new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
                                 .select("count")
                                 .execute(new IsMoreThan(2))
                                 .build())
@@ -109,15 +109,20 @@ public class Filtering extends DevWalkthrough {
                 .build();
         final GetElements getRelatedEdgesWithCountMoreThan2 = new GetElements.Builder()
                 .input(new EntitySeed("10"))
-                .view(view)
+                .view(viewWithFilter)
                 .build();
         final CloseableIterable<? extends Element> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan2, user);
         // ---------------------------------------------------------
-        log("\nAll edges containing the vertex 10 with an aggregated count more than than 3\n");
+        log("\nAll edges containing the vertex 10 with an aggregated count more than than 2\n");
         for (final Element e : filteredResults) {
-            log("GET_RELATED_ELEMENTS_WITH_COUNT_MORE_THAN_3_RESULT", e.toString());
+            log("GET_ELEMENTS_WITH_COUNT_MORE_THAN_2_RESULT", e.toString());
         }
 
         return filteredResults;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Filtering();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

@@ -1,6 +1,7 @@
 {
   "edges": {
     "RoadUse": {
+      "description": "A directed edge representing vehicles moving from junction A to junction B.",
       "source": "junction",
       "destination": "junction",
       "directed": "true",
@@ -9,6 +10,7 @@
       }
     },
     "RoadHasJunction": {
+      "description": "A directed edge from each Road to all the junctions on that Road.",
       "source": "road",
       "destination": "junction",
       "directed": "true"

@@ -36,11 +36,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 public class Jobs extends DevWalkthrough {
     public Jobs() {
-        super("Jobs", "RoadAndRoadUseWithTimes/data.txt", "RoadAndRoadUseWithTimesAndCardinalities/schema", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Jobs().run();
+        super("Jobs", "RoadAndRoadUseWithTimesAndCardinalities", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -135,5 +131,10 @@ public class Jobs extends DevWalkthrough {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Jobs();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

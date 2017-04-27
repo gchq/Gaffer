@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 import com.google.common.collect.Iterables;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.doc.dev.generator.RoadAndRoadUseWithSecurityElementGenerator;
 import uk.gov.gchq.gaffer.doc.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -31,11 +32,7 @@ import java.util.List;
 
 public class Visibilities extends DevWalkthrough {
     public Visibilities() {
-        super("Visibilities", "RoadUse/data.txt", "RoadAndRoadUseWithSecurity/schema", RoadAndRoadUseWithSecurityElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Visibilities().run();
+        super("Visibilities", "RoadAndRoadUseWithSecurity", RoadAndRoadUseWithSecurityElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -80,21 +77,24 @@ public class Visibilities extends DevWalkthrough {
 
 
         log("\nNow run a simple query to get edges\n");
-        // [get simple] get all the edges that contain the vertex "1"
+        // [get simple] get all the edges that contain the vertex "10" or "23"
         // ---------------------------------------------------------
         final GetElements getEdges = new GetElements.Builder()
-                .input(new EntitySeed("RoadUse"))
+                .input(new EntitySeed("10"), new EntitySeed("23"))
+                .view(new View.Builder()
+                        .edge("RoadUse")
+                        .build())
                 .build();
         final CloseableIterable<? extends Element> resultsWithBasicUser = graph.execute(getEdges, basicUser);
         // ---------------------------------------------------------
         for (final Element e : resultsWithBasicUser) {
-            log("GET_RELATED_EDGES_RESULT", e.toString());
+            log("GET_ELEMENTS_RESULT", e.toString());
         }
         log("We get nothing back");
 
 
         log("\nGet edges with the public visibility. We shouldn't see any of the private ones.\n");
-        // [get public] get all the edges that contain the vertex "1"
+        // [get public] get all the edges that contain the vertex "10" or "23"
         // ---------------------------------------------------------
         final User publicUser = new User.Builder()
                 .userId("publicUser")
@@ -102,18 +102,21 @@ public class Visibilities extends DevWalkthrough {
                 .build();
 
         final GetElements getPublicRelatedEdges = new GetElements.Builder()
-                .input(new EntitySeed("23"))
+                .input(new EntitySeed("10"), new EntitySeed("23"))
+                .view(new View.Builder()
+                        .edge("RoadUse")
+                        .build())
                 .build();
 
         final CloseableIterable<? extends Element> publicResults = graph.execute(getPublicRelatedEdges, publicUser);
         // ---------------------------------------------------------
         for (final Element e : publicResults) {
-            log("GET_PUBLIC_RELATED_EDGES_RESULT", e.toString());
+            log("GET_PUBLIC_EDGES_RESULT", e.toString());
         }
 
 
         log("\nGet edges with the private visibility. We should get the public edges too.\n");
-        // [get private] get all the edges that contain the vertex "1"
+        // [get private] get all the edges that contain the vertex "10" or "23"
         // ---------------------------------------------------------
         final User privateUser = new User.Builder()
                 .userId("privateUser")
@@ -121,15 +124,23 @@ public class Visibilities extends DevWalkthrough {
                 .build();
 
         final GetElements getPrivateRelatedEdges = new GetElements.Builder()
-                .input(new EntitySeed("23"))
+                .input(new EntitySeed("10"), new EntitySeed("23"))
+                .view(new View.Builder()
+                        .edge("RoadUse")
+                        .build())
                 .build();
 
         final CloseableIterable<? extends Element> privateResults = graph.execute(getPrivateRelatedEdges, privateUser);
         // ---------------------------------------------------------
         for (final Element e : privateResults) {
-            log("GET_PRIVATE_RELATED_EDGES_RESULT", e.toString());
+            log("GET_PRIVATE_EDGES_RESULT", e.toString());
         }
 
         return publicResults;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Visibilities();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

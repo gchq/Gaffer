@@ -19,8 +19,8 @@ import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 
 public abstract class DevWalkthrough extends AbstractWalkthrough {
-    public DevWalkthrough(final String header, final String dataPath, final String schemaPath, final Class<? extends ElementGenerator> generatorClass) {
-        super(header, dataPath, schemaPath, generatorClass, "doc/dev-doc");
+    public DevWalkthrough(final String header, final String resourcePrefix, final Class<? extends ElementGenerator> generatorClass) {
+        super(header, resourcePrefix + "/data.txt", resourcePrefix + "/schema", generatorClass, "doc/dev-doc");
     }
 
     @Override

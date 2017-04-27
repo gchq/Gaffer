@@ -32,11 +32,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 public class OperationChains extends DevWalkthrough {
     public OperationChains() {
-        super("Operation Chains", "RoadUse/data.txt", "RoadAndRoadUse/schema", RoadAndRoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new OperationChains().run();
+        super("Operation Chains", "RoadAndRoadUse", RoadAndRoadUseElementGenerator.class);
     }
 
     public Iterable<? extends String> run() throws OperationException {
@@ -71,9 +67,9 @@ public class OperationChains extends DevWalkthrough {
 
 
         // [get] Create and execute an operation chain consisting of 3 operations:
-        //GetAdjacentIds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
-        //GetRelatedEdges - get outbound edges
-        //GenerateObjects - convert the edges back into comma separated strings
+        // GetAdjacentIds - starting at vertex 1 get all adjacent vertices (vertices at other end of outbound edges)
+        // GetElements - get outbound edges
+        // GenerateObjects - convert the edges into csv
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends String>> opChain =
                 new OperationChain.Builder()
@@ -98,5 +94,10 @@ public class OperationChains extends DevWalkthrough {
         }
 
         return results;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new OperationChains();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

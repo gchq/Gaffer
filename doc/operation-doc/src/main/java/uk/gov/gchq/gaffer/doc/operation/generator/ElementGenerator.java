@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 
-public class DataGenerator implements OneToOneElementGenerator<String> {
+public class ElementGenerator implements OneToOneElementGenerator<String> {
 
     @Override
     public Element _apply(final String line) {

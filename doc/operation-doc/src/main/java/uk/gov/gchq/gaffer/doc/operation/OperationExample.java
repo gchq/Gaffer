@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.doc.operation.generator.DataGenerator;
+import uk.gov.gchq.gaffer.doc.operation.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.doc.util.DataUtils;
 import uk.gov.gchq.gaffer.doc.util.Example;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
@@ -155,7 +155,7 @@ public abstract class OperationExample extends Example {
                 .build();
 
         // Create data generator
-        final DataGenerator dataGenerator = new DataGenerator();
+        final ElementGenerator dataGenerator = new ElementGenerator();
 
         // Load data into memory
         final List<String> data = DataUtils.loadData(StreamUtil.openStream(getClass(), "/data.txt", true));

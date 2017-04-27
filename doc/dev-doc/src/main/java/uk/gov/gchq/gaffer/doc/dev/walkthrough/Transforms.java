@@ -36,11 +36,7 @@ import java.util.List;
 
 public class Transforms extends DevWalkthrough {
     public Transforms() {
-        super("Transforms", "RoadUse/data.txt", "RoadAndRoadUse/schema", RoadAndRoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Transforms().run();
+        super("Transforms", "RoadAndRoadUse", RoadAndRoadUseElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -91,7 +87,7 @@ public class Transforms extends DevWalkthrough {
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 10. The counts and 'things' have been aggregated\n");
         for (final Element e : results) {
-            log("GET_RELATED_EDGES_RESULT", e.toString());
+            log("GET_ELEMENTS_RESULT", e.toString());
         }
 
 
@@ -121,9 +117,14 @@ public class Transforms extends DevWalkthrough {
         // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (final Element e : resultsWithDescription) {
-            log("GET_RELATED_ELEMENTS_WITH_DESCRIPTION_RESULT", e.toString());
+            log("GET_ELEMENTS_WITH_DESCRIPTION_RESULT", e.toString());
         }
 
         return resultsWithDescription;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Transforms();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

@@ -9,11 +9,13 @@ This example demonstrates the aggregation functionality in Gaffer. Aggregation i
     2. An edge has the same group, source, destination, directed and any specified groupBy property values are identical.
 2. Query aggregation allows additional summarisation depending on a user's visibility permissions and any overridden groupBy properties provided at query time.
 
-The data file for this example has simple pairs of integers, as before and each pair has a timestamp and a visibility (public or private):
-
+For this walkthrough we have added a timestamp to our csv data:
 ${DATA}
 
-The schema is similar to what we have seen before, but we have added a start date and a end date property. These properties have been added to the groupBy field. Properties in the groupBy will be used to determine whether elements should be aggregated together at ingest.
+The schema is similar to what we have seen before, but we have added a start date and a end date property. 
+These properties have been added to the groupBy field. 
+Properties in the groupBy will be used to determine whether elements should be aggregated together at ingest. 
+Property values in the groupBy are required to be identical for Gaffer to aggregate them at ingest.
 
 ##### Data schema
 ${DATA_SCHEMA_JSON}
@@ -24,7 +26,8 @@ ${DATA_TYPES_JSON}
 ##### Store types
 ${STORE_TYPES_JSON}
 
-Once we have loaded the data into Gaffer, we can fetch all the edges using a user that can see both public and private data.
+Once we have loaded the data into Gaffer, we can fetch all the edges using a GetAllElements operation. 
+Note this operation is not recommend for large Graphs as it will do a full scan of your database and could take a while to finish.
 ${GET_SNIPPET}
 
 All edges:
@@ -45,7 +48,7 @@ The summarised edges are as follows:
 ${GET_ALL_EDGES_SUMMARISED_RESULT}
 ```
 
-We now have 2 'data' edges, 1 to 2 and 1 to 3. These edges are summaries of all the 'data' edges from 1 to 2 or 1 to 3. You can see the count property has been aggregated.
+We now have 2 'RoadUse' edges, 1 to 2 and 1 to 3. These edges are summaries of all the 'data' edges from 1 to 2 or 1 to 3. You can see the count property has been aggregated.
 
 
 If we apply some pre aggregation filtering, we can return a time window summary of the edges. The new operation looks like:
@@ -57,11 +60,4 @@ The time window summaries are:
 ${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT}
 ```
 
-Again we have 2 edges, but this time the edges only contain data from within the time window of Jan 01 2016 to Jan 02 2016 (inclusive), demonstrating all edges within that window have been summarised together.
-
-Finally we can repeat the previous time window query, with a user who can only see public data (not private). In this case the summarised edges don't contain any private data.
-The public time window summaries are:
-
-```
-${GET_PUBLIC_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT}
-```
+Again we have 2 edges, but this time the edges only contain data from within the time window of May 01 2000 to May 02 2000 (inclusive), demonstrating all edges within that window have been summarised together.

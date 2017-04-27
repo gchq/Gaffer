@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
-import uk.gov.gchq.gaffer.doc.operation.generator.DataGenerator;
+import uk.gov.gchq.gaffer.doc.operation.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 
@@ -42,7 +42,7 @@ public class GenerateElementsExample extends OperationExample {
         // ---------------------------------------------------------
         final GenerateElements<String> operation = new GenerateElements.Builder<String>()
                 .input("1,1", "1,2,1")
-                .generator(new DataGenerator())
+                .generator(new ElementGenerator())
                 .build();
         // ---------------------------------------------------------
 

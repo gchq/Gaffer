@@ -39,30 +39,14 @@ public class Aggregation extends DevWalkthrough {
     public static final Date MAY_01_2000 = getDate("2000-05-01");
     public static final Date MAY_02_2000 = getDate("2000-05-02");
 
-    public static Date getDate(final String dateStr) {
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
-        } catch (final ParseException e) {
-            throw new IllegalArgumentException("Unable to parse date", e);
-        }
-    }
-
     public Aggregation() {
-        super("Aggregation", "RoadAndRoadUseWithTimes/data.txt", "RoadAndRoadUseWithTimes/schema", RoadAndRoadUseWithTimesElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Aggregation().run();
+        super("Aggregation", "RoadAndRoadUseWithTimes", RoadAndRoadUseWithTimesElementGenerator.class);
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user who can see public and private data
         // ---------------------------------------------------------
-        final User user = new User.Builder()
-                .userId("user")
-                .dataAuths("public", "private")
-                .build();
-
+        final User user = new User("user01");
         // ---------------------------------------------------------
 
 
@@ -93,11 +77,11 @@ public class Aggregation extends DevWalkthrough {
         // ---------------------------------------------------------
         final GetAllElements allEdgesOperation = new GetAllElements();
 
-        final CloseableIterable<? extends Element> edges = graph.execute(allEdgesOperation, user);
+        final CloseableIterable<? extends Element> elements = graph.execute(allEdgesOperation, user);
         // ---------------------------------------------------------
         log("\nAll edges in daily time buckets:");
-        for (final Element edge : edges) {
-            log("GET_ALL_EDGES_RESULT", edge.toString());
+        for (final Element element : elements) {
+            log("GET_ALL_EDGES_RESULT", element.toString());
         }
 
 
@@ -146,18 +130,19 @@ public class Aggregation extends DevWalkthrough {
             log("GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());
         }
 
+        return edgesSummarisedInTimeWindow;
+    }
 
-        // Repeat with a public user and you will see the private edges are not part of the summarised edges
-        final User publicUser = new User.Builder()
-                .userId("public user")
-                .dataAuths("public")
-                .build();
-        final CloseableIterable<? extends Element> publicEdgesSummarisedInTimeWindow = graph.execute(edgesSummarisedInTimeWindowOperation, publicUser);
-        log("\nPublic edges in 2 day time window:");
-        for (final Element edge : publicEdgesSummarisedInTimeWindow) {
-            log("GET_PUBLIC_EDGES_SUMMARISED_IN_TIME_WINDOW_RESULT", edge.toString());
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Aggregation();
+        walkthrough.log(walkthrough.walkthrough());
+    }
+
+    private static Date getDate(final String dateStr) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+        } catch (final ParseException e) {
+            throw new IllegalArgumentException("Unable to parse date", e);
         }
-
-        return publicEdgesSummarisedInTimeWindow;
     }
 }

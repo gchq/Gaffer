@@ -23,7 +23,7 @@ import java.util.List;
 public class DevWalkthroughRunner extends AbstractWalkthroughRunner {
     private static final List<Class<? extends AbstractWalkthrough>> EXAMPLES = Arrays.asList(
             TheBasics.class,
-            QueryForAGroup.class,
+            MultipleEdges.class,
             Filtering.class,
             Transforms.class,
             Visibilities.class,

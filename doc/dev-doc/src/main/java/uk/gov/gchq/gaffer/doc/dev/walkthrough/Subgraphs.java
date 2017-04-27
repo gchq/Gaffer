@@ -40,11 +40,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 
 public class Subgraphs extends DevWalkthrough {
     public Subgraphs() {
-        super("Subgraphs", "RoadUse/data.txt", "RoadAndRoadUse/schema", RoadAndRoadUseElementGenerator.class);
-    }
-
-    public static void main(final String[] args) throws OperationException {
-        new Subgraphs().run();
+        super("Subgraphs", "RoadAndRoadUse", RoadAndRoadUseElementGenerator.class);
     }
 
     public Iterable<? extends Element> run() throws OperationException {
@@ -137,5 +133,10 @@ public class Subgraphs extends DevWalkthrough {
         }
 
         return subGraph;
+    }
+
+    public static void main(final String[] args) throws OperationException {
+        final DevWalkthrough walkthrough = new Subgraphs();
+        walkthrough.log(walkthrough.walkthrough());
     }
 }

@@ -1,21 +1,21 @@
 ## Introduction 
 
-Gaffer allows you to take data, convert it into a graph, store it in a database and then run graph queries and analytics on it.
+Gaffer allows you to take data, convert it into a graph, store it in a database and then run queries and analytics on it.
 
 To do this you need to do a few things:
- - Choose a database - called the Gaffer ${STORE_JAVADOC} We've provided a couple for you and in the following examples we'll be using the ${MOCK_ACCUMULO_STORE_JAVADOC}. The MockAccumuloStore behaves exactly the same as the full ${ACCUMULO_STORE_JAVADOC} but means that you can run the code on your local machine without having to have a full Accumulo cluster.
- - Write an ${ELEMENT_GENERATOR_JAVADOC} to convert your data into Gaffer Graph ${ELEMENT_JAVADOC}. We've provided some interfaces for you.
+ - Choose a database - called the Gaffer ${STORE_JAVADOC} We've provided a couple for you and in the following examples we'll be using the ${MOCK_ACCUMULO_STORE_JAVADOC}. The MockAccumuloStore behaves the same as the full ${ACCUMULO_STORE_JAVADOC} but means that you can run the code on your local machine in memory without having to have a full Accumulo cluster.
  - Write a ${SCHEMA_JAVADOC}. This is a json document that describes your graph and is made up of 3 parts:
   - DataSchema - the Elements in your Graph; what classes represent your vertices, what ${PROPERTIES_JAVADOC} your Elements have and so on.
   - DataTypes - list of all the data types that are used in your data schema. For each type it defines the java class and a list of validation functions.
   - StoreTypes - describes how your data types are mapped into your Store, how they are aggregated and how they are serialised.
+ - Write an ${ELEMENT_GENERATOR_JAVADOC} to convert your data into Gaffer Graph ${ELEMENT_JAVADOC}. We've provided some interfaces for you.
  - Write a Store Properties file. This contains information and settings about the specific instance of your store, for example hostnames, ports and so on.
 
 When you've done these things you can write java applications to load and query the data.
 
 Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
 
-To use Gaffer the only required dependencies are the Gaffer graph module and a store module which corresponds to the data storage framework to utilise (currently limited to Apache Accumulo):
+To use Gaffer the only required dependencies are the Gaffer graph module and a store module which corresponds to the data storage framework to utilise:
 
 ```
 <dependency>
@@ -32,7 +32,7 @@ To use Gaffer the only required dependencies are the Gaffer graph module and a s
 
 This will include all other mandatory dependencies. Other (optional) components can be added to your project as required.
 
-Alternatively, you can download the code and compile it yourself.
+Alternatively, you can download the code and compile it yourself:
 
 Start by cloning the gaffer GitHub project.
 
@@ -60,11 +60,11 @@ It is possible to run these examples yourself using one of two methods:
 In order to run the examples from the command line, first the examples JAR must be compiled:
 
 ```bash
-mvn clean install -Pquick -PexampleJar
+mvn clean install -Pquick -PdevDocJar
 ```
 
 The examples can then be run from the JAR, for instance
 
 ```bash
-java -cp doc/dev-doc/target/dev-doc-jar-with-dependencies.jar uk.gov.gchq.gaffer.doc.dev.analytic.LoadAndQuery1
+java -cp doc/dev-doc/target/dev-doc-jar-with-dependencies.jar uk.gov.gchq.gaffer.doc.dev.walkthrough.TheBasics
 ```
