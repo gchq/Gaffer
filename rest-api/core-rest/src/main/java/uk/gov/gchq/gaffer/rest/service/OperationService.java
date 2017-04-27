@@ -70,6 +70,11 @@ public class OperationService implements IOperationService {
         return _execute(opChain);
     }
 
+    @Override
+    public Object execute(final Operation operation) {
+        return _execute(operation);
+    }
+
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final OperationChain opChain) {

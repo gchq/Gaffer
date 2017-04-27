@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -45,6 +46,10 @@ public interface IExamplesService {
     @GET
     @Path("/graph/doOperation")
     OperationChain execute();
+
+    @GET
+    @Path("/graph/doOperation/operation")
+    Operation executeOperation();
 
     @GET
     @Path("/graph/doOperation/chunked")
