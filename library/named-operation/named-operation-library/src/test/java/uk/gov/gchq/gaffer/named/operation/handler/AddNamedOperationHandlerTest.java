@@ -196,9 +196,9 @@ public class AddNamedOperationHandlerTest {
 
     }
 
-    private boolean cacheContains(String opName) {
+    private boolean cacheContains(final String opName) {
         Iterable<NamedOperationDetail> ops = handler.getCache().getAllNamedOperations(context.getUser());
-        for (NamedOperationDetail op : ops) {
+        for (final NamedOperationDetail op : ops) {
             if (op.getOperationName().equals(opName)) {
                 return true;
             }

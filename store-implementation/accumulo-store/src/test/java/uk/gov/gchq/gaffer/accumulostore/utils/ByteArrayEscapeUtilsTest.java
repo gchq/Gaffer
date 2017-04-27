@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
 import org.apache.accumulo.core.data.Key;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import java.util.Iterator;
@@ -94,10 +94,10 @@ public class ByteArrayEscapeUtilsTest {
     @Test
     public void testRandom() {
         for (int i = 0; i < 100000; i++) {
-            final int length = RandomUtils.nextInt(100) + 1;
+            final int length = RandomUtils.nextInt(0, 100) + 1;
             final byte[] b = new byte[length];
             for (int j = 0; j < b.length; j++) {
-                b[j] = (byte) RandomUtils.nextInt();
+                b[j] = (byte) RandomUtils.nextInt(0, Integer.MAX_VALUE);
             }
             check(b);
         }
@@ -108,10 +108,10 @@ public class ByteArrayEscapeUtilsTest {
         // Generate some keys with row key formed from random bytes, and add to ordered set
         final SortedSet<Key> original = new TreeSet<>();
         for (int i = 0; i < 100000; i++) {
-            final int length = RandomUtils.nextInt(100) + 1;
+            final int length = RandomUtils.nextInt(0, 100) + 1;
             final byte[] b = new byte[length];
             for (int j = 0; j < b.length; j++) {
-                b[j] = (byte) RandomUtils.nextInt();
+                b[j] = (byte) RandomUtils.nextInt(0, Integer.MAX_VALUE);
             }
             final Key key = new Key(b, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
             original.add(key);

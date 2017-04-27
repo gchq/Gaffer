@@ -99,7 +99,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
         int outPutBitmapSize = state.getCardinality();
         assertEquals(6, outPutBitmapSize);
         int i = 0;
-        for (Integer value : state) {
+        for (final Integer value : state) {
             assertEquals((Integer) inputs[i], value);
             i++;
         }

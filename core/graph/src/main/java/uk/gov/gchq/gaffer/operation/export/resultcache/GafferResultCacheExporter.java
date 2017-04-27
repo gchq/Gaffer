@@ -40,7 +40,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.AreIn;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -133,7 +132,7 @@ public class GafferResultCacheExporter implements Exporter {
 
         final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, user);
         if (null == edges) {
-            return new WrappedCloseableIterable<>(Collections.emptyList());
+            return new WrappedCloseableIterable<>();
         }
         return new TransformJsonResult(edges, jsonSerialiser);
     }

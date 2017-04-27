@@ -33,7 +33,7 @@ public interface MultiInputB<I_ITEM> extends InputB<Iterable<? extends I_ITEM>> 
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonSetter("inputB")
-    default void setInputB(I_ITEM[] inputB) {
+    default void setInputB(final I_ITEM[] inputB) {
         setInputB(Lists.newArrayList(inputB));
     }
 
