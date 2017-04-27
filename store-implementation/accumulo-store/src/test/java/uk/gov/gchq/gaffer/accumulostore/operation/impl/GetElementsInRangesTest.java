@@ -3,7 +3,7 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,9 +26,9 @@ public class GetElementsInRangesTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final List<Pair<ElementId>> pairList = new ArrayList<>();
-        final Pair<ElementId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
-        final Pair<ElementId> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
+        final List<Pair<ElementId, ElementId>> pairList = new ArrayList<>();
+        final Pair<ElementId, ElementId> pair1 = new Pair<>(AccumuloTestData.SEED_SOURCE_1, AccumuloTestData.SEED_DESTINATION_1);
+        final Pair<ElementId, ElementId> pair2 = new Pair<>(AccumuloTestData.SEED_SOURCE_2, AccumuloTestData.SEED_DESTINATION_2);
         pairList.add(pair1);
         pairList.add(pair2);
         final GetElementsInRanges op = new GetElementsInRanges.Builder()
@@ -40,7 +40,7 @@ public class GetElementsInRangesTest implements OperationTest {
         final GetElementsInRanges deserialisedOp = serialiser.deserialise(json, GetElementsInRanges.class);
 
         // Then
-        final Iterator<? extends Pair<? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
+        final Iterator<? extends Pair<? extends ElementId, ? extends ElementId>> itrPairs = deserialisedOp.getInput().iterator();
         assertEquals(pair1, itrPairs.next());
         assertEquals(pair2, itrPairs.next());
         assertFalse(itrPairs.hasNext());
@@ -51,7 +51,7 @@ public class GetElementsInRangesTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final Pair<ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
+        final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .input(seed)

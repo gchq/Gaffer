@@ -20,8 +20,8 @@ import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -75,7 +75,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
+    protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
         byte directionFlag1;
         byte directionFlag2;
         if (edge.isDirected()) {

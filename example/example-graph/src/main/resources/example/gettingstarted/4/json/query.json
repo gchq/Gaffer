@@ -8,7 +8,7 @@
         "transformFunctions": [
           {
             "function": {
-              "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.transform.MeanTransform"
+              "class": "uk.gov.gchq.gaffer.example.gettingstarted.function.MeanTransform"
             },
             "selection": [
               "thing",

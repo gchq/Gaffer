@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;

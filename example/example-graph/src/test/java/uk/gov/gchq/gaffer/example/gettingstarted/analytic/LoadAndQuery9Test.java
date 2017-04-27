@@ -123,7 +123,7 @@ public class LoadAndQuery9Test {
                 .build());
 
         assertEquals(expectedResults.size(), Iterables.size(resultsItr));
-        for (Element entity : resultsItr) {
+        for (final Element entity : resultsItr) {
             // HyperLogLogPlus has not overridden the equals method so this is a work around to check the cardinality values are the same.
             entity.putProperty(HLLP, ((HyperLogLogPlus) entity.getProperty(HLLP)).cardinality());
             assertEquals(expectedResults.get(((Entity) entity).getVertex().toString()), entity);

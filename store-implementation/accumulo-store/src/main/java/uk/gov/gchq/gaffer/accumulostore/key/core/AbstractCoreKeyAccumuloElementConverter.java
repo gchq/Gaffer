@@ -21,9 +21,9 @@ import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -51,7 +51,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
-    public Pair<Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException {
+    public Pair<Key, Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException {
         if (element instanceof Entity) {
             final Key key = getKeyFromEntity((Entity) element);
             return new Pair<>(key, null);
@@ -61,9 +61,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Pair<Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
+    public Pair<Key, Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
         // Get pair of row keys
-        final Pair<byte[]> rowKeys = getRowKeysFromEdge(edge);
+        final Pair<byte[], byte[]> rowKeys = getRowKeysFromEdge(edge);
         final byte[] columnFamily = buildColumnFamily(edge.getGroup());
         final byte[] columnQualifier = buildColumnQualifier(edge.getGroup(), edge.getProperties());
         final byte[] columnVisibility = buildColumnVisibility(edge.getGroup(), edge.getProperties());
@@ -461,7 +461,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected abstract byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException;
 
-    protected abstract Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException;
+    protected abstract Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException;
 
     protected abstract boolean doesKeyRepresentEntity(final byte[] row) throws AccumuloElementConversionException;
 

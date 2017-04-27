@@ -33,7 +33,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
