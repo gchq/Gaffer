@@ -23,7 +23,6 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Set;
@@ -121,7 +120,7 @@ public abstract class StreamUtil {
             try {
                 schemas[index] = openStream(clazz, schemaFile);
                 index++;
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 int closedStreamsCount = closeAllInputStreams(schemas);
                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
             }
@@ -134,8 +133,8 @@ public abstract class StreamUtil {
         for (final InputStream stream : inputStreams) {
             try {
                 stream.close();
-            } catch (IOException e) {
-                LOGGER.debug("I/O exception while closing input streams", e);
+            } catch (Exception e) {
+                LOGGER.debug("Exception while closing input streams", e);
             }
             closedStreamsCount++;
         }
