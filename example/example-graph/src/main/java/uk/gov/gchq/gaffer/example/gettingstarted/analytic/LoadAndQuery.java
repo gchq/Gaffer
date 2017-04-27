@@ -95,14 +95,14 @@ public abstract class LoadAndQuery {
     }
 
     protected InputStream getData() {
-        return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation, true);
+        return StreamUtil.openStream(LoadAndQuery.class, dataFileLocation);
     }
 
     protected InputStream[] getSchemas() {
-        return StreamUtil.openStreams(LoadAndQuery.class, schemaFolderLocation, true);
+        return StreamUtil.openStreams(LoadAndQuery.class, schemaFolderLocation);
     }
 
     protected InputStream getStoreProperties() {
-        return StreamUtil.openStream(LoadAndQuery.class, storePropertiesLocation, true);
+        return StreamUtil.openStream(LoadAndQuery.class, storePropertiesLocation);
     }
 }

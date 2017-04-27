@@ -93,8 +93,8 @@ public class LoadAndQuery {
     public CloseableIterable<? extends Element> run() throws OperationException {
         // Setup graph
         final Graph graph = new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(getClass(), "/example/films/mockaccumulostore.properties", true))
-                .addSchemas(StreamUtil.openStreams(getClass(), "/example/films/schema", true))
+                .storeProperties(StreamUtil.openStream(getClass(), "/example/films/mockaccumulostore.properties"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "/example/films/schema"))
                 .build();
 
         // Populate the graph with some example data
