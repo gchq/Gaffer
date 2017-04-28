@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.export.set.GetSetExport;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -146,6 +147,7 @@ public abstract class WalkthroughStrSubstitutor {
         params.put("ENTITY_SEED_EXTRACTOR_JAVADOC", getJavaDocLink(EntityIdExtractor.class));
         params.put("FETCH_EXPORT_JAVADOC", getJavaDocLink(GetSetExport.class));
         params.put("EXPORT_TO_SET_JAVADOC", getJavaDocLink(ExportToSet.class));
+        params.put("EXPORT_TO_GAFFER_RESULT_CACHE_JAVADOC", getJavaDocLink(ExportToGafferResultCache.class));
         params.put("EXAMPLES_LINK", getGitHubPackageLink("Examples", AbstractWalkthrough.class.getPackage().getName(), modulePath));
         params.put("ACCUMULO_USER_GUIDE", "[Accumulo Store User Guide](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide)");
         params.put("ACCUMULO_KEY_PACKAGE", getGitHubCodeLink(AccumuloKeyPackage.class, "store-implementations/accumulo-store"));

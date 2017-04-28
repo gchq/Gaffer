@@ -27,8 +27,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>dev-doc</module>
         <module>user-doc</module>
+        <module>dev-doc</module>
         <module>properties-doc</module>
         <module>operation-doc</module>
         <module>predicate-doc</module>

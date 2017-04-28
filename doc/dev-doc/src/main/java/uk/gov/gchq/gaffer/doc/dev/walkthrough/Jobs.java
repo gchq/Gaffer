@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.doc.dev.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
+import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
 import uk.gov.gchq.gaffer.doc.util.DataUtils;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.user.User;
 
 public class Jobs extends DevWalkthrough {
     public Jobs() {
-        super("Jobs", "RoadAndRoadUseWithTimesAndCardinalities", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
+        super("Jobs", "RoadAndRoadUseWithTimesAndCardinalities");
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException {
@@ -134,7 +134,7 @@ public class Jobs extends DevWalkthrough {
     }
 
     public static void main(final String[] args) throws OperationException {
-        final DevWalkthrough walkthrough = new Jobs();
+        final Jobs walkthrough = new Jobs();
         walkthrough.log(walkthrough.walkthrough());
     }
 }

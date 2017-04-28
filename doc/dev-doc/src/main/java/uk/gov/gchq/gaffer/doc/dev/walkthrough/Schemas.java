@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.doc.dev.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -24,7 +23,7 @@ import java.io.UnsupportedEncodingException;
 
 public class Schemas extends DevWalkthrough {
     public Schemas() {
-        super("Schemas", "RoadAndRoadUseWithTimesAndCardinalities", RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator.class);
+        super("Schemas", "RoadAndRoadUseWithTimesAndCardinalities");
     }
 
     public Schema run() throws OperationException {
@@ -47,7 +46,7 @@ public class Schemas extends DevWalkthrough {
     }
 
     public static void main(final String[] args) throws OperationException {
-        final DevWalkthrough walkthrough = new Schemas();
+        final Schemas walkthrough = new Schemas();
         walkthrough.log(walkthrough.walkthrough());
     }
 }

@@ -28,18 +28,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class AbstractWalkthrough {
-    public static final String DESCRIPTION_LOG_KEY = "description";
-    private final Map<String, StringBuilder> logCache = new HashMap<>();
+    protected static final String DESCRIPTION_LOG_KEY = "description";
+    protected final Class<? extends ElementGenerator> elementGenerator;
+    protected final String dataPath;
+    protected final String schemaPath;
+    protected final String modulePath;
+    protected final String storePropertiesLocation;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final Class<? extends ElementGenerator> elementGenerator;
-    private final String dataPath;
-    private final String schemaPath;
-    private final String modulePath;
-    private boolean cacheLogs;
+    private final Map<String, StringBuilder> logCache = new HashMap<>();
     private final String exampleId;
     private final String header;
 
-    private final String storePropertiesLocation;
+    private boolean cacheLogs;
 
     public AbstractWalkthrough(final String header,
                                final String dataPath,

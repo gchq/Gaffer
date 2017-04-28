@@ -42,7 +42,7 @@ public class Visibilities extends DevWalkthrough {
         // ---------------------------------------------------------
 
 
-        // [generate] create some edges from the data file using our data generator class
+        // [generate] create some edges from the data file using our element generator class
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final RoadAndRoadUseWithSecurityElementGenerator dataGenerator = new RoadAndRoadUseWithSecurityElementGenerator();
@@ -140,7 +140,7 @@ public class Visibilities extends DevWalkthrough {
     }
 
     public static void main(final String[] args) throws OperationException {
-        final DevWalkthrough walkthrough = new Visibilities();
+        final Visibilities walkthrough = new Visibilities();
         walkthrough.log(walkthrough.walkthrough());
     }
 }

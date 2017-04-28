@@ -20,17 +20,12 @@ import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthroughRunner;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This runner will run all getting started walkthroughs.
+ */
 public class DevWalkthroughRunner extends AbstractWalkthroughRunner {
     private static final List<Class<? extends AbstractWalkthrough>> EXAMPLES = Arrays.asList(
-            TheBasics.class,
-            MultipleEdges.class,
-            Filtering.class,
-            Transforms.class,
             Visibilities.class,
-            OperationChains.class,
-            Subgraphs.class,
-            Aggregation.class,
-            Cardinalities.class,
             Schemas.class,
             Jobs.class
     );

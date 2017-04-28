@@ -15,11 +15,8 @@
  */
 package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
-import uk.gov.gchq.gaffer.doc.dev.function.aggregate.VisibilityAggregator;
-import uk.gov.gchq.gaffer.doc.dev.function.transform.DescriptionTransform;
-import uk.gov.gchq.gaffer.doc.dev.generator.RoadUseCsvGenerator;
+import uk.gov.gchq.gaffer.doc.dev.aggregator.VisibilityAggregator;
 import uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser;
-import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.gaffer.doc.walkthrough.WalkthroughStrSubstitutor;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,16 +28,12 @@ public abstract class DevWalkthroughStrSubstitutor extends WalkthroughStrSubstit
 
     public static Map<String, String> createParameterMap(final DevWalkthrough example) {
         final Map<String, String> params = new HashMap<>();
-        params.put("ROAD_TRAFFIC_EXAMPLE_LINK", getGitHubFileLink("Road Traffic Example", "example/road-traffic/README.md"));
+        params.put("VISIBILITY_AGGREGATOR_LINK", getGitHubCodeLink(VisibilityAggregator.class, example.getModulePath()));
+        params.put("VISIBILITY_SERIALISER_LINK", getGitHubCodeLink(VisibilitySerialiser.class, example.getModulePath()));
         params.put("RESULT_CACHE_EXPORT_OPERATIONS",
                 "\n```json\n" + getResource("ResultCacheExportOperations.json", example.getClass()).replaceAll("#.*\\n", "") + "\n```\n");
         params.put("CACHE_STORE_PROPERTIES",
                 "\n```\n" + getResource("cache-store.properties", example.getClass()).replaceAll("#.*\\n", "") + "\n```\n");
-        params.put("CSV_GENERATOR_JAVA",
-                JavaSourceUtil.getJava(RoadUseCsvGenerator.class.getName(), "doc/dev-doc"));
-        params.put("DESCRIPTION_TRANSFORM_LINK", getGitHubCodeLink(DescriptionTransform.class, example.getModulePath()));
-        params.put("VISIBILITY_AGGREGATOR_LINK", getGitHubCodeLink(VisibilityAggregator.class, example.getModulePath()));
-        params.put("VISIBILITY_SERIALISER_LINK", getGitHubCodeLink(VisibilitySerialiser.class, example.getModulePath()));
         return params;
     }
 }

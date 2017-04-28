@@ -1,22 +1,15 @@
 {
   "types": {
     "junction": {
-      "class": "java.lang.String",
-      "validateFunctions": [
-        {
-          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
-        }
-      ]
+      "description": "A road junction represented by a String.",
+      "class": "java.lang.String"
     },
     "road": {
-      "class": "java.lang.String",
-      "validateFunctions": [
-        {
-          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
-        }
-      ]
+      "description": "A road represented by a String.",
+      "class": "java.lang.String"
     },
     "count.int": {
+      "description": "An integer count that must be greater than or equal to 0.",
       "class": "java.lang.Integer",
       "validateFunctions": [
         {
@@ -26,19 +19,21 @@
         }
       ]
     },
-    "visibility": {
-      "class": "java.lang.String",
-      "validateFunctions": [
-        {
-          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
-        }
-      ]
-    },
     "true": {
+      "description": "A simple boolean that must always be true.",
       "class": "java.lang.Boolean",
       "validateFunctions": [
         {
           "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+        }
+      ]
+    },
+    "visibility": {
+      "description": "A visibility string, either 'public' or 'private'. When a public and private visibility is aggregated together it will result in a private visibility.",
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
         }
       ]
     }
