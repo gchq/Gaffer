@@ -16,13 +16,16 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -39,8 +42,7 @@ public abstract class StreamUtil {
     public static final String OP_AUTHS = "/opAuths.properties";
     public static final String OP_SCORES = "/opScores.properties";
     public static final String AUTH_SCORES = "/authScores.properties";
-
-
+    public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
@@ -91,55 +93,12 @@ public abstract class StreamUtil {
         return openStream(clazz, AUTH_SCORES);
     }
 
-    public static InputStream view(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, VIEW, logErrors);
-    }
-
-    public static InputStream[] schemas(final Class clazz, final boolean logErrors) {
-        return openStreams(clazz, SCHEMA_FOLDER, logErrors);
-    }
-
-    public static InputStream schema(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, SCHEMA, logErrors);
-    }
-
-    public static InputStream dataSchema(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, DATA_SCHEMA, logErrors);
-    }
-
-    public static InputStream dataTypes(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, DATA_TYPES, logErrors);
-    }
-
-    public static InputStream storeSchema(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, STORE_SCHEMA, logErrors);
-    }
-
-    public static InputStream storeTypes(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, STORE_TYPES, logErrors);
-    }
-
-    public static InputStream storeProps(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, STORE_PROPERTIES, logErrors);
-    }
-
-    public static InputStream opAuths(final Class clazz, final boolean logErrors) {
-        return openStream(clazz, OP_AUTHS, logErrors);
-    }
-
     public static InputStream[] openStreams(final Class clazz, final String folderPath) {
-        return openStreams(clazz, folderPath, false);
-    }
-
-    public static InputStream[] openStreams(final Class clazz, final String folderPath, final boolean logErrors) {
         if (null == folderPath) {
             return new InputStream[0];
         }
 
-        String folderPathChecked = folderPath;
-        if (!folderPathChecked.endsWith("/")) {
-            folderPathChecked = folderPathChecked + "/";
-        }
+        String folderPathChecked = folderPath.endsWith("/") ? folderPath : folderPath + "/";
         if (folderPathChecked.startsWith("/")) {
             folderPathChecked = folderPathChecked.substring(1);
         }
@@ -158,37 +117,69 @@ public abstract class StreamUtil {
         int index = 0;
         final InputStream[] schemas = new InputStream[schemaFiles.size()];
         for (final String schemaFile : schemaFiles) {
-            schemas[index] = openStream(clazz, schemaFile, logErrors);
-            index++;
+            try {
+                schemas[index] = openStream(clazz, schemaFile);
+                index++;
+            } catch (Exception e) {
+                int closedStreamsCount = closeStreams(schemas);
+                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+            }
         }
-
         return schemas;
     }
 
-    public static InputStream openStream(final Class clazz, final String path) {
-        return openStream(clazz, path, false);
-    }
-
-    public static InputStream openStream(final Class clazz, final String path, final boolean logErrors) {
-        if (null == path) {
-            return null;
-        }
-
-        try {
-            final String checkedPath;
-            if (path.startsWith("/")) {
-                checkedPath = path;
-            } else {
-                checkedPath = "/" + path;
-            }
-            return clazz.getResourceAsStream(checkedPath);
-        } catch (final Exception e) {
-            if (logErrors) {
-                LOGGER.error("Failed to create input stream for " + path, e);
-                return null;
-            } else {
+    public static InputStream[] openStreams(final URL... urls) throws IOException {
+        final InputStream[] schemas = new InputStream[urls.length];
+        for (int pos = 0; pos < urls.length; pos++) {
+            try {
+                schemas[pos] = openStream(urls[pos]);
+            } catch (Exception e) {
+                int closedStreamsCount = closeStreams(schemas);
+                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                 throw e;
             }
         }
+        return schemas;
     }
+
+    public static InputStream openStream(final URL url) throws IOException {
+        try {
+            return url.openStream();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create input stream: " + url, e);
+            throw e;
+        }
+    }
+
+    public static int closeStreams(final InputStream... inputStreams) {
+        int closedStreamsCount = 0;
+        for (final InputStream stream : inputStreams) {
+            try {
+                stream.close();
+            } catch (Exception e) {
+                LOGGER.debug("Exception while closing input streams", e);
+            }
+            closedStreamsCount++;
+        }
+        return closedStreamsCount;
+    }
+
+    public static InputStream openStream(final Class clazz, final String path) throws IllegalArgumentException {
+        final String checkedPath = formatPathForOpenStream(path);
+        final InputStream resourceAsStream = clazz.getResourceAsStream(checkedPath);
+        return (resourceAsStream != null) ? resourceAsStream : processException(path);
+    }
+
+    private static InputStream processException(final String path) throws IllegalArgumentException {
+        LOGGER.error(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
+        throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
+    }
+
+    private static String formatPathForOpenStream(final String path) {
+        if (StringUtils.isEmpty(path)) {
+            processException(path);
+        }
+        return path.startsWith("/") ? path : "/" + path;
+    }
+
 }

@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -433,6 +433,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             }
             Collections.addAll(getElementDef().validator.getComponents(), predicates);
             return self();
+        }
+
+        @JsonIgnore
+        public final CHILD_CLASS validateFunctions(final ElementFilter elementFilter) {
+            return validateFunctions((List<TupleAdaptedPredicate<String, Tuple<String>>>) (List) elementFilter.getComponents());
         }
 
         public CHILD_CLASS groupBy(final String... propertyName) {

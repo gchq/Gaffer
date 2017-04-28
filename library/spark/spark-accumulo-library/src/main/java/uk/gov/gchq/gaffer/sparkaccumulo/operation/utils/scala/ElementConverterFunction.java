@@ -25,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer;
 import scala.runtime.AbstractFunction1;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.io.Serializable;
 
@@ -41,7 +41,7 @@ public class ElementConverterFunction extends AbstractFunction1<Element, Travers
     @Override
     public TraversableOnce<Tuple2<Key, Value>> apply(final Element element) {
         final ArrayBuffer<Tuple2<Key, Value>> buf = new ArrayBuffer<>();
-        Pair<Key> keys = new Pair<>();
+        Pair<Key, Key> keys = new Pair<>();
         Value value = null;
         try {
             keys = converterBroadcast.value().getKeysFromElement(element);

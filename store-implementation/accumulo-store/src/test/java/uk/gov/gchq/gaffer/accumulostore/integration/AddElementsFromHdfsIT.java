@@ -152,7 +152,7 @@ public class AddElementsFromHdfsIT {
         }
     }
 
-    private void addElementsFromHdfs(Class<? extends AccumuloKeyPackage> keyPackageClass)
+    private void addElementsFromHdfs(final Class<? extends AccumuloKeyPackage> keyPackageClass)
             throws Exception {
         // Given
         createInputFile();

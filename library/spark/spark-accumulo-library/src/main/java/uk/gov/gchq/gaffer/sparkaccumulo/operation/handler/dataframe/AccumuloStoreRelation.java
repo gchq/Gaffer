@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
