@@ -20,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import org.junit.Assert;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -86,7 +85,7 @@ public class OperationDeclarationsTest {
             OperationDeclarations.fromPaths(paths);
         } catch (IllegalArgumentException e) {
             // Then
-            Assert.assertTrue(e.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
+            assertTrue(e.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
             return;
         }
         fail("Exception wasn't thrown");

@@ -23,7 +23,9 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -40,10 +42,8 @@ public abstract class StreamUtil {
     public static final String OP_AUTHS = "/opAuths.properties";
     public static final String OP_SCORES = "/opScores.properties";
     public static final String AUTH_SCORES = "/authScores.properties";
-
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
         // this class should not be instantiated - it contains only util methods and constants.
@@ -121,14 +121,37 @@ public abstract class StreamUtil {
                 schemas[index] = openStream(clazz, schemaFile);
                 index++;
             } catch (Exception e) {
-                int closedStreamsCount = closeAllInputStreams(schemas);
+                int closedStreamsCount = closeStreams(schemas);
                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
             }
         }
         return schemas;
     }
 
-    private static int closeAllInputStreams(final InputStream[] inputStreams) {
+    public static InputStream[] openStreams(final URL... urls) throws IOException {
+        final InputStream[] schemas = new InputStream[urls.length];
+        for (int pos = 0; pos < urls.length; pos++) {
+            try {
+                schemas[pos] = openStream(urls[pos]);
+            } catch (Exception e) {
+                int closedStreamsCount = closeStreams(schemas);
+                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                throw e;
+            }
+        }
+        return schemas;
+    }
+
+    public static InputStream openStream(final URL url) throws IOException {
+        try {
+            return url.openStream();
+        } catch (IOException e) {
+            LOGGER.error("Failed to create input stream: " + url, e);
+            throw e;
+        }
+    }
+
+    public static int closeStreams(final InputStream... inputStreams) {
         int closedStreamsCount = 0;
         for (final InputStream stream : inputStreams) {
             try {
