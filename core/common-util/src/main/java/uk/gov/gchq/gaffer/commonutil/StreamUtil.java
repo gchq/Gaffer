@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
@@ -26,8 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 public abstract class StreamUtil {
@@ -98,34 +98,36 @@ public abstract class StreamUtil {
             return new InputStream[0];
         }
 
+        String folderPathChecked = getFormattedPath(folderPath);
+
+
+        final HashSet<InputStream> schemas = Sets.newHashSet();
+
+        new Reflections(new ConfigurationBuilder()
+                .setScanners(new ResourcesScanner())
+                .setUrls(ClasspathHelper.forClass(clazz)))
+                .getResources(Pattern.compile(".*"))
+                .stream()
+                .filter(schemaFile -> schemaFile.startsWith(folderPathChecked))
+                .forEach(schemaFile -> {
+                            try {
+                                schemas.add(openStream(clazz, schemaFile));
+                            } catch (Exception e) {
+                                int closedStreamsCount = closeStreams(schemas.toArray(new InputStream[schemas.size()]));
+                                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                            }
+                        }
+                );
+
+        return schemas.toArray(new InputStream[schemas.size()]);
+    }
+
+    private static String getFormattedPath(final String folderPath) {
         String folderPathChecked = folderPath.endsWith("/") ? folderPath : folderPath + "/";
         if (folderPathChecked.startsWith("/")) {
             folderPathChecked = folderPathChecked.substring(1);
         }
-
-        final Set<String> schemaFiles = new Reflections(new ConfigurationBuilder()
-                .setScanners(new ResourcesScanner())
-                .setUrls(ClasspathHelper.forClass(clazz)))
-                .getResources(Pattern.compile(".*"));
-        final Iterator<String> itr = schemaFiles.iterator();
-        while (itr.hasNext()) {
-            if (!itr.next().startsWith(folderPathChecked)) {
-                itr.remove();
-            }
-        }
-
-        int index = 0;
-        final InputStream[] schemas = new InputStream[schemaFiles.size()];
-        for (final String schemaFile : schemaFiles) {
-            try {
-                schemas[index] = openStream(clazz, schemaFile);
-                index++;
-            } catch (Exception e) {
-                int closedStreamsCount = closeStreams(schemas);
-                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
-            }
-        }
-        return schemas;
+        return folderPathChecked;
     }
 
     public static InputStream[] openStreams(final URL... urls) throws IOException {
