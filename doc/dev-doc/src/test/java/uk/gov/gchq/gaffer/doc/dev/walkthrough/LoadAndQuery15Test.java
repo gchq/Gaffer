@@ -60,7 +60,7 @@ public class LoadAndQuery15Test {
         final User user = new User("user01");
         final JSONSerialiser serialiser = new JSONSerialiser();
         final AddElements addElements = serialiser.deserialise(StreamUtil.openStream(AbstractWalkthrough.class, RESOURCE_EXAMPLE_PREFIX + "json/load.json"), AddElements.class);
-        final GetElements getRelatedEdges = serialiser.deserialise(StreamUtil.openStream(AbstractWalkthrough.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetElements.class);
+        final GetElements getEdges = serialiser.deserialise(StreamUtil.openStream(AbstractWalkthrough.class, RESOURCE_EXAMPLE_PREFIX + "json/query.json"), GetElements.class);
 
         // Setup graph
         final Graph graph = new Graph.Builder()
@@ -70,7 +70,7 @@ public class LoadAndQuery15Test {
 
         // When
         graph.execute(addElements, user); // Execute the add operation chain on the graph
-        final CloseableIterable<? extends Element> results = graph.execute(getRelatedEdges, user); // Execute the query operation on the graph.
+        final CloseableIterable<? extends Element> results = graph.execute(getEdges, user); // Execute the query operation on the graph.
 
         // Then
         verifyResults(results);

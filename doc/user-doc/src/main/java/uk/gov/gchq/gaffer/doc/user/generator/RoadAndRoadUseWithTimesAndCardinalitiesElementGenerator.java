@@ -78,7 +78,7 @@ public class RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator implements 
                         .source(junctionA)
                         .dest(junctionB)
                         .directed(true)
-                        .property("count", 1)
+                        .property("count", 1L)
                         .property("startDate", startDate)
                         .property("endDate", endDate)
                         .build()
@@ -107,7 +107,7 @@ public class RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator implements 
                 .group("Cardinality")
                 .property("edgeGroup", CollectionUtil.treeSet(edge.getGroup()))
                 .property("hllp", hllp)
-                .property("count", 1)
+                .property("count", 1L)
                 .build();
     }
 }

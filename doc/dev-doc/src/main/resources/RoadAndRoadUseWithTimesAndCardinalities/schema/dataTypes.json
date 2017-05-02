@@ -24,13 +24,15 @@
         }
       ]
     },
-    "count.int": {
-      "class": "java.lang.Integer",
+    "count.long": {
+      "class": "java.lang.Long",
       "validateFunctions": [
         {
           "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
           "orEqualTo": true,
-          "value": 0
+          "value": {
+            "java.lang.Long": 0
+          }
         }
       ]
     },

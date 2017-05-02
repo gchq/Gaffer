@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.traffic;
 
-package uk.gov.gchq.gaffer.doc.user.transform;
-
-import uk.gov.gchq.koryphe.tuple.function.KorypheFunction3;
-
-public class DescriptionTransform extends KorypheFunction3<String, String, Long, String> {
-    @Override
-    public String apply(final String junctionA, final String junctionB, final Long count) {
-        return count + " vehicles have travelled between junction " + junctionA + " and junction " + junctionB;
+/**
+ * Required for resource lookup.
+ */
+public final class DemoData {
+    private DemoData() {
     }
 }

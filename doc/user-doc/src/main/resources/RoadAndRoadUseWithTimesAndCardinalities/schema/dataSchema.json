@@ -6,9 +6,9 @@
       "destination": "junction",
       "directed": "true",
       "properties": {
-        "count": "count.int",
         "startDate": "date.earliest",
-        "endDate": "date.latest"
+        "endDate": "date.latest",
+        "count": "count.long"
       },
       "groupBy": [
         "startDate",
@@ -16,7 +16,7 @@
       ]
     },
     "RoadHasJunction": {
-      "description": "A directed edge from each Road to all the junctions on that Road.",
+      "description": "A directed edge from each road to all the junctions on that road.",
       "source": "road",
       "destination": "junction",
       "directed": "true"
@@ -29,7 +29,7 @@
       "properties": {
         "edgeGroup": "set",
         "hllp": "hllp",
-        "count": "count.int"
+        "count": "count.long"
       },
       "groupBy": [
         "edgeGroup"

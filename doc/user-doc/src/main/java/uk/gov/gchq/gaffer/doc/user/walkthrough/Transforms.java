@@ -80,10 +80,10 @@ public class Transforms extends UserWalkthrough {
 
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
-        final GetElements getRelatedEdges = new GetElements.Builder()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EntitySeed("10"))
                 .build();
-        final CloseableIterable<? extends Element> results = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<? extends Element> results = graph.execute(getEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 10. The counts and 'things' have been aggregated\n");
         for (final Element e : results) {
@@ -109,11 +109,11 @@ public class Transforms extends UserWalkthrough {
                         .transformer(descriptionTransformer)
                         .build())
                 .build();
-        final GetElements getRelatedEdgesWithDescription = new GetElements.Builder()
+        final GetElements getEdgesWithDescription = new GetElements.Builder()
                 .input(new EntitySeed("10"))
                 .view(view)
                 .build();
-        final CloseableIterable<? extends Element> resultsWithDescription = graph.execute(getRelatedEdgesWithDescription, user);
+        final CloseableIterable<? extends Element> resultsWithDescription = graph.execute(getEdgesWithDescription, user);
         // ---------------------------------------------------------
         log("\nWe can add a new property to the edges that is calculated from the aggregated values of other properties\n");
         for (final Element e : resultsWithDescription) {

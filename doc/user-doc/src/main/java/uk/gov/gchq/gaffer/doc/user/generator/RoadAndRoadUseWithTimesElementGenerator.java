@@ -64,7 +64,7 @@ public class RoadAndRoadUseWithTimesElementGenerator implements OneToManyElement
                         .source(junctionA)
                         .dest(junctionB)
                         .directed(true)
-                        .property("count", 1)
+                        .property("count", 1L)
                         .property("startDate", startDate)
                         .property("endDate", endDate)
                         .build()

@@ -6,7 +6,7 @@
       "destination": "junction",
       "directed": "true",
       "properties": {
-        "count": "count.int"
+        "count": "count.long"
       }
     }
   }

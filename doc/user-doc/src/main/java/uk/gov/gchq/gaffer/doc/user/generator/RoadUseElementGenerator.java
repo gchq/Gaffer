@@ -34,7 +34,7 @@ public class RoadUseElementGenerator implements OneToOneElementGenerator<String>
                 .source(junctionA)
                 .dest(junctionB)
                 .directed(true)
-                .property("count", 1)
+                .property("count", 1L)
                 .build();
     }
 }

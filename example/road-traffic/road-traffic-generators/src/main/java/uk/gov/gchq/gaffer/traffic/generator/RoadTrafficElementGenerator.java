@@ -16,8 +16,10 @@
 
 package uk.gov.gchq.gaffer.traffic.generator;
 
-import com.google.common.collect.Lists;
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.commons.lang3.time.DateUtils;
+import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -26,8 +28,11 @@ import uk.gov.gchq.gaffer.traffic.ElementGroup;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Junction;
 import static uk.gov.gchq.gaffer.traffic.generator.RoadTrafficDataField.A_Ref_E;
@@ -50,10 +55,9 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
             return Collections.emptyList();
         }
 
-        // Extract required fields
         final FreqMap vehicleCountsByType = getVehicleCounts(fields);
-        final Date date = getDate(fields[dCount.index()], fields[Hour.index()]);
-        final Date endTime = null != date ? DateUtils.addHours(date, 1) : null;
+        final Date startDate = getDate(fields[dCount.index()], fields[Hour.index()]);
+        final Date endDate = null != startDate ? DateUtils.addHours(startDate, 1) : null;
         final String region = fields[Region_Name.index()];
         final String location = fields[ONS_LA_Name.index()];
         final String road = fields[Road.index()];
@@ -62,8 +66,7 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
         final String junctionALocation = fields[A_Ref_E.index()] + "," + fields[A_Ref_N.index()];
         final String junctionBLocation = fields[B_Ref_E.index()] + "," + fields[B_Ref_N.index()];
 
-        // Create elements
-        return Lists.newArrayList(
+        final List<Edge> edges = Arrays.asList(
                 new Edge.Builder()
                         .group(ElementGroup.REGION_CONTAINS_LOCATION)
                         .source(region)
@@ -111,30 +114,61 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
                         .source(junctionA)
                         .dest(junctionB)
                         .directed(true)
-                        .property("startTime", date)
-                        .property("endTime", endTime)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .property("startDate", startDate)
+                        .property("endDate", endDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
                         .property("countByVehicleType", vehicleCountsByType)
-                        .build(),
+                        .build()
+        );
 
-                new Entity.Builder()
+        final List<Entity> entities = Arrays.asList(new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionA)
-                        .property("trafficByType", vehicleCountsByType)
-                        .property("endTime", endTime)
-                        .property("startTime", date)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
+                        .property("countByVehicleType", vehicleCountsByType)
+                        .property("startDate", startDate)
+                        .property("endDate", endDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
                         .build(),
 
                 new Entity.Builder()
                         .group(ElementGroup.JUNCTION_USE)
                         .vertex(junctionB)
-                        .property("trafficByType", vehicleCountsByType)
-                        .property("endTime", endTime)
-                        .property("startTime", date)
-                        .property("totalCount", getTotalCount(vehicleCountsByType))
-                        .build()
-        );
+                        .property("countByVehicleType", vehicleCountsByType)
+                        .property("endDate", endDate)
+                        .property("startDate", startDate)
+                        .property("count", getTotalCount(vehicleCountsByType))
+                        .build());
+
+        final List<Entity> cardinalityEntities = createCardinalities(edges);
+
+        // Create an iterable containing all the edges and entities
+        return new ChainedIterable<>(edges, entities, cardinalityEntities);
+    }
+
+    private List<Entity> createCardinalities(final List<Edge> edges) {
+        final List<Entity> cardinalities = new ArrayList<>(edges.size() * 2);
+
+        for (final Edge edge : edges) {
+            cardinalities.add(createCardinality(edge.getSource(), edge.getDestination(), edge));
+            cardinalities.add(createCardinality(edge.getDestination(), edge.getSource(), edge));
+        }
+
+        return cardinalities;
+    }
+
+    private Entity createCardinality(final Object source,
+                                     final Object destination,
+                                     final Edge edge) {
+        final HyperLogLogPlus hllp = new HyperLogLogPlus(5, 5);
+        hllp.offer(destination);
+
+        return new Entity.Builder()
+                .vertex(source)
+                .group("Cardinality")
+                .property("edgeGroup", CollectionUtil.treeSet(edge.getGroup()))
+                .property("hllp", hllp)
+                .property("count", 1L)
+                .build();
     }
 
     private FreqMap getVehicleCounts(final String[] fields) {

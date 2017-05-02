@@ -99,7 +99,7 @@ public class Subgraphs extends UserWalkthrough {
                                 .edge("RoadUse", new ViewElementDefinition.Builder()
                                         .preAggregationFilter(new ElementFilter.Builder()
                                                 .select("count")
-                                                .execute(new IsMoreThan(1))
+                                                .execute(new IsMoreThan(1L))
                                                 .build())
                                         .build())
                                 .build())

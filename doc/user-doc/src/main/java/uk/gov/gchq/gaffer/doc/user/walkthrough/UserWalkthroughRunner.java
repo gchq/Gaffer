@@ -29,7 +29,8 @@ public class UserWalkthroughRunner extends AbstractWalkthroughRunner {
             Aggregation.class,
             Cardinalities.class,
             OperationChains.class,
-            Subgraphs.class
+            Subgraphs.class,
+            FullExample.class
     );
 
     public UserWalkthroughRunner() {

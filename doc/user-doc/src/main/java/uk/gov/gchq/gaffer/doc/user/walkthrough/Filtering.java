@@ -103,15 +103,15 @@ public class Filtering extends UserWalkthrough {
                 .edge("RoadUse", new ViewElementDefinition.Builder()
                         .postAggregationFilter(new ElementFilter.Builder()
                                 .select("count")
-                                .execute(new IsMoreThan(2))
+                                .execute(new IsMoreThan(2L))
                                 .build())
                         .build())
                 .build();
-        final GetElements getRelatedEdgesWithCountMoreThan2 = new GetElements.Builder()
+        final GetElements getEdgesWithCountMoreThan2 = new GetElements.Builder()
                 .input(new EntitySeed("10"))
                 .view(viewWithFilter)
                 .build();
-        final CloseableIterable<? extends Element> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan2, user);
+        final CloseableIterable<? extends Element> filteredResults = graph.execute(getEdgesWithCountMoreThan2, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 10 with an aggregated count more than than 2\n");
         for (final Element e : filteredResults) {

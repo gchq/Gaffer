@@ -78,14 +78,14 @@ public class MultipleEdges extends UserWalkthrough {
 
         // [get simple] Get all the edges related to vertex 10
         // ---------------------------------------------------------
-        final GetElements getRelatedEdges = new GetElements.Builder()
+        final GetElements getEdges = new GetElements.Builder()
                 .input(new EntitySeed("10"))
                 .build();
-        final CloseableIterable<? extends Element> allColoursResults = graph.execute(getRelatedEdges, user);
+        final CloseableIterable<? extends Element> edges = graph.execute(getEdges, user);
         // ---------------------------------------------------------
         log("\nAll edges containing vertex 10");
         log("\nNotice that the edges are aggregated within their groups");
-        for (final Element e : allColoursResults) {
+        for (final Element e : edges) {
             log("GET_ELEMENTS_RESULT", e.toString());
         }
 

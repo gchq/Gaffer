@@ -15,41 +15,42 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
-import uk.gov.gchq.gaffer.data.generator.MapGenerator;
+import uk.gov.gchq.gaffer.data.generator.CsvGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
-import java.util.Map;
 
-public class ToMapExample extends OperationExample {
-    public ToMapExample() {
+public class ToCsvExample extends OperationExample {
+    public ToCsvExample() {
         super(ToMap.class);
     }
 
     public static void main(final String[] args) throws OperationException {
-        new ToMapExample().run();
+        new ToCsvExample().run();
     }
 
     @Override
     public void runExamples() {
-        toMapExample();
+        toCsvExample();
     }
 
-    public Iterable<? extends Map<String, Object>> toMapExample() {
+    public Iterable<? extends String> toCsvExample() {
         // ---------------------------------------------------------
-        final OperationChain<Iterable<? extends Map<String, Object>>> opChain = new Builder()
+        final OperationChain<Iterable<? extends String>> opChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
-                .then(new ToMap.Builder()
-                        .generator(new MapGenerator.Builder()
-                                .group("group")
-                                .vertex("vertex")
-                                .source("source")
-                                .property("count", "total count")
+                .then(new ToCsv.Builder()
+                        .includeHeader(true)
+                        .generator(new CsvGenerator.Builder()
+                                .group()
+                                .vertex()
+                                .source()
+                                .property("count")
                                 .build())
                         .build())
                 .build();

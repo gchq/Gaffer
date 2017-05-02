@@ -47,7 +47,7 @@ We have one Edge Group, `"RoadUse"`. The Group simply labels a particular type o
 
 This edge is a directed edge representing vehicles moving from junction A to junction B.
 
-You can see the `“RoadUse”` Edge has a source and a destination vertex of type `"junction"` and a single property called `"count"` of type `"count.int"`. These types are defined in the DataType file.
+You can see the `“RoadUse”` Edge has a source and a destination vertex of type `"junction"` and a single property called `"count"` of type `"count.long"`. These types are defined in the DataType file.
 
 ##### The DataTypes
 
@@ -57,7 +57,7 @@ ${DATA_TYPES_JSON}
 
 First we'll look at `"junction"`, a road junction represented by a String. You can see it just has 2 fields, a description and the java class of the type.
 
-The property `"count"` on the `"RoadUse"` Edges is of type `"count.int"`. The definition here says that any object of type `"count.int"` is a an integer that must be greater than or equal to 0. This time we have added a validator that mandates that the count object's value must be greater than or equal to 0. If we have a `"RoadUse"` Edge with a count that's not an Integer or is an Integer but has a value less than 0 it will fail validation and won't be added to the Graph. 
+The property `"count"` on the `"RoadUse"` Edges is of type `"count.long"`. The definition here says that any object of type `"count.long"` is a an long that must be greater than or equal to 0. This time we have added a validator that mandates that the count object's value must be greater than or equal to 0. If we have a `"RoadUse"` Edge with a count that's not a Long or is an Long but has a value less than 0 it will fail validation and won't be added to the Graph. 
 Gaffer validation is done using [Java Predicates](https://docs.oracle.com/javase/8/docs/api/java/util/function/Predicate.html)
 
 ##### The StoreTypes
@@ -68,7 +68,7 @@ ${STORE_TYPES_JSON}
 The StoreTypes file is specific to a particular Store. In our example we are using an in-memory 'Mock' Accumulo Store. In simple terms, data in Accumulo is stored in rows as keys and values where the key has multiple parts.
 It describes how the data types are mapped into the database that backs the Gaffer Store you've chosen.
 
-In our StoreTypes file we supply an ${SUM_JAVADOC} [BinaryOperator](https://docs.oracle.com/javase/8/docs/api/java/util/function/BinaryOperator.html) to aggregate the count.int type. 
+In our StoreTypes file we supply an ${SUM_JAVADOC} [BinaryOperator](https://docs.oracle.com/javase/8/docs/api/java/util/function/BinaryOperator.html) to aggregate the count.long type. 
 Gaffer allows Edges of the same Group to be aggregated together. This means that when different vehicles travel from junction 10 to junction 11 the edges will be aggregated together and the count property will represent the total number of vehicles that have travelled between the 2 junctions. 
 
 

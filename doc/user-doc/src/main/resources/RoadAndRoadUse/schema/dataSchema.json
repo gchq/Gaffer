@@ -6,11 +6,11 @@
       "destination": "junction",
       "directed": "true",
       "properties": {
-        "count": "count.int"
+        "count": "count.long"
       }
     },
     "RoadHasJunction": {
-      "description": "A directed edge from each Road to all the junctions on that Road.",
+      "description": "A directed edge from each road to all the junctions on that road.",
       "source": "road",
       "destination": "junction",
       "directed": "true"
