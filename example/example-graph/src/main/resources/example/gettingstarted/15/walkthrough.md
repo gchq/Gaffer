@@ -9,22 +9,30 @@ When we refer to a 'Job' we are really just talking about an Operation Chain tha
 
 
 #### Configuration
+By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the job tracker library:
 
-By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the
-job tracker implementation you want e.g. job-tracker-jcs:
-
-```xml
+```
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <artifactId>job-tracker-jcs</artifactId>
-    <version>gaffer.version</version>
+    <artifactId>job-tracker-library</artifactId>
+    <version>${gaffer.version}</version>
+</dependency>
+```
+
+and your chosen cache service implementation to use for the job tracker (see library/cache-library/README.md), e.g for the JCS implementation:
+
+```
+<dependency>
+   <groupId>uk.gov.gchq.gaffer</groupId>
+   <artifactId>jcs-cache-service</artifactId>
+   <version>${gaffer.version}</version>
 </dependency>
 ```
 
 You will then need to register the job tracker in your store.properties file.
 
 ```
-gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.JcsJobTracker
+gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.GafferCacheJobTracker
 ```
 
 you can optionally provide a config file (e.g a cache.ccf file):

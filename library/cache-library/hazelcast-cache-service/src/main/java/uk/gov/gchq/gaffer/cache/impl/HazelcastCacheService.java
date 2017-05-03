@@ -24,34 +24,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.cache.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.ICache;
-
+import uk.gov.gchq.gaffer.cache.ICacheService;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheSystemProperty.CACHE_CONFIG_FILE;
 
-public class HazelcastCacheService extends AbstractCacheService {
+public class HazelcastCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
     private static HazelcastInstance hazelcast;
-
-    private static void configureHazelcast() {
-        String configFile = System.getProperty(CACHE_CONFIG_FILE);
-        if (configFile == null) {
-            LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
-                    + ". Using default settings");
-
-            hazelcast = Hazelcast.newHazelcastInstance();
-
-        } else {
-
-            try {
-                Config config = new FileSystemXmlConfig(configFile);
-                hazelcast = Hazelcast.newHazelcastInstance(config);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
-            }
-        }
-    }
 
     @Override
     public void initialise() {
@@ -60,13 +40,31 @@ public class HazelcastCacheService extends AbstractCacheService {
     }
 
     @Override
+    public <K, V> ICache<K, V> getCache(final String cacheName) {
+        IMap<K, V> cache = hazelcast.getMap(cacheName);
+        return new HazelcastCache<>(cache);
+    }
+
+    @Override
     public void shutdown() {
         hazelcast.shutdown();
     }
 
-    @Override
-    public <K, V> ICache<K, V> getCache(final String cacheName) {
-        IMap<K, V> cache = hazelcast.getMap(cacheName);
-        return new HazelcastCache<>(cache);
+
+    private void configureHazelcast() {
+        final String configFile = System.getProperty(CACHE_CONFIG_FILE);
+        if (configFile == null) {
+            LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
+                    + ". Using default settings");
+
+            hazelcast = Hazelcast.newHazelcastInstance();
+        } else {
+            try {
+                final Config config = new FileSystemXmlConfig(configFile);
+                hazelcast = Hazelcast.newHazelcastInstance(config);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+            }
+        }
     }
 }

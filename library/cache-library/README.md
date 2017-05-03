@@ -15,7 +15,7 @@ limitations under the License.
 Cache Library
 =============
 The cache library contains the cache service that other components may use when storing data temporarily.
-In order to make use of the cache service you must depend on the cache service:
+In order to make use of the cache service you must depend on the cache service or your selected cache service implementation:
 
 ```
 <dependency>

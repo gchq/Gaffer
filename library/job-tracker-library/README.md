@@ -27,6 +27,16 @@ By default the Job Tracker is disabled. To enable the job tracker you will need 
 </dependency>
 ```
 
+and your chosen cache service implementation to use for the job tracker (see library/cache-library/README.md), e.g for the JCS implementation:
+
+```
+<dependency>
+   <groupId>uk.gov.gchq.gaffer</groupId>
+   <artifactId>jcs-cache-service</artifactId>
+   <version>${gaffer.version}</version>
+</dependency>
+```
+
 You will then need to register the job tracker in your store.properties file.
 ```
 gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.GafferCacheJobTracker

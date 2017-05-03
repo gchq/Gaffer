@@ -23,19 +23,17 @@ import org.apache.jcs.engine.control.CompositeCache;
 import org.apache.jcs.engine.control.CompositeCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.cache.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.ICache;
+import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class JcsCacheService extends AbstractCacheService {
-
-    private CompositeCacheManager manager;
+public class JcsCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JcsCacheService.class);
+    private CompositeCacheManager manager;
 
     @Override
     public void initialise() {
@@ -56,6 +54,21 @@ public class JcsCacheService extends AbstractCacheService {
 
     }
 
+    @Override
+    public <K, V> ICache<K, V> getCache(final String cacheName) {
+        CompositeCache cache = manager.getCache(cacheName);
+        try {
+            return new JcsCache<>(cache);
+        } catch (CacheException e) {
+            throw new IllegalArgumentException("Failed to create cache", e);
+        }
+    }
+
+    @Override
+    public void shutdown() {
+        manager.shutDown();
+    }
+
     private Properties readProperties(final String configFilePath) throws IOException {
         Properties props = new Properties();
 
@@ -65,21 +78,6 @@ public class JcsCacheService extends AbstractCacheService {
             return props;
         } finally {
             IOUtils.closeQuietly(is);
-        }
-    }
-
-    @Override
-    public void shutdown() {
-        manager.shutDown();
-    }
-
-    @Override
-    public <K, V> ICache<K, V> getCache(final String cacheName) {
-        CompositeCache cache = manager.getCache(cacheName);
-        try {
-            return new JcsCache<>(cache);
-        } catch (CacheException e) {
-            throw new IllegalArgumentException("Failed to create cache", e);
         }
     }
 }

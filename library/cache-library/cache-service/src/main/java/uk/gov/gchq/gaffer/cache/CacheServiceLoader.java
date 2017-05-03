@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -68,13 +67,9 @@ public final class CacheServiceLoader implements ServletContextListener {
         return service;
     }
 
-    private CacheServiceLoader() {
-        // do not instantiate
-    }
-
-
     /**
      * Triggered when the REST service starts
+     *
      * @param servletContextEvent the start up event
      */
     @Override
@@ -84,6 +79,7 @@ public final class CacheServiceLoader implements ServletContextListener {
 
     /**
      * Triggered when the REST service shuts down
+     *
      * @param servletContextEvent the shut down event
      */
     @Override

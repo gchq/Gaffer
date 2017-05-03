@@ -17,14 +17,12 @@
 package uk.gov.gchq.gaffer.cache;
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * The cache service interface which enables the cache service loader to instantiate any service no matter the
  * implementation. All services should be able to provide a cache and methods to interact with it.
- *
  */
 public interface ICacheService {
 
@@ -34,19 +32,41 @@ public interface ICacheService {
 
     <K, V> ICache<K, V> getCache(final String cacheName);
 
-    <K, V> V getFromCache(final String cacheName, final K key);
+    default <K, V> V getFromCache(final String cacheName, final K key) {
+        ICache<K, V> cache = getCache(cacheName);
+        return cache.get(key);
+    }
 
-    <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException;
+    default <K, V> void putInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+        ICache<K, V> cache = getCache(cacheName);
+        cache.put(key, value);
+    }
 
-    <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException;
+    default <K, V> void putSafeInCache(final String cacheName, final K key, final V value) throws CacheOperationException {
+        ICache<K, V> cache = getCache(cacheName);
+        cache.putSafe(key, value);
+    }
 
-    <K, V> void removeFromCache(final String cacheName, final K key);
+    default <K, V> void removeFromCache(final String cacheName, final K key) {
+        ICache<K, V> cache = getCache(cacheName);
+        cache.remove(key);
+    }
 
-    <K, V> Collection<V> getAllValuesFromCache(final String cacheName);
+    default <K, V> Collection<V> getAllValuesFromCache(final String cacheName) {
+        ICache<K, V> cache = getCache(cacheName);
+        return cache.getAllValues();
+    }
 
-    <K, V> Set<K> getAllKeysFromCache(final String cacheName);
+    default <K, V> Set<K> getAllKeysFromCache(final String cacheName) {
+        ICache<K, V> cache = getCache(cacheName);
+        return cache.getAllKeys();
+    }
 
-    int sizeOfCache(final String cacheName);
+    default int sizeOfCache(final String cacheName) {
+        return getCache(cacheName).size();
+    }
 
-    void clearCache(final String cacheName) throws CacheOperationException;
+    default void clearCache(final String cacheName) throws CacheOperationException {
+        getCache(cacheName).clear();
+    }
 }
