@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator5;

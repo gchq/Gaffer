@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
