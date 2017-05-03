@@ -15,7 +15,7 @@ By default the Job Tracker is disabled. To enable the job tracker you will need 
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>job-tracker-library</artifactId>
-    <version>${gaffer.version}</version>
+    <version>[gaffer.version]</version>
 </dependency>
 ```
 
@@ -25,7 +25,7 @@ and your chosen cache service implementation to use for the job tracker (see lib
 <dependency>
    <groupId>uk.gov.gchq.gaffer</groupId>
    <artifactId>jcs-cache-service</artifactId>
-   <version>${gaffer.version}</version>
+   <version>[gaffer.version]</version>
 </dependency>
 ```
 
