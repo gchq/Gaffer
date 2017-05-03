@@ -32,10 +32,6 @@ public class LoadAndQuery14 extends LoadAndQuery {
     }
 
     public Schema run() throws OperationException {
-        // [cache] manually bootstrap the cache service
-        // ---------------------------------------------------------
-        CacheServiceLoader.initialise();
-        // ---------------------------------------------------------
 
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

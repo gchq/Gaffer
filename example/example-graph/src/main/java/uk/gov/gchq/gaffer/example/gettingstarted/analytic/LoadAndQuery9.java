@@ -52,11 +52,6 @@ public class LoadAndQuery9 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
-        // [cache] manually bootstrap the cache service
-        // ---------------------------------------------------------
-        CacheServiceLoader.initialise();
-        // ---------------------------------------------------------
-
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()

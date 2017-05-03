@@ -66,11 +66,6 @@ public class LoadAndQuery8 extends LoadAndQuery {
 
         // ---------------------------------------------------------
 
-        // [cache] manually bootstrap the cache service
-        // ---------------------------------------------------------
-        CacheServiceLoader.initialise();
-        // ---------------------------------------------------------
-
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()

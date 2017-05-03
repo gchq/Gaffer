@@ -49,11 +49,6 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
-        // [cache] manually bootstrap the cache service
-        // ---------------------------------------------------------
-        CacheServiceLoader.initialise();
-        // ---------------------------------------------------------
-
         // [generate] create some edges from the data file using our data generator class
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();

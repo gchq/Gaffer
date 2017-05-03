@@ -62,6 +62,9 @@ public final class CacheServiceLoader implements ServletContextListener {
      * @return the cache service
      */
     public static ICacheService getService() {
+        if (service == null) {
+            initialise();
+        }
         return service;
     }
 
