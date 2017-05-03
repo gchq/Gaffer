@@ -33,7 +33,7 @@ public class VisibilityAggregator extends KorypheBinaryOperator<String> {
     }
 
     private void validateInput(final String input) {
-        if (!(input.equals("public") || input.equals("private"))) {
+        if (!("public".equals(input) || "private".equals(input))) {
             throw new IllegalArgumentException("Visibility must either be 'public' or 'private'. You supplied " + input);
         }
     }

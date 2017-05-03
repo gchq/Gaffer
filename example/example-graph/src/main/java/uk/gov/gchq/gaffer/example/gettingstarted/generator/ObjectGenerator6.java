@@ -30,7 +30,7 @@ public class ObjectGenerator6 implements OneToOneObjectGenerator<String> {
         if (element instanceof Entity) {
             throw new UnsupportedOperationException();
         } else {
-            final Edge edge = ((Edge) element);
+            final Edge edge = (Edge) element;
             return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");
         }
     }

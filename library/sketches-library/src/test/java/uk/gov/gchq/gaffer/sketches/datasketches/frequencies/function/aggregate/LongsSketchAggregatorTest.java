@@ -63,6 +63,7 @@ public class LongsSketchAggregatorTest extends BinaryOperatorTest {
         assertEquals(new LongsSketchAggregator(), new LongsSketchAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

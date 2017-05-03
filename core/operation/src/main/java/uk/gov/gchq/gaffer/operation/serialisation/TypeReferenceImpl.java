@@ -103,10 +103,10 @@ public final class TypeReferenceImpl {
     }
 
     public static class Stream<T> extends TypeReference<java.util.stream.Stream<T>> {
-    };
+    }
 
     public static class Array<T> extends TypeReference<T[]> {
-    };
+    }
 
     public static class List<T> extends TypeReference<java.util.List<T>> {
     }

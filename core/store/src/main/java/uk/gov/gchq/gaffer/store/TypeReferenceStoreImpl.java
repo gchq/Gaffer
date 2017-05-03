@@ -19,11 +19,14 @@ package uk.gov.gchq.gaffer.store;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Set;
 
-
-public class TypeReferenceStoreImpl {
+public final class TypeReferenceStoreImpl {
     public static class Schema extends TypeReference<uk.gov.gchq.gaffer.store.schema.Schema> {
     }
 
     public static class StoreTraits extends TypeReference<Set<StoreTrait>> {
+    }
+
+    private TypeReferenceStoreImpl() {
+        // Private constructor to prevent instantiation.
     }
 }

@@ -55,6 +55,7 @@ public class LoadAndQuery8 extends LoadAndQuery {
         new LoadAndQuery8().run();
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user who can see public and private data
         // ---------------------------------------------------------

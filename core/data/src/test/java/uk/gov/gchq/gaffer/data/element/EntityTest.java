@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class EntityTest extends ElementTest {
 
+    @Override
     @Test
     public void shouldSetAndGetFields() {
         // Given
@@ -94,6 +95,7 @@ public class EntityTest extends ElementTest {
         assertEquals(clone, entity);
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
@@ -108,6 +110,7 @@ public class EntityTest extends ElementTest {
         assertEquals(entity.hashCode(), entity.hashCode());
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
@@ -144,6 +147,7 @@ public class EntityTest extends ElementTest {
         assertNotEquals(entity1.hashCode(), entity2.hashCode());
     }
 
+    @Override
     @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
@@ -178,6 +182,7 @@ public class EntityTest extends ElementTest {
         assertFalse(entity1.hashCode() == entity2.hashCode());
     }
 
+    @Override
     @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given

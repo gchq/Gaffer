@@ -28,6 +28,7 @@ public class AreEqualExample extends PredicateExample {
         super(AreEqual.class);
     }
 
+    @Override
     public void runExamples() {
         areEqual();
     }

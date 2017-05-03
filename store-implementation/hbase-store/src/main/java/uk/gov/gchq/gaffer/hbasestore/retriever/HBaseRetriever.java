@@ -115,7 +115,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
         if (idsIterator != null) {
             if (idsIterator instanceof Closeable) {
-                IOUtils.closeQuietly(((Closeable) idsIterator));
+                IOUtils.closeQuietly((Closeable) idsIterator);
             }
             idsIterator = null;
         }
@@ -240,10 +240,8 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
                 @Override
                 public Element next() {
-                    if (null == hasNext) {
-                        if (!hasNext()) {
-                            throw new NoSuchElementException("Reached the end of the iterator");
-                        }
+                    if (null == hasNext && !hasNext()) {
+                        throw new NoSuchElementException("Reached the end of the iterator");
                     }
 
                     final Element elementToReturn = nextElement;

@@ -90,12 +90,13 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
+    @Override
     public CloseableIterator<O> iterator() {
         return new CloseableIterator<O>() {
             @Override
             public void close() {
                 if (inputItr instanceof Closeable) {
-                    IOUtils.closeQuietly(((Closeable) inputItr));
+                    IOUtils.closeQuietly((Closeable) inputItr);
                 }
             }
 
@@ -133,10 +134,8 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
 
             @Override
             public O next() {
-                if (null == hasNext) {
-                    if (!hasNext()) {
-                        throw new NoSuchElementException("Reached the end of the iterator");
-                    }
+                if ((null == hasNext) && (!hasNext())) {
+                    throw new NoSuchElementException("Reached the end of the iterator");
                 }
 
                 final O elementToReturn = nextElement;
@@ -156,7 +155,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
     @Override
     public void close() {
         if (input instanceof Closeable) {
-            IOUtils.closeQuietly(((Closeable) input));
+            IOUtils.closeQuietly((Closeable) input);
         }
     }
 
@@ -175,7 +174,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
      * @param item the invalid I item
      * @throws IllegalArgumentException always thrown unless this method is overridden.
      */
-    protected void handleInvalidItem(final I item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final I item) {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }

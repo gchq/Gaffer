@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -40,6 +37,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class NoAggregationIT extends AbstractStoreIT {
 

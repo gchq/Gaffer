@@ -33,6 +33,7 @@ public class AndExample extends PredicateExample {
         super(And.class);
     }
 
+    @Override
     public void runExamples() {
         isLessThan3AndIsMoreThan0();
         property1IsLessThan2AndProperty2IsMoreThan2();

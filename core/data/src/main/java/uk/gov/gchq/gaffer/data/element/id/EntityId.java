@@ -26,6 +26,7 @@ public interface EntityId extends ElementId {
 
     void setVertex(final Object vertex);
 
+    @Override
     default boolean isEqual(final ElementId that) {
         return that instanceof EntityId && isEqual((EntityId) that);
     }

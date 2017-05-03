@@ -113,6 +113,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
         return StringUtil.csvToClasses(bytes, GafferScannerProcessor.class);
     }
 
+    @Override
     protected RegionScanner getScanner() {
         return (RegionScanner) super.getScanner();
     }

@@ -31,7 +31,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
@@ -40,6 +39,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +88,7 @@ public class AccumuloStoreRelationTest {
 
         final Predicate<Element> returnElement = (Element element) ->
                 element.getGroup().equals(GetDataFrameOfElementsHandlerTest.EDGE_GROUP)
-                        && ((Integer) element.getProperty("property1")) > 5;
+                        && (Integer) element.getProperty("property1") > 5;
         testBuildScanWithView("testBuildScanRestrictViewByProperty", view, returnElement);
     }
 

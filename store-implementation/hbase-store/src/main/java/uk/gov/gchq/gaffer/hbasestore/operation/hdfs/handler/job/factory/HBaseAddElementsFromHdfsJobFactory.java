@@ -46,7 +46,7 @@ public class HBaseAddElementsFromHdfsJobFactory extends
 
         setupMapper(job);
         setupReducer(job);
-        setupOutput(job, operation, ((HBaseStore) store));
+        setupOutput(job, operation, (HBaseStore) store);
     }
 
     private void setupMapper(final Job job) throws IOException {

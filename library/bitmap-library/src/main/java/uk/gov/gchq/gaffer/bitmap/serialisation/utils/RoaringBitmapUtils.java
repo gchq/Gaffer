@@ -104,7 +104,7 @@ public final class RoaringBitmapUtils {
                 }
                 return baos.toByteArray();
             } catch (final SerialisationException e) {
-                throw (e);
+                throw e;
             } catch (final IOException e) {
                 throw new SerialisationException("IOException: I failed to convert roaring bitmap from pre 0.4.0 version", e);
             }

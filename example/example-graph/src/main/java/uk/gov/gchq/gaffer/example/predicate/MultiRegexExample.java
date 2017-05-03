@@ -27,6 +27,7 @@ public class MultiRegexExample extends PredicateExample {
         super(MultiRegex.class);
     }
 
+    @Override
     public void runExamples() {
         multiRegexWithPattern();
     }

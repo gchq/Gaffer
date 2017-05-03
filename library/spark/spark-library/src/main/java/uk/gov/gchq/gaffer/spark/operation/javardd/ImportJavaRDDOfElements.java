@@ -34,10 +34,12 @@ public class ImportJavaRDDOfElements implements
     private JavaRDD<Element> input;
     private Map<String, String> options;
 
+    @Override
     public JavaSparkContext getJavaSparkContext() {
         return sparkContext;
     }
 
+    @Override
     public void setJavaSparkContext(final JavaSparkContext sparkContext) {
         this.sparkContext = sparkContext;
     }

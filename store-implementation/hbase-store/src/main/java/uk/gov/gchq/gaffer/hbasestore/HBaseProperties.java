@@ -46,7 +46,7 @@ public class HBaseProperties extends StoreProperties {
     }
 
     public static HBaseProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return ((HBaseProperties) StoreProperties.loadStoreProperties(storePropertiesStream));
+        return (HBaseProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
     }
 
     @Override

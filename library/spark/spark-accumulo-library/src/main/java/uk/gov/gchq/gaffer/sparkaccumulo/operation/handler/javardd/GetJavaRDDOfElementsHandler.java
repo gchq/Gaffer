@@ -63,6 +63,7 @@ public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRD
 
         private static final long serialVersionUID = -4695668644733530293L;
 
+        @Override
         public Element call(final Tuple2<Element, NullWritable> tuple) throws Exception {
             return tuple._1();
         }

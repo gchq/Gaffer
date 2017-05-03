@@ -38,6 +38,7 @@ public class LoadAndQuery1 extends LoadAndQuery {
         new LoadAndQuery1().run();
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------

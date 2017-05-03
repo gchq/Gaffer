@@ -32,6 +32,7 @@ public class MapFilterExample extends PredicateExample {
         super(PredicateMap.class);
     }
 
+    @Override
     public void runExamples() {
         freqMapIsMoreThan2();
         freqMapIsMoreThanOrEqualTo2();

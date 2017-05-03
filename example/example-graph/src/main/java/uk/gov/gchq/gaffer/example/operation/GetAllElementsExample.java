@@ -32,6 +32,7 @@ public class GetAllElementsExample extends OperationExample {
         super(GetAllElements.class);
     }
 
+    @Override
     public void runExamples() {
         getAllElements();
         getAllElementsWithCountGreaterThan2();

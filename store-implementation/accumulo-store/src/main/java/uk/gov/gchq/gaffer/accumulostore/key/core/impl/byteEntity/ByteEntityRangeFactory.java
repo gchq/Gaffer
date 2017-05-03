@@ -54,7 +54,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
-            sourceValue = ByteArrayEscapeUtils.escape((vertexSerialiser.serialise(seed.getSource())));
+            sourceValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
