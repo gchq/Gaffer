@@ -6,7 +6,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.Collection;
 import java.util.Set;
 
-public class MockCacheService implements ICacheService {
+public class EmptyCacheService implements ICacheService {
     @Override
     public void initialise() {
 

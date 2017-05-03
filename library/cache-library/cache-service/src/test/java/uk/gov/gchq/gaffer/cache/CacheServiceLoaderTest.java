@@ -53,14 +53,14 @@ public class CacheServiceLoaderTest {
     public void shouldLoadServiceFromSystemVariable() {
 
         // given
-        System.setProperty(CacheSystemProperty.CACHE_SERVICE_CLASS, MockCacheService.class.getName());
+        System.setProperty(CacheSystemProperty.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
         CacheServiceLoader.initialise();
 
         // when
         ICacheService service = CacheServiceLoader.getService();
 
         // then
-        assert(service instanceof MockCacheService);
+        assert(service instanceof EmptyCacheService);
     }
 
     @Test
