@@ -2,17 +2,17 @@
   "types": {
     "count.int": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "set": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.CollectionConcat"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat"
       }
     },
     "hllp": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.function.aggregate.HyperLogLogPlusAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
       },
       "serialiserClass": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
     }

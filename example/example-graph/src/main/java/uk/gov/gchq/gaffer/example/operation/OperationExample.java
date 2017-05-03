@@ -158,7 +158,7 @@ public abstract class OperationExample extends Example {
         final DataGenerator dataGenerator = new DataGenerator();
 
         // Load data into memory
-        final List<String> data = DataUtils.loadData(StreamUtil.openStream(getClass(), "/example/operation/data.txt", true));
+        final List<String> data = DataUtils.loadData(StreamUtil.openStream(getClass(), "/example/operation/data.txt"));
 
         //add the edges to the graph using an operation chain consisting of:
         //generateElements - generating edges from the data (note these are directed edges)

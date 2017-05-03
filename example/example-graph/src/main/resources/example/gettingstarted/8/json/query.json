@@ -6,8 +6,8 @@
         "transientProperties": {},
         "preAggregationFilterFunctions": [
           {
-            "function": {
-              "class": "uk.gov.gchq.gaffer.function.filter.IsMoreThan",
+            "predicate": {
+              "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
               "orEqualTo": true,
               "value": {
                 "java.util.Date": 1451606400000
@@ -18,8 +18,8 @@
             ]
           },
           {
-            "function": {
-              "class": "uk.gov.gchq.gaffer.function.filter.IsLessThan",
+            "predicate": {
+              "class": "uk.gov.gchq.koryphe.impl.predicate.IsLessThan",
               "orEqualTo": true,
               "value": {
                 "java.util.Date": 1451692800000

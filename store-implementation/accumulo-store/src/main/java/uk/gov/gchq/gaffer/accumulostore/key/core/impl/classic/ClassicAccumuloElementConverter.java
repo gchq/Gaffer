@@ -20,8 +20,8 @@ import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -46,7 +46,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
+    protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
         // If edge is undirected then direction flag is 0 for both keys.
         // If edge is directed then for the first key the direction flag is 1
         // indicating that the first identifier in the key is the source

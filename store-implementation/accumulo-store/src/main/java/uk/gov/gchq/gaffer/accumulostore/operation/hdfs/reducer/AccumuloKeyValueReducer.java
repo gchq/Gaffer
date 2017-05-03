@@ -94,7 +94,7 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
             final ElementAggregator aggregator = schema.getElement(group).getAggregator();
             state = elementConverter.getPropertiesFromValue(group, firstValue);
             while (iter.hasNext()) {
-                state = aggregator.apply(elementConverter.getPropertiesFromValue(group, iter.next()), state);
+                state = aggregator.apply(state, elementConverter.getPropertiesFromValue(group, iter.next()));
             }
         } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);

@@ -2,13 +2,13 @@
   "types": {
     "count.int": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Sum"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       }
     },
     "score.int": {
       "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser",
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.function.aggregate.Max"
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
       }
     }
   }

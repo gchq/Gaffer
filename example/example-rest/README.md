@@ -18,9 +18,7 @@ Example REST
 This module provides an example implementation of a Gaffer REST Interface.
 
 By default it will use the Gaffer MockAccumulo store.
-
 To use a different store type you can set this system property when running the maven build.
-
 ```
 -Dstore.type=map
 ```

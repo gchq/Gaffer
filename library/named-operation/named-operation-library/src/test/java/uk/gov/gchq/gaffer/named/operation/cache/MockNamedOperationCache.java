@@ -12,22 +12,22 @@ public class MockNamedOperationCache implements INamedOperationCache {
     private HashMap<String, NamedOperationDetail> fakeCache = new HashMap<>();
 
     @Override
-    public void addNamedOperation(NamedOperationDetail operation, boolean overWrite, User user) throws CacheOperationFailedException {
+    public void addNamedOperation(final NamedOperationDetail operation, final boolean overWrite, final User user) throws CacheOperationFailedException {
         fakeCache.put(operation.getOperationName(), operation);
     }
 
     @Override
-    public void deleteNamedOperation(String name, User user) throws CacheOperationFailedException {
+    public void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException {
         fakeCache.remove(name);
     }
 
     @Override
-    public NamedOperationDetail getNamedOperation(String name, User user) throws CacheOperationFailedException {
+    public NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationFailedException {
         return fakeCache.get(name);
     }
 
     @Override
-    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(User user) {
+    public CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user) {
         return new WrappedCloseableIterable<>(new HashSet<>(fakeCache.values()));
     }
 

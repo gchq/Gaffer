@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.And;
@@ -35,12 +35,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.Exists;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.IsIn;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
-import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -48,6 +42,12 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStr
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,9 +239,9 @@ public class FiltersToOperationConverter {
             LOGGER.info("Group = {}: ", entry.getKey());
             for (final TupleAdaptedPredicate<String, ?> cfc : entry.getValue()) {
                 if (null != cfc.getSelection()) {
-                    LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                    LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                 } else {
-                    LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                    LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                 }
             }
         }
@@ -258,9 +258,9 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection()) {
-                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                         } else {
-                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                         }
                     }
                     builder = builder.entity(group, ved);
@@ -280,9 +280,9 @@ public class FiltersToOperationConverter {
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
                     for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
                         if (null != cfc.getSelection()) {
-                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getFunction());
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
                         } else {
-                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
                         }
                     }
                     builder = builder.edge(group, ved);

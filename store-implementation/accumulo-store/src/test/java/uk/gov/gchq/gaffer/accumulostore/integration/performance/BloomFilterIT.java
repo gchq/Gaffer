@@ -46,10 +46,10 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactor
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -130,7 +130,7 @@ public class BloomFilterIT {
                     .getVertex(), true);
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
-            final Pair<Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
+            final Pair<Key, Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
             keysSet.add(edgeKeys.getFirst());
             keysSet.add(edgeKeys.getSecond());
         }
