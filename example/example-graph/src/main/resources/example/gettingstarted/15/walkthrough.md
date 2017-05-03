@@ -60,7 +60,7 @@ gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/GafferCacheNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
 ```
 
 The json files can either be placed on your file system or bundled as a resource in your jar or war file.
