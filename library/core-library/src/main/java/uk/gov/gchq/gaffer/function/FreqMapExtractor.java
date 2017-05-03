@@ -19,8 +19,8 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
 
 /**
- * An <code>FreqMapExtractor</code> is a {@link KorypheFunction} extractors a
- * count from a frequency map with the provided key.
+ * An <code>FreqMapExtractor</code> is a {@link KorypheFunction} that extractor a
+ * count from a frequency map for the provided key.
  */
 public class FreqMapExtractor extends KorypheFunction<FreqMap, Long> {
     private String key;
@@ -34,7 +34,11 @@ public class FreqMapExtractor extends KorypheFunction<FreqMap, Long> {
 
     @Override
     public Long apply(final FreqMap freqMap) {
-        return freqMap.get(key);
+        if (null != freqMap) {
+            return freqMap.get(key);
+        }
+
+        return null;
     }
 
     public String getKey() {

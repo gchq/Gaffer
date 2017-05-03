@@ -85,9 +85,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
@@ -332,7 +332,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 29;
+        final int expectedNumberOfOperations = 30;
         store.initialise(schema, properties);
 
         // When

@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * A <code>ToMap</code> operation takes in an {@link java.lang.Iterable} of items
@@ -37,22 +37,22 @@ public class ToMap implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {
 
-    private Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator;
+    private MapGenerator elementGenerator;
     private Iterable<? extends Element> input;
 
     public ToMap() {
     }
 
-    public ToMap(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator) {
+    public ToMap(final MapGenerator elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> getElementGenerator() {
+    public MapGenerator getElementGenerator() {
         return elementGenerator;
     }
 
-    void setElementGenerator(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> elementGenerator) {
+    void setElementGenerator(final MapGenerator elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -82,7 +82,7 @@ public class ToMap implements
          * @param generator the {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} to set on the operation
          * @return this Builder
          */
-        public ToMap.Builder generator(final Function<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>> generator) {
+        public ToMap.Builder generator(final MapGenerator generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

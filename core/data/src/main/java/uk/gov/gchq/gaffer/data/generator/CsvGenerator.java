@@ -19,8 +19,8 @@ package uk.gov.gchq.gaffer.data.generator;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
 public class CsvGenerator implements OneToOneObjectGenerator<String> {
     public static final String GROUP = "GROUP";
     public static final String COMMA = ",";
-    private List<String> fields = new LinkedList<>();
-    private List<String> constants = new LinkedList<>();
+    private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+    private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
 
     /**
      * When set to true each value in the csv will be wrapped in quotes.
@@ -49,10 +49,48 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
 
     private Pattern commaReplacementPattern = Pattern.compile(commaReplacement);
 
+    private Object getFieldValue(final Element element, final String key) {
+        final IdentifierType idType = IdentifierType.fromName(key);
+        final Object value;
+        if (null == idType) {
+            if (GROUP.equals(key)) {
+                value = element.getGroup();
+            } else {
+                value = element.getProperty(key);
+            }
+        } else {
+            value = element.getIdentifier(idType);
+        }
+        return value;
+    }
+
+    public LinkedHashMap<String, String> getFields() {
+        return fields;
+    }
+
+    public void setFields(final LinkedHashMap<String, String> fields) {
+        if (null == fields) {
+            this.fields = new LinkedHashMap<>();
+        }
+        this.fields = fields;
+    }
+
+    public LinkedHashMap<String, String> getConstants() {
+        return constants;
+    }
+
+    public void setConstants(final LinkedHashMap<String, String> constants) {
+        if (null == constants) {
+            this.constants = new LinkedHashMap<>();
+        }
+        this.constants = constants;
+    }
+
+
     @Override
     public String _apply(final Element element) {
         final StringBuilder strBuilder = new StringBuilder();
-        for (final String field : fields) {
+        for (final String field : fields.keySet()) {
             final Object value = getFieldValue(element, field);
             if (null != value) {
                 strBuilder.append(quoteString(value));
@@ -61,7 +99,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         }
 
         if (!constants.isEmpty()) {
-            for (final String constant : constants) {
+            for (final String constant : constants.keySet()) {
                 strBuilder.append(quoteString(constant));
                 strBuilder.append(COMMA);
             }
@@ -79,26 +117,29 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             if (constants.isEmpty()) {
                 return "";
             }
-            return getHeaderFields(constants);
+            return getHeaderFields(constants.values());
         }
 
         if (constants.isEmpty()) {
-            return getHeaderFields(fields);
+            return getHeaderFields(fields.values());
         }
 
-        return getHeaderFields(fields) + COMMA + getHeaderFields(constants);
+        return getHeaderFields(fields.values()) + COMMA + getHeaderFields(constants.values());
     }
 
-    private String getHeaderFields(final List<String> fields) {
-        return StringUtils.join(fields.stream().map(s -> quoteString(s)).toArray(), COMMA);
+    private String getHeaderFields(final Collection<String> fields) {
+        return StringUtils.join(fields.stream().map(this::quoteString).toArray(), COMMA);
     }
 
     private String quoteString(final Object s) {
-        String value = s.toString();
-
-        if (null == value) {
+        String value;
+        if (null == s) {
             value = "";
-        } else if (null != commaReplacementPattern) {
+        } else {
+            value = s.toString();
+        }
+
+        if (null != commaReplacementPattern) {
             value = commaReplacementPattern.matcher(value).replaceAll(commaReplacement);
         }
 
@@ -109,47 +150,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return value;
     }
 
-    private Object getFieldValue(final Element element, final String key) {
-        final IdentifierType idType = IdentifierType.fromName(key);
-        final Object value;
-        if (null == idType) {
-            if (GROUP.equals(key)) {
-                value = element.getGroup();
-            } else {
-                value = element.getProperty(key);
-            }
-        } else {
-            value = element.getIdentifier(idType);
-        }
-        return value;
-    }
-
-    public List<String> getFields() {
-        return fields;
-    }
-
-    public void setFields(final List<String> fields) {
-        if (null == fields) {
-            this.fields = new LinkedList<>();
-        }
-        this.fields = fields;
-    }
-
-    public List<String> getConstants() {
-        return constants;
-    }
-
-    public void setConstants(final List<String> constants) {
-        if (null == constants) {
-            this.constants = new LinkedList<>();
-        } else {
-            for (final String constant : constants) {
-                if (null != constant) {
-                    constants.add(constant.replaceAll("\"", "\'"));
-                }
-            }
-        }
-    }
 
     public boolean isQuoted() {
         return quoted;
@@ -173,58 +173,44 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
     }
 
     public static class Builder {
-        private List<String> fields = new LinkedList<>();
-        private List<String> constants = new LinkedList<>();
+        private LinkedHashMap<String, String> fields = new LinkedHashMap<>();
+        private LinkedHashMap<String, String> constants = new LinkedHashMap<>();
         private String commaReplacement;
         private boolean quoted;
 
-        public Builder group() {
-            fields.add(GROUP);
+        public CsvGenerator.Builder group(final String columnHeader) {
+            fields.put(GROUP, columnHeader);
             return this;
         }
 
-        public Builder property(final String... propertyNames) {
-            for (final String propertyName : propertyNames) {
-                if (null != propertyName) {
-                    fields.add(propertyName.replaceAll("\"", "\'"));
-                }
-            }
+        public CsvGenerator.Builder property(final String propertyName, final String columnHeader) {
+            fields.put(propertyName, columnHeader);
             return this;
         }
 
-        public Builder vertex() {
-            fields.add(IdentifierType.VERTEX.name());
+        public CsvGenerator.Builder vertex(final String columnHeader) {
+            return identifier(IdentifierType.VERTEX, columnHeader);
+        }
+
+        public CsvGenerator.Builder source(final String columnHeader) {
+            return identifier(IdentifierType.SOURCE, columnHeader);
+        }
+
+        public CsvGenerator.Builder destination(final String columnHeader) {
+            return identifier(IdentifierType.DESTINATION, columnHeader);
+        }
+
+        public CsvGenerator.Builder direction(final String columnHeader) {
+            return identifier(IdentifierType.DIRECTED, columnHeader);
+        }
+
+        public CsvGenerator.Builder identifier(final IdentifierType identifierType, final String columnHeader) {
+            fields.put(identifierType.name(), columnHeader);
             return this;
         }
 
-        public Builder source() {
-            fields.add(IdentifierType.SOURCE.name());
-            return this;
-        }
-
-        public Builder destination() {
-            fields.add(IdentifierType.DESTINATION.name());
-            return this;
-        }
-
-        public Builder direction() {
-            fields.add(IdentifierType.DIRECTED.name());
-            return this;
-        }
-
-        public Builder identifier(final IdentifierType... identifierTypes) {
-            for (IdentifierType identifierType : identifierTypes) {
-                if (null != identifierType) {
-                    fields.add(identifierType.name());
-                }
-            }
-            return this;
-        }
-
-        public Builder constant(final String value) {
-            if (null != value) {
-                constants.add(value.replaceAll("\"", "\'"));
-            }
+        public CsvGenerator.Builder constant(final String key, final String value) {
+            constants.put(key, value);
             return this;
         }
 
@@ -237,7 +223,6 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
             this.quoted = quoted;
             return this;
         }
-
 
         public CsvGenerator build() {
             final CsvGenerator generator = new CsvGenerator();

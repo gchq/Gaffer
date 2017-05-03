@@ -86,12 +86,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
@@ -255,7 +255,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<?extends EntityId>> getAdjacentIdsHandler() {
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
         return new GetAdjacentIdsHandler();
     }
 

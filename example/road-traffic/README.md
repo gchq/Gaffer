@@ -28,7 +28,7 @@ The sample data used is taken from the Department for Transport [GB Road Traffic
 
 This data contains information about UK roads, their locations and hourly traffic flow between adjacent road junctions.
 
-## Example walkthrough
+## Example dev.walkthrough
 
 We've modelled the road use data as a simple Gaffer graph to demonstrate how Gaffer lets users explore and summarise data.
 
