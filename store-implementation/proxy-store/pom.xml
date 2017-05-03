@@ -40,7 +40,7 @@
         <!-- Test dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>job-tracker-jcs</artifactId>
+            <artifactId>job-tracker-library</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
