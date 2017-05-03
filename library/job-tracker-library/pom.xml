@@ -27,7 +27,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>job-tracker-jcs</module>
         <module>job-tracker-gaffer-cache</module>
     </modules>
 

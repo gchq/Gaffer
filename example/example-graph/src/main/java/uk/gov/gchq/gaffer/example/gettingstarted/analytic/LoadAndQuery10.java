@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.yahoo.sketches.frequencies.LongsSketch;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator10;
@@ -46,6 +47,10 @@ public class LoadAndQuery10 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
+        // [cache] manually bootstrap the cache service
+        // ---------------------------------------------------------
+        CacheServiceLoader.initialise();
+        // ---------------------------------------------------------
 
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

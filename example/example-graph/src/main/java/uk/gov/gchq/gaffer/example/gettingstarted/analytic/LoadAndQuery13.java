@@ -19,6 +19,7 @@ import com.yahoo.sketches.theta.CompactSketch;
 import com.yahoo.sketches.theta.Intersection;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -50,6 +51,10 @@ public class LoadAndQuery13 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
+        // [cache] manually bootstrap the cache service
+        // ---------------------------------------------------------
+        CacheServiceLoader.initialise();
+        // ---------------------------------------------------------
 
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

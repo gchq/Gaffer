@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -55,6 +56,10 @@ public class LoadAndQuery7 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
+        // [cache] manually bootstrap the cache service
+        // ---------------------------------------------------------
+        CacheServiceLoader.initialise();
+        // ---------------------------------------------------------
 
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------

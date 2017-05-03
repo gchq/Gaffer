@@ -16,26 +16,32 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-
+import com.hazelcast.core.IMap;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Set;
 
-public class HashMapCache <K, V> implements ICache<K, V> {
+public class HazelcastCache <K, V> implements ICache <K, V> {
+    private IMap<K, V> distributedMap;
 
-    private HashMap<K, V> cache = new HashMap<>();
-
-    @Override
-    public V get(final K key) {
-        return cache.get(key);
+    public HazelcastCache(final IMap <K, V> distributedMap) {
+        this.distributedMap = distributedMap;
     }
 
     @Override
-    public void put(final K key, final V value) {
-        cache.put(key, value);
+    public V get(final K key) {
+        return distributedMap.get(key);
+    }
+
+    @Override
+    public void put(final K key, final V value) throws CacheOperationException {
+        try {
+            distributedMap.put(key, value);
+        } catch (Exception e) {
+            throw new CacheOperationException(e);
+        }
     }
 
     @Override
@@ -43,32 +49,36 @@ public class HashMapCache <K, V> implements ICache<K, V> {
         if (get(key) == null) {
             put(key, value);
         } else {
-            throw new CacheOperationException("Cache entry already exists for key: " + key);
+            throw new CacheOperationException("Entry for key " + key + " already exists");
         }
     }
 
     @Override
     public void remove(final K key) {
-        cache.remove(key);
+        distributedMap.remove(key);
     }
 
     @Override
     public Collection<V> getAllValues() {
-        return cache.values();
+        return distributedMap.values();
     }
 
     @Override
     public Set<K> getAllKeys() {
-        return cache.keySet();
+        return distributedMap.keySet();
     }
 
     @Override
     public int size() {
-        return cache.size();
+        return distributedMap.size();
     }
 
     @Override
-    public void clear() {
-        cache.clear();
+    public void clear() throws CacheOperationException {
+        try {
+            distributedMap.clear();
+        } catch (Exception e) {
+            throw new CacheOperationException(e);
+        }
     }
 }

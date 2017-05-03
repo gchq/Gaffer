@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
@@ -48,6 +49,10 @@ public class LoadAndQuery4 extends LoadAndQuery {
         final User user = new User("user01");
         // ---------------------------------------------------------
 
+        // [cache] manually bootstrap the cache service
+        // ---------------------------------------------------------
+        CacheServiceLoader.initialise();
+        // ---------------------------------------------------------
 
         // [generate] Create some edges from the data file using our data generator class
         // ---------------------------------------------------------

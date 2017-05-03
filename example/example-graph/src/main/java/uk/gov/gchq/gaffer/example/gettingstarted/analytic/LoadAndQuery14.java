@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.example.gettingstarted.analytic;
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -31,6 +32,11 @@ public class LoadAndQuery14 extends LoadAndQuery {
     }
 
     public Schema run() throws OperationException {
+        // [cache] manually bootstrap the cache service
+        // ---------------------------------------------------------
+        CacheServiceLoader.initialise();
+        // ---------------------------------------------------------
+
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()

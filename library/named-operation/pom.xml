@@ -28,7 +28,6 @@
 
     <modules>
         <module>named-operation-library</module>
-        <module>named-operation-jcs-cache</module>
         <module>named-operation-gaffer-cache</module>
     </modules>
 

@@ -29,4 +29,4 @@ In order to make use of the Named Operations library you will need to include it
 This will add all the Operations and their handlers. Each of the handlers use a cache to store the Named Operations.
 
 Then you need to register your cache implementation which will store your NamedOperations.
-Check out their README.md to see how to do this.
+Check out the README.md to see how to do this.

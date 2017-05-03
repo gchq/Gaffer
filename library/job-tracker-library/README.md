@@ -18,22 +18,17 @@ Job Tracker Library
 This module contains job tracker implementations.
 
 By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the
-job tracker implementation you want e.g. job-tracker-jcs:
+job tracker implementation you want e.g. job-tracker-gaffer-cache:
 
 ```
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <artifactId>job-tracker-jcs</artifactId>
+    <artifactId>job-tracker-gaffer-cache</artifactId>
     <version>${gaffer.version}</version>
 </dependency>
 ```
 
 You will then need to register the job tracker in your store.properties file.
 ```
-gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.JcsJobTracker
-```
-
-you can optionally provide a config file (e.g a cache.ccf file):
-```
-gaffer.store.job.tracker.config.path=/path/to/config/file
+gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.GafferCacheJobTracker
 ```

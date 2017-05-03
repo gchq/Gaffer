@@ -27,7 +27,7 @@ import static org.junit.Assert.assertThat;
 
 public class HashMapCacheTest {
 
-    private HashMapCache <String, Integer> cache = new HashMapCache<>();
+    private HashMapCache<String, Integer> cache = new HashMapCache<>();
 
     @After
     public void after() {

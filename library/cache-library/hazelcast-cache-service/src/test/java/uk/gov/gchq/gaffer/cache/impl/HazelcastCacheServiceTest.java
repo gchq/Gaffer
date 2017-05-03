@@ -16,56 +16,72 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
+
+import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class HashMapCacheServiceTest {
+public class HazelcastCacheServiceTest {
 
-    private HashMapCacheService service = new HashMapCacheService();
-
+    private HazelcastCacheService service = new HazelcastCacheService();
     private static final String CACHE_NAME = "test";
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     @Before
-    public void before() {
-        service.initialise();
+    public void beforeEach() {
+        System.clearProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
     }
+
     @After
-    public void after() {
+    public void afterEach() {
         service.shutdown();
     }
 
     @Test
-    public void shouldReturnInstanceOfHashMapCache() {
+    public void shouldThrowAnExceptionWhenConfigFileIsMisConfigured() {
+        String madeUpFile = "/made/up/file.xml";
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage(madeUpFile);
+        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, "/made/up/file.xml");
+        service.initialise();
+    }
 
-        // when
-        ICache cache = service.getCache(CACHE_NAME);
-
-        // then
-        assert (cache instanceof HashMapCache);
+    private void initialiseWithTestConfig() {
+        String filePath = new File("src/test/resources/hazelcast.xml").getAbsolutePath();
+        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, filePath);
+        service.initialise();
     }
 
     @Test
-    public void shouldCreateNewHashMapCacheIfOneDoesNotExist() {
+    public void shouldAllowUserToConfigureCacheUsingConfigFilePath() {
+
+        // given
+        initialiseWithTestConfig();
 
         // when
-        ICache cache = service.getCache(CACHE_NAME);
+        ICache<String, Integer> cache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(0, cache.size());
+        Assert.assertEquals(0, cache.size());
+        service.shutdown();
     }
 
     @Test
     public void shouldReUseCacheIfOneExists() throws CacheOperationException {
 
         // given
+        initialiseWithTestConfig();
         ICache<String, Integer> cache = service.getCache(CACHE_NAME);
         cache.put("key", 1);
 
@@ -73,13 +89,37 @@ public class HashMapCacheServiceTest {
         ICache<String, Integer> sameCache = service.getCache(CACHE_NAME);
 
         // then
-        assertEquals(1, sameCache.size());
-        assertEquals(new Integer(1), sameCache.get("key"));
+        Assert.assertEquals(1, sameCache.size());
+        Assert.assertEquals(new Integer(1), sameCache.get("key"));
+
+        service.shutdown();
+
+    }
+
+    @Test
+    public void shouldShareCachesBetweenServices() throws CacheOperationException {
+
+        // given
+        initialiseWithTestConfig();
+        HazelcastCacheService service1 = new HazelcastCacheService();
+        service1.initialise();
+
+        // when
+        service1.getCache(CACHE_NAME).put("Test", 2);
+
+        // then
+        assertEquals(1, service.getCache(CACHE_NAME).size());
+        assertEquals(2, service.getCache(CACHE_NAME).get("Test"));
+
+        service1.shutdown();
+        service.shutdown();
 
     }
 
     @Test
     public void shouldAddEntriesToCache() throws CacheOperationException {
+        initialiseWithTestConfig();
+
         service.putInCache(CACHE_NAME, "test", 1);
 
         assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
@@ -87,6 +127,7 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
+        initialiseWithTestConfig();
         service.putInCache(CACHE_NAME, "test", 1);
 
         try {
@@ -103,6 +144,7 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
+        initialiseWithTestConfig();
         service.putInCache(CACHE_NAME, "test", 1);
 
         service.removeFromCache(CACHE_NAME, "test");
@@ -111,6 +153,7 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldBeAbleToClearCache() throws CacheOperationException {
+        initialiseWithTestConfig();
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
@@ -123,6 +166,7 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldGetAllKeysFromCache() throws CacheOperationException {
+        initialiseWithTestConfig();
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
@@ -133,6 +177,7 @@ public class HashMapCacheServiceTest {
 
     @Test
     public void shouldGetAllValues() throws CacheOperationException {
+        initialiseWithTestConfig();
         service.putInCache(CACHE_NAME, "test1", 1);
         service.putInCache(CACHE_NAME, "test2", 2);
         service.putInCache(CACHE_NAME, "test3", 3);
