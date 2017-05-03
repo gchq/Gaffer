@@ -40,7 +40,7 @@ public class HyperLogLogPlusKryoSerializer extends Serializer<HyperLogLogPlus>  
         try {
             serialised = serialiser.serialise(hyperLogLogPlus);
         } catch (final SerialisationException e) {
-            throw new GafferRuntimeException("Exception serialising HyperLogLogPlus to a byte array");
+            throw new GafferRuntimeException("Exception serialising HyperLogLogPlus to a byte array", e);
         }
         output.writeInt(serialised.length);
         output.writeBytes(serialised);
