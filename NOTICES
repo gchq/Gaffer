@@ -21,6 +21,11 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
+Koryphe (uk.gov.gchq.koryphe:koryphe:0.1):
+
+- Apache License, Version 2.0
+
+
 Apache Hadoop (org.apache.hadoop:hadoop-common:2.6.3):
 
 - Apache License, Version 2.0
@@ -36,7 +41,7 @@ Apache Avro (org.apache.avro:avro:1.7.7, org.apache.avro:avro-mapred:1.7.7):
 - Apache License, Version 2.0
 
 
-Apache Commons Lang (commons-lang:commons-lang:2.6):
+Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
 
 - Apache License, Version 2.0
 
@@ -54,7 +59,7 @@ Clearspring analytics (com.clearspring.analytics:stream:2.8.0):
 - Apache License, Version 2.0
 
 
-Datasketches (com.yahoo.sketches:sketches-core:0.8.3):
+Datasketches (com.yahoo.sketches:sketches-core:0.9.1):
 
 - Apache License, Version 2.0
 

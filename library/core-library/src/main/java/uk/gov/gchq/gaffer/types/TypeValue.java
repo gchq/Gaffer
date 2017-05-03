@@ -80,4 +80,9 @@ public class TypeValue {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "type = " + getType() + " value = " + getValue();
+    }
 }

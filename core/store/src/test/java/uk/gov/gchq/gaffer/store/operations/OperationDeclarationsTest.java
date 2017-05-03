@@ -16,7 +16,12 @@
 
 package uk.gov.gchq.gaffer.store.operations;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
@@ -25,9 +30,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateElementsHandl
 import uk.gov.gchq.gaffer.store.operation.handler.generate.GenerateObjectsHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class OperationDeclarationsTest {
     private final JSONSerialiser json = new JSONSerialiser();
@@ -71,5 +73,21 @@ public class OperationDeclarationsTest {
 
         assertEquals(GenerateObjects.class, od1.getOperation());
         assertTrue(od1.getHandler() instanceof GenerateObjectsHandler);
+    }
+
+    @Test
+    public void testMissingFile() throws SerialisationException {
+        // Given
+        final String paths = "missingFile.json,operationDeclarations2.json";
+
+        // When
+        try {
+            OperationDeclarations.fromPaths(paths);
+        } catch (IllegalArgumentException e) {
+            // Then
+            assertTrue(e.getMessage().contains(StreamUtil.FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH));
+            return;
+        }
+        fail("Exception wasn't thrown");
     }
 }

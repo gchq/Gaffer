@@ -34,7 +34,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -629,7 +629,7 @@ public class GetDataFrameOfElementsHandlerTest {
         private static final long serialVersionUID = 7777521632508320165L;
 
         @Override
-        public boolean canHandle(Class clazz) {
+        public boolean canHandle(final Class clazz) {
             return MyProperty.class.equals(clazz);
         }
 
@@ -639,7 +639,7 @@ public class GetDataFrameOfElementsHandlerTest {
         }
 
         @Override
-        public Object convert(Object object) throws ConversionException {
+        public Object convert(final Object object) throws ConversionException {
             return ((MyProperty) object).getA();
         }
     }

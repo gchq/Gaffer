@@ -26,17 +26,17 @@ public class MyPropertySerialiser implements Serialisation {
     private final CompactRawIntegerSerialiser integerSerialiser = new CompactRawIntegerSerialiser();
 
     @Override
-    public boolean canHandle(Class clazz) {
+    public boolean canHandle(final Class clazz) {
         return MyProperty.class.equals(clazz);
     }
 
     @Override
-    public byte[] serialise(Object object) throws SerialisationException {
+    public byte[] serialise(final Object object) throws SerialisationException {
         return integerSerialiser.serialise(((MyProperty) object).getA());
     }
 
     @Override
-    public Object deserialise(byte[] bytes) throws SerialisationException {
+    public Object deserialise(final byte[] bytes) throws SerialisationException {
         return new MyProperty(integerSerialiser.deserialise(bytes));
     }
 

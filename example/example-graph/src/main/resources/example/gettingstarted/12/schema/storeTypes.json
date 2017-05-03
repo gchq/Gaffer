@@ -2,7 +2,7 @@
   "types": {
     "reservoir.strings.union": {
       "aggregateFunction": {
-        "class": "uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate.ReservoirItemsUnionAggregator"
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator"
       },
       "serialiserClass": "uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirStringsUnionSerialiser"
     }

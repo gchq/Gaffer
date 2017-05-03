@@ -22,14 +22,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 /**
@@ -41,7 +41,7 @@ public class TypeDefinition {
     private Class<?> clazz;
     private Serialisation serialiser;
     private List<Predicate> validateFunctions;
-    private BiFunction aggregateFunction;
+    private BinaryOperator aggregateFunction;
     private String description;
 
     public TypeDefinition() {
@@ -121,11 +121,11 @@ public class TypeDefinition {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public BiFunction getAggregateFunction() {
+    public BinaryOperator getAggregateFunction() {
         return aggregateFunction;
     }
 
-    public <F extends BiFunction<I, O, O>, I, O> void setAggregateFunction(final F aggregateFunction) {
+    public <F extends BinaryOperator<T>, T> void setAggregateFunction(final F aggregateFunction) {
         this.aggregateFunction = aggregateFunction;
     }
 
@@ -241,7 +241,7 @@ public class TypeDefinition {
             return validateFunctions(Lists.newArrayList(validateFunctions));
         }
 
-        public <F extends BiFunction<I, O, O>, I, O> Builder aggregateFunction(final F aggregateFunction) {
+        public <F extends BinaryOperator<T>, T> Builder aggregateFunction(final F aggregateFunction) {
             type.setAggregateFunction(aggregateFunction);
             return this;
         }

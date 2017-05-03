@@ -188,7 +188,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         while (iter.hasNext()) {
             properties = iter.next();
             if (properties != null) {
-                state = aggregator.apply(properties, state);
+                state = aggregator.apply(state, properties);
             }
         }
 

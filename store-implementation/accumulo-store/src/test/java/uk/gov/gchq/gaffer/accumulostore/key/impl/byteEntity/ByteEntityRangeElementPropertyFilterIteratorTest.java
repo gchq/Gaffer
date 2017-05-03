@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeElementPropertyFilterIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -81,7 +81,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only edges should be excepted
             assertEquals("Failed for element: " + element.toString(), element instanceof Edge, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -107,7 +107,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only directed edges should be excepted
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -134,7 +134,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only undirected edges should be excepted
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -160,7 +160,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -185,7 +185,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -209,7 +209,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -234,7 +234,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -259,7 +259,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Entity;
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // entities and self edges are not added the other way round

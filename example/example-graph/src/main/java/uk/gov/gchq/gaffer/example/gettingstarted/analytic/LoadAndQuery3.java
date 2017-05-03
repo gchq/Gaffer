@@ -24,13 +24,13 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.example.gettingstarted.generator.DataGenerator3;
 import uk.gov.gchq.gaffer.example.gettingstarted.util.DataUtils;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         new LoadAndQuery3().run();
     }
 
-    public CloseableIterable<?extends Element> run() throws OperationException {
+    public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
         final User user = new User("user01");
@@ -94,7 +94,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
         final GetElements getRelatedElement = new GetElements.Builder()
                 .input(new EntitySeed("1"))
                 .build();
-        final CloseableIterable<?extends Element> results = graph.execute(getRelatedElement, user);
+        final CloseableIterable<? extends Element> results = graph.execute(getRelatedElement, user);
         // ---------------------------------------------------------
         for (final Element e : results) {
             log("GET_RELATED_EDGES_RESULT", e.toString());
@@ -115,7 +115,7 @@ public class LoadAndQuery3 extends LoadAndQuery {
                 .input(new EntitySeed("1"))
                 .view(view)
                 .build();
-        final CloseableIterable<?extends Element> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
+        final CloseableIterable<? extends Element> filteredResults = graph.execute(getRelatedEdgesWithCountMoreThan3, user);
         // ---------------------------------------------------------
         log("\nAll edges containing the vertex 1 with an aggregated count more than than 3\n");
         for (final Element e : filteredResults) {

@@ -16,6 +16,19 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
@@ -36,8 +49,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
-import uk.gov.gchq.gaffer.function.aggregate.Sum;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -61,6 +74,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,19 +82,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import java.util.regex.Pattern;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
@@ -160,6 +162,44 @@ public class GraphTest {
 
         // Then
         JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    @Test
+    public void shouldConstructGraphFromSchemaURL() throws IOException {
+        // Given
+        final URL typeInputURL = getResourceUrl(StreamUtil.DATA_TYPES);
+        final URL schemaInputUrl = getResourceUrl(StreamUtil.DATA_SCHEMA);
+        final URL storeInputUrl = getResourceUrl(StreamUtil.STORE_PROPERTIES);
+        final Schema expectedSchema = new Schema.Builder()
+                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .build();
+        Graph graph = null;
+        File schemaDir = null;
+
+        try {
+            schemaDir = createSchemaDirectory();
+
+            // When
+            graph = new Graph.Builder()
+                    .storeProperties(storeInputUrl)
+                    .addSchemas(typeInputURL, schemaInputUrl)
+                    .build();
+        } finally {
+            if (schemaDir != null) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
+
+        // Then
+        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    private URL getResourceUrl(String resource) {
+        resource = resource.replaceFirst(Pattern.quote("/"), "");
+        final URL resourceURL = getClass().getClassLoader().getResource(resource);
+        if (resourceURL == null)
+            fail("Test json file not found: " + resource);
+        return resourceURL;
     }
 
     @Test
