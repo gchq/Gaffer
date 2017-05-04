@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 public class VisibilitySerialiser implements Serialisation<String> {
     private static final long serialVersionUID = -8830741085664334048L;
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return String.class.equals(clazz);
     }
@@ -32,7 +33,7 @@ public class VisibilitySerialiser implements Serialisation<String> {
     public byte[] serialise(final String str) throws SerialisationException {
         String value = str;
         try {
-            if (value.equals("public")) {
+            if ("public".equals(value)) {
                 value = "(private|public)";
             }
             return value.getBytes(CommonConstants.UTF_8);
@@ -45,7 +46,7 @@ public class VisibilitySerialiser implements Serialisation<String> {
     public String deserialise(final byte[] bytes) throws SerialisationException {
         try {
             String value = new String(bytes, CommonConstants.UTF_8);
-            if (value.equals("(private|public)")) {
+            if ("(private|public)".equals(value)) {
                 value = "public";
             }
             return value;

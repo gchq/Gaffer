@@ -40,6 +40,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
     private float proportionToSample;
     private AccumuloElementConverter elementConverter;
 
+    @Override
     protected void setup(final Context context) {
         super.setup(context);
         proportionToSample = context.getConfiguration().getFloat(SampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
@@ -62,6 +63,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
         }
     }
 
+    @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
         if (Math.random() < proportionToSample) {
             context.getCounter("Split points", "Number sampled").increment(1L);

@@ -107,6 +107,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         assertFalse(accepted);
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

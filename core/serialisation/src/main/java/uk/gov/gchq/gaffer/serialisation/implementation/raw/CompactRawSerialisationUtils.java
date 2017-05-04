@@ -73,7 +73,7 @@ public final class CompactRawSerialisationUtils {
             i = i << 8;
             i = i | (b & 0xFF);
         }
-        return (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
+        return isNegativeVInt(firstByte) ? i ^ -1L : i;
     }
 
     /**
@@ -141,7 +141,7 @@ public final class CompactRawSerialisationUtils {
                 i = i << 8;
                 i = i | (b & 0xFF);
             }
-            return (isNegativeVInt(firstByte) ? (i ^ -1L) : i);
+            return isNegativeVInt(firstByte) ? i ^ -1L : i;
         } catch (final IOException e) {
             throw new SerialisationException("Exception writing bytes", e);
         }

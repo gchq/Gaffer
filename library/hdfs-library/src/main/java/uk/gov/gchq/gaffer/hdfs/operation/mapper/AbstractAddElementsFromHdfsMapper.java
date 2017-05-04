@@ -48,6 +48,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     private ElementValidator elementValidator;
     protected Schema schema;
 
+    @Override
     protected void setup(final Context context) {
         doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
         try {
@@ -65,6 +66,7 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
         }
     }
 
+    @Override
     protected void map(final KEY_IN keyIn, final VALUE_IN valueIn, final Context context) throws IOException, InterruptedException {
         for (final Element element : mapperGenerator.getElements(keyIn, valueIn, context)) {
             if (!doValidation || isValid(element)) {

@@ -75,6 +75,7 @@ public class GafferResultCacheExporter implements Exporter {
         userOpAuths.add(user.getUserId());
     }
 
+    @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
         if (null == values) {
             return;
@@ -117,6 +118,7 @@ public class GafferResultCacheExporter implements Exporter {
                 .build(), user);
     }
 
+    @Override
     public CloseableIterable<?> get(final String key) throws OperationException {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(jobId, key, true))

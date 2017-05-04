@@ -47,7 +47,7 @@ public class ToArrayHandler<T> implements OutputOperationHandler<ToArray<T>, T[]
         final Set<Class> classes = new HashSet<>();
         final Collection<T> collection;
         if (operation.getInput() instanceof Collection) {
-            collection = ((Collection) operation.getInput());
+            collection = (Collection) operation.getInput();
             collection.forEach(e -> {
                 if (null != e) {
                     classes.add(e.getClass());

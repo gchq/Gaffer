@@ -79,7 +79,7 @@ public abstract class WalkthroughStrSubstitutor {
         final int startIndex = formattedDescription.indexOf("${");
         if (startIndex > -1) {
             final String tmp = formattedDescription.substring(startIndex + 2);
-            final int endIndex = tmp.indexOf("}");
+            final int endIndex = tmp.indexOf('}');
             if (endIndex > -1) {
                 throw new RuntimeException("Parameter was not substituted: " + tmp.substring(0, endIndex));
             }
@@ -248,7 +248,7 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     private static String getGitHubResourcesLink(final String resourcePath, final String modulePath) {
-        final String resourceName = resourcePath.substring(resourcePath.lastIndexOf("/") + 1, resourcePath.length());
+        final String resourceName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1, resourcePath.length());
         return "[" + resourceName + "](" + GITHUB_URL_PREFIX + modulePath + RESOURCES_SRC_PATH + resourcePath + ")";
     }
 
@@ -261,7 +261,11 @@ public abstract class WalkthroughStrSubstitutor {
     }
 
     private static String getGitHubCodeLink(final String className, final String modulePath) {
-        final String simpleClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
+        final String simpleClassName = className.substring(className.lastIndexOf('.') + 1, className.length());
         return "[" + simpleClassName + "](" + GITHUB_URL_PREFIX + modulePath + JAVA_SRC_PATH + className.replaceAll("\\.", "/") + ".java)";
+    }
+
+    private WalkthroughStrSubstitutor() {
+        // Private constructor to prevent instantiation.
     }
 }

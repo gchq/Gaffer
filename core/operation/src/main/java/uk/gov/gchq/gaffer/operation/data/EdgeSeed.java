@@ -40,26 +40,32 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
         this.directed = directed;
     }
 
+    @Override
     public Object getSource() {
         return source;
     }
 
+    @Override
     public void setSource(final Object source) {
         this.source = source;
     }
 
+    @Override
     public Object getDestination() {
         return destination;
     }
 
+    @Override
     public void setDestination(final Object destination) {
         this.destination = destination;
     }
 
+    @Override
     public boolean isDirected() {
         return directed;
     }
 
+    @Override
     public void setDirected(final boolean directed) {
         this.directed = directed;
     }

@@ -27,6 +27,7 @@ public class IsAExample extends PredicateExample {
         super(IsA.class);
     }
 
+    @Override
     public void runExamples() {
         isAString();
         isANumber();

@@ -121,7 +121,7 @@ public abstract class StreamUtil {
             try {
                 schemas[index] = openStream(clazz, schemaFile);
                 index++;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
             }
@@ -134,7 +134,7 @@ public abstract class StreamUtil {
         for (int pos = 0; pos < urls.length; pos++) {
             try {
                 schemas[pos] = openStream(urls[pos]);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
                 LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
                 throw e;
@@ -146,7 +146,7 @@ public abstract class StreamUtil {
     public static InputStream openStream(final URL url) throws IOException {
         try {
             return url.openStream();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error("Failed to create input stream: {}", url, e);
             throw e;
         }
@@ -157,7 +157,7 @@ public abstract class StreamUtil {
         for (final InputStream stream : inputStreams) {
             try {
                 stream.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOGGER.debug("Exception while closing input streams", e);
             }
             closedStreamsCount++;

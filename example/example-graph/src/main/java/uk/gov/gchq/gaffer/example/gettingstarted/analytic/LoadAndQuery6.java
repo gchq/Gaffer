@@ -40,6 +40,7 @@ public class LoadAndQuery6 extends LoadAndQuery {
         new LoadAndQuery6().run();
     }
 
+    @Override
     public Iterable<? extends String> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------

@@ -34,6 +34,7 @@ public class GetElementsExample extends OperationExample {
         new GetElementsExample().run();
     }
 
+    @Override
     public void runExamples() {
         getEntitiesAndEdgesByEntityId2AndEdgeId2to3();
         getEntitiesAndEdgesByEntityId2AndEdgeId2to3WithCountGreaterThan1();

@@ -124,10 +124,9 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                     return true;
                 }
                 ViewElementDefinition viewElementDefinition = view.getEdge(edgeGroup);
-                if (null != viewElementDefinition && viewElementDefinition.getGroupBy() != null) {
-                    if (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
-                        return true;
-                    }
+                if ((null != viewElementDefinition && viewElementDefinition.getGroupBy() != null)
+                        && (edgeDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
+                    return true;
                 }
             }
         }
@@ -138,10 +137,9 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
                     return true;
                 }
                 ViewElementDefinition viewElementDefinition = view.getElement(entityGroup);
-                if (viewElementDefinition.getGroupBy() != null) {
-                    if (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size()) {
-                        return true;
-                    }
+                if ((viewElementDefinition.getGroupBy() != null)
+                        && (entityDefinition.getGroupBy().size() != viewElementDefinition.getGroupBy().size())) {
+                    return true;
                 }
             }
         }

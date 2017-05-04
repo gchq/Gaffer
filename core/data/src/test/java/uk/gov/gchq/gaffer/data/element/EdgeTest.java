@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class EdgeTest extends ElementTest {
 
+    @Override
     @Test
     public void shouldSetAndGetFields() {
         // Given
@@ -112,6 +113,7 @@ public class EdgeTest extends ElementTest {
         assertEquals(edge, clone);
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
@@ -147,6 +149,7 @@ public class EdgeTest extends ElementTest {
         assertTrue(isEqual);
     }
 
+    @Override
     @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
         // Given
@@ -187,6 +190,7 @@ public class EdgeTest extends ElementTest {
         assertNotEquals(edge1.hashCode(), edge2.hashCode());
     }
 
+    @Override
     @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
@@ -309,6 +313,7 @@ public class EdgeTest extends ElementTest {
         assertFalse(edge1.hashCode() == edge2.hashCode());
     }
 
+    @Override
     @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given

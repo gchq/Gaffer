@@ -29,6 +29,7 @@ public class AreInExample extends PredicateExample {
         super(AreIn.class);
     }
 
+    @Override
     public void runExamples() {
         areInSet();
     }

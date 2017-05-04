@@ -43,7 +43,7 @@ public final class BloomFilterUtils {
     @SuppressFBWarnings(value = "ICAST_IDIV_CAST_TO_DOUBLE", justification = "the value is cast to an int after the division")
     public static int calculateBloomFilterSize(final double falsePositiveRate, final int numItemsToBeAdded,
             final int maximumSize) {
-        final int size = (int) (-numItemsToBeAdded * Math.log(falsePositiveRate) / (Math.pow(Math.log(2.0), 2.0)));
+        final int size = (int) (-numItemsToBeAdded * Math.log(falsePositiveRate) / Math.pow(Math.log(2.0), 2.0));
         return Math.min(size, maximumSize);
     }
 

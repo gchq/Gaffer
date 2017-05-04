@@ -133,13 +133,14 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur adding an aggregator iterator
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
-        if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
-            if (store.getSchema().hasAggregators()) {
-                try {
-                    addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-                } catch (final IteratorSettingException e) {
-                    throw new StoreException(e.getMessage(), e);
-                }
+        if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
+                && (store.getSchema().hasAggregators())) {
+            try {
+                addIterator(store, store.getKeyPackage()
+                                        .getIteratorFactory()
+                                        .getIteratorSetting(store, iteratorName));
+            } catch (final IteratorSettingException e) {
+                throw new StoreException(e.getMessage(), e);
             }
         }
     }

@@ -26,6 +26,7 @@ public class IsMoreThanExample extends PredicateExample {
         super(IsMoreThan.class);
     }
 
+    @Override
     public void runExamples() {
         isMoreThan5();
         isMoreThanOrEqualTo5();

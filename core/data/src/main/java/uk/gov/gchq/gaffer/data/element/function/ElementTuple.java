@@ -17,6 +17,9 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -74,9 +77,33 @@ public class ElementTuple implements Tuple<String> {
     }
 
     @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ElementTuple objects = (ElementTuple) obj;
+
+        return new EqualsBuilder()
+                .append(element, objects.element)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(element)
+                .toHashCode();
+    }
+
+    @Override
     public String toString() {
-        return "ElementTuple{"
-                + "element=" + element
-                + '}';
+        return new ToStringBuilder(this)
+                .append("element", element)
+                .toString();
     }
 }

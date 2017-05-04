@@ -36,7 +36,7 @@ public class MapStoreProperties extends StoreProperties {
     }
 
     public static MapStoreProperties loadStoreProperties(final InputStream storePropertiesStream) {
-        return ((MapStoreProperties) StoreProperties.loadStoreProperties(storePropertiesStream));
+        return (MapStoreProperties) StoreProperties.loadStoreProperties(storePropertiesStream);
     }
 
     @Override

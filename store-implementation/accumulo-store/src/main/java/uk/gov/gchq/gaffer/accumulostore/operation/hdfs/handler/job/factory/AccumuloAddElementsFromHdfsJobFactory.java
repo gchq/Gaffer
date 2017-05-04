@@ -59,7 +59,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         setupOutput(job, operation);
 
         final String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
-        if (null == useAccumuloPartitioner || useAccumuloPartitioner.equalsIgnoreCase("true")) {
+        if (null == useAccumuloPartitioner || "true".equalsIgnoreCase(useAccumuloPartitioner)) {
             setupPartitioner(job, operation, (AccumuloStore) store);
         }
     }
@@ -118,12 +118,11 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
         final int maxReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
         final int minReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
-        if (maxReducers != -1 && minReducers != -1) {
-            if (minReducers > maxReducers) {
-                LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
-                        + "maximum was {}", minReducers, maxReducers);
-                throw new IOException("Minimum number of reducers must be less than the maximum number of reducers");
-            }
+        if ((maxReducers != -1 && minReducers != -1)
+                && (minReducers > maxReducers)) {
+            LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
+                    + "maximum was {}", minReducers, maxReducers);
+            throw new IOException("Minimum number of reducers must be less than the maximum number of reducers");
         }
         int numSplits;
         try {
@@ -142,16 +141,15 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         // If neither min or max are specified then nothing to do; if max specified and min not then already taken care of.
         // If min is specified and the number of reducers is not greater than that then set the appropriate number of
         // subbins.
-        if (minReducers != -1) {
-            if (numReducers < minReducers) {
-                LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
-                        minReducers);
-                int factor = (minReducers / numReducers) + 1;
-                LOGGER.info("Setting number of subbins on KeyRangePartitioner to {}", factor);
-                KeyRangePartitioner.setNumSubBins(job, factor);
-                numReducers = numReducers * factor;
-                LOGGER.info("Number of reducers is {}", numReducers);
-            }
+        if ((minReducers != -1)
+                && (numReducers < minReducers)) {
+            LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
+                    minReducers);
+            int factor = (minReducers / numReducers) + 1;
+            LOGGER.info("Setting number of subbins on KeyRangePartitioner to {}", factor);
+            KeyRangePartitioner.setNumSubBins(job, factor);
+            numReducers = numReducers * factor;
+            LOGGER.info("Number of reducers is {}", numReducers);
         }
         job.setNumReduceTasks(numReducers);
         job.setPartitionerClass(KeyRangePartitioner.class);
@@ -178,7 +176,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
     private static int intOptionIsValid(final AddElementsFromHdfs operation, final String optionKey) throws IOException {
         final String option = operation.getOption(optionKey);
         int result = -1;
-        if (option != null && !option.equals("")) {
+        if (option != null && !option.isEmpty()) {
             try {
                 result = Integer.parseInt(option);
             } catch (final NumberFormatException e) {
