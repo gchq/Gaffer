@@ -72,7 +72,7 @@ public class OperationServiceIT extends AbstractRestApiIT {
     }
 
     @Test
-    public void shouldReturnChunkedElements() throws IOException {
+    public void shouldReturnChunkedOperationChainElements() throws IOException {
         // Given
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
@@ -85,7 +85,20 @@ public class OperationServiceIT extends AbstractRestApiIT {
     }
 
     @Test
-    public void shouldReturnChunkedGroupCounts() throws IOException {
+    public void shouldReturnAllChunkedOperationElements() throws IOException {
+        // Given
+        RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
+
+        // When
+        final Response response = RestApiTestUtil.executeOperationChunked(new GetAllElements());
+
+        // Then
+        final List<Element> results = readChunkedElements(response);
+        verifyElements(DEFAULT_ELEMENTS, results);
+    }
+
+    @Test
+    public void shouldReturnChunkedOperationChainGroupCounts() throws IOException {
         // Given
         RestApiTestUtil.addElements(DEFAULT_ELEMENTS);
 
@@ -104,9 +117,19 @@ public class OperationServiceIT extends AbstractRestApiIT {
     }
 
     @Test
-    public void shouldReturnNoChunkedElementsWhenNoElementsInGraph() throws IOException {
+    public void shouldReturnNoChunkedOperationChainElementsWhenNoElementsInGraph() throws IOException {
         // When
         final Response response = RestApiTestUtil.executeOperationChainChunked(new OperationChain<>(new GetAllElements()));
+
+        // Then
+        final List<Element> results = readChunkedElements(response);
+        assertEquals(0, results.size());
+    }
+
+    @Test
+    public void shouldReturnNoChunkedOperationElementsWhenNoElementsInGraph() throws IOException {
+        // When
+        final Response response = RestApiTestUtil.executeOperationChunked(new GetAllElements());
 
         // Then
         final List<Element> results = readChunkedElements(response);
