@@ -73,6 +73,7 @@ public class AddElementsExample extends OperationExample {
 
         log("Updated graph:");
         log("```");
+        log("");
         log("    --> 4 <--");
         log("  /     ^     \\");
         log(" /      |      \\");

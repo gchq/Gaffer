@@ -19,7 +19,7 @@ import uk.gov.gchq.gaffer.doc.util.ExampleDocRunner;
 import java.util.function.Predicate;
 
 /**
- * This runner will run all filter function examples.
+ * This runner will run all predicate examples.
  */
 public class PredicateExamplesRunner extends ExampleDocRunner {
     public static void main(final String[] args) throws Exception {
@@ -27,6 +27,6 @@ public class PredicateExamplesRunner extends ExampleDocRunner {
     }
 
     public void run() throws Exception {
-        run(PredicateExample.class, Predicate.class, "predicate");
+        run(PredicateExample.class, Predicate.class);
     }
 }

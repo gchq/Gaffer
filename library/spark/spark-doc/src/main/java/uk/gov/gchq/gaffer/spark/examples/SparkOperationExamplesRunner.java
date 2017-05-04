@@ -32,12 +32,12 @@ public class SparkOperationExamplesRunner extends ExampleDocRunner {
     }
 
     public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "Spark operation");
+        run(OperationExample.class, Operation.class);
         ROOT_LOGGER.setLevel(Level.OFF);
     }
 
     @Override
-    protected void printEditWarning(final String type) {
-        log("_This page has been generated from code. To make any changes please update the " + type + " examples in the [spark-examples](https://github.com/gchq/Gaffer/tree/master/library/spark/spark-examples/src/main/java/uk/gov/gchq/gaffer/spark/examples) module, run it and replace the content of this page with the output._\n\n");
+    protected void printEditWarning() {
+        log("_This page has been generated from code. To make any changes please update the examples in the [spark-examples](https://github.com/gchq/Gaffer/tree/master/library/spark/spark-examples/src/main/java/uk/gov/gchq/gaffer/spark/examples) module, run it and replace the content of this page with the output._\n\n");
     }
 }

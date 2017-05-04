@@ -28,6 +28,6 @@ public class AccumuloOperationExamplesRunner extends ExampleDocRunner {
     }
 
     public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "Acccumulo operation");
+        run(OperationExample.class, Operation.class);
     }
 }

@@ -28,7 +28,7 @@ public abstract class PredicateExample extends Example {
 
     public void runExample(final Predicate predicate, final Object... inputs) {
         log("#### " + getMethodNameAsSentence(2) + "\n");
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/predicate-doc", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
         printAsJson(predicate);
 
         log("Input type:");

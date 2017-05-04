@@ -38,9 +38,9 @@ public abstract class ExampleDocRunner {
     private static final String EXAMPLE_DIVIDER = "\n\n";
     private static final Logger LOGGER = LoggerFactory.getLogger(ExampleDocRunner.class);
 
-    public void run(final Class<? extends Example> exampleParentClass, final Class<?> classForExample, final String type) throws Exception {
+    public void run(final Class<? extends Example> exampleParentClass, final Class<?> classForExample) throws Exception {
         printHeader();
-        printEditWarning(type);
+        printEditWarning();
         printTableOfContents(exampleParentClass);
 
         final Set<? extends Class<?>> classes = Sets.newHashSet((Iterable) getSubClasses(classForExample));
@@ -73,8 +73,8 @@ public abstract class ExampleDocRunner {
                 + "\n");
     }
 
-    protected void printEditWarning(final String type) {
-        log("_This page has been generated from code. To make any changes please update the " + type + " example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/dev-doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
+    protected void printEditWarning() {
+        log("_This page has been generated from code. To make any changes please update the example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/dev-doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {

@@ -55,7 +55,7 @@ public abstract class OperationExample extends Example {
 
     protected void runExampleNoResult(final Operation operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/operation-doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
 
         try {
@@ -70,7 +70,7 @@ public abstract class OperationExample extends Example {
     protected <RESULT_TYPE> RESULT_TYPE runExample(final Output<RESULT_TYPE> operation) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/operation-doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
 
         final RESULT_TYPE results;
@@ -90,7 +90,7 @@ public abstract class OperationExample extends Example {
     protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/operation-doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operationChain);
 
         final RESULT_TYPE result;
@@ -142,8 +142,8 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "/schema"))
-                .storeProperties(StreamUtil.openStream(getClass(), "/mockaccumulostore.properties"))
+                .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
 
         // Create data generator
@@ -152,7 +152,7 @@ public abstract class OperationExample extends Example {
         // Load data into memory
         final List<String> data;
         try {
-            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "/data.txt"));
+            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "operation/data.txt"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -180,6 +180,7 @@ public abstract class OperationExample extends Example {
     protected void printGraph() {
         log("Using this simple directed graph:");
         log("\n```");
+        log("");
         log("    --> 4 <--");
         log("  /     ^     \\");
         log(" /      |      \\");

@@ -28,7 +28,7 @@ public class OperationExamplesRunner extends ExampleDocRunner {
     }
 
     public void run() throws Exception {
-        run(OperationExample.class, Operation.class, "operation");
+        run(OperationExample.class, Operation.class);
     }
 
     @Override
