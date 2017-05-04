@@ -49,11 +49,11 @@ public abstract class BatchedIterable<T> implements CloseableIterable<T> {
     @Override
     public void close() {
         if (null != batchIterator && batchIterator instanceof Closeable) {
-            IOUtils.closeQuietly(((Closeable) batchIterator));
+            IOUtils.closeQuietly((Closeable) batchIterator);
         }
 
         if (null != batch && batch instanceof Closeable) {
-            IOUtils.closeQuietly(((Closeable) batch));
+            IOUtils.closeQuietly((Closeable) batch);
         }
     }
 
@@ -65,14 +65,14 @@ public abstract class BatchedIterable<T> implements CloseableIterable<T> {
     private void closeBatch() {
         if (null != batchIterator) {
             if (batchIterator instanceof Closeable) {
-                IOUtils.closeQuietly(((Closeable) batchIterator));
+                IOUtils.closeQuietly((Closeable) batchIterator);
             }
             batchIterator = null;
         }
 
         if (null != batch) {
             if (batch instanceof Closeable) {
-                IOUtils.closeQuietly(((Closeable) batch));
+                IOUtils.closeQuietly((Closeable) batch);
             }
             batch = null;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.spark.serialisation.kryo;
+package uk.gov.gchq.gaffer.spark.serialisation.kryo.impl;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertEquals;
 
-public class RegistratorTest {
-
+public class TestEntityKryoSerializer {
     private final Kryo kryo = new Kryo();
 
     @Before
@@ -56,28 +56,4 @@ public class RegistratorTest {
         // Then
         assertEquals(entity, read);
     }
-
-    @Test
-    public void testEdge() {
-        // Given
-        Edge edge = new Edge("group");
-        edge.setSource("abc");
-        edge.setDestination("xyz");
-        edge.setDirected(true);
-        edge.putProperty("property1", 1);
-
-        // When
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        kryo.writeObject(output, edge);
-        output.close();
-        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-        Input input = new Input(bais);
-        Edge read = kryo.readObject(input, Edge.class);
-        input.close();
-
-        // Then
-        assertEquals(edge, read);
-    }
-
 }

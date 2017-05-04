@@ -43,6 +43,7 @@ public class MapContainsExample extends PredicateExample {
         mapNullA.put("c", "3");
     }
 
+    @Override
     public void runExamples() {
         mapContains();
     }

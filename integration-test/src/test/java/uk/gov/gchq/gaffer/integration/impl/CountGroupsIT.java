@@ -84,8 +84,8 @@ public class CountGroupsIT extends AbstractStoreIT {
                 .build(), user);
 
         // Then
-        int totalCount = (null != counts.getEntityGroups().get(TestGroups.ENTITY) ? counts.getEntityGroups().get(TestGroups.ENTITY) : 0);
-        totalCount += (null != counts.getEdgeGroups().get(TestGroups.EDGE) ? counts.getEdgeGroups().get(TestGroups.EDGE) : 0);
+        int totalCount = null != counts.getEntityGroups().get(TestGroups.ENTITY) ? counts.getEntityGroups().get(TestGroups.ENTITY) : 0;
+        totalCount += null != counts.getEdgeGroups().get(TestGroups.EDGE) ? counts.getEdgeGroups().get(TestGroups.EDGE) : 0;
         assertEquals(limit, totalCount);
     }
 }

@@ -36,6 +36,7 @@ public class IsShorterThanExample extends PredicateExample {
         bigMap.put("4", "d");
     }
 
+    @Override
     public void runExamples() {
         isShorterThan4();
     }

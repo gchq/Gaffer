@@ -27,6 +27,7 @@ public class RegexExample extends PredicateExample {
         super(Regex.class);
     }
 
+    @Override
     public void runExamples() {
         regexWithPattern();
     }

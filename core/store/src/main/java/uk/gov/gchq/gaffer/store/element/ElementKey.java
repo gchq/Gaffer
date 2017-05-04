@@ -72,7 +72,7 @@ public interface ElementKey {
         if (element instanceof Entity) {
             return new EntityKey((Entity) element, groupByProperties);
         }
-        return new EdgeKey(((Edge) element), groupByProperties);
+        return new EdgeKey((Edge) element, groupByProperties);
     }
 
     class EntityKey implements ElementKey {

@@ -27,6 +27,7 @@ public class ExistsExample extends PredicateExample {
         super(Exists.class);
     }
 
+    @Override
     public void runExamples() {
         exists();
     }

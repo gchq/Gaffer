@@ -29,6 +29,7 @@ public class CollectionContainsExample extends PredicateExample {
         super(CollectionContains.class);
     }
 
+    @Override
     public void runExamples() {
         collectionContains();
     }

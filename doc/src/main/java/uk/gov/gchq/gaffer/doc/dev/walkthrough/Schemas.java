@@ -27,12 +27,13 @@ public class Schemas extends DevWalkthrough {
         super("Schemas", "RoadAndRoadUseWithTimesAndCardinalities");
     }
 
+    @Override
     public Schema run() throws OperationException {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
@@ -52,6 +54,34 @@ public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<Strin
         stateTuple.setProperties(state);
         apply(stateTuple, propertiesTuple);
         return state;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ElementAggregator that = (ElementAggregator) obj;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(stateTuple, that.stateTuple)
+                .append(propertiesTuple, that.propertiesTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(stateTuple)
+                .append(propertiesTuple)
+                .toHashCode();
     }
 
     public static class Builder {

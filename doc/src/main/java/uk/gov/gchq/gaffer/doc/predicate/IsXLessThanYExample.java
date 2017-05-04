@@ -27,6 +27,7 @@ public class IsXLessThanYExample extends PredicateExample {
         super(IsXLessThanY.class);
     }
 
+    @Override
     public void runExamples() {
         isXLessThanY();
     }

@@ -155,7 +155,7 @@ public final class TableUtils {
             htable.addFamily(col);
             addCoprocesssor(htable, store);
             admin.createTable(htable);
-        } catch (final Throwable e) {
+        } catch (final Exception e) {
             LOGGER.warn("Failed to create table " + tableName, e);
             throw new StoreException("Failed to create table " + tableName, e);
         }

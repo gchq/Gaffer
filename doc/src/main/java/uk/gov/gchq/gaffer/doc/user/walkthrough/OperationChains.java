@@ -42,8 +42,8 @@ public class OperationChains extends UserWalkthrough {
         // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUse/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUse/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 
@@ -61,7 +61,7 @@ public class OperationChains extends UserWalkthrough {
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new RoadAndRoadUseElementGenerator())
-                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUse/data.txt", true)))
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUse/data.txt")))
                         .build())
                 .then(new AddElements())
                 .build();

@@ -32,6 +32,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
     private static final String SEPERATOR = "\\,";
     private static final String SEPERATOR_REGEX = "\\\\,";
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return IntegerFreqMap.class.equals(clazz);
     }

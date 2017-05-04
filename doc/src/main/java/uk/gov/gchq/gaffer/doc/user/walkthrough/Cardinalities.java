@@ -49,7 +49,7 @@ public class Cardinalities extends UserWalkthrough {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator dataGenerator = new RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator();
-        for (final String line : IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/data.txt", true))) {
+        for (final String line : IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/data.txt"))) {
             Iterables.addAll(elements, dataGenerator._apply(line));
         }
         // ---------------------------------------------------------
@@ -63,8 +63,8 @@ public class Cardinalities extends UserWalkthrough {
         // [graph] Create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 
@@ -107,7 +107,7 @@ public class Cardinalities extends UserWalkthrough {
         final CloseableIterable<? extends Element> allCardinalities = graph.execute(getAllCardinalities, user);
         log("\nAll cardinalities");
         for (final Element cardinality : allCardinalities) {
-            final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();
+            final String edgeGroup = cardinality.getProperty("edgeGroup").toString();
             log("ALL_CARDINALITIES_RESULT", "Vertex " + ((Entity) cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) cardinality.getProperty("hllp")).cardinality());
         }
 
@@ -125,7 +125,7 @@ public class Cardinalities extends UserWalkthrough {
         final CloseableIterable<? extends Element> allSummarisedCardinalities = graph.execute(getAllSummarisedCardinalities, user);
         log("\nAll summarised cardinalities");
         for (final Element cardinality : allSummarisedCardinalities) {
-            final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();
+            final String edgeGroup = cardinality.getProperty("edgeGroup").toString();
             log("ALL_SUMMARISED_CARDINALITIES_RESULT", "Vertex " + ((Entity) cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) cardinality.getProperty("hllp")).cardinality());
         }
 

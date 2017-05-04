@@ -33,10 +33,12 @@ public class EntitySeed extends ElementSeed implements EntityId {
         this.vertex = vertex;
     }
 
+    @Override
     public Object getVertex() {
         return vertex;
     }
 
+    @Override
     public void setVertex(final Object vertex) {
         this.vertex = vertex;
     }

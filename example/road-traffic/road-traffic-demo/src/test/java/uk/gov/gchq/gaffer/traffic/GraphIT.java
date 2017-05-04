@@ -17,7 +17,7 @@ public class GraphIT {
     @Test
     public void shouldBeAbleToAddAllSampleDataToGraph() throws IOException, OperationException {
         // Given
-        final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties", true);
+        final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties");
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
         // When
         final Graph graph = new Graph.Builder()

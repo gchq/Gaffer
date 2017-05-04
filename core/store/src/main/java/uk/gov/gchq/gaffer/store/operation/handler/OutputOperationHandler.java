@@ -34,5 +34,6 @@ public interface OutputOperationHandler<OP extends Output<O>, O> extends Operati
      * @return the output for the operation.
      * @throws OperationException thrown if the operation fails
      */
+    @Override
     O doOperation(final OP operation, final Context context, final Store store) throws OperationException;
 }

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaSerialiserTest {
 
-    final private JavaSerialiser SERIALISER = new JavaSerialiser();
+    private final JavaSerialiser SERIALISER = new JavaSerialiser();
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {

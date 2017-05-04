@@ -42,7 +42,7 @@ public class TheBasics extends UserWalkthrough {
         // ---------------------------------------------------------
         final List<Element> elements = new ArrayList<>();
         final RoadUseElementGenerator dataGenerator = new RoadUseElementGenerator();
-        for (final String line : IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadUse/data.txt", true))) {
+        for (final String line : IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadUse/data.txt"))) {
             elements.add(dataGenerator._apply(line));
         }
         // ---------------------------------------------------------
@@ -56,8 +56,8 @@ public class TheBasics extends UserWalkthrough {
         // [graph] Create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadUse/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "RoadUse/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 

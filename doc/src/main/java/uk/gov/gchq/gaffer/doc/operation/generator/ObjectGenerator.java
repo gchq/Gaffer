@@ -28,10 +28,10 @@ public class ObjectGenerator implements OneToOneObjectGenerator<String> {
     @Override
     public String _apply(final Element element) {
         if (element instanceof Entity) {
-            final Entity entity = ((Entity) element);
+            final Entity entity = (Entity) element;
             return entity.getVertex() + "," + entity.getProperty("count");
         } else {
-            final Edge edge = ((Edge) element);
+            final Edge edge = (Edge) element;
             return edge.getSource() + "," + edge.getDestination() + "," + edge.getProperty("count");
         }
     }

@@ -32,6 +32,7 @@ public class GenerateObjectsExample extends OperationExample {
         super(GenerateObjects.class);
     }
 
+    @Override
     public void runExamples() {
         generateStringsFromElements();
         generateDomainObjectsFromElements();

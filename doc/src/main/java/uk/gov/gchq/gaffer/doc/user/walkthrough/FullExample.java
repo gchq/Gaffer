@@ -64,8 +64,8 @@ public class FullExample extends UserWalkthrough {
         // [graph] Create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(ElementGroup.class, "schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(ElementGroup.class, "schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 

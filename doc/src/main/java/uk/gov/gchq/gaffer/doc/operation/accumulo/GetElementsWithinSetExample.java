@@ -34,6 +34,7 @@ public class GetElementsWithinSetExample extends OperationExample {
         super(GetElementsWithinSet.class);
     }
 
+    @Override
     public void runExamples() {
         getElementsWithinSetOfVertices1And2And3();
         getElementsWithinSetOfVertices1And2And3WithCountGreaterThan2();

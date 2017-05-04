@@ -34,6 +34,7 @@ public class GetAdjacentIdsExample extends OperationExample {
         super(GetAdjacentIds.class);
     }
 
+    @Override
     public void runExamples() {
         getAdjacentIdsFromVertex2();
         getAdjacentIdsAlongOutboundEdgesFromVertex2();

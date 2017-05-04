@@ -27,6 +27,7 @@ public class IsFalseExample extends PredicateExample {
         super(IsFalse.class);
     }
 
+    @Override
     public void runExamples() {
         isFalse();
     }

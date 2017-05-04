@@ -44,6 +44,7 @@ public interface MultiInputB<I_ITEM> extends InputB<Iterable<? extends I_ITEM>> 
             return inputB(Lists.newArrayList(inputB));
         }
 
+        @Override
         default B inputB(final Iterable<? extends I_ITEM> inputB) {
             _getOp().setInputB((Iterable) inputB);
             return _self();

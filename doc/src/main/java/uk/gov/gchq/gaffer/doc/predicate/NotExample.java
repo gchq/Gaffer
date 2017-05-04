@@ -30,6 +30,7 @@ public class NotExample extends PredicateExample {
         super(Not.class);
     }
 
+    @Override
     public void runExamples() {
         doesNotExist();
         areNotEqual();

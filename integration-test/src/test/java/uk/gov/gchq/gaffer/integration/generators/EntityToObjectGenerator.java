@@ -34,7 +34,7 @@ public class EntityToObjectGenerator implements OneToOneObjectGenerator<EntityDo
     @Override
     public EntityDomainObject _apply(final Element element) {
         if (element instanceof Entity) {
-            final Entity entity = ((Entity) element);
+            final Entity entity = (Entity) element;
             final EntityDomainObject basicEntity = new EntityDomainObject();
             basicEntity.setName((String) entity.getVertex());
             basicEntity.setIntProperty((Integer) entity.getProperty(TestPropertyNames.INT));

@@ -41,12 +41,13 @@ public class DoublesUnion extends PropertiesWalkthrough {
         new DoublesUnion().run();
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/doublesUnion/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/doublesUnion/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 

@@ -82,6 +82,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new ReservoirLongsUnionAggregator(), new ReservoirLongsUnionAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

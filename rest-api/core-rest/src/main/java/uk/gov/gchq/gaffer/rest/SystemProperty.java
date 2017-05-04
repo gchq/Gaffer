@@ -44,4 +44,8 @@ public abstract class SystemProperty {
     public static final String CORE_VERSION = "1.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
+
+    private SystemProperty() {
+        // Private constructor to prevent instantiation.
+    }
 }

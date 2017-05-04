@@ -105,9 +105,9 @@ public class RestApiTestUtil {
     public static Response executeOperation(final Operation operation) throws IOException {
         startServer();
         return client.target(REST_URI)
-                .path("/graph/doOperation")
+                .path("/graph/doOperation/operation")
                 .request()
-                .post(Entity.entity(JSON_SERIALISER.serialise(new OperationChain<>(operation)), MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static Response executeOperationChain(final OperationChain opChain) throws IOException {
@@ -124,6 +124,14 @@ public class RestApiTestUtil {
                 .path("/graph/doOperation/chunked")
                 .request()
                 .post(Entity.entity(JSON_SERIALISER.serialise(opChain), MediaType.APPLICATION_JSON_TYPE));
+    }
+
+    public static Response executeOperationChunked(final Operation operation) throws IOException {
+        startServer();
+        return client.target(REST_URI)
+                .path("/graph/doOperation/chunked/operation")
+                .request()
+                .post(Entity.entity(JSON_SERIALISER.serialise(operation), MediaType.APPLICATION_JSON_TYPE));
     }
 
     public static void startServer() throws IOException {

@@ -60,10 +60,12 @@ public class GetElementsBetweenSets implements
      *                     matched to the identifiers in the graph.
      * @see SeedMatchingType
      */
+    @Override
     public void setSeedMatching(final SeedMatchingType seedMatching) {
         this.seedMatching = seedMatching;
     }
 
+    @Override
     public SeedMatchingType getSeedMatching() {
         return seedMatching;
     }

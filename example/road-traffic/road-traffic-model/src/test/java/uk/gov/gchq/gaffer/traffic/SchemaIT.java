@@ -10,7 +10,7 @@ public class SchemaIT {
     @Test
     public void shouldCreateGraphWithSchemaAndProperties() throws IOException {
         // Given
-        final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties", true);
+        final InputStream storeProps = StreamUtil.openStream(getClass(), "/mockaccumulo.properties");
         final InputStream[] schema = StreamUtil.schemas(ElementGroup.class);
 
         // When

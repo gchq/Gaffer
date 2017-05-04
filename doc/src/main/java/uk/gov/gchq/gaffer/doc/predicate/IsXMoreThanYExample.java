@@ -27,6 +27,7 @@ public class IsXMoreThanYExample extends PredicateExample {
         super(IsXMoreThanY.class);
     }
 
+    @Override
     public void runExamples() {
         isXMoreThanY();
     }

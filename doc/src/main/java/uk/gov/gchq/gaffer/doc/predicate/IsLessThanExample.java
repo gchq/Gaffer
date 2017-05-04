@@ -26,6 +26,7 @@ public class IsLessThanExample extends PredicateExample {
         super(IsLessThan.class);
     }
 
+    @Override
     public void runExamples() {
         isLessThan5();
         isLessThanOrEqualTo5();

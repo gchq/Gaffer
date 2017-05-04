@@ -40,12 +40,13 @@ public class LongsSketch extends PropertiesWalkthrough {
         new LongsSketch().run();
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "properties/longsSketch/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "properties/longsSketch/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 

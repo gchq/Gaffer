@@ -57,7 +57,6 @@ public abstract class OperationExample extends Example {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/operation-doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
-        printOperationClass(operation);
 
         try {
             getGraph().execute(operation, new User("user01"));
@@ -73,7 +72,6 @@ public abstract class OperationExample extends Example {
         printGraph();
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc/operation-doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(operation);
-        printOperationClass(operation);
 
         final RESULT_TYPE results;
         try {
@@ -113,15 +111,15 @@ public abstract class OperationExample extends Example {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
-            for (final Object item : ((Iterable) result)) {
+            for (final Object item : (Iterable) result) {
                 log(item.toString());
             }
         } else if (result instanceof Map) {
-            final Map<?, ?> resultMap = ((Map) result);
+            final Map<?, ?> resultMap = (Map) result;
             for (final Map.Entry<?, ?> entry : resultMap.entrySet()) {
                 log(entry.getKey() + ":");
                 if (entry.getValue() instanceof Iterable) {
-                    for (final Object item : ((Iterable) entry.getValue())) {
+                    for (final Object item : (Iterable) entry.getValue()) {
                         log("    " + item.toString());
                     }
                 } else {
@@ -142,13 +140,6 @@ public abstract class OperationExample extends Example {
         log("```");
     }
 
-    protected void printOperationClass(final Operation operation) {
-        log("When used in a chain add the class as a property:");
-        log("\n\n```json");
-        log("\"class\" : \"" + operation.getClass().getName() + "\"");
-        log("```\n");
-    }
-
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
                 .addSchemas(StreamUtil.openStreams(getClass(), "/schema"))
@@ -161,7 +152,7 @@ public abstract class OperationExample extends Example {
         // Load data into memory
         final List<String> data;
         try {
-            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "/data.txt", true));
+            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "/data.txt"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

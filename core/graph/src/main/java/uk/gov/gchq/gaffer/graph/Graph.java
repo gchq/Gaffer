@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -35,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -177,7 +179,7 @@ public final class Graph {
         for (final Operation operation : operationChain.getOperations()) {
 
             if (operation instanceof OperationView) {
-                final OperationView operationView = ((OperationView) operation);
+                final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
                     opView = view;
@@ -248,6 +250,7 @@ public final class Graph {
      * Builder for {@link Graph}.
      */
     public static class Builder {
+        public static final String UNABLE_TO_READ_SCHEMA_FROM_URL = "Unable to read schema from URL";
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
         private StoreProperties properties;
@@ -266,6 +269,15 @@ public final class Graph {
 
         public Builder view(final InputStream view) {
             return view(new View.Builder().json(view).build());
+        }
+
+        public Builder view(final URL view) {
+            try {
+                view(StreamUtil.openStream(view));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read view from URL", e);
+            }
+            return this;
         }
 
         public Builder view(final byte[] jsonBytes) {
@@ -287,6 +299,16 @@ public final class Graph {
 
         public Builder storeProperties(final InputStream propertiesStream) {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+        }
+
+        public Builder storeProperties(final URL propertiesURL) {
+            try {
+                storeProperties(StreamUtil.openStream(propertiesURL));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read storeProperties from URL", e);
+            }
+
+            return this;
         }
 
         public Builder addSchemas(final Schema... schemaModules) {
@@ -356,6 +378,26 @@ public final class Graph {
             } finally {
                 IOUtils.closeQuietly(schemaStream);
             }
+        }
+
+        public Builder addSchema(final URL schemaURL) {
+            try {
+                addSchema(StreamUtil.openStream(schemaURL));
+            } catch (final IOException e) {
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+            }
+
+            return this;
+        }
+
+        public Builder addSchemas(final URL... schemaURL) {
+            try {
+                addSchemas(StreamUtil.openStreams(schemaURL));
+            } catch (final IOException e) {
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+            }
+
+            return this;
         }
 
         public Builder addSchema(final Path schemaPath) {

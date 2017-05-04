@@ -149,6 +149,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
             addToBloomFilter(seed, filter, clientSideFilter);
         }
 
+        @Override
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {
                 return true;
@@ -178,7 +179,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (destIsInCurrent && sourceMatchesClientFilter);
+            return destIsInCurrent && sourceMatchesClientFilter;
         }
     }
 }

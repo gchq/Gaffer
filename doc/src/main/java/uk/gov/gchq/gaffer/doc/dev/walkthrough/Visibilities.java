@@ -40,8 +40,8 @@ public class Visibilities extends DevWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
-                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithSecurity/schema", true))
-                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties", true))
+                .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithSecurity/schema"))
+                .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
         // ---------------------------------------------------------
 
@@ -59,7 +59,7 @@ public class Visibilities extends DevWalkthrough {
         final OperationChain<Void> addOpChain = new OperationChain.Builder()
                 .first(new GenerateElements.Builder<String>()
                         .generator(new RoadAndRoadUseWithSecurityElementGenerator())
-                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithSecurity/data.txt", true)))
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithSecurity/data.txt")))
                         .build())
                 .then(new AddElements())
                 .build();

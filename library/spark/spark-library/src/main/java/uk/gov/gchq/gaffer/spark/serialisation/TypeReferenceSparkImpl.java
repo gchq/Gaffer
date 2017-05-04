@@ -23,7 +23,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import uk.gov.gchq.gaffer.data.element.Element;
 
-public class TypeReferenceSparkImpl {
+public final class TypeReferenceSparkImpl {
     public static class DataSetRow extends TypeReference<Dataset<Row>> {
     }
 
@@ -31,5 +31,9 @@ public class TypeReferenceSparkImpl {
     }
 
     public static class RDDElement extends TypeReference<RDD<Element>> {
+    }
+
+    private TypeReferenceSparkImpl() {
+        // Private constructor to prevent instantiation.
     }
 }
