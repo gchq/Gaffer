@@ -65,7 +65,7 @@
 
     <profiles>
         <profile>
-            <id>road-traffic-standalone</id>
+            <id>road-traffic-demo</id>
             <build>
                 <plugins>
                     <plugin>
@@ -107,6 +107,14 @@
                                 </roadTraffic.dataLoader.dataPath>
                             </systemProperties>
                         </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>uk.gov.gchq.gaffer</groupId>
+                                <artifactId>road-traffic-rest</artifactId>
+                                <version>${project.parent.version}</version>
+                                <type>war</type>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>deploy</id>

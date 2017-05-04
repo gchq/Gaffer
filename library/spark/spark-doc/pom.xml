@@ -12,7 +12,7 @@
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>operation-doc</artifactId>
+            <artifactId>doc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

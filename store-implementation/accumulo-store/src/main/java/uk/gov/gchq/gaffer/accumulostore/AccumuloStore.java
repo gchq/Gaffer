@@ -111,11 +111,11 @@ public class AccumuloStore extends Store {
                     ORDERED,
                     VISIBILITY,
                     INGEST_AGGREGATION,
+                    QUERY_AGGREGATION,
                     PRE_AGGREGATION_FILTERING,
                     POST_AGGREGATION_FILTERING,
                     POST_TRANSFORMATION_FILTERING,
                     TRANSFORMATION,
-                    QUERY_AGGREGATION,
                     STORE_VALIDATION
             ));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);

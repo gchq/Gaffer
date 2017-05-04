@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.doc.user.transform;
+package uk.gov.gchq.gaffer.traffic.transform;
 
 import uk.gov.gchq.koryphe.tuple.function.KorypheFunction3;
 

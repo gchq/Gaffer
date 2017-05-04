@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import uk.gov.gchq.gaffer.doc.user.generator.RoadUseCsvGenerator;
-import uk.gov.gchq.gaffer.doc.user.transform.DescriptionTransform;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.gaffer.doc.walkthrough.WalkthroughStrSubstitutor;
+import uk.gov.gchq.gaffer.traffic.transform.DescriptionTransform;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public abstract class UserWalkthroughStrSubstitutor extends WalkthroughStrSubsti
         params.put("ROAD_TRAFFIC_EXAMPLE_LINK", getGitHubFileLink("Road Traffic Example", "example/road-traffic/README.md"));
         params.put("CSV_GENERATOR_JAVA",
                 JavaSourceUtil.getJava(RoadUseCsvGenerator.class.getName(), "doc"));
-        params.put("DESCRIPTION_TRANSFORM_LINK", getGitHubCodeLink(DescriptionTransform.class, example.getModulePath()));
+        params.put("DESCRIPTION_TRANSFORM_LINK", getGitHubCodeLink(DescriptionTransform.class, "example/road-traffic-model"));
         params.put("ROAD_TRAFFIC_SAMPLE_DATA_LINK", getGitHubFileLink("Road Traffic Sample ", "example/road-traffic/road-traffic-demo/src/main/java/resources/roadTrafficSampleData.csv"));
         return params;
     }

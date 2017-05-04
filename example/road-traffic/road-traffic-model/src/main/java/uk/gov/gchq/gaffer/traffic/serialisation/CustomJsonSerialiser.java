@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.doc.properties.serialiser;
+package uk.gov.gchq.gaffer.traffic.serialisation;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import com.fasterxml.jackson.databind.module.SimpleModule;

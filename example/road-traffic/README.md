@@ -19,7 +19,7 @@ Road Use Demo
 To start the demo run the following from within the Gaffer repository:
 
 ```bash
-mvn clean install -Pquick -Proad-traffic-standalone
+mvn clean install -Pquick -Proad-traffic-demo
 ```
 
 The rest api will be deployed to localhost:8080/rest and the ui will be deployed to localhost:8080/ui.

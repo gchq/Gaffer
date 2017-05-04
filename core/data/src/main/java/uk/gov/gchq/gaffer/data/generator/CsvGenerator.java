@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -112,6 +113,7 @@ public class CsvGenerator implements OneToOneObjectGenerator<String> {
         return strBuilder.substring(0, strBuilder.length() - 1);
     }
 
+    @JsonIgnore
     public String getHeader() {
         if (fields.isEmpty()) {
             if (constants.isEmpty()) {

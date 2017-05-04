@@ -44,15 +44,13 @@ Getting Started
 
 ### Try it out
 
-We have a simple demo available to try that is based around a small uk road use dataset. Download the precompiled demo files from the last release [here](https://github.com/gchq/gaffer-tools/releases) or build and run it from source code [here](https://github.com/gchq/gaffer-tools/tree/master/road-traffic).
-
-There are more in depth examples of using the Java API on our wiki: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).
+We have a demo available to try that is based around a small uk road use dataset. See the example/road-traffic [README](https://github.com/gchq/Gaffer/blob/master/example/road-traffic/README.md) to try it out.
 
 ### Building and Deploying
 
-To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries, the Accumulo store and some examples of how to load and query data and write other stores.
+To build Gaffer run `mvn clean install -Pquick` in the top-level directory. This will build all of Gaffer's core libraries and some examples of how to load and query data.
 
-The Accumulo store needs to run on a Hadoop cluster with Accumulo installed. Instructions for installing Gaffer on Accumulo can be found on the [wiki](https://github.com/gchq/Gaffer/wiki/Accumulo-Store-User-Guide#accumulo-set-up).
+See our [wiki](https://github.com/gchq/Gaffer/wiki) for a list of available Gaffer Stores to chose from and the relevant documentation for each.
 
 ### Inclusion in other projects
 
