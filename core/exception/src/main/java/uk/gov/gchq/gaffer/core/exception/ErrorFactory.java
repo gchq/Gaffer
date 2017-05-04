@@ -43,7 +43,7 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferCheckedException gex) {
-        LOGGER.error("Error: " + gex.getMessage(), gex);
+        LOGGER.error("Error: {}", gex.getMessage(), gex);
         return new ErrorBuilder().status(gex.getStatus())
                 .simpleMessage(gex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(gex))
@@ -58,7 +58,7 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final GafferRuntimeException gex) {
-        LOGGER.error("Error: " + gex.getMessage(), gex);
+        LOGGER.error("Error: {}", gex.getMessage(), gex);
         return new ErrorBuilder().status(gex.getStatus())
                 .simpleMessage(gex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(gex))
@@ -73,7 +73,7 @@ public final class ErrorFactory {
      * @return a newly constructed {@link uk.gov.gchq.gaffer.core.exception.Error}
      */
     public static Error from(final Exception ex) {
-        LOGGER.error("Error: " + ex.getMessage(), ex);
+        LOGGER.error("Error: {}", ex.getMessage(), ex);
         return new ErrorBuilder().status(Status.INTERNAL_SERVER_ERROR)
                 .simpleMessage(ex.getMessage())
                 .detailMessage(ExceptionUtils.getStackTrace(ex))

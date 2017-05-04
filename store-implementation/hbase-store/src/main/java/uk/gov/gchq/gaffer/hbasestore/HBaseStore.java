@@ -187,7 +187,7 @@ public class HBaseStore extends Store {
         try {
             addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
         } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
+            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
         }
     }
 

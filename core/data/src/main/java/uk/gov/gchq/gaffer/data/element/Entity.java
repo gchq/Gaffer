@@ -76,7 +76,7 @@ public class Entity extends Element implements EntityId {
                 setVertex(propertyToBeSet);
                 break;
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                LOGGER.error("Unknown identifier type: {} detected.", identifierType);
                 break;
         }
     }

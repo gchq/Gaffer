@@ -44,7 +44,7 @@ public final class GafferResultCacheUtil {
 
         final Graph graph = graphBuilder.build();
         if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
-            LOGGER.warn("Gaffer JSON export graph does not have " + StoreTrait.STORE_VALIDATION.name() + " trait so results may not be aged off.");
+            LOGGER.warn("Gaffer JSON export graph does not have {} trait so results may not be aged off.", StoreTrait.STORE_VALIDATION.name());
         }
 
         return graph;

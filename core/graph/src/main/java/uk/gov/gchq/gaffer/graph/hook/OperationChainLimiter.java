@@ -195,7 +195,7 @@ public class OperationChainLimiter implements GraphHook {
                 }
             }
         }
-        LOGGER.info("Returning users max operation chain limit score of " + maxUserScore);
+        LOGGER.info("Returning users max operation chain limit score of {}", maxUserScore);
         return maxUserScore;
     }
 
@@ -216,8 +216,7 @@ public class OperationChainLimiter implements GraphHook {
                     return operationScores.get(key);
                 }
             }
-            LOGGER.warn("The operation '" + operation.getClass()
-                    .getName() + "' was not found in the config file provided the configured default value of " + DEFAULT_OPERATION_SCORE + " will be used");
+            LOGGER.warn("The operation '{}' was not found in the config file provided the configured default value of {} will be used", operation.getClass().getName(), DEFAULT_OPERATION_SCORE);
         } else {
             LOGGER.warn("A Null operation was passed to the OperationChainLimiter graph hook");
         }
@@ -232,7 +231,7 @@ public class OperationChainLimiter implements GraphHook {
                 opClass = Class.forName(opClassName)
                         .asSubclass(Operation.class);
             } catch (final ClassNotFoundException e) {
-                LOGGER.error("An operation class could not be found for operation score property " + opClassName, e);
+                LOGGER.error("An operation class could not be found for operation score property {}", opClassName, e);
                 throw new IllegalArgumentException(e);
             }
             final Integer score = Integer.parseInt(operationScorePropertiesFile.getProperty(opClassName));

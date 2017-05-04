@@ -90,14 +90,14 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator", e);
+                LOGGER.error("{} returning empty iterator", e.getMessage(), e);
                 return new EmptyCloseableIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator", e);
+                LOGGER.error("{} returning empty iterator", e.getMessage(), e);
                 return new EmptyCloseableIterator<>();
             }
         }
@@ -290,8 +290,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                     }
                 }
             } catch (final RetrieverException e) {
-                LOGGER.debug("Failed to retrieve elements into iterator : " + e.getMessage()
-                        + " returning iterator has no more elements", e);
+                LOGGER.debug("Failed to retrieve elements into iterator : {} returning iterator has no more elements", e.getMessage(), e);
                 return false;
             }
 

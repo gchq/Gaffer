@@ -157,7 +157,7 @@ public class GafferResultCacheExporter implements Exporter {
             try {
                 resultClass = Class.forName(resultClassName);
             } catch (final ClassNotFoundException e) {
-                LOGGER.error("Result class name was not found: " + resultClassName, e);
+                LOGGER.error("Result class name was not found: {}", resultClassName, e);
                 throw new RuntimeException(e);
             }
 
@@ -165,7 +165,7 @@ public class GafferResultCacheExporter implements Exporter {
                 return jsonSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
-                    LOGGER.error("Unable to deserialise result: " + new String(resultBytes, CommonConstants.UTF_8), e);
+                    LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
                 } catch (final UnsupportedEncodingException e1) {
                     throw new RuntimeException(e);
                 }

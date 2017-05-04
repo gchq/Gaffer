@@ -126,7 +126,7 @@ public class ElementValidator implements Validator<Element> {
     public boolean validateWithSchema(final Element element) {
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
         if (null == elementDef) {
-            LOGGER.warn("No element definition found for : " + element.getGroup());
+            LOGGER.warn("No element definition found for : {}", element.getGroup());
             return false;
         }
 
