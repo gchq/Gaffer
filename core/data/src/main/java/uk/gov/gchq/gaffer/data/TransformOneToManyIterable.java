@@ -88,13 +88,14 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
     @Override
     public void close() {
         if (input instanceof Closeable) {
-            IOUtils.closeQuietly(((Closeable) input));
+            IOUtils.closeQuietly((Closeable) input);
         }
     }
 
     /**
      * @return an {@link java.util.Iterator} that lazy transforms the I items to O items
      */
+    @Override
     public CloseableIterator<O> iterator() {
         return new CloseableIterator<O>() {
             private final Iterator<? extends I> inputItr = input.iterator();
@@ -105,7 +106,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
             @Override
             public void close() {
                 if (inputItr instanceof Closeable) {
-                    IOUtils.closeQuietly(((Closeable) inputItr));
+                    IOUtils.closeQuietly((Closeable) inputItr);
                 }
             }
 
@@ -148,10 +149,8 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
 
             @Override
             public O next() {
-                if (!_hasNext()) {
-                    if (!hasNext()) {
-                        throw new NoSuchElementException("Reached the end of the iterator");
-                    }
+                if (!_hasNext() && !hasNext()) {
+                    throw new NoSuchElementException("Reached the end of the iterator");
                 }
 
                 final O elementToReturn = nextElements.next();
@@ -189,7 +188,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param item the invalid I item
      * @throws IllegalArgumentException always thrown unless this method is overridden.
      */
-    protected void handleInvalidItem(final I item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final I item) {
         final String itemDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Next " + itemDescription + " in iterable is not valid.");
     }

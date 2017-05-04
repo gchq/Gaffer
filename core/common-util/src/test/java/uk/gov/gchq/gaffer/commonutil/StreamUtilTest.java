@@ -1,12 +1,12 @@
 package uk.gov.gchq.gaffer.commonutil;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 import java.io.InputStream;
 import java.net.URL;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * Created on 25/04/2017.

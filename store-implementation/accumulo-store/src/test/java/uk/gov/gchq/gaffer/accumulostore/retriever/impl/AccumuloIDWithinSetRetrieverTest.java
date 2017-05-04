@@ -28,7 +28,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
@@ -257,7 +256,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
         bothDirectedAndUndirectedOp.setDirectedType(DirectedType.BOTH);
         final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, new User(), loadIntoMemory);
-        assertThat(bothDirectedAndUndirectedResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_C_D_DIRECTED, ((Element) AccumuloTestData.EDGE_C_D_UNDIRECTED)));
+        assertThat(bothDirectedAndUndirectedResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_C_D_DIRECTED, (Element) AccumuloTestData.EDGE_C_D_UNDIRECTED));
     }
 
     /**
@@ -266,29 +265,28 @@ public class AccumuloIDWithinSetRetrieverTest {
      * checking that isn't returned.
      *
      * @throws uk.gov.gchq.gaffer.store.StoreException
-     * @throws uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException
      */
     @Test
-    public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldDealWithFalsePositivesInMemoryByteEntityStore() throws StoreException {
         shouldDealWithFalsePositives(true, byteEntityStore);
     }
 
     @Test
-    public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException, AccumuloElementConversionException {
+    public void shouldDealWithFalsePositivesInMemoryGaffer1Store() throws StoreException {
         shouldDealWithFalsePositives(true, gaffer1KeyStore);
     }
 
     @Test
-    public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldDealWithFalsePositivesByteEntityStore() throws StoreException {
         shouldDealWithFalsePositives(false, byteEntityStore);
     }
 
     @Test
-    public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException, AccumuloElementConversionException {
+    public void shouldDealWithFalsePositivesGaffer1Store() throws StoreException {
         shouldDealWithFalsePositives(false, gaffer1KeyStore);
     }
 
-    private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException, AccumuloElementConversionException {
+    private void shouldDealWithFalsePositives(final boolean loadIntoMemory, final AccumuloStore store) throws StoreException {
         // Query for all edges in set {A0, A23}
         final Set<EntityId> seeds = new HashSet<>();
         seeds.add(AccumuloTestData.SEED_A0);
@@ -310,7 +308,7 @@ public class AccumuloIDWithinSetRetrieverTest {
         // Need to repeat the logic used in the getGraphElementsWithStatisticsWithinSet() method.
         // Calculate sensible size of filter, aiming for false positive rate of 1 in 10000, with a maximum size of
         // maxBloomFilterToPassToAnIterator bytes.
-        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / (Math.pow(Math.log(2.0), 2.0)));
+        int size = (int) (-numItemsToBeAdded * Math.log(0.0001) / Math.pow(Math.log(2.0), 2.0));
         size = Math.min(size, store.getProperties().getMaxBloomFilterToPassToAnIterator());
 
         // Work out optimal number of hashes to use in Bloom filter based on size of set - optimal number of hashes is

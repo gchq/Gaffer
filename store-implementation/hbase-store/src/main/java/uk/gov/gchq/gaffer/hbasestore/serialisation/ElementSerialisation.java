@@ -402,10 +402,10 @@ public class ElementSerialisation {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     public Pair<byte[], byte[]> getRowKeys(final Element element) throws SerialisationException {
         if (element instanceof Entity) {
-            return new Pair<>(getRowKey(((Entity) element)));
+            return new Pair<>(getRowKey((Entity) element));
         }
 
-        return getRowKeys(((Edge) element));
+        return getRowKeys((Edge) element);
     }
 
     public byte[] getRowKey(final Entity entity) throws SerialisationException {

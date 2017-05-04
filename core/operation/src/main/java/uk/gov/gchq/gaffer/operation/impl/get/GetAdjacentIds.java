@@ -48,6 +48,7 @@ public class GetAdjacentIds implements
     private Map<String, String> options;
     private IncludeIncomingOutgoingType inOutType;
 
+    @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "class")
     public Object[] createInputArray() {
         return MultiInput.super.createInputArray();

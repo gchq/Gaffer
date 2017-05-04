@@ -50,6 +50,7 @@ public class MockAccumuloStore extends AccumuloStore {
         return mockConnector;
     }
 
+    @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         if (!(properties instanceof AccumuloProperties)) {

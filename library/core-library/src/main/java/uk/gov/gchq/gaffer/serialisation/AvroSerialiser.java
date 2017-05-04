@@ -41,6 +41,7 @@ public class AvroSerialiser implements Serialisation<Object> {
     private static final long serialVersionUID = -6264923181170362212L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerialiser.class);
 
+    @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         Schema schema = ReflectData.get().getSchema(object.getClass());
         DatumWriter<Object> datumWriter = new ReflectDatumWriter<>(schema);
@@ -58,6 +59,7 @@ public class AvroSerialiser implements Serialisation<Object> {
         return byteOut.toByteArray();
     }
 
+    @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         final DatumReader<Object> datumReader = new ReflectDatumReader<>();
         try (final InputStream inputStream = new ByteArrayInputStream(bytes);
@@ -78,8 +80,9 @@ public class AvroSerialiser implements Serialisation<Object> {
         return false;
     }
 
+    @Override
     public boolean canHandle(final Class clazz) {
-        if (clazz.getName().equals("java.lang.Class")) {
+        if ("java.lang.Class".equals(clazz.getName())) {
             return false;
         }
         try {
@@ -92,15 +95,11 @@ public class AvroSerialiser implements Serialisation<Object> {
 
     public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
         DatumReader<T> datumReader = new ReflectDatumReader<>();
-        DataFileStream<T> in = null;
         T ret = null;
-        try {
-            in = new DataFileStream<>(new ByteArrayInputStream(bytes), datumReader);
+        try (final  DataFileStream<T> in = new DataFileStream<>(new ByteArrayInputStream(bytes), datumReader)) {
             ret = in.next();
         } catch (final IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
-        } finally {
-            close(in);
         }
         return ret;
     }

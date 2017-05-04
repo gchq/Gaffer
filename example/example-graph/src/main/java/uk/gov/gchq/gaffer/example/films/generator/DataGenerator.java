@@ -32,19 +32,19 @@ public class DataGenerator implements OneToOneElementGenerator<Object> {
     @Override
     public Element _apply(final Object obj) {
         if (obj instanceof Viewing) {
-            return viewingGenerator._apply(((Viewing) obj));
+            return viewingGenerator._apply((Viewing) obj);
         }
 
         if (obj instanceof Review) {
-            return reviewGenerator._apply(((Review) obj));
+            return reviewGenerator._apply((Review) obj);
         }
 
         if (obj instanceof Person) {
-            return personGenerator._apply(((Person) obj));
+            return personGenerator._apply((Person) obj);
         }
 
         if (obj instanceof Film) {
-            return filmGenerator._apply(((Film) obj));
+            return filmGenerator._apply((Film) obj);
         }
 
         throw new IllegalArgumentException("Element could not be generated from " + obj.getClass().getName()

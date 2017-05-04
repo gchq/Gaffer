@@ -26,6 +26,7 @@ public class IsEqualExample extends PredicateExample {
         super(IsEqual.class);
     }
 
+    @Override
     public void runExamples() {
         isEqualTo5();
         isEqualToString5();

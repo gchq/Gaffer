@@ -221,9 +221,9 @@ public abstract class Store {
             final O result = _execute(operationChain, context);
             addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
-        } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
-            throw t;
+        } catch (final Exception e) {
+            addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+            throw e;
         }
     }
 
@@ -260,9 +260,9 @@ public abstract class Store {
             try {
                 _execute(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-            } catch (final Throwable t) {
-                LOGGER.warn("Operation chain job failed to execute", t);
-                addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            } catch (final Exception e) {
+                LOGGER.warn("Operation chain job failed to execute", e);
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
         }).start();
 

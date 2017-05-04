@@ -117,6 +117,7 @@ public class MiniHBaseStore extends HBaseStore {
         if (visibilities.length > 0) {
             PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse> action =
                     new PrivilegedExceptionAction<VisibilityLabelsProtos.VisibilityLabelsResponse>() {
+                        @Override
                         public VisibilityLabelsProtos.VisibilityLabelsResponse run() throws Exception {
                             try (Connection conn = ConnectionFactory.createConnection(utility.getConfiguration())) {
                                 VisibilityClient.addLabels(conn, visibilities);

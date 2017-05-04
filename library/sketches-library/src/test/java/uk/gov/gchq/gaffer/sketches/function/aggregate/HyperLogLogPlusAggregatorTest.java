@@ -62,6 +62,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         assertEquals(new HyperLogLogPlusAggregator(), new HyperLogLogPlusAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -36,6 +35,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,13 +48,13 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 
 public class GetAllElementsHandlerTest {
-    final static String BASIC_ENTITY = "BasicEntity";
-    final static String BASIC_EDGE1 = "BasicEdge";
-    final static String BASIC_EDGE2 = "BasicEdge2";
-    final static String PROPERTY1 = "property1";
-    final static String PROPERTY2 = "property2";
-    final static String COUNT = "count";
-    private final static int NUM_LOOPS = 10;
+    static final String BASIC_ENTITY = "BasicEntity";
+    static final String BASIC_EDGE1 = "BasicEdge";
+    static final String BASIC_EDGE2 = "BasicEdge2";
+    static final String PROPERTY1 = "property1";
+    static final String PROPERTY2 = "property2";
+    static final String COUNT = "count";
+    private static final int NUM_LOOPS = 10;
 
     @Test
     public void testAddAndGetAllElementsNoAggregation() throws StoreException, OperationException {

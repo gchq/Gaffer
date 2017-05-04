@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * Operation Handler for GetAllNamedOperations
  */
 public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
-    public INamedOperationCache cache;
+    private INamedOperationCache cache;
 
     /**
      * Retrieves all the Named Operations that a user is allowed to see. As the expected behaviour is to bring back a

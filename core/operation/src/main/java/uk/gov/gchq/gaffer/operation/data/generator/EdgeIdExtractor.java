@@ -34,9 +34,9 @@ public class EdgeIdExtractor implements OneToOneObjectGenerator<EdgeId> {
      * @throws IllegalArgumentException if the element is not an Edge.
      */
     @Override
-    public EdgeId _apply(final Element element) throws IllegalArgumentException {
+    public EdgeId _apply(final Element element) {
         try {
-            return _apply(((Edge) element));
+            return _apply((Edge) element);
         } catch (final ClassCastException e) {
             throw new IllegalArgumentException("Cannot get an EdgeId from and Entity", e);
         }

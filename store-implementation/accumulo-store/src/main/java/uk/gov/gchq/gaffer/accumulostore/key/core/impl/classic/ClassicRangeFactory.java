@@ -83,9 +83,9 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
 
         final byte directionFlag1 = seed.isDirected()
-                ? (inOutType == IncludeIncomingOutgoingType.INCOMING
+                ? inOutType == IncludeIncomingOutgoingType.INCOMING
                 ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
-                : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE)
+                : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE
                 : ClassicBytePositions.UNDIRECTED_EDGE;
 
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();

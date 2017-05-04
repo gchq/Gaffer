@@ -110,15 +110,15 @@ public abstract class OperationExample extends Example {
         log("Result:");
         log("\n```");
         if (result instanceof Iterable) {
-            for (final Object item : ((Iterable) result)) {
+            for (final Object item : (Iterable) result) {
                 log(item.toString());
             }
         } else if (result instanceof Map) {
-            final Map<?, ?> resultMap = ((Map) result);
+            final Map<?, ?> resultMap = (Map) result;
             for (final Map.Entry<?, ?> entry : resultMap.entrySet()) {
                 log(entry.getKey() + ":");
                 if (entry.getValue() instanceof Iterable) {
-                    for (final Object item : ((Iterable) entry.getValue())) {
+                    for (final Object item : (Iterable) entry.getValue()) {
                         log("    " + item.toString());
                     }
                 } else {

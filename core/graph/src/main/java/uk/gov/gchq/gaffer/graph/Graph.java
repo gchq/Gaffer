@@ -179,7 +179,7 @@ public final class Graph {
         for (final Operation operation : operationChain.getOperations()) {
 
             if (operation instanceof OperationView) {
-                final OperationView operationView = ((OperationView) operation);
+                final OperationView operationView = (OperationView) operation;
                 final View opView;
                 if (null == operationView.getView()) {
                     opView = view;
@@ -274,7 +274,7 @@ public final class Graph {
         public Builder view(final URL view) {
             try {
                 view(StreamUtil.openStream(view));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException("Unable to read view from URL", e);
             }
             return this;
@@ -304,7 +304,7 @@ public final class Graph {
         public Builder storeProperties(final URL propertiesURL) {
             try {
                 storeProperties(StreamUtil.openStream(propertiesURL));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException("Unable to read storeProperties from URL", e);
             }
 
@@ -383,7 +383,7 @@ public final class Graph {
         public Builder addSchema(final URL schemaURL) {
             try {
                 addSchema(StreamUtil.openStream(schemaURL));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
             }
 
@@ -393,7 +393,7 @@ public final class Graph {
         public Builder addSchemas(final URL... schemaURL) {
             try {
                 addSchemas(StreamUtil.openStreams(schemaURL));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
             }
 

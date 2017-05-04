@@ -45,6 +45,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         new LoadAndQuery9().run();
     }
 
+    @Override
     public CloseableIterable<? extends Element> run() throws OperationException {
         // [user] Create a user
         // ---------------------------------------------------------
@@ -97,7 +98,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         final CloseableIterable<? extends Element> allCardinalities = graph.execute(getAllCardinalities, user);
         log("\nAll cardinalities");
         for (final Element cardinality : allCardinalities) {
-            final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();
+            final String edgeGroup = cardinality.getProperty("edgeGroup").toString();
             log("ALL_CARDINALITIES_RESULT", "Vertex " + ((Entity) cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) cardinality.getProperty("hllp")).cardinality());
         }
 
@@ -115,7 +116,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         final CloseableIterable<? extends Element> allSummarisedCardinalities = graph.execute(getAllSummarisedCardinalities, user);
         log("\nAll summarised cardinalities");
         for (final Element cardinality : allSummarisedCardinalities) {
-            final String edgeGroup = (cardinality.getProperty("edgeGroup")).toString();
+            final String edgeGroup = cardinality.getProperty("edgeGroup").toString();
             log("ALL_SUMMARISED_CARDINALITIES_RESULT", "Vertex " + ((Entity) cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) cardinality.getProperty("hllp")).cardinality());
         }
 
@@ -138,7 +139,7 @@ public class LoadAndQuery9 extends LoadAndQuery {
         final Element redCardinality = graph.execute(getCardinalities, user).iterator().next();
         // ---------------------------------------------------------
         log("\nRed edge cardinality at vertex 1:");
-        final String edgeGroup = (redCardinality.getProperty("edgeGroup")).toString();
+        final String edgeGroup = redCardinality.getProperty("edgeGroup").toString();
         log("CARDINALITY_OF_1_RESULT", "Vertex " + ((Entity) redCardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) redCardinality.getProperty("hllp")).cardinality());
 
         return allSummarisedCardinalities;

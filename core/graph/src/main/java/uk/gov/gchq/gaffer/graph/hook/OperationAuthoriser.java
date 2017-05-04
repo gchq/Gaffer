@@ -129,11 +129,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param auths   the authorisations
      */
     public void addOpAuths(final Class<? extends Operation> opClass, final String... auths) {
-        Set<String> opAuths = opAuthsMap.get(opClass);
-        if (null == opAuths) {
-            opAuths = new HashSet<>();
-            opAuthsMap.put(opClass, opAuths);
-        }
+        final Set<String> opAuths = opAuthsMap.computeIfAbsent(opClass, k -> new HashSet<>());
         Collections.addAll(opAuths, auths);
         Collections.addAll(allOpAuths, auths);
     }
@@ -148,11 +144,10 @@ public class OperationAuthoriser implements GraphHook {
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;
             for (final Entry<Class<?>, Set<String>> entry : opAuthsMap.entrySet()) {
-                if (entry.getKey().isAssignableFrom(opClass)) {
-                    if (!userOpAuths.containsAll(entry.getValue())) {
-                        authorised = false;
-                        break;
-                    }
+                if ((entry.getKey().isAssignableFrom(opClass))
+                        && (!userOpAuths.containsAll(entry.getValue()))) {
+                    authorised = false;
+                    break;
                 }
             }
 

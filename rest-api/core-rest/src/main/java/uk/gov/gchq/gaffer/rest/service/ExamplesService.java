@@ -413,7 +413,7 @@ public class ExamplesService implements IExamplesService {
             try {
                 if (clazz.isEnum()) {
                     List l = Arrays.asList(clazz.getEnumConstants());
-                    if (l.size() > 0) {
+                    if (!l.isEmpty()) {
                         value = Enum.valueOf(clazz, l.get(0).toString());
                     } else {
                         value = clazz.newInstance();

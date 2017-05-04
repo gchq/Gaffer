@@ -38,6 +38,7 @@ public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
         hllp3.offer(3);
     }
 
+    @Override
     public void runExamples() {
         hyperLogLogPlusIsLessThan2();
         hyperLogLogPlusIsLessThanOrEqualTo2();

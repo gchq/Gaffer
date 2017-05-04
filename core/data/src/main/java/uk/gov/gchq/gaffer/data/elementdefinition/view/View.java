@@ -53,9 +53,9 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
-    public List<GlobalViewElementDefinition> globalElements;
-    public List<GlobalViewElementDefinition> globalEntities;
-    public List<GlobalViewElementDefinition> globalEdges;
+    private List<GlobalViewElementDefinition> globalElements;
+    private List<GlobalViewElementDefinition> globalEntities;
+    private List<GlobalViewElementDefinition> globalEdges;
 
     public View() {
         super();
@@ -169,12 +169,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             if (null != globalElement.groups) {
                 globalGroups = new HashSet<>(globalElement.groups);
                 final boolean hasMissingGroups = globalGroups.retainAll(groups);
-                if (hasMissingGroups) {
-                    if (!skipMissingGroups) {
-                        final Set<String> missingGroups = new HashSet<>(globalElement.groups);
-                        missingGroups.removeAll(groups);
-                        throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
-                    }
+                if (hasMissingGroups && !skipMissingGroups) {
+                    final Set<String> missingGroups = new HashSet<>(globalElement.groups);
+                    missingGroups.removeAll(groups);
+                    throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
                 }
             } else {
                 globalGroups = groups;

@@ -33,6 +33,7 @@ public class OrExample extends PredicateExample {
         super(Or.class);
     }
 
+    @Override
     public void runExamples() {
         isLessThan2OrIsMoreThan2();
         property1IsLessThan2OrProperty2IsMoreThan2();
