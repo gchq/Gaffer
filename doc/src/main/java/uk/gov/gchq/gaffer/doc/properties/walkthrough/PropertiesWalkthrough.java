@@ -20,6 +20,6 @@ import uk.gov.gchq.gaffer.doc.walkthrough.AbstractWalkthrough;
 
 public abstract class PropertiesWalkthrough extends AbstractWalkthrough {
     public PropertiesWalkthrough(final String header, final String resourcePath, final Class<? extends ElementGenerator> generatorClass) {
-        super(header, resourcePath + "/data.txt", resourcePath + "/schema", generatorClass, "doc", "properties");
+        super(header, null, resourcePath + "/schema", generatorClass, "doc", "properties");
     }
 }

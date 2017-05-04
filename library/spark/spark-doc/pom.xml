@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-examples</artifactId>
+    <artifactId>spark-doc</artifactId>
 
     <dependencies>
         <dependency>
@@ -54,7 +54,7 @@
 
     <profiles>
         <profile>
-            <id>exampleJar</id>
+            <id>spark-doc</id>
             <build>
                 <plugins>
                     <plugin>
@@ -62,7 +62,7 @@
                         <artifactId>maven-assembly-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>example</id>
+                                <id>spark-doc</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>single</goal>
@@ -72,7 +72,7 @@
                                         <descriptorRef>jar-with-dependencies
                                         </descriptorRef>
                                     </descriptorRefs>
-                                    <finalName>example
+                                    <finalName>spark-doc
                                     </finalName>
                                     <archive>
                                         <manifest>

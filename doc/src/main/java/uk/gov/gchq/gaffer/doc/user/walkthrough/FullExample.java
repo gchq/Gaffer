@@ -56,7 +56,7 @@ public class FullExample extends UserWalkthrough {
     public static final Date JAN_01_2001 = getDate("2001-01-01");
 
     public FullExample() {
-        super("Full Example", "", null);
+        super("Full Example", "FullExample", null);
     }
 
     @Override

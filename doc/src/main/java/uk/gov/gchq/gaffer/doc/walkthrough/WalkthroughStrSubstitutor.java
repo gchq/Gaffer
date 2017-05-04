@@ -94,8 +94,10 @@ public abstract class WalkthroughStrSubstitutor {
                 "### " + header);
         params.put("CODE_LINK",
                 "The code for this example is " + getGitHubCodeLink(example.getClass(), modulePath) + ".");
-        params.put("DATA",
-                "\n```csv\n" + getResource(dataPath, exampleClass) + "\n```\n");
+        if (null != dataPath) {
+            params.put("DATA",
+                    "\n```csv\n" + getResource(dataPath, exampleClass) + "\n```\n");
+        }
         if (null != elementGenerator) {
             params.put("ELEMENT_GENERATOR_JAVA",
                     JavaSourceUtil.getJava(elementGenerator.getName(), modulePath));
@@ -110,12 +112,14 @@ public abstract class WalkthroughStrSubstitutor {
                 getGitHubResourcesLink(schemaPath + "/storeTypes.json", modulePath));
         params.put("STORE_PROPERTIES_LINK",
                 getGitHubResourcesLink("/mockaccumulostore.properties", modulePath));
-        params.put("DATA_SCHEMA_JSON",
-                "\n```json\n" + getResource(schemaPath + "/dataSchema.json", exampleClass) + "\n```\n");
-        params.put("DATA_TYPES_JSON",
-                "\n```json\n" + getResource(schemaPath + "/dataTypes.json", exampleClass) + "\n```\n");
-        params.put("STORE_TYPES_JSON",
-                "\n```json\n" + getResource(schemaPath + "/storeTypes.json", exampleClass) + "\n```\n");
+        if (null != schemaPath) {
+            params.put("DATA_SCHEMA_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/dataSchema.json", exampleClass) + "\n```\n");
+            params.put("DATA_TYPES_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/dataTypes.json", exampleClass) + "\n```\n");
+            params.put("STORE_TYPES_JSON",
+                    "\n```json\n" + getResource(schemaPath + "/storeTypes.json", exampleClass) + "\n```\n");
+        }
 
         params.putAll(createParameterMap(text, example, modulePath));
         return params;
