@@ -2,7 +2,9 @@ ${HEADER}
 
 ${CODE_LINK}
 
-This example demonstrates the aggregation functionality in Gaffer. Aggregation is applied at ingest and query time.
+Aggregation is a key powerful feature in Gaffer and we will guide you through it in this walkthrough. 
+
+Aggregation is applied at ingest and query time.
 
 1. Ingest aggregation permanently aggregates similar elements together. Elements will be aggregated if:
     1. An entity has the same group, vertex, visibility and any specified groupBy property values are identical.
@@ -51,9 +53,9 @@ The summarised edges are as follows:
 ${GET_ALL_EDGES_SUMMARISED_RESULT}
 ```
 
-Now you can see the edges from 10 to 11 are been aggregated together and their counts have been summed together.
+Now you can see the edges from 10 to 11 have been aggregated together and their counts have been summed together.
 
-If we apply some pre aggregation filtering, we can return a time window summary of the edges. The new operation looks like:
+If we apply some pre-aggregation filtering, we can return a time window summary of the edges. The new operation looks like:
 ${GET_ALL_EDGES_SUMMARISED_IN_TIME_WINDOW_SNIPPET}
 
 The time window summaries are:

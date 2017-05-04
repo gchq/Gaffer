@@ -32,7 +32,7 @@ Gaffer does
  - automated, rule-based data purge,
  - fine grained data access and query execution controls.
 
-Gaffer is built on Hadoop and Accumulo and is integrated with Spark for fast and flexible data analysis.
+Gaffer can be run on various databases, including Accumulo and HBase. It is also integrated with Spark for fast and flexible data analysis.
 
 To get going with Gaffer, visit our [getting started pages](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Getting-Started).
 

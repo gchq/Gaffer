@@ -10,12 +10,9 @@ To add properties to vertices we need to add an Entity to our schema. Entities a
 This is our new data schema. You can we we have added a Cardinality Entity. This will be added to every vertex in the Graph. This Entity has a 'hllp' property that will hold the HyperLogLogPlus cardinality value.
 ${DATA_SCHEMA_JSON}
 
-The data schema now also has 2 different edges, a red edge and a blue edge. To allow users to differentiate between the cardinality of each edge we have added an edgeGroup property to the Cardinality Entity. This property is included in the groupBy so that it prevents Cardinalities for the different edge colours being merged together.
-
 ##### Data types
-We have added a new data type - hllp. This is a HyperLogLogPlus object.
+We have added a new data type - hllp. This is a HyperLogLogPlus object. The HyperLogLogPlus object will be used to estimate the cardinality of a vertex.
 ${DATA_TYPES_JSON}
-
 
 ##### Store types
 Here we have added in the serialiser and aggregator for the HyperLogLogPlus object. Gaffer will automatically aggregate the cardinalities, using the provided aggregator, so they will keep up to date as new elements are added to the graph.
@@ -40,6 +37,7 @@ ${ALL_CARDINALITIES_RESULT}
 
 You can see we get a cardinality value of one for each junction for RoadUse edges as each junction is only connected to 1 other junction. 
 The cardinality value for the M5 Road is 7 as there are 7 junctions on this road in our data set. 
+Remember that the HyperLogLogPlus cardinality value is just an estimate.  
 
 If we want to merge these cardinalities together we can add 'groupBy=[]' to the operation view to override the groupBy defined in the schema.
 ${GET_ALL_SUMMARISED_CARDINALITIES_SNIPPET}

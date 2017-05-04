@@ -23,13 +23,27 @@ ${DATA_TYPES_JSON}
 ${STORE_TYPES_JSON}
 
 
-#### Example queries
-Now we have a the full schema we can load in our ${ROAD_TRAFFIC_SAMPLE_DATA_LINK} data and run more complex queries.
+#### Example complex query
+Now we have a the full schema we can load in our ${ROAD_TRAFFIC_SAMPLE_DATA_LINK} data and run a more complex query.
 
-##### Get the road use of M32 junction 1.
+For this example, the question we want to ask is: "In the year 2000, which junctions in the South West were heavily used by buses".
+
+There may be different and probably more efficient ways of doing this but we have tried to create an operation chain that demonstrates several features from the previous walkthroughs. 
+
+The query is form a follows:
+
+- We will start at the "South West" vertex, follow RegionContainsLocation edge, then LocationContainsRoad edge. 
+- We may get duplicates at this point so we will add all the road vertices to a Set using ToSet (this is not recommended for a large number of results).
+- Then we will continue on down RoadHasJunction edges.
+- At this point we now have all the Junctions in the South West.
+- We will then query for the JunctionUse entity to find out if the junction was heavily used by buses in the year 2000.
+- Finally, just to demonstrate another operation, we will convert the results into a simple CSV of junction and bus count.
+
+and here is the code:
+
 ${GET_SNIPPET}
 
-This can also be written in JSON for performing the query via the REST API.
+This can also be written in JSON for performing the query via the REST API:
 
 ```json
 ${GET_JSON}

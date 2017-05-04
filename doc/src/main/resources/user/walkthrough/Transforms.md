@@ -2,7 +2,7 @@ ${HEADER}
 
 ${CODE_LINK}
 
-In this example we’ll look at how to query for a some Edges and then add a new transient property to the Edges in the result set.
+In this example we’ll look at how to query for Edges and then add a new transient property to the Edges in the result set.
 Again, we will just use the same schema and data as in the previous walkthough. 
 
 A transient property is just a property that is not persisted, simply created at query time by a transform function. We’ll create a 'description' transient property that will summarise the contents of the aggregated Edges.

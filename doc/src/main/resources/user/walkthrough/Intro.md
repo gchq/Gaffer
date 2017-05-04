@@ -1,5 +1,20 @@
 ## Introduction 
 
+Gaffer is built for very large graphs.
+
+It's designed to be as flexible, scalable and extensible as possible, allowing for rapid prototyping and transition to production systems.
+
+Gaffer does 
+
+ - rapid query across very large numbers of entities and relationships,
+ - versatile query-time summarisation, filtering and transformation of data,
+ - in-database aggregation of rich statistical properties describing entities and relationships,
+ - scalable ingest at very high data rates and volumes,
+ - automated, rule-based data purge,
+ - fine grained data access and query execution controls.
+
+Gaffer can be run on various databases, including Accumulo and HBase. It is also integrated with Spark for fast and flexible data analysis.
+
 Gaffer allows you to take data, convert it into a graph, store it in a database and then run queries and analytics on it.
 
 To do this you need to do a few things:
@@ -11,7 +26,7 @@ To do this you need to do a few things:
  - Write an ${ELEMENT_GENERATOR_JAVADOC} to convert your data into Gaffer Graph ${ELEMENT_JAVADOC}. We've provided some interfaces for you.
  - Write a Store Properties file. This contains information and settings about the specific instance of your store, for example hostnames, ports and so on.
 
-When you've done these things you can write java applications to load and query the data.
+When you've done these things you can write applications to load and query the data.
 
 Gaffer is hosted on [Maven Central](https://mvnrepository.com/search?q=uk.gov.gchq.gaffer) and can easily be incorporated into your own projects.
 

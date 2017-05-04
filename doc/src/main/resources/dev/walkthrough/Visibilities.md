@@ -2,6 +2,8 @@ ${HEADER}
 
 ${CODE_LINK}
 
+Another one of Gaffer's key features is visibility filtering, fine grained data access and query execution controls. 
+
 In this example we'll add a visibility property to our edges so that we can control access to them.
 
 Let's assume that any road use information about junctions greater than 20 is private and only users that have the `private` data access authorization are allowed to view them.

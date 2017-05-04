@@ -2,7 +2,10 @@ ${HEADER}
 
 ${CODE_LINK}
 
-In this example we’ll query for some Edges and filter the results based on the aggregated value of a property. We will use the same schema and data as the previous example.
+Filtering in Gaffer is designed so it can be applied server side and distributed across a cluster for performance.
+
+In this example we’ll query for some Edges and filter the results based on the aggregated value of a property. 
+We will use the same schema and data as the previous example.
 
 If we query for the RoadUse Edges containing vertex `”10”` we get these Edges back with the counts aggregated:
 
