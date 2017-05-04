@@ -75,8 +75,18 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
+    public Operation executeOperation() {
+        return getAllElements();
+    }
+
+    @Override
     public OperationChain executeChunked() {
         return execute();
+    }
+
+    @Override
+    public Operation executeChunkedOperation() {
+        return executeOperation();
     }
 
     @Override
