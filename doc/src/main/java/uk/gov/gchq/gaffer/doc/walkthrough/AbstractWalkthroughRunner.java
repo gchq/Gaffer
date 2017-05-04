@@ -44,12 +44,12 @@ public class AbstractWalkthroughRunner {
         printHeader();
         printTableOfContents();
         printIntro();
+        printWalkthroughTitle();
         for (final Class<? extends AbstractWalkthrough> aClass : examples) {
             LOGGER.info(aClass.newInstance().walkthrough());
             LOGGER.info(EXAMPLE_DIVIDER);
         }
     }
-
 
     private void printIntro() {
         final String intro;
@@ -93,5 +93,9 @@ public class AbstractWalkthroughRunner {
             index++;
         }
         LOGGER.info("\n");
+    }
+
+    private void printWalkthroughTitle() {
+        LOGGER.info("## Walkthroughs");
     }
 }
