@@ -85,6 +85,11 @@ public class ExamplesService implements IExamplesService {
     }
 
     @Override
+    public Operation executeChunkedOperation() {
+        return executeOperation();
+    }
+
+    @Override
     public GetElements getElementsBySeed() {
         final GetElements op = new GetElements();
         final List<ElementId> seeds = new ArrayList<>();

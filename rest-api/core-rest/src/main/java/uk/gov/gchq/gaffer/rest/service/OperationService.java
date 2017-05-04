@@ -96,6 +96,12 @@ public class OperationService implements IOperationService {
         return output;
     }
 
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunked(final Operation operation) {
+        return executeChunked(new OperationChain(operation));
+    }
+
     @Override
     public CloseableIterable<Object> generateObjects(final GenerateObjects<Object> operation) {
         return _execute(operation);

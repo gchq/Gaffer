@@ -56,6 +56,10 @@ public interface IExamplesService {
     OperationChain executeChunked();
 
     @GET
+    @Path("/graph/doOperation/chunked/operation")
+    Operation executeChunkedOperation();
+
+    @GET
     @Path("/graph/doOperation/get/elements/bySeed")
     GetElements getElementsBySeed();
 

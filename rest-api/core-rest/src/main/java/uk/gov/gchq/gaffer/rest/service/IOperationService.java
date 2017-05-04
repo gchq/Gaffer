@@ -57,8 +57,13 @@ public interface IOperationService {
     Object execute(final Operation operation);
 
     @POST
+    @Path("/chunked/operation")
+    @ApiOperation(value = "Performs the given operation on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class)
+    ChunkedOutput<String> executeChunked(final Operation operation);
+
+    @POST
     @Path("/chunked")
-    @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Element.class)
+    @ApiOperation(value = "Performs the given operation chain on the graph, returned chunked output. NOTE - does not work in Swagger.", response = Object.class)
     ChunkedOutput<String> executeChunked(final OperationChain<CloseableIterable<Element>> opChain);
 
     @POST
