@@ -33,6 +33,7 @@ public class IntegerFreqMapAggregatorTest extends BinaryOperatorTest {
         assertEquals((Integer) 5, result.get("3"));
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given

@@ -215,7 +215,7 @@ public class AddNamedOperationHandlerTest {
             addNamedOperation.setOperationChain(grandparent);
             addNamedOperation.setOperationName("grandparent");
             handler.doOperation(addNamedOperation, context, store);
-            assert (cacheContains("grandparent"));
+            assert cacheContains("grandparent");
 
 
         } catch (final Exception e) {

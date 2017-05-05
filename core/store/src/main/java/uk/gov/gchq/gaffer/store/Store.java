@@ -51,6 +51,7 @@ import uk.gov.gchq.gaffer.operation.impl.job.GetAllJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobResults;
 import uk.gov.gchq.gaffer.operation.impl.output.ToArray;
+import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
 import uk.gov.gchq.gaffer.operation.impl.output.ToEntitySeeds;
 import uk.gov.gchq.gaffer.operation.impl.output.ToList;
 import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
@@ -77,6 +78,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.job.GetAllJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobDetailsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.job.GetJobResultsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToArrayHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.output.ToCsvHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToEntitySeedsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToListHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
@@ -220,9 +222,9 @@ public abstract class Store {
             final O result = _execute(operationChain, context);
             addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
-        } catch (final Throwable t) {
-            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
-            throw t;
+        } catch (final Exception e) {
+            addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+            throw e;
         }
     }
 
@@ -259,9 +261,9 @@ public abstract class Store {
             try {
                 _execute(operationChain, context);
                 addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-            } catch (final Throwable t) {
-                LOGGER.warn("Operation chain job failed to execute", t);
-                addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            } catch (final Exception e) {
+                LOGGER.warn("Operation chain job failed to execute", e);
+                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
             }
         }).start();
 
@@ -341,22 +343,28 @@ public abstract class Store {
     }
 
     public void validateSchemas() {
-        final ValidationResult validationResult = schema.validate();
+        final ValidationResult validationResult = new ValidationResult();
+        if (null == schema) {
+            validationResult.addError("Schema is missing");
+        } else {
+            validationResult.add(schema.validate());
 
-        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-        schemaElements.putAll(getSchema().getEdges());
-        schemaElements.putAll(getSchema().getEntities());
-        for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-            for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
-                if (null == serialisation) {
-                    validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
-                } else if (!serialisation.canHandle(propertyClass)) {
-                    validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+            final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+            schemaElements.putAll(getSchema().getEdges());
+            schemaElements.putAll(getSchema().getEntities());
+            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+                    if (null == serialisation) {
+                        validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                    } else if (!serialisation.canHandle(propertyClass)) {
+                        validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+                    }
                 }
             }
         }
+
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. " + validationResult.getErrorString());
         }
@@ -548,6 +556,7 @@ public abstract class Store {
         addOperationHandler(ToEntitySeeds.class, new ToEntitySeedsHandler());
         addOperationHandler(ToList.class, new ToListHandler<>());
         addOperationHandler(ToMap.class, new ToMapHandler());
+        addOperationHandler(ToCsv.class, new ToCsvHandler());
         addOperationHandler(ToSet.class, new ToSetHandler<>());
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());

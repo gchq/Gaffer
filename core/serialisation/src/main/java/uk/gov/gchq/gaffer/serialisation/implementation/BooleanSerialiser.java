@@ -27,10 +27,12 @@ public class BooleanSerialiser implements Serialisation<Boolean> {
     private static final byte FALSE = (byte) 0;
     private static final byte TRUE = (byte) 1;
 
+    @Override
     public byte[] serialise(final Boolean value) throws SerialisationException {
         return new byte[]{Boolean.TRUE.equals(value) ? TRUE : FALSE};
     }
 
+    @Override
     public Boolean deserialise(final byte[] bytes) throws SerialisationException {
         return bytes.length == 1 && TRUE == bytes[0];
     }

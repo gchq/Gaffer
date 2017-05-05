@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -38,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
@@ -76,7 +76,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -112,7 +112,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetElements getEdges = new GetElements.Builder()

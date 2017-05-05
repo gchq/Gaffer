@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -89,10 +90,10 @@ public class GetAdjacentIdsHandler implements
             Stream<? extends Pair<? extends EntityId, Set<Element>>> entityIdRelevantElementsStream = entityIdStream
                     .map(entityId -> {
                         final Set<Element> elements = GetElementsHandler.getRelevantElements(mapImpl, entityId, getElements);
-                        elements.removeIf(e -> e instanceof Entity || !getAdjacentIds.validateFlags(((Edge) e)));
+                        elements.removeIf(e -> e instanceof Entity || !getAdjacentIds.validateFlags((Edge) e));
                         return new Pair<>(entityId, elements);
                     })
-                    .filter(pair -> 0 != pair.getSecond().size());
+                    .filter(pair -> !pair.getSecond().isEmpty());
             Stream<Pair<EntityId, Set<Element>>> entityIdRelevantFullElementsStream = entityIdRelevantElementsStream
                     .map(pair -> {
                         final Set<Element> elementsWithProperties = new HashSet<>();
@@ -142,7 +143,7 @@ public class GetAdjacentIdsHandler implements
                         });
                     })
                     .flatMap(Function.identity())
-                    .filter(entityId -> null != entityId);
+                    .filter(Objects::nonNull);
 
             return new WrappedCloseableIterator<>(adjacentIdsStream.iterator());
         }

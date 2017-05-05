@@ -165,7 +165,7 @@ public class SchemaElementDefinitionValidatorTest {
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         given(elementDef.getClass("selection")).willReturn((Class) Integer.class);
 
-        final Predicate<String> function = (a) -> a.contains("true");
+        final Predicate<String> function = a -> a.contains("true");
         final ElementFilter elementFilter = new ElementFilter.Builder()
                 .select("selection")
                 .execute(function)
@@ -186,8 +186,8 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getPropertyClass("selectionStr")).willReturn((Class) String.class);
         given(elementDef.getPropertyClass("selectionInt")).willReturn((Class) Integer.class);
 
-        final Predicate<String> function1 = (a) -> a.contains("true");
-        final Predicate<Integer> function2 = (a) -> a > 0;
+        final Predicate<String> function1 = a -> a.contains("true");
+        final Predicate<Integer> function2 = a -> a > 0;
         final ElementFilter elementFilter = new ElementFilter.Builder()
                 .select("selectionStr")
                 .execute(function1)

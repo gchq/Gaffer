@@ -35,6 +35,7 @@ public interface EdgeId extends ElementId {
 
     void setDirected(final boolean directed);
 
+    @Override
     default boolean isEqual(final ElementId that) {
         return that instanceof EdgeId && isEqual((EdgeId) that);
     }

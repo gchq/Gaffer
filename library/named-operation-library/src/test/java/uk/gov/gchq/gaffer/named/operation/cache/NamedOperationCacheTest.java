@@ -173,7 +173,7 @@ public class NamedOperationCacheTest {
     @Test
     public void shouldReturnEmptySetIfThereAreNoOperationsInTheCache() {
         CloseableIterable<NamedOperationDetail> ops = cache.getAllNamedOperations(standardUser);
-        assert (Iterables.size(ops) == 0);
+        assert Iterables.size(ops) == 0;
     }
 
     @Test
@@ -192,9 +192,9 @@ public class NamedOperationCacheTest {
 
         Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
-        assert (actual.contains(standard));
-        assert (actual.contains(alt));
-        assert (actual.size() == 2);
+        assert actual.contains(standard);
+        assert actual.contains(alt);
+        assert actual.size() == 2;
     }
 
     @Test
@@ -213,8 +213,8 @@ public class NamedOperationCacheTest {
 
         Set<NamedOperationDetail> actual = Sets.newHashSet(cache.getAllNamedOperations(standardUser));
 
-        assert (actual.contains(standard));
-        assert (actual.size() == 1);
+        assert actual.contains(standard);
+        assert actual.size() == 1;
     }
 
     @Test

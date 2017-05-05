@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -69,14 +70,26 @@ public class ExamplesService implements IExamplesService {
     @Override
     public OperationChain execute() {
         return new OperationChain.Builder()
-                .first(getAdjacentIds())
-                .then(new GetElements())
+                .first(getAllElements())
+                .then(new Limit.Builder<Element>()
+                        .resultLimit(1)
+                        .build())
                 .build();
+    }
+
+    @Override
+    public Operation executeOperation() {
+        return getAllElements();
     }
 
     @Override
     public OperationChain executeChunked() {
         return execute();
+    }
+
+    @Override
+    public Operation executeChunkedOperation() {
+        return executeOperation();
     }
 
     @Override
@@ -403,7 +416,7 @@ public class ExamplesService implements IExamplesService {
             try {
                 if (clazz.isEnum()) {
                     List l = Arrays.asList(clazz.getEnumConstants());
-                    if (l.size() > 0) {
+                    if (!l.isEmpty()) {
                         value = Enum.valueOf(clazz, l.get(0).toString());
                     } else {
                         value = clazz.newInstance();

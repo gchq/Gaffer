@@ -150,6 +150,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
             // no action required.
         }
 
+        @Override
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {
                 return true;
@@ -176,7 +177,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (destIsInCurrent && sourceMatchesClientFilter);
+            return destIsInCurrent && sourceMatchesClientFilter;
         }
     }
 }

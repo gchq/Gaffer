@@ -47,7 +47,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
         fetchElements(operation, store);
         final String skipImport = operation.getOption(HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
-        if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE")) {
+        if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
             importElements(operation, store);
         } else {
             LOGGER.info("Skipping import as {} was {}", HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT,

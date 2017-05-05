@@ -80,7 +80,7 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
     private OperationChain<?> updateView(final View view, final OperationChain<?> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
             if (operation instanceof OperationView) {
-                final OperationView viewFilters = ((OperationView) operation);
+                final OperationView viewFilters = (OperationView) operation;
                 final View opView;
                 if (null == viewFilters.getView()) {
                     opView = view.clone();
@@ -117,7 +117,7 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
         ArrayList<Operation> operations = new ArrayList<>();
         for (final Operation operation : opChain.getOperations()) {
             if (operation instanceof NamedOperation) {
-                final NamedOperation namedOp = ((NamedOperation) operation);
+                final NamedOperation namedOp = (NamedOperation) operation;
                 OperationChain<?> innerChain = cache.getNamedOperation(namedOp.getOperationName(), user).getOperationChain();
                 updateOperationInput(innerChain.getOperations().get(0), namedOp.getInput());
                 operations.addAll(exposeNamedOperations(innerChain, user, cache));

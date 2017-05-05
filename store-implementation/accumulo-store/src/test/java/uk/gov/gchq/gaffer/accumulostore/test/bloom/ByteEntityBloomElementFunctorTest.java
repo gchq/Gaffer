@@ -57,7 +57,7 @@ public class ByteEntityBloomElementFunctorTest {
     }
 
     @Test
-    public void shouldTransformRangeEntity() throws AccumuloElementConversionException {
+    public void shouldTransformRangeEntity() {
         // Create Range formed from one entity and shouldRetieveElementsInRangeBetweenSeeds
         final Entity entity1 = new Entity(TestGroups.ENTITY);
         entity1.setVertex(1);
@@ -75,7 +75,7 @@ public class ByteEntityBloomElementFunctorTest {
     }
 
     @Test
-    public void shouldTransformKeyEntity() throws AccumuloElementConversionException {
+    public void shouldTransformKeyEntity() {
         // Create Key formed from entity and shouldRetieveElementsInRangeBetweenSeeds
         final Entity entity1 = new Entity(TestGroups.ENTITY);
         entity1.setVertex(1);
@@ -85,7 +85,7 @@ public class ByteEntityBloomElementFunctorTest {
     }
 
     @Test
-    public void shouldTransformRangeEdge() throws AccumuloElementConversionException {
+    public void shouldTransformRangeEdge() {
         // Create Range formed from one edge and shouldRetieveElementsInRangeBetweenSeeds
         final Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource(1);
@@ -105,7 +105,7 @@ public class ByteEntityBloomElementFunctorTest {
     }
 
     @Test
-    public void shouldTransformKeyEdge() throws AccumuloElementConversionException {
+    public void shouldTransformKeyEdge() {
         // Create Key formed from edge and shouldRetieveElementsInRangeBetweenSeeds
         final Edge edge1 = new Edge(TestGroups.EDGE);
         edge1.setSource(1);
@@ -120,7 +120,7 @@ public class ByteEntityBloomElementFunctorTest {
     }
 
     @Test
-    public void shouldTransformRangeFromEntityToEntityAndSomeEdges() throws AccumuloElementConversionException {
+    public void shouldTransformRangeFromEntityToEntityAndSomeEdges() {
         // Create entity
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex(1);

@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 public final class GafferResultCacheUtil {
-    public static final long ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+    public static final long ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000L;
     public static final long DEFAULT_TIME_TO_LIVE = ONE_DAY_IN_MILLISECONDS;
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheUtil.class);
 

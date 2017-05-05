@@ -48,7 +48,7 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
     public CloseableIterator<T> iterator() {
         final Iterator<T> iterator = iterable.iterator();
         if (iterator instanceof CloseableIterator) {
-            return ((CloseableIterator<T>) iterator);
+            return (CloseableIterator<T>) iterator;
         }
 
         return new WrappedCloseableIterator<>(iterator);

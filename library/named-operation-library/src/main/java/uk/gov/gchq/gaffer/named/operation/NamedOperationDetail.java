@@ -105,6 +105,7 @@ public class NamedOperationDetail implements Serializable {
         final NamedOperationDetail op = (NamedOperationDetail) o;
 
         return new EqualsBuilder()
+                .append(operationName, op.operationName)
                 .append(creatorId, op.creatorId)
                 .append(operations, op.operations)
                 .append(readAccessRoles, op.readAccessRoles)
@@ -115,7 +116,7 @@ public class NamedOperationDetail implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .appendSuper(super.hashCode())
+                .append(operationName)
                 .append(creatorId)
                 .append(operations)
                 .append(readAccessRoles)

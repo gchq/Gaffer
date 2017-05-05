@@ -37,6 +37,7 @@ public class JavaSerialiser implements Serialisation<Object> {
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);
 
+    @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         ObjectOutputStream out = null;
         ByteArrayOutputStream byteOut = null;
@@ -53,6 +54,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         }
     }
 
+    @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try (final InputStream inputStream = new ByteArrayInputStream(bytes);
              final ObjectInputStream is = new ObjectInputStream(inputStream)) {
@@ -81,6 +83,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         }
     }
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return SERIALISABLE.isAssignableFrom(clazz);
     }
