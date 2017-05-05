@@ -46,8 +46,7 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
     @Override
     public CloseableIterable<NamedOperationDetail> doOperation(final GetAllNamedOperations operation, final Context context, final Store store) throws OperationException {
         if (cache == null) {
-            throw new OperationException("Cache should be initialised in " +
-                    "resources/NamedOperationsDeclarations.json and referenced in store.properties");
+            throw new OperationException("Cache must not be null");
         }
         return cache.getAllNamedOperations(context.getUser());
     }

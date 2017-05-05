@@ -44,8 +44,7 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
     public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
             if (cache == null) {
-                throw new OperationException("Cache should be initialised in " +
-                        "resources/NamedOperationsDeclarations.json and referenced in store.properties");
+                throw new OperationException("Cache must not be null");
             }
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser());
         } catch (final CacheOperationFailedException e) {

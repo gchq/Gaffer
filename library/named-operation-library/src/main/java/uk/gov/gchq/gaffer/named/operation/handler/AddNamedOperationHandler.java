@@ -53,8 +53,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     public Void doOperation(final AddNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
             if (cache == null) {
-                throw new OperationException("Cache should be initialised in " +
-                        "resources/NamedOperationsDeclarations.json and referenced in store.properties");
+                throw new OperationException("Cache must not be null");
             }
             validate(context.getUser(), operation.getOperationName(), operation.getOperationChain(), cache);
             NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
