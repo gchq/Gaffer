@@ -94,10 +94,6 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
                     throw new OperationException("The Operation Chain must not be recursive");
                 }
                 NamedOperationDetail operation = cache.getNamedOperation(((NamedOperation) op).getOperationName(), user);
-                if (operation == null) {
-                    throw new OperationException("The Operation " + ((NamedOperation) op).getOperationName() +
-                            " references an operation which doesn't exist. Unable to create operation");
-                }
                 parentOperations.add(((NamedOperation) op).getOperationName());
                 validate(user, parentOperations, operation.getOperationChain(), cache);
                 parentOperations.remove(((NamedOperation) op).getOperationName());

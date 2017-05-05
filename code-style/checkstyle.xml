@@ -38,7 +38,7 @@
     </module>
 
     <module name="TreeWalker">
-        <property name="cacheFile" value="${checkstyle.uk.gov.gchq.gaffer.cache.file}"/>
+        <property name="cacheFile" value="${checkstyle.cache.file}"/>
 
         <module name="SuppressWarningsHolder"/>
 

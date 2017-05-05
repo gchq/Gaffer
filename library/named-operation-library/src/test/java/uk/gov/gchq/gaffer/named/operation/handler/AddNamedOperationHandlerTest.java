@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
@@ -33,7 +31,6 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
@@ -41,8 +38,9 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 
 import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
@@ -82,7 +80,11 @@ public class AddNamedOperationHandlerTest {
 
         doAnswer(invocationOnMock -> {
             String name = (String) invocationOnMock.getArguments()[0];
-            return storedOperations.get(name);
+            NamedOperationDetail result = storedOperations.get(name);
+            if (result == null) {
+                throw new CacheOperationFailedException();
+            }
+            return result;
         }).when(mockCache).getNamedOperation(anyString(), any(User.class));
 
         handler.setCache(mockCache);

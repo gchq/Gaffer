@@ -36,31 +36,8 @@ public class HazelcastCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
     private static HazelcastInstance hazelcast;
 
-<<<<<<< HEAD
     private static void configureHazelcast(final Properties properties) {
         String configFile = properties.getProperty(CACHE_CONFIG_FILE);
-=======
-    @Override
-    public void initialise() {
-        configureHazelcast();
-        LOGGER.info(hazelcast.getCluster().getClusterState().name()); // bootstraps hazelcast
-    }
-
-    @Override
-    public <K, V> ICache<K, V> getCache(final String cacheName) {
-        IMap<K, V> cache = hazelcast.getMap(cacheName);
-        return new HazelcastCache<>(cache);
-    }
-
-    @Override
-    public void shutdown() {
-        hazelcast.shutdown();
-    }
-
-
-    private void configureHazelcast() {
-        final String configFile = System.getProperty(CACHE_CONFIG_FILE);
->>>>>>> d6477eb5a695e0440a783a4d2d5f958122bd4591
         if (configFile == null) {
             LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
                     + ". Using default settings");
@@ -75,7 +52,6 @@ public class HazelcastCacheService implements ICacheService {
             }
         }
     }
-<<<<<<< HEAD
 
     @Override
     public void initialise(final Properties properties) {
@@ -93,6 +69,4 @@ public class HazelcastCacheService implements ICacheService {
         IMap<K, V> cache = hazelcast.getMap(cacheName);
         return new HazelcastCache<>(cache);
     }
-=======
->>>>>>> d6477eb5a695e0440a783a4d2d5f958122bd4591
 }

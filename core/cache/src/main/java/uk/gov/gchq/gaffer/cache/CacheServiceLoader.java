@@ -36,9 +36,10 @@ public final class CacheServiceLoader {
      * Looks at a system property and initialises an appropriate uk.gov.gchq.gaffer.cache service. If no uk.gov.gchq.gaffer.cache service is specified in the
      * system property, the loader falls back onto a default which is backed by HashMaps.
      *
+     * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid uk.gov.gchq.gaffer.cache class is specified in the system property
      */
-    public static void initialise(Properties properties) {
+    public static void initialise(final Properties properties) {
         if (properties == null) {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
             return;
@@ -46,7 +47,9 @@ public final class CacheServiceLoader {
         String cacheClass = properties.getProperty(CacheProperties.CACHE_SERVICE_CLASS);
 
         if (cacheClass == null) {
-            LOGGER.warn("No cache class was specified in properties - calls to getService() will return null.");
+            if (service == null) {
+                LOGGER.warn("No cache service class was specified in properties.");
+            }
             return;
         }
         try {

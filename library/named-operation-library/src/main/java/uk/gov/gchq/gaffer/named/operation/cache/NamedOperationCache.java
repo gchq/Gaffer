@@ -36,12 +36,13 @@ public class NamedOperationCache {
 
     /**
      * If the user is just adding to the uk.gov.gchq.gaffer.cache, ie the overwrite flag is set to false, then no security is added.
-     * However if the user is overwriting the named operation stored in the uk.gov.gchq.gaffer.cache, then their opAuths must be checked
+     * However if the user is overwriting the named operation stored in the cache, then their opAuths must be checked
      * against the write roles associated with the {@link NamedOperationDetail}. If it turns out the user is overwriting a
      * non-existent NamedOperationDetail, then the users NamedOperationDetail will be added normally.
      *
-     * @param namedOperation The NamedOperationDetail that the user wants to store
-     * @param overwrite      Flag relating to whether the user is adding (false) or updating/overwriting (true)
+     * @param namedOperation    The NamedOperationDetail that the user wants to store
+     * @param overwrite         Flag relating to whether the user is adding (false) or updating/overwriting (true).
+     * @param user              The user making the request
      * @throws CacheOperationFailedException thrown if the user doesn't have write access to the NamedOperationDetail requested,
      *                                       or if the add operation fails for some reason.
      */
@@ -76,7 +77,7 @@ public class NamedOperationCache {
     }
 
     /**
-     * Checks whether a {@link User} has write access to the uk.gov.gchq.gaffer.cache. If they do then the NamedOperationDetail and name is
+     * Checks whether a {@link User} has write access to the cache. If they do then the NamedOperationDetail and name is
      * removed from the uk.gov.gchq.gaffer.cache. If they don't or the NamedOperationDetail doesn't exist then an Exception is thrown.
      *
      * @param name The name of the NamedOperationDetail a user would like to delete
@@ -138,7 +139,7 @@ public class NamedOperationCache {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
         } catch (CacheOperationException e) {
-            throw new CacheOperationFailedException("Failed to clear uk.gov.gchq.gaffer.cache", e);
+            throw new CacheOperationFailedException("Failed to clear cache", e);
         }
     }
 
@@ -146,7 +147,7 @@ public class NamedOperationCache {
         CacheServiceLoader.getService().removeFromCache(CACHE_NAME, name);
 
         if (CacheServiceLoader.getService().getFromCache(CACHE_NAME, name) != null) {
-            throw new CacheOperationFailedException("Failed to remove " + name + " from uk.gov.gchq.gaffer.cache");
+            throw new CacheOperationFailedException("Failed to remove " + name + " from cache");
         }
     }
 
@@ -171,6 +172,6 @@ public class NamedOperationCache {
         if (op != null) {
             return op;
         }
-        throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the uk.gov.gchq.gaffer.cache");
+        throw new CacheOperationFailedException("No named operation with the name " + name + " exists in the cache");
     }
 }

@@ -24,9 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -137,7 +137,9 @@ public class StoreProperties implements Cloneable {
         set(JOB_TRACKER_ENABLED, jobTrackerEnabled);
     }
 
-    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) { set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString()); }
+    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
+    }
 
 
     public String getSchemaClassName() {
