@@ -15,10 +15,9 @@
  */
 package uk.gov.gchq.gaffer.named.operation.handler;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.named.operation.DeleteNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -28,7 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * Operation Handler for DeleteNamedOperation.
  */
 public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamedOperation> {
-    private INamedOperationCache cache;
+    private NamedOperationCache cache = new NamedOperationCache();
 
     /**
      * Deletes a NamedOperation from the cache specified in the Operations Declarations file (assuming the user has
@@ -55,12 +54,11 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
         return null;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public INamedOperationCache getCache() {
+    public NamedOperationCache getCache() {
         return cache;
     }
 
-    public void setCache(final INamedOperationCache cache) {
+    public void setCache(final NamedOperationCache cache) {
         this.cache = cache;
     }
 }

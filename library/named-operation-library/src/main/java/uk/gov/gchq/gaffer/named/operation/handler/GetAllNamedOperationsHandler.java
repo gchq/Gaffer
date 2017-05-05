@@ -17,11 +17,10 @@
 package uk.gov.gchq.gaffer.named.operation.handler;
 
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.named.operation.GetAllNamedOperations;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
-import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -31,7 +30,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
  * Operation Handler for GetAllNamedOperations
  */
 public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetAllNamedOperations, CloseableIterable<NamedOperationDetail>> {
-    public INamedOperationCache cache;
+    public NamedOperationCache cache = new NamedOperationCache();
 
     /**
      * Retrieves all the Named Operations that a user is allowed to see. As the expected behaviour is to bring back a
@@ -53,12 +52,11 @@ public class GetAllNamedOperationsHandler implements OutputOperationHandler<GetA
         return cache.getAllNamedOperations(context.getUser());
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public INamedOperationCache getCache() {
+    public NamedOperationCache getCache() {
         return cache;
     }
 
-    public void setCache(final INamedOperationCache cache) {
+    public void setCache(final NamedOperationCache cache) {
         this.cache = cache;
     }
 }

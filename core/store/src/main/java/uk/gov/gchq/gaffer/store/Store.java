@@ -60,6 +60,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -134,6 +135,7 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
         addOpHandlers();
@@ -141,16 +143,13 @@ public abstract class Store {
         validateSchemas();
     }
 
+    private void startCacheServiceLoader(StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
+    }
+
     protected JobTracker createJobTracker(final StoreProperties properties) {
-        final String jobTrackerClass = properties.getJobTrackerClass();
-        if (null != jobTrackerClass) {
-            try {
-                final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
-                newJobTracker.initialise(properties.getJobTrackerConfigPath());
-                return newJobTracker;
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
-            }
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
         }
 
         return null;

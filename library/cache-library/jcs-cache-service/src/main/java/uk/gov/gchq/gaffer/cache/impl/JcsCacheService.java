@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.ICache;
-import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class JcsCacheService extends AbstractCacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JcsCacheService.class);
 
     @Override
-    public void initialise() {
-        String configFile = System.getProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
+    public void initialise(Properties properties) {
+        String configFile = properties.getProperty(CacheProperties.CACHE_CONFIG_FILE);
         manager = CompositeCacheManager.getUnconfiguredInstance();
 
         if (configFile != null) {
@@ -48,7 +48,7 @@ public class JcsCacheService extends AbstractCacheService {
                 manager.configure(cacheProperties);
                 return;
             } catch (IOException e) {
-                throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);
+                throw new IllegalArgumentException("Cannot create uk.gov.gchq.gaffer.cache using config file " + configFile, e);
             }
         }
         LOGGER.warn("No config file configured. Using default.");
@@ -79,7 +79,7 @@ public class JcsCacheService extends AbstractCacheService {
         try {
             return new JcsCache<>(cache);
         } catch (CacheException e) {
-            throw new IllegalArgumentException("Failed to create cache", e);
+            throw new IllegalArgumentException("Failed to create uk.gov.gchq.gaffer.cache", e);
         }
     }
 }

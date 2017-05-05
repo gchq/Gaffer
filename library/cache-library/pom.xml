@@ -27,7 +27,6 @@
     <artifactId>cache-library</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>cache-service</module>
         <module>jcs-cache-service</module>
         <module>hazelcast-cache-service</module>
     </modules>

@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.Collection;
 import java.util.Set;
 
-public class HazelcastCache <K, V> implements ICache <K, V> {
+public class HazelcastCache <K, V> implements ICache<K, V> {
     private IMap<K, V> distributedMap;
 
     public HazelcastCache(final IMap <K, V> distributedMap) {

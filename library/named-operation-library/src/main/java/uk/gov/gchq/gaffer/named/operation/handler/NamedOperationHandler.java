@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.named.operation.handler;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -38,7 +37,7 @@ import java.util.List;
  * Operation Handler for NamedOperation
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
-    private INamedOperationCache cache;
+    private NamedOperationCache cache = new NamedOperationCache();
 
     /**
      * Gets the requested NamedOperation, updates the input and the view, then executes the operation chain, bypassing
@@ -115,7 +114,7 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
         }
     }
 
-    private List<Operation> exposeNamedOperations(final OperationChain<?> opChain, final User user, final INamedOperationCache cache) throws CacheOperationFailedException {
+    private List<Operation> exposeNamedOperations(final OperationChain<?> opChain, final User user, final NamedOperationCache cache) throws CacheOperationFailedException {
         ArrayList<Operation> operations = new ArrayList<>();
         for (final Operation operation : opChain.getOperations()) {
             if (operation instanceof NamedOperation) {
@@ -131,12 +130,11 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
 
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public INamedOperationCache getCache() {
+    public NamedOperationCache getCache() {
         return cache;
     }
 
-    public void setCache(final INamedOperationCache cache) {
+    public void setCache(final NamedOperationCache cache) {
         this.cache = cache;
     }
 }

@@ -7,7 +7,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class MockNamedOperationCache implements INamedOperationCache {
+public class MockNamedOperationCache extends NamedOperationCache {
 
     private HashMap<String, NamedOperationDetail> fakeCache = new HashMap<>();
 

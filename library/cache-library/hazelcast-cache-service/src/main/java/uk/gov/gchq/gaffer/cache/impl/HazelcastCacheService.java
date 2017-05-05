@@ -28,14 +28,17 @@ import uk.gov.gchq.gaffer.cache.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.ICache;
 
 
-import static uk.gov.gchq.gaffer.cache.util.CacheSystemProperty.CACHE_CONFIG_FILE;
+import java.util.Properties;
+
+import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;
+
 
 public class HazelcastCacheService extends AbstractCacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
     private static HazelcastInstance hazelcast;
 
-    private static void configureHazelcast() {
-        String configFile = System.getProperty(CACHE_CONFIG_FILE);
+    private static void configureHazelcast(final Properties properties) {
+        String configFile = properties.getProperty(CACHE_CONFIG_FILE);
         if (configFile == null) {
             LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
                     + ". Using default settings");
@@ -54,8 +57,8 @@ public class HazelcastCacheService extends AbstractCacheService {
     }
 
     @Override
-    public void initialise() {
-        configureHazelcast();
+    public void initialise(final Properties properties) {
+        configureHazelcast(properties);
         LOGGER.info(hazelcast.getCluster().getClusterState().name()); // bootstraps hazelcast
     }
 

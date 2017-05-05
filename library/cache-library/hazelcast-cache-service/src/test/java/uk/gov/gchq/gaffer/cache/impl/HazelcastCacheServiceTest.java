@@ -22,9 +22,10 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.io.File;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -33,6 +34,7 @@ import static org.junit.Assert.fail;
 public class HazelcastCacheServiceTest {
 
     private HazelcastCacheService service = new HazelcastCacheService();
+    private Properties cacheProperties = new Properties();
     private static final String CACHE_NAME = "test";
 
     @Rule
@@ -40,7 +42,7 @@ public class HazelcastCacheServiceTest {
 
     @Before
     public void beforeEach() {
-        System.clearProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
+        cacheProperties.clear();
     }
 
     @After
@@ -53,14 +55,14 @@ public class HazelcastCacheServiceTest {
         String madeUpFile = "/made/up/file.xml";
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(madeUpFile);
-        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, "/made/up/file.xml");
-        service.initialise();
+        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "/made/up/file.xml");
+        service.initialise(cacheProperties);
     }
 
     private void initialiseWithTestConfig() {
         String filePath = new File("src/test/resources/hazelcast.xml").getAbsolutePath();
-        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, filePath);
-        service.initialise();
+        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
+        service.initialise(cacheProperties);
     }
 
     @Test
@@ -102,7 +104,7 @@ public class HazelcastCacheServiceTest {
         // given
         initialiseWithTestConfig();
         HazelcastCacheService service1 = new HazelcastCacheService();
-        service1.initialise();
+        service1.initialise(cacheProperties);
 
         // when
         service1.getCache(CACHE_NAME).put("Test", 2);

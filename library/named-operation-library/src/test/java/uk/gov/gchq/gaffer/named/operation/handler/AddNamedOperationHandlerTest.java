@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.MockNamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -36,6 +37,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 public class AddNamedOperationHandlerTest {
 
@@ -44,7 +46,7 @@ public class AddNamedOperationHandlerTest {
             .userId("test user")
             .build());
 
-    private Store store = Mockito.mock(Store.class);
+    private Store store = mock(Store.class);
     private NamedOperation operation = new NamedOperation.Builder<>()
             .name(OPERATION_NAME)
             .build();
@@ -192,6 +194,7 @@ public class AddNamedOperationHandlerTest {
 
         } catch (final Exception e) {
             fail("Expected test to pass without error");
+            e.printStackTrace();
         }
 
     }

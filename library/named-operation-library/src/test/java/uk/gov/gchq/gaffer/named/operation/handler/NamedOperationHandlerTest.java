@@ -27,8 +27,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
-import uk.gov.gchq.gaffer.named.operation.cache.MockNamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -65,21 +64,11 @@ public class NamedOperationHandlerTest {
     }
 
     @Test
-    public void shouldLoadCacheFromOperationsDeclarationsFile() throws SerialisationException {
-        final InputStream s = StreamUtil.openStream(getClass(), "NamedOperationDeclarations.json");
-        final OperationDeclarations deserialised = json.deserialise(s, OperationDeclarations.class);
-
-        INamedOperationCache cache = ((AddNamedOperationHandler) deserialised.getOperations().get(0).getHandler()).getCache();
-
-        assert (cache instanceof MockNamedOperationCache);
-    }
-
-    @Test
     public void shouldExecuteNamedOperation() throws OperationException, CacheOperationFailedException {
         // Given
         final String opName = "opName";
         final NamedOperationHandler operationHandler = new NamedOperationHandler();
-        final INamedOperationCache cache = mock(INamedOperationCache.class);
+        final NamedOperationCache cache = mock(NamedOperationCache.class);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);
@@ -136,7 +125,7 @@ public class NamedOperationHandlerTest {
         // Given
         final String opName = "opName";
         final NamedOperationHandler operationHandler = new NamedOperationHandler();
-        final INamedOperationCache cache = mock(INamedOperationCache.class);
+        final NamedOperationCache cache = mock(NamedOperationCache.class);
 
         final Context context = mock(Context.class);
         final Store store = mock(Store.class);

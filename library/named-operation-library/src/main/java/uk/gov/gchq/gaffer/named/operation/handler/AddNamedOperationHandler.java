@@ -16,12 +16,11 @@
 
 package uk.gov.gchq.gaffer.named.operation.handler;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
-import uk.gov.gchq.gaffer.named.operation.cache.INamedOperationCache;
+import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -36,7 +35,7 @@ import java.util.List;
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
 public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
-    private INamedOperationCache cache;
+    private NamedOperationCache cache = new NamedOperationCache();
 
     /**
      * Adds a NamedOperation to a cache which must be specified in the operation declarations file. An
@@ -74,23 +73,22 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
         return null;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public INamedOperationCache getCache() {
+    public NamedOperationCache getCache() {
         return cache;
     }
 
-    public void setCache(final INamedOperationCache cache) {
+    public void setCache(final NamedOperationCache cache) {
         this.cache = cache;
     }
 
-    private void validate(final User user, final String parent, final OperationChain<?> operationChain, final INamedOperationCache cache) throws CacheOperationFailedException, OperationException {
+    private void validate(final User user, final String parent, final OperationChain<?> operationChain, final NamedOperationCache cache) throws CacheOperationFailedException, OperationException {
         ArrayList<String> parentOperations = new ArrayList<>();
         parentOperations.add(parent);
 
         validate(user, parentOperations, operationChain, cache);
     }
 
-    private void validate(final User user, final List<String> parentOperations, final OperationChain<?> operationChain, final INamedOperationCache cache) throws CacheOperationFailedException, OperationException {
+    private void validate(final User user, final List<String> parentOperations, final OperationChain<?> operationChain, final NamedOperationCache cache) throws CacheOperationFailedException, OperationException {
         for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
                 if (parentOperations.contains(((NamedOperation) op).getOperationName())) {

@@ -21,9 +21,10 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
+import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.io.File;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -34,13 +35,14 @@ public class JcsCacheServiceTest {
     private JcsCacheService service = new JcsCacheService();
     private static final String TEST_REGION = "test";
     private static final String ALTERNATIVE_TEST_REGION = "alternativeTest";
+    private Properties serviceProps = new Properties();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void before() {
-        System.clearProperty(CacheSystemProperty.CACHE_CONFIG_FILE);
+        serviceProps.clear();
     }
 
     @After
@@ -51,7 +53,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldUseDefaultConfigFileIfNoneIsSpecified() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         ICache<String, Integer> cache = service.getCache(TEST_REGION);
         cache.put("test", 1);
         cache.clear();
@@ -65,17 +67,17 @@ public class JcsCacheServiceTest {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(badFileName);
 
-        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, badFileName);
+        serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, badFileName);
 
-        service.initialise();
+        service.initialise(serviceProps);
     }
 
     @Test
-    public void shouldUseSystemVariableToConfigureJCS() throws CacheOperationException {
+    public void shouldUsePropertyToConfigureJCS() throws CacheOperationException {
         // given
         String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
-        System.setProperty(CacheSystemProperty.CACHE_CONFIG_FILE, filePath);
-        service.initialise();
+        serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
+        service.initialise(serviceProps);
         // when
         ICache<String, Integer> cache = service.getCache(ALTERNATIVE_TEST_REGION);
         cache.put("test", 1);
@@ -88,7 +90,7 @@ public class JcsCacheServiceTest {
     public void shouldReUseCacheIfOneExists() throws CacheOperationException {
 
         // given
-        service.initialise();
+        service.initialise(serviceProps);
         ICache<String, Integer> cache = service.getCache(TEST_REGION);
         cache.put("key", 1);
 
@@ -107,9 +109,9 @@ public class JcsCacheServiceTest {
     public void shouldShareCachesBetweenServices() throws CacheOperationException {
 
         // given
-        service.initialise();
+        service.initialise(serviceProps);
         JcsCacheService service1 = new JcsCacheService();
-        service1.initialise();
+        service1.initialise(serviceProps);
 
         // when
         ICache<String, Integer> cache = service1.getCache(TEST_REGION);
@@ -125,7 +127,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldAddEntriesToCache() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
         Assert.assertEquals((Integer) 1, service.getFromCache(TEST_REGION, "test"));
@@ -133,7 +135,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldOnlyUpdateIfInstructed() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
         try {
@@ -150,7 +152,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldBeAbleToDeleteCacheEntries() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test", 1);
 
         service.removeFromCache(TEST_REGION, "test");
@@ -159,7 +161,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldBeAbleToClearCache() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
@@ -172,7 +174,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldGetAllKeysFromCache() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
@@ -183,7 +185,7 @@ public class JcsCacheServiceTest {
 
     @Test
     public void shouldGetAllValues() throws CacheOperationException {
-        service.initialise();
+        service.initialise(serviceProps);
         service.putInCache(TEST_REGION, "test1", 1);
         service.putInCache(TEST_REGION, "test2", 2);
         service.putInCache(TEST_REGION, "test3", 3);
