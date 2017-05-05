@@ -42,7 +42,7 @@ public final class TypeReferenceImpl {
     public static class Object extends TypeReference<java.lang.Object> {
     }
 
-    public static class Element extends TypeReference<Element> {
+    public static class Element extends TypeReference<uk.gov.gchq.gaffer.data.element.Element> {
     }
 
     public static class Boolean extends TypeReference<java.lang.Boolean> {
@@ -118,5 +118,8 @@ public final class TypeReferenceImpl {
     }
 
     public static class IterableMap extends TypeReference<Iterable<? extends java.util.Map<java.lang.String, java.lang.Object>>> {
+    }
+
+    public static class Number extends TypeReference<java.lang.Number> {
     }
 }
