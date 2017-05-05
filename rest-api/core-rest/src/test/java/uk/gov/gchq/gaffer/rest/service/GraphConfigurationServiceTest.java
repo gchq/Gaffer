@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
@@ -71,7 +71,7 @@ public class GraphConfigurationServiceTest {
     public void setup() {
         final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
-        final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(STORE_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
+        final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
@@ -142,7 +142,7 @@ public class GraphConfigurationServiceTest {
         // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 6", traits.size() == 6);
-        assertTrue("Collection should contain STORE_AGGREGATION trait", traits.contains(STORE_AGGREGATION));
+        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
         assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
@@ -207,7 +207,7 @@ public class GraphConfigurationServiceTest {
         // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 6", traits.size() == 6);
-        assertTrue("Collection should contain STORE_AGGREGATION trait", traits.contains(STORE_AGGREGATION.name()));
+        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION.name()));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING.name()));
         assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING.name()));
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING.name()));

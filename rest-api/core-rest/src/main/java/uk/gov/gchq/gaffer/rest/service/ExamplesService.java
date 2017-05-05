@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
@@ -69,8 +70,10 @@ public class ExamplesService implements IExamplesService {
     @Override
     public OperationChain execute() {
         return new OperationChain.Builder()
-                .first(getAdjacentIds())
-                .then(new GetElements())
+                .first(getAllElements())
+                .then(new Limit.Builder<Element>()
+                        .resultLimit(1)
+                        .build())
                 .build();
     }
 

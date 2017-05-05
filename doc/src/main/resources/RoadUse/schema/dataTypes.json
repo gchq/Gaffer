@@ -1,0 +1,30 @@
+{
+  "types": {
+    "junction": {
+      "description": "A road junction represented by a String.",
+      "class": "java.lang.String"
+    },
+    "count.long": {
+      "description": "A long count that must be greater than or equal to 0.",
+      "class": "java.lang.Long",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsMoreThan",
+          "orEqualTo": true,
+          "value": {
+            "java.lang.Long": 0
+          }
+        }
+      ]
+    },
+    "true": {
+      "description": "A simple boolean that must always be true.",
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+        }
+      ]
+    }
+  }
+}

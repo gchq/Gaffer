@@ -59,7 +59,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
@@ -118,7 +118,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements op = new GetAllElements.Builder()

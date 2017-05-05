@@ -1,0 +1,21 @@
+{
+  "edges": {
+    "RoadUse": {
+      "description": "A directed edge representing vehicles moving from junction A to junction B.",
+      "source": "junction",
+      "destination": "junction",
+      "directed": "true",
+      "properties": {
+        "visibility": "visibility",
+        "count": "count.long"
+      }
+    },
+    "RoadHasJunction": {
+      "description": "A directed edge from each road to all the junctions on that road.",
+      "source": "road",
+      "destination": "junction",
+      "directed": "true"
+    }
+  },
+  "visibilityProperty": "visibility"
+}

@@ -12,7 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-# Map-store
+The master copy of this page is the README in the map-store module.
+
+Map Store
+===================
 
 The Map-store is a simple in-memory store. Any class that implements Java's Map interface can be used to store the data. Data stored in this store is not persistent, i.e. when the JVM is shut down the data will disappear.
 
