@@ -76,7 +76,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     public void shouldAggregateIdenticalElements() throws OperationException, UnsupportedEncodingException {
         // Given
         final GetElements getElements = new GetElements.Builder()
@@ -112,7 +112,7 @@ public class AggregationIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     public void shouldNotAggregateEdgesWithDifferentDirectionFlag() throws OperationException {
         // Given
         final GetElements getEdges = new GetElements.Builder()

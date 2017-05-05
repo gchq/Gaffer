@@ -112,6 +112,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("transientProperties")
     public Map<String, String> getTransientPropertyMapWithClassNames() {
+        if (transientProperties.isEmpty()) {
+            return null;
+        }
+
         Map<String, String> propertyMap = new HashMap<>();
         for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
             propertyMap.put(entry.getKey(), entry.getValue().getName());
