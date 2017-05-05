@@ -75,6 +75,7 @@ public class Subgraphs extends UserWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("The elements have been added.");
 
 
         // [get] Create a sub graph

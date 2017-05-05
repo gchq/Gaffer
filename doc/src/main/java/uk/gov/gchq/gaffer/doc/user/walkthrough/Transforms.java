@@ -82,6 +82,7 @@ public class Transforms extends UserWalkthrough {
         // ---------------------------------------------------------
         log("The elements have been added.");
 
+
         // [get simple] get all the edges that contain the vertex "1"
         // ---------------------------------------------------------
         final GetElements getEdges = new GetElements.Builder()

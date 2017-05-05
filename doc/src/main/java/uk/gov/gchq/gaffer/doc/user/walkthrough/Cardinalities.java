@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -32,14 +31,13 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Cardinalities extends UserWalkthrough {
     public Cardinalities() {
@@ -47,22 +45,7 @@ public class Cardinalities extends UserWalkthrough {
     }
 
     public CloseableIterable<? extends Element> run() throws OperationException, IOException {
-        // [generate] Create some edges from the simple data file using our Road Use generator class
-        // ---------------------------------------------------------
-        final List<Element> elements = new ArrayList<>();
-        final RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator dataGenerator = new RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator();
-        for (final String line : IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/data.txt"))) {
-            Iterables.addAll(elements, dataGenerator._apply(line));
-        }
-        // ---------------------------------------------------------
-        log("Elements generated from the data file.");
-        for (final Element element : elements) {
-            log("GENERATED_EDGES", element.toString());
-        }
-        log("");
-
-
-        // [graph] Create a graph using our schema and store properties
+        // [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
@@ -77,12 +60,19 @@ public class Cardinalities extends UserWalkthrough {
         // ---------------------------------------------------------
 
 
-        // [add] add the edges to the graph
+        // [add] Create a data generator and add the edges to the graph using an operation chain consisting of:
+        // generateElements - generating edges from the data (note these are directed edges)
+        // addElements - add the edges to the graph
         // ---------------------------------------------------------
-        final AddElements addElements = new AddElements.Builder()
-                .input(elements)
+        final OperationChain<Void> addOpChain = new OperationChain.Builder()
+                .first(new GenerateElements.Builder<String>()
+                        .generator(new RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator())
+                        .input(IOUtils.readLines(StreamUtil.openStream(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/data.txt")))
+                        .build())
+                .then(new AddElements())
                 .build();
-        graph.execute(addElements, user);
+
+        graph.execute(addOpChain, user);
         // ---------------------------------------------------------
         log("The elements have been added.");
 

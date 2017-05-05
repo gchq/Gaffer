@@ -68,6 +68,7 @@ public class OperationChains extends UserWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("The elements have been added.");
 
 
         // [get] Create and execute an operation chain consisting of 3 operations:

@@ -90,6 +90,7 @@ public class FullExample extends UserWalkthrough {
 
         graph.execute(addOpChain, user);
         // ---------------------------------------------------------
+        log("The elements have been added.");
 
 
         // [get] Get all road junctions in the South West that were heavily used by buses in the year 2000.

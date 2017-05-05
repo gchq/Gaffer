@@ -26,9 +26,9 @@ public class UserWalkthroughRunner extends AbstractWalkthroughRunner {
             MultipleEdges.class,
             Filtering.class,
             Transforms.class,
+            OperationChains.class,
             Aggregation.class,
             Cardinalities.class,
-            OperationChains.class,
             Subgraphs.class,
             FullExample.class
     );
