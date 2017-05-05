@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 
 import java.util.Properties;
 
-
 /**
  * Initialised when the store is initialised. Looks at a system property to determine the uk.gov.gchq.gaffer.cache service to load.
  * Then initialises it, after which any component may use {@code CacheServiceLoader.getService()} to get the service

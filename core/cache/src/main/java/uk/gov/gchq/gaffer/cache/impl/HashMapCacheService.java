@@ -17,13 +17,12 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 
-import uk.gov.gchq.gaffer.cache.AbstractCacheService;
 import uk.gov.gchq.gaffer.cache.ICache;
-
+import uk.gov.gchq.gaffer.cache.ICacheService;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class HashMapCacheService extends AbstractCacheService {
+public class HashMapCacheService implements ICacheService {
 
     private HashMap<String, HashMapCache> caches = new HashMap<>();
 
@@ -39,10 +38,10 @@ public class HashMapCacheService extends AbstractCacheService {
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        HashMapCache cache = caches.get(cacheName);
+        HashMapCache<K, V> cache = caches.get(cacheName);
 
         if (cache == null) {
-            cache = new HashMapCache<K, V>();
+            cache = new HashMapCache<>();
             caches.put(cacheName, cache);
         }
 
