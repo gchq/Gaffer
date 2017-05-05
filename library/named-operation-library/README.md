@@ -16,7 +16,8 @@ Named Operation Library
 =======================
 This module contains the Named Operations library for Gaffer.
 
-In order to make use of the Named Operations library you will need to include it as a dependency:
+In order to make use of the Named Operations library you will need
+to include it as a dependency:
 
 ```
  <dependency>
@@ -26,14 +27,22 @@ In order to make use of the Named Operations library you will need to include it
 </dependency>
 ```
 
-and your chosen cache service implementation to use for the named operations (see library/cache-library/README.md), e.g for the JCS implementation:
-
+Then you need to add all the named operations by referencing them in the
+store properties file:
 ```
-<dependency>
-   <groupId>uk.gov.gchq.gaffer</groupId>
-   <artifactId>jcs-cache-service</artifactId>
-   <version>${gaffer.version}</version>
-</dependency>
+gaffer.store.operation.declarations=NamedOperationDeclarations.json
 ```
 
-This will add all the Operations and their handlers. Each of the handlers use a cache to store the Named Operations.
+This will add all the Operations and their handlers. Each of the
+handlers use a cache to store the Named Operations.
+
+Named Operations depends on the Cache service being active at runtime.
+In order for the cache service to run you must select your desired
+implementation. You do this by adding another line to the store.properties
+file:
+```
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
+```
+
+To find out more about the different cache services on offer, see the
+Cache Library README.
