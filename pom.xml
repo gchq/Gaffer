@@ -1093,8 +1093,5 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>doc</id>
-        </profile>
     </profiles>
 </project>
