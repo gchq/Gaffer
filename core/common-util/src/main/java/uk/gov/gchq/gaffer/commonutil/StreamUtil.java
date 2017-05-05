@@ -123,7 +123,7 @@ public abstract class StreamUtil {
                 index++;
             } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
-                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                LOGGER.info("Closed {} input streams", closedStreamsCount);
             }
         }
         return schemas;
@@ -136,7 +136,7 @@ public abstract class StreamUtil {
                 schemas[pos] = openStream(urls[pos]);
             } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
-                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                LOGGER.info("Closed {} input streams", closedStreamsCount);
                 throw e;
             }
         }

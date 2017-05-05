@@ -89,14 +89,14 @@ public class WalkthroughRunner {
 
     private void printTableOfContents() throws InstantiationException, IllegalAccessException {
         int index = 1;
-        LOGGER.info(index + ". [A *Very* Short Introduction to Gaffer](#a-very-short-introduction-to-gaffer)");
+        LOGGER.info("{}. [A *Very* Short Introduction to Gaffer](#a-very-short-introduction-to-gaffer)", index);
         index++;
-        LOGGER.info(index + ". [Walkthroughs](#walkthroughs)");
+        LOGGER.info("{}. [Walkthroughs](#walkthroughs)", index);
 
         index = 1;
         for (final Class<? extends LoadAndQuery> aClass : EXAMPLES) {
             final String header = aClass.newInstance().getHeader();
-            LOGGER.info("  " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
+            LOGGER.info("  {}. [{}](#{})", index, header, header.toLowerCase(Locale.getDefault()).replace(" ", "-"));
             index++;
         }
         LOGGER.info("\n");
