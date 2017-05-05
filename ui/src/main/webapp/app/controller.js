@@ -236,17 +236,17 @@ angular.module('app').controller('AppController',
         if(expandElementContent && expandElementContent.filters) {
             for(var index in expandElementContent.filters) {
                 var filter = expandElementContent.filters[index];
-                if(filter.property && filter['function']) {
+                if(filter.property && filter['predicate']) {
                     var functionJson = {
-                        "function": {
-                            class: filter['function']
+                        "predicate": {
+                            class: filter['predicate']
                         },
                         selection: [ filter.property ]
                     };
 
                     for(var i in filter.availableFunctionParameters) {
                         if(filter.parameters[i]) {
-                            functionJson["function"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
+                            functionJson["predicate"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
                         }
                     }
 
@@ -473,11 +473,11 @@ angular.module('app').controller('AppController',
         selectedElement.availableFunctions = data
         $scope.$apply();
     });
-    selectedElement.function = '';
+    selectedElement.predicate = '';
   }
 
   $scope.onSelectedFunctionChange = function(group, selectedElement) {
-    raw.functionParameters(selectedElement['function'], function(data) {
+    raw.functionParameters(selectedElement['predicate'], function(data) {
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });

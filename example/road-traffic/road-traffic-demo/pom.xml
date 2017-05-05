@@ -84,6 +84,12 @@
                                 <version>${project.parent.version}</version>
                                 <type>war</type>
                             </dependency>
+                            <dependency>
+                                <groupId>uk.gov.gchq.gaffer</groupId>
+                                <artifactId>ui</artifactId>
+                                <version>${project.parent.version}</version>
+                                <type>war</type>
+                            </dependency>
                         </dependencies>
                         <executions>
                             <execution>
