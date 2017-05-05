@@ -12,6 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+The master copy of this page is the README in the accumulo-store module.
+
+Accumulo Store
+===================
+
 1. [Introduction](#introduction)
 2. [Use cases](#use-cases)
 3. [Accumulo Set Up](#accumulo-set-up)
@@ -28,7 +33,6 @@ limitations under the License.
 14. [Tests](#tests)
 15. [Accumulo 1.8.0 Support](#accumulo-1.8.0-support)
 
-THIS USER GUIDE IS CURRENTLY BEING UPDATED - PLEASE DO NOT MAKE ANY CHANGES
 
 Introduction
 -----------------------------------------------
