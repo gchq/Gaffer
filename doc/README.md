@@ -17,8 +17,9 @@ Documentation
 
 This doc module is used to generate the documentation for the getting started wiki pages.
 
-To build the full wiki pages run the following:
+To build the full wiki pages run the following and store the output of each command in the relevant wiki page:
 
+```bash
 docJar=doc/target/doc-jar-with-dependencies.jar
 java -cp $docJar uk.gov.gchq.gaffer.doc.user.walkthrough.UserWalkthroughRunner
 java -cp $docJar uk.gov.gchq.gaffer.doc.dev.walkthrough.DevWalkthroughRunner
@@ -27,3 +28,4 @@ java -cp $docJar uk.gov.gchq.gaffer.doc.properties.walkthrough.PropertiesWalkthr
 java -cp $docJar uk.gov.gchq.gaffer.doc.operation.OperationExamplesRunner
 java -cp $docJar uk.gov.gchq.gaffer.doc.operation.accumulo.AccumuloOperationExamplesRunner
 java -cp $docJar uk.gov.gchq.gaffer.doc.predicate.PredicateExamplesRunner
+```

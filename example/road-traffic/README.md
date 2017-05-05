@@ -16,11 +16,20 @@ Road Use Demo
 =============
 
 ## Deployment
-To start the demo run the following from within the Gaffer repository:
+Assuming you have Java 8, Maven and Git installed, you can build and run the latest version of the road traffic demo by doing the following:
 
 ```bash
-mvn clean install -Pquick -Proad-traffic-demo
+# Clone the Gaffer repository, to reduce the amount you need to download this will only clone the master branch with a depth of 1 so there won't be any history.
+git clone --depth 1 --branch master https://github.com/gchq/Gaffer.git
+cd Gaffer
+
+# This will download several maven dependencies such as tomcat.
+# Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
+# The -Proad-traffic-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
+mvn install -Pquick -Proad-traffic-demo -pl example/road-traffic/road-traffic-demo
 ```
+
+If you wish to build all of Gaffer first then just remove the "-pl example/road-traffic/road-traffic-demo" part.
 
 The rest api will be deployed to localhost:8080/rest and the ui will be deployed to localhost:8080/ui.
 
@@ -28,7 +37,7 @@ The sample data used is taken from the Department for Transport [GB Road Traffic
 
 This data contains information about UK roads, their locations and hourly traffic flow between adjacent road junctions.
 
-## Example dev.walkthrough
+## Walkthrough
 
 We've modelled the road use data as a simple Gaffer graph to demonstrate how Gaffer lets users explore and summarise data.
 

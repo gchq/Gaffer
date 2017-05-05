@@ -56,3 +56,9 @@ The result is:
 ```
 ${CARDINALITY_OF_10_RESULT}
 ```
+
+One of the main uses of Cardinalities is to avoid busy vertices whilst traversing the graph. 
+For example if you want to do a 2 hop query (traverse along an edge then another edge) you may want to only go down edges where the source vertex has a low cardinality to avoid returning too many edges.
+Here is the java code:
+
+${GET_2_HOPS_WITH_A_CARDINALITY_FILTER_SNIPPET}

@@ -54,3 +54,6 @@ When executed on the graph, the result is:
 ```
 ${RESULT}
 ```
+
+The full road traffic example project can be found in ${ROAD_TRAFFIC_EXAMPLE_LINK}. 
+At this point it might be a good idea to follow the documentation in that README to start up a Gaffer REST API and UI backed with the road traffic graph.

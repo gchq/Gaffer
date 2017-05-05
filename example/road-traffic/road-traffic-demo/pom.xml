@@ -15,22 +15,6 @@
         <standalone-port>8080</standalone-port>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>accumulo-store</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>road-traffic-rest</artifactId>
-            <version>${project.parent.version}</version>
-            <classifier>classes</classifier>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
@@ -49,6 +33,9 @@
     <profiles>
         <profile>
             <id>road-traffic-demo</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>

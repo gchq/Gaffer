@@ -28,11 +28,13 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.doc.user.generator.RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import java.io.IOException;
@@ -146,9 +148,48 @@ public class Cardinalities extends UserWalkthrough {
         // ---------------------------------------------------------
 
         final Element roadUse10Cardinality = graph.execute(getCardinalities, user).iterator().next();
-        log("\nRed edge cardinality at vertex 10:");
+        log("\nRoadUse edge cardinality at vertex 10:");
         final String edgeGroup = (roadUse10Cardinality.getProperty("edgeGroup")).toString();
         log("CARDINALITY_OF_10_RESULT", "Vertex " + ((Entity) roadUse10Cardinality).getVertex() + " " + edgeGroup + ": " + ((HyperLogLogPlus) roadUse10Cardinality.getProperty("hllp")).cardinality());
+
+
+        // [get 2 hops with a cardinality filter] 2 hops with a cardinality filter
+        // ---------------------------------------------------------
+        final OperationChain<CloseableIterable<? extends Element>> twoHopsWithCardinalityFilter = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed("M5"))
+                        .view(new View.Builder()
+                                .edge("RoadHasJunction")
+                                .build())
+                        .build())
+                .then(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .entity("Cardinality", new ViewElementDefinition.Builder()
+                                        .preAggregationFilter(new ElementFilter.Builder()
+                                                .select("edgeGroup")
+                                                .execute(new IsEqual(CollectionUtil.treeSet("RoadUse")))
+                                                .build())
+                                        .groupBy()
+                                        .postAggregationFilter(new ElementFilter.Builder()
+                                                .select("hllp")
+                                                .execute(new HyperLogLogPlusIsLessThan(5))
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .then(new GetElements.Builder()
+                        .view(new View.Builder()
+                                .edge("RoadUse")
+                                .build())
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        final CloseableIterable<? extends Element> twoHopsWithCardinalityFilterResult = graph.execute(twoHopsWithCardinalityFilter, user);
+        log("\n2 hops with cardinality filter result:");
+        for (final Element element : twoHopsWithCardinalityFilterResult) {
+            log("2_HOP_RESULT", element.toString());
+        }
 
         return allSummarisedCardinalities;
     }
