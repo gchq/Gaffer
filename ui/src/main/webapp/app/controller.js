@@ -201,7 +201,7 @@ angular.module('app').controller('AppController',
             } catch(err) {
                jsonVertex = vertex;
             }
-            operation.seeds.push({
+            operation.input.push({
                       "class": "uk.gov.gchq.gaffer.operation.data.EntitySeed",
                       "vertex": jsonVertex
                    });
@@ -236,17 +236,17 @@ angular.module('app').controller('AppController',
         if(expandElementContent && expandElementContent.filters) {
             for(var index in expandElementContent.filters) {
                 var filter = expandElementContent.filters[index];
-                if(filter.property && filter['function']) {
+                if(filter.property && filter['predicate']) {
                     var functionJson = {
-                        "function": {
-                            class: filter['function']
+                        "predicate": {
+                            class: filter['predicate']
                         },
                         selection: [ filter.property ]
                     };
 
                     for(var i in filter.availableFunctionParameters) {
                         if(filter.parameters[i]) {
-                            functionJson["function"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
+                            functionJson["predicate"][filter.availableFunctionParameters[i]] = JSON.parse(filter.parameters[i]);
                         }
                     }
 
@@ -271,6 +271,10 @@ angular.module('app').controller('AppController',
     }
 
     var parseVertex = function(vertex) {
+        if(typeof vertex === 'string' || vertex instanceof String) {
+            vertex = "\"" + vertex + "\"";
+        }
+
         try {
              JSON.parse(vertex);
         } catch(err) {
@@ -324,13 +328,24 @@ angular.module('app').controller('AppController',
     var createOperation = function() {
         return {
             class: "uk.gov.gchq.gaffer.operation.impl.get.GetElements",
-            resultLimit:  settings.resultLimit,
-            deduplicate: true,
-            seeds: [],
+            input: [],
             view: {
                 entities: {},
                 edges: {}
             }
+        };
+    }
+
+    var createLimitOperation = function() {
+        return {
+            class: "uk.gov.gchq.gaffer.operation.impl.Limit",
+            resultLimit: settings.resultLimit
+        };
+    }
+
+    var createDeduplicateOperation = function() {
+        return {
+            class: "uk.gov.gchq.gaffer.operation.impl.output.ToSet",
         };
     }
 
@@ -352,7 +367,7 @@ angular.module('app').controller('AppController',
         var operation = createBuildQueryOperation();
         $scope.operations.push(operation);
         $scope.resetBuildQuery();
-        raw.execute(JSON.stringify({operations: [operation]}));
+        raw.execute(JSON.stringify({operations: [operation, createLimitOperation(), createDeduplicateOperation()]}));
     };
 
     var createCountOperation = function() {
@@ -385,7 +400,7 @@ angular.module('app').controller('AppController',
         $scope.clearResults();
         $scope.resetBuildQuery();
        for(var i in $scope.operations) {
-           raw.execute(JSON.stringify({operations: [$scope.operations[i]]}));
+           raw.execute(JSON.stringify({operations: [$scope.operations[i], createLimitOperation(), createDeduplicateOperation()]}));
        }
     }
 
@@ -458,11 +473,11 @@ angular.module('app').controller('AppController',
         selectedElement.availableFunctions = data
         $scope.$apply();
     });
-    selectedElement.function = '';
+    selectedElement.predicate = '';
   }
 
   $scope.onSelectedFunctionChange = function(group, selectedElement) {
-    raw.functionParameters(selectedElement['function'], function(data) {
+    raw.functionParameters(selectedElement['predicate'], function(data) {
         selectedElement.availableFunctionParameters = data;
         $scope.$apply();
     });

@@ -35,7 +35,7 @@ public class CountAllElementsDefaultViewHandlerTest {
         // Given
         final Graph graph = GetAllElementsHandlerTest.getGraph();
         final AddElements addElements = new AddElements.Builder()
-                .elements(GetAllElementsHandlerTest.getElements())
+                .input(GetAllElementsHandlerTest.getElements())
                 .build();
         graph.execute(addElements, new User());
 

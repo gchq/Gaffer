@@ -37,8 +37,8 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import java.io.IOException;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -96,38 +96,8 @@ public class ExamplesServiceTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeserialiseGetEntitiesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEntitiesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetEdgesBySeed() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getEdgesBySeed());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetRelatedEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getRelatedEdges());
-    }
-
-    @Test
     public void shouldSerialiseAndDeserialiseGetAllElements() throws IOException {
         shouldSerialiseAndDeserialiseOperation(service.getAllElements());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEntities() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEntities());
-    }
-
-    @Test
-    public void shouldSerialiseAndDeserialiseGetAllEdges() throws IOException {
-        shouldSerialiseAndDeserialiseOperation(service.getAllEdges());
     }
 
     @Test
@@ -160,11 +130,10 @@ public class ExamplesServiceTest {
         assertNotNull(view);
 
         final ViewValidator viewValidator = new ViewValidator();
-        final boolean validate = viewValidator.validate(view, schema, false);
-        assertTrue(validate);
+        assertTrue(viewValidator.validate(view, schema, false).isValid());
     }
 
-    private void shouldSerialiseAndDeserialiseOperation(Operation operation) throws IOException {
+    private void shouldSerialiseAndDeserialiseOperation(final Operation operation) throws IOException {
         //Given
 
         // When

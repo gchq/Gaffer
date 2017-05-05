@@ -153,7 +153,7 @@ public class StoreProperties implements Cloneable {
         final Class<? extends Schema> schemaClass;
         try {
             schemaClass = Class.forName(getSchemaClassName()).asSubclass(Schema.class);
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new SchemaException("Schema class was not found: " + getSchemaClassName(), e);
         }
 
@@ -177,7 +177,7 @@ public class StoreProperties implements Cloneable {
         final Class<? extends StoreProperties> clazz;
         try {
             clazz = Class.forName(getStorePropertiesClassName()).asSubclass(StoreProperties.class);
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new RuntimeException("Store properties class was not found: " + getStorePropertiesClassName(), e);
         }
 
@@ -271,7 +271,7 @@ public class StoreProperties implements Cloneable {
         } else {
             try {
                 storeProperties = Class.forName(storePropertiesClass).asSubclass(StoreProperties.class).newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException("Failed to create store properties file : " + e.getMessage(), e);
             }
         }

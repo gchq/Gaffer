@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -68,7 +68,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     public byte[] toJson(final boolean prettyPrint, final String... fieldsToExclude) throws SchemaException {
         try {
             return JSON_SERIALISER.serialise(this, prettyPrint, fieldsToExclude);
-        } catch (SerialisationException e) {
+        } catch (final SerialisationException e) {
             throw new SchemaException(e.getMessage(), e);
         }
     }
@@ -102,12 +102,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @JsonIgnore
     public Set<String> getEdgeGroups() {
-        return null != edges ? edges.keySet() : Collections.EMPTY_SET;
+        return null != edges ? edges.keySet() : Collections.emptySet();
     }
 
     @JsonIgnore
     public Set<String> getEntityGroups() {
-        return null != entities ? entities.keySet() : Collections.EMPTY_SET;
+        return null != entities ? entities.keySet() : Collections.emptySet();
     }
 
     /**
@@ -126,9 +126,18 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
     }
 
     @JsonIgnore
+    public boolean hasEntities() {
+        return null != entities && !entities.isEmpty();
+    }
+
+    @JsonIgnore
+    public boolean hasEdges() {
+        return null != edges && !edges.isEmpty();
+    }
+
+    @JsonIgnore
     public boolean hasGroups() {
-        return (null != entities && !entities.isEmpty())
-                || (null != edges && !edges.isEmpty());
+        return hasEntities() || hasEdges();
     }
 
     public Map<String, EDGE_DEF> getEdges() {
@@ -285,7 +294,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             for (final Object jsonItem : jsonItems) {
                 try {
                     if (jsonItem instanceof InputStream) {
-                        merge(JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz));
+                        merge(JSON_SERIALISER.deserialise((InputStream) jsonItem, clazz));
                     } else if (jsonItem instanceof Path) {
                         final Path path = (Path) jsonItem;
                         if (Files.isDirectory(path)) {
@@ -296,7 +305,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                             merge(JSON_SERIALISER.deserialise(Files.readAllBytes(path), clazz));
                         }
                     } else {
-                        merge(JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz));
+                        merge(JSON_SERIALISER.deserialise((byte[]) jsonItem, clazz));
                     }
                 } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);

@@ -16,7 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
-import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.GetExport;
+import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>GetSetExport</code> GetExport operation gets exported Set results.
@@ -24,7 +28,12 @@ import uk.gov.gchq.gaffer.operation.impl.export.GetExport;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-public class GetSetExport extends GetExport {
+public class GetSetExport implements
+        Operation,
+        GetExport,
+        Output<Iterable<?>> {
+    private String jobId;
+    private String key;
     private int start = 0;
     private Integer end = null;
 
@@ -44,31 +53,47 @@ public class GetSetExport extends GetExport {
         this.end = end;
     }
 
-    public abstract static class BaseBuilder<EXPORT extends GetSetExport, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
-            extends GetExport.BaseBuilder<GetSetExport, CHILD_CLASS> {
-        public BaseBuilder(final GetSetExport export) {
-            super(export);
-        }
-
-        public CHILD_CLASS start(final int start) {
-            getOp().setStart(start);
-            return self();
-        }
-
-        public CHILD_CLASS end(final Integer end) {
-            getOp().setEnd(end);
-            return self();
-        }
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public static final class Builder extends BaseBuilder<GetSetExport, Builder> {
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String getJobId() {
+        return jobId;
+    }
+
+    @Override
+    public void setJobId(final String jobId) {
+        this.jobId = jobId;
+    }
+
+    @Override
+    public TypeReference<Iterable<?>> getOutputTypeReference() {
+        return new TypeReferenceImpl.IterableObj();
+    }
+
+    public static class Builder
+            extends Operation.BaseBuilder<GetSetExport, Builder>
+            implements GetExport.Builder<GetSetExport, Builder>,
+            Output.Builder<GetSetExport, Iterable<?>, Builder> {
         public Builder() {
             super(new GetSetExport());
         }
 
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder start(final int start) {
+            _getOp().setStart(start);
+            return _self();
+        }
+
+        public Builder end(final Integer end) {
+            _getOp().setEnd(end);
+            return _self();
         }
     }
 }

@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph;
 
 
 import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
@@ -25,6 +26,8 @@ import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.OperationView;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -33,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -97,11 +101,24 @@ public final class Graph {
      *
      * @param operation the operation to be executed.
      * @param user      the user executing the operation.
-     * @param <OUTPUT>  the operation output type.
+     * @throws OperationException if an operation fails
+     */
+    public void execute(final Operation operation, final User user) throws OperationException {
+        execute(new OperationChain<>(operation), user);
+    }
+
+    /**
+     * Performs the given output operation on the store.
+     * If the operation does not have a view then the graph view is used.
+     * NOTE the operation may be modified/optimised by the store.
+     *
+     * @param operation the output operation to be executed.
+     * @param user      the user executing the operation.
+     * @param <O>       the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final Operation<?, OUTPUT> operation, final User user) throws OperationException {
+    public <O> O execute(final Output<O> operation, final User user) throws OperationException {
         return execute(new OperationChain<>(operation), user);
     }
 
@@ -138,18 +155,18 @@ public final class Graph {
      *
      * @param operationChain the operation chain to be executed.
      * @param user           the user executing the operation chain.
-     * @param <OUTPUT>       the operation chain output type.
+     * @param <O>            the operation chain output type.
      * @return the operation result.
      * @throws OperationException if an operation fails
      */
-    public <OUTPUT> OUTPUT execute(final OperationChain<OUTPUT> operationChain, final User user) throws OperationException {
+    public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
         updateOperationChainView(operationChain);
 
         for (final GraphHook graphHook : graphHooks) {
             graphHook.preExecute(operationChain, user);
         }
 
-        OUTPUT result = store.execute(operationChain, user);
+        O result = store.execute(operationChain, user);
 
         for (final GraphHook graphHook : graphHooks) {
             result = graphHook.postExecute(result, operationChain, user);
@@ -158,23 +175,26 @@ public final class Graph {
         return result;
     }
 
-    private <OUTPUT> void updateOperationChainView(final OperationChain<OUTPUT> operationChain) {
+    private <O> void updateOperationChainView(final OperationChain<O> operationChain) {
         for (final Operation operation : operationChain.getOperations()) {
-            final View opView;
-            if (null == operation.getView()) {
-                opView = view;
-            } else if (!operation.getView().hasGroups()) {
-                opView = new View.Builder()
-                        .merge(view)
-                        .merge(operation.getView())
-                        .build();
 
-            } else {
-                opView = operation.getView();
+            if (operation instanceof OperationView) {
+                final OperationView operationView = (OperationView) operation;
+                final View opView;
+                if (null == operationView.getView()) {
+                    opView = view;
+                } else if (!operationView.getView().hasGroups()) {
+                    opView = new View.Builder()
+                            .merge(view)
+                            .merge(operationView.getView())
+                            .build();
+                } else {
+                    opView = operationView.getView();
+                }
+
+                opView.expandGlobalDefinitions();
+                operationView.setView(opView);
             }
-
-            opView.expandGlobalDefinitions();
-            operation.setView(opView);
         }
     }
 
@@ -230,6 +250,7 @@ public final class Graph {
      * Builder for {@link Graph}.
      */
     public static class Builder {
+        public static final String UNABLE_TO_READ_SCHEMA_FROM_URL = "Unable to read schema from URL";
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
         private StoreProperties properties;
@@ -248,6 +269,15 @@ public final class Graph {
 
         public Builder view(final InputStream view) {
             return view(new View.Builder().json(view).build());
+        }
+
+        public Builder view(final URL view) {
+            try {
+                view(StreamUtil.openStream(view));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read view from URL", e);
+            }
+            return this;
         }
 
         public Builder view(final byte[] jsonBytes) {
@@ -269,6 +299,16 @@ public final class Graph {
 
         public Builder storeProperties(final InputStream propertiesStream) {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
+        }
+
+        public Builder storeProperties(final URL propertiesURL) {
+            try {
+                storeProperties(StreamUtil.openStream(propertiesURL));
+            } catch (final IOException e) {
+                throw new SchemaException("Unable to read storeProperties from URL", e);
+            }
+
+            return this;
         }
 
         public Builder addSchemas(final Schema... schemaModules) {
@@ -340,6 +380,26 @@ public final class Graph {
             }
         }
 
+        public Builder addSchema(final URL schemaURL) {
+            try {
+                addSchema(StreamUtil.openStream(schemaURL));
+            } catch (final IOException e) {
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+            }
+
+            return this;
+        }
+
+        public Builder addSchemas(final URL... schemaURL) {
+            try {
+                addSchemas(StreamUtil.openStreams(schemaURL));
+            } catch (final IOException e) {
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+            }
+
+            return this;
+        }
+
         public Builder addSchema(final Path schemaPath) {
             try {
                 if (Files.isDirectory(schemaPath)) {
@@ -405,7 +465,7 @@ public final class Graph {
                     } else {
                         store.initialise(cloneSchema(schema), properties);
                     }
-                } catch (StoreException e) {
+                } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
                 }
             } else {
@@ -432,13 +492,13 @@ public final class Graph {
             final Store newStore;
             try {
                 newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                 throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
             }
 
             try {
                 newStore.initialise(schema, storeProperties);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
             }
             return newStore;

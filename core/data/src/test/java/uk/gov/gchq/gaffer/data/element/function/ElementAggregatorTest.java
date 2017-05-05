@@ -17,90 +17,204 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.PropertiesTuple;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
-import java.util.Collections;
-import java.util.List;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.n.Tuple3;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ElementAggregatorTest {
 
     @Test
-    public void shouldWrapElementInElementTupleAndCallSuper() {
+    public void shouldAggregateElementUsingMockBinaryOperator() {
         // Given
         final String reference = "reference1";
-        final String value = "value";
-        final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
-        final AggregateFunction function = mock(AggregateFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        final List<String> references = Collections.singletonList(reference);
-        given(functionContext1.getSelection()).willReturn(references);
+        final Integer valueResult = 3;
 
-        aggregator.addFunction(functionContext1);
+        final BinaryOperator<Integer> function = mock(BinaryOperator.class);
+        given(function.apply(1, 2)).willReturn(valueResult);
 
-        final Edge edge = new Edge("group");
-        edge.putProperty(reference, value);
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(reference)
+                .execute(function)
+                .build();
 
-        final ArgumentCaptor<PropertiesTuple> propertiesTupleCaptor = ArgumentCaptor.forClass(PropertiesTuple.class);
-        given(functionContext1.select(propertiesTupleCaptor.capture())).willReturn(new String[]{value});
+        final Edge edge1 = new Edge.Builder()
+                .property(reference, 1)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .property(reference, 2)
+                .build();
 
         // When
-        aggregator.aggregate(edge);
+        final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertEquals(edge.getProperties(), propertiesTupleCaptor.getValue().getProperties());
-        verify(functionContext1, times(2)).getFunction();
-
-        final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).aggregate(argumentCaptor.capture());
-        assertEquals(value, argumentCaptor.getValue()[0]);
+        assertEquals(valueResult, result.getProperty(reference));
     }
 
     @Test
-    public void shouldWrapPropertiesInPropertiesTupleAndCallSuper() {
+    public void shouldAggregateElementUsingLambdaBinaryOperator() {
         // Given
         final String reference = "reference1";
-        final String value = "value";
-        final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
-        final AggregateFunction function = mock(AggregateFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        final List<String> references = Collections.singletonList(reference);
-        given(functionContext1.getSelection()).willReturn(references);
 
-        aggregator.addFunction(functionContext1);
+        final BinaryOperator<String> function = (a, b) -> a + "," + b;
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(reference)
+                .execute(function)
+                .build();
 
-        final Properties properties = new Properties(reference, value);
-        final ArgumentCaptor<PropertiesTuple> propertiesTupleCaptor = ArgumentCaptor.forClass(PropertiesTuple.class);
-        given(functionContext1.select(propertiesTupleCaptor.capture())).willReturn(new String[]{value});
+        final Edge edge1 = new Edge.Builder()
+                .property(reference, "value1")
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .property(reference, "value2")
+                .build();
 
         // When
-        aggregator.aggregate(properties);
+        final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        verify(functionContext1, times(2)).getFunction();
+        assertEquals("value1,value2", result.getProperty(reference));
+    }
 
-        assertSame(properties, propertiesTupleCaptor.getValue().getProperties());
-        final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).aggregate(argumentCaptor.capture());
-        assertEquals(value, argumentCaptor.getValue()[0]);
+    @Test
+    public void shouldAggregateElementUsingKorypheBinaryOperator() {
+        // Given
+        final String reference = "reference1";
+
+        final BinaryOperator<Integer> function = new KorypheBinaryOperator<Integer>() {
+            @Override
+            public Integer _apply(final Integer a, final Integer b) {
+                return a + b;
+            }
+        };
+
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(reference)
+                .execute(function)
+                .build();
+
+        final Edge edge1 = new Edge.Builder()
+                .property(reference, 1)
+                .build();
+
+        final Edge edge2 = new Edge.Builder()
+                .property(reference, 2)
+                .build();
+
+        // When
+        final Element result = aggregator.apply(edge1, edge2);
+
+        // Then
+        assertEquals(3, result.getProperty(reference));
+    }
+
+    @Test
+    public void shouldAggregateProperties() {
+        // Given
+        final String reference = "reference1";
+        final Integer value1 = 1;
+        final Integer value2 = 2;
+        final Integer valueResult = 3;
+
+        final BinaryOperator<Integer> function = mock(BinaryOperator.class);
+        given(function.apply(value1, value2)).willReturn(valueResult);
+
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(reference)
+                .execute(function)
+                .build();
+
+        final Properties properties1 = new Properties(reference, value1);
+        final Properties properties2 = new Properties(reference, value2);
+
+        // When
+        final Properties result = aggregator.apply(properties1, properties2);
+
+        // Then
+        assertEquals(valueResult, result.get(reference));
+    }
+
+    @Test
+    public void shouldAggregatePropertiesWithMultipleOfFunctions() {
+        // Given
+        final BinaryOperator<Integer> max = Math::max;
+        final BinaryOperator<Integer> min = Math::min;
+
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select("max")
+                .execute(max)
+                .select("min")
+                .execute(min)
+                .build();
+
+        final Properties properties1 = new Properties();
+        properties1.put("max", 10);
+        properties1.put("min", 10);
+
+        final Properties properties2 = new Properties();
+        properties2.put("max", 100);
+        properties2.put("min", 100);
+
+        final Properties properties3 = new Properties();
+        properties3.put("max", 1000);
+        properties3.put("min", 1000);
+
+        // When
+        Properties state = aggregator.apply(properties1, properties2);
+        state = aggregator.apply(state, properties3);
+
+        // Then
+        assertEquals(1000, state.get("max"));
+        assertEquals(10, state.get("min"));
+    }
+
+    @Test
+    public void shouldAggregatePropertiesWithMultipleSelection() {
+        // Given
+        final BinaryOperator<Tuple3<Integer, Integer, Integer>> maxMinRange =
+                (t1, t2) -> new Tuple3<>(
+                        Math.max(t1.get0(), t2.get0()),
+                        Math.min(t1.get1(), t2.get1()),
+                        Math.max(t1.get0(), t2.get0()) - Math.min(t1.get1(), t2.get1())
+                );
+
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select("max", "min", "range")
+                .execute(maxMinRange)
+                .build();
+
+        final Properties properties1 = new Properties();
+        properties1.put("max", 10);
+        properties1.put("min", 10);
+
+        final Properties properties2 = new Properties();
+        properties2.put("max", 100);
+        properties2.put("min", 100);
+
+        final Properties properties3 = new Properties();
+        properties3.put("max", 1000);
+        properties3.put("min", 1000);
+
+        // When
+        Properties state = aggregator.apply(properties1, properties2);
+        state = aggregator.apply(state, properties3);
+
+        // Then
+        assertEquals(1000, state.get("max"));
+        assertEquals(10, state.get("min"));
+        assertEquals(1000 - 10, state.get("range"));
     }
 
     @Test
@@ -111,142 +225,54 @@ public class ElementAggregatorTest {
         final Edge edge2 = new Edge("group");
 
         // When - aggregate and set state
-        aggregator.aggregate(edge1);
-        aggregator.aggregate(edge2);
-
-        final Edge aggregatedEdge = new Edge("group");
-        aggregator.state(aggregatedEdge);
+        final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertTrue(aggregatedEdge.getProperties().isEmpty());
-    }
-
-    @Test
-    public void shouldSetStateOnElement() {
-        // Given
-        final Object[] state = {"state1", "state2"};
-        final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
-        final AggregateFunction function = mock(AggregateFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        given(function.state()).willReturn(state);
-
-        aggregator.addFunction(functionContext1);
-
-        final Edge edge = new Edge("group");
-
-        // When
-        aggregator.state(edge);
-
-        // Then
-        final ArgumentCaptor<PropertiesTuple> propertiesTupleCaptor = ArgumentCaptor.forClass(PropertiesTuple.class);
-        verify(functionContext1).project(propertiesTupleCaptor.capture(), Mockito.eq(state));
-        assertEquals(edge.getProperties(), propertiesTupleCaptor.getValue().getProperties());
-    }
-
-    @Test
-    public void shouldSetStateOnProperties() {
-        // Given
-        final Object[] state = {"state1", "state2"};
-        final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
-        final AggregateFunction function = mock(AggregateFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        given(function.state()).willReturn(state);
-
-        aggregator.addFunction(functionContext1);
-
-        final Properties properties = new Properties();
-
-        // When
-        aggregator.state(properties);
-
-        // Then
-        final ArgumentCaptor<PropertiesTuple> propertiesTupleCaptor = ArgumentCaptor.forClass(PropertiesTuple.class);
-        verify(functionContext1).project(propertiesTupleCaptor.capture(), Mockito.eq(state));
-        assertSame(properties, propertiesTupleCaptor.getValue().getProperties());
-    }
-
-    @Test
-    public void shouldCloneAggregator() {
-        // Given
-        final String reference1 = "reference1";
-        final ElementAggregator aggregator = new ElementAggregator();
-        final PassThroughFunctionContext<String, AggregateFunction> functionContext1 = mock(PassThroughFunctionContext.class);
-        final AggregateFunction function = mock(AggregateFunction.class);
-        final AggregateFunction clonedFunction = mock(AggregateFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        given(functionContext1.getSelection()).willReturn(Collections.singletonList(reference1));
-        given(function.statelessClone()).willReturn(clonedFunction);
-
-        aggregator.addFunction(functionContext1);
-
-        // When
-        final ElementAggregator clone = aggregator.clone();
-
-        // Then
-        assertNotSame(aggregator, clone);
-        assertEquals(1, clone.getFunctions().size());
-        final PassThroughFunctionContext<String, AggregateFunction> resultClonedFunction = clone.getFunctions().get(0);
-        assertEquals(1, resultClonedFunction.getSelection().size());
-        assertEquals(reference1, resultClonedFunction.getSelection().get(0));
-        assertNotSame(functionContext1, resultClonedFunction);
-        assertNotSame(function, resultClonedFunction.getFunction());
-        assertSame(clonedFunction, resultClonedFunction.getFunction());
+        assertEquals(edge2, result);
+        assertTrue(result.getProperties().isEmpty());
     }
 
     @Test
     public void shouldBuildAggregator() {
         // Given
         final String property1 = "property 1";
-        final String property2 = "property 2";
-        final String property3a = "property 3a";
-        final String property3b = "property 3b";
-        final String property5 = "property 5";
+        final String property2a = "property 2a";
+        final String property2b = "property 2b";
+        final String property3 = "property 3";
 
-        final AggregateFunction func1 = mock(AggregateFunction.class);
-        final AggregateFunction func3 = mock(AggregateFunction.class);
-        final AggregateFunction func4 = mock(AggregateFunction.class);
-        final AggregateFunction func5 = mock(AggregateFunction.class);
+        final BinaryOperator func1 = mock(BinaryOperator.class);
+        final BinaryOperator func2 = mock(BinaryOperator.class);
+        final BinaryOperator func3 = mock(BinaryOperator.class);
 
         // When - check you can build the selection/function in any order,
         // although normally it will be done - select then execute.
         final ElementAggregator aggregator = new ElementAggregator.Builder()
                 .select(property1)
                 .execute(func1)
-                .select(property2)
-                .select(property3a, property3b)
+                .select(property2a, property2b)
+                .execute(func2)
+                .select(property3)
                 .execute(func3)
-                .execute(func4)
-                .execute(func5)
-                .select(property5)
                 .build();
 
         // Then
         int i = 0;
-        PassThroughFunctionContext<String, AggregateFunction> context = aggregator.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property1, context.getSelection().get(0));
-        assertSame(func1, context.getFunction());
+        TupleAdaptedBinaryOperator<String, ?> adaptedFunction = aggregator.getComponents().get(i++);
+        assertEquals(1, adaptedFunction.getSelection().length);
+        assertEquals(property1, adaptedFunction.getSelection()[0]);
+        assertSame(func1, adaptedFunction.getBinaryOperator());
 
-        context = aggregator.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property2, context.getSelection().get(0));
+        adaptedFunction = aggregator.getComponents().get(i++);
+        assertEquals(2, adaptedFunction.getSelection().length);
+        assertEquals(property2a, adaptedFunction.getSelection()[0]);
+        assertEquals(property2b, adaptedFunction.getSelection()[1]);
+        assertSame(func2, adaptedFunction.getBinaryOperator());
 
-        context = aggregator.getFunctions().get(i++);
-        assertEquals(2, context.getSelection().size());
-        assertEquals(property3a, context.getSelection().get(0));
-        assertEquals(property3b, context.getSelection().get(1));
-        assertSame(func3, context.getFunction());
+        adaptedFunction = aggregator.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getBinaryOperator());
+        assertEquals(1, adaptedFunction.getSelection().length);
+        assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        context = aggregator.getFunctions().get(i++);
-        assertSame(func4, context.getFunction());
-
-        context = aggregator.getFunctions().get(i++);
-        assertSame(func5, context.getFunction());
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property5, context.getSelection().get(0));
-
-        assertEquals(i, aggregator.getFunctions().size());
+        assertEquals(i, aggregator.getComponents().size());
     }
 }

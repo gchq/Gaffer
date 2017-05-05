@@ -36,7 +36,7 @@ public class ExportToGafferResultCacheTest implements OperationTest {
         // Given
         final String key = "key";
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
-        final ExportToGafferResultCache op = new ExportToGafferResultCache.Builder()
+        final ExportToGafferResultCache op = new ExportToGafferResultCache.Builder<>()
                 .opAuths(opAuths)
                 .key(key)
                 .build();
@@ -56,7 +56,7 @@ public class ExportToGafferResultCacheTest implements OperationTest {
         // When
         final String key = "key";
         final HashSet<String> opAuths = Sets.newHashSet("1", "2");
-        final ExportToGafferResultCache op = new ExportToGafferResultCache.Builder()
+        final ExportToGafferResultCache op = new ExportToGafferResultCache.Builder<>()
                 .opAuths(opAuths)
                 .key(key)
                 .build();

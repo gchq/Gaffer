@@ -38,6 +38,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
 
     private boolean unDirectedEdges = false;
     private boolean directedEdges = false;
+    private boolean edges = false;
     private boolean entities = false;
     private boolean incomingEdges = false;
     private boolean outgoingEdges = false;
@@ -62,6 +63,10 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
     }
 
     private boolean checkEdge(final byte flag, final Key key) {
+        if (!edges) {
+            return false;
+        }
+
         final boolean isUndirected = flag == ClassicBytePositions.UNDIRECTED_EDGE;
         if (unDirectedEdges) {
             // Only undirected edges
@@ -93,7 +98,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
             final byte[][] sourceDestValues = new byte[3][];
             converter.getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), sourceDestValues, null);
             isCorrect = ByteUtils.compareBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
-        } catch (AccumuloElementConversionException e) {
+        } catch (final AccumuloElementConversionException e) {
             LOGGER.warn(e.getMessage(), e);
         }
 
@@ -146,6 +151,9 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
+        if (options.containsKey(AccumuloStoreConstants.INCLUDE_EDGES)) {
+            edges = true;
+        }
         if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
             deduplicateUndirectedEdges = true;
         }
@@ -162,6 +170,7 @@ public class ClassicEdgeDirectedUndirectedFilterIterator extends Filter {
                 .addNamedOption(AccumuloStoreConstants.INCLUDE_ENTITIES, "Optional: Set if entities should be returned")
                 .addNamedOption(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "Optional: Set if only incoming edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "Optional: Set if only outgoing edges should be returned")
+                .addNamedOption(AccumuloStoreConstants.INCLUDE_EDGES, "Optional: Set if edges should be returned")
                 .addNamedOption(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "Optional: Set if undirected edges should be deduplicated")
                 .setIteratorName(AccumuloStoreConstants.EDGE_ENTITY_DIRECTED_UNDIRECTED_INCOMING_OUTGOING_FILTER_ITERATOR_NAME)
                 .setIteratorDescription(

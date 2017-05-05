@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore;
 
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
@@ -39,7 +40,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentEntitySeedsHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsHandler;
@@ -53,28 +54,23 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesBetweenSets;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesInRanges;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEdgesWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
-import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetEntitiesInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -83,20 +79,19 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
@@ -111,7 +106,18 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
  * only one end of the edge.
  */
 public class AccumuloStore extends Store {
-    public static final Set<StoreTrait> TRAITS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(STORE_AGGREGATION, QUERY_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, TRANSFORMATION, STORE_VALIDATION, ORDERED, VISIBILITY)));
+    public static final Set<StoreTrait> TRAITS =
+            Collections.unmodifiableSet(Sets.newHashSet(
+                    ORDERED,
+                    VISIBILITY,
+                    INGEST_AGGREGATION,
+                    QUERY_AGGREGATION,
+                    PRE_AGGREGATION_FILTERING,
+                    POST_AGGREGATION_FILTERING,
+                    POST_TRANSFORMATION_FILTERING,
+                    TRANSFORMATION,
+                    STORE_VALIDATION
+            ));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
@@ -123,7 +129,7 @@ public class AccumuloStore extends Store {
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
@@ -212,7 +218,7 @@ public class AccumuloStore extends Store {
     }
 
     @Override
-    public <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+    public Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
 
@@ -224,37 +230,37 @@ public class AccumuloStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        addOperationHandler(GetEdgesBetweenSets.class, new GetElementsBetweenSetsHandler());
-        addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-        addOperationHandler(GetEdgesInRanges.class, new GetElementsInRangesHandler());
-        addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
-        addOperationHandler(GetEntitiesInRanges.class, new GetElementsInRangesHandler());
-        addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-        addOperationHandler(GetEdgesWithinSet.class, new GetElementsWithinSetHandler());
-        addOperationHandler(SplitTable.class, new SplitTableHandler());
-        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
-        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
-        addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+        try {
+            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+            addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+            addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
+            addOperationHandler(SplitTable.class, new SplitTableHandler());
+            addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+            addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
+            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+        } catch (final NoClassDefFoundError e) {
+            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
+        }
     }
 
     @Override
-    protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+    protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
         return new GetElementsHandler();
     }
 
     @Override
-    protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+    protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
         return new GetAllElementsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
-        return new GetAdjacentEntitySeedsHandler();
+    protected OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
+        return new GetAdjacentIdsHandler();
     }
 
     @Override
-    protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+    protected OperationHandler<? extends AddElements> getAddElementsHandler() {
         return new AddElementsHandler();
     }
 
@@ -269,11 +275,11 @@ public class AccumuloStore extends Store {
      * @param elements the elements to be added
      * @throws StoreException failure to insert the elements into a table
      */
-    public void addElements(final Iterable<Element> elements) throws StoreException {
+    public void addElements(final Iterable<? extends Element> elements) throws StoreException {
         insertGraphElements(elements);
     }
 
-    protected void insertGraphElements(final Iterable<Element> elements) throws StoreException {
+    protected void insertGraphElements(final Iterable<? extends Element> elements) throws StoreException {
         // Create BatchWriter
         final BatchWriter writer = TableUtils.createBatchWriter(this);
         // Loop through elements, convert to mutations, and add to
@@ -282,7 +288,8 @@ public class AccumuloStore extends Store {
         // too high a latency, etc.
         if (elements != null) {
             for (final Element element : elements) {
-                final Pair<Key> keys;
+
+                final Pair<Key, Key> keys;
                 try {
                     keys = keyPackage.getKeyConverter().getKeysFromElement(element);
                 } catch (final AccumuloElementConversionException e) {

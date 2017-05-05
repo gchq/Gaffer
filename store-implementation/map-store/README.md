@@ -12,11 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-# Map-store
+The master copy of this page is the README in the map-store module.
+
+Map Store
+===================
 
 The Map-store is a simple in-memory store. Any class that implements Java's Map interface can be used to store the data. Data stored in this store is not persistent, i.e. when the JVM is shut down the data will disappear.
 
-It is designed to support aggregation of properties efficiently. Optionally an index is maintained so that Elements can be found quickly from EntitySeeds or EdgeSeeds.
+It is designed to support aggregation of properties efficiently. Optionally an index is maintained so that Elements can be found quickly from EntityIds or EdgeIds.
 
 This is not currently designed to be a very high-performance, scalable in-memory store. Future versions of may include implementations that allow better scalability, for example by using off-heap storage. The current version stores the elements as objects in memory and so is not efficient in its memory usage.
 

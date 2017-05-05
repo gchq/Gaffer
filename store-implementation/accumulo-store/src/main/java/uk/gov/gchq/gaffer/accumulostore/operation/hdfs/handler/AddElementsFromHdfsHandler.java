@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs, Void> {
+public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
 
@@ -44,7 +44,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public void doOperation(final AddElementsFromHdfs operation, final AccumuloStore store) throws OperationException {
         fetchElements(operation, store);
         final String skipImport = operation.getOption(AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
-        if (null == skipImport || !skipImport.equalsIgnoreCase("TRUE")) {
+        if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
             importElements(operation, store);
         } else {
             LOGGER.info("Skipping import as {} was {}", AccumuloStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT,

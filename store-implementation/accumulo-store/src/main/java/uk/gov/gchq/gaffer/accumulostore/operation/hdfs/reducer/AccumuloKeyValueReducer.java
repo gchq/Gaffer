@@ -60,7 +60,7 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
                     .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
                     .newInstance(schema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
         }
@@ -89,22 +89,18 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        ElementAggregator aggregator;
-        Properties firstPropertySet;
+        Properties state;
         try {
-            firstPropertySet = elementConverter.getPropertiesFromValue(group, firstValue);
-            aggregator = schema.getElement(group).getAggregator();
-            aggregator.aggregate(firstPropertySet);
+            final ElementAggregator aggregator = schema.getElement(group).getAggregator();
+            state = elementConverter.getPropertiesFromValue(group, firstValue);
             while (iter.hasNext()) {
-                aggregator.aggregate(elementConverter.getPropertiesFromValue(group, iter.next()));
+                state = aggregator.apply(state, elementConverter.getPropertiesFromValue(group, iter.next()));
             }
         } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
         }
-        final Properties properties = new Properties();
-        aggregator.state(properties);
         try {
-            return elementConverter.getValueFromProperties(group, properties);
+            return elementConverter.getValueFromProperties(group, state);
         } catch (final AccumuloElementConversionException e) {
             throw new IllegalArgumentException("Failed to get Properties from an accumulo value", e);
         }

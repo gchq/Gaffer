@@ -17,136 +17,196 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.runners.MockitoJUnitRunner;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.ElementTuple;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import java.util.Collections;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import java.util.function.Predicate;
 
+import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.mockito.BDDMockito.given;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ElementFilterTest {
 
     @Test
-    public void shouldWrapElementInElementTupleAndCallSuper() {
+    public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
-        final String reference = "reference1";
-        final String value = "value";
         final ElementFilter filter = new ElementFilter();
-        final ConsumerFunctionContext<String, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
-        final FilterFunction function = mock(FilterFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
 
-        filter.addFunction(functionContext1);
-
-        final Element element = mock(Element.class);
-        given(element.getProperty(reference)).willReturn(value);
-
-        final ArgumentCaptor<ElementTuple> elementTupleCaptor = ArgumentCaptor.forClass(ElementTuple.class);
-        given(functionContext1.select(elementTupleCaptor.capture())).willReturn(new Object[]{value});
+        final JSONSerialiser serialiser = new JSONSerialiser();
 
         // When
-        filter.filter(element);
+        final byte[] serialisedElement = serialiser.serialise(filter);
+        final ElementFilter deserialisedElement = serialiser.deserialise(serialisedElement, filter.getClass());
 
         // Then
-        assertSame(element, elementTupleCaptor.getValue().getElement());
-        verify(functionContext1).getFunction();
+        assertEquals(filter, deserialisedElement);
+    }
 
-        final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).isValid(argumentCaptor.capture());
-        assertEquals(value, argumentCaptor.getValue()[0]);
+    public static class MockPredicate implements Predicate<Element> {
+
+        @Override
+        public boolean test(final Element element) {
+            return true;
+        }
     }
 
     @Test
-    public void shouldCloneFilter() {
+    public void shouldTestElementOnPredicate2() {
         // Given
-        final String reference1 = "reference1";
-        final ElementFilter filter = new ElementFilter();
-        final ConsumerFunctionContext<String, FilterFunction> functionContext1 = mock(ConsumerFunctionContext.class);
-        final FilterFunction function = mock(FilterFunction.class);
-        final FilterFunction clonedFunction = mock(FilterFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        given(functionContext1.getSelection()).willReturn(Collections.singletonList(reference1));
-        given(function.statelessClone()).willReturn(clonedFunction);
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select("prop1", "prop2")
+                .execute(new KoryphePredicate2<String, String>() {
+                    @Override
+                    public boolean test(final String o, final String o2) {
+                        return "value".equals(o) && "value2".equals(o2);
+                    }
+                })
+                .build();
 
-        filter.addFunction(functionContext1);
+        final Entity element1 = new Entity.Builder()
+                .property("prop1", "value")
+                .property("prop2", "value2")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property("prop1", "unknown")
+                .property("prop2", "value2")
+                .build();
 
         // When
-        final ElementFilter clone = filter.clone();
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
 
         // Then
-        assertNotSame(filter, clone);
-        assertEquals(1, clone.getFunctions().size());
-        final ConsumerFunctionContext<String, FilterFunction> resultClonedFunction = clone.getFunctions().get(0);
-        assertEquals(1, resultClonedFunction.getSelection().size());
-        assertEquals(reference1, resultClonedFunction.getSelection().get(0));
-        assertNotSame(functionContext1, resultClonedFunction);
-        assertNotSame(function, resultClonedFunction.getFunction());
-        assertSame(clonedFunction, resultClonedFunction.getFunction());
+        assertTrue(result1);
+        assertFalse(result2);
+    }
+
+    @Test
+    public void shouldTestElementOnInlinePredicate() {
+        // Given
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select("prop1")
+                .execute("value"::equals)
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property("prop1", "value")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property("prop1", "unknown")
+                .build();
+
+        // When
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
+
+        // Then
+        assertTrue(result1);
+        assertFalse(result2);
+    }
+
+    @Test
+    public void shouldTestElementOnLambdaPredicate() {
+        // Given
+        final Predicate<Object> predicate = p -> null == p || String.class.isAssignableFrom(p.getClass());
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select("prop1")
+                .execute(predicate)
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property("prop1", "value")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property("prop1", 1)
+                .build();
+
+        // When
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
+
+        // Then
+        assertTrue(result1);
+        assertFalse(result2);
+    }
+
+    @Test
+    public void shouldTestElementOnComplexLambdaPredicate() {
+        // Given
+        final Predicate<Object> predicate1 = p -> Integer.class.isAssignableFrom(p.getClass());
+        final Predicate<Object> predicate2 = "value"::equals;
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select("prop1")
+                .execute(predicate1.negate().and(predicate2))
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property("prop1", "value")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property("prop1", 1)
+                .build();
+
+        // When
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
+
+        // Then
+        assertTrue(result1);
+        assertFalse(result2);
     }
 
     @Test
     public void shouldBuildFilter() {
         // Given
         final String property1 = "property 1";
-        final String property2 = "property 2";
-        final String property3a = "property 3a";
-        final String property3b = "property 3b";
-        final IdentifierType identifierType5 = IdentifierType.VERTEX;
+        final String property2a = "property 2a";
+        final String property2b = "property 2b";
+        final String property3 = "property 3";
 
-        final FilterFunction func1 = mock(FilterFunction.class);
-        final FilterFunction func3 = mock(FilterFunction.class);
-        final FilterFunction func4 = mock(FilterFunction.class);
-        final FilterFunction func5 = mock(FilterFunction.class);
+        final Predicate func1 = mock(Predicate.class);
+        final Predicate func2 = mock(Predicate.class);
+        final Predicate func3 = mock(Predicate.class);
 
         // When - check you can build the selection/function in any order,
         // although normally it will be done - select then execute.
         final ElementFilter filter = new ElementFilter.Builder()
                 .select(property1)
                 .execute(func1)
-                .select(property2)
-                .select(property3a, property3b)
+                .select(property2a, property2b)
+                .execute(func2)
+                .select(property3)
                 .execute(func3)
-                .execute(func4)
-                .execute(func5)
-                .select(identifierType5.name())
                 .build();
 
         // Then
         int i = 0;
-        ConsumerFunctionContext<String, FilterFunction> context = filter.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property1, context.getSelection().get(0));
-        assertSame(func1, context.getFunction());
+        TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getComponents().get(i++);
+        assertEquals(1, adaptedFunction.getSelection().length);
+        assertEquals(property1, adaptedFunction.getSelection()[0]);
+        assertSame(func1, adaptedFunction.getPredicate());
 
-        context = filter.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property2, context.getSelection().get(0));
+        adaptedFunction = filter.getComponents().get(i++);
+        assertEquals(2, adaptedFunction.getSelection().length);
+        assertEquals(property2a, adaptedFunction.getSelection()[0]);
+        assertEquals(property2b, adaptedFunction.getSelection()[1]);
+        assertSame(func2, adaptedFunction.getPredicate());
 
-        context = filter.getFunctions().get(i++);
-        assertEquals(2, context.getSelection().size());
-        assertEquals(property3a, context.getSelection().get(0));
-        assertEquals(property3b, context.getSelection().get(1));
-        assertSame(func3, context.getFunction());
+        adaptedFunction = filter.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getPredicate());
+        assertEquals(1, adaptedFunction.getSelection().length);
+        assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        context = filter.getFunctions().get(i++);
-        assertSame(func4, context.getFunction());
-
-        context = filter.getFunctions().get(i++);
-        assertSame(func5, context.getFunction());
-        assertEquals(1, context.getSelection().size());
-        assertEquals(identifierType5.name(), context.getSelection().get(0));
-
-        assertEquals(i, filter.getFunctions().size());
+        assertEquals(i, filter.getComponents().size());
     }
 }

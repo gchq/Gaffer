@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -35,11 +34,12 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.resultcache.GafferResultCacheExporter;
 import uk.gov.gchq.gaffer.operation.export.resultcache.handler.util.GafferResultCacheUtil;
 import uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -136,7 +136,7 @@ public class GetGafferResultCacheExportHandlerTest {
         final ArgumentCaptor<OperationChain> opChain = ArgumentCaptor.forClass(OperationChain.class);
         verify(cacheStore).execute(opChain.capture(), Mockito.eq(context.getUser()));
         assertEquals(1, opChain.getValue().getOperations().size());
-        assertTrue(opChain.getValue().getOperations().get(0) instanceof GetEdges);
+        assertTrue(opChain.getValue().getOperations().get(0) instanceof GetElements);
         final GafferResultCacheExporter exporter = context.getExporter(GafferResultCacheExporter.class);
         assertNotNull(exporter);
     }
@@ -156,10 +156,9 @@ public class GetGafferResultCacheExportHandlerTest {
         // Then
         final Schema schema = graph.getSchema();
         JsonUtil.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
-        assertTrue(schema.validate());
-        assertEquals(timeToLive, ((AgeOff) (schema.getType("timestamp").getValidator().getFunctions().get(0).getFunction())).getAgeOffTime());
+        assertTrue(schema.validate().isValid());
+        assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
-        assertTrue(schema.validate());
     }
 }

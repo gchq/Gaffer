@@ -29,19 +29,19 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.IsIn;
-import uk.gov.gchq.gaffer.function.transform.Concat;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
-import uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +49,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override
@@ -58,20 +59,22 @@ public class GetAllElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
-            for (final IncludeEdgeType includeEdgeType : IncludeEdgeType.values()) {
-                if (!includeEntities && IncludeEdgeType.NONE == includeEdgeType) {
+            for (final boolean includeEdges : Arrays.asList(true, false)) {
+                if (!includeEntities && !includeEdges) {
                     // Cannot query for nothing!
                     continue;
                 }
-                try {
-                    shouldGetAllElements(includeEntities, includeEdgeType);
-                } catch (AssertionError e) {
-                    throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
-                            + ", includeEdgeType=" + includeEdgeType.name(), e);
+                for (final DirectedType directedType : DirectedType.values()) {
+                    try {
+                        shouldGetAllElements(includeEntities, includeEdges, directedType);
+                    } catch (final AssertionError e) {
+                        throw new AssertionError("GetAllElements failed with parameters: includeEntities=" + includeEntities
+                                + ", includeEdges=" + includeEdges + ", directedType=" + directedType.name(), e);
+                    }
                 }
             }
         }
@@ -79,7 +82,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
-    public void shouldGetAllElementsWithFilterWithoutSummarisation() throws Exception {
+    public void shouldGetAllElementsWithFilterWithoutSummarisation() throws
+            Exception {
         final Edge edge1 = getEdges().get(new EdgeSeed(SOURCE_1, DEST_1, false)).emptyClone();
         edge1.putProperty(TestPropertyNames.INT, 100);
         edge1.putProperty(TestPropertyNames.COUNT, 1L);
@@ -89,10 +93,11 @@ public class GetAllElementsIT extends AbstractStoreIT {
         edge2.putProperty(TestPropertyNames.COUNT, 1L);
 
         graph.execute(new AddElements.Builder()
-                .elements(Arrays.asList((Element) edge1, edge2))
-                .build(), getUser());
+                        .input(edge1, edge2)
+                        .build(),
+                getUser());
 
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -113,11 +118,10 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .populateProperties(true)
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY)
                         .build())
@@ -137,8 +141,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     @Test
     public void shouldGetAllFilteredElements() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .populateProperties(true)
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -161,8 +164,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
     @TraitRequirement({StoreTrait.TRANSFORMATION, StoreTrait.PRE_AGGREGATION_FILTERING})
     @Test
     public void shouldGetAllTransformedFilteredElements() throws Exception {
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .populateProperties(true)
+        final GetAllElements op = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
                                 .preAggregationFilter(new ElementFilter.Builder()
@@ -173,8 +175,8 @@ public class GetAllElementsIT extends AbstractStoreIT {
                                 .transformer(new ElementTransformer.Builder()
                                         .select(IdentifierType.VERTEX.name(),
                                                 TestPropertyNames.STRING)
-                                        .project(TestPropertyNames.TRANSIENT_1)
                                         .execute(new Concat())
+                                        .project(TestPropertyNames.TRANSIENT_1)
                                         .build())
                                 .build())
                         .build())
@@ -189,29 +191,33 @@ public class GetAllElementsIT extends AbstractStoreIT {
         assertEquals("A1,3", resultList.get(0).getProperties().get(TestPropertyNames.TRANSIENT_1));
     }
 
-    protected void shouldGetAllElements(boolean includeEntities, final IncludeEdgeType includeEdgeType) throws Exception {
+    protected void shouldGetAllElements(final boolean includeEntities, final boolean includeEdges, final DirectedType directedType) throws Exception {
         // Given
         final List<Element> expectedElements = new ArrayList<>();
         if (includeEntities) {
             expectedElements.addAll(getEntities().values());
         }
 
-        for (final Edge edge : getEdges().values()) {
-            if (IncludeEdgeType.ALL == includeEdgeType
-                    || (edge.isDirected() && IncludeEdgeType.DIRECTED == includeEdgeType)
-                    || (!edge.isDirected() && IncludeEdgeType.UNDIRECTED == includeEdgeType)) {
-                expectedElements.add(edge);
+        if (includeEdges) {
+            for (final Edge edge : getEdges().values()) {
+                if (DirectedType.BOTH == directedType
+                        || (edge.isDirected() && DirectedType.DIRECTED == directedType)
+                        || (!edge.isDirected() && DirectedType.UNDIRECTED == directedType)) {
+                    expectedElements.add(edge);
+                }
             }
         }
 
-        final GetAllElements<Element> op = new GetAllElements.Builder<>()
-                .includeEntities(includeEntities)
-                .includeEdges(includeEdgeType)
-                .populateProperties(true)
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .edge(TestGroups.EDGE)
-                        .build())
+        final View.Builder viewBuilder = new View.Builder();
+        if (includeEntities) {
+            viewBuilder.entity(TestGroups.ENTITY);
+        }
+        if (includeEdges) {
+            viewBuilder.edge(TestGroups.EDGE);
+        }
+        final GetAllElements op = new GetAllElements.Builder()
+                .directedType(directedType)
+                .view(viewBuilder.build())
                 .build();
 
         // When
@@ -220,7 +226,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         // Then
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
-            final ElementSeed seed = ElementSeed.createSeed(result);
+            final ElementId seed = ElementSeed.createSeed(result);
             if (result instanceof Entity) {
                 Entity entity = (Entity) result;
                 assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));

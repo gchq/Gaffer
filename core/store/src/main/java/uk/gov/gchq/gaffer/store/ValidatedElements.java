@@ -27,43 +27,43 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * It does not transform the element items - just simply returns them if they are valid.
  * <p>
  * So the resultant {@link Iterable} will only contain {@link Element}s that have passed
- * the {@link Schema} {@link uk.gov.gchq.gaffer.function.FilterFunction}s or
- * {@link View} {@link uk.gov.gchq.gaffer.function.FilterFunction}s.
+ * the {@link Schema} {@link java.util.function.Predicate}s or
+ * {@link View} {@link java.util.function.Predicate}s.
  */
 public class ValidatedElements extends TransformIterable<Element, Element> {
 
     /**
      * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
      * {@link Element}s, a {@link Schema} containing the
-     * {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s and a
+     * {@link java.util.function.Predicate}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param elements    the input {@link Iterable} of {@link Element}s
-     * @param schema  the {@link Schema} containing the
-     *                    {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
+     * @param schema      the {@link Schema} containing the
+     *                    {@link java.util.function.Predicate}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
-    public ValidatedElements(final Iterable<Element> elements, final Schema schema, final boolean skipInvalid) {
-        super(elements, new ElementValidator(schema), skipInvalid);
+    public ValidatedElements(final Iterable<? extends Element> elements, final Schema schema, final boolean skipInvalid) {
+        super((Iterable) elements, new ElementValidator(schema), skipInvalid);
     }
 
     /**
      * Constructs an <code>TransformIterable</code> with the given {@link Iterable} of
      * {@link Element}s, a {@link View} containing the
-     * {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s and a
+     * {@link java.util.function.Predicate}s to use to validate the {@link Element}s and a
      * skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param elements    the input {@link Iterable} of {@link Element}s
      * @param view        the {@link View} containing the
-     *                    {@link uk.gov.gchq.gaffer.function.FilterFunction}s to use to validate the {@link Element}s.
+     *                    {@link java.util.function.Predicate}s to use to validate the {@link Element}s.
      * @param skipInvalid if true invalid items should be skipped
      */
-    public ValidatedElements(final Iterable<Element> elements, final View view, final boolean skipInvalid) {
-        super(elements, new ElementValidator(view), skipInvalid);
+    public ValidatedElements(final Iterable<? extends Element> elements, final View view, final boolean skipInvalid) {
+        super((Iterable) elements, new ElementValidator(view), skipInvalid);
     }
 
     @Override
-    protected void handleInvalidItem(final Element item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final Element item) {
         final String elementDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Element of type " + elementDescription + " is not valid.");
 

@@ -31,8 +31,7 @@ import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetJavaRDDOfAllElementsHandler
-        extends AbstractGetRDDHandler<JavaRDD<Element>, GetJavaRDDOfAllElements> {
+public class GetJavaRDDOfAllElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfAllElements, JavaRDD<Element>> {
 
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfAllElements operation,
@@ -58,6 +57,7 @@ public class GetJavaRDDOfAllElementsHandler
 
         private static final long serialVersionUID = -4695668644733530293L;
 
+        @Override
         public Element call(final Tuple2<Element, NullWritable> tuple) throws Exception {
             return tuple._1();
         }

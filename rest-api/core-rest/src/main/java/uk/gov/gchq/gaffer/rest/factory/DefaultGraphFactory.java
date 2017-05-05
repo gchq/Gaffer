@@ -64,6 +64,7 @@ public class DefaultGraphFactory implements GraphFactory {
         return paths;
     }
 
+    @Override
     public Graph getGraph() {
         if (singletonGraph) {
             if (null == graph) {
@@ -87,6 +88,7 @@ public class DefaultGraphFactory implements GraphFactory {
         this.singletonGraph = singletonGraph;
     }
 
+    @Override
     public Graph.Builder createGraphBuilder() {
         final Path storePropertiesPath = Paths.get(System.getProperty(SystemProperty.STORE_PROPERTIES_PATH));
         if (null == storePropertiesPath) {
@@ -106,6 +108,7 @@ public class DefaultGraphFactory implements GraphFactory {
         return builder;
     }
 
+    @Override
     public OperationAuthoriser createOpAuthoriser() {
         OperationAuthoriser opAuthoriser = null;
 
@@ -122,6 +125,7 @@ public class DefaultGraphFactory implements GraphFactory {
         return opAuthoriser;
     }
 
+    @Override
     public Graph createGraph() {
         return createGraphBuilder().build();
     }

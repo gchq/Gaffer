@@ -39,19 +39,18 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -102,16 +101,16 @@ public class RowIdAggregatorTest {
 
 
     @Test
-    public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    public void testMultiplePropertySetsAggregateAcrossRowIDInByteEntityStore() throws StoreException, RangeFactoryException {
         testAggregatingMultiplePropertySetsAcrossRowIDRange(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void testMultiplePropertySetsAggregateAcrossRowIDInGafferOneStore() throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    public void testMultiplePropertySetsAggregateAcrossRowIDInGafferOneStore() throws StoreException, RangeFactoryException {
         testAggregatingMultiplePropertySetsAcrossRowIDRange(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException, RangeFactoryException {
+    private void testAggregatingMultiplePropertySetsAcrossRowIDRange(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, RangeFactoryException {
         String visibilityString = "public";
         try {
             // Create table
@@ -256,12 +255,18 @@ public class RowIdAggregatorTest {
             final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(), authorizations, 1000);
             try {
                 scanner.addScanIterator(store.getKeyPackage().getIteratorFactory().getRowIDAggregatorIteratorSetting(store, "BasicEdge2"));
-            } catch (IteratorSettingException e) {
+            } catch (final IteratorSettingException e) {
                 fail(e.getMessage());
             }
             final RangeFactory rangeF = store.getKeyPackage().getRangeFactory();
-            final Range r = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("1")), new EntitySeed("4")), new SummariseGroupOverRanges());
-            final Range r2 = rangeF.getRangeFromPair(new Pair<ElementSeed>((new EntitySeed("5")), new EntitySeed("5")), new SummariseGroupOverRanges());
+            final SummariseGroupOverRanges summariseGroupOverRanges = new SummariseGroupOverRanges.Builder()
+                    .view(new View.Builder()
+                            .edge("BasicEdge2")
+                            .entity("BasicEntity")
+                            .build())
+                    .build();
+            final Range r = rangeF.getRangeFromPair(new Pair<>(new EntitySeed("1"), new EntitySeed("4")), summariseGroupOverRanges);
+            final Range r2 = rangeF.getRangeFromPair(new Pair<>(new EntitySeed("5"), new EntitySeed("5")), summariseGroupOverRanges);
             scanner.setRanges(Arrays.asList(r, r2));
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
@@ -292,7 +297,7 @@ public class RowIdAggregatorTest {
             if (it.hasNext()) {
                 fail("Additional row found.");
             }
-        } catch (AccumuloException | TableExistsException | TableNotFoundException e) {
+        } catch (final AccumuloException | TableExistsException | TableNotFoundException e) {
             fail(this.getClass().getSimpleName() + " failed with exception: " + e);
         }
     }

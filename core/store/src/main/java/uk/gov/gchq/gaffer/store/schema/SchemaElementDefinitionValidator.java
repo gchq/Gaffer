@@ -21,15 +21,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.function.AggregateFunction;
-import uk.gov.gchq.gaffer.function.ConsumerFunction;
-import uk.gov.gchq.gaffer.function.ConsumerProducerFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.PassThroughFunctionContext;
-import uk.gov.gchq.gaffer.function.processor.Processor;
+import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,7 +41,7 @@ public class SchemaElementDefinitionValidator {
 
     /**
      * Checks each identifier and property has a type associated with it.
-     * Checks all {@link uk.gov.gchq.gaffer.function.FilterFunction}s and {@link uk.gov.gchq.gaffer.function.AggregateFunction}s defined are
+     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BinaryOperator}s defined are
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
@@ -53,183 +49,108 @@ public class SchemaElementDefinitionValidator {
      * @param requiresAggregators true if aggregators are required
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public boolean validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+    public ValidationResult validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+        final ValidationResult result = new ValidationResult();
+
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
-        return validateComponentTypes(elementDef)
-                && validateAggregator(aggregator, elementDef, requiresAggregators)
-                && validateFunctionArgumentTypes(validator, elementDef)
-                && validateFunctionArgumentTypes(aggregator, elementDef);
+        result.add(validateComponentTypes(elementDef));
+        result.add(validateAggregator(aggregator, elementDef, requiresAggregators));
+        result.add(validateFunctionArgumentTypes(validator, elementDef));
+        result.add(validateFunctionArgumentTypes(aggregator, elementDef));
+
+        return result;
     }
 
-    protected boolean validateComponentTypes(final SchemaElementDefinition elementDef) {
+    protected ValidationResult validateComponentTypes(final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
         for (final IdentifierType idType : elementDef.getIdentifiers()) {
             try {
                 if (null == elementDef.getIdentifierClass(idType)) {
-                    LOGGER.error("Class for " + idType + " could not be found.");
-                    return false;
+                    result.addError("Class for " + idType + " could not be found.");
                 }
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found", e);
-                return false;
+            } catch (final IllegalArgumentException e) {
+                result.addError("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
             }
         }
 
         for (final String propertyName : elementDef.getProperties()) {
             if (null != IdentifierType.fromName(propertyName)) {
-                LOGGER.error("Property name " + propertyName + " is a reserved word. Please use a different property name.");
-                return false;
-            }
-
-            try {
-                if (null == elementDef.getPropertyClass(propertyName)) {
-                    LOGGER.error("Class for " + propertyName + " could not be found.");
-                    return false;
+                result.addError("Property name " + propertyName + " is a reserved word. Please use a different property name.");
+            } else {
+                try {
+                    if (null == elementDef.getPropertyClass(propertyName)) {
+                        result.addError("Class for " + propertyName + " could not be found.");
+                    }
+                } catch (final IllegalArgumentException e) {
+                    result.addError("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
                 }
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found", e);
-                return false;
             }
         }
 
-        return true;
+        return result;
     }
 
-    /**
-     * Checks all function inputs are compatible with the property and identifier types specified.
-     *
-     * @param processor  the processor to validate against the element definition types
-     * @param elementDef the element definition
-     * @return boolean - true if function argument types are valid. Otherwise false and the reason is logged.
-     */
-    protected boolean validateFunctionArgumentTypes(
-            final Processor<String, ? extends ConsumerFunctionContext<String, ? extends ConsumerFunction>> processor,
-            final SchemaElementDefinition elementDef) {
-        if (null != processor && null != processor.getFunctions()) {
-            for (final ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
-                if (null == context.getFunction()) {
-                    LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
-                    return false;
-                }
-
-                if (!validateFunctionSelectionTypes(elementDef, context)) {
-                    return false;
-                }
-
-                if (context instanceof ConsumerProducerFunctionContext
-                        && !validateFunctionProjectionTypes(elementDef, (ConsumerProducerFunctionContext<String, ? extends ConsumerFunction>) context)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean validateFunctionSelectionTypes(final SchemaElementDefinition elementDef,
-                                                   final ConsumerFunctionContext<String, ? extends ConsumerFunction> context) {
-        final ConsumerFunction function = context.getFunction();
-        final Class<?>[] inputTypes = function.getInputClasses();
-        if (null == inputTypes || 0 == inputTypes.length) {
-            LOGGER.error("Function " + function.getClass().getName()
-                    + " is invalid. Input types have not been set.");
-            return false;
-        }
-
-        if (inputTypes.length != context.getSelection().size()) {
-            LOGGER.error("Input types for function " + function.getClass().getName()
-                    + " are not equal to the selection property types.");
-            return false;
-        }
-
-        int i = 0;
-        for (final String key : context.getSelection()) {
-            final Class<?> clazz = elementDef.getClass(key);
-            if (null == clazz) {
-                final String typeName;
-                final IdentifierType idType = IdentifierType.fromName(key);
-                if (null == idType) {
-                    typeName = elementDef.getPropertyTypeName(key);
+    protected ValidationResult validateFunctionArgumentTypes(
+            final ElementFilter filter, final SchemaElementDefinition schemaElDef) {
+        final ValidationResult result = new ValidationResult();
+        if (null != filter && null != filter.getComponents()) {
+            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
+                if (null == adaptedPredicate.getPredicate()) {
+                    result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    typeName = elementDef.getIdentifierTypeName(idType);
+                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
+                    result.add(inputSig.assignable(getTypeClasses(adaptedPredicate.getSelection(), schemaElDef)));
                 }
+            }
+        }
 
-                if (null != typeName) {
-                    LOGGER.error("No class type found for type definition " + typeName
-                            + " used by " + key
-                            + ". Please ensure it is defined in the schema.");
+        return result;
+    }
+
+    protected ValidationResult validateFunctionArgumentTypes(
+            final ElementAggregator aggregator,
+            final SchemaElementDefinition schemaElDef) {
+        final ValidationResult result = new ValidationResult();
+        if (null != aggregator && null != aggregator.getComponents()) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
+                if (null == adaptedFunction.getBinaryOperator()) {
+                    result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    LOGGER.error("No type definition defined for " + key
-                            + ". Please ensure it is defined in the schema.");
+                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getBinaryOperator());
+                    result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), schemaElDef)));
+
+                    final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getBinaryOperator());
+                    result.add(outputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), schemaElDef)));
                 }
-
-                return false;
             }
-            if (!inputTypes[i].isAssignableFrom(clazz)) {
-                LOGGER.error("Function " + function.getClass().getName()
-                        + " is not compatible with selection types. Function input type "
-                        + inputTypes[i].getName() + " is not assignable from selection type "
-                        + clazz.getName());
-                return false;
-            }
-            i++;
         }
-        return true;
+
+        return result;
     }
 
-    private boolean validateFunctionProjectionTypes(final SchemaElementDefinition elementDef,
-                                                    final ConsumerProducerFunctionContext<String, ? extends ConsumerFunction> consumerProducerContext) {
-        final ConsumerProducerFunction function = consumerProducerContext.getFunction();
-        final Class<?>[] outputTypes = function.getOutputClasses();
-        if (null == outputTypes || 0 == outputTypes.length) {
-            LOGGER.error("Function " + function.getClass().getName()
-                    + " is invalid. Output types have not been set.");
-            return false;
-        }
+    private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+        final ValidationResult result = new ValidationResult();
 
-        if (outputTypes.length != consumerProducerContext.getProjection().size()) {
-            LOGGER.error("Output types for function " + function.getClass().getName()
-                    + " are not equal to the projection property types.");
-            return false;
-        }
-
-        int i = 0;
-        for (final String key : consumerProducerContext.getProjection()) {
-            final Class<?> clazz = elementDef.getClass(key);
-            if (null == clazz || !outputTypes[i].isAssignableFrom(clazz)) {
-                LOGGER.error("Function " + function.getClass().getName()
-                        + " is not compatible with output types. Function output type "
-                        + outputTypes[i].getName() + " is not assignable from projection type "
-                        + (null != clazz ? clazz.getName() : "with a null class."));
-                return false;
-            }
-            i++;
-        }
-        return true;
-    }
-
-
-    private boolean validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
         if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
             // if no properties then no aggregation is necessary
-            return true;
+            return result;
         }
 
-        if (null == aggregator || null == aggregator.getFunctions()) {
+        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
             if (requiresAggregators) {
-                LOGGER.error("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
-                return false;
+                result.addError("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
             }
 
             // if aggregate functions are not defined then it is valid
-            return true;
+            return result;
         }
 
         // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
-        if (aggregator.getFunctions() != null) {
-            for (final PassThroughFunctionContext<String, AggregateFunction> context : aggregator.getFunctions()) {
-                final List<String> selection = context.getSelection();
+        if (aggregator.getComponents() != null) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
+                final String[] selection = adaptedFunction.getSelection();
                 if (selection != null) {
                     for (final String key : selection) {
                         final IdentifierType idType = IdentifierType.fromName(key);
@@ -244,10 +165,56 @@ public class SchemaElementDefinitionValidator {
         final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
         propertyNamesTmp.removeAll(aggregatedProperties);
         if (propertyNamesTmp.isEmpty()) {
-            return true;
+            return result;
         }
 
-        LOGGER.error("no aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
-        return false;
+        result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
+                + "This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
+        return result;
+    }
+
+    private Class[] getTypeClasses(final String[] keys, final SchemaElementDefinition schemaElDef) {
+        final Class[] selectionClasses = new Class[keys.length];
+        int i = 0;
+        for (final String key : keys) {
+            selectionClasses[i] = getTypeClass(key, schemaElDef);
+            i++;
+        }
+        return selectionClasses;
+    }
+
+    private Class<?> getTypeClass(final String key, final SchemaElementDefinition schemaElDef) {
+        final IdentifierType idType = IdentifierType.fromName(key);
+        final Class<?> clazz;
+        if (null != idType) {
+            clazz = schemaElDef.getIdentifierClass(idType);
+        } else {
+            clazz = schemaElDef.getPropertyClass(key);
+        }
+        if (null == clazz) {
+            if (null != idType) {
+                final String typeName = schemaElDef.getIdentifierTypeName(idType);
+                if (null != typeName) {
+                    LOGGER.error("No class type found for type definition " + typeName
+                            + " used by identifier " + idType
+                            + ". Please ensure it is defined in the schema.");
+                } else {
+                    LOGGER.error("No type definition defined for identifier " + idType
+                            + ". Please ensure it is defined in the schema.");
+                }
+            } else {
+                final String typeName = schemaElDef.getPropertyTypeName(key);
+                if (null != typeName) {
+                    LOGGER.error("No class type found for type definition " + typeName
+                            + " used by property " + key
+                            + ". Please ensure it is defined in the schema.");
+                } else {
+                    LOGGER.error("No class type found for property " + key
+                            + ". Please ensure it is defined in the schema.");
+                }
+            }
+
+        }
+        return clazz;
     }
 }

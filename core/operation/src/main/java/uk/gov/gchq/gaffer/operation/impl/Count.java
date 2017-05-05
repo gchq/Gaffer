@@ -16,61 +16,43 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
- * A <code>Count</code> operation counts how many items there are in the provided {@link CloseableIterable}.
+ * A <code>Count</code> operation counts how many items there are in the provided {@link Iterable}.
  *
  * @see Count.Builder
  */
-public class Count<T> extends AbstractOperation<CloseableIterable<T>, Long> {
+public class Count<T> implements
+        Operation,
+        InputOutput<Iterable<? extends T>, Long>,
+        MultiInput<T> {
+    private Iterable<? extends T> input;
 
-    public Count() {
-    }
-
-    /**
-     * @return the input {@link CloseableIterable} of objects of class <code>T</code> to be counted.
-     */
-    public CloseableIterable<T> getItems() {
-        return getInput();
-    }
-
-    /**
-     * @param items the input {@link Iterable} of objects of class <code>T</code> to be counted.
-     */
-    public void setItems(final CloseableIterable<T> items) {
-        setInput(items);
+    @Override
+    public Iterable<? extends T> getInput() {
+        return input;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public void setInput(final Iterable<? extends T> input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<Long> getOutputTypeReference() {
         return new TypeReferenceImpl.Long();
     }
 
-    public abstract static class BaseBuilder<T, CHILD_CLASS extends BaseBuilder<T, ?>>
-            extends AbstractOperation.BaseBuilder<Count<T>, CloseableIterable<T>, Long, CHILD_CLASS> {
-
-        public BaseBuilder() {
-            super(new Count());
-        }
-
-        /**
-         * @param items the input {@link CloseableIterable} of objects of class <code>T</code> to be set on the operation.
-         * @return this Builder
-         * @see Count#setItems(CloseableIterable)
-         */
-        public CHILD_CLASS elements(final CloseableIterable<T> items) {
-            op.setInput(items);
-            return self();
-        }
-    }
-
-    public static final class Builder<T> extends BaseBuilder<T, Builder<T>> {
-        @Override
-        protected Builder self() {
-            return this;
+    public static final class Builder<T>
+            extends Operation.BaseBuilder<Count<T>, Builder<T>>
+            implements InputOutput.Builder<Count<T>, Iterable<? extends T>, Long, Builder<T>>,
+            MultiInput.Builder<Count<T>, T, Builder<T>> {
+        public Builder() {
+            super(new Count<>());
         }
     }
 }

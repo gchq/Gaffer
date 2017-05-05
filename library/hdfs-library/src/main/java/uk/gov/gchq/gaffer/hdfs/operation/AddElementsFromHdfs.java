@@ -16,11 +16,13 @@
 package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.hadoop.mapreduce.Partitioner;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
-import uk.gov.gchq.gaffer.operation.VoidInput;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An <code>AddElementsFromHdfs</code> operation is for adding {@link uk.gov.gchq.gaffer.data.element.Element}s from HDFS.
@@ -35,7 +37,10 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  *
  * @see Builder
  */
-public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implements VoidInput<Void>, VoidOutput<Void> {
+public class AddElementsFromHdfs implements
+        Operation,
+        MapReduce,
+        Options {
     private String failurePath;
     private boolean validate = true;
 
@@ -45,6 +50,13 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
     private String mapperGeneratorClassName;
+    private List<String> inputPaths;
+    private String outputPath;
+    private JobInitialiser jobInitialiser;
+    private Integer numMapTasks;
+    private Integer numReduceTasks;
+    private Class<? extends Partitioner> partitioner;
+    private Map<String, String> options;
 
     public String getFailurePath() {
         return failurePath;
@@ -76,36 +88,95 @@ public class AddElementsFromHdfs extends MapReduceOperation<Void, Void> implemen
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
+    public List<String> getInputPaths() {
+        return inputPaths;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends MapReduceOperation.BaseBuilder<AddElementsFromHdfs, Void, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setInputPaths(final List<String> inputPaths) {
+        this.inputPaths = inputPaths;
+    }
+
+    @Override
+    public String getOutputPath() {
+        return outputPath;
+    }
+
+    @Override
+    public void setOutputPath(final String outputPath) {
+        this.outputPath = outputPath;
+    }
+
+    @Override
+    public JobInitialiser getJobInitialiser() {
+        return jobInitialiser;
+    }
+
+    @Override
+    public void setJobInitialiser(final JobInitialiser jobInitialiser) {
+        this.jobInitialiser = jobInitialiser;
+    }
+
+    @Override
+    public Integer getNumMapTasks() {
+        return numMapTasks;
+    }
+
+    @Override
+    public void setNumMapTasks(final Integer numMapTasks) {
+        this.numMapTasks = numMapTasks;
+    }
+
+    @Override
+    public Integer getNumReduceTasks() {
+        return numReduceTasks;
+    }
+
+    @Override
+    public void setNumReduceTasks(final Integer numReduceTasks) {
+        this.numReduceTasks = numReduceTasks;
+    }
+
+    @Override
+    public Class<? extends Partitioner> getPartitioner() {
+        return partitioner;
+    }
+
+    @Override
+    public void setPartitioner(final Class<? extends Partitioner> partitioner) {
+        this.partitioner = partitioner;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
+            Options.Builder<AddElementsFromHdfs, Builder> {
+        public Builder() {
             super(new AddElementsFromHdfs());
         }
 
-        public CHILD_CLASS validate(final boolean validate) {
-            op.setValidate(validate);
-            return self();
+        public Builder validate(final boolean validate) {
+            _getOp().setValidate(validate);
+            return _self();
         }
 
-        public CHILD_CLASS mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
-            op.setMapperGeneratorClassName(mapperGeneratorClass);
-            return self();
+        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+            _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
+            return _self();
         }
 
-        public CHILD_CLASS failurePath(final String failurePath) {
-            op.setFailurePath(failurePath);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+        public Builder failurePath(final String failurePath) {
+            _getOp().setFailurePath(failurePath);
+            return _self();
         }
     }
 }

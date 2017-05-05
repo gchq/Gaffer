@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration.performance;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.ConfigurationCopy;
 import org.apache.accumulo.core.conf.Property;
-import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -44,13 +43,12 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -105,12 +103,12 @@ public class BloomFilter18IT {
     }
 
     @Test
-    public void test() throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    public void test() throws RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory);
         testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
     }
 
-    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws RangeFactoryException, IOException {
         // Create random data to insert, and sort it
         final Random random = new Random();
         final HashSet<Key> keysSet = new HashSet<>();
@@ -130,7 +128,7 @@ public class BloomFilter18IT {
                     .getVertex(), true);
             keysSet.add(elementConverter.getKeyFromEntity(sourceEntity));
             keysSet.add(elementConverter.getKeyFromEntity(destinationEntity));
-            final Pair<Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
+            final Pair<Key, Key> edgeKeys = elementConverter.getKeysFromEdge(edge);
             keysSet.add(edgeKeys.getFirst());
             keysSet.add(edgeKeys.getSecond());
         }
@@ -165,18 +163,18 @@ public class BloomFilter18IT {
         }
 
         final FileSKVWriter writer = FileOperations.getInstance()
-                                                   .newWriterBuilder()
-                                                   .forFile(filename, fs, conf)
-                                                   .withTableConfiguration(accumuloConf)
-                                                   .build();
+                .newWriterBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .build();
 
         try {
             // Write data to file
             writer.startDefaultLocalityGroup();
             for (final Key key : keys) {
                 if (elementConverter.getElementFromKey(key)
-                                    .getGroup()
-                                    .equals(TestGroups.ENTITY)) {
+                        .getGroup()
+                        .equals(TestGroups.ENTITY)) {
                     writer.append(key, value);
                 } else {
                     writer.append(key, value2);
@@ -188,11 +186,11 @@ public class BloomFilter18IT {
 
         // Reader
         final FileSKVIterator reader = FileOperations.getInstance()
-                                                     .newReaderBuilder()
-                                                     .forFile(filename, fs, conf)
-                                                     .withTableConfiguration(accumuloConf)
-                                                     .seekToBeginning(false)
-                                                     .build();
+                .newReaderBuilder()
+                .forFile(filename, fs, conf)
+                .withTableConfiguration(accumuloConf)
+                .seekToBeginning(false)
+                .build();
 
         try {
             // Calculate random look up rate - run it 3 times and take best
@@ -224,8 +222,8 @@ public class BloomFilter18IT {
         }
     }
 
-    private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
-        final EntitySeed[] randomData = new EntitySeed[5000];
+    private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
+        final EntityId[] randomData = new EntitySeed[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
         }
@@ -259,16 +257,16 @@ public class BloomFilter18IT {
         return causalRate;
     }
 
-    private void seek(final FileSKVIterator reader, final EntitySeed seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
-        final View view = new View.Builder()
-                .edge(TestGroups.EDGE)
-                .entity(TestGroups.ENTITY)
+    private void seek(final FileSKVIterator reader, final EntityId seed, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
+        final GetElements operation = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .entity(TestGroups.ENTITY)
+                        .build())
                 .build();
-
-        final GetElements<ElementSeed, ?> operation = new GetElements<>(view);
         final List<Range> range = rangeFactory.getRange(seed, operation);
         for (final Range ran : range) {
-            reader.seek(ran, new ArrayList<ByteSequence>(), false);
+            reader.seek(ran, new ArrayList<>(), false);
         }
     }
 }

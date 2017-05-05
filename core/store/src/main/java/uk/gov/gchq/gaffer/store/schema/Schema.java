@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -120,42 +121,33 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * Validates the schema to ensure all element definitions are valid.
      * Throws a SchemaException if it is not valid.
      *
-     * @return true if valid, otherwise false.
+     * @return ValidationResult the validation result
      * @throws SchemaException if validation fails then a SchemaException is thrown.
      */
-    public boolean validate() throws SchemaException {
+    public ValidationResult validate() throws SchemaException {
+        final ValidationResult result = new ValidationResult();
         for (final String edgeGroup : getEdgeGroups()) {
             if (null != getEntity(edgeGroup)) {
-                LOGGER.warn("Groups must not be shared between Entity definitions and Edge definitions."
+                result.addError("Groups must not be shared between Entity definitions and Edge definitions."
                         + "Found edgeGroup '" + edgeGroup + "' in the collection of entities");
-                return false;
             }
         }
 
         final boolean hasAggregators = hasAggregators();
-
         for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
-
-            if (!elementDefEntry.getValue().validate(hasAggregators)) {
-                LOGGER.warn("VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
+            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
         }
 
         for (final Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
-
-            if (!elementDefEntry.getValue().validate(hasAggregators)) {
-                LOGGER.warn("VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
-                return false;
-            }
+            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
-        return true;
+        return result;
     }
 
     public Map<String, TypeDefinition> getTypes() {
@@ -210,7 +202,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     public String toString() {
         try {
             return "Schema" + new String(toJson(true), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -262,12 +254,12 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
                 Class<? extends Serialisation> serialiserClass;
                 try {
                     serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialisation.class);
-                } catch (ClassNotFoundException e) {
+                } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
                 try {
                     vertexSerialiser(serialiserClass.newInstance());
-                } catch (IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
+                } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }
             }

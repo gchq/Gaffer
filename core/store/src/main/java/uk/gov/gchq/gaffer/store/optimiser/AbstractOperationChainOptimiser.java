@@ -22,7 +22,7 @@ import java.util.List;
 
 public abstract class AbstractOperationChainOptimiser implements OperationChainOptimiser {
     @Override
-    public final <OUTPUT> OperationChain<OUTPUT> optimise(final OperationChain<OUTPUT> operationChain) {
+    public final <O> OperationChain<O> optimise(final OperationChain<O> operationChain) {
         final List<Operation> ops = operationChain.getOperations();
         final int numOps = ops.size();
 
@@ -31,9 +31,9 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
         }
 
         final List<Operation> optimisedOps = new ArrayList<>();
-        Operation<?, ?> previousOp;
-        Operation<?, ?> currentOp = null;
-        Operation<?, ?> nextOp = ops.get(0);
+        Operation previousOp;
+        Operation currentOp = null;
+        Operation nextOp = ops.get(0);
         for (int index = 0; index < numOps; index++) {
             previousOp = currentOp;
             currentOp = nextOp;
@@ -54,7 +54,7 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
      * @param currentOp  the current operation
      * @return list of pre operations
      */
-    protected abstract List<Operation> addPreOperations(final Operation<?, ?> previousOp, final Operation<?, ?> currentOp);
+    protected abstract List<Operation> addPreOperations(final Operation previousOp, final Operation currentOp);
 
     /**
      * Optimises the current operation. By default this should just return the current operation.
@@ -64,7 +64,7 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
      * @param nextOp     the next operation
      * @return list of optimised operations
      */
-    protected abstract List<Operation> optimiseCurrentOperation(final Operation<?, ?> previousOp, final Operation<?, ?> currentOp, final Operation<?, ?> nextOp);
+    protected abstract List<Operation> optimiseCurrentOperation(final Operation previousOp, final Operation currentOp, final Operation nextOp);
 
     /**
      * Add pre operations. By default this should just return an empty list.
@@ -73,7 +73,7 @@ public abstract class AbstractOperationChainOptimiser implements OperationChainO
      * @param nextOp    the next operation
      * @return list of post operations
      */
-    protected abstract List<Operation> addPostOperations(final Operation<?, ?> currentOp, final Operation<?, ?> nextOp);
+    protected abstract List<Operation> addPostOperations(final Operation currentOp, final Operation nextOp);
 
     /**
      * Optimise all operations together.

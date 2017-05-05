@@ -21,9 +21,9 @@ package uk.gov.gchq.gaffer.store;
  */
 public enum StoreTrait {
     /**
-     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the schema.
+     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the schema at ingest.
      */
-    STORE_AGGREGATION,
+    INGEST_AGGREGATION,
 
     /**
      * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the view.
@@ -33,7 +33,7 @@ public enum StoreTrait {
     /**
      * Most stores should have this trait if they deal with Aggregation as if you use Operation.validatePreAggregationFilter(Element) in you handlers,
      * it will deal with the filtering for you.
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in a
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link java.util.function.Predicate}s defined in a
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      */
     PRE_AGGREGATION_FILTERING,
@@ -41,7 +41,7 @@ public enum StoreTrait {
     /**
      * Most stores should have this trait if they deal with Aggregation as if you use Operation.validatePostFilter(Element) in you handlers,
      * it will deal with the filtering for you.
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in a
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link java.util.function.Predicate}s defined in a
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      */
     POST_AGGREGATION_FILTERING,
@@ -49,20 +49,20 @@ public enum StoreTrait {
     /**
      * Most stores should have this trait if they support Transformations as if you use Operation.validatePostTransformationFilter(Element) in you handlers,
      * it will deal with the filtering for you.
-     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in a
+     * {@link uk.gov.gchq.gaffer.data.element.Element}s are filtered using {@link java.util.function.Predicate}s defined in a
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      */
     POST_TRANSFORMATION_FILTERING,
 
     /**
      * {@link uk.gov.gchq.gaffer.data.element.Element} {@link uk.gov.gchq.gaffer.data.element.Properties} are transformed using
-     * {@link uk.gov.gchq.gaffer.function.TransformFunction}s defined in a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
+     * {@link java.util.function.Function}s defined in a {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      */
     TRANSFORMATION,
 
     /**
      * Elements will be validated continuously and removed if they are found to
-     * be invalid based on {@link uk.gov.gchq.gaffer.function.FilterFunction}s defined in the
+     * be invalid based on {@link java.util.function.Predicate}s defined in the
      * {@link uk.gov.gchq.gaffer.store.schema.Schema}.
      */
     STORE_VALIDATION,

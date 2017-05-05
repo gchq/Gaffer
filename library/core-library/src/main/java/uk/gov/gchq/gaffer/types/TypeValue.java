@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.types;
 
-public class TypeValue {
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-    private static final int PRIME = 31;
+public class TypeValue {
     private String type;
     private String value;
 
     public TypeValue() {
-
+        // Empty
     }
 
     public TypeValue(final String type, final String value) {
@@ -47,37 +50,36 @@ public class TypeValue {
     }
 
     @Override
-    public int hashCode() {
-        int result = 1;
-        result = PRIME * result + ((value == null) ? 0 : value.hashCode());
-        result = PRIME * result + ((type == null) ? 0 : type.hashCode());
-        return result;
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final TypeValue typeValue = (TypeValue) obj;
+
+        return new EqualsBuilder()
+                .append(type, typeValue.type)
+                .append(value, typeValue.value)
+                .isEquals();
     }
 
     @Override
-    public boolean equals(final Object object) {
-        if (TypeValue.class.isInstance(object)) {
-            return this.equals((TypeValue) object);
-        } else {
-            return false;
-        }
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(type)
+                .append(value)
+                .toHashCode();
     }
 
-    public boolean equals(final TypeValue typeValue) {
-        if (this.type == null) {
-            if (null != typeValue.getType()) {
-                return false;
-            }
-        } else if (!this.type.equals(typeValue.getType())) {
-            return false;
-        }
-        if (this.value == null) {
-            if (null != typeValue.getValue()) {
-                return false;
-            }
-        } else if (!this.value.equals(typeValue.getValue())) {
-            return false;
-        }
-        return true;
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("type", type)
+                .append("value", value)
+                .toString();
     }
 }

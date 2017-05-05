@@ -44,12 +44,13 @@ public class MockAccumuloStore extends AccumuloStore {
     public Connector getConnection() throws StoreException {
         try {
             mockConnector = mockAccumulo.getConnector(AccumuloProperties.USER, PASSWORD_TOKEN);
-        } catch (AccumuloException | AccumuloSecurityException e) {
+        } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new StoreException(e.getMessage(), e);
         }
         return mockConnector;
     }
 
+    @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         if (!(properties instanceof AccumuloProperties)) {

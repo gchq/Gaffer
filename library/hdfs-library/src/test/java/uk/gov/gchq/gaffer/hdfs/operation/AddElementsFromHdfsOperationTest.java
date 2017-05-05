@@ -15,9 +15,11 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
@@ -32,6 +34,7 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
 
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputPaths\" : [ \"TestInput\" ],%n" +
             "  \"outputPath\" : \"TestOutput\",%n" +
             "  \"validate\" : true%n" +
@@ -41,15 +44,33 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final AddElementsFromHdfs addElements = new AddElementsFromHdfs();
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .addInputPath("inputPath")
+                .failurePath("failurePath")
+                .outputPath("outputPath")
+                .jobInitialiser(new TextJobInitialiser())
+                .partitioner(Partitioner.class)
+                .reducers(10)
+                .mappers(5)
+                .validate(true)
+                .build();
 
         // When
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"inputPaths\" : [ ],%n" +
-                "  \"validate\" : true%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
+                "  \"failurePath\" : \"failurePath\",%n" +
+                "  \"validate\" : true,%n" +
+                "  \"inputPaths\" : [ \"inputPath\" ],%n" +
+                "  \"outputPath\" : \"outputPath\",%n" +
+                "  \"jobInitialiser\" : {%n" +
+                "    \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser\"%n" +
+                "  },%n" +
+                "  \"numMapTasks\" : 5,%n" +
+                "  \"numReduceTasks\" : 10,%n" +
+                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
                 "}"), json);
     }
 

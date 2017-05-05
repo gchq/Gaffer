@@ -17,11 +17,11 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
  * An <code>Edge</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a source, destination and a directed flag.
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see uk.gov.gchq.gaffer.data.element.Edge.Builder
  */
-public class Edge extends Element {
+public class Edge extends Element implements EdgeId {
     private static final Logger LOGGER = LoggerFactory.getLogger(Edge.class);
     private static final long serialVersionUID = -5596452468277807842L;
     private Object source;
@@ -55,28 +55,32 @@ public class Edge extends Element {
         this.directed = directed;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
+    @Override
     public Object getSource() {
         return source;
     }
 
+    @Override
     public void setSource(final Object source) {
         this.source = source;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
+    @Override
     public Object getDestination() {
         return destination;
     }
 
+    @Override
     public void setDestination(final Object destination) {
         this.destination = destination;
     }
 
+    @Override
     public boolean isDirected() {
         return directed;
     }
 
+    @Override
     public void setDirected(final boolean directed) {
         this.directed = directed;
     }
@@ -124,8 +128,12 @@ public class Edge extends Element {
                     .toHashCode();
         } else {
             hash = super.hashCode();
-            hash ^= source.hashCode();
-            hash ^= destination.hashCode();
+            if (null != source) {
+                hash ^= source.hashCode();
+            }
+            if (null != destination) {
+                hash ^= destination.hashCode();
+            }
         }
         return hash;
     }
@@ -140,16 +148,16 @@ public class Edge extends Element {
     public boolean equals(final Edge edge) {
         return null != edge
                 && (new EqualsBuilder()
-                .appendSuper(super.equals(edge))
+                .append(directed, edge.isDirected())
                 .append(source, edge.getSource())
                 .append(destination, edge.getDestination())
-                .append(directed, edge.isDirected())
+                .appendSuper(super.equals(edge))
                 .isEquals()
                 || new EqualsBuilder()
-                .appendSuper(super.equals(edge))
+                .append(directed, false)
                 .append(source, edge.getDestination())
                 .append(destination, edge.getSource())
-                .append(directed, false)
+                .appendSuper(super.equals(edge))
                 .isEquals()
         );
     }

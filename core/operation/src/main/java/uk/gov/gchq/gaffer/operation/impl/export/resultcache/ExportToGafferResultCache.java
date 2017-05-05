@@ -16,8 +16,11 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.resultcache;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Set;
 
 /**
@@ -25,8 +28,22 @@ import java.util.Set;
  * a cache. The cache is backed by a simple Gaffer graph that can be configured.
  * The results can be of any type - as long as they are json serialisable.
  */
-public class ExportToGafferResultCache extends Export {
+public class ExportToGafferResultCache<T> implements
+        Operation,
+        ExportTo<T> {
+    private String key;
     private Set<String> opAuths;
+    private T input;
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
 
     public Set<String> getOpAuths() {
         return opAuths;
@@ -36,27 +53,35 @@ public class ExportToGafferResultCache extends Export {
         this.opAuths = opAuths;
     }
 
-    public abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends Export.BaseBuilder<ExportToGafferResultCache, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new ExportToGafferResultCache());
-        }
-
-        public CHILD_CLASS opAuths(final Set<String> opAuths) {
-            getOp().setOpAuths(opAuths);
-            return self();
-        }
-
-        public CHILD_CLASS opAuths(final String... opAuths) {
-            getOp().setOpAuths(Sets.newHashSet(opAuths));
-            return self();
-        }
+    @Override
+    public T getInput() {
+        return input;
     }
 
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
+    @Override
+    public void setInput(final T input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<T> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    public static final class Builder<T> extends Operation.BaseBuilder<ExportToGafferResultCache<T>, Builder<T>>
+            implements ExportTo.Builder<ExportToGafferResultCache<T>, T, Builder<T>> {
+        public Builder() {
+            super(new ExportToGafferResultCache<>());
+        }
+
+        public Builder<T> opAuths(final Set<String> opAuths) {
+            _getOp().setOpAuths(opAuths);
+            return _self();
+        }
+
+        public Builder<T> opAuths(final String... opAuths) {
+            _getOp().setOpAuths(Sets.newHashSet(opAuths));
+            return _self();
         }
     }
 }

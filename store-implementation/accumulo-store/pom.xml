@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.6.6</version>
+        <version>0.7.0</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -143,9 +143,12 @@
                             </shadedClassifierName>
                             <artifactSet>
                                 <includes>
+                                    <include>uk.gov.gchq.koryphe*</include>
                                     <include>uk.gov.gchq.gaffer*</include>
                                     <include>org.slf4j:slf4j-api</include>
-                                    <include>org.apache.commons:commons-lang
+                                    <include>com.google.guava*
+                                    </include>
+                                    <include>org.apache.commons:commons-lang3
                                     </include>
                                     <include>com.fasterxml.jackson.*:*</include>
                                     <include>com.clearspring.analytics:stream

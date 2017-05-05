@@ -21,10 +21,9 @@ import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeElementPropertyFilterIterator;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -55,24 +54,25 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             .vertexSerialiser(new StringSerialiser())
             .build();
 
-    private static final List<Element> ELEMENTS = Arrays.asList(
+    private static final List<Element> ELEMENTS = Arrays.asList(new Element[]{
             new Edge(TestGroups.EDGE, "vertexA", "vertexB", true),
             new Edge(TestGroups.EDGE, "vertexD", "vertexC", true),
             new Edge(TestGroups.EDGE, "vertexE", "vertexE", true),
             new Edge(TestGroups.EDGE, "vertexF", "vertexG", false),
             new Edge(TestGroups.EDGE, "vertexH", "vertexH", false),
-            new Entity(TestGroups.ENTITY, "vertexI")
+            new Entity(TestGroups.ENTITY, "vertexI")}
     );
 
     private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -80,7 +80,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only edges should be excepted
             assertEquals("Failed for element: " + element.toString(), element instanceof Edge, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -91,13 +91,14 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -105,7 +106,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only directed edges should be excepted
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -117,13 +118,14 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -131,7 +133,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             // First key is deduplicated, but only undirected edges should be excepted
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
@@ -143,11 +145,12 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDirectedEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -156,7 +159,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -166,12 +169,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptUndirectedEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -180,7 +184,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Edge && !((Edge) element).isDirected();
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -190,12 +194,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptIncomingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptIncomingEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -203,7 +208,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), false, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self elements are not added the other way round
@@ -214,12 +219,13 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptOutgoingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptOutgoingEdges() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+            put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
         filter.validateOptions(options);
 
@@ -227,7 +233,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
 
         // When / Then
         for (final Element element : ELEMENTS) {
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             final boolean expectedResult = element instanceof Edge && ((Edge) element).isDirected();
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -238,11 +244,10 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldAcceptOnlyEntities() throws OperationException, AccumuloElementConversionException {
+    public void shouldAcceptOnlyEntities() throws OperationException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
-            put(AccumuloStoreConstants.NO_EDGES, "true");
             put(AccumuloStoreConstants.INCLUDE_ENTITIES, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
@@ -253,7 +258,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
         // When / Then
         for (final Element element : ELEMENTS) {
             final boolean expectedResult = element instanceof Entity;
-            final Pair<Key> keys = converter.getKeysFromElement(element);
+            final Pair<Key, Key> keys = converter.getKeysFromElement(element);
             assertEquals("Failed for element: " + element.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // entities and self edges are not added the other way round

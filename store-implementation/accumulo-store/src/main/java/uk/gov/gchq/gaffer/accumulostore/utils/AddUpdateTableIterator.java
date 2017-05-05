@@ -81,7 +81,7 @@ public final class AddUpdateTableIterator {
         try {
             updateIterator(store, iteratorName,
                     store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-        } catch (IteratorSettingException e) {
+        } catch (final IteratorSettingException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }
@@ -119,7 +119,7 @@ public final class AddUpdateTableIterator {
                                         .getTable(), iteratorName,
                                 EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
             }
-        } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
+        } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
             throw new StoreException("Unable remove iterator with Name: " + iteratorName, e);
         }
     }
@@ -133,13 +133,14 @@ public final class AddUpdateTableIterator {
      * @throws StoreException if any issues occur adding an aggregator iterator
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
-        if (!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator()) {
-            if (store.getSchema().hasAggregators()) {
-                try {
-                    addIterator(store, store.getKeyPackage().getIteratorFactory().getIteratorSetting(store, iteratorName));
-                } catch (final IteratorSettingException e) {
-                    throw new StoreException(e.getMessage(), e);
-                }
+        if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
+                && (store.getSchema().hasAggregators())) {
+            try {
+                addIterator(store, store.getKeyPackage()
+                                        .getIteratorFactory()
+                                        .getIteratorSetting(store, iteratorName));
+            } catch (final IteratorSettingException e) {
+                throw new StoreException(e.getMessage(), e);
             }
         }
     }
@@ -156,7 +157,7 @@ public final class AddUpdateTableIterator {
             throws StoreException {
         try {
             store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
-        } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+        } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
             throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
         }
         TableUtils.setLocalityGroups(store);

@@ -1,0 +1,35 @@
+{
+  "types": {
+    "count.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "counts.freqmap": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator"
+      }
+    },
+    "date.earliest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Min"
+      }
+    },
+    "date.latest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    },
+    "set": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.CollectionConcat"
+      }
+    },
+    "hllp": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+    }
+  }
+}

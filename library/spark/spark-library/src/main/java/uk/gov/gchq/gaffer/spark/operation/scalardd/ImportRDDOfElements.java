@@ -15,47 +15,60 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
-import uk.gov.gchq.gaffer.operation.VoidOutput;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import java.util.Map;
 
-public class ImportRDDOfElements extends AbstractOperation<RDD<Element>, Void> implements VoidOutput<RDD<Element>> {
-    private SparkContext sparkContext;
+public class ImportRDDOfElements implements
+        Operation,
+        Input<RDD<Element>>,
+        Rdd,
+        Options {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
+    private SparkContext sparkContext;
+    private RDD<Element> input;
+    private Map<String, String> options;
 
+    @Override
     public SparkContext getSparkContext() {
         return sparkContext;
     }
 
+    @Override
     public void setSparkContext(final SparkContext sparkContext) {
         this.sparkContext = sparkContext;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
-        return new TypeReferenceImpl.Void();
+    public RDD<Element> getInput() {
+        return input;
     }
 
-    protected abstract static class BaseBuilder<CHILD_CLASS extends BaseBuilder<?>>
-            extends AbstractOperation.BaseBuilder<ImportRDDOfElements, RDD<Element>, Void, CHILD_CLASS> {
-        public BaseBuilder() {
+    @Override
+    public void setInput(final RDD<Element> input) {
+        this.input = input;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<ImportRDDOfElements, Builder>
+            implements Input.Builder<ImportRDDOfElements, RDD<Element>, Builder>,
+            Rdd.Builder<ImportRDDOfElements, Builder>,
+            Options.Builder<ImportRDDOfElements, Builder> {
+        public Builder() {
             super(new ImportRDDOfElements());
-        }
-
-        public CHILD_CLASS sparkContext(final SparkContext sparkContext) {
-            op.setSparkContext(sparkContext);
-            return self();
-        }
-    }
-
-    public static final class Builder extends BaseBuilder<Builder> {
-        @Override
-        protected Builder self() {
-            return this;
         }
     }
 }

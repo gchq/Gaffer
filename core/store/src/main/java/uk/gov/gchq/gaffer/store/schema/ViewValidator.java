@@ -21,15 +21,16 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.ConsumerFunction;
-import uk.gov.gchq.gaffer.function.ConsumerProducerFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
-import uk.gov.gchq.gaffer.function.processor.Processor;
+import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.LinkedHashSet;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,7 +44,7 @@ public class ViewValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewValidator.class);
 
     /**
-     * Checks all {@link uk.gov.gchq.gaffer.function.FilterFunction}s and {@link uk.gov.gchq.gaffer.function.TransformFunction}s defined are
+     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.Function}s defined are
      * compatible with the identifiers and properties in the {@link Schema}
      * and transient properties in the {@link View}.
      *
@@ -52,264 +53,168 @@ public class ViewValidator {
      * @param isStoreOrdered true if the store is ordered
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public boolean validate(final View view, final Schema schema, final boolean isStoreOrdered) {
-        boolean isValid = true;
+    public ValidationResult validate(final View view, final Schema schema, final boolean isStoreOrdered) {
+        final ValidationResult result = new ValidationResult();
 
         if (null != view) {
             if (null != view.getEntities()) {
-                for (final Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEntities().entrySet()) {
                     final String group = entry.getKey();
                     final SchemaEntityDefinition schemaElDef = schema.getEntity(group);
                     final ViewElementDefinition viewElDef = entry.getValue();
 
                     if (null == schemaElDef) {
-                        LOGGER.error("Entity group " + group + " does not exist in the schema");
-                        isValid = false;
+                        result.addError("Entity group " + group + " does not exist in the schema");
                     } else {
                         for (final String transProp : viewElDef.getTransientProperties()) {
                             if (schemaElDef.containsProperty(transProp)) {
-                                LOGGER.error("Transient property " + transProp + " for entity group " + group + " is not transient as it has been found in the schema");
-                                isValid = false;
+                                result.addError("Transient property " + transProp + " for entity group " + group + " is not transient as it has been found in the schema");
                             }
                         }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }
             }
 
             if (null != view.getEdges()) {
-                for (final Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
+                for (final Map.Entry<String, ViewElementDefinition> entry : view.getEdges().entrySet()) {
                     final String group = entry.getKey();
                     final SchemaEdgeDefinition schemaElDef = schema.getEdge(group);
                     final ViewElementDefinition viewElDef = entry.getValue();
 
                     if (null == schemaElDef) {
-                        LOGGER.error("Edge group " + group + " does not exist in the schema");
-                        isValid = false;
+                        result.addError("Edge group " + group + " does not exist in the schema");
                     } else {
                         for (final String transProp : viewElDef.getTransientProperties()) {
                             if (schemaElDef.containsProperty(transProp)) {
-                                LOGGER.error("Transient property " + transProp + " for edge group " + group + " is not transient as it has been found in the schema");
-                                isValid = false;
+                                result.addError("Transient property " + transProp + " for edge group " + group + " is not transient as it has been found in the schema");
                             }
                         }
 
-                        if (!validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
-
-                        if (!validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef)) {
-                            isValid = false;
-                        }
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
+                        result.add(validateFunctionArgumentTypes(viewElDef.getPostTransformFilter(), viewElDef, schemaElDef));
+                        result.add(validateGroupBy(isStoreOrdered, group, viewElDef, schemaElDef));
                     }
                 }
             }
         }
 
-        return isValid;
+        return result;
     }
 
-    protected boolean validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+    protected ValidationResult validateGroupBy(final boolean isStoreOrdered, final String group, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final ValidationResult result = new ValidationResult();
         final Set<String> viewGroupBy = viewElDef.getGroupBy();
-
-        boolean isValid = true;
         if (null != viewGroupBy && !viewGroupBy.isEmpty()) {
             final Set<String> schemaGroupBy = schemaElDef.getGroupBy();
             if (null != schemaGroupBy && schemaGroupBy.containsAll(viewGroupBy)) {
                 if (isStoreOrdered) {
                     final LinkedHashSet<String> schemaGroupBySubset = Sets.newLinkedHashSet(Iterables.limit(schemaGroupBy, viewGroupBy.size()));
                     if (!viewGroupBy.equals(schemaGroupBySubset)) {
-                        LOGGER.error("Group by properties for group " + group + " are not in the same order as the group by properties in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
-                        isValid = false;
+                        result.addError("Group by properties for group " + group + " are not in the same order as the group by properties in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
                     }
                 }
             } else {
-                LOGGER.error("Group by properties for group " + group + " in the view are not all included in the group by field in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
-                isValid = false;
+                result.addError("Group by properties for group " + group + " in the view are not all included in the group by field in the schema. View groupBy:" + viewGroupBy + ". Schema groupBy:" + schemaGroupBy);
             }
         }
 
-        return isValid;
+        return result;
     }
 
-
-    /**
-     * Checks all function inputs and outputs are compatible with the property, identifier types
-     * and transient properties specified.
-     *
-     * @param processor   the processor to validate against the element definition types
-     * @param viewElDef   the view element definition
-     * @param schemaElDef the schema element definition
-     * @return boolean - true if function argument types are valid. Otherwise false and the reason is logged.
-     */
-
-    private boolean validateFunctionArgumentTypes(
-            final Processor<String, ? extends ConsumerFunctionContext<String, ? extends ConsumerFunction>> processor,
+    private ValidationResult validateFunctionArgumentTypes(
+            final ElementFilter filter,
             final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
-        if (null != processor && null != processor.getFunctions()) {
-            for (final ConsumerFunctionContext<String, ? extends ConsumerFunction> context : processor.getFunctions()) {
-                if (null == context.getFunction()) {
-                    LOGGER.error(processor.getClass().getSimpleName() + " contains a function context with a null function.");
-                    return false;
-                }
-
-                if (!validateFunctionSelectionTypes(viewElDef, schemaElDef, context)) {
-                    return false;
-                }
-
-                if (context instanceof ConsumerProducerFunctionContext
-                        && !validateFunctionProjectionTypes(viewElDef, schemaElDef, (ConsumerProducerFunctionContext<String, ? extends ConsumerFunction>) context)) {
-                    return false;
+        final ValidationResult result = new ValidationResult();
+        if (null != filter && null != filter.getComponents()) {
+            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
+                if (null == adaptedPredicate.getPredicate()) {
+                    result.addError(filter.getClass().getSimpleName() + " contains a null function.");
+                } else {
+                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
+                    result.add(inputSig.assignable(getTypeClasses(adaptedPredicate.getSelection(), viewElDef, schemaElDef)));
                 }
             }
         }
 
-        return true;
+        return result;
     }
 
-    private boolean validateFunctionSelectionTypes(final ViewElementDefinition viewElDef,
-                                                   final SchemaElementDefinition schemaElDef,
-                                                   final ConsumerFunctionContext<String, ? extends ConsumerFunction> context) {
-        final ConsumerFunction function = context.getFunction();
-        final Class<?>[] inputTypes = function.getInputClasses();
-        if (null == inputTypes || 0 == inputTypes.length) {
-            LOGGER.error("Function " + function.getClass().getName()
-                    + " is invalid. Input types have not been set.");
-            return false;
+    private ValidationResult validateFunctionArgumentTypes(
+            final ElementTransformer transformer,
+            final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final ValidationResult result = new ValidationResult();
+        if (null != transformer && null != transformer.getComponents()) {
+            for (final TupleAdaptedFunction<String, ?, ?> adaptedFunction : transformer.getComponents()) {
+                if (null == adaptedFunction.getFunction()) {
+                    result.addError(transformer.getClass().getSimpleName() + " contains a null function.");
+                } else {
+                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getFunction());
+                    result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), viewElDef, schemaElDef)));
+
+                    final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getFunction());
+                    result.add(outputSig.assignable(getTypeClasses(adaptedFunction.getProjection(), viewElDef, schemaElDef)));
+                }
+            }
         }
 
-        if (inputTypes.length != context.getSelection().size()) {
-            LOGGER.error("Input types for function " + function.getClass().getName()
-                    + " are not equal to the selection property types.");
-            return false;
-        }
+        return result;
+    }
 
+    private Class[] getTypeClasses(final String[] keys, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final Class[] selectionClasses = new Class[keys.length];
         int i = 0;
-        for (final String key : context.getSelection()) {
-            final IdentifierType idType = IdentifierType.fromName(key);
-            final Class<?> clazz;
-            if (null != idType) {
-                clazz = schemaElDef.getIdentifierClass(idType);
-            } else {
-                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
-                if (null != schemaClazz) {
-                    clazz = schemaClazz;
-                } else {
-                    clazz = viewElDef.getTransientPropertyClass(key);
-                }
-            }
-
-            if (null == clazz) {
-                if (null != idType) {
-                    final String typeName = schemaElDef.getIdentifierTypeName(idType);
-                    if (null != typeName) {
-                        LOGGER.error("No class type found for type definition " + typeName
-                                + " used by identifier " + idType
-                                + ". Please ensure it is defined in the schema.");
-                    } else {
-                        LOGGER.error("No type definition defined for identifier " + idType
-                                + ". Please ensure it is defined in the schema.");
-                    }
-                } else {
-                    final String typeName = schemaElDef.getPropertyTypeName(key);
-                    if (null != typeName) {
-                        LOGGER.error("No class type found for type definition " + typeName
-                                + " used by property " + key
-                                + ". Please ensure it is defined in the schema.");
-                    } else {
-                        LOGGER.error("No class type found for transient property " + key
-                                + ". Please ensure it is defined in the view.");
-                    }
-                }
-
-                return false;
-            }
-
-            if (!inputTypes[i].isAssignableFrom(clazz)) {
-                LOGGER.error("Function " + function.getClass().getName()
-                        + " is not compatible with selection types. Function input type "
-                        + inputTypes[i].getName() + " is not assignable from selection type "
-                        + clazz.getName() + ".");
-                return false;
-            }
+        for (final String key : keys) {
+            selectionClasses[i] = getTypeClass(key, viewElDef, schemaElDef);
             i++;
         }
-
-        return true;
+        return selectionClasses;
     }
 
-    private boolean validateFunctionProjectionTypes(final ViewElementDefinition viewElDef,
-                                                    final SchemaElementDefinition schemaElDef,
-                                                    final ConsumerProducerFunctionContext<String, ? extends ConsumerFunction> consumerProducerContext) {
-        final ConsumerProducerFunction function = consumerProducerContext.getFunction();
-        final Class<?>[] outputTypes = function.getOutputClasses();
-        if (null == outputTypes || 0 == outputTypes.length) {
-            LOGGER.error("Function " + function.getClass().getName()
-                    + " is invalid. Output types have not been set.");
-            return false;
-        }
-
-        if (outputTypes.length != consumerProducerContext.getProjection().size()) {
-            LOGGER.error("Output types for function " + function.getClass().getName()
-                    + " are not equal to the projection property types.");
-            return false;
-        }
-
-        int i = 0;
-        for (final String key : consumerProducerContext.getProjection()) {
-            final Class<?> clazz;
-            final IdentifierType idType = IdentifierType.fromName(key);
-            if (null != idType) {
-                clazz = schemaElDef.getIdentifierClass(idType);
+    private Class<?> getTypeClass(final String key, final ViewElementDefinition viewElDef, final SchemaElementDefinition schemaElDef) {
+        final IdentifierType idType = IdentifierType.fromName(key);
+        final Class<?> clazz;
+        if (null != idType) {
+            clazz = schemaElDef.getIdentifierClass(idType);
+        } else {
+            final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
+            if (null != schemaClazz) {
+                clazz = schemaClazz;
             } else {
-                final Class<?> schemaClazz = schemaElDef.getPropertyClass(key);
-                if (null != schemaClazz) {
-                    clazz = schemaClazz;
+                clazz = viewElDef.getTransientPropertyClass(key);
+            }
+        }
+        if (null == clazz) {
+            if (null != idType) {
+                final String typeName = schemaElDef.getIdentifierTypeName(idType);
+                if (null != typeName) {
+                    LOGGER.error("No class type found for type definition " + typeName
+                            + " used by identifier " + idType
+                            + ". Please ensure it is defined in the schema.");
                 } else {
-                    clazz = viewElDef.getTransientPropertyClass(key);
+                    LOGGER.error("No type definition defined for identifier " + idType
+                            + ". Please ensure it is defined in the schema.");
+                }
+            } else {
+                final String typeName = schemaElDef.getPropertyTypeName(key);
+                if (null != typeName) {
+                    LOGGER.error("No class type found for type definition " + typeName
+                            + " used by property " + key
+                            + ". Please ensure it is defined in the schema.");
+                } else {
+                    LOGGER.error("No class type found for transient property " + key
+                            + ". Please ensure it is defined in the view.");
                 }
             }
-            if (null == clazz || !outputTypes[i].isAssignableFrom(clazz)) {
-                LOGGER.error("Function " + function.getClass().getName()
-                        + " is not compatible with output types. Function output type "
-                        + outputTypes[i].getName() + " is not assignable from projection type "
-                        + (null != clazz ? clazz.getName() : "with a null class."));
-                return false;
-            }
-            i++;
-        }
-        return true;
-    }
 
+        }
+        return clazz;
+    }
 }

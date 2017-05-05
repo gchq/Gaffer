@@ -20,8 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -41,8 +41,8 @@ import java.util.Set;
  * A view should contain {@link uk.gov.gchq.gaffer.data.element.Edge} and {@link uk.gov.gchq.gaffer.data.element.Entity} types required and
  * for each group it can optionally contain an {@link uk.gov.gchq.gaffer.data.element.function.ElementFilter} and a
  * {@link uk.gov.gchq.gaffer.data.element.function.ElementTransformer}.
- * The {@link uk.gov.gchq.gaffer.function.FilterFunction}s within the ElementFilter describe the how the elements should be filtered.
- * The {@link uk.gov.gchq.gaffer.function.TransformFunction}s within ElementTransformer allow transient properties to be created
+ * The {@link java.util.function.Predicate}s within the ElementFilter describe the how the elements should be filtered.
+ * The {@link java.util.function.Function}s within ElementTransformer allow transient properties to be created
  * from other properties and identifiers.
  * It also contains any transient properties that are created in transform functions.
  *
@@ -53,9 +53,9 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
-    public List<GlobalViewElementDefinition> globalElements;
-    public List<GlobalViewElementDefinition> globalEntities;
-    public List<GlobalViewElementDefinition> globalEdges;
+    private List<GlobalViewElementDefinition> globalElements;
+    private List<GlobalViewElementDefinition> globalEntities;
+    private List<GlobalViewElementDefinition> globalEdges;
 
     public View() {
         super();
@@ -81,7 +81,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     public String toString() {
         try {
             return "View" + new String(toJson(true), CommonConstants.UTF_8);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -169,12 +169,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             if (null != globalElement.groups) {
                 globalGroups = new HashSet<>(globalElement.groups);
                 final boolean hasMissingGroups = globalGroups.retainAll(groups);
-                if (hasMissingGroups) {
-                    if (!skipMissingGroups) {
-                        final Set<String> missingGroups = new HashSet<>(globalElement.groups);
-                        missingGroups.removeAll(groups);
-                        throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
-                    }
+                if (hasMissingGroups && !skipMissingGroups) {
+                    final Set<String> missingGroups = new HashSet<>(globalElement.groups);
+                    missingGroups.removeAll(groups);
+                    throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
                 }
             } else {
                 globalGroups = groups;

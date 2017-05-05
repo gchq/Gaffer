@@ -16,7 +16,10 @@
 
 package uk.gov.gchq.gaffer.operation.impl.export.set;
 
-import uk.gov.gchq.gaffer.operation.impl.export.Export;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.export.ExportTo;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
 /**
  * An <code>ExportToSet</code> Export operation exports results to a Set.
@@ -24,22 +27,41 @@ import uk.gov.gchq.gaffer.operation.impl.export.Export;
  * It cannot be used across multiple separate operation requests.
  * So ExportToSet and GetSetExport must be used inside a single operation chain.
  */
-public class ExportToSet extends Export {
-    public abstract static class BaseBuilder<EXPORT extends ExportToSet, CHILD_CLASS extends BaseBuilder<EXPORT, CHILD_CLASS>>
-            extends Export.BaseBuilder<ExportToSet, CHILD_CLASS> {
-        public BaseBuilder(final ExportToSet export) {
-            super(export);
-        }
+public class ExportToSet<T> implements
+        Operation,
+        ExportTo<T> {
+    private String key;
+    private T input;
+
+    @Override
+    public String getKey() {
+        return key;
     }
 
-    public static final class Builder extends BaseBuilder<ExportToSet, Builder> {
-        public Builder() {
-            super(new ExportToSet());
-        }
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
 
-        @Override
-        protected Builder self() {
-            return this;
+    @Override
+    public T getInput() {
+        return input;
+    }
+
+    @Override
+    public void setInput(final T input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<T> getOutputTypeReference() {
+        return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    public static final class Builder<T> extends Operation.BaseBuilder<ExportToSet<T>, Builder<T>>
+            implements ExportTo.Builder<ExportToSet<T>, T, Builder<T>> {
+        public Builder() {
+            super(new ExportToSet<>());
         }
     }
 }

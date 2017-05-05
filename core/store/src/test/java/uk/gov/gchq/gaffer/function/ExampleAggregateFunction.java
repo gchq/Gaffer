@@ -16,30 +16,11 @@
 
 package uk.gov.gchq.gaffer.function;
 
-import uk.gov.gchq.gaffer.function.annotation.Inputs;
-import uk.gov.gchq.gaffer.function.annotation.Outputs;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
-@Inputs(Object.class)
-@Outputs(Object.class)
-public class ExampleAggregateFunction extends SimpleAggregateFunction<Object> {
-    private Object input;
-
+public class ExampleAggregateFunction extends KorypheBinaryOperator<Object> {
     @Override
-    public void init() {
-    }
-
-    @Override
-    protected void _aggregate(Object input) {
-        this.input = input;
-    }
-
-    @Override
-    protected Object _state() {
-        return input;
-    }
-
-    @Override
-    public ExampleAggregateFunction statelessClone() {
-        return new ExampleAggregateFunction();
+    public Object _apply(final Object a, final Object b) {
+        return a;
     }
 }

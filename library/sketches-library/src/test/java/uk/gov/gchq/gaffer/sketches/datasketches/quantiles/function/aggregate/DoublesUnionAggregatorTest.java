@@ -15,22 +15,20 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate;
 
-import com.yahoo.sketches.quantiles.DoublesSketch;
 import com.yahoo.sketches.quantiles.DoublesUnion;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.AggregateFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator;
+import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
+import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 
-public class DoublesUnionAggregatorTest extends AggregateFunctionTest {
+public class DoublesUnionAggregatorTest extends BinaryOperatorTest {
     private static final double DELTA = 0.01D;
     private DoublesUnion union1;
     private DoublesUnion union2;
@@ -52,100 +50,21 @@ public class DoublesUnionAggregatorTest extends AggregateFunctionTest {
     @Test
     public void testAggregate() {
         final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
+        DoublesUnion currentState = union1;
+        assertEquals(3L, currentState.getResult().getN());
+        assertEquals(2.0D, currentState.getResult().getQuantile(0.5D), DELTA);
 
-        unionAggregator._aggregate(union1);
-        DoublesSketch currentState = unionAggregator._state().getResult();
-        assertEquals(3L, currentState.getN());
-        assertEquals(2.0D, currentState.getQuantile(0.5D), DELTA);
-
-        unionAggregator._aggregate(union2);
-        currentState = unionAggregator._state().getResult();
-        assertEquals(7L, currentState.getN());
-        assertEquals(4.0D, currentState.getQuantile(0.5D), DELTA);
-    }
-
-    @Test
-    public void testFailedExecuteDueToNullInput() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(null);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testFailedExecuteDueToEmptyInput() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        try {
-            unionAggregator.aggregate(new Object[0]);
-        } catch (final IllegalArgumentException exception) {
-            assertEquals("Expected an input array of length 1", exception.getMessage());
-        }
-    }
-
-    @Test
-    public void testClone() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
-        unionAggregator._aggregate(union1);
-        final DoublesUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union2);
-        assertEquals(union2.getResult().getQuantile(0.5D), ((DoublesUnion) clone.state()[0]).getResult().getQuantile(0.5D), DELTA);
-    }
-
-    @Test
-    public void testCloneWhenEmpty() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
-        final DoublesUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getQuantile(0.5D), ((DoublesUnion) clone.state()[0]).getResult().getQuantile(0.5D), DELTA);
-    }
-
-    @Test
-    public void testCloneOfBusySketch() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        unionAggregator.init();
-        for (int i = 0; i < 100; i++) {
-            final DoublesUnion union = DoublesUnion.builder().build();
-            for (int j = 0; j < 100; j++) {
-                union.update(Math.random());
-            }
-            unionAggregator._aggregate(union);
-        }
-        final DoublesUnionAggregator clone = unionAggregator.statelessClone();
-        assertNotSame(unionAggregator, clone);
-        clone._aggregate(union1);
-        assertEquals(union1.getResult().getQuantile(0.5D), ((DoublesUnion) clone.state()[0]).getResult().getQuantile(0.5D), DELTA);
+        currentState = unionAggregator.apply(currentState, union2);
+        assertEquals(7L, currentState.getResult().getN());
+        assertEquals(4.0D, currentState.getResult().getQuantile(0.5D), DELTA);
     }
 
     @Test
     public void testEquals() {
-        final DoublesUnion sketch1 = DoublesUnion.builder().build();
-        sketch1.update(1.0D);
-        final DoublesUnionAggregator sketchAggregator1 = new DoublesUnionAggregator();
-        sketchAggregator1.aggregate(new DoublesUnion[]{sketch1});
-
-        final DoublesUnion sketch2 = DoublesUnion.builder().build();
-        sketch2.update(1.0D);
-        final DoublesUnionAggregator sketchAggregator2 = new DoublesUnionAggregator();
-        sketchAggregator2.aggregate(new DoublesUnion[]{sketch2});
-
-        assertEquals(sketchAggregator1, sketchAggregator2);
-
-        sketch2.update(2.0D);
-        sketchAggregator2.aggregate(new DoublesUnion[]{sketch2});
-        assertNotEquals(sketchAggregator1, sketchAggregator2);
+        assertEquals(new DoublesUnionAggregator(), new DoublesUnionAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -155,7 +74,7 @@ public class DoublesUnionAggregatorTest extends AggregateFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate.DoublesUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
@@ -166,7 +85,7 @@ public class DoublesUnionAggregatorTest extends AggregateFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends BinaryOperator> getFunctionClass() {
         return DoublesUnionAggregator.class;
     }
 

@@ -22,9 +22,9 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSp
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-public class SampleDataForSplitPointsHandler implements OperationHandler<SampleDataForSplitPoints, String> {
+public class SampleDataForSplitPointsHandler implements OutputOperationHandler<SampleDataForSplitPoints, String> {
     @Override
     public String doOperation(final SampleDataForSplitPoints operation,
                               final Context context, final Store store)

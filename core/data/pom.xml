@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>0.6.6</version>
+        <version>0.7.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,9 +27,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>function</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>uk.gov.gchq.koryphe</groupId>
+            <artifactId>koryphe</artifactId>
+            <version>${koryphe.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>

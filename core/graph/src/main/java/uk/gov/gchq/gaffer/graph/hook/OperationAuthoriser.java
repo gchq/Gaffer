@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.graph.hook;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -45,7 +45,7 @@ import java.util.Set;
 public class OperationAuthoriser implements GraphHook {
     public static final String AUTH_SEPARATOR = ",";
 
-    private final Map<Class<? extends Operation>, Set<String>> opAuthsMap = new HashMap<>();
+    private final Map<Class<?>, Set<String>> opAuthsMap = new HashMap<>();
     private final Set<String> allOpAuths = new HashSet<>();
 
     /**
@@ -115,7 +115,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param opClass the operation class
      * @param auths   the authorisations
      */
-    public void setOpAuths(final Class<? extends Operation> opClass, final Set<String> auths) {
+    public void setOpAuths(final Class<?> opClass, final Set<String> auths) {
         opAuthsMap.put(opClass, auths);
         allOpAuths.addAll(auths);
     }
@@ -129,11 +129,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param auths   the authorisations
      */
     public void addOpAuths(final Class<? extends Operation> opClass, final String... auths) {
-        Set<String> opAuths = opAuthsMap.get(opClass);
-        if (null == opAuths) {
-            opAuths = new HashSet<>();
-            opAuthsMap.put(opClass, opAuths);
-        }
+        final Set<String> opAuths = opAuthsMap.computeIfAbsent(opClass, k -> new HashSet<>());
         Collections.addAll(opAuths, auths);
         Collections.addAll(allOpAuths, auths);
     }
@@ -147,12 +143,11 @@ public class OperationAuthoriser implements GraphHook {
             final Class<? extends Operation> opClass = operation.getClass();
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;
-            for (final Entry<Class<? extends Operation>, Set<String>> entry : opAuthsMap.entrySet()) {
-                if (entry.getKey().isAssignableFrom(opClass)) {
-                    if (!userOpAuths.containsAll(entry.getValue())) {
-                        authorised = false;
-                        break;
-                    }
+            for (final Entry<Class<?>, Set<String>> entry : opAuthsMap.entrySet()) {
+                if ((entry.getKey().isAssignableFrom(opClass))
+                        && (!userOpAuths.containsAll(entry.getValue()))) {
+                    authorised = false;
+                    break;
                 }
             }
 
@@ -166,10 +161,10 @@ public class OperationAuthoriser implements GraphHook {
 
     private void loadOpAuthMap(final Properties props) {
         for (final String opClassName : props.stringPropertyNames()) {
-            final Class<? extends Operation> opClass;
+            final Class<?> opClass;
             try {
-                opClass = Class.forName(opClassName).asSubclass(Operation.class);
-            } catch (ClassNotFoundException e) {
+                opClass = Class.forName(opClassName);
+            } catch (final ClassNotFoundException e) {
                 throw new IllegalArgumentException(e);
             }
             final Set<String> auths = new HashSet<>();

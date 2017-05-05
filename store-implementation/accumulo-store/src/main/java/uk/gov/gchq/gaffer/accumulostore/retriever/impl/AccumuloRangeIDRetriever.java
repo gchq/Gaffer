@@ -22,22 +22,25 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
-import uk.gov.gchq.gaffer.operation.GetElementsOperation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
 /**
  * This allows queries for all data from between the provided
- * {@link uk.gov.gchq.gaffer.operation.data.ElementSeed} pairs.
+ * {@link uk.gov.gchq.gaffer.data.element.id.ElementId} pairs.
  */
-public class AccumuloRangeIDRetriever
-        extends AccumuloItemRetriever<GetElementsOperation<Pair<ElementSeed>, ?>, Pair<ElementSeed>> {
+public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>> & GraphFilters & Options>
+        extends AccumuloItemRetriever<OP, Pair<ElementId, ElementId>> {
 
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final GetElementsOperation<Pair<ElementSeed>, ?> operation,
-                                    final User user)
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user)
             throws IteratorSettingException, StoreException {
         this(store, operation, user,
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
@@ -59,14 +62,13 @@ public class AccumuloRangeIDRetriever
      * @param iteratorSettings the iterator settings
      * @throws StoreException if any store issues occur
      */
-    public AccumuloRangeIDRetriever(final AccumuloStore store, final GetElementsOperation<Pair<ElementSeed>, ?> operation,
-                                    final User user,
+    public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
         super(store, operation, user, iteratorSettings);
     }
 
     @Override
-    protected void addToRanges(final Pair<ElementSeed> seed, final Set<Range> ranges) throws RangeFactoryException {
+    protected void addToRanges(final Pair<ElementId, ElementId> seed, final Set<Range> ranges) throws RangeFactoryException {
         ranges.add(rangeFactory.getRangeFromPair(seed, operation));
     }
 }

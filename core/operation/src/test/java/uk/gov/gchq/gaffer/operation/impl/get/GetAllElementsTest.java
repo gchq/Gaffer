@@ -18,16 +18,17 @@ package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.GetOperation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 
 public class GetAllElementsTest implements OperationTest {
@@ -48,22 +49,37 @@ public class GetAllElementsTest implements OperationTest {
     }
 
     @Test
+    public void shouldSetDirectedTypeToBoth() {
+        // When
+        final GetAllElements op = new GetAllElements.Builder()
+                .directedType(DirectedType.BOTH)
+                .build();
+
+        // Then
+        assertEquals(DirectedType.BOTH, op.getDirectedType());
+    }
+
+    @Test
+    public void shouldSetOptionToValue() {
+        // When
+        final GetAllElements op = new GetAllElements.Builder()
+                .option("key", "value")
+                .build();
+
+        // Then
+        assertThat(op.getOptions(), is(notNullValue()));
+        assertThat(op.getOptions().get("key"), is("value"));
+    }
+
+    @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        GetAllElements<Element> getAllElements = new GetAllElements.Builder<>()
-                .includeEdges(GetOperation.IncludeEdgeType.ALL)
-                .includeEntities(false)
-                .option("testOption", "true")
-                .populateProperties(false)
+        GetAllElements getAllElements = new GetAllElements.Builder()
                 .view(new View.Builder()
                         .edge(TestGroups.EDGE)
                         .build())
                 .build();
 
-        assertFalse(getAllElements.isIncludeEntities());
-        assertFalse(getAllElements.isPopulateProperties());
-        assertEquals(GetOperation.IncludeEdgeType.ALL, getAllElements.getIncludeEdges());
-        assertEquals("true", getAllElements.getOption("testOption"));
         assertNotNull(getAllElements.getView().getEdge(TestGroups.EDGE));
     }
 }

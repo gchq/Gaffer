@@ -22,13 +22,12 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -107,7 +106,7 @@ public class ValidatorFilterTest {
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
         final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
-        final Pair<Key> key = converter.getKeysFromElement(element);
+        final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
         // When
@@ -132,7 +131,7 @@ public class ValidatorFilterTest {
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
         final Element element = new Edge(TestGroups.EDGE, "invalid", "dest", true);
-        final Pair<Key> key = converter.getKeysFromElement(element);
+        final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
         // When
@@ -150,9 +149,7 @@ public class ValidatorFilterTest {
         return new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .validator(new Builder()
-                                .execute(new ExampleFilterFunction())
-                                .build())
+                        .validateFunctions(new ExampleFilterFunction())
                         .build())
                 .type(TestTypes.DIRECTED_TRUE, new TypeDefinition.Builder()
                         .clazz(Boolean.class)

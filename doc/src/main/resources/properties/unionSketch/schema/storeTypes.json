@@ -1,0 +1,25 @@
+{
+  "types": {
+    "union": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser"
+    },
+    "date.earliest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Min"
+      }
+    },
+    "date.latest": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    },
+    "long.count": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    }
+  }
+}

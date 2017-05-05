@@ -23,30 +23,17 @@ import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEdges;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEdgesBySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetElementsBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntities;
-import uk.gov.gchq.gaffer.operation.impl.get.GetEntitiesBySeed;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEdges;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetRelatedEntities;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.user.User;
@@ -83,6 +70,11 @@ public class OperationService implements IOperationService {
         return _execute(opChain);
     }
 
+    @Override
+    public Object execute(final Operation operation) {
+        return _execute(operation);
+    }
+
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
@@ -91,6 +83,7 @@ public class OperationService implements IOperationService {
 
         // write chunks to the chunked output object
         new Thread() {
+            @Override
             public void run() {
                 try {
                     final Object result = _execute(opChain);
@@ -104,78 +97,34 @@ public class OperationService implements IOperationService {
         return output;
     }
 
+    @SuppressFBWarnings
     @Override
-    public CloseableIterable<Object> generateObjects(final GenerateObjects<Element, Object> operation) {
+    public ChunkedOutput<String> executeChunked(final Operation operation) {
+        return executeChunked(new OperationChain(operation));
+    }
+
+    @Override
+    public CloseableIterable<Object> generateObjects(final GenerateObjects<Object> operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> generateElements(final GenerateElements<ElementSeed> operation) {
+    public CloseableIterable<Element> generateElements(final GenerateElements<Object> operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> getElementsBySeed(final GetElementsBySeed<ElementSeed, Element> operation) {
+    public CloseableIterable<EntityId> getAdjacentIds(final GetAdjacentIds operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Element> getRelatedElements(final GetRelatedElements<ElementSeed, Element> operation) {
+    public CloseableIterable<Element> getAllElements(final GetAllElements operation) {
         return _execute(operation);
     }
 
     @Override
-    public CloseableIterable<Entity> getEntitiesBySeed(final GetEntitiesBySeed operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getRelatedEntities(final GetRelatedEntities<ElementSeed> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getEdgesBySeed(final GetEdgesBySeed operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getRelatedEdges(final GetRelatedEdges<ElementSeed> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<EntitySeed> getAdjacentEntitySeeds(final GetAdjacentEntitySeeds operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Element> getAllElements(final GetAllElements<Element> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getAllEntities(final GetAllEntities operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getAllEdges(final GetAllEdges operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Element> getElements(final GetElements<ElementSeed, Element> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Entity> getEntities(final GetEntities<ElementSeed> operation) {
-        return _execute(operation);
-    }
-
-    @Override
-    public CloseableIterable<Edge> getEdges(final GetEdges<ElementSeed> operation) {
+    public CloseableIterable<Element> getElements(final GetElements operation) {
         return _execute(operation);
     }
 
@@ -192,17 +141,17 @@ public class OperationService implements IOperationService {
         // no action by default
     }
 
-    protected <OUTPUT> OUTPUT _execute(final Operation<?, OUTPUT> operation) {
+    protected <O> O _execute(final Operation operation) {
         return _execute(new OperationChain<>(operation));
     }
 
-    protected <OUTPUT> OUTPUT _execute(final OperationChain<OUTPUT> opChain) {
+    protected <O> O _execute(final OperationChain<O> opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
         try {
             return graphFactory.getGraph().execute(opChain, user);
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             throw new RuntimeException("Error executing opChain", e);
         } finally {
             postOperationHook(opChain, user);
@@ -220,7 +169,7 @@ public class OperationService implements IOperationService {
                 LOGGER.warn("IOException (chunks)", ioe);
             } finally {
                 if (itr instanceof Closeable) {
-                    IOUtils.closeQuietly(((Closeable) itr));
+                    IOUtils.closeQuietly((Closeable) itr);
                 }
             }
         } else {

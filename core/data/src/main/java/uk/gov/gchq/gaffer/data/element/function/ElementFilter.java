@@ -16,56 +16,35 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.ElementTuple;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.processor.Filter;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
+import java.util.function.Predicate;
 
-/**
- * Element Filter - for filtering {@link uk.gov.gchq.gaffer.data.element.Element}s.
- * <p>
- * Use {@link ElementFilter.Builder} to build an ElementFilter.
- *
- * @see uk.gov.gchq.gaffer.data.element.function.ElementFilter.Builder
- * @see uk.gov.gchq.gaffer.function.processor.Filter
- */
-public class ElementFilter extends Filter<String> {
+public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
-    public boolean filter(final Element element) {
+    public boolean test(final Element element) {
         elementTuple.setElement(element);
-        return super.filter(elementTuple);
-    }
-
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Uses super.cloneFunctions instead for better performance")
-    @Override
-    public ElementFilter clone() {
-        final ElementFilter clone = new ElementFilter();
-        clone.addFunctions(super.cloneFunctions());
-
-        return clone;
+        return test(elementTuple);
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final ElementFilter that = (ElementFilter) o;
+        final ElementFilter that = (ElementFilter) obj;
 
         return new EqualsBuilder()
-                .appendSuper(super.equals(o))
-                .append(functions, that.functions)
+                .appendSuper(super.equals(obj))
                 .append(elementTuple, that.elementTuple)
                 .isEquals();
     }
@@ -74,41 +53,45 @@ public class ElementFilter extends Filter<String> {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(functions)
                 .append(elementTuple)
                 .toHashCode();
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-                .append("functions", functions)
-                .append("elementTuple", elementTuple)
-                .toString();
-    }
+    public static class Builder {
+        private final ElementFilter filter;
 
-    /**
-     * Builder for {@link ElementFilter}.
-     */
-    public static class Builder extends Filter.Builder<String> {
         public Builder() {
             this(new ElementFilter());
         }
 
-        public Builder(final ElementFilter filter) {
-            super(filter);
+        private Builder(final ElementFilter filter) {
+            this.filter = filter;
         }
 
-        public Builder select(final String... selection) {
-            return (Builder) super.select(selection);
-        }
-
-        public Builder execute(final FilterFunction function) {
-            return (Builder) super.execute(function);
+        public SelectedBuilder select(final String... selection) {
+            final TupleAdaptedPredicate<String, Object> current = new TupleAdaptedPredicate<>();
+            current.setSelection(selection);
+            return new SelectedBuilder(filter, current);
         }
 
         public ElementFilter build() {
-            return (ElementFilter) super.build();
+            return filter;
+        }
+    }
+
+    public static final class SelectedBuilder {
+        private final ElementFilter filter;
+        private final TupleAdaptedPredicate<String, Object> current;
+
+        private SelectedBuilder(final ElementFilter filter, final TupleAdaptedPredicate<String, Object> current) {
+            this.filter = filter;
+            this.current = current;
+        }
+
+        public Builder execute(final Predicate function) {
+            current.setPredicate(function);
+            filter.getComponents().add(current);
+            return new Builder(filter);
         }
     }
 }

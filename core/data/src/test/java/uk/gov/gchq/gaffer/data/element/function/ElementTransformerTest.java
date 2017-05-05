@@ -17,107 +17,104 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.ElementTuple;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.function.TransformFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerProducerFunctionContext;
-import java.util.Collections;
+import uk.gov.gchq.koryphe.impl.function.Identity;
+import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ElementTransformerTest {
-
     @Test
-    public void shouldWrapElementInElementTupleAndCallSuper() {
+    public void shouldTransformElementUsingMockFunction() {
         // Given
-        final String reference = "reference1";
-        final String value = "value";
-        final ElementTransformer transformer = new ElementTransformer();
-        final ConsumerProducerFunctionContext<String, TransformFunction> functionContext1 = mock(ConsumerProducerFunctionContext.class);
-        final TransformFunction function = mock(TransformFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
+        final String selection = "reference1";
+        final String projection = "reference1";
+        final Integer valueResult = 3;
 
-        transformer.addFunction(functionContext1);
+        final Function<String, Integer> function = mock(Function.class);
+        given(function.apply("value1")).willReturn(valueResult);
 
-        final Element element = mock(Element.class);
-        given(element.getProperty(reference)).willReturn(value);
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select(selection)
+                .execute(function)
+                .project(projection)
+                .build();
 
-        final ArgumentCaptor<ElementTuple> elementTupleCaptor = ArgumentCaptor.forClass(ElementTuple.class);
-        given(functionContext1.select(elementTupleCaptor.capture())).willReturn(new Object[]{value});
+        final Edge edge = new Edge.Builder()
+                .property(selection, "value1")
+                .build();
 
         // When
-        transformer.transform(element);
+        final Element result = transformer.apply(edge);
 
         // Then
-        assertSame(element, elementTupleCaptor.getValue().getElement());
-        verify(functionContext1).getFunction();
-
-        final ArgumentCaptor<Object[]> argumentCaptor = ArgumentCaptor.forClass(Object[].class);
-        verify(function).transform(argumentCaptor.capture());
-        assertEquals(value, argumentCaptor.getValue()[0]);
+        assertEquals(valueResult, result.getProperty(projection));
     }
 
     @Test
-    public void shouldCloneTransformer() {
+    public void shouldTransformElementUsingIdentityFunction() {
         // Given
-        final String reference1 = "reference1";
-        final String reference2 = "reference2";
-        final ElementTransformer transformer = new ElementTransformer();
-        final ConsumerProducerFunctionContext<String, TransformFunction> functionContext1 = mock(ConsumerProducerFunctionContext.class);
-        final TransformFunction function = mock(TransformFunction.class);
-        final TransformFunction clonedFunction = mock(TransformFunction.class);
-        given(functionContext1.getFunction()).willReturn(function);
-        given(functionContext1.getSelection()).willReturn(Collections.singletonList(reference1));
-        given(functionContext1.getProjection()).willReturn(Collections.singletonList(reference2));
-        given(function.statelessClone()).willReturn(clonedFunction);
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select("prop1")
+                .execute(new Identity())
+                .project("prop3")
+                .build();
 
-        transformer.addFunction(functionContext1);
+        final Entity element = new Entity("test");
+        element.putProperty("prop1", "value");
+        element.putProperty("prop2", 1);
 
         // When
-        final ElementTransformer clone = transformer.clone();
+        final Element result = transformer.apply(element);
 
         // Then
-        assertNotSame(transformer, clone);
-        assertEquals(1, clone.getFunctions().size());
-        final ConsumerProducerFunctionContext<String, TransformFunction> resultClonedFunction = clone.getFunctions().get(0);
-        assertEquals(1, resultClonedFunction.getSelection().size());
-        assertEquals(reference1, resultClonedFunction.getSelection().get(0));
-        assertEquals(1, resultClonedFunction.getProjection().size());
-        assertEquals(reference2, resultClonedFunction.getProjection().get(0));
-        assertNotSame(functionContext1, resultClonedFunction);
-        assertNotSame(function, resultClonedFunction.getFunction());
-        assertSame(clonedFunction, resultClonedFunction.getFunction());
+        assertEquals(element.getProperty("prop1"), result.getProperty("prop3"));
+    }
+
+    @Test
+    public void shouldTransformElementUsingInlineFunction() {
+        // Given
+        final Function<String, Integer> function = String::length;
+        final ElementTransformer transformer = new ElementTransformer.Builder()
+                .select("prop1")
+                .execute(function)
+                .project("prop3")
+                .build();
+
+        final Entity element = new Entity("test");
+        element.putProperty("prop1", "value");
+        element.putProperty("prop2", 1);
+
+        // When
+        final Element result = transformer.apply(element);
+
+        // Then
+        assertEquals("prop1".length(), result.getProperty("prop3"));
     }
 
     @Test
     public void shouldBuildTransformer() {
         // Given
         final String property1 = "property 1";
-        final String property2 = "property 2";
-        final String property3a = "property 3a";
-        final String property3b = "property 3b";
-        final IdentifierType identifier5 = IdentifierType.SOURCE;
+        final String property2a = "property 2a";
+        final String property2b = "property 2b";
+        final IdentifierType identifier3 = IdentifierType.SOURCE;
 
         final String property1Proj = "property 1 proj";
-        final String property2Proj = "property 2 proj";
-        final String property3aProj = "property 3a proj";
-        final String property3bProj = "property 3b proj";
-        final IdentifierType identifier5Proj = IdentifierType.DESTINATION;
+        final String property2aProj = "property 2a proj";
+        final String property2bProj = "property 2b proj";
+        final IdentifierType identifier3Proj = IdentifierType.DESTINATION;
 
-        final TransformFunction func1 = mock(TransformFunction.class);
-        final TransformFunction func3 = mock(TransformFunction.class);
-        final TransformFunction func4 = mock(TransformFunction.class);
-        final TransformFunction func5 = mock(TransformFunction.class);
+        final Function func1 = mock(Function.class);
+        final Function func2 = mock(Function.class);
+        final Function func3 = mock(Function.class);
 
         // When - check you can build the selection/function/projections in any order,
         // although normally it will be done - select, execute then project.
@@ -125,51 +122,39 @@ public class ElementTransformerTest {
                 .select(property1)
                 .execute(func1)
                 .project(property1Proj)
-                .select(property2)
-                .project(property2Proj)
-                .project(property3aProj, property3bProj)
-                .select(property3a, property3b)
+                .select(property2a, property2b)
+                .execute(func2)
+                .project(property2aProj, property2bProj)
+                .select(identifier3.name())
                 .execute(func3)
-                .execute(func4)
-                .execute(func5)
-                .project(identifier5Proj.name())
-                .select(identifier5.name())
+                .project(identifier3Proj.name())
                 .build();
 
         // Then
         int i = 0;
-        ConsumerProducerFunctionContext<String, TransformFunction> context = transformer.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property1, context.getSelection().get(0));
+        TupleAdaptedFunction<String, ?, ?> context = transformer.getComponents().get(i++);
+        assertEquals(1, context.getSelection().length);
+        assertEquals(property1, context.getSelection()[0]);
         assertSame(func1, context.getFunction());
-        assertEquals(1, context.getProjection().size());
-        assertEquals(property1Proj, context.getProjection().get(0));
+        assertEquals(1, context.getProjection().length);
+        assertEquals(property1Proj, context.getProjection()[0]);
 
-        context = transformer.getFunctions().get(i++);
-        assertEquals(1, context.getSelection().size());
-        assertEquals(property2, context.getSelection().get(0));
-        assertEquals(1, context.getProjection().size());
-        assertEquals(property2Proj, context.getProjection().get(0));
+        context = transformer.getComponents().get(i++);
+        assertEquals(2, context.getSelection().length);
+        assertEquals(property2a, context.getSelection()[0]);
+        assertEquals(property2b, context.getSelection()[1]);
+        assertSame(func2, context.getFunction());
+        assertEquals(2, context.getProjection().length);
+        assertEquals(property2aProj, context.getProjection()[0]);
+        assertEquals(property2bProj, context.getProjection()[1]);
 
-        context = transformer.getFunctions().get(i++);
-        assertEquals(2, context.getSelection().size());
-        assertEquals(property3a, context.getSelection().get(0));
-        assertEquals(property3b, context.getSelection().get(1));
+        context = transformer.getComponents().get(i++);
         assertSame(func3, context.getFunction());
-        assertEquals(2, context.getProjection().size());
-        assertEquals(property3aProj, context.getProjection().get(0));
-        assertEquals(property3bProj, context.getProjection().get(1));
+        assertEquals(1, context.getSelection().length);
+        assertEquals(identifier3.name(), context.getSelection()[0]);
+        assertEquals(1, context.getProjection().length);
+        assertEquals(identifier3Proj.name(), context.getProjection()[0]);
 
-        context = transformer.getFunctions().get(i++);
-        assertSame(func4, context.getFunction());
-
-        context = transformer.getFunctions().get(i++);
-        assertSame(func5, context.getFunction());
-        assertEquals(1, context.getSelection().size());
-        assertEquals(identifier5.name(), context.getSelection().get(0));
-        assertEquals(1, context.getProjection().size());
-        assertEquals(identifier5Proj.name(), context.getProjection().get(0));
-
-        assertEquals(i, transformer.getFunctions().size());
+        assertEquals(i, transformer.getComponents().size());
     }
 }

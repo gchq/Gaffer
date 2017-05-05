@@ -20,18 +20,17 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.FilterFunctionTest;
-import uk.gov.gchq.gaffer.function.Function;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
+import uk.gov.gchq.koryphe.predicate.PredicateTest;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
+public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
 
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality5;
     private static HyperLogLogPlus hyperLogLogPlusWithCardinality15;
@@ -63,7 +62,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality5);
+        boolean accepted = filter.test(hyperLogLogPlusWithCardinality5);
         // Then
         assertTrue(accepted);
     }
@@ -73,7 +72,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality15);
+        boolean accepted = filter.test(hyperLogLogPlusWithCardinality15);
         // Then
         assertFalse(accepted);
     }
@@ -83,7 +82,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15, true);
         // When
-        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality15);
+        boolean accepted = filter.test(hyperLogLogPlusWithCardinality15);
         // Then
         assertTrue(accepted);
     }
@@ -93,7 +92,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter.isValid(hyperLogLogPlusWithCardinality31);
+        boolean accepted = filter.test(hyperLogLogPlusWithCardinality31);
         // Then
         assertFalse(accepted);
     }
@@ -103,35 +102,12 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         // Given
         final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
         // When
-        boolean accepted = filter.isValid((HyperLogLogPlus) null);
+        boolean accepted = filter.test(null);
         // Then
         assertFalse(accepted);
     }
 
-    @Test
-    public void shouldCloneWithDefaultOrEqualTo() {
-        // Given
-        final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15);
-        // When
-        HyperLogLogPlusIsLessThan clone = filter.statelessClone();
-        // Then
-        assertNotSame(filter, clone);
-        assertEquals(15, clone.getControlValue());
-        assertFalse(clone.getOrEqualTo());
-    }
-
-    @Test
-    public void shouldCloneWithOrEqualToSetToTrue() {
-        // Given
-        final HyperLogLogPlusIsLessThan filter = new HyperLogLogPlusIsLessThan(15, true);
-        // When
-        HyperLogLogPlusIsLessThan clone = filter.statelessClone();
-        // Then
-        assertNotSame(filter, clone);
-        assertEquals(15, clone.getControlValue());
-        assertTrue(clone.getOrEqualTo());
-    }
-
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -142,7 +118,7 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.function.filter.HyperLogLogPlusIsLessThan\",%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +
                 "}"), json);
@@ -155,12 +131,12 @@ public class HyperLogLogPlusIsLessThanTest extends FilterFunctionTest {
     }
 
     @Override
-    protected Class<? extends Function> getFunctionClass() {
+    protected Class<? extends Predicate> getPredicateClass() {
         return HyperLogLogPlusIsLessThan.class;
     }
 
     @Override
-    protected FilterFunction getInstance() {
+    protected Predicate getInstance() {
         return new HyperLogLogPlusIsLessThan(10);
     }
 }

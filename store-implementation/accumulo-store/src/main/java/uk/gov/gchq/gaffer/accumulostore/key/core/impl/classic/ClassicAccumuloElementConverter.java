@@ -20,8 +20,8 @@ import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -35,7 +35,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
+    protected byte[] getRowKeyFromEntity(final Entity entity) {
         // No Delimiters but need to escape bytes
         // because later we check how many delimiter characters there are
         try {
@@ -46,7 +46,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
+    protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) {
         // If edge is undirected then direction flag is 0 for both keys.
         // If edge is directed then for the first key the direction flag is 1
         // indicating that the first identifier in the key is the source
@@ -101,7 +101,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected boolean doesKeyRepresentEntity(final byte[] row) throws AccumuloElementConversionException {
+    protected boolean doesKeyRepresentEntity(final byte[] row) {
         short numDelims = 0;
         for (final byte rowPart : row) {
             if (rowPart == ByteArrayEscapeUtils.DELIMITER) {
@@ -118,9 +118,9 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException {
+    protected Entity getEntityFromKey(final Key key) {
         try {
-            final Entity entity = new Entity(getGroupFromKey((key)), getVertexSerialiser()
+            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser()
                     .deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
             addPropertiesToElement(entity, key);
             return entity;
@@ -131,7 +131,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
 
     @Override
     protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
-                                                        final Map<String, String> options) throws AccumuloElementConversionException {
+                                                        final Map<String, String> options) {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];

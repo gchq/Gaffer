@@ -16,22 +16,39 @@
 package uk.gov.gchq.gaffer.mapstore.operation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.operation.AbstractOperation;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
-/**
- *
- */
-public class CountAllElementsDefaultView extends AbstractOperation<CloseableIterable<Element>, Long> {
+public class CountAllElementsDefaultView implements
+        Operation,
+        InputOutput<Iterable<? extends Element>, Long>,
+        MultiInput<Element> {
+    private Iterable<? extends Element> input;
 
-    public CountAllElementsDefaultView() {
-
+    @Override
+    public Iterable<? extends Element> getInput() {
+        return input;
     }
 
     @Override
-    protected TypeReference createOutputTypeReference() {
+    public void setInput(final Iterable<? extends Element> input) {
+        this.input = input;
+    }
+
+    @Override
+    public TypeReference<Long> getOutputTypeReference() {
         return new TypeReferenceImpl.Long();
+    }
+
+    public static final class Builder
+            extends Operation.BaseBuilder<CountAllElementsDefaultView, Builder>
+            implements InputOutput.Builder<CountAllElementsDefaultView, Iterable<? extends Element>, Long, Builder>,
+            MultiInput.Builder<CountAllElementsDefaultView, Element, Builder> {
+        public Builder() {
+            super(new CountAllElementsDefaultView());
+        }
     }
 }

@@ -63,14 +63,13 @@ public class AggregatorIterator extends Combiner {
         }
 
         Properties properties;
-        final ElementAggregator aggregator;
+        final ElementAggregator aggregator = schema.getElement(group).getAggregator();
         try {
             properties = elementConverter.getPropertiesFromValue(group, value);
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to recreate a graph element from a key and value", e);
         }
-        aggregator = schema.getElement(group).getAggregator();
-        aggregator.aggregate(properties);
+        Properties aggregatedProps = properties;
         while (iter.hasNext()) {
             value = iter.next();
             try {
@@ -78,12 +77,10 @@ public class AggregatorIterator extends Combiner {
             } catch (final AccumuloElementConversionException e) {
                 throw new AggregationException("Failed to recreate a graph element from a key and value", e);
             }
-            aggregator.aggregate(properties);
+            aggregatedProps = aggregator.apply(aggregatedProps, properties);
         }
-        properties = new Properties();
-        aggregator.state(properties);
         try {
-            return elementConverter.getValueFromProperties(group, properties);
+            return elementConverter.getValueFromProperties(group, aggregatedProps);
         } catch (final AccumuloElementConversionException e) {
             throw new AggregationException("Failed to create an accumulo value from an elements properties", e);
         }
@@ -119,7 +116,7 @@ public class AggregatorIterator extends Combiner {
                     .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
             elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
                     .newInstance(schema);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new AggregationException("Failed to load element converter from class name provided : "
                     + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);

@@ -30,26 +30,12 @@ import uk.gov.gchq.gaffer.integration.domain.EntityDomainObject;
  * of {@link uk.gov.gchq.gaffer.integration.domain.EntityDomainObject}.  The generator can go both ways (i.e. domain object to graph element and
  * graph element to domain object).
  */
-public class BasicEntityGenerator extends OneToOneElementGenerator<EntityDomainObject> {
+public class BasicEntityGenerator implements OneToOneElementGenerator<EntityDomainObject> {
     @Override
-    public Element getElement(final EntityDomainObject domainObject) {
+    public Element _apply(final EntityDomainObject domainObject) {
         final Entity entity = new Entity(TestGroups.ENTITY, domainObject.getName());
         entity.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
         entity.putProperty(TestPropertyNames.STRING, domainObject.getStringproperty());
         return entity;
-    }
-
-    @Override
-    public EntityDomainObject getObject(final Element element) {
-        if (element instanceof Entity) {
-            final Entity entity = ((Entity) element);
-            final EntityDomainObject basicEntity = new EntityDomainObject();
-            basicEntity.setName((String) entity.getVertex());
-            basicEntity.setIntProperty((Integer) entity.getProperty(TestPropertyNames.INT));
-            basicEntity.setStringproperty((String) entity.getProperty(TestPropertyNames.STRING));
-            return basicEntity;
-        }
-
-        throw new IllegalArgumentException("Edges cannot be handled with this generator.");
     }
 }

@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
@@ -31,12 +31,12 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ClassTagConstants;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.ConvertElementToRow;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.FiltersToOperationConverter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Arrays;
@@ -179,7 +179,7 @@ public class AccumuloStoreRelation extends BaseRelation implements TableScan, Pr
                 StringUtils.join(requiredColumns, ','),
                 filters.length,
                 StringUtils.join(filters, ','));
-        AbstractGetRDD<?> operation = new FiltersToOperationConverter(sqlContext, view, store.getSchema(), filters)
+        Output<RDD<Element>> operation = new FiltersToOperationConverter(sqlContext, view, store.getSchema(), filters)
                 .getOperation();
         if (operation == null) {
             // Null indicates that the filters resulted in no data (e.g. if group = X and group = Y, or if group = X

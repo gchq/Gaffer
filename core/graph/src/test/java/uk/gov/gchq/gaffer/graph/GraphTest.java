@@ -32,20 +32,17 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
-import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentEntitySeeds;
+import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -53,14 +50,18 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
+import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,6 +69,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -160,6 +162,44 @@ public class GraphTest {
 
         // Then
         JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    @Test
+    public void shouldConstructGraphFromSchemaURL() throws IOException {
+        // Given
+        final URL typeInputURL = getResourceUrl(StreamUtil.DATA_TYPES);
+        final URL schemaInputUrl = getResourceUrl(StreamUtil.DATA_SCHEMA);
+        final URL storeInputUrl = getResourceUrl(StreamUtil.STORE_PROPERTIES);
+        final Schema expectedSchema = new Schema.Builder()
+                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .build();
+        Graph graph = null;
+        File schemaDir = null;
+
+        try {
+            schemaDir = createSchemaDirectory();
+
+            // When
+            graph = new Graph.Builder()
+                    .storeProperties(storeInputUrl)
+                    .addSchemas(typeInputURL, schemaInputUrl)
+                    .build();
+        } finally {
+            if (schemaDir != null) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
+
+        // Then
+        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    private URL getResourceUrl(String resource) {
+        resource = resource.replaceFirst(Pattern.quote("/"), "");
+        final URL resourceURL = getClass().getClassLoader().getResource(resource);
+        if (resourceURL == null)
+            fail("Test json file not found: " + resource);
+        return resourceURL;
     }
 
     @Test
@@ -420,7 +460,7 @@ public class GraphTest {
 
 
         // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.STORE_AGGREGATION, StoreTrait.TRANSFORMATION));
+        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
         given(store.getTraits()).willReturn(storeTraits);
         final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
 
@@ -441,7 +481,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(null);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -470,7 +510,7 @@ public class GraphTest {
                 .build();
         final User user = new User();
         final int expectedResult = 5;
-        final Operation<?, Integer> operation = mock(Operation.class);
+        final GetElements operation = mock(GetElements.class);
         given(operation.getView()).willReturn(opView);
 
         final OperationChain<Integer> opChain = mock(OperationChain.class);
@@ -484,6 +524,33 @@ public class GraphTest {
         assertEquals(expectedResult, result);
         verify(store).execute(opChain, user);
         verify(operation, Mockito.never()).setView(view);
+    }
+
+    @Test
+    public void shouldNotSetGraphViewOnOperationWhenOperationIsNotAGet
+            () throws OperationException {
+        // Given
+        final Store store = mock(Store.class);
+        final View opView = mock(View.class);
+        final View view = mock(View.class);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .view(view)
+                .build();
+        final User user = new User();
+        final int expectedResult = 5;
+        final Operation operation = mock(Operation.class);
+
+        final OperationChain<Integer> opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+        given(store.execute(opChain, user)).willReturn(expectedResult);
+
+        // When
+        int result = graph.execute(opChain, user);
+
+        // Then
+        assertEquals(expectedResult, result);
+        verify(store).execute(opChain, user);
     }
 
     @Test
@@ -555,27 +622,27 @@ public class GraphTest {
         }
 
         @Override
-        protected OperationHandler<GetElements<ElementSeed, Element>, CloseableIterable<Element>> getGetElementsHandler() {
+        protected OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> getGetElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<GetAllElements<Element>, CloseableIterable<Element>> getGetAllElementsHandler() {
+        protected OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> getGetAllElementsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends GetAdjacentEntitySeeds, CloseableIterable<EntitySeed>> getAdjacentEntitySeedsHandler() {
+        protected OutputOperationHandler<? extends GetAdjacentIds, CloseableIterable<? extends EntityId>> getAdjacentIdsHandler() {
             return null;
         }
 
         @Override
-        protected OperationHandler<? extends AddElements, Void> getAddElementsHandler() {
+        protected OperationHandler<? extends AddElements> getAddElementsHandler() {
             return null;
         }
 
         @Override
-        protected <OUTPUT> OUTPUT doUnhandledOperation(final Operation<?, OUTPUT> operation, final Context context) {
+        protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
         }
     }

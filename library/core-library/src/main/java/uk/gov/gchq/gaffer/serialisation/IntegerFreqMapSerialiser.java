@@ -32,6 +32,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
     private static final String SEPERATOR = "\\,";
     private static final String SEPERATOR_REGEX = "\\\\,";
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return IntegerFreqMap.class.equals(clazz);
     }
@@ -57,7 +58,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
         try {
             return builder.toString()
                           .getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -71,7 +72,7 @@ public class IntegerFreqMapSerialiser implements Serialisation<IntegerFreqMap> {
         String stringMap;
         try {
             stringMap = new String(bytes, CommonConstants.ISO_8859_1_ENCODING);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         if (stringMap.isEmpty()) {

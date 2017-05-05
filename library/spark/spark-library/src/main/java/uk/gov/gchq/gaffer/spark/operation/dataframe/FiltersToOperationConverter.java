@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualNullSafe;
@@ -31,22 +32,23 @@ import org.apache.spark.sql.sources.LessThanOrEqual;
 import org.apache.spark.sql.sources.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.FilterFunction;
-import uk.gov.gchq.gaffer.function.context.ConsumerFunctionContext;
-import uk.gov.gchq.gaffer.function.filter.Exists;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.IsIn;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
-import uk.gov.gchq.gaffer.function.filter.Not;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
+import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStructTypeConverter;
-import uk.gov.gchq.gaffer.spark.operation.scalardd.AbstractGetRDD;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
+import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Converts a give {@link View} and array of Spark {@link Filter}s to an operation that returns data with as many
@@ -99,16 +102,16 @@ public class FiltersToOperationConverter {
      *
      * @return an operation to return the required data.
      */
-    public AbstractGetRDD<?> getOperation() {
+    public Output<RDD<Element>> getOperation() {
         // Check whether the filters specify any groups
         View derivedView = applyGroupFilters(view);
         if (derivedView == null) {
             return null;
         }
         // Check whether the filters specify a value for the vertex, source or destination.
-        AbstractGetRDD<?> operation = applyVertexSourceDestinationFilters(derivedView);
+        Output<RDD<Element>> operation = applyVertexSourceDestinationFilters(derivedView);
         // Check whether the filters specify a property - if so can ignore groups that don't contain that property
-        derivedView = operation.getView();
+        derivedView = ((GraphFilters) operation).getView();
         operation = applyPropertyFilters(derivedView, operation);
         return operation;
     }
@@ -150,9 +153,9 @@ public class FiltersToOperationConverter {
         return derivedView;
     }
 
-    private AbstractGetRDD<?> applyVertexSourceDestinationFilters(final View view) {
+    private Output<RDD<Element>> applyVertexSourceDestinationFilters(final View view) {
         View clonedView = view.clone();
-        AbstractGetRDD<?> operation = null;
+        Output<RDD<Element>> operation = null;
         for (final Filter filter : filters) {
             if (filter instanceof EqualTo) {
                 final EqualTo equalTo = (EqualTo) filter;
@@ -167,8 +170,11 @@ public class FiltersToOperationConverter {
                     }
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
-                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
-                    operation.setView(clonedView);
+                    operation = new GetRDDOfElements.Builder()
+                            .sparkContext(sqlContext.sparkContext())
+                            .input(new EntitySeed(equalTo.value()))
+                            .view(clonedView)
+                            .build();
                     break;
                 } else if (attribute.equals(SchemaToStructTypeConverter.SRC_COL_NAME)
                         || attribute.equals(SchemaToStructTypeConverter.DST_COL_NAME)) {
@@ -181,21 +187,26 @@ public class FiltersToOperationConverter {
                     }
                     clonedView = viewBuilder.build();
                     LOGGER.info("Setting operation to GetRDDOfElements");
-                    operation = new GetRDDOfElements<>(sqlContext.sparkContext(), new EntitySeed(equalTo.value()));
-                    operation.setView(clonedView);
+                    operation = new GetRDDOfElements.Builder()
+                            .sparkContext(sqlContext.sparkContext())
+                            .input(new EntitySeed(equalTo.value()))
+                            .view(clonedView)
+                            .build();
                     break;
                 }
             }
         }
         if (operation == null) {
             LOGGER.debug("Setting operation to GetRDDOfAllElements");
-            operation = new GetRDDOfAllElements(sqlContext.sparkContext());
-            operation.setView(clonedView);
+            operation = new GetRDDOfAllElements.Builder()
+                    .sparkContext(sqlContext.sparkContext())
+                    .view(clonedView)
+                    .build();
         }
         return operation;
     }
 
-    private AbstractGetRDD<?> applyPropertyFilters(final View derivedView, final AbstractGetRDD<?> operation) {
+    private Output<RDD<Element>> applyPropertyFilters(final View derivedView, final Output<RDD<Element>> operation) {
         final List<Set<String>> groupsRelatedToFilters = new ArrayList<>();
         for (final Filter filter : filters) {
             final Set<String> groupsRelatedToFilter = getGroupsFromFilter(filter);
@@ -213,21 +224,25 @@ public class FiltersToOperationConverter {
         }
         LOGGER.info("Groups that can be returned are: {}", StringUtils.join(intersection, ','));
         // Update view with filters and add to operation
-        final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> groupToFunctions = new HashMap<>();
+        final Map<String, List<TupleAdaptedPredicate<String, ?>>> groupToFunctions = new HashMap<>();
         for (final Filter filter : filters) {
-            final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> map = getFunctionsFromFilter(filter);
-            for (final Entry<String, List<ConsumerFunctionContext<String, FilterFunction>>> entry : map.entrySet()) {
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = getFunctionsFromFilter(filter);
+            for (final Entry<String, List<TupleAdaptedPredicate<String, ?>>> entry : map.entrySet()) {
                 if (!groupToFunctions.containsKey(entry.getKey())) {
-                    groupToFunctions.put(entry.getKey(), new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                    groupToFunctions.put(entry.getKey(), new ArrayList<>());
                 }
                 groupToFunctions.get(entry.getKey()).addAll(entry.getValue());
             }
         }
         LOGGER.info("The following functions will be applied for the given group:");
-        for (final Entry<String, List<ConsumerFunctionContext<String, FilterFunction>>> entry : groupToFunctions.entrySet()) {
+        for (final Entry<String, List<TupleAdaptedPredicate<String, ?>>> entry : groupToFunctions.entrySet()) {
             LOGGER.info("Group = {}: ", entry.getKey());
-            for (final ConsumerFunctionContext<String, FilterFunction> cfc : entry.getValue()) {
-                LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+            for (final TupleAdaptedPredicate<String, ?> cfc : entry.getValue()) {
+                if (null != cfc.getSelection()) {
+                    LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
+                } else {
+                    LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
+                }
             }
         }
         boolean updated = false;
@@ -241,8 +256,12 @@ public class FiltersToOperationConverter {
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
                             .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
-                    for (final ConsumerFunctionContext<String, FilterFunction> cfc : groupToFunctions.get(group)) {
-                        LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                    for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
+                        if (null != cfc.getSelection()) {
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
+                        } else {
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
+                        }
                     }
                     builder = builder.entity(group, ved);
                     updated = true;
@@ -259,8 +278,12 @@ public class FiltersToOperationConverter {
                             .postAggregationFilterFunctions(groupToFunctions.get(group))
                             .build();
                     LOGGER.info("Adding the following filter functions to the view for group {}:", group);
-                    for (final ConsumerFunctionContext<String, FilterFunction> cfc : groupToFunctions.get(group)) {
-                        LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getFunction());
+                    for (final TupleAdaptedPredicate<String, ?> cfc : groupToFunctions.get(group)) {
+                        if (null != cfc.getSelection()) {
+                            LOGGER.info("\t{} {}", cfc.getSelection(), cfc.getPredicate());
+                        } else {
+                            LOGGER.info("\t{} {}", StringUtils.join(cfc.getSelection(), ','), cfc.getPredicate());
+                        }
                     }
                     builder = builder.edge(group, ved);
                     updated = true;
@@ -270,9 +293,9 @@ public class FiltersToOperationConverter {
             }
         }
         if (updated) {
-            operation.setView(builder.build());
+            ((GraphFilters) operation).setView(builder.build());
         } else {
-            operation.setView(derivedView);
+            ((GraphFilters) operation).setView(derivedView);
         }
         return operation;
     }
@@ -330,7 +353,7 @@ public class FiltersToOperationConverter {
     }
 
     /**
-     * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link ConsumerFunctionContext}s.
+     * Converts a Spark {@link Filter} to a map from group to a list of Gaffer {@link TupleAdaptedPredicate}s.
      * <p>
      * Note that Spark also applies all the filters provided to the <code>buildScan(String[], Filter[])</code> method
      * so not implementing some of the provided {@link Filter}s in Gaffer will not cause errors. However, as many as
@@ -338,133 +361,125 @@ public class FiltersToOperationConverter {
      * tablet servers (this avoids unnecessary data transfer from Accumulo to Spark).
      *
      * @param filter The {@link Filter} to transform.
-     * @return A map from {@link String} to {@link ConsumerFunctionContext}s implementing the provided {@link Filter}.
+     * @return A map from {@link String} to {@link TupleAdaptedPredicate}s implementing the provided {@link Filter}.
      */
-    private Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> getFunctionsFromFilter(final Filter filter) {
-        final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> map = new HashMap<>();
+    private Map<String, List<TupleAdaptedPredicate<String, ?>>> getFunctionsFromFilter(final Filter filter) {
+        final Map<String, List<TupleAdaptedPredicate<String, ?>>> map = new HashMap<>();
         if (filter instanceof EqualTo) {
-            // Not dealt with as requires a FilterFunction that returns null if either the controlValue or the
-            // test value is null - the API of FilterFunction doesn't permit this.
+            // Not dealt with as requires a Predicate<?> that returns null if either the controlValue or the
+            // test value is null - the API of Predicate<?> doesn't permit this.
         } else if (filter instanceof EqualNullSafe) {
             final EqualNullSafe equalNullSafe = (EqualNullSafe) filter;
-            final FilterFunction isEqual = new IsEqual(equalNullSafe.value());
-            final List<String> properties = Collections.singletonList(equalNullSafe.attribute());
+            final Predicate<?> isEqual = new IsEqual(equalNullSafe.value());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isEqual, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isEqual, equalNullSafe.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to IsEqual ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to IsEqual ({})", filter, equalNullSafe.attribute());
         } else if (filter instanceof GreaterThan) {
             final GreaterThan greaterThan = (GreaterThan) filter;
-            final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), false);
-            final List<String> properties = Collections.singletonList(greaterThan.attribute());
+            final Predicate<?> isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), false);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isMoreThan, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, greaterThan.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to isMoreThan ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to isMoreThan ({})", filter, greaterThan.attribute());
         } else if (filter instanceof GreaterThanOrEqual) {
             final GreaterThanOrEqual greaterThan = (GreaterThanOrEqual) filter;
-            final FilterFunction isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), true);
-            final List<String> properties = Collections.singletonList(greaterThan.attribute());
+            final Predicate<?> isMoreThan = new IsMoreThan((Comparable<?>) greaterThan.value(), true);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isMoreThan, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, greaterThan.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to IsMoreThan ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to IsMoreThan ({})", filter, greaterThan.attribute());
         } else if (filter instanceof LessThan) {
             final LessThan lessThan = (LessThan) filter;
-            final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), false);
-            final List<String> properties = Collections.singletonList(lessThan.attribute());
+            final Predicate<?> isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), false);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isLessThan, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, lessThan.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to IsLessThan ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to IsLessThan ({})", filter, lessThan.attribute());
         } else if (filter instanceof LessThanOrEqual) {
             final LessThanOrEqual lessThan = (LessThanOrEqual) filter;
-            final FilterFunction isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), true);
-            final List<String> properties = Collections.singletonList(lessThan.attribute());
+            final Predicate<?> isLessThan = new IsLessThan((Comparable<?>) lessThan.value(), true);
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isLessThan, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, lessThan.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, lessThan.attribute());
         } else if (filter instanceof In) {
             final In in = (In) filter;
-            final FilterFunction isIn = new IsIn(new HashSet<>(Arrays.asList(in.values())));
-            final List<String> properties = Collections.singletonList(in.attribute());
+            final Predicate<?> isIn = new IsIn(new HashSet<>(Arrays.asList(in.values())));
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(isIn, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isIn, in.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to IsIn ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to IsIn ({})", filter, in.attribute());
         } else if (filter instanceof IsNull) {
             final IsNull isNull = (IsNull) filter;
-            final FilterFunction doesntExist = new Not(new Exists());
-            final List<String> properties = Collections.singletonList(isNull.attribute());
+            final Predicate<?> doesntExist = new Not<>(new Exists());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(doesntExist, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(doesntExist, isNull.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to Not(Exists) ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to Not(Exists) ({})", filter, isNull.attribute());
         } else if (filter instanceof IsNotNull) {
             final IsNotNull isNotNull = (IsNotNull) filter;
-            final FilterFunction exists = new Exists();
-            final List<String> properties = Collections.singletonList(isNotNull.attribute());
+            final Predicate<?> exists = new Exists();
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new ConsumerFunctionContext<>(exists, properties));
+                    map.get(group).add(new TupleAdaptedPredicate<>(exists, isNotNull.attribute()));
                 }
             }
-            LOGGER.debug("Converted {} to Exists ({})", filter, properties.get(0));
+            LOGGER.debug("Converted {} to Exists ({})", filter, isNotNull.attribute());
         } else if (filter instanceof And) {
             final And and = (And) filter;
-            final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> left = getFunctionsFromFilter(and.left());
-            final Map<String, List<ConsumerFunctionContext<String, FilterFunction>>> right = getFunctionsFromFilter(and.right());
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> left = getFunctionsFromFilter(and.left());
+            final Map<String, List<TupleAdaptedPredicate<String, ?>>> right = getFunctionsFromFilter(and.right());
             final Set<String> relevantGroups = getGroupsFromFilter(filter);
             if (relevantGroups != null) {
                 for (final String group : relevantGroups) {
-                    final List<ConsumerFunctionContext<String, FilterFunction>> concatFilters = new ArrayList<>();
+                    final List<TupleAdaptedPredicate<String, ?>> concatFilters = new ArrayList<>();
                     if (left.get(group) != null) {
                         concatFilters.addAll(left.get(group));
                     }
@@ -472,7 +487,7 @@ public class FiltersToOperationConverter {
                         concatFilters.addAll(right.get(group));
                     }
                     if (!map.containsKey(group)) {
-                        map.put(group, new ArrayList<ConsumerFunctionContext<String, FilterFunction>>());
+                        map.put(group, new ArrayList<>());
                     }
                     map.get(group).addAll(concatFilters);
                 }

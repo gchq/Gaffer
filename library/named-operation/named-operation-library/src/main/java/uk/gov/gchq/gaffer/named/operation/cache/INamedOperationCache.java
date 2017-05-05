@@ -19,8 +19,7 @@ package uk.gov.gchq.gaffer.named.operation.cache;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.named.operation.ExtendedNamedOperation;
-import uk.gov.gchq.gaffer.named.operation.NamedOperation;
+import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
 import uk.gov.gchq.gaffer.user.User;
 
 /**
@@ -35,44 +34,42 @@ import uk.gov.gchq.gaffer.user.User;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface INamedOperationCache {
     /**
-     * Adds or updates, depending on the overwrite flag, a {@link ExtendedNamedOperation} to a cache. This should be implemented
+     * Adds or updates, depending on the overwrite flag, a {@link NamedOperationDetail} to a cache. This should be implemented
      * With appropriate methods, depending on the type of cache used and access restrictions applied.
      *
-     * @param operation The ExtendedNamedOperation to store.
-     * @param overWrite Flag relating to whether to add or overwrite a ExtendedNamedOperation.
+     * @param operation The NamedOperationDetail to store.
+     * @param overWrite Flag relating to whether to add or overwrite a NamedOperationDetail.
      * @param user      The user calling the operation. If overwrite is set, it should be used for checking permissions. Otherwise, it can be set to null.
-     * @throws CacheOperationFailedException Exception thrown when the ExtendedNamedOperation is not added.
+     * @throws CacheOperationFailedException Exception thrown when the NamedOperationDetail is not added.
      */
-    void addNamedOperation(final ExtendedNamedOperation operation, final boolean overWrite, final User user) throws CacheOperationFailedException;
+    void addNamedOperation(final NamedOperationDetail operation, final boolean overWrite, final User user) throws CacheOperationFailedException;
 
     /**
-     * Deletes a ExtendedNamedOperation from the cache.
+     * Deletes a NamedOperationDetail from the cache.
      *
-     * @param name The name of the ExtendedNamedOperation a user would like to delete
+     * @param name The name of the NamedOperationDetail a user would like to delete
      * @param user A {@link User} object that can optionally be used for checking permissions
-     * @throws CacheOperationFailedException exception thrown when the ExtendedNamedOperation could not be deleted
+     * @throws CacheOperationFailedException exception thrown when the NamedOperationDetail could not be deleted
      */
     void deleteNamedOperation(final String name, final User user) throws CacheOperationFailedException;
 
     /**
-     * Gets a ExtendedNamedOperation from the cache.
+     * Gets a NamedOperationDetail from the cache.
      *
-     * @param name The name of the ExtendedNamedOperation held in the cache.
+     * @param name The name of the NamedOperationDetail held in the cache.
      * @param user The {@link User} object that can optionally be used for checking permissions.
-     * @return A ExtendedNamedOperation corresponding to the name given if one exists in the Cache.
-     * @throws CacheOperationFailedException exception thrown when the ExtendedNamedOperation couldn't be retrieved.
+     * @return A NamedOperationDetail corresponding to the name given if one exists in the Cache.
+     * @throws CacheOperationFailedException exception thrown when the NamedOperationDetail couldn't be retrieved.
      */
-    ExtendedNamedOperation getNamedOperation(final String name, final User user) throws CacheOperationFailedException;
+    NamedOperationDetail getNamedOperation(final String name, final User user) throws CacheOperationFailedException;
 
     /**
-     * Gets all the NamedOperations that a user has the permission to execute.
+     * Gets all the NamedOperationDetail that a user has the permission to execute.
      *
-     * @param user   The user making the request
-     * @param simple flag relating to whether to return full NamedOperation details or just name and description.
-     *               Ordinarily this should be set to true
+     * @param user The user making the request
      * @return a closeable iterable of NamedOperations that a given user can execute
      */
-    CloseableIterable<NamedOperation> getAllNamedOperations(final User user, final boolean simple);
+    CloseableIterable<NamedOperationDetail> getAllNamedOperations(final User user);
 
     /**
      * Clears all keys and values from the Cache

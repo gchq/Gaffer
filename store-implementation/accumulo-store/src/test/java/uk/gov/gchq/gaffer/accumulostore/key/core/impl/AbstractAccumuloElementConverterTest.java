@@ -23,15 +23,15 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.function.aggregate.FreqMapAggregator;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -62,7 +62,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test
-    public void shouldReturnAccumuloKeyConverterFromBasicEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromBasicEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -70,7 +70,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
 
         // Then
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
@@ -80,7 +80,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromBasicEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromBasicEntity() throws SchemaException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
@@ -94,7 +94,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -103,7 +103,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -114,14 +114,14 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(entity);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
         final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -130,7 +130,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -139,7 +139,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond());
 
         // Then
@@ -150,14 +150,14 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterMultipleCQPropertiesEntity() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertiesEntity() throws SchemaException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
         entity.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(entity);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
         final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
 
         // Then
@@ -166,7 +166,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -174,7 +174,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
 
         // When
@@ -188,7 +188,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -196,7 +196,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.setDirected(true);
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 100);
 
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         final Map<String, String> options = new HashMap<>();
         options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
@@ -211,7 +211,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSkipNullPropertyValuesWhenCreatingAccumuloKey() throws SchemaException, AccumuloElementConversionException, IOException {
+    public void shouldSkipNullPropertyValuesWhenCreatingAccumuloKey() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setSource("1");
@@ -220,7 +220,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, null);
 
         // When
-        final Pair<Key> keys = converter.getKeysFromElement(edge);
+        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
         Properties properties = converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, keys.getFirst().getColumnQualifierData().getBackingArray());
 
         // Then
@@ -228,7 +228,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValue() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValue() {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_2, 166);
@@ -246,7 +246,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingMiddleProperty() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingMiddleProperty() {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_3, 299);
@@ -262,7 +262,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingEndProperty() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingEndProperty() {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 60);
         properties.put(AccumuloPropertyNames.PROP_2, 166);
@@ -278,7 +278,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingStartProperty() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueMissingStartProperty() {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_2, 166);
         properties.put(AccumuloPropertyNames.PROP_3, 299);
@@ -294,7 +294,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueWithNullProperty() throws AccumuloElementConversionException {
+    public void shouldSerialiseAndDeSerialiseBetweenPropertyAndValueWithNullProperty() {
         Properties properties = new Properties();
         properties.put(AccumuloPropertyNames.PROP_1, 5);
         properties.put(AccumuloPropertyNames.PROP_2, null);
@@ -312,7 +312,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldTruncatePropertyBytes() throws AccumuloElementConversionException {
+    public void shouldTruncatePropertyBytes() {
         // Given
         final Properties properties = new Properties() {
             {
@@ -339,7 +339,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldTruncatePropertyBytesWithEmptyBytes() throws AccumuloElementConversionException {
+    public void shouldTruncatePropertyBytesWithEmptyBytes() {
         // Given
         final byte[] bytes = AccumuloStoreConstants.EMPTY_BYTES;
 
@@ -351,7 +351,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldBuildTimestampFromProperty() throws AccumuloElementConversionException {
+    public void shouldBuildTimestampFromProperty() {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder()
@@ -382,7 +382,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() throws AccumuloElementConversionException {
+    public void shouldBuildTimestampFromDefaultTimeWhenPropertyIsNull() {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
@@ -411,7 +411,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldBuildTimestampFromDefaultTime() throws AccumuloElementConversionException {
+    public void shouldBuildTimestampFromDefaultTime() {
         // Given
         final Properties properties = new Properties() {
             {
@@ -428,7 +428,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetPropertiesFromTimestamp() throws AccumuloElementConversionException {
+    public void shouldGetPropertiesFromTimestamp() {
         // Given
         // add extra timestamp property to schema
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
@@ -452,7 +452,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampPropertyInGroup() throws AccumuloElementConversionException {
+    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampPropertyInGroup() {
         // Given
         // add timestamp property name but don't add the property to the edge group
         final Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
@@ -471,7 +471,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampProperty() throws AccumuloElementConversionException {
+    public void shouldGetEmptyPropertiesFromTimestampWhenNoTimestampProperty() {
         // Given
         final long timestamp = System.currentTimeMillis();
         final String group = TestGroups.EDGE;
@@ -501,7 +501,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
     @Test
     public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty()
-            throws AccumuloElementConversionException {
+            {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()

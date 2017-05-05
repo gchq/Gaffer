@@ -16,11 +16,19 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.AbstractGetIterableElementsOperation;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
+import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.io.InputOutput;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 /**
  * A <code>SummariseGroupOverRanges</code> operation will return an
@@ -29,31 +37,82 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
  * more likely to produce multiple results and you will need to cache the results and aggregate them again to get a final answer.
  * For this reason it is recommended your provided ranges do not over-lap as you will be unable to tell for a given result which range the result is from.
  * Standard filtering will still occur before the final aggregation of the vertices.
- *
- * @see uk.gov.gchq.gaffer.operation.GetOperation
  */
-public class SummariseGroupOverRanges<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element> extends GetElementsInRanges<SEED_TYPE, ELEMENT_TYPE> {
+public class SummariseGroupOverRanges
+        implements Operation,
+        InputOutput<Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>>,
+        MultiInput<Pair<? extends ElementId, ? extends ElementId>>,
+        SeededGraphFilters,
+        Options {
 
-    public SummariseGroupOverRanges() {
+    private Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input;
+    private IncludeIncomingOutgoingType inOutType;
+    private View view;
+    private DirectedType directedType;
+    private Map<String, String> options;
+
+    @Override
+    public Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> getInput() {
+        return input;
     }
 
-    public SummariseGroupOverRanges(final View view, final Iterable<SEED_TYPE> seeds) {
-        super(view, seeds);
+    @Override
+    public void setInput(final Iterable<? extends Pair<? extends ElementId, ? extends ElementId>> input) {
+        this.input = input;
     }
 
-    public abstract static class BaseBuilder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element, CHILD_CLASS extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, ?>>
-            extends AbstractGetIterableElementsOperation.BaseBuilder<SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>, SEED_TYPE, ELEMENT_TYPE, CHILD_CLASS> {
-        public BaseBuilder() {
-            super(new SummariseGroupOverRanges<SEED_TYPE, ELEMENT_TYPE>());
-        }
+    @Override
+    public TypeReference<CloseableIterable<? extends Element>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableElement();
     }
 
-    public static final class Builder<SEED_TYPE extends Pair<? extends ElementSeed>, ELEMENT_TYPE extends Element>
-        extends BaseBuilder<SEED_TYPE, ELEMENT_TYPE, Builder<SEED_TYPE, ELEMENT_TYPE>> {
+    @Override
+    public IncludeIncomingOutgoingType getIncludeIncomingOutGoing() {
+        return inOutType;
+    }
 
-        @Override
-        protected Builder<SEED_TYPE, ELEMENT_TYPE> self() {
-            return this;
+    @Override
+    public void setIncludeIncomingOutGoing(final IncludeIncomingOutgoingType inOutType) {
+        this.inOutType = inOutType;
+    }
+
+    @Override
+    public View getView() {
+        return view;
+    }
+
+    @Override
+    public void setView(final View view) {
+        this.view = view;
+    }
+
+    @Override
+    public DirectedType getDirectedType() {
+        return directedType;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directedType) {
+        this.directedType = directedType;
+    }
+
+    @Override
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    @Override
+    public void setOptions(final Map<String, String> options) {
+        this.options = options;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<SummariseGroupOverRanges, Builder>
+            implements InputOutput.Builder<SummariseGroupOverRanges, Iterable<? extends Pair<? extends ElementId, ? extends ElementId>>, CloseableIterable<? extends Element>, Builder>,
+            MultiInput.Builder<SummariseGroupOverRanges, Pair<? extends ElementId, ? extends ElementId>, Builder>,
+            SeededGraphFilters.Builder<SummariseGroupOverRanges, Builder>,
+            Options.Builder<SummariseGroupOverRanges, Builder> {
+        public Builder() {
+            super(new SummariseGroupOverRanges());
         }
     }
 }

@@ -69,6 +69,7 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
+
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
             final Entity entity = new Entity(TestGroups.ENTITY);
@@ -240,7 +241,7 @@ public class InputFormatTest {
         }
         try {
             store.initialise(schema, properties);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             fail("StoreException thrown: " + e);
         }
         setupGraph(store, data);
@@ -275,7 +276,7 @@ public class InputFormatTest {
 
     private void setupGraph(final AccumuloStore store, final List<Element> data) {
         try {
-            store.execute(new AddElements(data), new User());
+            store.execute(new AddElements.Builder().input(data).build(), new User());
         } catch (final OperationException e) {
             fail("Couldn't add elements: " + e);
         }
@@ -331,6 +332,7 @@ public class InputFormatTest {
 
     private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
 
+        @Override
         protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
             context.write(new Text(key.toString()), nw);
         }

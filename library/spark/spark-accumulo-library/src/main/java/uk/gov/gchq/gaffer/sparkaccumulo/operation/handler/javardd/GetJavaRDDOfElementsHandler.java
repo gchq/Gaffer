@@ -28,14 +28,12 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.spark.operation.javardd.GetJavaRDDOfElements;
 import uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.AbstractGetRDDHandler;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 
-public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
-        extends AbstractGetRDDHandler<JavaRDD<Element>, GetJavaRDDOfElements<SEED_TYPE>> {
+public class GetJavaRDDOfElementsHandler extends AbstractGetRDDHandler<GetJavaRDDOfElements, JavaRDD<Element>> {
 
     @Override
     public JavaRDD<Element> doOperation(final GetJavaRDDOfElements operation,
@@ -65,6 +63,7 @@ public class GetJavaRDDOfElementsHandler<SEED_TYPE extends ElementSeed>
 
         private static final long serialVersionUID = -4695668644733530293L;
 
+        @Override
         public Element call(final Tuple2<Element, NullWritable> tuple) throws Exception {
             return tuple._1();
         }
