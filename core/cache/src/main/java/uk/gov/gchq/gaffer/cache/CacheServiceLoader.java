@@ -39,7 +39,6 @@ public final class CacheServiceLoader {
      * @throws IllegalArgumentException if an invalid uk.gov.gchq.gaffer.cache class is specified in the system property
      */
     public static void initialise(Properties properties) {
-        service = null;
         if (properties == null) {
             LOGGER.warn("received null properties - exiting initialise method without creating service");
             return;

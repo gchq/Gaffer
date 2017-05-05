@@ -40,18 +40,6 @@ public class CacheServiceLoaderTest {
         serviceLoaderProperties.clear();
     }
 
-    @Test
-    public void shouldReturnNullIfNoServiceClassIsSpecified() {
-
-        // given
-        CacheServiceLoader.initialise(serviceLoaderProperties);
-
-        // when
-        ICacheService service = CacheServiceLoader.getService();
-
-        // then
-        assert(service == null);
-    }
 
     @Test
     public void shouldDoNothingOnInitialiseIfNoPropertiesAreGiven() {

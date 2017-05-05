@@ -24,13 +24,8 @@ import org.apache.jcs.engine.control.CompositeCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
-<<<<<<< HEAD
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
-=======
 import uk.gov.gchq.gaffer.cache.ICacheService;
-import uk.gov.gchq.gaffer.cache.util.CacheSystemProperty;
->>>>>>> d6477eb5a695e0440a783a4d2d5f958122bd4591
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,16 +74,10 @@ public class JcsCacheService implements ICacheService {
 
         InputStream is = new FileInputStream(configFilePath);
         try {
-<<<<<<< HEAD
-            return new JcsCache<>(cache);
-        } catch (CacheException e) {
-            throw new IllegalArgumentException("Failed to create uk.gov.gchq.gaffer.cache", e);
-=======
             props.load(is);
             return props;
         } finally {
             IOUtils.closeQuietly(is);
->>>>>>> d6477eb5a695e0440a783a4d2d5f958122bd4591
         }
     }
 }
