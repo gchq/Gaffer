@@ -1,0 +1,15 @@
+{
+  "types": {
+    "count.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "visibility": {
+      "serialiserClass": "uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser",
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.doc.dev.aggregator.VisibilityAggregator"
+      }
+    }
+  }
+}

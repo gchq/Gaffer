@@ -21,9 +21,9 @@ package uk.gov.gchq.gaffer.store;
  */
 public enum StoreTrait {
     /**
-     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the schema.
+     * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the schema at ingest.
      */
-    STORE_AGGREGATION,
+    INGEST_AGGREGATION,
 
     /**
      * Similar {@link uk.gov.gchq.gaffer.data.element.Element}s are aggregated/merged together based on the groupBy logic in the view.

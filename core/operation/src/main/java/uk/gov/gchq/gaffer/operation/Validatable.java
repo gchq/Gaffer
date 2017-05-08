@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.operation;
 /**
  * A <code>Validatable</code> operation defines an operation with an iterable of {@link uk.gov.gchq.gaffer.data.element.Element}s
  * that can optionally be validated before being processed.
- * <p>
  */
 public interface Validatable {
     /**

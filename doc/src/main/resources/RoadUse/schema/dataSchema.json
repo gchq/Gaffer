@@ -1,0 +1,13 @@
+{
+  "edges": {
+    "RoadUse": {
+      "description": "A directed edge representing vehicles moving from junction A to junction B.",
+      "source": "junction",
+      "destination": "junction",
+      "directed": "true",
+      "properties": {
+        "count": "count.long"
+      }
+    }
+  }
+}

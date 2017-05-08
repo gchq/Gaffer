@@ -120,6 +120,6 @@ public final class TypeReferenceImpl {
     public static class IterableMap extends TypeReference<Iterable<? extends java.util.Map<java.lang.String, java.lang.Object>>> {
     }
 
-    public static class Number extends TypeReference<java.lang.Number> {
+    public static class IterableString extends TypeReference<Iterable<? extends java.lang.String>> {
     }
 }

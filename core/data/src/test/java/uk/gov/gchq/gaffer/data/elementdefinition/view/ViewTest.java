@@ -152,7 +152,6 @@ public class ViewTest {
                 "  },%n" +
                 "  \"entities\" : {%n" +
                 "    \"BasicEntity\" : {%n" +
-                "      \"transientProperties\" : { },%n" +
                 "      \"preAggregationFilterFunctions\" : [ {%n" +
                 "        \"predicate\" : {%n" +
                 "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
