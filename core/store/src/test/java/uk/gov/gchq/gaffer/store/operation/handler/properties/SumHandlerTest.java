@@ -63,6 +63,37 @@ public class SumHandlerTest {
     }
 
     @Test
+    public void shouldCalculateSumOfPropertiesWithMissingProperty() throws OperationException {
+        // Given
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 1)
+                                                   .build();
+        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 2)
+                                                   .build();
+        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 3)
+                                                   .build();
+        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .build();
+
+        final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
+
+        final Sum sum = new Sum.Builder().input(input)
+                                         .propertyName("property")
+                                         .build();
+
+        final SumHandler handler = new SumHandler();
+
+        // When
+        final Long result = handler.doOperation(sum, null, null);
+
+        // Then
+        assertTrue(result instanceof Long);
+        assertEquals(6L, result.longValue());
+    }
+
+    @Test
     public void shouldReturnNullIfIterableIsEmpty() throws OperationException {
         // Given
         final List<Entity> input = Lists.newArrayList();

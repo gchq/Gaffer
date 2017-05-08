@@ -24,6 +24,13 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Comparator;
 
+/**
+ * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s using a provided {@link java.util.Comparator} object.
+ * This operation can be executed in two modes:
+ * <ul><li>property comparator - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparator is applied to all values of the specified property, and the input is sorted according to the {@link java.util.Comparator} implementation.</li><li>element comparator - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. the input is sorted according to the {@link java.util.Comparator} implementation.</li></ul>
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.compare.Sort.Builder
+ */
 public class Sort implements
         Operation,
         InputOutput<Iterable<? extends Element>, Iterable<? extends Element>>,

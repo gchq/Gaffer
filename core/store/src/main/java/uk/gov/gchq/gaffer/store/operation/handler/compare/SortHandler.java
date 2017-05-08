@@ -41,6 +41,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
                     : operation.getPropertyComparator();
 
             return Streams.toStream(operation.getInput())
+                          .filter(e -> null != e.getProperty(operation.getPropertyName()))
                           .sorted(Comparator.comparing(e -> e.getProperty(operation
                                   .getPropertyName()), comparator))
                           .limit(operation.getResultLimit())

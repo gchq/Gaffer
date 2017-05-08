@@ -35,6 +35,7 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
         // If propertyName and the property comparator are both non-null, we carry out a property comparison
         if (null != operation.getPropertyName() && null != operation.getPropertyComparator()) {
             return Streams.toStream(operation.getInput())
+                          .filter(e -> null != e.getProperty(operation.getPropertyName()))
                           .reduce((l, r) ->
                                   operation.getPropertyComparator()
                                            .compare(l.getProperty(operation.getPropertyName()),

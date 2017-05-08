@@ -32,6 +32,7 @@ public class SumHandler implements OutputOperationHandler<Sum, Long> {
         }
 
         return Streams.toStream(operation.getInput())
+                      .filter(e -> null != e.getProperty(operation.getPropertyName()))
                       .reduce(0L, (acc, e) -> acc + ((Number) e.getProperty(operation
                                       .getPropertyName())).longValue(),
                               Long::sum);

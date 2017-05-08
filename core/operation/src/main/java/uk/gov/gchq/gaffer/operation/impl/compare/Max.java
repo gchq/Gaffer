@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,6 +25,13 @@ import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Comparator;
 
+/**
+ * A <code>Max</code> operation is intended as a terminal operation for retrieving the "maximum" element from an {@link java.lang.Iterable}.
+ * This operation can be executed in two modes:
+ * <ul><li>property comparator - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparator is applied to all values of the specified property, and the element containing the maximum value (as specified by the {@link java.util.Comparator}) is returned.</li><li>element comparator - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. The maximum element (as specified by the {@link java.util.Comparator} is returned.</li></ul>
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.compare.Max.Builder
+ */
 public class Max implements
         Operation,
         InputOutput<Iterable<? extends Element>, Element>,

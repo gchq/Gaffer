@@ -23,6 +23,11 @@ import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 
+/**
+ * A <code>Product</code> operation can be used to calculate the product of all occurances of a property found in an {@link java.lang.Iterable}.
+ *
+ * @see uk.gov.gchq.gaffer.operation.impl.properties.Product
+ */
 public class Product implements
         Operation,
         InputOutput<Iterable<? extends Element>, Long>,

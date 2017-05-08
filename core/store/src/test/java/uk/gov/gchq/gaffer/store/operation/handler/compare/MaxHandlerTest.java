@@ -67,6 +67,50 @@ public class MaxHandlerTest {
     }
 
     @Test
+    public void shouldFindMaxBasedOnPropertyWithMissingProperty() throws OperationException, JsonProcessingException {
+        // Given
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property1", 1)
+                                                   .build();
+        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property1", 2)
+                                                   .build();
+        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property1", 3)
+                                                   .build();
+        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property2", 1)
+                                                   .build();
+        final Entity entity5 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property2", 2)
+                                                   .build();
+
+        final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
+
+        final Max max1 = new Max.Builder().input(input)
+                                          .propertyName("property1")
+                                          .propertyComparator(new PropertyComparator())
+                                          .build();
+
+        final Max max2 = new Max.Builder().input(input)
+                                          .propertyName("property2")
+                                          .propertyComparator(new PropertyComparator())
+                                          .build();
+
+        final MaxHandler handler = new MaxHandler();
+
+        // When
+        final Element result1 = handler.doOperation(max1, null, null);
+        final Element result2 = handler.doOperation(max2, null, null);
+
+        // Then
+        assertTrue(result1 instanceof Entity);
+        assertTrue(result2 instanceof Entity);
+        assertEquals(3, result1.getProperty("property1"));
+        assertEquals(2, result2.getProperty("property2"));
+    }
+
+    @Test
     public void shouldFindMaxBasedOnElement() throws OperationException {
         // Given
         final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)

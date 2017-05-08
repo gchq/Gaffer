@@ -32,6 +32,7 @@ public class ProductHandler implements OutputOperationHandler<Product, Long> {
         }
 
         return Streams.toStream(operation.getInput())
+                      .filter(e -> null != e.getProperty(operation.getPropertyName()))
                       .reduce(1L, (acc, e) -> acc * ((Number) e.getProperty(operation
                                       .getPropertyName())).longValue(),
                               (a, b) -> a * b);
