@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.comparator;
 
-import java.util.Comparator;
-
-public interface PropertyComparator<T extends Comparable<T>> extends Comparator<T> {
-
-    @Override
-    default int compare(final T obj1, final T obj2) {
-        return obj1.compareTo(obj2);
-    }
+public class LongComparator implements PropertyComparator<Long> {
+    // Empty marker class - all implementation contained in interface.
 }

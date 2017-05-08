@@ -121,6 +121,97 @@ public class SortHandlerTest {
     }
 
     @Test
+    public void shouldSortBasedOnPropertyExcludingNulls() throws OperationException, JsonProcessingException {
+        // Given
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 1)
+                                                   .build();
+        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 2)
+                                                   .build();
+        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 3)
+                                                   .build();
+        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .build();
+
+        final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
+
+        final Sort sort = new Sort.Builder().input(input)
+                                            .includeNulls(false)
+                                            .propertyName("property")
+                                            .propertyComparator(new PropertyComparator())
+                                            .build();
+
+        final SortHandler handler = new SortHandler();
+
+        // When
+        final Iterable<Element> result = handler.doOperation(sort, null, null);
+
+        // Then
+        assertTrue(result instanceof CloseableIterable);
+        assertEquals(3, Iterables.size(result));
+
+        int prev = Integer.MIN_VALUE;
+
+        for (final Element element : result) {
+            final int curr = (int) element.getProperty("property");
+            assertTrue(curr > prev);
+            prev = curr;
+        }
+    }
+
+    @Test
+    public void shouldSortBasedOnPropertyIncludingNulls() throws OperationException, JsonProcessingException {
+        // Given
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 1)
+                                                   .build();
+        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 2)
+                                                   .build();
+        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .property("property", 3)
+                                                   .build();
+        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .build();
+        final Entity entity5 = new Entity.Builder().group(TestGroups.ENTITY)
+                                                   .build();
+
+        final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
+
+        final Sort sort = new Sort.Builder().input(input)
+                                            .includeNulls(true)
+                                            .propertyName("property")
+                                            .propertyComparator(new PropertyComparator())
+                                            .build();
+
+        final SortHandler handler = new SortHandler();
+
+        // When
+        final Iterable<Element> result = handler.doOperation(sort, null, null);
+
+        // Then
+        assertTrue(result instanceof CloseableIterable);
+        assertEquals(5, Iterables.size(result));
+
+        int prev = Integer.MIN_VALUE;
+        int nullCount = 0;
+
+        for (final Element element : result) {
+            if (null != element.getProperty("property")) {
+                final int curr = (int) element.getProperty("property");
+                assertTrue(curr > prev);
+                prev = curr;
+            } else {
+                nullCount++;
+            }
+        }
+
+        assertEquals(2, nullCount);
+    }
+
+    @Test
     public void shouldSortBasedOnElement() throws OperationException {
         // Given
         final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)

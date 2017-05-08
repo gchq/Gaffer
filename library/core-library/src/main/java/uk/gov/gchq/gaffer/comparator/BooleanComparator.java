@@ -15,5 +15,6 @@
  */
 package uk.gov.gchq.gaffer.comparator;
 
-public class MaxComparator {
+public class BooleanComparator implements PropertyComparator<Boolean> {
+    // Empty marker class - all implementation contained in interface.
 }

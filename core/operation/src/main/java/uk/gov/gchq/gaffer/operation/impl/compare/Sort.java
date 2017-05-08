@@ -38,21 +38,22 @@ public class Sort implements
 
     private Iterable<? extends Element> input;
     private Comparator<Element> elementComparator;
-    private Comparator<Object> propertyComparator;
+    private Comparator propertyComparator;
     private String propertyName;
     private long resultLimit = Long.MAX_VALUE;
     private boolean reversed;
+    private boolean includeNulls;
 
     public Sort() {
         // Empty
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Comparator<Object> getPropertyComparator() {
+    public Comparator getPropertyComparator() {
         return propertyComparator;
     }
 
-    public void setPropertyComparator(final Comparator<Object> propertyComparator) {
+    public void setPropertyComparator(final Comparator propertyComparator) {
         this.propertyComparator = propertyComparator;
     }
 
@@ -99,6 +100,14 @@ public class Sort implements
         this.reversed = reversed;
     }
 
+    public boolean isIncludeNulls() {
+        return includeNulls;
+    }
+
+    public void setIncludeNulls(final boolean includeNulls) {
+        this.includeNulls = includeNulls;
+    }
+
     @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
@@ -117,7 +126,7 @@ public class Sort implements
             return _self();
         }
 
-        public Sort.Builder propertyComparator(final Comparator<Object> comparator) {
+        public Sort.Builder propertyComparator(final Comparator comparator) {
             _getOp().setPropertyComparator(comparator);
             return _self();
         }
@@ -134,6 +143,11 @@ public class Sort implements
 
         public Sort.Builder reversed(final boolean reversed) {
             _getOp().setReversed(reversed);
+            return _self();
+        }
+
+        public Sort.Builder includeNulls(final boolean includeNulls) {
+            _getOp().setIncludeNulls(includeNulls);
             return _self();
         }
     }

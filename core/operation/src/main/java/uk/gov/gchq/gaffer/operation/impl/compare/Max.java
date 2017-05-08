@@ -39,7 +39,7 @@ public class Max implements
 
     private Iterable<? extends Element> input;
     private Comparator<Element> elementComparator;
-    private Comparator<Object> propertyComparator;
+    private Comparator propertyComparator;
     private String propertyName;
 
     public Max() {
@@ -47,11 +47,11 @@ public class Max implements
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Comparator<Object> getPropertyComparator() {
+    public Comparator getPropertyComparator() {
         return propertyComparator;
     }
 
-    public void setPropertyComparator(final Comparator<Object> propertyComparator) {
+    public void setPropertyComparator(final Comparator propertyComparator) {
         this.propertyComparator = propertyComparator;
     }
 
@@ -100,7 +100,7 @@ public class Max implements
             return _self();
         }
 
-        public Max.Builder propertyComparator(final Comparator<Object> comparator) {
+        public Max.Builder propertyComparator(final Comparator comparator) {
             _getOp().setPropertyComparator(comparator);
             return _self();
         }
