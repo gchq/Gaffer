@@ -15,7 +15,22 @@
  */
 package uk.gov.gchq.gaffer.comparator;
 
-public class LongComparator implements PropertyComparator<Long> {
-    private static final long serialVersionUID = 1960562651374978530L;
-    // Empty marker class - all implementation contained in interface.
+import java.util.Comparator;
+
+public class ShortComparatorTest extends PropertyComparatorTest<Short> {
+
+    @Override
+    public Comparator<Short> getComparator() {
+        return new ShortComparator();
+    }
+
+    @Override
+    public Short getSmallValue() {
+        return 0;
+    }
+
+    @Override
+    public Short getBigValue() {
+        return 1;
+    }
 }

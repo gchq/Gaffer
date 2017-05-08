@@ -16,5 +16,6 @@
 package uk.gov.gchq.gaffer.comparator;
 
 public class BooleanComparator implements PropertyComparator<Boolean> {
+    private static final long serialVersionUID = -5891217920807748161L;
     // Empty marker class - all implementation contained in interface.
 }

@@ -16,5 +16,6 @@
 package uk.gov.gchq.gaffer.comparator;
 
 public class DoubleComparator implements PropertyComparator<Double> {
+    private static final long serialVersionUID = -6302531963215598791L;
     // Empty marker class - all implementation contained in interface.
 }

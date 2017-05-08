@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public interface PropertyComparator<T extends Comparable<T>> extends Comparator<T> {
+public interface PropertyComparator<T extends Comparable<T>> extends Comparator<T>, Serializable {
 
     @Override
     default int compare(final T obj1, final T obj2) {

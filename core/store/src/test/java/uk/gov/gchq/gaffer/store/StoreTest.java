@@ -332,7 +332,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
 
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 30;
+        final int expectedNumberOfOperations = 35;
         store.initialise(schema, properties);
 
         // When

@@ -16,5 +16,6 @@
 package uk.gov.gchq.gaffer.comparator;
 
 public class CharComparator implements PropertyComparator<Character> {
+    private static final long serialVersionUID = -5029906013365697296L;
     // Empty marker class - all implementation contained in interface.
 }
