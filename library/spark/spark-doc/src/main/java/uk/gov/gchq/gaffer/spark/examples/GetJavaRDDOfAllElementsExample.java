@@ -84,7 +84,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
                 + "List<Element> elements = rdd.collect();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         for (final Element e : elements) {
             log(e.toString());
@@ -115,7 +115,7 @@ public class GetJavaRDDOfAllElementsExample extends OperationExample {
                 + "                .build();\n"
                 + "JavaRDD<Element> rdd = graph.execute(operation, new User(\"user01\"));\n"
                 + "List<Element> elements = rdd.collect();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         for (final Element e : elements) {
             log(e.toString());

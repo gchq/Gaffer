@@ -71,7 +71,7 @@ class GetRDDOfAllElementsExample extends OperationExample(classOf[GetRDDOfAllEle
                  |    .build()
                  |val rdd = graph.execute(operation, new User(\"user01\"))
                  |val elements = rdd.collect())""".stripMargin)
-    log("The results are:")
+    log("The results are:\n")
     log("```")
     for (e <- elements) {
       log(e.toString)
