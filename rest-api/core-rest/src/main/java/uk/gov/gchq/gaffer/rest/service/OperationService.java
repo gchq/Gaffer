@@ -70,6 +70,11 @@ public class OperationService implements IOperationService {
         return _execute(opChain);
     }
 
+    @Override
+    public Object execute(final Operation operation) {
+        return _execute(operation);
+    }
+
     @SuppressFBWarnings
     @Override
     public ChunkedOutput<String> executeChunked(final OperationChain opChain) {
@@ -78,6 +83,7 @@ public class OperationService implements IOperationService {
 
         // write chunks to the chunked output object
         new Thread() {
+            @Override
             public void run() {
                 try {
                     final Object result = _execute(opChain);
@@ -89,6 +95,12 @@ public class OperationService implements IOperationService {
         }.start();
 
         return output;
+    }
+
+    @SuppressFBWarnings
+    @Override
+    public ChunkedOutput<String> executeChunked(final Operation operation) {
+        return executeChunked(new OperationChain(operation));
     }
 
     @Override
@@ -157,7 +169,7 @@ public class OperationService implements IOperationService {
                 LOGGER.warn("IOException (chunks)", ioe);
             } finally {
                 if (itr instanceof Closeable) {
-                    IOUtils.closeQuietly(((Closeable) itr));
+                    IOUtils.closeQuietly((Closeable) itr);
                 }
             }
         } else {

@@ -51,10 +51,12 @@ public class Entity extends Element implements EntityId {
         this.vertex = vertex;
     }
 
+    @Override
     public Object getVertex() {
         return vertex;
     }
 
+    @Override
     public void setVertex(final Object vertex) {
         this.vertex = vertex;
     }
@@ -76,7 +78,7 @@ public class Entity extends Element implements EntityId {
                 setVertex(propertyToBeSet);
                 break;
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                LOGGER.error("Unknown identifier type: {} detected.", identifierType);
                 break;
         }
     }

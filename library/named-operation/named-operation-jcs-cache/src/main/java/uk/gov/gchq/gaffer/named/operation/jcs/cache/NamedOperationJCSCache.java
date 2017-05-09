@@ -50,6 +50,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * @param overwrite      Whether or not to overwrite an existing NamedOperationDetail
      * @throws CacheOperationFailedException thrown if the operation fails
      */
+    @Override
     public void addToCache(final String name, final NamedOperationDetail namedOperation, final boolean overwrite) throws CacheOperationFailedException {
         if (name == null) {
             throw new CacheOperationFailedException("NamedOperation name cannot be null");
@@ -61,7 +62,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             getCache().putInGroup(name, CACHE_GROUP, namedOperation);
 
         } catch (final CacheException e) {
-            LOGGER.error("Failed to add named Operation " + name + " with operation " + namedOperation.getOperationChain().toString(), e.getMessage());
+            LOGGER.error("Failed to add named Operation {} with operation {}", name, namedOperation.getOperationChain().toString(), e.getMessage());
             throw new CacheOperationFailedException(e.getMessage(), e);
         }
     }
@@ -73,6 +74,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * @param name The key to delete
      * @throws CacheOperationFailedException Thrown when the delete fails
      */
+    @Override
     public void deleteFromCache(final String name) throws CacheOperationFailedException {
         getCache().remove(name, CACHE_GROUP);
         if (getCache().getFromGroup(name, CACHE_GROUP) != null) {
@@ -117,6 +119,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
      * @return a NamedOperationDetail stored against the key
      * @throws CacheOperationFailedException thrown when the operation fails
      */
+    @Override
     public NamedOperationDetail getFromCache(final String name) throws CacheOperationFailedException {
         if (name == null) {
             throw new CacheOperationFailedException("Operation name cannot be null");

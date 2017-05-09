@@ -270,9 +270,9 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
                         .aggregateFunction(new ExampleAggregateFunction())
                         .build());
         if (elementDef instanceof SchemaEdgeDefinition) {
-            schemaBuilder.edge(TestGroups.EDGE, ((SchemaEdgeDefinition) elementDef));
+            schemaBuilder.edge(TestGroups.EDGE, (SchemaEdgeDefinition) elementDef);
         } else {
-            schemaBuilder.entity(TestGroups.ENTITY, ((SchemaEntityDefinition) elementDef));
+            schemaBuilder.entity(TestGroups.ENTITY, (SchemaEntityDefinition) elementDef);
         }
         schemaBuilder.build();
     }

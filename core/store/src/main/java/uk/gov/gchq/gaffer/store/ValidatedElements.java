@@ -63,7 +63,7 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
     }
 
     @Override
-    protected void handleInvalidItem(final Element item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final Element item) {
         final String elementDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Element of type " + elementDescription + " is not valid.");
 

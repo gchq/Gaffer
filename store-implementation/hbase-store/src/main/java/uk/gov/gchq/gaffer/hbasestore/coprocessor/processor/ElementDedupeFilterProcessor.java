@@ -83,7 +83,7 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
         final boolean isUndirected = flag == HBaseStoreConstants.UNDIRECTED_EDGE;
         if (unDirectedEdges) {
             // Only undirected edges
-            return isUndirected && (testForDuplicateUndirectedEdge(cell));
+            return isUndirected && testForDuplicateUndirectedEdge(cell);
         }
 
         if (directedEdges) {

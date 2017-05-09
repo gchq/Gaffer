@@ -32,9 +32,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
-import uk.gov.gchq.koryphe.impl.predicate.IsIn;
-import uk.gov.gchq.koryphe.impl.function.Concat;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -42,6 +39,9 @@ import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.function.Concat;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsIn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +59,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
         addDefaultElements();
     }
 
-    @TraitRequirement(StoreTrait.STORE_AGGREGATION)
+    @TraitRequirement(StoreTrait.INGEST_AGGREGATION)
     @Test
     public void shouldGetAllElements() throws Exception {
         for (final boolean includeEntities : Arrays.asList(true, false)) {
@@ -118,7 +118,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 (Element) edge1, edge2));
     }
 
-    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
+    @TraitRequirement({StoreTrait.PRE_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     @Test
     public void shouldGetAllElementsFilteredOnGroup() throws Exception {
         final GetAllElements op = new GetAllElements.Builder()

@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.operation;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
  * All operations must to implement this class.
@@ -25,6 +27,7 @@ package uk.gov.gchq.gaffer.operation;
  * <p>
  * Operations must be JSON serialisable in order to make REST API calls.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface Operation {
     interface Builder<OP, B extends Builder<OP, ?>> {
         OP _getOp();

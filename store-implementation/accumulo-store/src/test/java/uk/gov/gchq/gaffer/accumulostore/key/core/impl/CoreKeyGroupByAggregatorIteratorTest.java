@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
@@ -93,16 +92,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldMultiplePropertySetsAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldMultiplePropertySetsAggregateInByteEntityStore() throws StoreException {
         testAggregatingMultiplePropertySets(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldMultiplePropertySetsAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldMultiplePropertySetsAggregateInGafferOneStore() throws StoreException {
         testAggregatingMultiplePropertySets(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    private void testAggregatingMultiplePropertySets(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    private void testAggregatingMultiplePropertySets(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         String visibilityString = "public";
         try {
 
@@ -220,16 +219,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldSinglePropertySetAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldSinglePropertySetAggregateInByteEntityStore() throws StoreException {
         testAggregatingSinglePropertySet(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldSinglePropertySetAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldSinglePropertySetAggregateInGafferOneStore() throws StoreException {
         testAggregatingSinglePropertySet(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingSinglePropertySet(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingSinglePropertySet(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         String visibilityString = "public";
         try {
             // Create edge
@@ -301,16 +300,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldEmptyColumnQualifierAggregateInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldEmptyColumnQualifierAggregateInByteEntityStore() throws StoreException {
         testAggregatingEmptyColumnQualifier(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldEmptyColumnQualifierAggregateInGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldEmptyColumnQualifierAggregateInGafferOneStore() throws StoreException {
         testAggregatingEmptyColumnQualifier(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void testAggregatingEmptyColumnQualifier(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void testAggregatingEmptyColumnQualifier(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         final String visibilityString = "public";
         try {
             // Create edge
@@ -424,16 +423,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInByteEntityStore() throws StoreException {
         shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupByInGafferOneStore() throws StoreException {
         shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void shouldPartiallyAggregateColumnQualifierOverCQ1GroupBy(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         final String visibilityString = "public";
         try {
             // Create edge
@@ -655,16 +654,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InByteEntityStore() throws StoreException {
         shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2InGafferOneStore() throws StoreException {
         shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregatePropertiesOnlyWhenGroupByIsSetToCQ1CQ2(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         final String visibilityString = "public";
         try {
             // Create edge
@@ -867,16 +866,16 @@ public class CoreKeyGroupByAggregatorIteratorTest {
     }
 
     @Test
-    public void shouldAggregateEverythingWhenGroupByIsSetToBlankInByteEntityStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregateEverythingWhenGroupByIsSetToBlankInByteEntityStore() throws StoreException {
         shouldAggregateEverythingWhenGroupByIsSetToBlank(byteEntityStore, byteEntityElementConverter);
     }
 
     @Test
-    public void shouldAggregateEverythingWhenGroupByIsSetToBlankInGafferOneStore() throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregateEverythingWhenGroupByIsSetToBlankInGafferOneStore() throws StoreException {
         shouldAggregateEverythingWhenGroupByIsSetToBlank(gaffer1KeyStore, gaffer1ElementConverter);
     }
 
-    public void shouldAggregateEverythingWhenGroupByIsSetToBlank(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException, AccumuloElementConversionException {
+    public void shouldAggregateEverythingWhenGroupByIsSetToBlank(final AccumuloStore store, final AccumuloElementConverter elementConverter) throws StoreException {
         final String visibilityString = "public";
         try {
             // Create edge

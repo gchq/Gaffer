@@ -43,6 +43,7 @@ public abstract class StreamUtil {
     public static final String OP_SCORES = "/opScores.properties";
     public static final String AUTH_SCORES = "/authScores.properties";
     public static final String FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = "Failed to create input stream for path: ";
+    public static final String LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH = FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + "{}";
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtil.class);
 
     private StreamUtil() {
@@ -135,9 +136,9 @@ public abstract class StreamUtil {
         for (int pos = 0; pos < urls.length; pos++) {
             try {
                 schemas[pos] = openStream(urls[pos]);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
-                LOGGER.info(String.format("Closed %s input streams", closedStreamsCount));
+                LOGGER.info("Closed {} input streams", closedStreamsCount);
                 throw e;
             }
         }
@@ -147,8 +148,8 @@ public abstract class StreamUtil {
     public static InputStream openStream(final URL url) throws IOException {
         try {
             return url.openStream();
-        } catch (IOException e) {
-            LOGGER.error("Failed to create input stream: " + url, e);
+        } catch (final IOException e) {
+            LOGGER.error("Failed to create input stream: {}", url, e);
             throw e;
         }
     }
@@ -158,7 +159,7 @@ public abstract class StreamUtil {
         for (final InputStream stream : inputStreams) {
             try {
                 stream.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 LOGGER.debug("Exception while closing input streams", e);
             }
             closedStreamsCount++;
@@ -173,7 +174,7 @@ public abstract class StreamUtil {
     }
 
     private static InputStream processException(final String path) throws IllegalArgumentException {
-        LOGGER.error(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
+        LOGGER.error(LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH, path);
         throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
     }
 

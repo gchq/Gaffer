@@ -21,7 +21,6 @@ import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicEdgeDirectedUndirectedFilterIterator;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -62,7 +61,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -87,7 +86,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -112,7 +111,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -137,7 +136,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -161,7 +160,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptUndirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -185,7 +184,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptIncomingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptIncomingEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -210,7 +209,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptOutgoingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptOutgoingEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{

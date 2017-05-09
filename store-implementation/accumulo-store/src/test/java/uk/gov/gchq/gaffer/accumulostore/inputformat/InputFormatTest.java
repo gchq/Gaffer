@@ -332,6 +332,7 @@ public class InputFormatTest {
 
     private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
 
+        @Override
         protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
             context.write(new Text(key.toString()), nw);
         }

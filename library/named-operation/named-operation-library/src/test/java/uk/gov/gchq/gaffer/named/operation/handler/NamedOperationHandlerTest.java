@@ -58,10 +58,10 @@ public class NamedOperationHandlerTest {
         final OperationDeclarations deserialised = json.deserialise(s, OperationDeclarations.class);
 
         assertEquals(4, deserialised.getOperations().size());
-        assert (deserialised.getOperations().get(0).getHandler() instanceof AddNamedOperationHandler);
-        assert (deserialised.getOperations().get(1).getHandler() instanceof NamedOperationHandler);
-        assert (deserialised.getOperations().get(2).getHandler() instanceof DeleteNamedOperationHandler);
-        assert (deserialised.getOperations().get(3).getHandler() instanceof GetAllNamedOperationsHandler);
+        assert deserialised.getOperations().get(0).getHandler() instanceof AddNamedOperationHandler;
+        assert deserialised.getOperations().get(1).getHandler() instanceof NamedOperationHandler;
+        assert deserialised.getOperations().get(2).getHandler() instanceof DeleteNamedOperationHandler;
+        assert deserialised.getOperations().get(3).getHandler() instanceof GetAllNamedOperationsHandler;
     }
 
     @Test
@@ -71,7 +71,7 @@ public class NamedOperationHandlerTest {
 
         INamedOperationCache cache = ((AddNamedOperationHandler) deserialised.getOperations().get(0).getHandler()).getCache();
 
-        assert (cache instanceof MockNamedOperationCache);
+        assert cache instanceof MockNamedOperationCache;
     }
 
     @Test

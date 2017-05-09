@@ -90,6 +90,7 @@ public class GlobalViewElementDefinition extends ViewElementDefinition {
             return self();
         }
 
+        @Override
         public GlobalViewElementDefinition getElementDef() {
             return (GlobalViewElementDefinition) super.getElementDef();
         }

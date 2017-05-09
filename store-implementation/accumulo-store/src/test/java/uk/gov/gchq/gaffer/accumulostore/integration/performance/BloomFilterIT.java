@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccum
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicRangeFactory;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -105,12 +104,12 @@ public class BloomFilterIT {
     }
 
     @Test
-    public void test() throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    public void test() throws RangeFactoryException, IOException {
         testFilter(byteEntityElementConverter, byteEntityRangeFactory);
         testFilter(gafferV1ElementConverter, Gaffer1RangeFactory);
     }
 
-    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws AccumuloElementConversionException, RangeFactoryException, IOException {
+    private void testFilter(final AccumuloElementConverter elementConverter, final RangeFactory rangeFactory) throws RangeFactoryException, IOException {
         // Create random data to insert, and sort it
         final Random random = new Random();
         final HashSet<Key> keysSet = new HashSet<>();
@@ -193,7 +192,7 @@ public class BloomFilterIT {
                     maxRandomRate = rate;
                 }
             }
-            LOGGER.info("Max random rate = " + maxRandomRate);
+            LOGGER.info("Max random rate = {}", maxRandomRate);
 
             // Calculate look up rate for items that were inserted
             double maxCausalRate = -1.0;
@@ -203,7 +202,7 @@ public class BloomFilterIT {
                     maxCausalRate = rate;
                 }
             }
-            LOGGER.info("Max causal rate = " + maxCausalRate);
+            LOGGER.info("Max causal rate = {}", maxCausalRate);
 
             // Random look up rate should be much faster
             assertTrue(maxRandomRate > maxCausalRate);
@@ -213,7 +212,7 @@ public class BloomFilterIT {
         }
     }
 
-    private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, AccumuloElementConversionException, RangeFactoryException {
+    private double calculateRandomLookUpRate(final FileSKVIterator reader, final HashSet<Entity> dataSet, final Random random, final RangeFactory rangeFactory) throws IOException, RangeFactoryException {
         final EntityId[] randomData = new EntityId[5000];
         for (int i = 0; i < 5000; i++) {
             randomData[i] = new EntitySeed("type" + random.nextInt(Integer.MAX_VALUE));
@@ -227,7 +226,7 @@ public class BloomFilterIT {
         }
         final long end = System.currentTimeMillis();
         final double randomRate = 5000 / ((end - start) / 1000.0);
-        LOGGER.info("Random look up rate = " + randomRate);
+        LOGGER.info("Random look up rate = {}", randomRate);
         return randomRate;
     }
 
@@ -244,7 +243,7 @@ public class BloomFilterIT {
         }
         final long end = System.currentTimeMillis();
         final double causalRate = 5000 / ((end - start) / 1000.0);
-        LOGGER.info("Causal look up rate = " + causalRate);
+        LOGGER.info("Causal look up rate = {}", causalRate);
         return causalRate;
     }
 

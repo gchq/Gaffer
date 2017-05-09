@@ -42,7 +42,7 @@ public class SchemaOptimiser {
     }
 
     public Schema optimise(final Schema schema, final boolean isStoreOrdered) {
-        if (null != schema.getTypes()) {
+        if (null != schema && null != schema.getTypes()) {
             return new Schema.Builder()
                     .merge(schema)
                     .types(getOptimisedTypes(schema, isStoreOrdered))
@@ -109,7 +109,7 @@ public class SchemaOptimiser {
                 if (null == typeDef.getSerialiser()) {
                     typeDef.setSerialiser(serialisationFactory.getSerialiser(typeDef.getClazz(), isStoreOrdered));
                 } else if (isStoreOrdered && !typeDef.getSerialiser().preservesObjectOrdering()) {
-                    LOGGER.warn(typeDef.getSerialiser().getClass().getName() + " serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes.");
+                    LOGGER.warn("{} serialiser is used for a 'group by' property in an ordered store and it does not preserve the order of bytes.", typeDef.getSerialiser().getClass().getName());
                 }
 
                 if (typeDef.getSerialiser() instanceof JavaSerialiser) {

@@ -75,6 +75,7 @@ public class GafferResultCacheExporter implements Exporter {
         userOpAuths.add(user.getUserId());
     }
 
+    @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
         if (null == values) {
             return;
@@ -117,6 +118,7 @@ public class GafferResultCacheExporter implements Exporter {
                 .build(), user);
     }
 
+    @Override
     public CloseableIterable<?> get(final String key) throws OperationException {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(jobId, key, true))
@@ -157,7 +159,7 @@ public class GafferResultCacheExporter implements Exporter {
             try {
                 resultClass = Class.forName(resultClassName);
             } catch (final ClassNotFoundException e) {
-                LOGGER.error("Result class name was not found: " + resultClassName, e);
+                LOGGER.error("Result class name was not found: {}", resultClassName, e);
                 throw new RuntimeException(e);
             }
 
@@ -165,7 +167,7 @@ public class GafferResultCacheExporter implements Exporter {
                 return jsonSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
-                    LOGGER.error("Unable to deserialise result: " + new String(resultBytes, CommonConstants.UTF_8), e);
+                    LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
                 } catch (final UnsupportedEncodingException e1) {
                     throw new RuntimeException(e);
                 }
