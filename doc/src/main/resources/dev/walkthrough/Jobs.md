@@ -10,27 +10,29 @@ When we refer to a 'Job' we are really just talking about an Operation Chain con
 
 #### Configuration
 
-By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the
-job tracker implementation you want e.g. job-tracker-jcs:
+By default the Job Tracker is disabled. To enable the job tracker set this store.property:
+
+```
+gaffer.store.job.tracker.enabled=true
+```
+
+You will also need to configure what cache to use for the job tracker. The same cache is used for named operations and the job tracker.
+For example, to use the JCS cache service, add a dependency on the jcs-cache-service and set these store.properties:
 
 ```xml
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <artifactId>job-tracker-jcs</artifactId>
-    <version>gaffer.version</version>
+    <artifactId>jcs-cache-service</artifactId>
+    <version>${project.parent.version}</version>
 </dependency>
 ```
 
-You will then need to register the job tracker in your store.properties file.
-
 ```
-gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.JcsJobTracker
-```
+gaffer.cache.service.class
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
 
-you can optionally provide a config file (e.g a cache.ccf file):
-
-```
-gaffer.store.job.tracker.config.path=/path/to/config/file
+# Optionally provide custom cache properties
+gaffer.cache.config.file=/path/to/config/file
 ```
 
 In addition to the job tracker, it is recommended that you enable a cache to store the job results in. The caching mechanism is implemented as operations and operation handlers. By default these are disabled.
