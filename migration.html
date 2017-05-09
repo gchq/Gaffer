@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+        "http://www.w3.org/TR/html4/frameset.dtd">
+<!-- NewPage -->
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Gaffer Migration Tool</title>
+</head>
+
+<body>
+
+<h1>Gaffer Migration Tool 0.6.6 to 0.7.0</h1>
+
+<h2>Input</h2>
+<textarea id="input" style="width:80%; margin:0 20px; height:250px"
+          onkeyup="migrate()"
+          placeholder="Paste input here"></textarea>
+
+<br/>
+
+<h2>Output</h2>
+<textarea id="output" style="width:80%; margin:0 20px; height:250px"></textarea>
+
+<script>
+var migrations;
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function () {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        migrations=xmlhttp.responseText;
+    }
+}
+xmlhttp.open("GET", "migration-0.7.0.csv", false);
+xmlhttp.send();
+
+var migrate = function(){
+    input=document.getElementById("input").value;
+
+    output=input;
+    migrations.split("\n").forEach(function(line){
+        if(line && !line.startsWith("#") && line.includes(",")){
+            findReplace=line.split(",");
+            var regex = findReplace[0]
+                .replace(/\./gi, "\\.")
+                .replace(/\(/gi, "\\(")
+                .replace(/\)/gi, "\\)");
+            console.log(regex);
+            var re = new RegExp(regex,"gi");
+            output=output.replace(re, findReplace[1]);
+        }
+    });
+
+    document.getElementById("output").value=output;
+}
+
+
+</script>
+</body>
+</html>
