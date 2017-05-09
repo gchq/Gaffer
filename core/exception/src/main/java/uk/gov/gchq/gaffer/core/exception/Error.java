@@ -22,20 +22,22 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusDeserialiser;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusSerialiser;
 
 /**
  * Simple serialisable POJO for containing details of REST errors.
- *
  * An {@link uk.gov.gchq.gaffer.core.exception.Error} object is typically
  * created automatically by a Jersey ExceptionMapper and should not be created
  * manually.
  */
 @JsonDeserialize(builder = ErrorBuilder.class)
 public final class Error {
-
+    public static final String REST_DEBUG = "gaffer.error-mode.debug";
+    public static final String REST_DEBUG_DEFAULT = String.valueOf(false);
     private final int statusCode;
     private final Status status;
     private final String simpleMessage;
@@ -101,10 +103,24 @@ public final class Error {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ErrorBuilder {
+        private static final Logger LOGGER = LoggerFactory.getLogger(ErrorBuilder.class);
+        private static Boolean isRestDebug;
         private int statusCode;
         private Status status;
         private String simpleMessage;
         private String detailMessage;
+
+        static {
+            try {
+                isRestDebug = Boolean.valueOf(System.getProperty(REST_DEBUG, REST_DEBUG_DEFAULT).trim());
+                if (isRestDebug) {
+                    LOGGER.debug("Detailed error message has been enabled in SystemProperties");
+                }
+            } catch (Exception e) {
+                LOGGER.error("Defaulting RestDebug flag. Could not assign from System Properties: {}", e.getMessage());
+                isRestDebug = Boolean.valueOf(REST_DEBUG_DEFAULT);
+            }
+        }
 
         public ErrorBuilder() {
             // Empty
@@ -134,7 +150,17 @@ public final class Error {
         }
 
         public Error build() {
-            return new Error(this);
+            return new Error(isRestDebug ? this : this.detailMessage(null));
+        }
+
+        @Override
+        public String toString() {
+            final ToStringBuilder sb = new ToStringBuilder(this);
+            sb.append("simpleMessage", simpleMessage);
+            sb.append("detailMessage", detailMessage);
+            sb.append("statusCode", statusCode);
+            sb.append("status", status);
+            return sb.build();
         }
     }
 }
