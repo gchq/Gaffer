@@ -29,15 +29,15 @@ import uk.gov.gchq.gaffer.core.exception.serialisation.StatusDeserialiser;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusSerialiser;
 
 /**
- * Simple serialisable POJO for containing details of REST errors.
+ * Simple serialisable POJO for containing details of errors.
  * An {@link uk.gov.gchq.gaffer.core.exception.Error} object is typically
  * created automatically by a Jersey ExceptionMapper and should not be created
  * manually.
  */
 @JsonDeserialize(builder = ErrorBuilder.class)
 public final class Error {
-    public static final String REST_DEBUG = "gaffer.error-mode.debug";
-    public static final String REST_DEBUG_DEFAULT = String.valueOf(false);
+    public static final String DEBUG = "gaffer.error-mode.debug";
+    public static final String DEBUG_DEFAULT = String.valueOf(false);
     private final int statusCode;
     private final Status status;
     private final String simpleMessage;
@@ -104,7 +104,7 @@ public final class Error {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ErrorBuilder {
         private static final Logger LOGGER = LoggerFactory.getLogger(ErrorBuilder.class);
-        private static Boolean isRestDebug;
+        private static Boolean isDebug;
         private int statusCode;
         private Status status;
         private String simpleMessage;
@@ -112,13 +112,13 @@ public final class Error {
 
         static {
             try {
-                isRestDebug = Boolean.valueOf(System.getProperty(REST_DEBUG, REST_DEBUG_DEFAULT).trim());
-                if (isRestDebug) {
+                isDebug = Boolean.valueOf(System.getProperty(DEBUG, DEBUG_DEFAULT).trim());
+                if (isDebug) {
                     LOGGER.debug("Detailed error message has been enabled in SystemProperties");
                 }
             } catch (Exception e) {
-                LOGGER.error("Defaulting RestDebug flag. Could not assign from System Properties: {}", e.getMessage());
-                isRestDebug = Boolean.valueOf(REST_DEBUG_DEFAULT);
+                LOGGER.error("Defaulting Debug flag. Could not assign from System Properties: {}", e.getMessage());
+                isDebug = Boolean.valueOf(DEBUG_DEFAULT);
             }
         }
 
@@ -150,7 +150,7 @@ public final class Error {
         }
 
         public Error build() {
-            return new Error(isRestDebug ? this : this.detailMessage(null));
+            return new Error(isDebug ? this : this.detailMessage(null));
         }
 
         @Override
