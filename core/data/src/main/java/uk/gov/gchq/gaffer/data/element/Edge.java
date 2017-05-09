@@ -112,7 +112,7 @@ public class Edge extends Element implements EdgeId {
                 setDirected((boolean) propertyToBeSet);
                 break;
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                LOGGER.error("Unknown identifier type: {} detected.", identifierType);
         }
     }
 
