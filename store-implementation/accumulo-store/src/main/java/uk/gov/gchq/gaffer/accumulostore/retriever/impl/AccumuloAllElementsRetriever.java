@@ -59,7 +59,7 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
             Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
             iterator = new ElementIterator(all.iterator());
         } catch (final RetrieverException e) {
-            LOGGER.error(e.getMessage() + " returning empty iterator", e);
+            LOGGER.error("{} returning empty iterator", e.getMessage(), e);
             return new EmptyCloseableIterator<>();
         }
 
