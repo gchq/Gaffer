@@ -165,13 +165,13 @@ public abstract class StreamUtil {
         return closedStreamsCount;
     }
 
-    public static InputStream openStream(final Class clazz, final String path) throws IllegalArgumentException {
+    public static InputStream openStream(final Class clazz, final String path) {
         final String checkedPath = formatPathForOpenStream(path);
         final InputStream resourceAsStream = clazz.getResourceAsStream(checkedPath);
         return (resourceAsStream != null) ? resourceAsStream : processException(path);
     }
 
-    private static InputStream processException(final String path) throws IllegalArgumentException {
+    private static InputStream processException(final String path) {
         LOGGER.error(LOG_FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH, path);
         throw new IllegalArgumentException(FAILED_TO_CREATE_INPUT_STREAM_FOR_PATH + path);
     }
