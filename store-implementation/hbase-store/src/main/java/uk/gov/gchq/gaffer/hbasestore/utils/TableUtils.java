@@ -156,7 +156,7 @@ public final class TableUtils {
             addCoprocesssor(htable, store);
             admin.createTable(htable);
         } catch (final Exception e) {
-            LOGGER.warn("Failed to create table " + tableName, e);
+            LOGGER.warn("Failed to create table {}", tableName, e);
             throw new StoreException("Failed to create table " + tableName, e);
         }
 
@@ -204,7 +204,7 @@ public final class TableUtils {
         try {
             final Admin admin = connection.getAdmin();
             if (admin.tableExists(tableName)) {
-                LOGGER.info("Dropping table: " + tableName.getNameAsString());
+                LOGGER.info("Dropping table: {}", tableName.getNameAsString());
                 if (admin.isTableEnabled(tableName)) {
                     admin.disableTable(tableName);
                 }

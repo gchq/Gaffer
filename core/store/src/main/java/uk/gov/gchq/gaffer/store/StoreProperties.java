@@ -247,7 +247,7 @@ public class StoreProperties implements Cloneable {
             try {
                 storePropertiesStream.close();
             } catch (final IOException e) {
-                LOGGER.error("Failed to close store properties stream: " + e.getMessage(), e);
+                LOGGER.error("Failed to close store properties stream: {}", e.getMessage(), e);
             }
         }
         return loadStoreProperties(props);
