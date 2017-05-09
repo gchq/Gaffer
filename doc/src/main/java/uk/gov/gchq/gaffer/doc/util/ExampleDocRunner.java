@@ -74,7 +74,7 @@ public abstract class ExampleDocRunner {
     }
 
     protected void printEditWarning() {
-        log("_This page has been generated from code. To make any changes please update the example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/dev-doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
+        log("_This page has been generated from code. To make any changes please update the example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {
