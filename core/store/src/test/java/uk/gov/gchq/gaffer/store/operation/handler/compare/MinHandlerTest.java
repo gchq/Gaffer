@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,9 +22,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
-import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -52,9 +54,8 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Min min = new Min.Builder().input(input)
-                                                 .propertyName("property")
-                                                 .propertyComparator(new PropertyComparator())
-                                                 .build();
+                                         .comparator(new SimpleElementPropertyComparator())
+                                         .build();
 
         final MinHandler handler = new MinHandler();
 
@@ -88,13 +89,11 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
         final Min max1 = new Min.Builder().input(input)
-                                          .propertyName("property1")
-                                          .propertyComparator(new PropertyComparator())
+                                          .comparator(new SimpleElementPropertyComparator(TestGroups.ENTITY, "property1"))
                                           .build();
 
         final Min max2 = new Min.Builder().input(input)
-                                          .propertyName("property2")
-                                          .propertyComparator(new PropertyComparator())
+                                          .comparator(new SimpleElementPropertyComparator(TestGroups.ENTITY, "property2"))
                                           .build();
 
         final MinHandler handler = new MinHandler();
@@ -133,7 +132,7 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Min min = new Min.Builder().input(input)
-                                         .elementComparator(new ElementComparator())
+                                         .comparator(new SimpleElementComparator())
                                          .build();
 
         final MinHandler handler = new MinHandler();
@@ -153,8 +152,7 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList();
 
         final Min min = new Min.Builder().input(input)
-                                         .propertyName("property")
-                                         .propertyComparator(new PropertyComparator())
+                                         .comparator(new SimpleElementPropertyComparator())
                                          .build();
 
         final MinHandler handler = new MinHandler();
@@ -194,19 +192,22 @@ public class MinHandlerTest {
         assertNull(result);
     }
 
-    private static class ElementComparator implements Comparator<Element> {
+    private static class SimpleElementPropertyComparator extends ElementPropertyComparator {
+        public SimpleElementPropertyComparator() {
+            super(TestGroups.ENTITY, "property");
+        }
+
+        public SimpleElementPropertyComparator(final String group, final String property) {
+            super(group, property);
+        }
+    }
+
+    private static class SimpleElementComparator extends ElementComparator {
         @Override
         public int compare(final Element o1, final Element o2) {
             final int v1 = (int) o1.getProperty("property1") * (int) o1.getProperty("property2");
             final int v2 = (int) o2.getProperty("property1") * (int) o2.getProperty("property2");
             return v1 - v2;
-        }
-    }
-
-    private static class PropertyComparator implements Comparator<Object> {
-        @Override
-        public int compare(final Object o1, final Object o2) {
-            return (int) o1 - (int) o2;
         }
     }
 }

@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.comparator;
 
+package uk.gov.gchq.gaffer.data.element.comparison;
+
+import uk.gov.gchq.gaffer.commonutil.comparison.Comparison;
+import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Comparator;
 
-public class ShortComparatorTest extends PropertyComparatorTest<Short> {
+public abstract class ElementComparator extends Comparison<Element> {
 
-    @Override
-    public Comparator<Short> getComparator() {
-        return new ShortComparator();
-    }
+    protected Comparator comparator;
 
-    @Override
-    public Short getSmallValue() {
-        return 0;
-    }
-
-    @Override
-    public Short getBigValue() {
-        return 1;
+    public Comparator getComparator() {
+        return comparator;
     }
 }

@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.comparator;
 
-import java.util.Comparator;
+package uk.gov.gchq.gaffer.data.element.comparison;
 
-public class LongComparatorTest extends PropertyComparatorTest<Long> {
+import uk.gov.gchq.gaffer.data.element.Element;
 
-    @Override
-    public Comparator<Long> getComparator() {
-        return new LongComparator();
-    }
+public class ElementObjectComparator extends ElementComparator {
+    private static final long serialVersionUID = -6238106025243239083L;
 
     @Override
-    public Long getSmallValue() {
-        return 0l;
-    }
-
-    @Override
-    public Long getBigValue() {
-        return 1l;
+    public int compare(final Element o1, final Element o2) {
+        if (null != comparator) {
+            return comparator.compare(o1, o2);
+        }
+        throw new IllegalArgumentException("Must provide a comparator instance.");
     }
 }

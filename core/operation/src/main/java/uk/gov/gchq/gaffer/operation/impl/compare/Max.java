@@ -18,12 +18,17 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.operation.ElementComparison;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.Comparator;
+import java.util.Set;
 
 /**
  * A <code>Max</code> operation is intended as a terminal operation for retrieving the "maximum" element from an {@link java.lang.Iterable}.
@@ -35,41 +40,24 @@ import java.util.Comparator;
 public class Max implements
         Operation,
         InputOutput<Iterable<? extends Element>, Element>,
-        MultiInput<Element> {
+        MultiInput<Element>,
+        ElementComparison {
 
     private Iterable<? extends Element> input;
-    private Comparator<Element> elementComparator;
-    private Comparator propertyComparator;
-    private String propertyName;
+    private ElementComparator comparator;
 
     public Max() {
         // Empty
     }
 
+    @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Comparator getPropertyComparator() {
-        return propertyComparator;
+    public ElementComparator getComparator() {
+        return comparator;
     }
 
-    public void setPropertyComparator(final Comparator propertyComparator) {
-        this.propertyComparator = propertyComparator;
-    }
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Comparator<Element> getElementComparator() {
-        return elementComparator;
-    }
-
-    public void setElementComparator(final Comparator<Element> elementComparator) {
-        this.elementComparator = elementComparator;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
-    public void setPropertyName(final String propertyName) {
-        this.propertyName = propertyName;
+    public void setComparator(final ElementComparator comparator) {
+        this.comparator = comparator;
     }
 
     @Override
@@ -87,6 +75,13 @@ public class Max implements
         return new TypeReferenceImpl.Element();
     }
 
+    @Override
+    public Set<Pair<String, String>> getComparablePair() {
+        return (comparator instanceof ElementPropertyComparator)
+                ? _getComparablePair((ElementPropertyComparator) comparator)
+                : Sets.newHashSet();
+    }
+
     public static final class Builder
             extends Operation.BaseBuilder<Max, Max.Builder>
             implements InputOutput.Builder<Max, Iterable<? extends Element>, Element, Max.Builder>,
@@ -95,18 +90,9 @@ public class Max implements
             super(new Max());
         }
 
-        public Max.Builder elementComparator(final Comparator<Element> comparator) {
-            _getOp().setElementComparator(comparator);
-            return _self();
-        }
 
-        public Max.Builder propertyComparator(final Comparator comparator) {
-            _getOp().setPropertyComparator(comparator);
-            return _self();
-        }
-
-        public Max.Builder propertyName(final String propertyName) {
-            _getOp().setPropertyName(propertyName);
+        public Max.Builder comparator(final ElementComparator comparator) {
+            _getOp().setComparator(comparator);
             return _self();
         }
     }

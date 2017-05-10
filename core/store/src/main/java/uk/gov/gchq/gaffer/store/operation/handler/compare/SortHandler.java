@@ -18,65 +18,34 @@ package uk.gov.gchq.gaffer.store.operation.handler.compare;
 import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.Comparator;
-import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class SortHandler implements OutputOperationHandler<Sort, Iterable<? extends Element>> {
     @Override
     public Iterable<Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
 
-        // If the input is null, we return null
-        if (null == operation.getInput()) {
+        // If the input or comparator is null, we return null
+        if (null == operation.getInput() || null == operation.getComparator()) {
             return null;
         }
 
-        // If propertyName and the property comparator are both non-null, we sort based on a property comparison
-        if (null != operation.getPropertyName() && null != operation.getPropertyComparator()) {
-            final Comparator<Object> comparator = initComparator(operation.getPropertyComparator(), operation);
+        final ElementComparator comparator = operation.getComparator();
+        Stream<? extends Element> stream = Streams.toStream(operation.getInput());
 
-            final Predicate<Element> filterElements = buildElementFilter(operation);
-
-            return Streams.toStream(operation.getInput())
-                          .filter(filterElements)
-                          .sorted(Comparator.comparing(e -> e.getProperty(operation.getPropertyName()), comparator))
-                          .limit(operation.getResultLimit())
-                          .collect(GafferCollectors.toCloseableIterable());
+        if (comparator instanceof ElementPropertyComparator) {
+            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
+            stream = stream.filter(propertyComparator.asPredicate());
         }
 
-        // If the element comparator is non-null, then we carry out an element comparison
-        if (null != operation.getElementComparator()) {
-            return Streams.toStream(operation.getInput())
-                          .sorted(initComparator(operation.getElementComparator(), operation))
-                          .limit(operation.getResultLimit())
-                          .collect(GafferCollectors.toCloseableIterable());
-        }
-
-        // If both comparators are null, we return null
-        return null;
-    }
-
-    private Predicate<Element> buildElementFilter(final Sort operation) {
-        final Predicate<Element> propertyIsNull = e -> null == e.getProperty(operation.getPropertyName());
-        final Predicate<Element> nullsExcluded = e -> !operation.isIncludeNulls();
-
-        return propertyIsNull.and(nullsExcluded).negate();
-    }
-
-    private <T> Comparator<T> initComparator(final Comparator<T> comparator, final Sort operation) {
-        return includeNulls(reverse(comparator, operation.isReversed()),
-                operation.isIncludeNulls());
-    }
-
-    private <T> Comparator<T> reverse(final Comparator<T> comparator, final boolean reversed) {
-        return reversed ? comparator.reversed() : comparator;
-    }
-
-    private <T> Comparator<T> includeNulls(final Comparator<T> comparator, final boolean includeNulls) {
-        return includeNulls ? Comparator.nullsLast(comparator) : comparator;
+        return stream.sorted(comparator)
+                     .limit(operation.getResultLimit())
+                     .collect(GafferCollectors.toCloseableIterable());
     }
 }

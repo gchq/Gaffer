@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
  * <code>toByteArray()</code> method.
  *
  * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
- * <code>Comparator.naturalOrder()</code>.
+ * <code>Comparison.naturalOrder()</code>.
  */
 public class StringsUnionSerialiser implements Serialisation<ItemsUnion<String>> {
     private static final long serialVersionUID = 7091724743812159058L;

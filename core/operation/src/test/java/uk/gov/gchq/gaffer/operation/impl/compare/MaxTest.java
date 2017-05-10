@@ -19,12 +19,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max.Builder;
-import java.util.Comparator;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -61,17 +62,16 @@ public class MaxTest implements OperationTest {
                 .build(), new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .property("property", 2)
-                .build()).propertyComparator(new Comparator<Object>() {
+                .build()).comparator(new ElementComparator() {
             @Override
-            public int compare(final Object o1, final Object o2) {
+            public int compare(final Element o1, final Element o2) {
                 return 0;
             }
-        }).propertyName("property").build();
+        }).build();
 
         // Then
         assertThat(max.getInput(), is(notNullValue()));
         assertThat(max.getInput(), iterableWithSize(2));
-        assertThat(max.getPropertyName(), is("property"));
         assertThat(Streams.toStream(max.getInput())
                           .map(e -> e.getProperty("property"))
                           .collect(toList()), containsInAnyOrder(1, 2));

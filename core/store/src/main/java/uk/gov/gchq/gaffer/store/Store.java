@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -28,6 +29,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
+import uk.gov.gchq.gaffer.operation.ElementComparison;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -61,8 +63,6 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
-import uk.gov.gchq.gaffer.operation.impl.properties.Product;
-import uk.gov.gchq.gaffer.operation.impl.properties.Sum;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
@@ -92,8 +92,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.output.ToMapHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToSetHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToStreamHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.output.ToVerticesHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.properties.ProductHandler;
-import uk.gov.gchq.gaffer.store.operation.handler.properties.SumHandler;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclaration;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.optimiser.OperationChainOptimiser;
@@ -120,19 +118,16 @@ import java.util.Set;
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-
+    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
+    private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
     private Schema schema;
-
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
-
-    private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
-    private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
     private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
 
@@ -157,7 +152,9 @@ public abstract class Store {
         final String jobTrackerClass = properties.getJobTrackerClass();
         if (null != jobTrackerClass) {
             try {
-                final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
+                final JobTracker newJobTracker = Class.forName(jobTrackerClass)
+                                                      .asSubclass(JobTracker.class)
+                                                      .newInstance();
                 newJobTracker.initialise(properties.getJobTrackerConfigPath());
                 return newJobTracker;
             } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -263,7 +260,8 @@ public abstract class Store {
                 }
             }
             if (!hasExport) {
-                operationChain.getOperations().add(new ExportToGafferResultCache());
+                operationChain.getOperations()
+                              .add(new ExportToGafferResultCache());
             }
         }
 
@@ -316,7 +314,8 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final SchemaElementDefinition elementDefinition = getSchema().getElement(lazyElement.getGroup());
+        final SchemaElementDefinition elementDefinition = getSchema().getElement(lazyElement
+                .getGroup());
         if (null != elementDefinition) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
@@ -363,21 +362,31 @@ public abstract class Store {
             final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
             schemaElements.putAll(getSchema().getEdges());
             schemaElements.putAll(getSchema().getEntities());
-            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    Serialisation serialisation = schemaElementDefinitionEntry.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements
+                    .entrySet()) {
+                for (final String propertyName : schemaElementDefinitionEntry.getValue()
+                                                                             .getProperties()) {
+                    Class propertyClass = schemaElementDefinitionEntry.getValue()
+                                                                      .getPropertyClass(propertyName);
+                    Serialisation serialisation = schemaElementDefinitionEntry.getValue()
+                                                                              .getPropertyTypeDef(propertyName)
+                                                                              .getSerialiser();
                     if (null == serialisation) {
-                        validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "'.");
+                        validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry
+                                .getKey() + "'.");
                     } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError("Schema serialiser (" + serialisation.getClass().getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry.getKey() + "' cannot handle property found in the schema");
+                        validationResult.addError("Schema serialiser (" + serialisation
+                                .getClass()
+                                .getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry
+                                .getKey() + "' cannot handle property found in the schema");
                     }
                 }
             }
         }
 
         if (!validationResult.isValid()) {
-            throw new SchemaException("Schema is not valid. " + validationResult.getErrorString());
+            throw new SchemaException("Schema is not valid. " + validationResult
+                    .getErrorString());
         }
     }
 
@@ -404,11 +413,30 @@ public abstract class Store {
             } else {
                 opView = null;
             }
-            final ValidationResult validationResult = viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED));
-            if (!validationResult.isValid()) {
+            final ValidationResult viewValidationResult = viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED));
+            if (!viewValidationResult.isValid()) {
                 throw new SchemaException("View for operation "
                         + op.getClass().getName()
-                        + " is not valid. " + validationResult.getErrorString());
+                        + " is not valid. " + viewValidationResult.getErrorString());
+            }
+
+            if (op instanceof ElementComparison) {
+                for (final Pair<String, String> pair : ((ElementComparison) op).getComparablePair()) {
+                    if (!schema.getElement(pair.getFirst())
+                               .getPropertyClass(pair.getSecond())
+                               .isAssignableFrom(Comparable.class)) {
+                        throw new SchemaException("Type definition for " + pair.getSecond() + " in group " + pair
+                                .getFirst() + " indicates a class which does not extend Comparable.");
+                    }
+                }
+
+                final ValidationResult operationValidationResult = viewValidator
+                        .validate(opView, schema, hasTrait(StoreTrait.ORDERED));
+                if (!operationValidationResult.isValid()) {
+                    throw new SchemaException("View for operation "
+                            + op.getClass().getName()
+                            + " is not valid. " + operationValidationResult.getErrorString());
+                }
             }
         }
     }
@@ -497,13 +525,17 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
+                .getUser()
+                .getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
-            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
+                    .getUser());
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
-                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
+                        .getUser());
             }
         }
         return newJobDetail;
@@ -511,7 +543,8 @@ public abstract class Store {
 
     protected Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
-        final OperationHandler<Operation> handler = getOperationHandler(operation.getClass());
+        final OperationHandler<Operation> handler = getOperationHandler(operation
+                .getClass());
         Object result;
         if (null != handler) {
             result = handler.doOperation(operation, context, this);
@@ -528,7 +561,9 @@ public abstract class Store {
                 ((Input) op).setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input", e);
+                        + op.getClass()
+                            .getName() + " cannot take " + result.getClass()
+                                                                 .getName() + " as an input", e);
             }
         }
     }
@@ -572,11 +607,7 @@ public abstract class Store {
         addOperationHandler(ToStream.class, new ToStreamHandler<>());
         addOperationHandler(ToVertices.class, new ToVerticesHandler());
 
-        // Properties
-        addOperationHandler(Product.class, new ProductHandler());
-        addOperationHandler(Sum.class, new SumHandler());
-
-        // Comparison
+        // ElementComparison
         addOperationHandler(Max.class, new MaxHandler());
         addOperationHandler(Min.class, new MinHandler());
         addOperationHandler(Sort.class, new SortHandler());

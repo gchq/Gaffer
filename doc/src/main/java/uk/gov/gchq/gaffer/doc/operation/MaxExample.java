@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
-import uk.gov.gchq.gaffer.comparator.IntegerComparator;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -44,8 +44,10 @@ public class MaxExample extends OperationExample {
                         .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
                 .then(new Max.Builder()
-                        .propertyName("count")
-                        .propertyComparator(new IntegerComparator())
+                        .comparator(new ElementPropertyComparator.Builder()
+                                .groupName("entity")
+                                .propertyName("count")
+                                .build())
                         .build())
                 .build();
         // ---------------------------------------------------------

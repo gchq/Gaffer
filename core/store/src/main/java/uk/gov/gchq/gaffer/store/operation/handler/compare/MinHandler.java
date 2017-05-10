@@ -17,40 +17,35 @@ package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 public class MinHandler implements OutputOperationHandler<Min, Element> {
     @Override
     public Element doOperation(final Min operation, final Context context, final Store store) throws OperationException {
-        // If the input is null, we return null
-        if (null == operation.getInput()) {
+        // If the input or comparator is null, we return null
+        if (null == operation.getInput() || null == operation.getComparator()) {
             return null;
         }
 
-        // If propertyName and the property comparator are both non-null, we carry out a property comparison
-        if (null != operation.getPropertyName() && null != operation.getPropertyComparator()) {
-            return Streams.toStream(operation.getInput())
-                          .filter(e -> null != e.getProperty(operation.getPropertyName()))
-                          .reduce((l, r) ->
-                                  operation.getPropertyComparator()
-                                           .compare(l.getProperty(operation.getPropertyName()),
-                                                   r.getProperty(operation.getPropertyName())) < 0 ? l : r)
-                          .orElseThrow(() -> new NoSuchElementException("Iterable was empty."));
+        final ElementComparator comparator = operation.getComparator();
+        Stream<? extends Element> stream = Streams.toStream(operation.getInput());
+
+        if (comparator instanceof ElementPropertyComparator) {
+            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
+            stream = Streams.toStream(operation.getInput())
+                            .filter(e -> e.getGroup() == propertyComparator.getGroupName())
+                            .filter(e -> null != e.getProperty(propertyComparator.getPropertyName()));
         }
 
-        // If the element comparator is non-null, then we carry out an element comparison
-        if (null != operation.getElementComparator()) {
-            return Streams.toStream(operation.getInput())
-                          .min(operation.getElementComparator())
-                          .orElseThrow(() -> new NoSuchElementException("Iterable was empty."));
-        }
-
-        // If both comparators are null, we return null
-        return null;
+        return stream.min(comparator)
+                     .orElseThrow(() -> new NoSuchElementException("Iterable was empty."));
     }
 }
