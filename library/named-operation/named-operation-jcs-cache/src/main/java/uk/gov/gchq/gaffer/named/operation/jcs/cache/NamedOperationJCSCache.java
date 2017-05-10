@@ -62,7 +62,7 @@ public final class NamedOperationJCSCache extends AbstractNamedOperationCache {
             getCache().putInGroup(name, CACHE_GROUP, namedOperation);
 
         } catch (final CacheException e) {
-            LOGGER.error("Failed to add named Operation {} with operation {}", name, namedOperation.getOperationChain().toString(), e.getMessage());
+            LOGGER.error("Failed to add named Operation {} with operation {}", name, namedOperation.getOperationChain(), e.getMessage());
             throw new CacheOperationFailedException(e.getMessage(), e);
         }
     }

@@ -66,11 +66,11 @@ public class OperationChainTest {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(0)
-                                                        .getClass());
+                .get(0)
+                .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(1)
-                                                        .getClass());
+                .get(1)
+                .getClass());
     }
 
     @Test
@@ -133,29 +133,6 @@ public class OperationChainTest {
                         getJobDetails
                 },
                 opChain.getOperationArray());
-    }
-
-    @Test
-    public void shouldReturnReadableStringForToString() {
-        // Given
-        final AddElements addElements = new AddElements();
-        final GetAdjacentIds getAdj1 = new GetAdjacentIds();
-        final GetAdjacentIds getAdj2 = new GetAdjacentIds();
-        final GetElements getRelElements = new GetElements();
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new Builder()
-                .first(addElements)
-                .then(getAdj1)
-                .then(getAdj2)
-                .then(getRelElements)
-                .build();
-
-        // When
-        final String toString = opChain.toString();
-
-        // Then
-        final String expectedToString =
-                "OperationChain[AddElements->GetAdjacentIds->GetAdjacentIds->GetElements]";
-        assertEquals(expectedToString, toString);
     }
 
     @Test

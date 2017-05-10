@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map.Entry;
 
@@ -146,8 +147,10 @@ public abstract class Element implements ElementId {
 
     @Override
     public String toString() {
-        return ", group='" + group
-                + "\', properties=" + properties;
+        return new ToStringBuilder(this)
+                .append("group", group)
+                .append("properties", properties)
+                .build();
     }
 }
 

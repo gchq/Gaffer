@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
@@ -97,23 +98,9 @@ public class OperationChain<OUT> {
 
     @Override
     public String toString() {
-        final StringBuilder strBuilder = new StringBuilder("OperationChain[");
-
-        if (null != operations) {
-            boolean first = true;
-            for (final Operation op : operations) {
-                if (first) {
-                    first = false;
-                } else {
-                    strBuilder.append("->");
-                }
-
-                strBuilder.append(op.getClass().getSimpleName());
-            }
-        }
-
-        strBuilder.append("]");
-        return strBuilder.toString();
+        return new ToStringBuilder(this)
+                .append("operations", operations)
+                .build();
     }
 
     /**

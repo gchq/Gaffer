@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -108,10 +109,10 @@ public class GenerateObjectsExample extends OperationExample {
 
         @Override
         public String toString() {
-            return "DomainObject1{"
-                    + "a=" + a
-                    + ", c=" + c
-                    + '}';
+            return new ToStringBuilder(this)
+                    .append("a", a)
+                    .append("c", c)
+                    .build();
         }
     }
 
@@ -155,11 +156,11 @@ public class GenerateObjectsExample extends OperationExample {
 
         @Override
         public String toString() {
-            return "DomainObject2{"
-                    + "a=" + a
-                    + ", b=" + b
-                    + ", c=" + c
-                    + '}';
+            return new ToStringBuilder(this)
+                    .append("a", a)
+                    .append("b", b)
+                    .append("c", c)
+                    .build();
         }
     }
 
