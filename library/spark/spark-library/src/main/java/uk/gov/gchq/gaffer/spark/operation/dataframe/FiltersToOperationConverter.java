@@ -377,7 +377,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isEqual, equalNullSafe.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isEqual, new String[]{equalNullSafe.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to IsEqual ({})", filter, equalNullSafe.attribute());
@@ -390,7 +390,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, greaterThan.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, new String[]{greaterThan.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to isMoreThan ({})", filter, greaterThan.attribute());
@@ -403,7 +403,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, greaterThan.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isMoreThan, new String[]{greaterThan.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to IsMoreThan ({})", filter, greaterThan.attribute());
@@ -416,7 +416,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, lessThan.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, new String[]{lessThan.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to IsLessThan ({})", filter, lessThan.attribute());
@@ -429,7 +429,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, lessThan.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isLessThan, new String[]{lessThan.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to LessThanOrEqual ({})", filter, lessThan.attribute());
@@ -442,7 +442,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(isIn, in.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(isIn, new String[]{in.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to IsIn ({})", filter, in.attribute());
@@ -455,7 +455,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(doesntExist, isNull.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(doesntExist, new String[]{isNull.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to Not(Exists) ({})", filter, isNull.attribute());
@@ -468,7 +468,7 @@ public class FiltersToOperationConverter {
                     if (!map.containsKey(group)) {
                         map.put(group, new ArrayList<>());
                     }
-                    map.get(group).add(new TupleAdaptedPredicate<>(exists, isNotNull.attribute()));
+                    map.get(group).add(new TupleAdaptedPredicate<>(exists, new String[]{isNotNull.attribute()}));
                 }
             }
             LOGGER.debug("Converted {} to Exists ({})", filter, isNotNull.attribute());

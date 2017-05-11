@@ -79,7 +79,7 @@ public class AccumuloStoreRelationTest {
     @Test
     public void testBuildScanRestrictViewByProperty() throws OperationException, StoreException {
         final List<TupleAdaptedPredicate<String, ?>> filters = new ArrayList<>();
-        filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), "property1"));
+        filters.add(new TupleAdaptedPredicate<>(new IsMoreThan(5, false), new String[]{"property1"}));
         final View view = new View.Builder()
                 .edge(GetDataFrameOfElementsHandlerTest.EDGE_GROUP, new ViewElementDefinition.Builder()
                         .postAggregationFilterFunctions(filters)
@@ -122,9 +122,9 @@ public class AccumuloStoreRelationTest {
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
-               .filter(returnElement)
-               .map(elementConverter::apply)
-               .forEach(expectedRows::add);
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -170,9 +170,9 @@ public class AccumuloStoreRelationTest {
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
-               .filter(returnElement)
-               .map(elementConverter::apply)
-               .forEach(expectedRows::add);
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
@@ -224,9 +224,9 @@ public class AccumuloStoreRelationTest {
                 schemaConverter.getPropertyNeedsConversion(), schemaConverter.getConverterByProperty());
         final Set<Row> expectedRows = new HashSet<>();
         Streams.toStream(getElements())
-               .filter(returnElement)
-               .map(elementConverter::apply)
-               .forEach(expectedRows::add);
+                .filter(returnElement)
+                .map(elementConverter::apply)
+                .forEach(expectedRows::add);
         assertEquals(expectedRows, results);
 
         sqlContext.sparkContext().stop();
