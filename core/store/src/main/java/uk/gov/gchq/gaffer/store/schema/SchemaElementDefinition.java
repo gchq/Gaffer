@@ -298,7 +298,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final TypeDefinition type = getTypeDef(classOrTypeName);
         if (null != type.getValidateFunctions()) {
             for (final Predicate<?> predicate : type.getValidateFunctions()) {
-                fullValidator.getComponents().add(new TupleAdaptedPredicate<>(predicate, key));
+                fullValidator.getComponents().add(new TupleAdaptedPredicate<>(predicate, new String[]{key}));
             }
         }
     }
@@ -306,14 +306,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     private void addTypeAggregateFunction(final ElementAggregator aggregator, final String key, final String typeName) {
         final TypeDefinition type = getTypeDef(typeName);
         if (null != type.getAggregateFunction()) {
-            aggregator.getComponents().add(new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), key));
+            aggregator.getComponents().add(new TupleAdaptedBinaryOperator<>(type.getAggregateFunction(), new String[]{key}));
         }
     }
 
     private void addIsAFunction(final ElementFilter fullValidator, final String key, final String classOrTypeName) {
         fullValidator.getComponents().add(
                 new TupleAdaptedPredicate<>(
-                        new IsA(getTypeDef(classOrTypeName).getClazz()), key));
+                        new IsA(getTypeDef(classOrTypeName).getClazz()), new String[]{key}));
     }
 
     private TypeDefinition getTypeDef(final String typeName) {
