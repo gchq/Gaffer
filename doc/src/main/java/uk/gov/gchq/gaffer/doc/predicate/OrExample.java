@@ -16,13 +16,12 @@
 package uk.gov.gchq.gaffer.doc.predicate;
 
 
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.n.Tuple1;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
-import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-import java.util.Arrays;
 
 public class OrExample extends PredicateExample {
     public static void main(final String[] args) {
@@ -35,36 +34,39 @@ public class OrExample extends PredicateExample {
 
     @Override
     public void runExamples() {
-        isLessThan2OrIsMoreThan2();
-        property1IsLessThan2OrProperty2IsMoreThan2();
+        isLessThan2EqualTo5OrIsMoreThan10();
+        isLessThan2EqualTo5OrIsMoreThan10();
+        firstItemIsLessThan2OrSecondItemIsMoreThan10();
     }
 
-    public void isLessThan2OrIsMoreThan2() {
+    public void isLessThan2EqualTo5OrIsMoreThan10() {
         // ---------------------------------------------------------
-        final Or function = new Or<>(Arrays.asList(
+        final Or function = new Or<>(
                 new IsLessThan(2),
-                new IsMoreThan(2)
-        ));
+                new IsEqual(5),
+                new IsMoreThan(10)
+        );
         // ---------------------------------------------------------
 
-        runExample(function, 1, 2, 3, 1L, 3L);
+        runExample(function, 1, 2, 3, 5, 15, 1L, 3L, 5L);
     }
 
-    public void property1IsLessThan2OrProperty2IsMoreThan2() {
+    public void firstItemIsLessThan2OrSecondItemIsMoreThan10() {
         // ---------------------------------------------------------
-        final Or function = new Or<>(Arrays.asList(
-                new TupleAdaptedPredicate<>(new IsLessThan(2), 0),
-                new TupleAdaptedPredicate<>(new IsMoreThan(2), 1)
-        ));
+        final Or function = new Or.Builder()
+                .select(0)
+                .execute(new IsLessThan(2))
+                .select(1)
+                .execute(new IsMoreThan(10))
+                .build();
         // ---------------------------------------------------------
 
         runExample(function,
-                new Tuple2<>(1, 3),
+                new Tuple2<>(1, 15),
                 new Tuple2<>(1, 1),
-                new Tuple2<>(3, 3),
-                new Tuple2<>(3, 1),
-                new Tuple2<>(1L, 3L),
-                new Tuple1<>(1)
-        );
+                new Tuple2<>(15, 15),
+                new Tuple2<>(15, 1),
+                new Tuple2<>(1L, 15L),
+                new Tuple1<>(1));
     }
 }
