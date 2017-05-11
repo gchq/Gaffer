@@ -15,13 +15,17 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
+import uk.gov.gchq.gaffer.commonutil.collection.LimitedTreeSet;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -50,7 +54,7 @@ public final class GafferCollectors {
     public static <T> Collector<T, List<T>, CloseableIterable<T>> toCloseableIterable() {
         return new GafferCollectorImpl<>(ArrayList::new, List::add,
                 (left, right) -> { left.addAll(right); return left; },
-                list -> new WrappedCloseableIterable<T>(list));
+                WrappedCloseableIterable::new);
     }
 
     /**
@@ -65,6 +69,13 @@ public final class GafferCollectors {
         return new GafferCollectorImpl<>((Supplier<Set<T>>) LinkedHashSet::new, Set::add,
                 (left, right) -> { left.addAll(right); return left; }, set -> set);
     }
+
+//    public static <T> Collector<T, LimitedTreeSet<T>, CloseableIterable<T>> toLimitedCloseableIterable(final Comparator<T> comparator, final long limit) {
+//      return new GafferCollectorImpl<>(new LimitedTreeSet<T>(comparator, limit),
+//              Set::add,
+//              (left, right) -> { left.addAll(right); return left; },
+//                WrappedCloseableIterable::new);
+//    }
 
     /**
      * Simple implementation class for {@code GafferCollector}.
