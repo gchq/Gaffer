@@ -90,6 +90,7 @@ public class OperationService implements IOperationService {
                     chunkResult(result, output);
                 } finally {
                     IOUtils.closeQuietly(output);
+                    IOUtils.closeQuietly(opChain);
                 }
             }
         }.start();
@@ -145,17 +146,27 @@ public class OperationService implements IOperationService {
         return _execute(new OperationChain<>(operation));
     }
 
+    @SuppressWarnings("ThrowFromFinallyBlock")
     protected <O> O _execute(final OperationChain<O> opChain) {
         final User user = userFactory.createUser();
         preOperationHook(opChain, user);
 
+        O result;
         try {
-            return graphFactory.getGraph().execute(opChain, user);
+            result = graphFactory.getGraph().execute(opChain, user);
         } catch (final OperationException e) {
+            IOUtils.closeQuietly(opChain);
             throw new RuntimeException("Error executing opChain", e);
         } finally {
-            postOperationHook(opChain, user);
+            try {
+                postOperationHook(opChain, user);
+            } catch (final Exception e) {
+                IOUtils.closeQuietly(opChain);
+                throw e;
+            }
         }
+
+        return result;
     }
 
     protected void chunkResult(final Object result, final ChunkedOutput<String> output) {

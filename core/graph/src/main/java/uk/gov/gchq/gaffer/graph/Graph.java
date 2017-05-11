@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -133,19 +134,25 @@ public final class Graph {
      * @throws OperationException thrown if the job fails to run.
      */
     public JobDetail executeJob(final OperationChain<?> operationChain, final User user) throws OperationException {
-        updateOperationChainView(operationChain);
+        try {
+            updateOperationChainView(operationChain);
 
-        for (final GraphHook graphHook : graphHooks) {
-            graphHook.preExecute(operationChain, user);
+            for (final GraphHook graphHook : graphHooks) {
+                graphHook.preExecute(operationChain, user);
+            }
+
+            JobDetail result = store.executeJob(operationChain, user);
+
+            for (final GraphHook graphHook : graphHooks) {
+                result = graphHook.postExecute(result, operationChain, user);
+            }
+
+            return result;
+
+        } catch (final Exception e) {
+            IOUtils.closeQuietly(operationChain);
+            throw e;
         }
-
-        JobDetail result = store.executeJob(operationChain, user);
-
-        for (final GraphHook graphHook : graphHooks) {
-            result = graphHook.postExecute(result, operationChain, user);
-        }
-
-        return result;
     }
 
     /**
@@ -160,16 +167,26 @@ public final class Graph {
      * @throws OperationException if an operation fails
      */
     public <O> O execute(final OperationChain<O> operationChain, final User user) throws OperationException {
-        updateOperationChainView(operationChain);
+        O result = null;
+        try {
+            updateOperationChainView(operationChain);
 
-        for (final GraphHook graphHook : graphHooks) {
-            graphHook.preExecute(operationChain, user);
-        }
+            for (final GraphHook graphHook : graphHooks) {
+                graphHook.preExecute(operationChain, user);
+            }
 
-        O result = store.execute(operationChain, user);
+            result = store.execute(operationChain, user);
 
-        for (final GraphHook graphHook : graphHooks) {
-            result = graphHook.postExecute(result, operationChain, user);
+            for (final GraphHook graphHook : graphHooks) {
+                result = graphHook.postExecute(result, operationChain, user);
+            }
+        } catch (final Exception e) {
+            IOUtils.closeQuietly(operationChain);
+            if (result instanceof Closeable) {
+                IOUtils.closeQuietly(((Closeable) result));
+            }
+
+            throw e;
         }
 
         return result;

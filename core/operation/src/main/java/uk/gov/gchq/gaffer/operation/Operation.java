@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
@@ -28,7 +30,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Operations must be JSON serialisable in order to make REST API calls.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-public interface Operation {
+public interface Operation extends Closeable {
+
+    default void close() throws IOException {
+        // do nothing by default
+    }
+
     interface Builder<OP, B extends Builder<OP, ?>> {
         OP _getOp();
 
