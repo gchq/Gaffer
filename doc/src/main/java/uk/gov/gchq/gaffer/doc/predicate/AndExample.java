@@ -21,8 +21,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.n.Tuple1;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
-import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-import java.util.Arrays;
 
 public class AndExample extends PredicateExample {
     public static void main(final String[] args) {
@@ -36,35 +34,36 @@ public class AndExample extends PredicateExample {
     @Override
     public void runExamples() {
         isLessThan3AndIsMoreThan0();
-        property1IsLessThan2AndProperty2IsMoreThan2();
+        firstItemIsLessThan2AndSecondItemIsMoreThan5();
     }
 
     public void isLessThan3AndIsMoreThan0() {
         // ---------------------------------------------------------
-        final And function = new And<>(Arrays.asList(
+        final And function = new And<>(
                 new IsLessThan(3),
                 new IsMoreThan(0)
-        ));
+        );
         // ---------------------------------------------------------
 
         runExample(function, 0, 1, 2, 3, 1L, 2L);
     }
 
-    public void property1IsLessThan2AndProperty2IsMoreThan2() {
+    public void firstItemIsLessThan2AndSecondItemIsMoreThan5() {
         // ---------------------------------------------------------
-        final And function = new And<>(Arrays.asList(
-                new TupleAdaptedPredicate<>(new IsLessThan(2), 0),
-                new TupleAdaptedPredicate<>(new IsMoreThan(2), 0)
-        ));
+        final And function = new And.Builder()
+                .select(0)
+                .execute(new IsLessThan(2))
+                .select(1)
+                .execute(new IsMoreThan(5))
+                .build();
         // ---------------------------------------------------------
 
         runExample(function,
-                new Tuple2<>(1, 3),
+                new Tuple2<>(1, 10),
                 new Tuple2<>(1, 1),
-                new Tuple2<>(3, 3),
-                new Tuple2<>(3, 1),
-                new Tuple2<>(1L, 3L),
-                new Tuple1<>(1)
-        );
+                new Tuple2<>(10, 10),
+                new Tuple2<>(10, 1),
+                new Tuple2<>(1L, 10L),
+                new Tuple1<>(1));
     }
 }
