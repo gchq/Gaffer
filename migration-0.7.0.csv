@@ -32,12 +32,12 @@ GetAdjacentEntitySeeds,GetAdjacentIds
 GetRelatedEdges,GetEdges
 GetRelatedEntities,GetEntities
 GetRelatedElements,GetElements
-GetElements<>,GetElements
+GetElements<Element>,GetElements
 GetAllElements<>,GetAllElements
+GetAllElements<Element>,GetAllElements
 uk.gov.gchq.gaffer.operation.impl.export.Exporter,uk.gov.gchq.gaffer.operation.export.Exporter
 uk.gov.gchq.gaffer.operation.impl.Deduplicate,uk.gov.gchq.gaffer.operation.impl.output.ToSet
 new Deduplicate,new ToSet
- Operation<?, ?>, Operation
 uk.gov.gchq.gaffer.operation.GetOperation.IncludeIncomingOutgoingType,uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType
 GetOperation.IncludeIncomingOutgoingType,SeededGraphFilters.IncludeIncomingOutgoingType
 uk.gov.gchq.gaffer.operation.GetOperation.IncludeEdgeType,uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType
