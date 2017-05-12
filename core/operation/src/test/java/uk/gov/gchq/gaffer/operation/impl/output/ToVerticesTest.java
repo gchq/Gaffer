@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -45,10 +44,6 @@ public class ToVerticesTest implements OperationTest {
                 .input(new EntitySeed("2"))
                 .edgeVertices(EdgeVertices.BOTH)
                 .build();
-
-        final ObjectMapper mapper = JSONSerialiser.createDefaultMapper();
-
-        System.out.println(mapper.writeValueAsString(op));
 
         // When
         byte[] json = serialiser.serialise(op, true);

@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.operation.io;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.operation.Operation;
-import java.io.Closeable;
 import java.io.IOException;
 
 public interface Input<I> extends Operation {
@@ -30,9 +29,7 @@ public interface Input<I> extends Operation {
 
     @Override
     default void close() throws IOException {
-        if (getInput() instanceof Closeable) {
-            IOUtils.closeQuietly(((Closeable) getInput()));
-        }
+        CloseableUtil.close(getInput());
     }
 
     interface Builder<OP extends Input<I>, I, B extends Builder<OP, I, ?>>

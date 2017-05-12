@@ -32,6 +32,11 @@ import java.io.IOException;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
 public interface Operation extends Closeable {
 
+    /**
+     * Operation implementations should ensure that all closeable fields are closed in this method.
+     *
+     * @throws IOException if an I/O error occurs
+     */
     default void close() throws IOException {
         // do nothing by default
     }

@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
 /**
- * An <code>Validator</code> validates objects of type T and returns true if they are valid.
+ * An <code>AlwaysValid</code> is an {@link Validator} in which it always returns true.
  *
- * @param <T> the type of object the validator will validate.
+ * @param <T> the type of object to validate
  */
-public interface Validator<T> {
-    /**
-     * Validates the given object.
-     *
-     * @param obj an object of type T to validate.
-     * @return true if the provided object is valid.
-     */
-    boolean validate(final T obj);
+public class AlwaysValid<T> implements Validator<T> {
+    @Override
+    public boolean validate(final T obj) {
+        return true;
+    }
 }

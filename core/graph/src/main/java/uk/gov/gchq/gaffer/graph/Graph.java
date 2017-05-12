@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 
-import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -150,7 +149,7 @@ public final class Graph {
             return result;
 
         } catch (final Exception e) {
-            IOUtils.closeQuietly(operationChain);
+            CloseableUtil.close(operationChain);
             throw e;
         }
     }
@@ -181,10 +180,8 @@ public final class Graph {
                 result = graphHook.postExecute(result, operationChain, user);
             }
         } catch (final Exception e) {
-            IOUtils.closeQuietly(operationChain);
-            if (result instanceof Closeable) {
-                IOUtils.closeQuietly(((Closeable) result));
-            }
+            CloseableUtil.close(operationChain);
+            CloseableUtil.close(result);
 
             throw e;
         }
@@ -346,7 +343,7 @@ public final class Graph {
                     }
                 } finally {
                     for (final InputStream schemaModule : schemaStreams) {
-                        IOUtils.closeQuietly(schemaModule);
+                        CloseableUtil.close(schemaModule);
                     }
                 }
             }
@@ -393,7 +390,7 @@ public final class Graph {
             } catch (final IOException e) {
                 throw new SchemaException("Unable to read schema from input stream", e);
             } finally {
-                IOUtils.closeQuietly(schemaStream);
+                CloseableUtil.close(schemaStream);
             }
         }
 
