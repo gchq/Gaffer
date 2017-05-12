@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool;
 
+import net.iharder.base64.Base64;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -34,6 +35,7 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -59,17 +61,8 @@ public class SplitTableTool extends Configured implements Tool {
         } catch (final IOException e) {
             throw new OperationException("Failed to get Filesystem from configuration: " + e.getMessage(), e);
         }
-        final SortedSet<Text> splits = new TreeSet<>();
-        try (final BufferedReader br = new BufferedReader(
-                new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
-            String line = br.readLine();
-            while (line != null) {
-                splits.add(new Text(line));
-                line = br.readLine();
-            }
-        } catch (final IOException e) {
-            throw new OperationException(e.getMessage(), e);
-        }
+
+        final SortedSet<Text> splits = readSplits(fs);
 
         try {
             store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
@@ -80,6 +73,21 @@ public class SplitTableTool extends Configured implements Tool {
         }
 
         return SUCCESS_RESPONSE;
+    }
+
+    private SortedSet<Text> readSplits(final FileSystem fs) throws OperationException {
+        final SortedSet<Text> splits = new TreeSet<>();
+        try (final BufferedReader br = new BufferedReader(
+                new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
+            String line = br.readLine();
+            while (line != null) {
+                splits.add(new Text(Base64.decode(line)));
+                line = br.readLine();
+            }
+        } catch (final IOException e) {
+            throw new OperationException(e.getMessage(), e);
+        }
+        return Collections.unmodifiableSortedSet(splits);
     }
 
 }
