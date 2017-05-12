@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class ChainedIterable<T> implements Iterable<T> {
+public class ChainedIterable<T> implements CloseableIterable<T> {
     private final Iterable<T>[] itrs;
     private final int n;
 
@@ -32,11 +33,18 @@ public class ChainedIterable<T> implements Iterable<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public void close() {
+        for (final Iterable<T> itr : itrs) {
+            CloseableUtil.close(itr);
+        }
+    }
+
+    @Override
+    public CloseableIterator<T> iterator() {
         return new IteratorWrapper();
     }
 
-    private class IteratorWrapper implements Iterator<T> {
+    private class IteratorWrapper implements CloseableIterator<T> {
         private final Iterator<T>[] iterators = new Iterator[itrs.length];
         private int index = 0;
 
@@ -82,6 +90,14 @@ public class ChainedIterable<T> implements Iterable<T> {
             }
 
             return iterators[i];
+        }
+
+        @Override
+        public void close() {
+            for (final Iterator<T> itr : iterators) {
+                CloseableUtil.close(itr);
+            }
+            ChainedIterable.this.close();
         }
     }
 }

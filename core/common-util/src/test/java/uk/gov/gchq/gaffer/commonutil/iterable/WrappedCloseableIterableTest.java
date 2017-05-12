@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static org.junit.Assert.assertEquals;
@@ -80,5 +82,100 @@ public class WrappedCloseableIterableTest {
         wrappedIterable.close();
 
         // Then - no exception
+    }
+
+    @Test
+    public void shouldDelegateCloseToWrappedIterables() {
+        // Given
+        final CloseableIterable<? extends Object> iterable1 = mock(CloseableIterable.class);
+        final CloseableIterable<Integer> iterable2 = mock(CloseableIterable.class);
+        final Iterable limitedIterable = new LimitedCloseableIterable<>(iterable1, 0, 1);
+        final Iterable<String> transformIterable = new TransformIterable<Integer, String>(iterable2) {
+            @Override
+            protected String transform(final Integer item) {
+                return item.toString();
+            }
+        };
+        final Iterable transformOneToManyIterable = new TransformOneToManyIterable<String, Double>(transformIterable) {
+            @Override
+            protected Iterable<Double> transform(final String item) {
+                return Collections.singleton(Double.parseDouble(item));
+            }
+        };
+        final Iterable<Object> chainedIterable = new ChainedIterable<>(limitedIterable, transformOneToManyIterable);
+        final WrappedCloseableIterable<Object> wrappedIterable = new WrappedCloseableIterable<>(chainedIterable);
+
+        // When
+        wrappedIterable.close();
+
+        // Then
+        verify(iterable1, Mockito.atLeastOnce()).close();
+        verify(iterable2, Mockito.atLeastOnce()).close();
+    }
+
+    @Test
+    public void shouldDelegateIteratorCloseToWrappedIterables() {
+        // Given
+        final CloseableIterable<? extends Object> iterable1 = mock(CloseableIterable.class);
+        final CloseableIterable<Integer> iterable2 = mock(CloseableIterable.class);
+        final Iterable limitedIterable = new LimitedCloseableIterable<>(iterable1, 0, 1);
+        final Iterable<String> transformIterable = new TransformIterable<Integer, String>(iterable2) {
+            @Override
+            protected String transform(final Integer item) {
+                return item.toString();
+            }
+        };
+        final Iterable transformOneToManyIterable = new TransformOneToManyIterable<String, Double>(transformIterable) {
+            @Override
+            protected Iterable<Double> transform(final String item) {
+                return Collections.singleton(Double.parseDouble(item));
+            }
+        };
+        final Iterable<Object> chainedIterable = new ChainedIterable<>(limitedIterable, transformOneToManyIterable);
+        final WrappedCloseableIterable<Object> wrappedIterable = new WrappedCloseableIterable<>(chainedIterable);
+
+        // When
+        wrappedIterable.iterator().close();
+
+        // Then
+        verify(iterable1, Mockito.atLeastOnce()).close();
+        verify(iterable2, Mockito.atLeastOnce()).close();
+    }
+
+    @Test
+    public void shouldAutoCloseWrappedIterables() {
+        // Given
+        final CloseableIterable<?> iterable1 = mock(CloseableIterable.class);
+        final CloseableIterator iterator1 = mock(CloseableIterator.class);
+        given(iterable1.iterator()).willReturn(iterator1);
+        given(iterator1.hasNext()).willReturn(false);
+
+        final CloseableIterable<Integer> iterable2 = mock(CloseableIterable.class);
+        final CloseableIterator iterator2 = mock(CloseableIterator.class);
+        given(iterable2.iterator()).willReturn(iterator2);
+        given(iterator2.hasNext()).willReturn(false);
+
+        final Iterable limitedIterable = new LimitedCloseableIterable<>(iterable1, 0, 1);
+        final Iterable<String> transformIterable = new TransformIterable<Integer, String>(iterable2) {
+            @Override
+            protected String transform(final Integer item) {
+                return item.toString();
+            }
+        };
+        final Iterable transformOneToManyIterable = new TransformOneToManyIterable<String, Double>(transformIterable) {
+            @Override
+            protected Iterable<Double> transform(final String item) {
+                return Collections.singleton(Double.parseDouble(item));
+            }
+        };
+        final Iterable<Object> chainedIterable = new ChainedIterable<>(limitedIterable, transformOneToManyIterable);
+        final WrappedCloseableIterable<Object> wrappedIterable = new WrappedCloseableIterable<>(chainedIterable);
+
+        // When
+        wrappedIterable.iterator().hasNext();
+
+        // Then
+        verify(iterator1, Mockito.atLeastOnce()).close();
+        verify(iterator2, Mockito.atLeastOnce()).close();
     }
 }
