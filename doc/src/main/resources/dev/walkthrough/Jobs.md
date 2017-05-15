@@ -23,7 +23,7 @@ For example, to use the JCS cache service, add a dependency on the jcs-cache-ser
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>jcs-cache-service</artifactId>
-    <version>${project.parent.version}</version>
+    <version>[project.parent.version]</version>
 </dependency>
 ```
 
@@ -54,21 +54,20 @@ gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
 ```
 
 The JSON files can either be placed on your file system or bundled as a resource in your JAR or WAR archive.
 
-The cache-store.properties file is:
+For this example the cache-store.properties just references another MockAccumuloStore table:
 
 ${CACHE_STORE_PROPERTIES}
 
-An example of all of this can be seen in the example/example-rest module. So you you launch the example REST API it will have the Job Tracker and Gaffer cache configured.
 
 #### Using Jobs
 OK, now for some examples of using Jobs.
 
-We will use the same basic schema and data from the first dev.walkthrough.
+We will use the same basic schema and data from the first developer walkthrough.
 
 Start by creating your user instance and graph as you will have done previously:
 

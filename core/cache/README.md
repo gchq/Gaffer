@@ -29,7 +29,7 @@ gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
 If needs be you can add an additional configuration file which will
 contain properties for the cache itself:
 ```
-gaffer.cache.config.file=/path/to/file.xml
+gaffer.cache.config.file=/path/to/file
 ```
 
 By default there is no service loaded so if your using a component that
