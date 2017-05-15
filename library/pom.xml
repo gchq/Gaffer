@@ -30,9 +30,9 @@
         <module>hdfs-library</module>
         <module>sketches-library</module>
         <module>spark</module>
-        <module>named-operation</module>
-        <module>job-tracker-library</module>
+        <module>named-operation-library</module>
         <module>bitmap-library</module>
+        <module>cache-library</module>
     </modules>
 
     <profiles>
@@ -46,7 +46,7 @@
                 <module>core-library</module>
                 <module>hdfs-library</module>
                 <module>sketches-library</module>
-                <module>named-operation</module>
+                <module>named-operation-library</module>
             </modules>
         </profile>
     </profiles>

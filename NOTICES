@@ -162,6 +162,11 @@ FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 - GNU Lesser Public License
 
 
+Hazelcast (com.hazelcast:hazelcast:3.8)
+
+- Apache Licence, Version 2.0
+
+
 Nexus Staging (org.sonatype.nexus.maven:nexus-staging:1.6.7):
 
 - Eclipse Public License, Version 1.0
