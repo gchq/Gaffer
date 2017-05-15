@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -46,8 +47,11 @@ public class StoreProperties implements Cloneable {
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
-    public static final String JOB_TRACKER_CLASS = "gaffer.store.job.tracker.class";
-    public static final String JOB_TRACKER_CONFIG_PATH = "gaffer.store.job.tracker.config.path";
+    public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
+
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
+    private static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+
 
     private Properties props = new Properties();
 
@@ -129,21 +133,18 @@ public class StoreProperties implements Cloneable {
         set(STORE_CLASS, storeClass);
     }
 
-    public String getJobTrackerClass() {
-        return get(JOB_TRACKER_CLASS);
+    public Boolean getJobTrackerEnabled() {
+        return Boolean.valueOf(get(JOB_TRACKER_ENABLED, "false"));
     }
 
-    public void setJobTrackerClass(final String jobTrackerClass) {
-        set(JOB_TRACKER_CLASS, jobTrackerClass);
+    public void setJobTrackerEnabled(final String jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, jobTrackerEnabled);
     }
 
-    public String getJobTrackerConfigPath() {
-        return get(JOB_TRACKER_CONFIG_PATH);
+    public void setJobTrackerEnabled(final Boolean jobTrackerEnabled) {
+        set(JOB_TRACKER_ENABLED, jobTrackerEnabled.toString());
     }
 
-    public void setJobTrackerConfigPath(final String jobTrackerConfigPath) {
-        set(JOB_TRACKER_CONFIG_PATH, jobTrackerConfigPath);
-    }
 
     public String getSchemaClassName() {
         return get(SCHEMA_CLASS, Schema.class.getName());
@@ -194,6 +195,10 @@ public class StoreProperties implements Cloneable {
 
     public String getOperationDeclarationPaths() {
         return get(OPERATION_DECLARATIONS);
+    }
+
+    public Integer getJobExecutorThreadCount() {
+        return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
 
     public void setOperationDeclarationPaths(final String paths) {

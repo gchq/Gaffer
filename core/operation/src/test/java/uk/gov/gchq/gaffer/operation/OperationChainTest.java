@@ -39,6 +39,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -46,6 +50,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class OperationChainTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -185,5 +190,28 @@ public class OperationChainTest {
 
         // When / Then
         assertSame(typeRef, opChain.getOutputTypeReference());
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputs() throws IOException {
+        // Given
+        final Operation[] operations = {
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        };
+
+        // When
+        final OperationChain opChain = new OperationChain(Arrays.asList(operations));
+
+        // When
+        opChain.close();
+
+        // Then
+        for (final Operation operation : operations) {
+            verify(operation).close();
+        }
     }
 }

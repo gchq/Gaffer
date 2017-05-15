@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloItemRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -52,8 +53,15 @@ public class AccumuloAllElementsRetriever extends AccumuloItemRetriever<GetAllEl
                 store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store));
     }
 
+    /**
+     * Only 1 iterator can be open at a time.
+     *
+     * @return a closeable iterator of items.
+     */
     @Override
     public CloseableIterator<Element> iterator() {
+        CloseableUtil.close(iterator);
+
         try {
             //A seed must be entered so the below add to ranges is reached.
             Set<EntitySeed> all = Sets.newHashSet(new EntitySeed());
