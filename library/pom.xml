@@ -26,7 +26,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core-library</module>
         <module>hdfs-library</module>
         <module>sketches-library</module>
         <module>spark</module>
@@ -43,10 +42,11 @@
             </properties>
             <!-- Skip spark as requires a newer version of jackson-->
             <modules>
-                <module>core-library</module>
                 <module>hdfs-library</module>
                 <module>sketches-library</module>
                 <module>named-operation-library</module>
+                <module>bitmap-library</module>
+                <module>cache-library</module>
             </modules>
         </profile>
     </profiles>
