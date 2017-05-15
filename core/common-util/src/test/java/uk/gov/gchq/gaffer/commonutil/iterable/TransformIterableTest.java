@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
@@ -39,49 +35,57 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransformOneToManyIterableTest {
+public class TransformIterableTest {
 
     @Test
     public void shouldCreateIteratorThatReturnsOnlyValidStrings() {
         // Given
-        final String item0 = null;
         final String item1 = "item 1";
-        final String item2a = "item 2a";
-        final String item2b = "item 2b";
-        final String item2 = item2a + "," + item2b;
-        final String item3a = "item 3a";
-        final String item3b = "item 3b";
-        final String item3 = item3a + "," + item3b;
-        final String item4 = "item 4";
-        final Iterable<String> items = Arrays.asList(item0, item1, item2, item3, item4);
+        final String item2 = "item 2";
+        final String item3 = "item 3";
+        final Iterable<String> items = Arrays.asList(item1, item2, item3);
         final Validator<String> validator = mock(Validator.class);
-        final TransformOneToManyIterable iterable = new TransformOneToManyIterableImpl(items, validator, true);
+        final TransformIterable iterable = new TransformIterableImpl(items, validator, true);
         final Iterator<String> itr = iterable.iterator();
 
-        given(validator.validate(item0)).willReturn(true);
         given(validator.validate(item1)).willReturn(true);
         given(validator.validate(item2)).willReturn(false);
         given(validator.validate(item3)).willReturn(true);
-        given(validator.validate(item4)).willReturn(true);
 
-        // When
-        final List<String> output = Lists.newArrayList(itr);
+        // When 1a
+        final boolean hasNext1 = itr.hasNext();
 
-        // Then
-        assertEquals(
-                Arrays.asList(item1.toUpperCase(), item3a.toUpperCase(), item3b.toUpperCase(), item4.toUpperCase()),
-                output);
+        // Then 1a
+        assertTrue(hasNext1);
+
+        // When 1b
+        final String next1 = itr.next();
+
+        // Then 1b
+        assertEquals(item1.toUpperCase(), next1);
+
+        // When 2a / Then 2a
+        final boolean hasNext2 = itr.hasNext();
+
+        // Then 2a
+        assertTrue(hasNext2);
+
+        // When 2b
+        final String next2 = itr.next();
+
+        // Then 2b
+        assertEquals(item3.toUpperCase(), next2);
     }
 
     @Test
     public void shouldCreateIteratorThatThrowsExceptionOnInvalidString() {
         // Given
         final String item1 = "item 1";
-        final String item2 = "item 2a invalid,item 2b";
+        final String item2 = "item 2 invalid";
         final String item3 = "item 3";
         final Iterable<String> items = Arrays.asList(item1, item2, item3);
         final Validator<String> validator = mock(Validator.class);
-        final TransformOneToManyIterable iterable = new TransformOneToManyIterableImpl(items, validator, false);
+        final TransformIterable iterable = new TransformIterableImpl(items, validator, false);
         final Iterator<String> itr = iterable.iterator();
 
         given(validator.validate(item1)).willReturn(true);
@@ -113,12 +117,10 @@ public class TransformOneToManyIterableTest {
     public void shouldThrowExceptionIfNextCalledWhenNoNextString() {
         // Given
         final String item1 = "item 1";
-        final String item2a = "item 2a";
-        final String item2b = "item 2b";
-        final String item2 = item2a + "," + item2b;
+        final String item2 = "item 2";
         final Iterable<String> items = Arrays.asList(item1, item2);
         final Validator<String> validator = mock(Validator.class);
-        final TransformOneToManyIterable iterable = new TransformOneToManyIterableImpl(items, validator);
+        final TransformIterable iterable = new TransformIterableImpl(items, validator);
         final Iterator<String> itr = iterable.iterator();
 
         given(validator.validate(item1)).willReturn(true);
@@ -126,13 +128,11 @@ public class TransformOneToManyIterableTest {
 
         // When 1
         final String validElm1 = itr.next();
-        final String validElm2a = itr.next();
-        final String validElm2b = itr.next();
+        final String validElm2 = itr.next();
 
         // Then 1
         assertEquals(item1.toUpperCase(), validElm1);
-        assertEquals(item2a.toUpperCase(), validElm2a);
-        assertEquals(item2b.toUpperCase(), validElm2b);
+        assertEquals(item2.toUpperCase(), validElm2);
 
         // When 2 / Then 2
         try {
@@ -150,7 +150,7 @@ public class TransformOneToManyIterableTest {
         final String item2 = "item 2";
         final Iterable<String> items = Arrays.asList(item1, item2);
         final Validator<String> validator = mock(Validator.class);
-        final TransformOneToManyIterable iterable = new TransformOneToManyIterableImpl(items, validator);
+        final TransformIterable iterable = new TransformIterableImpl(items, validator);
         final Iterator<String> itr = iterable.iterator();
 
         given(validator.validate(item1)).willReturn(true);
@@ -174,7 +174,7 @@ public class TransformOneToManyIterableTest {
         given(items.iterator()).willReturn(itemsIterator);
         given(itemsIterator.hasNext()).willReturn(false);
 
-        final TransformOneToManyIterableImpl iterable = new TransformOneToManyIterableImpl(items, autoClose);
+        final TransformIterableImpl iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
 
         // When
         Lists.newArrayList(iterable);
@@ -192,7 +192,7 @@ public class TransformOneToManyIterableTest {
         given(items.iterator()).willReturn(itemsIterator);
         given(itemsIterator.hasNext()).willReturn(false);
 
-        final TransformOneToManyIterableImpl iterable = new TransformOneToManyIterableImpl(items, autoClose);
+        final TransformIterableImpl iterable = new TransformIterableImpl(items, new AlwaysValid<>(), false, autoClose);
 
         // When
         Lists.newArrayList(iterable);
@@ -201,32 +201,30 @@ public class TransformOneToManyIterableTest {
         verify(itemsIterator, never()).close();
     }
 
-    private class TransformOneToManyIterableImpl extends TransformOneToManyIterable<String, String> {
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final boolean autoClose) {
-            super(input, new AlwaysValid<>(), false, autoClose);
+    private class TransformIterableImpl extends TransformIterable<String, String> {
+        public TransformIterableImpl() {
+            super(null);
         }
 
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator) {
+        public TransformIterableImpl(final Iterable<String> input) {
+            super(input);
+        }
+
+        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator) {
             super(input, validator);
         }
 
-        public TransformOneToManyIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
+        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid) {
             super(input, validator, skipInvalid);
         }
 
-        /**
-         * Converts to upper case and splits on commas.
-         *
-         * @param item the I item to be transformed
-         * @return the upper case and split on commas output.
-         */
-        @Override
-        protected Iterable<String> transform(final String item) {
-            if (null == item) {
-                return Collections.emptyList();
-            }
+        public TransformIterableImpl(final Iterable<String> input, final Validator<String> validator, final boolean skipInvalid, final boolean autoClose) {
+            super(input, validator, skipInvalid, autoClose);
+        }
 
-            return Arrays.asList(item.toUpperCase().split(","));
+        @Override
+        protected String transform(final String item) {
+            return item.toUpperCase();
         }
     }
 }

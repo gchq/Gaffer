@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.generator;
 
-import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 public interface OneToManyElementGenerator<OBJ> extends ElementGenerator<OBJ> {

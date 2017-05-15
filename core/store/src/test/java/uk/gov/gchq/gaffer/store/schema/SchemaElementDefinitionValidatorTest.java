@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -163,9 +164,9 @@ public class SchemaElementDefinitionValidatorTest {
     public void shouldValidateFunctionSelectionsAndReturnFalseWhenFunctionTypeDoesNotEqualSelectionType() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-        given(elementDef.getClass("selection")).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass("selection")).willReturn((Class) String.class);
 
-        final Predicate<String> function = a -> a.contains("true");
+        final IsMoreThan function = new IsMoreThan(5);
         final ElementFilter elementFilter = new ElementFilter.Builder()
                 .select("selection")
                 .execute(function)

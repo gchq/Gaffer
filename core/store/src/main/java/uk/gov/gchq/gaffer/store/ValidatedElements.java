@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import uk.gov.gchq.gaffer.data.TransformIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;

@@ -58,7 +58,7 @@ public class JobService implements IJobService {
 
         try {
             final JobDetail jobDetail = graphFactory.getGraph().executeJob(opChain, user);
-            LOGGER.info("Job started = " + jobDetail);
+            LOGGER.info("Job started = {}", jobDetail);
             return jobDetail;
         } catch (final OperationException e) {
             throw new RuntimeException("Error executing opChain", e);

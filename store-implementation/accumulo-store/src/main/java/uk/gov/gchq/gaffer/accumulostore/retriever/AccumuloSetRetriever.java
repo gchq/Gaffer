@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
@@ -81,8 +82,15 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         this.readEntriesIntoMemory = readEntriesIntoMemory;
     }
 
+    /**
+     * Only 1 iterator can be open at a time.
+     *
+     * @return a closeable iterator of items.
+     */
     @Override
     public CloseableIterator<Element> iterator() {
+        CloseableUtil.close(iterator);
+
         if (!hasSeeds()) {
             return new EmptyCloseableIterator<>();
         }
@@ -90,14 +98,14 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             try {
                 iterator = createElementIteratorReadIntoMemory();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator", e);
+                LOGGER.error("{} returning empty iterator", e.getMessage(), e);
                 return new EmptyCloseableIterator<>();
             }
         } else {
             try {
                 iterator = createElementIteratorFromBatches();
             } catch (final RetrieverException e) {
-                LOGGER.error(e.getMessage() + " returning empty iterator", e);
+                LOGGER.error("{} returning empty iterator", e.getMessage(), e);
                 return new EmptyCloseableIterator<>();
             }
         }
@@ -127,15 +135,23 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
 
     protected void addToBloomFilter(final Iterator<? extends Object> vertices, final BloomFilter filter)
             throws RetrieverException {
-        while (vertices.hasNext()) {
-            addToBloomFilter(vertices.next(), filter);
+        try {
+            while (vertices.hasNext()) {
+                addToBloomFilter(vertices.next(), filter);
+            }
+        } finally {
+            CloseableUtil.close(vertices);
         }
     }
 
     protected void addToBloomFilter(final Iterator<? extends EntityId> seeds, final BloomFilter filter1,
                                     final BloomFilter filter2) throws RetrieverException {
-        while (seeds.hasNext()) {
-            addToBloomFilter(seeds.next(), filter1, filter2);
+        try {
+            while (seeds.hasNext()) {
+                addToBloomFilter(seeds.next(), filter1, filter2);
+            }
+        } finally {
+            CloseableUtil.close(seeds);
         }
     }
 
@@ -171,7 +187,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             iteratorSettings1[iteratorSettings.length] = bloomFilter;
             try {
                 parentRetriever = new AccumuloSingleIDRetriever(store, operation, user, iteratorSettings1);
-            } catch (final StoreException e) {
+            } catch (final Exception e) {
+                CloseableUtil.close(operation);
                 throw new RetrieverException(e.getMessage(), e);
             }
             iterator = parentRetriever.iterator();
@@ -199,6 +216,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
         public Element next() {
             if (null == nextElm) {
                 if (!hasNext()) {
+                    close();
                     throw new NoSuchElementException();
                 }
             }
@@ -290,8 +308,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                     }
                 }
             } catch (final RetrieverException e) {
-                LOGGER.debug("Failed to retrieve elements into iterator : " + e.getMessage()
-                        + " returning iterator has no more elements", e);
+                LOGGER.debug("Failed to retrieve elements into iterator : {} returning iterator has no more elements", e.getMessage(), e);
                 return false;
             }
 
@@ -346,6 +363,8 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
             try {
                 scanner = getScanner(ranges);
             } catch (final TableNotFoundException | StoreException e) {
+                CloseableUtil.close(idsAIterator);
+                CloseableUtil.close(operation);
                 throw new RetrieverException(e);
             }
             try {

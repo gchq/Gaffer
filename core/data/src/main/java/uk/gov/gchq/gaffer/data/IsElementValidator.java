@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**

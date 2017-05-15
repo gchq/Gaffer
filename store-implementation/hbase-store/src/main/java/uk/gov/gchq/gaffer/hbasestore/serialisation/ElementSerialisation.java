@@ -135,7 +135,7 @@ public class ElementSerialisation {
                         }
                     }
                 } else {
-                    LOGGER.warn("No serialiser found in schema for property " + propertyName + " in group " + group);
+                    LOGGER.warn("No serialiser found in schema for property {} in group {}", propertyName, group);
                 }
             }
         }

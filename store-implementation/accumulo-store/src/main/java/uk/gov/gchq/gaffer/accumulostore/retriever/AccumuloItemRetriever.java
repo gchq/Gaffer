@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyCloseableIterator;
@@ -57,8 +58,15 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
         this.ids = operation instanceof Input ? ((Input<Iterable<? extends I_ITEM>>) operation).getInput() : null;
     }
 
+    /**
+     * Only 1 iterator can be open at a time.
+     *
+     * @return a closeable iterator of items.
+     */
     @Override
     public CloseableIterator<Element> iterator() {
+        CloseableUtil.close(iterator);
+
         final Iterator<? extends I_ITEM> idIterator = null != ids ? ids.iterator() : Iterators.emptyIterator();
         if (!idIterator.hasNext()) {
             return new EmptyCloseableIterator<>();
@@ -67,7 +75,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
         try {
             iterator = new ElementIterator(idIterator);
         } catch (final RetrieverException e) {
-            LOGGER.error(e.getMessage() + " returning empty iterator", e);
+            LOGGER.error("{} returning empty iterator", e.getMessage(), e);
             return new EmptyCloseableIterator<>();
         }
 
@@ -100,7 +108,9 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
             // iterators, etc).
             try {
                 scanner = getScanner(ranges);
-            } catch (final TableNotFoundException | StoreException e) {
+            } catch (final Exception e) {
+                CloseableUtil.close(idsIterator);
+                CloseableUtil.close(ids);
                 throw new RetrieverException(e);
             }
             scannerIterator = scanner.iterator();
@@ -150,7 +160,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                 try {
                     scanner = getScanner(ranges);
                 } catch (final TableNotFoundException | StoreException e) {
-                    LOGGER.error(e.getMessage() + " returning iterator doesn't have any more elements", e);
+                    LOGGER.error("{} returning iterator doesn't have any more elements", e.getMessage(), e);
                     return false;
                 }
                 scannerIterator = scanner.iterator();
