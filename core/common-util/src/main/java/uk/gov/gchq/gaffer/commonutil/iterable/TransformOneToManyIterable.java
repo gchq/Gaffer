@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.io.IOUtils;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import java.io.Closeable;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * A <code>TransformToMultiIterable</code> allows {@link Iterable}s to be lazily validated and transformed without
  * loading the entire iterable into memory. The easiest way to use this class is to create an anonymous inner class.
- * This class is very similar to {@link uk.gov.gchq.gaffer.data.TransformOneToManyIterable} except that this class transforms one to many
+ * This class is very similar to {@link TransformOneToManyIterable} except that this class transforms one to many
  * items.
  *
  * @param <I> The input iterable type.
@@ -67,7 +64,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
      * @param skipInvalid if true invalid items should be skipped
      */
     public TransformOneToManyIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
-        this(input, validator, skipInvalid, false);
+        this(input, validator, skipInvalid, true);
     }
 
     /**
@@ -87,9 +84,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
 
     @Override
     public void close() {
-        if (input instanceof Closeable) {
-            IOUtils.closeQuietly((Closeable) input);
-        }
+        CloseableUtil.close(input);
     }
 
     /**
@@ -105,9 +100,7 @@ public abstract class TransformOneToManyIterable<I, O> implements CloseableItera
 
             @Override
             public void close() {
-                if (inputItr instanceof Closeable) {
-                    IOUtils.closeQuietly((Closeable) inputItr);
-                }
+                CloseableUtil.close(inputItr);
             }
 
             @Override

@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -26,46 +27,56 @@ public final class Streams {
 
     /**
      * Convert an {@link java.lang.Iterable} to a {@link java.util.stream.Stream}
+     * The stream returned must be closed.
      *
      * @param iterable the input iterable
-     * @param <T> the type of object stored in the iterable
+     * @param <T>      the type of object stored in the iterable
      * @return a stream containing the contents of the iterable
      */
     public static <T> Stream<T> toStream(final Iterable<T> iterable) {
-        return StreamSupport.stream(iterable.spliterator(), false);
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .onClose(() -> CloseableUtil.close(iterable));
     }
 
     /**
      * Convert an {@link java.util.Iterator} to a {@link java.util.stream.Stream}
+     * The stream returned must be closed.
      *
      * @param iterator the input iterator
-     * @param <T> the type of object stored in the iterator
+     * @param <T>      the type of object stored in the iterator
      * @return a stream containing the contents of the iterator
      */
     public static <T> Stream<T> toStream(final Iterator<T> iterator) {
-        return toStream(() -> iterator);
+        final Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), false)
+                .onClose(() -> CloseableUtil.close(iterator));
     }
 
     /**
      * Convert an {@link java.lang.Iterable} to a {@link java.util.stream.Stream}
+     * The stream returned must be closed.
      *
      * @param iterable the input iterable
-     * @param <T> the type of object stored in the iterable
+     * @param <T>      the type of object stored in the iterable
      * @return a stream containing the contents of the iterable
      */
     public static <T> Stream<T> toParallelStream(final Iterable<T> iterable) {
-        return StreamSupport.stream(iterable.spliterator(), true);
+        return StreamSupport.stream(iterable.spliterator(), true)
+                .onClose(() -> CloseableUtil.close(iterable));
     }
 
     /**
      * Convert an {@link java.util.Iterator} to a {@link java.util.stream.Stream}
+     * The stream returned must be closed.
      *
      * @param iterator the input iterator
-     * @param <T> the type of object stored in the iterator
+     * @param <T>      the type of object stored in the iterator
      * @return a stream containing the contents of the iterator
      */
     public static <T> Stream<T> toParallelStream(final Iterator<T> iterator) {
-        return toParallelStream(() -> iterator);
+        final Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), true)
+                .onClose(() -> CloseableUtil.close(iterator));
     }
 
     private Streams() {

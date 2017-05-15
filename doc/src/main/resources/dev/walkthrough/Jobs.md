@@ -23,12 +23,11 @@ For example, to use the JCS cache service, add a dependency on the jcs-cache-ser
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>jcs-cache-service</artifactId>
-    <version>[project.parent.version]</version>
+    <version>[gaffer.version]</version>
 </dependency>
 ```
 
 ```
-gaffer.cache.service.class
 gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
 
 # Optionally provide custom cache properties
