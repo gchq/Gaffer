@@ -74,7 +74,7 @@ public class MapStore extends Store {
         final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
         super.initialise(schema, mapStoreProperties);
         // Initialise maps
-        mapImpl = new MapImpl(schema, mapStoreProperties);
+        mapImpl = new MapImpl(getSchema(), mapStoreProperties);
         LOGGER.info("Initialised MapStore");
     }
 

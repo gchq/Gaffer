@@ -19,7 +19,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.mapstore.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.SimpleMapFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -49,21 +51,41 @@ public class MapImpl {
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     final Set<String> groupsWithNoAggregation = new HashSet<>();
     final Schema schema;
+    final MapFactory mapFactory;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
+        final MapFactory mapFactoryTmp = mapStoreProperties.getMapFactory();
+        if (null == mapFactoryTmp) {
+            mapFactory = new SimpleMapFactory();
+        } else {
+            mapFactory = mapFactoryTmp;
+        }
+
+        mapFactory.initialise(mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
-        try {
-            elementToProperties = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-            if (maintainIndex) {
-                entityIdToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-                edgeIdToElements = Class.forName(mapStoreProperties.getMapClass()).asSubclass(Map.class).newInstance();
-            }
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new StoreException("Exception instantiating map of class " + mapStoreProperties.getMapClass(), e);
+        elementToProperties = mapFactory.newMap("elementToProperties");
+        if (maintainIndex) {
+            entityIdToElements = mapFactory.newMap("entityIdToElements");
+            edgeIdToElements = mapFactory.newMap("edgeIdToElements");
         }
         this.schema = schema;
         schema.getEntityGroups().forEach(g -> addToGroupByMap(this.schema, g));
         schema.getEdgeGroups().forEach(g -> addToGroupByMap(this.schema, g));
+    }
+
+    public void clear() {
+        elementToProperties.clear();
+        groupToGroupByProperties.clear();
+        groupToNonGroupByProperties.clear();
+        groupsWithNoAggregation.clear();
+        if (null != entityIdToElements) {
+            entityIdToElements.clear();
+        }
+        if (null != edgeIdToElements) {
+            edgeIdToElements.clear();
+        }
+
+        mapFactory.clear();
     }
 
     private void addToGroupByMap(final Schema schema, final String group) {

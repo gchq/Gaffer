@@ -53,6 +53,11 @@
             <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.8</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

@@ -25,6 +25,8 @@ import java.nio.file.Path;
 public class MapStoreProperties extends StoreProperties {
     public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
+    public static final String MAP_FACTORY = "gaffer.store.mapstore.map.factory";
+    public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
 
     public MapStoreProperties() {
         super();
@@ -60,4 +62,28 @@ public class MapStoreProperties extends StoreProperties {
         return Boolean.parseBoolean(get(CREATE_INDEX, "true"));
     }
 
+    public MapFactory getMapFactory() {
+        final String factoryClass = get(MAP_FACTORY);
+        if (null == factoryClass) {
+            return null;
+        }
+
+        try {
+            return Class.forName(factoryClass).asSubclass(MapFactory.class).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("MapFactory is invalid: " + factoryClass, e);
+        }
+    }
+
+    public void setMapFactory(final Class<? extends MapFactory> mapFactory) {
+        set(MAP_FACTORY, mapFactory.getName());
+    }
+
+    public String getMapFactoryConfig() {
+        return get(MAP_FACTORY_CONFIG);
+    }
+
+    public void setMapFactoryConfig(final String path) {
+        set(MAP_FACTORY_CONFIG, path);
+    }
 }

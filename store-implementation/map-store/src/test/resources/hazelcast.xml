@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<hazelcast xmlns="http://www.hazelcast.com/schema/config">
+    <group>
+        <name>test</name>
+        <password>password</password>
+    </group>
+    <network>
+        <port port-count="3" auto-increment="true">34562</port>
+    </network>
+</hazelcast>
