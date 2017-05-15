@@ -26,6 +26,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.predicate.And;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -615,4 +620,201 @@ public class ViewValidatorTest {
         assertFalse(result.isValid());
     }
 
+    @Test
+    public void shouldValidateAndReturnTrueForOrFilter() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new Or.Builder()
+                                        .select(0)
+                                        .execute(new IsEqual("some value"))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseForOrFilterWithIncompatibleProperties() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new Or.Builder()
+                                        .select(0)
+                                        .execute(new IsMoreThan(2))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueForAndFilter() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new And.Builder()
+                                        .select(0)
+                                        .execute(new IsEqual("some value"))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseForAndFilterWithIncompatibleProperties() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new And.Builder()
+                                        .select(0)
+                                        .execute(new IsMoreThan(2))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertFalse(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnTrueForNotFilter() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new Not<>(new Or.Builder<>()
+                                        .select(0)
+                                        .execute(new IsEqual("some value"))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build()))
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", Object.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseForNotFilterWithIncompatibleProperties() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new Not<>(new Or.Builder<>()
+                                        .select(0)
+                                        .execute(new IsMoreThan(2))
+                                        .select(1)
+                                        .execute(new IsEqual("some other value"))
+                                        .build()))
+                                .build())
+                        .build())
+                .build();
+        final Schema schema = new Schema.Builder()
+                .type("obj", String.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, false);
+
+        // Then
+        assertFalse(result.isValid());
+    }
 }

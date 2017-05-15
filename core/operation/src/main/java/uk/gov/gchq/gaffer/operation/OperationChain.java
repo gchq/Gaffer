@@ -21,10 +21,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +48,7 @@ import java.util.List;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> {
+public class OperationChain<OUT> implements Closeable {
     private List<Operation> operations;
 
     public OperationChain() {
@@ -114,6 +117,15 @@ public class OperationChain<OUT> {
 
         strBuilder.append("]");
         return strBuilder.toString();
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (null != operations) {
+            for (final Operation operation : operations) {
+                CloseableUtil.close(operation);
+            }
+        }
     }
 
     /**

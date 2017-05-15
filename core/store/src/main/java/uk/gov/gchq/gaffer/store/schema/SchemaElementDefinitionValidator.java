@@ -195,22 +195,16 @@ public class SchemaElementDefinitionValidator {
             if (null != idType) {
                 final String typeName = schemaElDef.getIdentifierTypeName(idType);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition " + typeName
-                            + " used by identifier " + idType
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for type definition {} used by identifier {}. Please ensure it is defined in the schema.", typeName, idType);
                 } else {
-                    LOGGER.error("No type definition defined for identifier " + idType
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No type definition defined for identifier {}. Please ensure it is defined in the schema.", idType);
                 }
             } else {
                 final String typeName = schemaElDef.getPropertyTypeName(key);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition " + typeName
-                            + " used by property " + key
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for type definition {} used by property {}. Please ensure it is defined in the schema.", typeName, key);
                 } else {
-                    LOGGER.error("No class type found for property " + key
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for property {}. Please ensure it is defined in the schema.", key);
                 }
             }
 

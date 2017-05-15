@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.io.IOUtils;
-import java.io.Closeable;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 
 public class WrappedCloseableIterator<T> implements CloseableIterator<T> {
@@ -37,9 +36,7 @@ public class WrappedCloseableIterator<T> implements CloseableIterator<T> {
 
     @Override
     public void close() {
-        if (iterator instanceof Closeable) {
-            IOUtils.closeQuietly((Closeable) iterator);
-        }
+        CloseableUtil.close(iterator);
     }
 
     @Override

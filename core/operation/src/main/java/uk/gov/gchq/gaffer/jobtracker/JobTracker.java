@@ -17,45 +17,66 @@
 package uk.gov.gchq.gaffer.jobtracker;
 
 
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.user.User;
 
-public interface JobTracker {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-    /**
-     * Initialises the job tracker with the provided config path.
-     *
-     * @param configPath the path to the job tracker configuration
-     */
-    void initialise(final String configPath);
+public class JobTracker {
 
-    /**
-     * Adds or updates the given job.
-     *
-     * @param jobDetail the job to add or update
-     * @param user      the user running the job
-     */
-    void addOrUpdateJob(final JobDetail jobDetail, final User user);
+    private static final String CACHE_NAME = "JobTracker";
 
-    /**
-     * Gets the job with the given ID.
-     *
-     * @param jobId the job id
-     * @param user  the user requesting the job details
-     * @return the job details for the given job id
-     */
-    JobDetail getJob(String jobId, User user);
+    public void addOrUpdateJob(final JobDetail jobDetail, final User user) {
+        validateJobDetail(jobDetail);
 
-    /**
-     * Gets all the job details.
-     *
-     * @param user the user requesting the job details
-     * @return the job details for the given job id
-     */
-    CloseableIterable<JobDetail> getAllJobs(User user);
+        try {
+            CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
+        } catch (CacheOperationException e) {
+            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the uk.gov.gchq.gaffer.cache", e);
+        }
+    }
 
-    /**
-     * Clears the cache.
-     */
-    void clear();
+
+    public JobDetail getJob(final String jobId, final User user) {
+        return CacheServiceLoader.getService().getFromCache(CACHE_NAME, jobId);
+    }
+
+    public CloseableIterable<JobDetail> getAllJobs(final User user) {
+        Set<String> jobIds = CacheServiceLoader.getService().getAllKeysFromCache(CACHE_NAME);
+        final List<JobDetail> jobs = new ArrayList<>(jobIds.size());
+        jobIds.stream()
+                .filter(jobId -> null != jobId)
+                .forEach(jobId -> {
+                    final JobDetail job = getJob(jobId, user);
+                    if (null != job) {
+                        jobs.add(job);
+                    }
+                });
+
+        return new WrappedCloseableIterable<>(jobs);
+    }
+
+    public void clear() {
+        try {
+            CacheServiceLoader.getService().clearCache(CACHE_NAME);
+        } catch (CacheOperationException e) {
+            throw new RuntimeException("Failed to clear job tracker uk.gov.gchq.gaffer.cache", e);
+        }
+    }
+
+    private void validateJobDetail(final JobDetail jobDetail) {
+        if (null == jobDetail) {
+            throw new IllegalArgumentException("JobDetail is required");
+        }
+
+        if (null == jobDetail.getJobId() || jobDetail.getJobId().isEmpty()) {
+            throw new IllegalArgumentException("jobId is required");
+        }
+    }
+
 }

@@ -35,7 +35,7 @@ public final class GafferResultCacheUtil {
 
     public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
-            throw new IllegalArgumentException("Gaffer result cache Store properties are required");
+            throw new IllegalArgumentException("Gaffer result uk.gov.gchq.gaffer.cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()
@@ -44,7 +44,7 @@ public final class GafferResultCacheUtil {
 
         final Graph graph = graphBuilder.build();
         if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
-            LOGGER.warn("Gaffer JSON export graph does not have " + StoreTrait.STORE_VALIDATION.name() + " trait so results may not be aged off.");
+            LOGGER.warn("Gaffer JSON export graph does not have {} trait so results may not be aged off.", StoreTrait.STORE_VALIDATION.name());
         }
 
         return graph;

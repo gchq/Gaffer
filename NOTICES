@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:0.1):
+Koryphe (uk.gov.gchq.koryphe:koryphe:0.1.1):
 
 - Apache License, Version 2.0
 
@@ -160,6 +160,11 @@ FindBugs (org.codehaus.mojo:findbugs-maven-plugin:3.0.3):
 FindBugs Annotations (com.google.code.findbugs:annotations:3.0.1):
 
 - GNU Lesser Public License
+
+
+Hazelcast (com.hazelcast:hazelcast:3.8)
+
+- Apache Licence, Version 2.0
 
 
 Nexus Staging (org.sonatype.nexus.maven:nexus-staging:1.6.7):

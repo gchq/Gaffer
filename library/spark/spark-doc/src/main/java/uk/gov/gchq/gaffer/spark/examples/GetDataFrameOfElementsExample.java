@@ -92,7 +92,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 + "                .build();\n"
                 + "Dataset<Row> df = getGraph().execute(operation, new User(\"user01\"));\n"
                 + "df.show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");
@@ -103,7 +103,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         result = seeded.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"vertex = 1 OR vertex = 2\").show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");
@@ -114,7 +114,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         result = filtered.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"count > 1\").show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");
@@ -145,7 +145,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 + "                .build();\n"
                 + "Dataset<Row> df = getGraph().execute(operation, new User(\"user01\"));\n"
                 + "df.show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");
@@ -156,7 +156,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         result = seeded.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"src = 1 OR src = 3\").show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");
@@ -167,7 +167,7 @@ public class GetDataFrameOfElementsExample extends OperationExample {
         result = filtered.showString(100, 20);
         ROOT_LOGGER.setLevel(Level.INFO);
         printJava("df.filter(\"count > 1\").show();");
-        log("The results are:");
+        log("The results are:\n");
         log("```");
         log(result.substring(0, result.length() - 2));
         log("```");

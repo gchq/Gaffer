@@ -37,7 +37,7 @@ public final class ElementCloner {
                 final Object property = element.getProperty(propertyName);
                 if (null == sed.getPropertyTypeDef(propertyName) || null == sed.getPropertyTypeDef(propertyName).getSerialiser()) {
                     // This can happen if transient properties are derived - they will not have serialisers.
-                    LOGGER.warn("Can't find Serialisation for " + propertyName + ", returning uncloned property");
+                    LOGGER.warn("Can't find Serialisation for {}, returning uncloned property", propertyName);
                     clone.putProperty(propertyName, property);
                 } else if (null != property) {
                     final Serialisation serialisation = sed.getPropertyTypeDef(propertyName).getSerialiser();

@@ -136,8 +136,7 @@ public class GetAdjacentIdsHandler implements
                             } else if (source.equals(id) && destination.equals(id)) {
                                 return new EntitySeed(id);
                             } else {
-                                LOGGER.error("Found edge which doesn't correspond to the EntityId (edge = " +
-                                        edge + "; id = " + id);
+                                LOGGER.error("Found edge which doesn't correspond to the EntityId (edge = {}; id = {}", edge, id);
                                 return null;
                             }
                         });
