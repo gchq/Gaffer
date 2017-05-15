@@ -28,8 +28,9 @@
 
     <modules>
         <module>common-util</module>
-        <module>serialisation</module>
+        <module>type</module>
         <module>graph</module>
+        <module>serialisation</module>
         <module>data</module>
         <module>store</module>
         <module>operation</module>
