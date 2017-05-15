@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.sketches.function.filter;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonAssertUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
@@ -117,7 +117,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
-        JsonAssertUtil.assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +

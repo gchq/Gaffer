@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonAssertUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -78,7 +78,7 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        JsonAssertUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        JsonAssertUtil.assertEquals(json1, json2);
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        JsonAssertUtil.assertEquals(json1, json2);
+        JsonUtil.assertEquals(json1, json2);
     }
 
     @Test
@@ -310,7 +310,7 @@ public class SchemaTest {
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
         schema = createSchema();
-        JsonAssertUtil.assertEquals(String.format("{%n" +
+        JsonUtil.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +

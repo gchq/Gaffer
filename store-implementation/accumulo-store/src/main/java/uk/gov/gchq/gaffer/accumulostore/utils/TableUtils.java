@@ -37,8 +37,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.EnumSet;
@@ -269,44 +267,31 @@ public final class TableUtils {
 
         final ValidationResult validationResult = new ValidationResult();
         for (final IteratorScope iteratorScope : EnumSet.allOf(IteratorScope.class)) {
-            final String schema = StringUtil.toString(store.getSchema().toCompactJson());
             final IteratorSetting aggItrSetting;
             final IteratorSetting validatorItrSetting;
             final IteratorSetting versioningIterSetting;
             try {
                 aggItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, iteratorScope);
+                if (null != aggItrSetting) {
+                    aggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                }
                 validatorItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, iteratorScope);
+                if (null != validatorItrSetting) {
+                    validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                }
                 versioningIterSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, "vers", iteratorScope);
             } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
                 throw new StoreException("Unable to find iterators on the table " + tableName, e);
             }
 
-            boolean aggSchemasEqual = true;
-            if (null != requiredAggItrSetting && null != aggItrSetting) {
-                final String aggSchema = aggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
-                aggSchemasEqual = JsonUtil.equals(schema, aggSchema);
-            }
             if (!Objects.equals(requiredAggItrSetting, aggItrSetting)) {
                 validationResult.addError("Aggregator iterator for scope " + iteratorScope.name() + " is not as expected. "
                         + "Expected: " + requiredAggItrSetting + ", but found: " + aggItrSetting);
-            }
-            if (!aggSchemasEqual) {
-                validationResult.addError("Aggregator iterator schema for scope " + iteratorScope.name() + " is different to the provided schema.");
-            }
-
-            boolean validateSchemasEqual = true;
-            if (null != requiredValidatorItrSetting && null != validatorItrSetting) {
-                final String validateSchema = validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
-                validateSchemasEqual = JsonUtil.equals(schema, validateSchema);
             }
             if (!Objects.equals(requiredValidatorItrSetting, validatorItrSetting)) {
                 validationResult.addError("Validator iterator for scope " + iteratorScope.name() + " is not as expected. "
                         + "Expected: " + requiredValidatorItrSetting + ", but found: " + validatorItrSetting);
             }
-            if (!validateSchemasEqual) {
-                validationResult.addError("Validator iterator schema for scope " + iteratorScope.name() + " is different to the provided schema.");
-            }
-
             if (null != versioningIterSetting) {
                 validationResult.addError("The versioning iterator for scope " + iteratorScope.name() + " should not be set on the table.");
             }

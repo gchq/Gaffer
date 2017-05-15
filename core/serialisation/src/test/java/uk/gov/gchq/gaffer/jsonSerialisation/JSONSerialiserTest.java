@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.JsonAssertUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
@@ -91,7 +91,7 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
         byte[] bytes = serialiser.serialise(test, true);
-        JsonAssertUtil.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
+        JsonUtil.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test

@@ -21,7 +21,7 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.util.Map;
 
-public class JsonAssertUtil {
+public class JsonUtil {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void assertEquals(final String expectedJson, final String actualJson) {
