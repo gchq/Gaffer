@@ -44,6 +44,10 @@
         <level value="ERROR"/>
     </logger>
 
+    <logger name="uk.gov.gchq.gaffer.cache">
+        <level value="ERROR"/>
+    </logger>
+
     <root>
         <priority value="info"/>
         <appender-ref ref="console"/>

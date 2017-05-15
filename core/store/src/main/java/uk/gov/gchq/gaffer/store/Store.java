@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -93,6 +94,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -136,6 +138,7 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
         addOpHandlers();
@@ -143,16 +146,13 @@ public abstract class Store {
         validateSchemas();
     }
 
+    private void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
+    }
+
     protected JobTracker createJobTracker(final StoreProperties properties) {
-        final String jobTrackerClass = properties.getJobTrackerClass();
-        if (null != jobTrackerClass) {
-            try {
-                final JobTracker newJobTracker = Class.forName(jobTrackerClass).asSubclass(JobTracker.class).newInstance();
-                newJobTracker.initialise(properties.getJobTrackerConfigPath());
-                return newJobTracker;
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
-            }
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
         }
 
         return null;

@@ -403,7 +403,7 @@ public class StoreTest {
                 .then(new ExportToGafferResultCache())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
@@ -429,7 +429,7 @@ public class StoreTest {
         final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
@@ -453,7 +453,7 @@ public class StoreTest {
     public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
@@ -559,7 +559,7 @@ public class StoreTest {
 
         @Override
         protected JobTracker createJobTracker(final StoreProperties properties) {
-            if ("jobTrackerClass".equals(properties.getJobTrackerClass())) {
+            if (properties.getJobTrackerEnabled()) {
                 return jobTracker;
             }
 
