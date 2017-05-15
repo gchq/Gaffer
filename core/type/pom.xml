@@ -18,11 +18,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>library</artifactId>
+        <artifactId>core</artifactId>
         <version>0.7.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core-library</artifactId>
+    <artifactId>type</artifactId>
 
     <dependencies>
         <dependency>
