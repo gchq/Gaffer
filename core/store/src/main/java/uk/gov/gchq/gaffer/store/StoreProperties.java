@@ -201,8 +201,7 @@ public class StoreProperties implements Cloneable {
     }
 
     public Integer getJobExecutorThreadCount() {
-        String s = get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT);
-        return Integer.parseInt(s);
+        return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
 
     public void setOperationDeclarationPaths(final String paths) {
