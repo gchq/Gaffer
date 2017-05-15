@@ -113,7 +113,6 @@ import java.util.concurrent.Executors;
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
 
-    private static final int EXECUTOR_SERVICE_THREADS = 50;
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
@@ -537,13 +536,9 @@ public abstract class Store {
     }
 
     private void addExecutorService() {
-        final String jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
-        if (null == jobExecutorThreadCount) {
-            this.executorService = Executors.newFixedThreadPool(EXECUTOR_SERVICE_THREADS);
-        } else {
-            int executorThreadCount = Integer.parseInt(jobExecutorThreadCount);
-            this.executorService = Executors.newFixedThreadPool(executorThreadCount);
-        }
+        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
+        LOGGER.info("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount);
     }
 
     private void addOpHandlers() {

@@ -164,6 +164,7 @@ public class StoreTest {
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
         try {
@@ -187,6 +188,7 @@ public class StoreTest {
                         .build())
                 .build();
         given(properties.getOperationDeclarations()).willReturn(opDeclarations);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
         store.initialise(schema, properties);
@@ -217,6 +219,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final AddElements addElements = new AddElements();
         final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
@@ -239,6 +242,7 @@ public class StoreTest {
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final StoreImpl store = new StoreImpl(viewValidator);
 
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         op.setView(view);
         given(schema.validate()).willReturn(new ValidationResult());
         ValidationResult validationResult = new ValidationResult();
@@ -263,6 +267,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise(schema, properties);
 
@@ -283,6 +288,7 @@ public class StoreTest {
         final Store store = new StoreImpl();
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
         given(lazyElement.getElement()).willReturn(entity);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise(schema, properties);
 
@@ -303,6 +309,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
         final CloseableIterable getElementsResult = mock(CloseableIterable.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         final AddElements addElements1 = new AddElements();
         final GetElements getElements = new GetElements();
@@ -330,7 +337,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 30;
         store.initialise(schema, properties);
@@ -350,6 +357,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         store.initialise(schema, properties);
 
         // WHen
@@ -368,6 +376,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
@@ -383,7 +392,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
@@ -403,6 +412,7 @@ public class StoreTest {
                 .then(new ExportToGafferResultCache())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
@@ -430,6 +440,7 @@ public class StoreTest {
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
@@ -454,6 +465,7 @@ public class StoreTest {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobTrackerClass()).willReturn("jobTrackerClass");
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
         store.initialise(schema, properties);
