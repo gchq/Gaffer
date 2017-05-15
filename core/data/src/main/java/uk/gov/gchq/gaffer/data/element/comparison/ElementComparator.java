@@ -16,15 +16,62 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
-import uk.gov.gchq.gaffer.commonutil.comparison.Comparison;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Comparator;
 
-public abstract class ElementComparator extends Comparison<Element> {
+/**
+ * Base interface describing {@link uk.gov.gchq.gaffer.data.element.Element}
+ * {@link java.util.Comparator} instances.
+ */
+public interface ElementComparator extends Comparator<Element> {
 
-    protected Comparator comparator;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    Comparator getComparator();
 
-    public Comparator getComparator() {
-        return comparator;
+    void setComparator(final Comparator comparator);
+
+    boolean isReversed();
+
+    void setReversed(final boolean reversed);
+
+    boolean isIncludeNulls();
+
+    void setIncludeNulls(final boolean includeNulls);
+
+    abstract class Builder<C extends ElementComparator, B extends Builder<C, ?>> {
+
+        private C elementComparator;
+
+        protected Builder(final C elementComparator) {
+            this.elementComparator = elementComparator;
+        }
+
+        public C build() {
+            return _getComparator();
+        }
+
+        public C _getComparator() {
+            return elementComparator;
+        }
+
+        public B _self() {
+            return (B) this;
+        }
+
+        public ElementComparator.Builder comparator(final Comparator comparator) {
+            _getComparator().setComparator(comparator);
+            return _self();
+        }
+
+        public ElementComparator.Builder reverse(final boolean reverse) {
+            _getComparator().setReversed(reverse);
+            return _self();
+        }
+
+        public ElementComparator.Builder includeNulls(final boolean includeNulls) {
+            _getComparator().setIncludeNulls(includeNulls);
+            return _self();
+        }
     }
 }

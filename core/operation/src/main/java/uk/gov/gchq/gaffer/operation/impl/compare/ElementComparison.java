@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.operation;
+package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -23,6 +23,12 @@ import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * An <code>ElementComparison</code> operation is an operation which is used
+ * to make comparisons between elements.
+ *
+ * Elements comparisons are delegated to the provided {@link uk.gov.gchq.gaffer.data.element.comparison.ElementComparator}.
+ */
 public interface ElementComparison {
     default Set<Pair<String, String>> _getComparablePair(final ElementPropertyComparator comparator) {
         final Set<Pair<String, String>> properties = Sets.newHashSet();

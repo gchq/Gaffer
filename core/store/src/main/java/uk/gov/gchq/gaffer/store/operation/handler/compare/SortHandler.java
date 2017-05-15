@@ -44,8 +44,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
             stream = stream.filter(propertyComparator.asPredicate());
         }
 
-        return stream.sorted(comparator)
-                     .limit(operation.getResultLimit())
-                     .collect(GafferCollectors.toCloseableIterable());
+        return stream.collect(GafferCollectors.toLimitedCloseableIterable(comparator,
+                operation.getResultLimit()));
     }
 }

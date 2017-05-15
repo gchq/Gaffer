@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ImportRDDOfElementsHandlerTest {

@@ -22,7 +22,6 @@ import com.esotericsoftware.kryo.io.Output;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.stream.IntStream;

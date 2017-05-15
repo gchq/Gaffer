@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -62,9 +62,9 @@ public class MinTest implements OperationTest {
                 .build(), new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .property("property", 2)
-                .build()).comparator(new ElementComparator() {
+                .build()).comparator(new ElementPropertyComparator() {
             @Override
-            public int compare(final Element o1, final Element o2) {
+            public int compare(final Element obj1, final Element obj2) {
                 return 0;
             }
         }).build();
