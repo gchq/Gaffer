@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,9 +49,8 @@ public class JcsCacheService implements ICacheService {
                 throw new IllegalArgumentException("Cannot create uk.gov.gchq.gaffer.cache using config file " + configFile, e);
             }
         }
-        LOGGER.warn("No config file configured. Using default.");
+        LOGGER.info("No config file configured. Using default.");
         manager.configure();
-
     }
 
     @Override

@@ -324,7 +324,7 @@ public final class TableUtils {
             }
         }
 
-        if (!requiredRepFactor.equals(repFactor)) {
+        if (!Objects.equals(requiredRepFactor, repFactor)) {
             validationResult.addError("Replication factor was set incorrectly. "
                     + "Expected: " + requiredRepFactor + ", but found: " + repFactor);
         }
