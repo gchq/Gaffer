@@ -49,6 +49,8 @@ public class StoreProperties implements Cloneable {
     public static final String JOB_TRACKER_CLASS = "gaffer.store.job.tracker.class";
     public static final String JOB_TRACKER_CONFIG_PATH = "gaffer.store.job.tracker.config.path";
 
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
+
     private Properties props = new Properties();
 
     // Required for loading by reflection.
@@ -194,6 +196,10 @@ public class StoreProperties implements Cloneable {
 
     public String getOperationDeclarationPaths() {
         return get(OPERATION_DECLARATIONS);
+    }
+
+    public String getJobExecutorThreadCount() {
+        return get(EXECUTOR_SERVICE_THREAD_COUNT);
     }
 
     public void setOperationDeclarationPaths(final String paths) {
