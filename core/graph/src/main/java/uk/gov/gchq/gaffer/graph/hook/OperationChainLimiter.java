@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -130,7 +130,7 @@ public class OperationChainLimiter implements GraphHook {
                 throw new IllegalArgumentException("Failed to load store properties file : " + e
                         .getMessage(), e);
             } finally {
-                IOUtils.closeQuietly(stream);
+                CloseableUtil.close(stream);
             }
         }
         return props;

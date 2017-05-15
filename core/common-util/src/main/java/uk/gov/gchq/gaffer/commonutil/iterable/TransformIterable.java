@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.io.IOUtils;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
-import java.io.Closeable;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -47,10 +44,10 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
 
     /**
      * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable} and
-     * {@link uk.gov.gchq.gaffer.data.Validator}. Invalid items will throw an {@link java.lang.IllegalArgumentException} to be thrown.
+     * {@link Validator}. Invalid items will throw an {@link java.lang.IllegalArgumentException} to be thrown.
      *
      * @param input     the input {@link java.lang.Iterable}
-     * @param validator the {@link uk.gov.gchq.gaffer.data.Validator}
+     * @param validator the {@link Validator}
      */
     public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator) {
         this(input, validator, false);
@@ -58,21 +55,21 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
 
     /**
      * Constructs an <code>TransformIterable</code> with the given input {@link java.lang.Iterable},
-     * {@link uk.gov.gchq.gaffer.data.Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
+     * {@link Validator} and a skipInvalid flag to determine whether invalid items should be skipped.
      *
      * @param input       the input {@link java.lang.Iterable}
-     * @param validator   the {@link uk.gov.gchq.gaffer.data.Validator}
+     * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      */
     public TransformIterable(final Iterable<? extends I> input, final Validator<I> validator, final boolean skipInvalid) {
-        this(input, validator, skipInvalid, false);
+        this(input, validator, skipInvalid, true);
     }
 
     /**
      * Constructs an <code>TransformIterable</code> with the given parameters
      *
      * @param input       the input {@link java.lang.Iterable}
-     * @param validator   the {@link uk.gov.gchq.gaffer.data.Validator}
+     * @param validator   the {@link Validator}
      * @param skipInvalid if true invalid items should be skipped
      * @param autoClose   if true then the input iterable will be closed when any iterators reach the end.
      */
@@ -95,9 +92,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
         return new CloseableIterator<O>() {
             @Override
             public void close() {
-                if (inputItr instanceof Closeable) {
-                    IOUtils.closeQuietly((Closeable) inputItr);
-                }
+                CloseableUtil.close(inputItr);
             }
 
             private final Iterator<? extends I> inputItr = input.iterator();
@@ -154,9 +149,7 @@ public abstract class TransformIterable<I, O> implements CloseableIterable<O> {
 
     @Override
     public void close() {
-        if (input instanceof Closeable) {
-            IOUtils.closeQuietly((Closeable) input);
-        }
+        CloseableUtil.close(input);
     }
 
     /**

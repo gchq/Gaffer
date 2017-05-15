@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.data;
+package uk.gov.gchq.gaffer.commonutil;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
-import uk.gov.gchq.gaffer.data.element.Element;
+import org.apache.commons.io.IOUtils;
+import java.io.Closeable;
 
-/**
- * A <code>IsElementValidator</code> is a simple {@link Validator} to validate if an
- * object is an instance of {@link Element}.
- */
-public class IsElementValidator implements Validator<Object> {
-    /**
-     * @param object the object to check if it is an {@link Element}
-     * @return true if the object is an instance of {@link Element}.
-     */
-    @Override
-    public boolean validate(final Object object) {
-        return object instanceof Element;
+public final class CloseableUtil {
+    private CloseableUtil() {
+    }
+
+    public static void close(final Object obj) {
+        if (obj instanceof Closeable) {
+            close(((Closeable) obj));
+        }
+    }
+
+    public static void close(final Closeable closeable) {
+        IOUtils.closeQuietly(closeable);
     }
 }

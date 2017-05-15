@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hbasestore.retriever;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -24,13 +23,14 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.MultiRowRangeFilter;
 import org.apache.hadoop.hbase.security.visibility.Authorizations;
 import org.apache.hadoop.hbase.util.Bytes;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
 import uk.gov.gchq.gaffer.commonutil.iterable.BatchedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.AlwaysValid;
-import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -45,7 +45,6 @@ import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,9 +113,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         }
 
         if (idsIterator != null) {
-            if (idsIterator instanceof Closeable) {
-                IOUtils.closeQuietly((Closeable) idsIterator);
-            }
+            CloseableUtil.close(idsIterator);
             idsIterator = null;
         }
     }
@@ -181,7 +178,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
             return new WrappedCloseableIterable<>(table.getScanner(scan));
         } catch (final IOException | StoreException e) {
             if (null != table) {
-                IOUtils.closeQuietly(table);
+                CloseableUtil.close(table);
             }
             throw new RuntimeException(e);
         }
@@ -206,7 +203,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
         public void close() {
             HBaseRetriever.this.close();
             if (null != scanner) {
-                IOUtils.closeQuietly(scanner);
+                CloseableUtil.close(scanner);
             }
         }
 
