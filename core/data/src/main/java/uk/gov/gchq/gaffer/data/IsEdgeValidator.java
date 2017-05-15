@@ -16,11 +16,12 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 
 /**
- * A <code>IsEdgeValidator</code> is a simple {@link uk.gov.gchq.gaffer.data.Validator} to validate if an
+ * A <code>IsEdgeValidator</code> is a simple {@link Validator} to validate if an
  * {@link uk.gov.gchq.gaffer.data.element.Element} is an instance of an {@link uk.gov.gchq.gaffer.data.element.Edge}.
  */
 public class IsEdgeValidator implements Validator<Element> {

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -108,6 +109,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A <code>Store</code> backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
@@ -133,6 +136,8 @@ public abstract class Store {
 
     private JobTracker jobTracker;
 
+    private ExecutorService executorService;
+
     public Store() {
         this.viewValidator = new ViewValidator();
         this.schemaOptimiser = new SchemaOptimiser();
@@ -141,27 +146,23 @@ public abstract class Store {
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
+        startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
         addOpHandlers();
         optimiseSchema();
         validateSchemas();
+        addExecutorService();
+    }
+
+    private void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 
     protected JobTracker createJobTracker(final StoreProperties properties) {
-        final String jobTrackerClass = properties.getJobTrackerClass();
-        if (null != jobTrackerClass) {
-            try {
-                final JobTracker newJobTracker = Class.forName(jobTrackerClass)
-                                                      .asSubclass(JobTracker.class)
-                                                      .newInstance();
-                newJobTracker.initialise(properties.getJobTrackerConfigPath());
-                return newJobTracker;
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create job tracker with class: " + jobTrackerClass, e);
-            }
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
         }
-
         return null;
     }
 
@@ -266,15 +267,22 @@ public abstract class Store {
         }
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
-        new Thread(() -> {
-            try {
-                _execute(operationChain, context);
-                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-            } catch (final Exception e) {
-                LOGGER.warn("Operation chain job failed to execute", e);
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+
+        final Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    _execute(operationChain, context);
+                    addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Exception e) {
+                    LOGGER.warn("Operation chain job failed to execute", e);
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                }
             }
-        }).start();
+        };
+
+        executorService.execute(runnable);
 
         return initialJobDetail;
     }
@@ -566,6 +574,12 @@ public abstract class Store {
                                                                  .getName() + " as an input", e);
             }
         }
+    }
+
+    private void addExecutorService() {
+        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
+        LOGGER.info("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount);
     }
 
     private void addOpHandlers() {

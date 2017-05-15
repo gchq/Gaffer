@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.predicate;
 import uk.gov.gchq.gaffer.doc.util.Example;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.koryphe.signature.Signature;
+import uk.gov.gchq.koryphe.tuple.MapTuple;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 import java.util.function.Predicate;
 
@@ -27,8 +28,8 @@ public abstract class PredicateExample extends Example {
     }
 
     public void runExample(final Predicate predicate, final Object... inputs) {
-        log("#### " + getMethodNameAsSentence(2) + "\n");
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(predicate);
 
         log("Input type:");
@@ -47,7 +48,7 @@ public abstract class PredicateExample extends Example {
         for (final Object input : inputs) {
             final String inputType;
             final String inputString;
-            if (!(input instanceof Tuple)) {
+            if (!(input instanceof Tuple) || input instanceof MapTuple) {
                 if (null == input) {
                     inputType = "";
                     inputString = "null";

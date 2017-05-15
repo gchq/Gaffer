@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.data.generator;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.TransformIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Arrays;
 import java.util.Iterator;

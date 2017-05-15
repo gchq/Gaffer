@@ -16,8 +16,7 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.io.IOUtils;
-import java.io.Closeable;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -48,13 +47,8 @@ public abstract class BatchedIterable<T> implements CloseableIterable<T> {
 
     @Override
     public void close() {
-        if (null != batchIterator && batchIterator instanceof Closeable) {
-            IOUtils.closeQuietly((Closeable) batchIterator);
-        }
-
-        if (null != batch && batch instanceof Closeable) {
-            IOUtils.closeQuietly((Closeable) batch);
-        }
+        CloseableUtil.close(batchIterator);
+        CloseableUtil.close(batch);
     }
 
     /**
@@ -64,16 +58,12 @@ public abstract class BatchedIterable<T> implements CloseableIterable<T> {
 
     private void closeBatch() {
         if (null != batchIterator) {
-            if (batchIterator instanceof Closeable) {
-                IOUtils.closeQuietly((Closeable) batchIterator);
-            }
+            CloseableUtil.close(batchIterator);
             batchIterator = null;
         }
 
         if (null != batch) {
-            if (batch instanceof Closeable) {
-                IOUtils.closeQuietly((Closeable) batch);
-            }
+            CloseableUtil.close(batch);
             batch = null;
         }
     }
