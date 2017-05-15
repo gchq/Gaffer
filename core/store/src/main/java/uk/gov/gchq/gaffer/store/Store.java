@@ -101,6 +101,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A <code>Store</code> backs a Graph and is responsible for storing the {@link uk.gov.gchq.gaffer.data.element.Element}s and
@@ -129,6 +131,8 @@ public abstract class Store {
 
     private JobTracker jobTracker;
 
+    private ExecutorService executorService;
+
     public Store() {
         this.viewValidator = new ViewValidator();
         this.schemaOptimiser = new SchemaOptimiser();
@@ -143,6 +147,7 @@ public abstract class Store {
         optimiseSchema();
         validateSchemas();
         addOpHandlers();
+        addExecutorService();
     }
 
     private void startCacheServiceLoader(final StoreProperties properties) {
@@ -257,15 +262,22 @@ public abstract class Store {
         }
 
         final JobDetail initialJobDetail = addOrUpdateJobDetail(operationChain, context, null, JobStatus.RUNNING);
-        new Thread(() -> {
-            try {
-                _execute(operationChain, context);
-                addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-            } catch (final Exception e) {
-                LOGGER.warn("Operation chain job failed to execute", e);
-                addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+
+        final Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    _execute(operationChain, context);
+                    addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Exception e) {
+                    LOGGER.warn("Operation chain job failed to execute", e);
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                }
             }
-        }).start();
+        };
+
+        executorService.execute(runnable);
 
         return initialJobDetail;
     }
@@ -520,6 +532,12 @@ public abstract class Store {
                         + op.getClass().getName() + " cannot take " + result.getClass().getName() + " as an input", e);
             }
         }
+    }
+
+    private void addExecutorService() {
+        final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
+        LOGGER.info("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+        this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount);
     }
 
     private void addOpHandlers() {

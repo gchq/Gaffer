@@ -239,11 +239,12 @@ public class AccumuloStore extends Store {
             addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
             addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
-            if (getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+            if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
                 addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
                 addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
             } else {
-                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: " + getSchema().getVertexSerialiser().getClass().getName());
+                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
+                        null != getSchema().getVertexSerialiser() ? getSchema().getVertexSerialiser().getClass().getName() : " null.");
             }
         } catch (final NoClassDefFoundError e) {
             LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
