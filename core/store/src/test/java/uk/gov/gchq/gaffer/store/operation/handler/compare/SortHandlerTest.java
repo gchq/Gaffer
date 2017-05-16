@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementObjectComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -99,13 +98,15 @@ public class SortHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Sort sort = new Sort.Builder().input(input)
+        final Sort sort = new Sort.Builder()
+                .input(input)
                 .comparator(new ElementPropertyComparator.Builder()
-                        .groupName(TestGroups.ENTITY)
-                        .propertyName("property")
-                        .comparator(new PropertyComparatorImpl())
-                        .reverse(true)
-                        .build())
+                                .groupName(TestGroups.ENTITY)
+                                .propertyName("property")
+                                .comparator(new PropertyComparatorImpl())
+                                .build()
+                )
+                .reverse(true)
                 .build();
 
         final SortHandler handler = new SortHandler();
@@ -189,7 +190,6 @@ public class SortHandlerTest {
                         .propertyName("property")
                         .groupName(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
-                        .includeNulls(true)
                         .build())
                 .build();
 
@@ -241,7 +241,6 @@ public class SortHandlerTest {
                         .propertyName("property")
                         .groupName(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
-                        .includeNulls(true)
                         .build())
                 .build();
 
@@ -280,9 +279,7 @@ public class SortHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Sort sort = new Sort.Builder().input(input)
-                .comparator(new ElementObjectComparator.Builder()
-                        .comparator(new ElementComparatorImpl())
-                        .build())
+                .comparator(new ElementComparatorImpl())
                 .build();
 
         final SortHandler handler = new SortHandler();
@@ -322,11 +319,10 @@ public class SortHandlerTest {
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
-        final Sort sort = new Sort.Builder().input(input)
-                .comparator(new ElementObjectComparator.Builder()
-                        .comparator(new ElementComparatorImpl())
-                        .reverse(true)
-                        .build())
+        final Sort sort = new Sort.Builder()
+                .input(input)
+                .comparator(new ElementComparatorImpl())
+                .reverse(true)
                 .build();
 
         final SortHandler handler = new SortHandler();
