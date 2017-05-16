@@ -339,7 +339,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 30;
+        final int expectedNumberOfOperations = 33;
         store.initialise(schema, properties);
 
         // When
