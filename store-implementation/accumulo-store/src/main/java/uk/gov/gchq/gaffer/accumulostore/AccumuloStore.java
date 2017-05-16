@@ -244,7 +244,7 @@ public class AccumuloStore extends Store {
                 addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
             } else {
                 LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
-                        null != getSchema().getVertexSerialiser() ? getSchema().getVertexSerialiser().getClass().getName() : " null.");
+                        getSchema().getVertexSerialiser().getClass().getName());
             }
         } catch (final NoClassDefFoundError e) {
             LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
