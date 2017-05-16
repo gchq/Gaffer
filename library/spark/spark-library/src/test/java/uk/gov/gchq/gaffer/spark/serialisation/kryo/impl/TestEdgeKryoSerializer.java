@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 

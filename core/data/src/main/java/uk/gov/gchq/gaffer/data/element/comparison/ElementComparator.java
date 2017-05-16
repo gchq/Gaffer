@@ -17,8 +17,11 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Set;
 
 /**
  * Base interface describing {@link uk.gov.gchq.gaffer.data.element.Element}
@@ -38,6 +41,10 @@ public interface ElementComparator extends Comparator<Element> {
     boolean isIncludeNulls();
 
     void setIncludeNulls(final boolean includeNulls);
+
+    default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
+        return Collections.emptySet();
+    }
 
     abstract class Builder<C extends ElementComparator, B extends Builder<C, ?>> {
 

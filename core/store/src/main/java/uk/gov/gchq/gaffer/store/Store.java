@@ -123,19 +123,20 @@ public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
     private Schema schema;
+
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
     private StoreProperties properties;
+
     private SchemaOptimiser schemaOptimiser;
     private ViewValidator viewValidator;
-
     private JobTracker jobTracker;
-
     private ExecutorService executorService;
 
     public Store() {
@@ -262,7 +263,7 @@ public abstract class Store {
             }
             if (!hasExport) {
                 operationChain.getOperations()
-                              .add(new ExportToGafferResultCache());
+                        .add(new ExportToGafferResultCache());
             }
         }
 
@@ -322,8 +323,8 @@ public abstract class Store {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "Getters are called to trigger the loading data")
     public Element populateElement(final Element lazyElement) {
-        final SchemaElementDefinition elementDefinition = getSchema().getElement(lazyElement
-                .getGroup());
+        final SchemaElementDefinition elementDefinition = getSchema().getElement(
+                lazyElement.getGroup());
         if (null != elementDefinition) {
             for (final IdentifierType identifierType : elementDefinition.getIdentifiers()) {
                 lazyElement.getIdentifier(identifierType);
@@ -370,31 +371,33 @@ public abstract class Store {
             final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
             schemaElements.putAll(getSchema().getEdges());
             schemaElements.putAll(getSchema().getEntities());
-            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements
-                    .entrySet()) {
-                for (final String propertyName : schemaElementDefinitionEntry.getValue()
-                                                                             .getProperties()) {
-                    Class propertyClass = schemaElementDefinitionEntry.getValue()
-                                                                      .getPropertyClass(propertyName);
-                    Serialisation serialisation = schemaElementDefinitionEntry.getValue()
-                                                                              .getPropertyTypeDef(propertyName)
-                                                                              .getSerialiser();
+            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
+                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
+                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    final Serialisation serialisation = schemaElementDefinitionEntry
+                            .getValue()
+                            .getPropertyTypeDef(propertyName)
+                            .getSerialiser();
                     if (null == serialisation) {
-                        validationResult.addError("Could not find a serialiser for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry
-                                .getKey() + "'.");
+                        validationResult.addError(
+                                "Could not find a serialiser for property '"
+                                        + propertyName
+                                        + "' in the group '"
+                                        + schemaElementDefinitionEntry.getKey() + "'.");
                     } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError("Schema serialiser (" + serialisation
-                                .getClass()
-                                .getName() + ") for property '" + propertyName + "' in the group '" + schemaElementDefinitionEntry
-                                .getKey() + "' cannot handle property found in the schema");
+                        validationResult.addError("Schema serialiser ("
+                                + serialisation.getClass().getName()
+                                + ") for property '" + propertyName
+                                + "' in the group '" + schemaElementDefinitionEntry.getKey()
+                                + "' cannot handle property found in the schema");
                     }
                 }
             }
         }
 
         if (!validationResult.isValid()) {
-            throw new SchemaException("Schema is not valid. " + validationResult
-                    .getErrorString());
+            throw new SchemaException("Schema is not valid. "
+                    + validationResult.getErrorString());
         }
     }
 
@@ -429,12 +432,24 @@ public abstract class Store {
             }
 
             if (op instanceof ElementComparison) {
-                for (final Pair<String, String> pair : ((ElementComparison) op).getComparablePair()) {
-                    if (!schema.getElement(pair.getFirst())
-                               .getPropertyClass(pair.getSecond())
-                               .isAssignableFrom(Comparable.class)) {
-                        throw new SchemaException("Type definition for " + pair.getSecond() + " in group " + pair
-                                .getFirst() + " indicates a class which does not extend Comparable.");
+                for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
+                    final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
+                    if (null == elementDef) {
+                        throw new IllegalArgumentException(op.getClass().getName()
+                                + " references " + pair.getFirst()
+                                + " group that does not exist in the schema");
+                    }
+                    final Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
+                    if (null == propertyClass) {
+                        throw new IllegalArgumentException(op.getClass().getName()
+                                + " references property " + pair.getSecond()
+                                + " in group " + pair.getFirst()
+                                + " that does not exist in the schema");
+                    }
+                    if (!propertyClass.isAssignableFrom(Comparable.class)) {
+                        throw new SchemaException("Type definition for property " + pair.getSecond()
+                                + " in group " + pair.getFirst()
+                                + " indicates a class which does not extend Comparable.");
                     }
                 }
 
@@ -533,17 +548,13 @@ public abstract class Store {
     }
 
     private JobDetail addOrUpdateJobDetail(final OperationChain<?> operationChain, final Context context, final String msg, final JobStatus jobStatus) {
-        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context
-                .getUser()
-                .getUserId(), operationChain, jobStatus, msg);
+        final JobDetail newJobDetail = new JobDetail(context.getJobId(), context.getUser().getUserId(), operationChain, jobStatus, msg);
         if (null != jobTracker) {
-            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context
-                    .getUser());
+            final JobDetail oldJobDetail = jobTracker.getJob(newJobDetail.getJobId(), context.getUser());
             if (null == oldJobDetail) {
                 jobTracker.addOrUpdateJob(newJobDetail, context.getUser());
             } else {
-                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context
-                        .getUser());
+                jobTracker.addOrUpdateJob(new JobDetail(oldJobDetail, newJobDetail), context.getUser());
             }
         }
         return newJobDetail;
@@ -551,8 +562,8 @@ public abstract class Store {
 
     protected Object handleOperation(final Operation operation, final Context context) throws
             OperationException {
-        final OperationHandler<Operation> handler = getOperationHandler(operation
-                .getClass());
+        final OperationHandler<Operation> handler = getOperationHandler(
+                operation.getClass());
         Object result;
         if (null != handler) {
             result = handler.doOperation(operation, context, this);
@@ -569,9 +580,9 @@ public abstract class Store {
                 ((Input) op).setInput(result);
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("Operation chain is not compatible. "
-                        + op.getClass()
-                            .getName() + " cannot take " + result.getClass()
-                                                                 .getName() + " as an input", e);
+                        + op.getClass().getName()
+                        + " cannot take " + result.getClass().getName()
+                        + " as an input", e);
             }
         }
     }

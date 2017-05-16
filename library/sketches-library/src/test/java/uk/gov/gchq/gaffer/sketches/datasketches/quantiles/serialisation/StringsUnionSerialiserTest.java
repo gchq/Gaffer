@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 /**
  * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
- * <code>Comparison.naturalOrder()</code>.
+ * <code>Comparator.naturalOrder()</code>.
  */
 public class StringsUnionSerialiserTest {
     private static final StringsUnionSerialiser SERIALISER = new StringsUnionSerialiser();

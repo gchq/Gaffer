@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.impl.HashMapCacheService;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
+
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;

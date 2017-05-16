@@ -17,16 +17,12 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import java.util.Set;
 
 /**
  * A <code>Min</code> operation is intended as a terminal operation for retrieving the "minimum" element from an {@link java.lang.Iterable}.
@@ -71,13 +67,6 @@ public class Min implements
     @Override
     public TypeReference<Element> getOutputTypeReference() {
         return new TypeReferenceImpl.Element();
-    }
-
-    @Override
-    public Set<Pair<String, String>> getComparablePair() {
-        return (comparator instanceof ElementPropertyComparator)
-                ? _getComparablePair((ElementPropertyComparator) comparator)
-                : Sets.newHashSet();
     }
 
     public static final class Builder

@@ -18,8 +18,11 @@ package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -89,6 +92,15 @@ public class ElementPropertyComparator implements ElementComparator {
                 mutatedComparator = Comparator.nullsLast(mutatedComparator);
             }
         }
+    }
+
+    @Override
+    public Set<Pair<String, String>> getComparableGroupPropertyPairs() {
+        if (null == comparator) {
+            return Collections.singleton(new Pair<>(groupName, propertyName));
+        }
+
+        return Collections.emptySet();
     }
 
     @Override
