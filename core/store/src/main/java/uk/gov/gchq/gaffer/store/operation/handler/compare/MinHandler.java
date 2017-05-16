@@ -24,31 +24,34 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Comparator;
+import java.util.List;
 
 public class MinHandler implements OutputOperationHandler<Min, Element> {
     @Override
     public Element doOperation(final Min operation, final Context context, final Store store) throws OperationException {
-        // If the input or comparator is null, we return null
-        if (null == operation.getInput() || null == operation.getComparator()) {
+        // If there is no input or there are no comparators, we return null
+        if (null == operation.getInput()
+                || null == operation.getComparators()
+                || operation.getComparators().isEmpty()) {
             return null;
         }
 
-        final Comparator<Element> comparator = operation.getComparator();
         try {
-            return getMin(operation.getInput(), comparator);
+            return getMin(operation.getInput(), operation);
         } finally {
             CloseableUtil.close(operation);
         }
     }
 
-    private Element getMin(final Iterable<? extends Element> elements, final Comparator<Element> comparator) {
+    private Element getMin(final Iterable<? extends Element> elements, final Min operation) {
         Element minElement = null;
 
-        if (comparator instanceof ElementPropertyComparator) {
-            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
+        final List<Comparator<Element>> comparators = operation.getComparators();
+        if (1 == comparators.size() && comparators.get(0) instanceof ElementPropertyComparator) {
+            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparators.get(0);
             Object minProperty = null;
             for (final Element element : elements) {
-                if (null == element || !element.getGroup().equals(propertyComparator.getGroupName())) {
+                if (null == element || !propertyComparator.getGroupNames().contains(element.getGroup())) {
                     continue;
                 }
                 final Object property = element.getProperty(propertyComparator.getPropertyName());
@@ -61,15 +64,18 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
                 }
             }
         } else {
-            for (final Element element : elements) {
-                if (null == element) {
-                    continue;
-                }
-                if (null == minElement) {
-                    minElement = element;
-                }
-                if (comparator.compare(element, minElement) < 0) {
-                    minElement = element;
+            final Comparator<Element> combinedComparator = operation.getCombinedComparator();
+            if (null != combinedComparator) {
+                for (final Element element : elements) {
+                    if (null == element) {
+                        continue;
+                    }
+                    if (null == minElement) {
+                        minElement = element;
+                    }
+                    if (combinedComparator.compare(element, minElement) < 0) {
+                        minElement = element;
+                    }
                 }
             }
         }

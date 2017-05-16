@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,31 +24,37 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.Comparator;
 import java.util.stream.Stream;
 
 public class SortHandler implements OutputOperationHandler<Sort, Iterable<? extends Element>> {
     @Override
     public Iterable<? extends Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
-        // If the input or comparator is null, we return null
-        if (null == operation.getInput()) {
+        // If there is no input or there are no comparators, we return null
+        if (null == operation.getInput()
+                || null == operation.getComparators()
+                || operation.getComparators().isEmpty()) {
             return null;
-        }
-
-        if (null == operation.getComparator()) {
-            return operation.getInput();
-        }
-
-        Comparator<Element> comparator = operation.getComparator();
-        if (operation.isReversed()) {
-            comparator = comparator.reversed();
         }
 
         try (Stream<? extends Element> stream =
                      Streams.toStream(operation.getInput())
                              .filter(e -> null != e)) {
-            return stream.collect(GafferCollectors.toLimitedSortedSet(comparator,
-                    operation.getResultLimit()));
+            if (null == operation.getResultLimit()) {
+                return stream.collect(
+                        GafferCollectors.toSortedSet(
+                                operation.getCombinedComparator()
+                        )
+                );
+            }
+
+            return stream.collect(
+                    GafferCollectors.toLimitedSortedSet(
+                            operation.getCombinedComparator(),
+                            operation.getResultLimit()
+                    )
+            );
+        } finally {
+            CloseableUtil.close(operation);
         }
     }
 }

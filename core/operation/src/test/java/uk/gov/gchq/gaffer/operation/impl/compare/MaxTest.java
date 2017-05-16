@@ -61,7 +61,7 @@ public class MaxTest implements OperationTest {
                 .build(), new Entity.Builder()
                 .group(TestGroups.ENTITY)
                 .property("property", 2)
-                .build()).comparator(new ElementPropertyComparator() {
+                .build()).comparators(new ElementPropertyComparator() {
             @Override
             public int compare(final Element e1, final Element e2) {
                 return 0;

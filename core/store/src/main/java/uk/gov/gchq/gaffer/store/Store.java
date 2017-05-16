@@ -182,6 +182,7 @@ public abstract class Store {
      * Returns the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store. Most stores should support FILTERING.
      * <p>
      * If you use Operation.validateFilter(Element) in you handlers, it will deal with the filtering for you.
+     * </p>
      *
      * @return the {@link uk.gov.gchq.gaffer.store.StoreTrait}s for this store.
      */
@@ -446,10 +447,11 @@ public abstract class Store {
                                 + " in group " + pair.getFirst()
                                 + " that does not exist in the schema");
                     }
-                    if (!propertyClass.isAssignableFrom(Comparable.class)) {
-                        throw new SchemaException("Type definition for property " + pair.getSecond()
+                    if (!Comparable.class.isAssignableFrom(propertyClass)) {
+                        throw new SchemaException("Property " + pair.getSecond()
                                 + " in group " + pair.getFirst()
-                                + " indicates a class which does not extend Comparable.");
+                                + " has a java class of " + propertyClass.getName()
+                                + " which does not extend Comparable.");
                     }
                 }
 

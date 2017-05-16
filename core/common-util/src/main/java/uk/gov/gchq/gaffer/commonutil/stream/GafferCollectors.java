@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
-import com.google.common.collect.Multiset;
 import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -26,6 +25,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -83,7 +84,18 @@ public final class GafferCollectors {
         );
     }
 
-    public static <T> Collector<T, Multiset<T>, LimitedSortedSet<T>> toLimitedSortedSet(final Comparator<T> comparator, final long limit) {
+    public static <T> Collector<T, Set<T>, SortedSet<T>> toSortedSet(final Comparator<T> comparator) {
+        return new GafferCollectorImpl<>(
+                () -> new TreeSet<>(comparator),
+                Collection::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
+    }
+
+    public static <T> Collector<T, Set<T>, LimitedSortedSet<T>> toLimitedSortedSet(final Comparator<T> comparator, final int limit) {
         return new GafferCollectorImpl<>(
                 () -> new LimitedSortedSet<>(comparator, limit),
                 Collection::add,

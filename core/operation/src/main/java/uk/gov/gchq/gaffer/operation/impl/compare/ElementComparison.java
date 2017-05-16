@@ -16,26 +16,56 @@
 
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * An <code>ElementComparison</code> operation is an operation which is used
- * to make comparisons between elements. It is required to have a
- * {@link Comparator} of {@link Element}s
+ * to make comparisons between elements. It is required to have an array of
+ * {@link Comparator}s of {@link Element}s
  */
 public interface ElementComparison {
-    default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
-        final Comparator<Element> comparator = getComparator();
-        if (null != comparator && comparator instanceof ElementComparator) {
-            return ((ElementComparator) comparator).getComparableGroupPropertyPairs();
+    List<Comparator<Element>> getComparators();
+
+    @JsonIgnore
+    default Comparator<Element> getCombinedComparator() {
+        final List<Comparator<Element>> comparators = getComparators();
+        Comparator<Element> combinedComparator = null;
+        if (null != comparators && !comparators.isEmpty()) {
+            for (final Comparator<Element> comparator : comparators) {
+                if (null == combinedComparator) {
+                    combinedComparator = comparator;
+                } else if (null != comparator) {
+                    combinedComparator = combinedComparator.thenComparing(comparator);
+                }
+            }
         }
-        return Collections.emptySet();
+
+        return combinedComparator;
     }
 
-    Comparator<Element> getComparator();
+
+    @JsonIgnore
+    default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
+        final List<Comparator<Element>> comparators = getComparators();
+        if (null != comparators && !comparators.isEmpty()) {
+            final Set<Pair<String, String>> pairs = new HashSet<>();
+            for (final Comparator<Element> comparator : comparators) {
+                if (null != comparator && comparator instanceof ElementComparator) {
+                    pairs.addAll(((ElementComparator) comparator).getComparableGroupPropertyPairs());
+                }
+            }
+
+            return pairs;
+        }
+
+        return Collections.emptySet();
+    }
 }

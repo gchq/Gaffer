@@ -17,11 +17,13 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -35,7 +37,8 @@ public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
 
     private String propertyName = null;
-    private String groupName = null;
+    private Set<String> groupNames = Collections.emptySet();
+    private boolean reversed;
 
     @Override
     public int compare(final Element e1, final Element e2) {
@@ -49,13 +52,13 @@ public class ElementPropertyComparator implements ElementComparator {
             return -1;
         }
 
-        if (!groupName.equals(e1.getGroup())) {
-            if (!groupName.equals(e2.getGroup())) {
+        if (!groupNames.contains(e1.getGroup())) {
+            if (!groupNames.contains(e2.getGroup())) {
                 return 0;
             }
             return 1;
         }
-        if (!groupName.equals(e2.getGroup())) {
+        if (!groupNames.contains(e2.getGroup())) {
             return -1;
         }
 
@@ -72,13 +75,26 @@ public class ElementPropertyComparator implements ElementComparator {
         if (val2 == null) {
             return -1;
         }
+
+        if (reversed) {
+            return ((Comparable) val2).compareTo(val1);
+        }
+
         return ((Comparable) val1).compareTo(val2);
     }
 
     @Override
     public Set<Pair<String, String>> getComparableGroupPropertyPairs() {
         if (null == comparator) {
-            return Collections.singleton(new Pair<>(groupName, propertyName));
+            if (1 == groupNames.size()) {
+                return Collections.singleton(new Pair<>(groupNames.iterator().next(), propertyName));
+            }
+
+            final Set<Pair<String, String>> pairs = new HashSet<>(groupNames.size());
+            for (final String groupName : groupNames) {
+                pairs.add(new Pair<>(groupName, propertyName));
+            }
+            return pairs;
         }
 
         return Collections.emptySet();
@@ -92,12 +108,20 @@ public class ElementPropertyComparator implements ElementComparator {
         this.propertyName = propertyName;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public Set<String> getGroupNames() {
+        return groupNames;
     }
 
-    public void setGroupName(final String groupName) {
-        this.groupName = groupName;
+    public void setGroupNames(final Set<String> groupNames) {
+        this.groupNames = groupNames;
+    }
+
+    public boolean isReversed() {
+        return reversed;
+    }
+
+    public void setReversed(final boolean reversed) {
+        this.reversed = reversed;
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
@@ -122,13 +146,18 @@ public class ElementPropertyComparator implements ElementComparator {
             return this;
         }
 
-        public Builder groupName(final String groupName) {
-            comparator.setGroupName(groupName);
+        public Builder groupNames(final String... groupName) {
+            comparator.setGroupNames(Sets.newHashSet(groupName));
             return this;
         }
 
         public Builder propertyName(final String propertyName) {
             comparator.setPropertyName(propertyName);
+            return this;
+        }
+
+        public Builder reverse(final boolean reverse) {
+            comparator.setReversed(reverse);
             return this;
         }
     }

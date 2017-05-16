@@ -17,17 +17,19 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s using a provided {@link java.util.Comparator} object.
  * This operation can be executed in two modes:
- * <ul><li>property comparator - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparator is applied to all values of the specified property, and the input is sorted according to the {@link java.util.Comparator} implementation.</li><li>element comparator - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. the input is sorted according to the {@link java.util.Comparator} implementation.</li></ul>
+ * <ul><li>property comparators - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparators is applied to all values of the specified property, and the input is sorted according to the {@link java.util.Comparator} implementation.</li><li>element comparators - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. the input is sorted according to the {@link java.util.Comparator} implementation.</li></ul>
  *
  * @see uk.gov.gchq.gaffer.operation.impl.compare.Sort.Builder
  */
@@ -38,18 +40,17 @@ public class Sort implements
         ElementComparison {
 
     private Iterable<? extends Element> input;
-    private Comparator<Element> comparator;
-    private long resultLimit = Long.MAX_VALUE;
-    private boolean reversed;
+    private List<Comparator<Element>> comparators;
+    private Integer resultLimit = null;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public Comparator<Element> getComparator() {
-        return comparator;
+    public List<Comparator<Element>> getComparators() {
+        return comparators;
     }
 
-    public void setComparator(final Comparator<Element> comparator) {
-        this.comparator = comparator;
+    public void setComparators(final List<Comparator<Element>> comparators) {
+        this.comparators = comparators;
     }
 
     @Override
@@ -62,20 +63,12 @@ public class Sort implements
         this.input = input;
     }
 
-    public long getResultLimit() {
+    public Integer getResultLimit() {
         return resultLimit;
     }
 
-    public void setResultLimit(final long resultLimit) {
+    public void setResultLimit(final Integer resultLimit) {
         this.resultLimit = resultLimit;
-    }
-
-    public boolean isReversed() {
-        return reversed;
-    }
-
-    public void setReversed(final boolean reversed) {
-        this.reversed = reversed;
     }
 
     @Override
@@ -91,18 +84,14 @@ public class Sort implements
             super(new Sort());
         }
 
-        public Builder comparator(final Comparator<Element> comparator) {
-            _getOp().setComparator(comparator);
+        @SafeVarargs
+        public final Builder comparators(final Comparator<Element>... comparators) {
+            _getOp().setComparators(Lists.newArrayList(comparators));
             return _self();
         }
 
-        public Builder resultLimit(final long resultLimit) {
+        public Builder resultLimit(final Integer resultLimit) {
             _getOp().setResultLimit(resultLimit);
-            return this;
-        }
-
-        public Builder reverse(final boolean reverse) {
-            _getOp().setReversed(reverse);
             return this;
         }
     }

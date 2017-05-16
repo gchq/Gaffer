@@ -29,6 +29,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class MaxHandlerTest {
@@ -52,8 +53,8 @@ public class MaxHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Max max = new Max.Builder().input(input)
-                .comparator(new ElementPropertyComparator.Builder()
-                        .groupName(TestGroups.ENTITY)
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groupNames(TestGroups.ENTITY)
                         .propertyName("property")
                         .build())
                 .build();
@@ -66,6 +67,48 @@ public class MaxHandlerTest {
         // Then
         assertTrue(result instanceof Entity);
         assertEquals(3, result.getProperty("property"));
+    }
+
+    @Test
+    public void shouldFindMaxBasedOnMultipleProperties() throws OperationException, JsonProcessingException {
+        // Given
+        final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property1", 1)
+                .property("property2", 1)
+                .build();
+        final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property1", 1)
+                .property("property2", 2)
+                .build();
+        final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property1", 2)
+                .property("property2", 2)
+                .build();
+        final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
+                .property("property1", 2)
+                .property("property2", 1)
+                .build();
+
+        final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
+
+        final Max max = new Max.Builder().input(input)
+                .comparators(new ElementPropertyComparator.Builder()
+                                .groupNames(TestGroups.ENTITY)
+                                .propertyName("property1")
+                                .build(),
+                        new ElementPropertyComparator.Builder()
+                                .groupNames(TestGroups.ENTITY)
+                                .propertyName("property2")
+                                .build())
+                .build();
+
+        final MaxHandler handler = new MaxHandler();
+
+        // When
+        final Element result = handler.doOperation(max, null, null);
+
+        // Then
+        assertSame(entity3, result);
     }
 
     @Test
@@ -90,15 +133,15 @@ public class MaxHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
         final Max max1 = new Max.Builder().input(input)
-                .comparator(new ElementPropertyComparator.Builder()
-                        .groupName(TestGroups.ENTITY)
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groupNames(TestGroups.ENTITY)
                         .propertyName("property1")
                         .build())
                 .build();
 
         final Max max2 = new Max.Builder().input(input)
-                .comparator(new ElementPropertyComparator.Builder()
-                        .groupName(TestGroups.ENTITY)
+                .comparators(new ElementPropertyComparator.Builder()
+                        .groupNames(TestGroups.ENTITY)
                         .propertyName("property2")
                         .build())
                 .build();
@@ -139,7 +182,7 @@ public class MaxHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Max max = new Max.Builder().input(input)
-                .comparator(new SimpleElementComparator())
+                .comparators(new SimpleElementComparator())
                 .build();
 
         final MaxHandler handler = new MaxHandler();

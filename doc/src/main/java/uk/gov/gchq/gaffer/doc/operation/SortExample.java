@@ -44,10 +44,12 @@ public class SortExample extends OperationExample {
                         .input(new EntitySeed(1), new EntitySeed(2))
                         .build())
                 .then(new Sort.Builder()
-                        .comparator(new ElementPropertyComparator.Builder()
-                                .groupName("entity")
+                        .comparators(new ElementPropertyComparator.Builder()
+                                .groupNames("entity", "edge")
                                 .propertyName("count")
+                                .reverse(false)
                                 .build())
+                        .resultLimit(10)
                         .build())
                 .build();
         // ---------------------------------------------------------

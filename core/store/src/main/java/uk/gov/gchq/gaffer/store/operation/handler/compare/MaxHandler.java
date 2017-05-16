@@ -24,31 +24,34 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import java.util.Comparator;
+import java.util.List;
 
 public class MaxHandler implements OutputOperationHandler<Max, Element> {
     @Override
     public Element doOperation(final Max operation, final Context context, final Store store) throws OperationException {
-        // If the input or comparator is null, we return null
-        if (null == operation.getInput() || null == operation.getComparator()) {
+        // If there is no input or there are no comparators, we return null
+        if (null == operation.getInput()
+                || null == operation.getComparators()
+                || operation.getComparators().isEmpty()) {
             return null;
         }
 
-        final Comparator<Element> comparator = operation.getComparator();
         try {
-            return getMax(operation.getInput(), comparator);
+            return getMax(operation.getInput(), operation);
         } finally {
             CloseableUtil.close(operation);
         }
     }
 
-    private Element getMax(final Iterable<? extends Element> elements, final Comparator<Element> comparator) {
+    private Element getMax(final Iterable<? extends Element> elements, final Max operation) {
         Element maxElement = null;
 
-        if (comparator instanceof ElementPropertyComparator) {
-            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
+        final List<Comparator<Element>> comparators = operation.getComparators();
+        if (1 == comparators.size() && comparators.get(0) instanceof ElementPropertyComparator) {
+            final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparators.get(0);
             Object maxProperty = null;
             for (final Element element : elements) {
-                if (null == element || !element.getGroup().equals(propertyComparator.getGroupName())) {
+                if (null == element || !propertyComparator.getGroupNames().contains(element.getGroup())) {
                     continue;
                 }
                 final Object property = element.getProperty(propertyComparator.getPropertyName());
@@ -61,15 +64,18 @@ public class MaxHandler implements OutputOperationHandler<Max, Element> {
                 }
             }
         } else {
-            for (final Element element : elements) {
-                if (null == element) {
-                    continue;
-                }
-                if (null == maxElement) {
-                    maxElement = element;
-                }
-                if (comparator.compare(element, maxElement) > 0) {
-                    maxElement = element;
+            final Comparator<Element> combinedComparator = operation.getCombinedComparator();
+            if (null != combinedComparator) {
+                for (final Element element : elements) {
+                    if (null == element) {
+                        continue;
+                    }
+                    if (null == maxElement) {
+                        maxElement = element;
+                    }
+                    if (combinedComparator.compare(element, maxElement) > 0) {
+                        maxElement = element;
+                    }
                 }
             }
         }
