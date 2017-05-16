@@ -150,9 +150,9 @@ public abstract class Store {
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
-        addOpHandlers();
         optimiseSchema();
         validateSchemas();
+        addOpHandlers();
         addExecutorService();
     }
 

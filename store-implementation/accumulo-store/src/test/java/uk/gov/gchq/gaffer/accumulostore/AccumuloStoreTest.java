@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -53,6 +54,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -65,15 +67,19 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.QUERY_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
@@ -105,6 +111,52 @@ public class AccumuloStoreTest {
     public void shouldBeAnOrderedStore() {
         assertTrue(byteEntityStore.hasTrait(StoreTrait.ORDERED));
         assertTrue(gaffer1KeyStore.hasTrait(StoreTrait.ORDERED));
+    }
+
+    @Test
+    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+        // Given
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Serialisation serialiser = mock(Serialisation.class);
+        given(serialiser.preservesObjectOrdering()).willReturn(true);
+
+        store.initialise(
+                new Schema.Builder()
+                        .vertexSerialiser(serialiser)
+                        .build(),
+                PROPERTIES);
+
+        // When
+        final boolean isGetElementsInRangesSupported = store.isSupported(GetElementsInRanges.class);
+        final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
+
+        // Then
+        assertTrue(isGetElementsInRangesSupported);
+        assertTrue(isSummariseGroupOverRangesSupported);
+        verify(serialiser).preservesObjectOrdering();
+    }
+
+    @Test
+    public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+        // Given
+        final MockAccumuloStore store = new MockAccumuloStore();
+        final Serialisation serialiser = mock(Serialisation.class);
+        given(serialiser.preservesObjectOrdering()).willReturn(false);
+
+        store.initialise(
+                new Schema.Builder()
+                        .vertexSerialiser(serialiser)
+                        .build(),
+                PROPERTIES);
+
+        // When
+        final boolean isGetElementsInRangesSupported = store.isSupported(GetElementsInRanges.class);
+        final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
+
+        // Then
+        assertFalse(isGetElementsInRangesSupported);
+        assertFalse(isSummariseGroupOverRangesSupported);
+        verify(serialiser).preservesObjectOrdering();
     }
 
     @Test
