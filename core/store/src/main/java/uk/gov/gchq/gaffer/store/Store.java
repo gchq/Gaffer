@@ -94,7 +94,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -145,9 +144,9 @@ public abstract class Store {
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
-        addOpHandlers();
         optimiseSchema();
         validateSchemas();
+        addOpHandlers();
         addExecutorService();
     }
 
