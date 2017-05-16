@@ -64,7 +64,7 @@ public class SortTest implements OperationTest {
                 .property("property", 2)
                 .build()).comparator(new ElementPropertyComparator() {
             @Override
-            public int compare(final Element obj1, final Element obj2) {
+            public int compare(final Element e1, final Element e2) {
                 return 0;
             }
         }).build();

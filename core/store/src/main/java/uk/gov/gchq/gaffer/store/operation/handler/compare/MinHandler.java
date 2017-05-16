@@ -17,13 +17,13 @@ package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import java.util.Comparator;
 
 public class MinHandler implements OutputOperationHandler<Min, Element> {
     @Override
@@ -33,7 +33,7 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
             return null;
         }
 
-        final ElementComparator comparator = operation.getComparator();
+        final Comparator<Element> comparator = operation.getComparator();
         try {
             return getMin(operation.getInput(), comparator);
         } finally {
@@ -41,7 +41,7 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
         }
     }
 
-    private Element getMin(final Iterable<? extends Element> elements, final ElementComparator comparator) {
+    private Element getMin(final Iterable<? extends Element> elements, final Comparator<Element> comparator) {
         Element minElement = null;
 
         if (comparator instanceof ElementPropertyComparator) {

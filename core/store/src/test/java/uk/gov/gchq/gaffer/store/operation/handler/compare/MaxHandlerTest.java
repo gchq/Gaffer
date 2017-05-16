@@ -21,11 +21,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementObjectComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -140,9 +139,7 @@ public class MaxHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Max max = new Max.Builder().input(input)
-                .comparator(new ElementObjectComparator.Builder()
-                        .comparator(new SimpleElementComparator())
-                        .build())
+                .comparator(new SimpleElementComparator())
                 .build();
 
         final MaxHandler handler = new MaxHandler();
@@ -187,7 +184,7 @@ public class MaxHandlerTest {
         assertNull(result);
     }
 
-    private static class SimpleElementComparator implements Comparator<Element> {
+    private static class SimpleElementComparator implements ElementComparator {
         @Override
         public int compare(final Element obj1, final Element obj2) {
             final int v1 = (int) obj1.getProperty("property1") * (int) obj1.getProperty("property2");

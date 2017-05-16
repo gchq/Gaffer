@@ -22,11 +22,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementObjectComparator;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -141,9 +140,7 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Min min = new Min.Builder().input(input)
-                .comparator(new ElementObjectComparator.Builder()
-                        .comparator(new SimpleElementComparator())
-                        .build())
+                .comparator(new SimpleElementComparator())
                 .build();
 
         final MinHandler handler = new MinHandler();
@@ -188,8 +185,7 @@ public class MinHandlerTest {
         assertNull(result);
     }
 
-
-    private static class SimpleElementComparator implements Comparator<Element> {
+    private static class SimpleElementComparator implements ElementComparator {
         @Override
         public int compare(final Element o1, final Element o2) {
             final int v1 = (int) o1.getProperty("property1") * (int) o1.getProperty("property2");

@@ -17,13 +17,13 @@ package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import java.util.Comparator;
 
 public class MaxHandler implements OutputOperationHandler<Max, Element> {
     @Override
@@ -33,7 +33,7 @@ public class MaxHandler implements OutputOperationHandler<Max, Element> {
             return null;
         }
 
-        final ElementComparator comparator = operation.getComparator();
+        final Comparator<Element> comparator = operation.getComparator();
         try {
             return getMax(operation.getInput(), comparator);
         } finally {
@@ -41,7 +41,7 @@ public class MaxHandler implements OutputOperationHandler<Max, Element> {
         }
     }
 
-    private Element getMax(final Iterable<? extends Element> elements, final ElementComparator comparator) {
+    private Element getMax(final Iterable<? extends Element> elements, final Comparator<Element> comparator) {
         Element maxElement = null;
 
         if (comparator instanceof ElementPropertyComparator) {

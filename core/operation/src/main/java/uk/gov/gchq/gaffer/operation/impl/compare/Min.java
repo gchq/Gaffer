@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Comparator;
 
 /**
  * A <code>Min</code> operation is intended as a terminal operation for retrieving the "minimum" element from an {@link java.lang.Iterable}.
@@ -38,7 +38,7 @@ public class Min implements
         ElementComparison {
 
     private Iterable<? extends Element> input;
-    private ElementComparator comparator;
+    private Comparator<Element> comparator;
 
     public Min() {
         // Empty
@@ -46,11 +46,11 @@ public class Min implements
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public ElementComparator getComparator() {
+    public Comparator<Element> getComparator() {
         return comparator;
     }
 
-    public void setComparator(final ElementComparator comparator) {
+    public void setComparator(final Comparator<Element> comparator) {
         this.comparator = comparator;
     }
 
@@ -77,7 +77,7 @@ public class Min implements
             super(new Min());
         }
 
-        public Min.Builder comparator(final ElementComparator comparator) {
+        public Min.Builder comparator(final Comparator<Element> comparator) {
             _getOp().setComparator(comparator);
             return _self();
         }

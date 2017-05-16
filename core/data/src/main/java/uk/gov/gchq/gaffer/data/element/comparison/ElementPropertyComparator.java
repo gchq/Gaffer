@@ -16,14 +16,13 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * {@link uk.gov.gchq.gaffer.data.element.comparison.ElementComparator} implementation
@@ -33,22 +32,56 @@ import java.util.function.Predicate;
 @SuppressFBWarnings(value = "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE",
         justification = "This class should not be serialised")
 public class ElementPropertyComparator implements ElementComparator {
-
-    /**
-     * Reference to a mutated comparator, required since modifying the original
-     * comparator leads to a non-JSON serialisable object.
-     */
-    @JsonIgnore
-    private Comparator mutatedComparator;
-
     private Comparator comparator;
-    private boolean reversed;
-    private boolean includeNulls;
+
     private String propertyName = null;
     private String groupName = null;
 
-    public ElementPropertyComparator() {
-        // Empty
+    @Override
+    public int compare(final Element e1, final Element e2) {
+        if (e1 == null) {
+            if (e2 == null) {
+                return 0;
+            }
+            return 1;
+        }
+        if (e2 == null) {
+            return -1;
+        }
+
+        if (!groupName.equals(e1.getGroup())) {
+            if (!groupName.equals(e2.getGroup())) {
+                return 0;
+            }
+            return 1;
+        }
+        if (!groupName.equals(e2.getGroup())) {
+            return -1;
+        }
+
+        return _compare(e1.getProperty(propertyName), e2.getProperty(propertyName));
+    }
+
+    public int _compare(final Object val1, final Object val2) {
+        if (val1 == null) {
+            if (val2 == null) {
+                return 0;
+            }
+            return 1;
+        }
+        if (val2 == null) {
+            return -1;
+        }
+        return ((Comparable) val1).compareTo(val2);
+    }
+
+    @Override
+    public Set<Pair<String, String>> getComparableGroupPropertyPairs() {
+        if (null == comparator) {
+            return Collections.singleton(new Pair<>(groupName, propertyName));
+        }
+
+        return Collections.emptySet();
     }
 
     public String getPropertyName() {
@@ -67,104 +100,36 @@ public class ElementPropertyComparator implements ElementComparator {
         this.groupName = groupName;
     }
 
-    /**
-     * Retrieve a {@link java.util.function.Predicate} which can be used to
-     * filter {@link uk.gov.gchq.gaffer.data.element.Element}s in a {@link java.util.stream.Stream}.
-     *
-     * @return a correctly composed {@link java.util.function.Predicate} instance
-     */
-    public Predicate<Element> asPredicate() {
-        final Predicate<Element> hasCorrectGroup = e -> groupName.equals(e.getGroup());
-        final Predicate<Element> propertyIsNull = e -> null == e.getProperty(propertyName);
-        final Predicate<Element> nullsExcluded = e -> !isIncludeNulls();
-
-        return propertyIsNull.and(nullsExcluded).negate().and(hasCorrectGroup);
-    }
-
-    private void mutateComparator() {
-        if (null != comparator) {
-            mutatedComparator = comparator;
-
-            if (reversed) {
-                mutatedComparator = mutatedComparator.reversed();
-            }
-            if (includeNulls) {
-                mutatedComparator = Comparator.nullsLast(mutatedComparator);
-            }
-        }
-    }
-
-    @Override
-    public Set<Pair<String, String>> getComparableGroupPropertyPairs() {
-        if (null == comparator) {
-            return Collections.singleton(new Pair<>(groupName, propertyName));
-        }
-
-        return Collections.emptySet();
-    }
-
-    @Override
-    public int compare(final Element obj1, final Element obj2) {
-        return _compare(obj1.getProperty(propertyName), obj2);
-    }
-
-    public int _compare(final Object val1, final Element obj2) {
-        return _compare(val1, obj2.getProperty(propertyName));
-    }
-
-    public int _compare(final Object val1, final Object val2) {
-        return (null == mutatedComparator)
-                ? ((Comparable) val1).compareTo(val2)
-                : mutatedComparator.compare(val1, val2);
-    }
-
-    @Override
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Comparator getComparator() {
         return comparator;
     }
 
-    @Override
     public void setComparator(final Comparator comparator) {
         this.comparator = comparator;
-        mutateComparator();
     }
 
-    @Override
-    public boolean isReversed() {
-        return reversed;
-    }
+    public static class Builder {
 
-    @Override
-    public void setReversed(final boolean reversed) {
-        this.reversed = reversed;
-        mutateComparator();
-    }
+        private ElementPropertyComparator comparator = new ElementPropertyComparator();
 
-    @Override
-    public boolean isIncludeNulls() {
-        return includeNulls;
-    }
+        public ElementPropertyComparator build() {
+            return comparator;
+        }
 
-    @Override
-    public void setIncludeNulls(final boolean includeNulls) {
-        this.includeNulls = includeNulls;
-        mutateComparator();
-    }
-
-    public static class Builder extends ElementComparator.Builder<ElementPropertyComparator, Builder> {
-
-        public Builder() {
-            super(new ElementPropertyComparator());
+        public Builder comparator(final Comparator comparator) {
+            this.comparator.setComparator(comparator);
+            return this;
         }
 
         public Builder groupName(final String groupName) {
-            _getComparator().setGroupName(groupName);
-            return _self();
+            comparator.setGroupName(groupName);
+            return this;
         }
 
         public Builder propertyName(final String propertyName) {
-            _getComparator().setPropertyName(propertyName);
-            return _self();
+            comparator.setPropertyName(propertyName);
+            return this;
         }
     }
 }

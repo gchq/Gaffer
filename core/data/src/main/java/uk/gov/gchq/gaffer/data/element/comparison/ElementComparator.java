@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.data.element.comparison;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Collections;
@@ -29,58 +28,16 @@ import java.util.Set;
  * {@link java.util.Comparator} instances.
  */
 public interface ElementComparator extends Comparator<Element> {
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    Comparator getComparator();
-
-    void setComparator(final Comparator comparator);
-
-    boolean isReversed();
-
-    void setReversed(final boolean reversed);
-
-    boolean isIncludeNulls();
-
-    void setIncludeNulls(final boolean includeNulls);
-
+    /**
+     * This should return a set all properties that the comparator
+     * requires to be of type Comparable. As properties are associated with a Group
+     * we need to return Group,Property pairs. This is used to validate the the
+     * ElementComparator against the schema.
+     *
+     * @return set of group,property pairs, in which all properties are required to be comparable.
+     */
     @JsonIgnore
     default Set<Pair<String, String>> getComparableGroupPropertyPairs() {
         return Collections.emptySet();
-    }
-
-    abstract class Builder<C extends ElementComparator, B extends Builder<C, ?>> {
-
-        private C elementComparator;
-
-        protected Builder(final C elementComparator) {
-            this.elementComparator = elementComparator;
-        }
-
-        public C build() {
-            return _getComparator();
-        }
-
-        public C _getComparator() {
-            return elementComparator;
-        }
-
-        public B _self() {
-            return (B) this;
-        }
-
-        public ElementComparator.Builder comparator(final Comparator comparator) {
-            _getComparator().setComparator(comparator);
-            return _self();
-        }
-
-        public ElementComparator.Builder reverse(final boolean reverse) {
-            _getComparator().setReversed(reverse);
-            return _self();
-        }
-
-        public ElementComparator.Builder includeNulls(final boolean includeNulls) {
-            _getComparator().setIncludeNulls(includeNulls);
-            return _self();
-        }
     }
 }

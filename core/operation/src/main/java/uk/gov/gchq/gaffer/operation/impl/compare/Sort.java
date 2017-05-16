@@ -18,11 +18,11 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Comparator;
 
 /**
  * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s using a provided {@link java.util.Comparator} object.
@@ -38,20 +38,17 @@ public class Sort implements
         ElementComparison {
 
     private Iterable<? extends Element> input;
-    private ElementComparator comparator;
+    private Comparator<Element> comparator;
     private long resultLimit = Long.MAX_VALUE;
-
-    public Sort() {
-        // Empty
-    }
+    private boolean reversed;
 
     @Override
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public ElementComparator getComparator() {
+    public Comparator<Element> getComparator() {
         return comparator;
     }
 
-    public void setComparator(final ElementComparator comparator) {
+    public void setComparator(final Comparator<Element> comparator) {
         this.comparator = comparator;
     }
 
@@ -73,22 +70,40 @@ public class Sort implements
         this.resultLimit = resultLimit;
     }
 
+    public boolean isReversed() {
+        return reversed;
+    }
+
+    public void setReversed(final boolean reversed) {
+        this.reversed = reversed;
+    }
+
     @Override
     public TypeReference<Iterable<? extends Element>> getOutputTypeReference() {
         return new TypeReferenceImpl.IterableElement();
     }
 
     public static final class Builder
-            extends BaseBuilder<Sort, Sort.Builder>
+            extends BaseBuilder<Sort, Builder>
             implements InputOutput.Builder<Sort, Iterable<? extends Element>, Iterable<? extends Element>, Sort.Builder>,
-            MultiInput.Builder<Sort, Element, Sort.Builder> {
+            MultiInput.Builder<Sort, Element, Builder> {
         public Builder() {
             super(new Sort());
         }
 
-        public Sort.Builder comparator(final ElementComparator comparator) {
+        public Builder comparator(final Comparator<Element> comparator) {
             _getOp().setComparator(comparator);
             return _self();
+        }
+
+        public Builder resultLimit(final long resultLimit) {
+            _getOp().setResultLimit(resultLimit);
+            return this;
+        }
+
+        public Builder reverse(final boolean reverse) {
+            _getOp().setReversed(reverse);
+            return this;
         }
     }
 }
