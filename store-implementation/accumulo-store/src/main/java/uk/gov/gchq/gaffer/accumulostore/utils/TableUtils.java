@@ -304,32 +304,21 @@ public final class TableUtils {
             throw new StoreException("Unable to get table properties.", e);
         }
 
-        final String requiredRepFactor = store.getProperties().getTableFileReplicationFactor();
-        String repFactor = null;
-        String bloomFilterEnabled = null;
+        boolean bloomFilterEnabled = false;
         String bloomKeyFunctor = null;
         for (final Map.Entry<String, String> tableProp : tableProps) {
-            if (Property.TABLE_FILE_REPLICATION.getKey().equals(tableProp.getKey())) {
-                if (null == repFactor) {
-                    repFactor = tableProp.getValue();
-                }
-            } else if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey())) {
-                if (null == bloomFilterEnabled) {
-                    bloomFilterEnabled = tableProp.getValue();
+            if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey())) {
+                if (Boolean.parseBoolean(tableProp.getValue())) {
+                    bloomFilterEnabled = true;
                 }
             } else if (Property.TABLE_BLOOM_KEY_FUNCTOR.getKey().equals(tableProp.getKey())) {
-                if (null == bloomKeyFunctor) {
+                if (null == bloomKeyFunctor || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue())) {
                     bloomKeyFunctor = tableProp.getValue();
                 }
             }
         }
 
-        if (!Objects.equals(requiredRepFactor, repFactor)) {
-            validationResult.addError("Replication factor was set incorrectly. "
-                    + "Expected: " + requiredRepFactor + ", but found: " + repFactor);
-        }
-
-        if (!Boolean.parseBoolean(bloomFilterEnabled)) {
+        if (!bloomFilterEnabled) {
             validationResult.addError("Bloom filter is not enabled. " + Property.TABLE_BLOOM_ENABLED.getKey() + " = " + bloomFilterEnabled);
         }
 

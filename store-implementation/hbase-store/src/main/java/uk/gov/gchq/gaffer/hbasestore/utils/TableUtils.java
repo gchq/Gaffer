@@ -244,7 +244,9 @@ public final class TableUtils {
 
         final HColumnDescriptor col = htable.getFamily(HBaseStoreConstants.getColFam());
 
-        if (Integer.MAX_VALUE != col.getMaxVersions()) {
+        if (null == col) {
+            validationResult.addError("The Gaffer element 'e' column family does not exist");
+        } else if (Integer.MAX_VALUE != col.getMaxVersions()) {
             validationResult.addError("The maximum number of versions should be set to " + Integer.MAX_VALUE);
         }
 
