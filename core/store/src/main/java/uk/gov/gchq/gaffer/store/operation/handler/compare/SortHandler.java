@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
+import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
 import uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 
 public class SortHandler implements OutputOperationHandler<Sort, Iterable<? extends Element>> {
     @Override
-    public Iterable<Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
+    public LimitedSortedSet<Element> doOperation(final Sort operation, final Context context, final Store store) throws OperationException {
 
         // If the input or comparator is null, we return null
         if (null == operation.getInput() || null == operation.getComparator()) {
@@ -44,7 +45,7 @@ public class SortHandler implements OutputOperationHandler<Sort, Iterable<? exte
             stream = stream.filter(propertyComparator.asPredicate());
         }
 
-        return stream.collect(GafferCollectors.toLimitedCloseableIterable(comparator,
+        return stream.collect(GafferCollectors.toLimitedSortedSet(comparator,
                 operation.getResultLimit()));
     }
 }

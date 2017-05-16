@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -40,26 +39,26 @@ public class MinHandlerTest {
     public void shouldFindMinBasedOnProperty() throws OperationException, JsonProcessingException {
         // Given
         final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property", 1)
-                                                   .build();
+                .property("property", 1)
+                .build();
         final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property", 2)
-                                                   .build();
+                .property("property", 2)
+                .build();
         final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property", 3)
-                                                   .build();
+                .property("property", 3)
+                .build();
         final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property", 1)
-                                                   .build();
+                .property("property", 1)
+                .build();
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Min min = new Min.Builder().input(input)
-                                         .comparator(new ElementPropertyComparator.Builder()
-                                                 .groupName(TestGroups.ENTITY)
-                                                 .propertyName("property")
-                                                 .build())
-                                         .build();
+                .comparator(new ElementPropertyComparator.Builder()
+                        .groupName(TestGroups.ENTITY)
+                        .propertyName("property")
+                        .build())
+                .build();
 
         final MinHandler handler = new MinHandler();
 
@@ -75,36 +74,36 @@ public class MinHandlerTest {
     public void shouldFindMinBasedOnPropertyWithMissingProperty() throws OperationException, JsonProcessingException {
         // Given
         final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 1)
-                                                   .build();
+                .property("property1", 1)
+                .build();
         final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 2)
-                                                   .build();
+                .property("property1", 2)
+                .build();
         final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 3)
-                                                   .build();
+                .property("property1", 3)
+                .build();
         final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property2", 1)
-                                                   .build();
+                .property("property2", 1)
+                .build();
         final Entity entity5 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property2", 2)
-                                                   .build();
+                .property("property2", 2)
+                .build();
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4, entity5);
 
         final Min max1 = new Min.Builder().input(input)
-                                          .comparator(new ElementPropertyComparator.Builder()
-                                                  .groupName(TestGroups.ENTITY)
-                                                  .propertyName("property1")
-                                                  .build())
-                                          .build();
+                .comparator(new ElementPropertyComparator.Builder()
+                        .groupName(TestGroups.ENTITY)
+                        .propertyName("property1")
+                        .build())
+                .build();
 
         final Min max2 = new Min.Builder().input(input)
-                                          .comparator(new ElementPropertyComparator.Builder()
-                                                  .groupName(TestGroups.ENTITY)
-                                                  .propertyName("property2")
-                                                  .build())
-                                          .build();
+                .comparator(new ElementPropertyComparator.Builder()
+                        .groupName(TestGroups.ENTITY)
+                        .propertyName("property2")
+                        .build())
+                .build();
 
         final MinHandler handler = new MinHandler();
 
@@ -123,29 +122,29 @@ public class MinHandlerTest {
     public void shouldFindMinBasedOnElement() throws OperationException {
         // Given
         final Entity entity1 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 1)
-                                                   .property("property2", 1)
-                                                   .build();
+                .property("property1", 1)
+                .property("property2", 1)
+                .build();
         final Entity entity2 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 2)
-                                                   .property("property2", 2)
-                                                   .build();
+                .property("property1", 2)
+                .property("property2", 2)
+                .build();
         final Entity entity3 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 3)
-                                                   .property("property2", 3)
-                                                   .build();
+                .property("property1", 3)
+                .property("property2", 3)
+                .build();
         final Entity entity4 = new Entity.Builder().group(TestGroups.ENTITY)
-                                                   .property("property1", 4)
-                                                   .property("property2", 4)
-                                                   .build();
+                .property("property1", 4)
+                .property("property2", 4)
+                .build();
 
         final List<Entity> input = Lists.newArrayList(entity1, entity2, entity3, entity4);
 
         final Min min = new Min.Builder().input(input)
-                                         .comparator(new ElementObjectComparator.Builder()
-                                                 .comparator(new SimpleElementComparator())
-                                                 .build())
-                                         .build();
+                .comparator(new ElementObjectComparator.Builder()
+                        .comparator(new SimpleElementComparator())
+                        .build())
+                .build();
 
         final MinHandler handler = new MinHandler();
 
@@ -156,24 +155,6 @@ public class MinHandlerTest {
         assertTrue(result instanceof Entity);
         assertEquals(1, result.getProperty("property1"));
         assertEquals(1, result.getProperty("property2"));
-    }
-
-    @Test(expected = NoSuchElementException.class)
-    public void shouldThrowExceptionIfIterableIsEmpty() throws OperationException {
-        // Given
-        final List<Entity> input = Lists.newArrayList();
-
-        final Min min = new Min.Builder().input(input)
-                                         .comparator(new ElementPropertyComparator.Builder()
-                                                 .groupName(TestGroups.ENTITY)
-                                                 .propertyName("property")
-                                                 .build())
-                                         .build();
-
-        final MinHandler handler = new MinHandler();
-
-        // When
-        final Element result = handler.doOperation(min, null, null);
     }
 
     @Test
@@ -196,7 +177,7 @@ public class MinHandlerTest {
         final List<Entity> input = Lists.newArrayList();
 
         final Min min = new Min.Builder().input(input)
-                                         .build();
+                .build();
 
         final MinHandler handler = new MinHandler();
 

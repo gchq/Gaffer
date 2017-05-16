@@ -39,20 +39,20 @@ import java.util.SortedSet;
  * Most methods (with the exception of the addition logic) are delegated to the
  * backing collection.
  *
- * @param <E> the type of object to store in the {@link uk.gov.gchq.gaffer.commonutil.collection.LimitedMultiset}.
+ * @param <E> the type of object to store in the {@link LimitedSortedSet}.
  */
-public class LimitedMultiset<E> implements SortedMultiset<E>, Cloneable, java.io.Serializable {
+public class LimitedSortedSet<E> implements SortedMultiset<E>, Cloneable, java.io.Serializable {
     private static final long serialVersionUID = -6090845611480684148L;
 
     private TreeMultiset<E> backingSet;
     private long limit;
 
-    public LimitedMultiset() {
+    public LimitedSortedSet() {
         this.backingSet = TreeMultiset.create((Comparator<? super E>) null);
         this.limit = Long.MAX_VALUE;
     }
 
-    public LimitedMultiset(final Comparator<E> comparator, final long limit) {
+    public LimitedSortedSet(final Comparator<E> comparator, final long limit) {
         this.backingSet = TreeMultiset.create(comparator);
         this.limit = limit;
     }
@@ -249,10 +249,10 @@ public class LimitedMultiset<E> implements SortedMultiset<E>, Cloneable, java.io
     }
 
     @Override
-    public LimitedMultiset<E> clone() {
-        LimitedMultiset<E> clone;
+    public LimitedSortedSet<E> clone() {
+        LimitedSortedSet<E> clone;
         try {
-            clone = (LimitedMultiset<E>) super.clone();
+            clone = (LimitedSortedSet<E>) super.clone();
         } catch (final CloneNotSupportedException e) {
             throw new InternalError(e);
         }
@@ -274,7 +274,7 @@ public class LimitedMultiset<E> implements SortedMultiset<E>, Cloneable, java.io
             return false;
         }
 
-        final LimitedMultiset<?> that = (LimitedMultiset<?>) obj;
+        final LimitedSortedSet<?> that = (LimitedSortedSet<?>) obj;
 
         return new EqualsBuilder()
                 .append(limit, that.limit)

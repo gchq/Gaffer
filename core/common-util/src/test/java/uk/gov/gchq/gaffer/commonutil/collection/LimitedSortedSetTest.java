@@ -25,12 +25,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class LimitedMultisetTest {
+public class LimitedSortedSetTest {
 
     @Test
     public void shouldLimitEntries() {
         // Given
-        final LimitedMultiset<Integer> multiSet = new LimitedMultiset<Integer>(Comparator
+        final LimitedSortedSet<Integer> multiSet = new LimitedSortedSet<Integer>(Comparator
                 .naturalOrder(), 100);
 
         // When
@@ -43,7 +43,7 @@ public class LimitedMultisetTest {
     @Test
     public void shouldSortEntries() {
         // Given
-        final LimitedMultiset<Integer> multiSet = new LimitedMultiset<Integer>(Comparator
+        final LimitedSortedSet<Integer> multiSet = new LimitedSortedSet<Integer>(Comparator
                 .naturalOrder(), 100);
 
         // When
@@ -57,7 +57,7 @@ public class LimitedMultisetTest {
     @Test
     public void shouldAddAll() {
         // Given
-        final LimitedMultiset<Integer> multiSet = new LimitedMultiset<Integer>(Comparator
+        final LimitedSortedSet<Integer> multiSet = new LimitedSortedSet<Integer>(Comparator
                 .naturalOrder(), 100);
 
         // When/Then
@@ -91,7 +91,7 @@ public class LimitedMultisetTest {
     @Test
     public void shouldLimitEntriesOnAddAll() {
         // Given
-        final LimitedMultiset<Integer> multiSet = new LimitedMultiset<Integer>(Comparator
+        final LimitedSortedSet<Integer> multiSet = new LimitedSortedSet<Integer>(Comparator
                 .naturalOrder(), 10);
 
         // When/Then
@@ -127,12 +127,12 @@ public class LimitedMultisetTest {
     @Test
     public void shouldClone() {
         // Given
-        final LimitedMultiset<Integer> multiSet = new LimitedMultiset<Integer>(Comparator
+        final LimitedSortedSet<Integer> multiSet = new LimitedSortedSet<Integer>(Comparator
                 .naturalOrder(), 100);
         IntStream.rangeClosed(1, 200).forEach(multiSet::add);
 
         // When
-        final LimitedMultiset<Integer> clone = multiSet.clone();
+        final LimitedSortedSet<Integer> clone = multiSet.clone();
 
         // Then
         assertThat(clone, equalTo(multiSet));

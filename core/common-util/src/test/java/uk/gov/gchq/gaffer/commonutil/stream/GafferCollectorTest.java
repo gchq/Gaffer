@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.commonutil.stream;
 
 import com.google.common.collect.Iterables;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import java.util.LinkedHashSet;
 import java.util.stream.IntStream;
@@ -24,8 +25,9 @@ import java.util.stream.IntStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toCloseableIterable;
-import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedCloseableIterable;
+import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLimitedSortedSet;
 import static uk.gov.gchq.gaffer.commonutil.stream.GafferCollectors.toLinkedHashSet;
 
 public class GafferCollectorTest {
@@ -37,7 +39,7 @@ public class GafferCollectorTest {
 
         // When
         final Iterable<Integer> iterable = stream.mapToObj(i -> i)
-                                                 .collect(toCloseableIterable());
+                .collect(toCloseableIterable());
 
         // Then
         assertThat(iterable, instanceOf(CloseableIterable.class));
@@ -51,7 +53,7 @@ public class GafferCollectorTest {
 
         // When
         final Iterable<Integer> iterable = stream.mapToObj(i -> i)
-                                                 .collect(toLinkedHashSet());
+                .collect(toLinkedHashSet());
 
         // Then
         assertThat(iterable, instanceOf(LinkedHashSet.class));
@@ -59,17 +61,16 @@ public class GafferCollectorTest {
     }
 
     @Test
-    public void shouldCollectToLimitedCloseableIterable() {
+    public void shouldCollectToLimitedSortedSet() {
         // Given
         final IntStream stream = IntStream.range(0, 100);
-        final long limit = 50;
+        final int limit = 50;
 
         // When
-        final Iterable<Integer> iterable = stream.mapToObj(i -> i)
-                                                 .collect(toLimitedCloseableIterable(Integer::compareTo, limit));
+        final LimitedSortedSet<Integer> result = stream.mapToObj(i -> i)
+                .collect(toLimitedSortedSet(Integer::compareTo, limit));
 
         // Then
-        assertThat(iterable, instanceOf(CloseableIterable.class));
-        assertThat(Iterables.size(iterable), equalTo(50));
+        assertEquals(50, result.size());
     }
 }

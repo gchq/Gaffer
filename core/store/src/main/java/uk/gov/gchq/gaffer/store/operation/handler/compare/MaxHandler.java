@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
@@ -24,8 +24,6 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 public class MaxHandler implements OutputOperationHandler<Max, Element> {
     @Override
@@ -36,15 +34,46 @@ public class MaxHandler implements OutputOperationHandler<Max, Element> {
         }
 
         final ElementComparator comparator = operation.getComparator();
-        Stream<? extends Element> stream = Streams.toStream(operation.getInput());
+        try {
+            return getMax(operation.getInput(), comparator);
+        } finally {
+            CloseableUtil.close(operation);
+        }
+    }
+
+    private Element getMax(final Iterable<? extends Element> elements, final ElementComparator comparator) {
+        Element maxElement = null;
 
         if (comparator instanceof ElementPropertyComparator) {
             final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
-            stream = stream.filter(e -> e.getGroup() == propertyComparator.getGroupName())
-                           .filter(e -> null != e.getProperty(propertyComparator.getPropertyName()));
+            Object maxProperty = null;
+            for (final Element element : elements) {
+                if (null == element || !element.getGroup().equals(propertyComparator.getGroupName())) {
+                    continue;
+                }
+                final Object property = element.getProperty(propertyComparator.getPropertyName());
+                if (null == property) {
+                    continue;
+                }
+                if (null == maxElement || propertyComparator._compare(property, maxProperty) > 0) {
+                    maxElement = element;
+                    maxProperty = property;
+                }
+            }
+        } else {
+            for (final Element element : elements) {
+                if (null == element) {
+                    continue;
+                }
+                if (null == maxElement) {
+                    maxElement = element;
+                }
+                if (comparator.compare(element, maxElement) > 0) {
+                    maxElement = element;
+                }
+            }
         }
 
-        return stream.max(comparator)
-                     .orElseThrow(() -> new NoSuchElementException("Iterable was empty."));
+        return maxElement;
     }
 }

@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.compare;
 
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementComparator;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
@@ -24,8 +24,6 @@ import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 public class MinHandler implements OutputOperationHandler<Min, Element> {
     @Override
@@ -36,16 +34,46 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
         }
 
         final ElementComparator comparator = operation.getComparator();
-        Stream<? extends Element> stream = Streams.toStream(operation.getInput());
+        try {
+            return getMin(operation.getInput(), comparator);
+        } finally {
+            CloseableUtil.close(operation);
+        }
+    }
+
+    private Element getMin(final Iterable<? extends Element> elements, final ElementComparator comparator) {
+        Element minElement = null;
 
         if (comparator instanceof ElementPropertyComparator) {
             final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparator;
-            stream = Streams.toStream(operation.getInput())
-                            .filter(e -> e.getGroup() == propertyComparator.getGroupName())
-                            .filter(e -> null != e.getProperty(propertyComparator.getPropertyName()));
+            Object minProperty = null;
+            for (final Element element : elements) {
+                if (null == element || !element.getGroup().equals(propertyComparator.getGroupName())) {
+                    continue;
+                }
+                final Object property = element.getProperty(propertyComparator.getPropertyName());
+                if (null == property) {
+                    continue;
+                }
+                if (null == minElement || propertyComparator._compare(property, minProperty) < 0) {
+                    minElement = element;
+                    minProperty = property;
+                }
+            }
+        } else {
+            for (final Element element : elements) {
+                if (null == element) {
+                    continue;
+                }
+                if (null == minElement) {
+                    minElement = element;
+                }
+                if (comparator.compare(element, minElement) < 0) {
+                    minElement = element;
+                }
+            }
         }
 
-        return stream.min(comparator)
-                     .orElseThrow(() -> new NoSuchElementException("Iterable was empty."));
+        return minElement;
     }
 }

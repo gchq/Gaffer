@@ -44,8 +44,8 @@ public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
     private boolean reversed;
     private boolean includeNulls;
-    private String propertyName;
-    private String groupName;
+    private String propertyName = null;
+    private String groupName = null;
 
     public ElementPropertyComparator() {
         // Empty
@@ -74,7 +74,7 @@ public class ElementPropertyComparator implements ElementComparator {
      * @return a correctly composed {@link java.util.function.Predicate} instance
      */
     public Predicate<Element> asPredicate() {
-        final Predicate<Element> hasCorrectGroup = e -> groupName == e.getGroup();
+        final Predicate<Element> hasCorrectGroup = e -> groupName.equals(e.getGroup());
         final Predicate<Element> propertyIsNull = e -> null == e.getProperty(propertyName);
         final Predicate<Element> nullsExcluded = e -> !isIncludeNulls();
 
@@ -105,9 +105,14 @@ public class ElementPropertyComparator implements ElementComparator {
 
     @Override
     public int compare(final Element obj1, final Element obj2) {
-        final Object val1 = obj1.getProperty(propertyName);
-        final Object val2 = obj2.getProperty(propertyName);
+        return _compare(obj1.getProperty(propertyName), obj2);
+    }
 
+    public int _compare(final Object val1, final Element obj2) {
+        return _compare(val1, obj2.getProperty(propertyName));
+    }
+
+    public int _compare(final Object val1, final Object val2) {
         return (null == mutatedComparator)
                 ? ((Comparable) val1).compareTo(val2)
                 : mutatedComparator.compare(val1, val2);
