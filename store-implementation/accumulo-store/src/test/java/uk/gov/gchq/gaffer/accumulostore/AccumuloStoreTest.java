@@ -72,6 +72,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -116,7 +117,7 @@ public class AccumuloStoreTest {
     @Test
     public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Serialisation serialiser = mock(Serialisation.class);
         given(serialiser.preservesObjectOrdering()).willReturn(true);
 
@@ -133,13 +134,13 @@ public class AccumuloStoreTest {
         // Then
         assertTrue(isGetElementsInRangesSupported);
         assertTrue(isSummariseGroupOverRangesSupported);
-        verify(serialiser).preservesObjectOrdering();
+        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
     public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Serialisation serialiser = mock(Serialisation.class);
         given(serialiser.preservesObjectOrdering()).willReturn(false);
 
@@ -156,7 +157,7 @@ public class AccumuloStoreTest {
         // Then
         assertFalse(isGetElementsInRangesSupported);
         assertFalse(isSummariseGroupOverRangesSupported);
-        verify(serialiser).preservesObjectOrdering();
+        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
