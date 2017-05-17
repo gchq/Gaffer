@@ -17,6 +17,10 @@ package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
+import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.doc.operation.function.ExampleScoreFunction;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -34,10 +38,11 @@ public class SortExample extends OperationExample {
 
     @Override
     public void runExamples() {
-        sortExample();
+        sortOnCount();
+        sortOnCountAndTransientProperty();
     }
 
-    public Iterable<? extends Element> sortExample() {
+    public Iterable<? extends Element> sortOnCount() {
         // ---------------------------------------------------------
         final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetElements.Builder()
@@ -50,6 +55,51 @@ public class SortExample extends OperationExample {
                                 .reverse(false)
                                 .build())
                         .resultLimit(10)
+                        .build())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain);
+    }
+
+    public Iterable<? extends Element> sortOnCountAndTransientProperty() {
+        // ---------------------------------------------------------
+        final OperationChain<Iterable<? extends Element>> opChain = new OperationChain.Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .view(new View.Builder()
+                                .entity("entity", new ViewElementDefinition.Builder()
+                                        .transientProperty("score", Integer.class)
+                                        .transformer(new ElementTransformer.Builder()
+                                                .select("VERTEX", "count")
+                                                .execute(new ExampleScoreFunction())
+                                                .project("score")
+                                                .build())
+                                        .build())
+                                .edge("edge", new ViewElementDefinition.Builder()
+                                        .transientProperty("score", Integer.class)
+                                        .transformer(new ElementTransformer.Builder()
+                                                .select("DESTINATION", "count")
+                                                .execute(new ExampleScoreFunction())
+                                                .project("score")
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .then(new Sort.Builder()
+                        .comparators(
+                                new ElementPropertyComparator.Builder()
+                                        .groupNames("entity", "edge")
+                                        .propertyName("count")
+                                        .reverse(false)
+                                        .build(),
+                                new ElementPropertyComparator.Builder()
+                                        .groupNames("entity", "edge")
+                                        .propertyName("score")
+                                        .reverse(false)
+                                        .build()
+                        )
+                        .resultLimit(4)
                         .build())
                 .build();
         // ---------------------------------------------------------

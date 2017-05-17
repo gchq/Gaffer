@@ -440,14 +440,8 @@ public abstract class Store {
                                 + " references " + pair.getFirst()
                                 + " group that does not exist in the schema");
                     }
-                    final Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
-                    if (null == propertyClass) {
-                        throw new IllegalArgumentException(op.getClass().getName()
-                                + " references property " + pair.getSecond()
-                                + " in group " + pair.getFirst()
-                                + " that does not exist in the schema");
-                    }
-                    if (!Comparable.class.isAssignableFrom(propertyClass)) {
+                    Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
+                    if (null != propertyClass && !Comparable.class.isAssignableFrom(propertyClass)) {
                         throw new SchemaException("Property " + pair.getSecond()
                                 + " in group " + pair.getFirst()
                                 + " has a java class of " + propertyClass.getName()
