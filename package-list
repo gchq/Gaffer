@@ -25,7 +25,12 @@ uk.gov.gchq.gaffer.bitmap.function.aggregate
 uk.gov.gchq.gaffer.bitmap.serialisation
 uk.gov.gchq.gaffer.bitmap.serialisation.json
 uk.gov.gchq.gaffer.bitmap.serialisation.utils
+uk.gov.gchq.gaffer.cache
+uk.gov.gchq.gaffer.cache.exception
+uk.gov.gchq.gaffer.cache.impl
+uk.gov.gchq.gaffer.cache.util
 uk.gov.gchq.gaffer.commonutil
+uk.gov.gchq.gaffer.commonutil.collection
 uk.gov.gchq.gaffer.commonutil.exception
 uk.gov.gchq.gaffer.commonutil.iterable
 uk.gov.gchq.gaffer.commonutil.pair
@@ -34,6 +39,7 @@ uk.gov.gchq.gaffer.core.exception
 uk.gov.gchq.gaffer.core.exception.serialisation
 uk.gov.gchq.gaffer.data
 uk.gov.gchq.gaffer.data.element
+uk.gov.gchq.gaffer.data.element.comparison
 uk.gov.gchq.gaffer.data.element.function
 uk.gov.gchq.gaffer.data.element.id
 uk.gov.gchq.gaffer.data.elementdefinition
@@ -46,6 +52,7 @@ uk.gov.gchq.gaffer.doc.dev.serialiser
 uk.gov.gchq.gaffer.doc.dev.walkthrough
 uk.gov.gchq.gaffer.doc.operation
 uk.gov.gchq.gaffer.doc.operation.accumulo
+uk.gov.gchq.gaffer.doc.operation.function
 uk.gov.gchq.gaffer.doc.operation.generator
 uk.gov.gchq.gaffer.doc.predicate
 uk.gov.gchq.gaffer.doc.properties.generator
@@ -86,7 +93,6 @@ uk.gov.gchq.gaffer.mapstore.utils
 uk.gov.gchq.gaffer.named.operation
 uk.gov.gchq.gaffer.named.operation.cache
 uk.gov.gchq.gaffer.named.operation.handler
-uk.gov.gchq.gaffer.named.operation.jcs.cache
 uk.gov.gchq.gaffer.named.operation.serialisation
 uk.gov.gchq.gaffer.operation
 uk.gov.gchq.gaffer.operation.data
@@ -98,6 +104,7 @@ uk.gov.gchq.gaffer.operation.export.resultcache.handler.util
 uk.gov.gchq.gaffer.operation.graph
 uk.gov.gchq.gaffer.operation.impl
 uk.gov.gchq.gaffer.operation.impl.add
+uk.gov.gchq.gaffer.operation.impl.compare
 uk.gov.gchq.gaffer.operation.impl.export
 uk.gov.gchq.gaffer.operation.impl.export.resultcache
 uk.gov.gchq.gaffer.operation.impl.export.set
@@ -154,6 +161,7 @@ uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala
 uk.gov.gchq.gaffer.store
 uk.gov.gchq.gaffer.store.element
 uk.gov.gchq.gaffer.store.operation.handler
+uk.gov.gchq.gaffer.store.operation.handler.compare
 uk.gov.gchq.gaffer.store.operation.handler.export
 uk.gov.gchq.gaffer.store.operation.handler.export.set
 uk.gov.gchq.gaffer.store.operation.handler.generate
