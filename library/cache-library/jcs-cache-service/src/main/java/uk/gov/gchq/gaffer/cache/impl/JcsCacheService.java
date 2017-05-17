@@ -49,7 +49,7 @@ public class JcsCacheService implements ICacheService {
                 throw new IllegalArgumentException("Cannot create uk.gov.gchq.gaffer.cache using config file " + configFile, e);
             }
         }
-        LOGGER.info("No config file configured. Using default.");
+        LOGGER.debug("No config file configured. Using default.");
         manager.configure();
     }
 
