@@ -50,8 +50,8 @@ public class MaxExample extends OperationExample {
                         .build())
                 .then(new Max.Builder()
                         .comparators(new ElementPropertyComparator.Builder()
-                                .groupNames("entity", "edge")
-                                .propertyName("count")
+                                .groups("entity", "edge")
+                                .property("count")
                                 .build())
                         .build())
                 .build();
@@ -87,13 +87,13 @@ public class MaxExample extends OperationExample {
                 .then(new Max.Builder()
                         .comparators(
                                 new ElementPropertyComparator.Builder()
-                                        .groupNames("entity", "edge")
-                                        .propertyName("count")
+                                        .groups("entity", "edge")
+                                        .property("count")
                                         .reverse(false)
                                         .build(),
                                 new ElementPropertyComparator.Builder()
-                                        .groupNames("entity", "edge")
-                                        .propertyName("score")
+                                        .groups("entity", "edge")
+                                        .property("score")
                                         .reverse(false)
                                         .build()
                         )

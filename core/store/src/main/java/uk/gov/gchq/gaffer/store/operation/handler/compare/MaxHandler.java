@@ -51,10 +51,10 @@ public class MaxHandler implements OutputOperationHandler<Max, Element> {
             final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparators.get(0);
             Object maxProperty = null;
             for (final Element element : elements) {
-                if (null == element || !propertyComparator.getGroupNames().contains(element.getGroup())) {
+                if (null == element || !propertyComparator.getGroups().contains(element.getGroup())) {
                     continue;
                 }
-                final Object property = element.getProperty(propertyComparator.getPropertyName());
+                final Object property = element.getProperty(propertyComparator.getProperty());
                 if (null == property) {
                     continue;
                 }

@@ -61,8 +61,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property")
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
                         .build())
                 .build();
 
@@ -96,8 +96,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                                .groupNames(TestGroups.ENTITY)
-                                .propertyName("property")
+                                .groups(TestGroups.ENTITY)
+                                .property("property")
                                 .comparator(new PropertyComparatorImpl())
                                 .reverse(true)
                                 .build()
@@ -138,12 +138,12 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                                .groupNames(TestGroups.ENTITY)
-                                .propertyName("property1")
+                                .groups(TestGroups.ENTITY)
+                                .property("property1")
                                 .build(),
                         new ElementPropertyComparator.Builder()
-                                .groupNames(TestGroups.ENTITY)
-                                .propertyName("property2")
+                                .groups(TestGroups.ENTITY)
+                                .property("property2")
                                 .build())
                 .build();
 
@@ -178,8 +178,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .propertyName("property")
-                        .groupNames(TestGroups.ENTITY)
+                        .property("property")
+                        .groups(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
                         .build())
                 .build();
@@ -215,8 +215,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .propertyName("property")
-                        .groupNames(TestGroups.ENTITY)
+                        .property("property")
+                        .groups(TestGroups.ENTITY)
                         .comparator(new PropertyComparatorImpl())
                         .build())
                 .build();
@@ -282,8 +282,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property")
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
                         .build())
                 .build();
 
@@ -343,8 +343,8 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(() -> stream.iterator())
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property")
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
                         .build())
                 .build();
 

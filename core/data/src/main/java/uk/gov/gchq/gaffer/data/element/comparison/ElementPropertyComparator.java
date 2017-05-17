@@ -51,8 +51,8 @@ import java.util.Set;
 public class ElementPropertyComparator implements ElementComparator {
     private Comparator comparator;
 
-    private String propertyName = null;
-    private Set<String> groupNames = Collections.emptySet();
+    private String property = null;
+    private Set<String> groups = Collections.emptySet();
     private boolean reversed;
 
     @Override
@@ -67,17 +67,17 @@ public class ElementPropertyComparator implements ElementComparator {
             return -1;
         }
 
-        if (!groupNames.contains(e1.getGroup())) {
-            if (!groupNames.contains(e2.getGroup())) {
+        if (!groups.contains(e1.getGroup())) {
+            if (!groups.contains(e2.getGroup())) {
                 return 0;
             }
             return 1;
         }
-        if (!groupNames.contains(e2.getGroup())) {
+        if (!groups.contains(e2.getGroup())) {
             return -1;
         }
 
-        return _compare(e1.getProperty(propertyName), e2.getProperty(propertyName));
+        return _compare(e1.getProperty(property), e2.getProperty(property));
     }
 
     public int _compare(final Object val1, final Object val2) {
@@ -101,13 +101,13 @@ public class ElementPropertyComparator implements ElementComparator {
     @Override
     public Set<Pair<String, String>> getComparableGroupPropertyPairs() {
         if (null == comparator) {
-            if (1 == groupNames.size()) {
-                return Collections.singleton(new Pair<>(groupNames.iterator().next(), propertyName));
+            if (1 == groups.size()) {
+                return Collections.singleton(new Pair<>(groups.iterator().next(), property));
             }
 
-            final Set<Pair<String, String>> pairs = new HashSet<>(groupNames.size());
-            for (final String groupName : groupNames) {
-                pairs.add(new Pair<>(groupName, propertyName));
+            final Set<Pair<String, String>> pairs = new HashSet<>(groups.size());
+            for (final String groupName : groups) {
+                pairs.add(new Pair<>(groupName, property));
             }
             return pairs;
         }
@@ -115,20 +115,20 @@ public class ElementPropertyComparator implements ElementComparator {
         return Collections.emptySet();
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public String getProperty() {
+        return property;
     }
 
-    public void setPropertyName(final String propertyName) {
-        this.propertyName = propertyName;
+    public void setProperty(final String property) {
+        this.property = property;
     }
 
-    public Set<String> getGroupNames() {
-        return groupNames;
+    public Set<String> getGroups() {
+        return groups;
     }
 
-    public void setGroupNames(final Set<String> groupNames) {
-        this.groupNames = groupNames;
+    public void setGroups(final Set<String> groups) {
+        this.groups = groups;
     }
 
     public boolean isReversed() {
@@ -161,13 +161,13 @@ public class ElementPropertyComparator implements ElementComparator {
             return this;
         }
 
-        public Builder groupNames(final String... groupName) {
-            comparator.setGroupNames(Sets.newHashSet(groupName));
+        public Builder groups(final String... group) {
+            comparator.setGroups(Sets.newHashSet(group));
             return this;
         }
 
-        public Builder propertyName(final String propertyName) {
-            comparator.setPropertyName(propertyName);
+        public Builder property(final String property) {
+            comparator.setProperty(property);
             return this;
         }
 

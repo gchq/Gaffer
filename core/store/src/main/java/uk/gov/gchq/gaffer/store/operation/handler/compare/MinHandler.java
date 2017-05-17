@@ -51,10 +51,10 @@ public class MinHandler implements OutputOperationHandler<Min, Element> {
             final ElementPropertyComparator propertyComparator = (ElementPropertyComparator) comparators.get(0);
             Object minProperty = null;
             for (final Element element : elements) {
-                if (null == element || !propertyComparator.getGroupNames().contains(element.getGroup())) {
+                if (null == element || !propertyComparator.getGroups().contains(element.getGroup())) {
                     continue;
                 }
-                final Object property = element.getProperty(propertyComparator.getPropertyName());
+                final Object property = element.getProperty(propertyComparator.getProperty());
                 if (null == property) {
                     continue;
                 }

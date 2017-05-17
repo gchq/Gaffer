@@ -50,8 +50,8 @@ public class ElementPropertyComparatorTest {
     public void shouldSerialiseAndDeserialisePopulatedComparator() throws SerialisationException, JsonProcessingException {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -67,8 +67,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompare() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -90,8 +90,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenBothElementsHaveMissingProperties() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_2)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_2)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -113,8 +113,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenFirstElementHasMissingProperties() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_2)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_2)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -136,8 +136,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenSecondElementHasMissingProperties() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_2)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_2)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -159,8 +159,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenBothElementsHaveWrongGroup() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY_2)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -182,8 +182,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenFirstElementsHasWrongGroup() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY_2)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -205,8 +205,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWhenSecondElementsHasWrongGroup() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY_2)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY_2)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .build();
 
@@ -228,8 +228,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareReversed() {
         // Given
         final ElementComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1)
                 .comparator(new ComparatorImpl())
                 .reverse(true)
                 .build();
@@ -252,8 +252,8 @@ public class ElementPropertyComparatorTest {
     public void shouldCompareWithNoProvidedComparatorInstance() {
         // Given
         final ElementPropertyComparator comparator = new ElementPropertyComparator.Builder()
-                .groupNames(TestGroups.ENTITY)
-                .propertyName(TestPropertyNames.PROP_1)
+                .groups(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1)
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)

@@ -55,8 +55,8 @@ public class MinHandlerTest {
 
         final Min min = new Min.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property")
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
                         .build())
                 .build();
 
@@ -94,12 +94,12 @@ public class MinHandlerTest {
 
         final Min min = new Min.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                                .groupNames(TestGroups.ENTITY)
-                                .propertyName("property1")
+                                .groups(TestGroups.ENTITY)
+                                .property("property1")
                                 .build(),
                         new ElementPropertyComparator.Builder()
-                                .groupNames(TestGroups.ENTITY)
-                                .propertyName("property2")
+                                .groups(TestGroups.ENTITY)
+                                .property("property2")
                                 .build())
                 .build();
 
@@ -135,15 +135,15 @@ public class MinHandlerTest {
 
         final Min min1 = new Min.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property1")
+                        .groups(TestGroups.ENTITY)
+                        .property("property1")
                         .build())
                 .build();
 
         final Min min2 = new Min.Builder().input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                        .groupNames(TestGroups.ENTITY)
-                        .propertyName("property2")
+                        .groups(TestGroups.ENTITY)
+                        .property("property2")
                         .build())
                 .build();
 
