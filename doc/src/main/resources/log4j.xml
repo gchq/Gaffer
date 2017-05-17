@@ -28,6 +28,10 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="uk.gov.gchq.gaffer.accumulostore.AccumuloStore">
+        <level value="ERROR"/>
+    </logger>
+
     <logger name="org.reflections.Reflections">
         <level value="WARN"/>
     </logger>

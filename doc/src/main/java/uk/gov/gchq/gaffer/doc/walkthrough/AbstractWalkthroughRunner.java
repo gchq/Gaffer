@@ -82,14 +82,14 @@ public class AbstractWalkthroughRunner {
 
     private void printTableOfContents() throws InstantiationException, IllegalAccessException {
         int index = 1;
-        LOGGER.info("{}. [Introduction](#introduction)", index);
+        LOGGER.info(index + ". [Introduction](#introduction)");
         index++;
-        LOGGER.info("{}. [Walkthroughs](#walkthroughs)", index);
+        LOGGER.info(index + ". [Walkthroughs](#walkthroughs)");
 
         index = 1;
         for (final Class<? extends AbstractWalkthrough> aClass : examples) {
             final String header = aClass.newInstance().getHeader();
-            LOGGER.info("   {}. [{}](#{})", index, header, header.toLowerCase(Locale.getDefault()).replace(" ", "-"));
+            LOGGER.info("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
             index++;
         }
         LOGGER.info("\n");
