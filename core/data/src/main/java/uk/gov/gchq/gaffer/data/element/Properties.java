@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -79,23 +80,11 @@ public class Properties extends HashMap<String, Object> {
 
     @Override
     public String toString() {
-        final Iterator<Map.Entry<String, Object>> iter = entrySet().iterator();
-        StringBuilder sb = new StringBuilder();
-        sb.append('{');
-        while (iter.hasNext()) {
-            final Map.Entry<String, Object> e = iter.next();
-            sb.append(e.getKey());
-            sb.append("=");
-            if (null != e.getValue()) {
-                sb.append("<");
-                sb.append(e.getValue().getClass().getCanonicalName());
-                sb.append(">");
-            }
-            sb.append(e.getValue());
-            if (iter.hasNext()) {
-                sb.append(", ");
-            }
-        }
-        return sb.append('}').toString();
+        final ToStringBuilder sb = new ToStringBuilder(this);
+        super.entrySet().forEach(es -> {
+            final Object value = es.getValue();
+            sb.append(es.getKey(), String.format("<%s>%s", value.getClass().getCanonicalName(), value));
+        });
+        return sb.build();
     }
 }

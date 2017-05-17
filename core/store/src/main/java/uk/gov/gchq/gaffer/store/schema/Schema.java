@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -201,7 +202,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     @Override
     public String toString() {
         try {
-            return "Schema" + new String(toJson(true), CommonConstants.UTF_8);
+            return new ToStringBuilder(this)
+                    .append(new String(toJson(true), CommonConstants.UTF_8))
+                    .build();
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

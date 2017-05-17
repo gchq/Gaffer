@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.koryphe.tuple.Tuple;
 
@@ -61,8 +62,8 @@ public class PropertiesTuple implements Tuple<String> {
 
     @Override
     public String toString() {
-        return "PropertiesTuple{"
-                + "properties=" + properties
-                + '}';
+        return new ToStringBuilder(this)
+                .append("properties", properties)
+                .build();
     }
 }

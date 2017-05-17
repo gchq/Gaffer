@@ -234,12 +234,18 @@ public class AccumuloStore extends Store {
         try {
             addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
             addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
             addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
             addOperationHandler(SplitTable.class, new SplitTableHandler());
             addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
             addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
-            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+
+            if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+                addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+                addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+            } else {
+                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
+                        getSchema().getVertexSerialiser().getClass().getName());
+            }
         } catch (final NoClassDefFoundError e) {
             LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
         }

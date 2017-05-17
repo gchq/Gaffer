@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -165,6 +166,8 @@ public class LazyProperties extends Properties {
 
     @Override
     public String toString() {
-        return properties.toString();
+        return new ToStringBuilder(this)
+                .append("properties", properties)
+                .build();
     }
 }

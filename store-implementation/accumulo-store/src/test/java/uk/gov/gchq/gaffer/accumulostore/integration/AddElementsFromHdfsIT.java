@@ -209,7 +209,6 @@ public class AddElementsFromHdfsIT {
 
         final AccumuloStore store = new MockAccumuloStore();
         store.initialise(schema, properties);
-        store.updateConfiguration(createLocalConf(), new View(), new User());
 
         return new Graph.Builder()
                 .store(store)
