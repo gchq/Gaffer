@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -38,6 +37,9 @@ import java.util.Properties;
 /**
  * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
  * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * <p>
+ * All StoreProperties classes must be JSON serialisable.
+ * </p>
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
