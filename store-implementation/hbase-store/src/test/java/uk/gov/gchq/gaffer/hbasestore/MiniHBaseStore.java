@@ -82,7 +82,12 @@ public class MiniHBaseStore extends HBaseStore {
             }
         }
 
-        super.initialise(schema, properties);
+        try {
+            super.initialise(schema, properties);
+        } catch (final StoreException e) {
+            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
+        }
+
         TableUtils.dropTable(this);
         super.initialise(schema, properties);
     }

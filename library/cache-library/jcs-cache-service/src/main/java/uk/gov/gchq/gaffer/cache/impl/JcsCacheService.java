@@ -51,7 +51,6 @@ public class JcsCacheService implements ICacheService {
         }
         LOGGER.debug("No config file configured. Using default.");
         manager.configure();
-
     }
 
     @Override
