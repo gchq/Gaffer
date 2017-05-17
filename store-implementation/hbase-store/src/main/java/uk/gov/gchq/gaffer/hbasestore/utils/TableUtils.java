@@ -111,7 +111,7 @@ public final class TableUtils {
         try {
             final Admin admin = connection.getAdmin();
             if (admin.tableExists(tableName)) {
-                validateTable(store, tableName, admin);
+                validateTable(tableName, admin);
             } else {
                 try {
                     TableUtils.createTable(store);
@@ -237,24 +237,21 @@ public final class TableUtils {
         htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
     }
 
-    private static void validateTable(final HBaseStore store, final TableName tableName, final Admin admin) throws StoreException {
+    private static void validateTable(final TableName tableName, final Admin admin) throws StoreException {
         final ValidationResult validationResult = new ValidationResult();
-
-        final HTableDescriptor htable = new HTableDescriptor(tableName);
-
-        final HColumnDescriptor col = htable.getFamily(HBaseStoreConstants.getColFam());
-
-        if (null == col) {
-            validationResult.addError("The Gaffer element 'e' column family does not exist");
-        } else if (Integer.MAX_VALUE != col.getMaxVersions()) {
-            validationResult.addError("The maximum number of versions should be set to " + Integer.MAX_VALUE);
-        }
 
         final HTableDescriptor descriptor;
         try {
             descriptor = admin.getTableDescriptor(tableName);
         } catch (IOException e) {
             throw new StoreException("Unable to look up the table coprocessors", e);
+        }
+
+        final HColumnDescriptor col = descriptor.getFamily(HBaseStoreConstants.getColFam());
+        if (null == col) {
+            validationResult.addError("The Gaffer element 'e' column family does not exist");
+        } else if (Integer.MAX_VALUE != col.getMaxVersions()) {
+            validationResult.addError("The maximum number of versions should be set to " + Integer.MAX_VALUE);
         }
 
         if (!descriptor.hasCoprocessor(GafferCoprocessor.class.getName())) {
