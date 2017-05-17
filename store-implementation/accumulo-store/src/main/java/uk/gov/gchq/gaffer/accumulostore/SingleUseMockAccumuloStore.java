@@ -36,7 +36,13 @@ public class SingleUseMockAccumuloStore extends MockAccumuloStore {
         // Initialise is deliberately called both before and after the deletion of the table: the first creates
         // the MockInstance and then creates the table. This ensures the getConnection() method works. The table is
         // then deleted, and recreated in the following initialise call.
-        super.initialise(schema, properties);
+
+        try {
+            super.initialise(schema, properties);
+        } catch (final StoreException e) {
+            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
+        }
+
         try {
             getConnection().tableOperations().delete(getProperties().getTable());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {

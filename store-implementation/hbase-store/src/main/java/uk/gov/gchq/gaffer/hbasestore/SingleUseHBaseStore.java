@@ -38,7 +38,12 @@ public class SingleUseHBaseStore extends HBaseStore {
         // Initialise is deliberately called both before and after the deletion of the table.
         // The first call sets up a connection to the HBase instance
         // The second call is used to re-create the table
-        super.initialise(schema, properties);
+
+        try {
+            super.initialise(schema, properties);
+        } catch (final StoreException e) {
+            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
+        }
 
         if (dropTable) {
             TableUtils.dropTable(this);
