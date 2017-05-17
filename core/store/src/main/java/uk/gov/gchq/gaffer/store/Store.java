@@ -585,7 +585,7 @@ public abstract class Store {
 
     private void addExecutorService() {
         final Integer jobExecutorThreadCount = getProperties().getJobExecutorThreadCount();
-        LOGGER.info("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
+        LOGGER.debug("Initialising ExecutorService with " + jobExecutorThreadCount + " threads");
         this.executorService = Executors.newFixedThreadPool(jobExecutorThreadCount);
     }
 
