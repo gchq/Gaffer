@@ -20,10 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.AlwaysValid;
-import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -159,7 +159,7 @@ public class GafferResultCacheExporter implements Exporter {
             try {
                 resultClass = Class.forName(resultClassName);
             } catch (final ClassNotFoundException e) {
-                LOGGER.error("Result class name was not found: " + resultClassName, e);
+                LOGGER.error("Result class name was not found: {}", resultClassName, e);
                 throw new RuntimeException(e);
             }
 
@@ -167,7 +167,7 @@ public class GafferResultCacheExporter implements Exporter {
                 return jsonSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
-                    LOGGER.error("Unable to deserialise result: " + new String(resultBytes, CommonConstants.UTF_8), e);
+                    LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
                 } catch (final UnsupportedEncodingException e1) {
                     throw new RuntimeException(e);
                 }

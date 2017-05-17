@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.integration.domain;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * Please note that this object has been created in order to test the ElementGenerator code in the Gaffer framework.
  * It is not intended to be a representative example of how to map a domain object to a Gaffer graph element.  For an
@@ -81,13 +83,13 @@ public class EdgeDomainObject extends DomainObject {
 
     @Override
     public String toString() {
-        return "EdgeDomainObject{" +
-                "source='" + source + '\'' +
-                ", destination='" + destination + '\'' +
-                ", directed=" + directed +
-                ", intProperty=" + intProperty +
-                ", count=" + count +
-                '}';
+        return new ToStringBuilder(this)
+                .append("source", source)
+                .append("intProperty", intProperty)
+                .append("count", count)
+                .append("destination", destination)
+                .append("directed", directed)
+                .build();
     }
 
     @Override

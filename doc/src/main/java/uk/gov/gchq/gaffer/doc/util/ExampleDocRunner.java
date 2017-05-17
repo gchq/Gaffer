@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.doc.util;
 import com.google.common.collect.Sets;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ import java.util.Set;
  */
 public abstract class ExampleDocRunner {
     private static final String EXAMPLE_DIVIDER = "\n\n";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExampleDocRunner.class);
 
     public void run(final Class<? extends Example> exampleParentClass, final Class<?> classForExample) throws Exception {
         printHeader();
@@ -53,7 +50,7 @@ public abstract class ExampleDocRunner {
     }
 
     protected void log(final String msg) {
-        LOGGER.info(msg);
+        System.out.println(msg);
     }
 
     private void printHeader() {
@@ -74,7 +71,7 @@ public abstract class ExampleDocRunner {
     }
 
     protected void printEditWarning() {
-        log("_This page has been generated from code. To make any changes please update the example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/dev-doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
+        log("_This page has been generated from code. To make any changes please update the example doc in the [doc](https://github.com/gchq/Gaffer/tree/master/doc/src/main/java/uk/gov/gchq/gaffer/doc) module, run it and replace the content of this page with the output._\n\n");
     }
 
     protected void printTableOfContents(final Class<? extends Example> exampleParentClass) throws InstantiationException, IllegalAccessException {

@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.data.elementdefinition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -280,7 +280,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             } finally {
                 if (null != inputStreams) {
                     for (final InputStream inputStream : inputStreams) {
-                        IOUtils.closeQuietly(inputStream);
+                        CloseableUtil.close(inputStream);
                     }
                 }
             }

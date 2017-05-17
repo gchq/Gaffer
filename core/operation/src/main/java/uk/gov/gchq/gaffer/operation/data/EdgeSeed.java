@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.data;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
@@ -113,10 +114,10 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
 
     @Override
     public String toString() {
-        return "EdgeId{"
-                + "source=" + source
-                + ", destination=" + destination
-                + ", directed=" + directed
-                + '}';
+        return new ToStringBuilder(this)
+                .append("source", source)
+                .append("destination", destination)
+                .append("directed", directed)
+                .build();
     }
 }

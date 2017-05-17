@@ -48,12 +48,14 @@ import java.util.Set;
  * An implementation of {@link Store} that uses any class that implements Java's {@link java.util.Map} interface to
  * store the {@link Element}s. The {@link Element} objects are stored in memory, i.e . no serialisation is performed.
  * <p>
- * <p>It is designed to support efficient aggregation of properties. The key of the Map is the {@link Element} with any
+ * It is designed to support efficient aggregation of properties. The key of the Map is the {@link Element} with any
  * group-by properties, and the value is the non-group-by properties. This allows very quick aggregation of properties
  * from a new {@link Element} with existing properties.
+ * </p>
  * <p>
- * <p>Indices can optionally be maintained to allow quick look-up of {@link Element}s based on {@link EntityId}s
+ * Indices can optionally be maintained to allow quick look-up of {@link Element}s based on {@link EntityId}s
  * or {@link uk.gov.gchq.gaffer.data.element.id.EdgeId}s.
+ * </p>
  */
 public class MapStore extends Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapStore.class);

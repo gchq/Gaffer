@@ -202,7 +202,7 @@ public class BloomFilter18IT {
                     maxRandomRate = rate;
                 }
             }
-            LOGGER.info("Max random rate = " + maxRandomRate);
+            LOGGER.info("Max random rate = {}", maxRandomRate);
 
             // Calculate look up rate for items that were inserted
             double maxCausalRate = -1.0;
@@ -212,7 +212,7 @@ public class BloomFilter18IT {
                     maxCausalRate = rate;
                 }
             }
-            LOGGER.info("Max causal rate = " + maxCausalRate);
+            LOGGER.info("Max causal rate = {}", maxCausalRate);
 
             // Random look up rate should be much faster
             assertTrue(maxRandomRate > maxCausalRate);
@@ -236,7 +236,7 @@ public class BloomFilter18IT {
         }
         final long end = System.currentTimeMillis();
         final double randomRate = 5000 / ((end - start) / 1000.0);
-        LOGGER.info("Random look up rate = " + randomRate);
+        LOGGER.info("Random look up rate = {}", randomRate);
         return randomRate;
     }
 
@@ -253,7 +253,7 @@ public class BloomFilter18IT {
         }
         final long end = System.currentTimeMillis();
         final double causalRate = 5000 / ((end - start) / 1000.0);
-        LOGGER.info("Causal look up rate = " + causalRate);
+        LOGGER.info("Causal look up rate = {}", causalRate);
         return causalRate;
     }
 

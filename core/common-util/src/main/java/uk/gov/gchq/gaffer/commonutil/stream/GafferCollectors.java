@@ -15,13 +15,18 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
+import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -48,9 +53,15 @@ public final class GafferCollectors {
      * elements into a {@link uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable}
      */
     public static <T> Collector<T, List<T>, CloseableIterable<T>> toCloseableIterable() {
-        return new GafferCollectorImpl<>(ArrayList::new, List::add,
-                (left, right) -> { left.addAll(right); return left; },
-                list -> new WrappedCloseableIterable<T>(list));
+        return new GafferCollectorImpl<>(
+                ArrayList::new,
+                List::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                },
+                WrappedCloseableIterable::new
+        );
     }
 
     /**
@@ -62,8 +73,37 @@ public final class GafferCollectors {
      * elements into a {@link java.util.LinkedHashSet}
      */
     public static <T> Collector<T, ?, Set<T>> toLinkedHashSet() {
-        return new GafferCollectorImpl<>((Supplier<Set<T>>) LinkedHashSet::new, Set::add,
-                (left, right) -> { left.addAll(right); return left; }, set -> set);
+        return new GafferCollectorImpl<>(
+                (Supplier<Set<T>>) LinkedHashSet::new,
+                Set::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                },
+                set -> set
+        );
+    }
+
+    public static <T> Collector<T, Set<T>, SortedSet<T>> toSortedSet(final Comparator<T> comparator) {
+        return new GafferCollectorImpl<>(
+                () -> new TreeSet<>(comparator),
+                Collection::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
+    }
+
+    public static <T> Collector<T, Set<T>, LimitedSortedSet<T>> toLimitedSortedSet(final Comparator<T> comparator, final int limit) {
+        return new GafferCollectorImpl<>(
+                () -> new LimitedSortedSet<>(comparator, limit),
+                Collection::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
     }
 
     /**
@@ -79,9 +119,9 @@ public final class GafferCollectors {
         private final Function<A, R> finisher;
 
         GafferCollectorImpl(final Supplier<A> supplier,
-                final BiConsumer<A, T> accumulator,
-                final BinaryOperator<A> combiner,
-                final Function<A, R> finisher) {
+                            final BiConsumer<A, T> accumulator,
+                            final BinaryOperator<A> combiner,
+                            final Function<A, R> finisher) {
             this.supplier = supplier;
             this.accumulator = accumulator;
             this.combiner = combiner;
@@ -89,8 +129,8 @@ public final class GafferCollectors {
         }
 
         GafferCollectorImpl(final Supplier<A> supplier,
-                final BiConsumer<A, T> accumulator,
-                final BinaryOperator<A> combiner) {
+                            final BiConsumer<A, T> accumulator,
+                            final BinaryOperator<A> combiner) {
             this(supplier, accumulator, combiner, i -> (R) i);
         }
 

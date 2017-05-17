@@ -119,6 +119,7 @@ public class AccumuloStore extends Store {
                     STORE_VALIDATION
             ));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
+    public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
@@ -233,14 +234,20 @@ public class AccumuloStore extends Store {
         try {
             addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
             addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
             addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
             addOperationHandler(SplitTable.class, new SplitTableHandler());
             addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
             addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
-            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+
+            if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+                addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+                addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+            } else {
+                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
+                        getSchema().getVertexSerialiser().getClass().getName());
+            }
         } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for " + AddElementsFromHdfs.class.getSimpleName() + " due to missing classes on the classpath", e);
+            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
         }
     }
 
@@ -293,16 +300,14 @@ public class AccumuloStore extends Store {
                 try {
                     keys = keyPackage.getKeyConverter().getKeysFromElement(element);
                 } catch (final AccumuloElementConversionException e) {
-                    LOGGER.error("Failed to create an accumulo key from element of type " + element.getGroup()
-                            + " when trying to insert elements");
+                    LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "key", element.getGroup());
                     continue;
                 }
                 final Value value;
                 try {
                     value = keyPackage.getKeyConverter().getValueFromElement(element);
                 } catch (final AccumuloElementConversionException e) {
-                    LOGGER.error("Failed to create an accumulo value from element of type " + element.getGroup()
-                            + " when trying to insert elements");
+                    LOGGER.error(FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS, "value", element.getGroup());
                     continue;
                 }
                 final Mutation m = new Mutation(keys.getFirst().getRow());
