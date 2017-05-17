@@ -28,11 +28,19 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * A <code>Max</code> operation is intended as a terminal operation for retrieving the "maximum" element from an {@link java.lang.Iterable}.
- * This operation can be executed in two modes:
- * <ul><li>property comparators - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparators is applied to all values of the specified property, and the element containing the maximum value (as specified by the {@link java.util.Comparator}) is returned.</li><li>element comparators - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. The maximum element (as specified by the {@link java.util.Comparator} is returned.</li></ul>
+ * A <code>Max</code> operation is intended as a terminal operation for
+ * retrieving the "maximum" element from an {@link java.lang.Iterable} of Elements.
+ * /**
+ * The {@link uk.gov.gchq.gaffer.data.element.Element}s are compared using the provided
+ * {@link java.util.Comparator}s. Either implement your own comparators or use the
+ * {@link uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator}.
+ * <p>
+ * The provided element comparators will be use sequentially to compare the operation
+ * input iterable to find the maximum.
+ * </p>
  *
  * @see uk.gov.gchq.gaffer.operation.impl.compare.Max.Builder
+ * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 public class Max implements
         Operation,

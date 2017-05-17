@@ -27,9 +27,24 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * {@link uk.gov.gchq.gaffer.data.element.comparison.ElementComparator} implementation
+ * An {@link uk.gov.gchq.gaffer.data.element.comparison.ElementComparator} implementation
  * to use when making comparisons based on a single element property (e.g. a count
  * field).
+ * <p>
+ * You must provide the property name and the set of element groups that contain
+ * that property.
+ * </p>
+ * <p>
+ * Any elements that are compared that are not in one of the provided groups
+ * will be returned 'last' in the result.
+ * </p>
+ * <p>
+ * Any elements that are compared that do not have the provided property
+ * will also be returned 'last' in the result.
+ * </p>
+ * <p>
+ * There is a reversed option to allow you to flip the comparison value.
+ * </p>
  */
 @SuppressFBWarnings(value = "SE_COMPARATOR_SHOULD_BE_SERIALIZABLE",
         justification = "This class should not be serialised")

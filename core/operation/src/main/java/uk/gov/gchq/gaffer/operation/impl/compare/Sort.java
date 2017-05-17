@@ -27,11 +27,22 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable} of {@link uk.gov.gchq.gaffer.data.element.Element}s using a provided {@link java.util.Comparator} object.
- * This operation can be executed in two modes:
- * <ul><li>property comparators - a {@link java.util.Comparator} is provided, along with a property name. The supplied comparators is applied to all values of the specified property, and the input is sorted according to the {@link java.util.Comparator} implementation.</li><li>element comparators - an {@link uk.gov.gchq.gaffer.data.element.Element} {@link java.util.Comparator} is provided, and is applied to all elements in the input {@link java.lang.Iterable}. the input is sorted according to the {@link java.util.Comparator} implementation.</li></ul>
+ * A <code>Sort</code> operation can be used to sort a {@link java.lang.Iterable}
+ * of {@link uk.gov.gchq.gaffer.data.element.Element}s using provided
+ * {@link java.util.Comparator}s. Either implement your own comparators or use the
+ * {@link uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator}.
+ * <p>
+ * The provided element comparators will be use sequentially to sort the operation
+ * input iterable.
+ * </p>
+ * <p>
+ * There is also a resultLimit option that will only keep the top 'X' results.
+ * This avoids having to load a large number of Elements into memory, if you
+ * only just want the first few results.
+ * </p>
  *
  * @see uk.gov.gchq.gaffer.operation.impl.compare.Sort.Builder
+ * @see uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator
  */
 public class Sort implements
         Operation,
