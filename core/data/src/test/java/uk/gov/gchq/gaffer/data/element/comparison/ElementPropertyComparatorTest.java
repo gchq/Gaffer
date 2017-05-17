@@ -62,7 +62,7 @@ public class ElementPropertyComparatorTest {
         // Then
         assertNotNull(deserialisedComparator);
     }
-
+    
     @Test
     public void shouldCompare() {
         // Given
@@ -73,10 +73,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -96,10 +96,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -119,10 +119,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_2, 2)
+                .property(TestPropertyNames.PROP_2, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -142,10 +142,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_2, 1)
+                .property(TestPropertyNames.PROP_2, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -165,10 +165,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -188,10 +188,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY_2)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -211,10 +211,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY_2)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -235,10 +235,10 @@ public class ElementPropertyComparatorTest {
                 .build();
 
         final Entity smallEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(1))
                 .build();
         final Entity largeEntity = new Entity.Builder().group(TestGroups.ENTITY)
-                .property(TestPropertyNames.PROP_1, 2)
+                .property(TestPropertyNames.PROP_1, new IntegerWrapper(2))
                 .build();
 
         // When
@@ -270,16 +270,24 @@ public class ElementPropertyComparatorTest {
         assertThat(result, lessThan(0));
     }
 
-    private static class ComparatorImpl implements Comparator<Object> {
+    private static class IntegerWrapper {
+        private Integer field;
+
+        public IntegerWrapper(final Integer field) {
+            this.field = field;
+        }
+    }
+
+    private static class ComparatorImpl implements Comparator<IntegerWrapper> {
 
         @Override
-        public int compare(final Object o1, final Object o2) {
+        public int compare(final IntegerWrapper o1, final IntegerWrapper o2) {
             if (null == o1) {
                 return (o2 == null) ? 0 : -1;
             } else if (null == o2) {
                 return 1;
             }
-            return ((Comparable) o1).compareTo(o2);
+            return (o1.field).compareTo(o2.field);
         }
     }
 }

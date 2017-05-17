@@ -91,11 +91,19 @@ public class ElementPropertyComparator implements ElementComparator {
             return -1;
         }
 
-        if (reversed) {
-            return ((Comparable) val2).compareTo(val1);
+        if (null == comparator) {
+            if (reversed) {
+                return ((Comparable) val2).compareTo(val1);
+            }
+
+            return ((Comparable) val1).compareTo(val2);
         }
 
-        return ((Comparable) val1).compareTo(val2);
+        if (reversed) {
+            return comparator.compare(val2, val1);
+        }
+
+        return comparator.compare(val1, val2);
     }
 
     @Override
