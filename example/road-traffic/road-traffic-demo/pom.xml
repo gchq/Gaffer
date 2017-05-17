@@ -15,6 +15,16 @@
         <standalone-port>8080</standalone-port>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>road-traffic-rest</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+            <classifier>classes</classifier>
+        </dependency>
+    </dependencies>
+
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>

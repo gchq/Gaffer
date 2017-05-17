@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.doc.user.walkthrough;
 
 import org.junit.Test;
 
-public class WalkthroughRunnerTest {
+public class UserWalkthroughRunnerTest {
 
     @Test
     public void shouldNotThrowAnyExceptions() throws Exception {
