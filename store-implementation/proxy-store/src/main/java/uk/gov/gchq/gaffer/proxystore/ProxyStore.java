@@ -305,4 +305,55 @@ public class ProxyStore extends Store {
         client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
         return client;
     }
+
+    public static final class Builder {
+        private final ProxyStore store;
+        private final ProxyProperties properties;
+
+        public Builder() {
+            store = new ProxyStore();
+            properties = new ProxyProperties();
+            properties.setStoreClass(ProxyStore.class);
+            properties.setStorePropertiesClass(ProxyProperties.class);
+        }
+
+        public Builder host(final String host) {
+            properties.setGafferHost(host);
+            return this;
+        }
+
+        public Builder port(final int port) {
+            properties.setGafferPort(port);
+            return this;
+        }
+
+        public Builder contextRoot(final String contextRoot) {
+            properties.setGafferContextRoot(contextRoot);
+            return this;
+        }
+
+        public Builder connextTimeout(final int timeout) {
+            properties.setConnectTimeout(timeout);
+            return this;
+        }
+
+        public Builder readTimeout(final int timeout) {
+            properties.setReadTimeout(timeout);
+            return this;
+        }
+
+        public Builder jsonSerialiser(final Class<? extends JSONSerialiser> serialiserClass) {
+            properties.setJsonSerialiserClass(serialiserClass);
+            return this;
+        }
+
+        public ProxyStore build() {
+            try {
+                store.initialise(new Schema(), properties);
+            } catch (final StoreException e) {
+                throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
+            }
+            return store;
+        }
+    }
 }
