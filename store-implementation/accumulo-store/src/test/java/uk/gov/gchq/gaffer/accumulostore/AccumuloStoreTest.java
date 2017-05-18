@@ -87,16 +87,16 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class AccumuloStoreTest {
 
-    private static MockAccumuloStore byteEntityStore;
-    private static MockAccumuloStore gaffer1KeyStore;
+    private static SingleUseMockAccumuloStore byteEntityStore;
+    private static SingleUseMockAccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new MockAccumuloStore();
-        gaffer1KeyStore = new MockAccumuloStore();
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
 
@@ -235,7 +235,7 @@ public class AccumuloStoreTest {
         testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
     }
 
-    public void testStoreReturnsHandlersForRegisteredOperations(final MockAccumuloStore store) throws StoreException {
+    public void testStoreReturnsHandlersForRegisteredOperations(final SingleUseMockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
@@ -260,7 +260,7 @@ public class AccumuloStoreTest {
     }
 
 
-    public void testRequestForNullHandlerManaged(final MockAccumuloStore store) {
+    public void testRequestForNullHandlerManaged(final SingleUseMockAccumuloStore store) {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
