@@ -17,20 +17,21 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawLongSerialiserTest {
+public class RawLongSerialiserTest extends ToByteSerialisationTest<Long> {
 
-    private static final RawLongSerialiser SERIALISER = new RawLongSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (long i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,27 +39,33 @@ public class RawLongSerialiserTest {
 
     @Test
     public void canSerialiseLongMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Long.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseLongMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Long.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Long.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Long.class, o.getClass());
         assertEquals(Long.MAX_VALUE, o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseLongClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Long.class));
+        assertTrue(serialiser.canHandle(Long.class));
+    }
+
+
+    @Override
+    public Serialiser<Long, byte[]> getSerialisation() {
+        return new RawLongSerialiser();
     }
 }

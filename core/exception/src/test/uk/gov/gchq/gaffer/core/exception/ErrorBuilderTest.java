@@ -22,7 +22,7 @@ public class ErrorBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        System.clearProperty(Error.REST_DEBUG);
+        System.clearProperty(Error.DEBUG);
         BasicConfigurator.configure();
     }
 
@@ -65,14 +65,14 @@ public class ErrorBuilderTest {
     }
 
     private String trueProp() {
-        return System.setProperty(Error.REST_DEBUG, Boolean.TRUE.toString());
+        return System.setProperty(Error.DEBUG, Boolean.TRUE.toString());
     }
 
     private String falseProp() {
-        return System.setProperty(Error.REST_DEBUG, Boolean.FALSE.toString());
+        return System.setProperty(Error.DEBUG, Boolean.FALSE.toString());
     }
 
     private String wrongProp() {
-        return System.setProperty(Error.REST_DEBUG, "wrong");
+        return System.setProperty(Error.DEBUG, "wrong");
     }
 }

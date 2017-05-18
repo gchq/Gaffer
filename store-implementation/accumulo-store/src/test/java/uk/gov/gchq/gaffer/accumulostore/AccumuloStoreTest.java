@@ -54,7 +54,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -118,7 +118,7 @@ public class AccumuloStoreTest {
     public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialisation serialiser = mock(Serialisation.class);
+        final Serialiser serialiser = mock(Serialiser.class);
         given(serialiser.preservesObjectOrdering()).willReturn(true);
 
         store.initialise(
@@ -141,7 +141,7 @@ public class AccumuloStoreTest {
     public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialisation serialiser = mock(Serialisation.class);
+        final Serialiser serialiser = mock(Serialiser.class);
         given(serialiser.preservesObjectOrdering()).willReturn(false);
 
         store.initialise(

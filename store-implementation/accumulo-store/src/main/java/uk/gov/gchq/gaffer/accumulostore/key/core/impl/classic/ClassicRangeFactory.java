@@ -24,16 +24,17 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
+import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
 
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -60,7 +61,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -88,7 +89,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
                 : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE
                 : ClassicBytePositions.UNDIRECTED_EDGE;
 
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
+        final ToBytesSerialiser vertexSerialiser = getSchemaVertexToBytesSerialiser(schema);
 
         // Serialise source and destination to byte arrays, escaping if
         // necessary

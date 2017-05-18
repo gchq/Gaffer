@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
-public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValue> {
+public class TypeSubTypeValueSerialiser implements ToBytesSerialiser<TypeSubTypeValue> {
 
     private static final long serialVersionUID = 4687862916179832187L;
 
@@ -114,7 +114,7 @@ public class TypeSubTypeValueSerialiser implements Serialisation<TypeSubTypeValu
     }
 
     @Override
-    public TypeSubTypeValue deserialiseEmptyBytes() {
+    public TypeSubTypeValue deserialiseEmpty() {
         return new TypeSubTypeValue();
     }
 }

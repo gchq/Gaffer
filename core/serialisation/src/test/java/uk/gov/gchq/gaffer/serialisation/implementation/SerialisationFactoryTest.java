@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 
@@ -34,7 +34,7 @@ public class SerialisationFactoryTest {
         final Class<?> clazz = String.class;
 
         // When
-        final Serialisation serialiser = factory.getSerialiser(clazz);
+        final Serialiser serialiser = factory.getSerialiser(clazz);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
@@ -49,7 +49,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialisation serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
@@ -63,7 +63,7 @@ public class SerialisationFactoryTest {
         final Class<?> clazz = Integer.class;
 
         // When
-        final Serialisation serialiser = factory.getSerialiser(clazz);
+        final Serialiser serialiser = factory.getSerialiser(clazz);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
@@ -78,7 +78,7 @@ public class SerialisationFactoryTest {
         final boolean ordered = true;
 
         // When
-        final Serialisation serialiser = factory.getSerialiser(clazz, ordered);
+        final Serialiser serialiser = factory.getSerialiser(clazz, ordered);
 
         // Then
         assertTrue(serialiser.canHandle(clazz));

@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SerialiserUtils;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     protected byte[] getRowKeyFromEntity(final Entity entity) {
         byte[] value;
         try {
-            value = ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
+            value = ByteArrayEscapeUtils.escape(SerialiserUtils.getSchemaVertexToBytesSerialiser(schema).serialise(entity.getVertex()));
             final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
             returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
@@ -119,7 +120,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     @Override
     protected Entity getEntityFromKey(final Key key) {
         try {
-            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser()
+            final Entity entity = new Entity(getGroupFromKey(key), SerialiserUtils.getSchemaVertexToBytesSerialiser(schema)
                     .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0,
                             key.getRowData().getBackingArray().length - 2))));
             addPropertiesToElement(entity, key);

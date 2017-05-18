@@ -66,7 +66,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -374,11 +374,12 @@ public abstract class Store {
             schemaElements.putAll(getSchema().getEntities());
             for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
                 for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    final Serialisation serialisation = schemaElementDefinitionEntry
+                    final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                    final Serialiser serialisation = schemaElementDefinitionEntry
                             .getValue()
                             .getPropertyTypeDef(propertyName)
                             .getSerialiser();
+
                     if (null == serialisation) {
                         validationResult.addError(
                                 "Could not find a serialiser for property '"

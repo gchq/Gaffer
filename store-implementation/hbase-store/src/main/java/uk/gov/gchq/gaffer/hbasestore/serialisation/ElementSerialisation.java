@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+
+import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
 
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
@@ -69,7 +71,7 @@ public class ElementSerialisation {
             propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (isStoredInValue(propertyName, elementDefinition)) {
-                final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 try {
                     if (null != serialiser) {
                         Object value = properties.get(propertyName);
@@ -110,7 +112,7 @@ public class ElementSerialisation {
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
                 final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(value[lastDelimiter]);
                     final byte[] length = new byte[numBytesForLength];
@@ -129,7 +131,7 @@ public class ElementSerialisation {
                         }
                     } else {
                         try {
-                            properties.put(propertyName, serialiser.deserialiseEmptyBytes());
+                            properties.put(propertyName, serialiser.deserialiseEmpty());
                         } catch (final SerialisationException e) {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
@@ -178,14 +180,15 @@ public class ElementSerialisation {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
             if (null != propertyDef) {
                 final Object property = properties.get(schema.getVisibilityProperty());
+                final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
                 if (property != null) {
                     try {
-                        return propertyDef.getSerialiser().serialise(property);
+                        return serialiser.serialise(property);
                     } catch (final SerialisationException e) {
                         throw new SerialisationException(e.getMessage(), e);
                     }
                 } else {
-                    return propertyDef.getSerialiser().serialiseNull();
+                    return serialiser.serialiseNull();
                 }
             }
         }
@@ -214,7 +217,7 @@ public class ElementSerialisation {
 
         for (final String propertyName : elementDefinition.getGroupBy()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<Object> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
@@ -256,7 +259,7 @@ public class ElementSerialisation {
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                 final byte[] length = new byte[numBytesForLength];
@@ -369,7 +372,7 @@ public class ElementSerialisation {
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
         try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to serialise given vertex object.", e);
         }
@@ -564,18 +567,14 @@ public class ElementSerialisation {
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
 
-    private Serialisation<Object> getVertexSerialiser() {
-        return schema.getVertexSerialiser();
-    }
-
     private Edge getEdge(final Cell cell, final Map<String, String> options)
             throws SerialisationException {
         final byte[][] result = new byte[3][];
         final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
         final String group = getGroup(cell);
         try {
-            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
-                    getVertexSerialiser().deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, getSchemaVertexToBytesSerialiser(schema).deserialise(result[0]),
+                    getSchemaVertexToBytesSerialiser(schema).deserialise(result[1]), directed);
             addPropertiesToElement(edge, cell);
             return edge;
         } catch (final SerialisationException e) {
@@ -587,7 +586,7 @@ public class ElementSerialisation {
 
         try {
             final byte[] row = CellUtil.cloneRow(cell);
-            final Entity entity = new Entity(getGroup(cell), getVertexSerialiser()
+            final Entity entity = new Entity(getGroup(cell), getSchemaVertexToBytesSerialiser(schema)
                     .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
             addPropertiesToElement(entity, cell);
             return entity;

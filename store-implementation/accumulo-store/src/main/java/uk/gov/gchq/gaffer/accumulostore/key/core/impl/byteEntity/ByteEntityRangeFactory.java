@@ -26,17 +26,18 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
+import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -49,7 +50,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     @Override
     protected Key getKeyFromEdgeId(final EdgeId seed, final GraphFilters operation,
                                    final boolean endKey) throws RangeFactoryException {
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
+        final ToBytesSerialiser vertexSerialiser = getSchemaVertexToBytesSerialiser(schema);
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
@@ -106,7 +107,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }

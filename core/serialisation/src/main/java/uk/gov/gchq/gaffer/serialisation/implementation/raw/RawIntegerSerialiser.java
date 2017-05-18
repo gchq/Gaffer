@@ -17,12 +17,12 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * RawIntegerSerialiser serialises Integers into a little-endian byte array.
  */
-public class RawIntegerSerialiser implements Serialisation<Integer> {
+public class RawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     private static final long serialVersionUID = -8344193425875811395L;
 
     @Override
@@ -49,7 +49,7 @@ public class RawIntegerSerialiser implements Serialisation<Integer> {
     }
 
     @Override
-    public Integer deserialiseEmptyBytes() {
+    public Integer deserialiseEmpty() {
         return null;
     }
 

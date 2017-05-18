@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class LongSerialiser implements Serialisation<Long> {
+public class LongSerialiser implements ToBytesSerialiser<Long> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -52,7 +52,7 @@ public class LongSerialiser implements Serialisation<Long> {
     }
 
     @Override
-    public Long deserialiseEmptyBytes() throws SerialisationException {
+    public Long deserialiseEmpty() throws SerialisationException {
         return null;
     }
 
