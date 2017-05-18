@@ -66,6 +66,7 @@ import uk.gov.gchq.gaffer.core.exception.GafferRuntimeException;
 import uk.gov.gchq.gaffer.core.exception.Status;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -73,6 +74,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -82,6 +85,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.Set;
@@ -120,12 +124,12 @@ public class AccumuloStore extends Store {
             ));
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
+    public static final String SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) for property '%s' in the group '%s' is not instance of %s";
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -135,6 +139,31 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
+    }
+
+    @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+
+        final ValidationResult validationResult = new ValidationResult();
+
+        getSchemaElements().entrySet().forEach(entrySet -> entrySet.getValue().getProperties().forEach(propertyName -> {
+            final Serialiser serialisation = entrySet.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+
+            if (serialisation != null && !(serialisation instanceof ToBytesSerialiser)) {
+                validationResult.addError(
+                        String.format(SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S,
+                                serialisation.getClass().getName(),
+                                propertyName,
+                                entrySet.getKey(),
+                                ToBytesSerialiser.class.getCanonicalName()));
+            }
+        }));
+
+        if (!validationResult.isValid()) {
+            throw new SchemaException("Schema is not valid. "
+                    + validationResult.getErrorString());
+        }
     }
 
     /**

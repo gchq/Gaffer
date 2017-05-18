@@ -107,7 +107,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -369,32 +368,20 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-            schemaElements.putAll(getSchema().getEdges());
-            schemaElements.putAll(getSchema().getEntities());
-            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                    final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    final Serialiser serialisation = schemaElementDefinitionEntry
-                            .getValue()
-                            .getPropertyTypeDef(propertyName)
-                            .getSerialiser();
+            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
+                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                final Serialiser serialisation = schemaElementDefinitionEntry
+                        .getValue()
+                        .getPropertyTypeDef(propertyName)
+                        .getSerialiser();
 
-                    if (null == serialisation) {
-                        validationResult.addError(
-                                "Could not find a serialiser for property '"
-                                        + propertyName
-                                        + "' in the group '"
-                                        + schemaElementDefinitionEntry.getKey() + "'.");
-                    } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError("Schema serialiser ("
-                                + serialisation.getClass().getName()
-                                + ") for property '" + propertyName
-                                + "' in the group '" + schemaElementDefinitionEntry.getKey()
-                                + "' cannot handle property found in the schema");
-                    }
+                if (null == serialisation) {
+                    validationResult.addError(
+                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                } else if (!serialisation.canHandle(propertyClass)) {
+                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                 }
-            }
+            }));
         }
 
         if (!validationResult.isValid()) {
@@ -510,6 +497,13 @@ public abstract class Store {
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
+
+    protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        return schemaElements;
+    }
 
     /**
      * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.

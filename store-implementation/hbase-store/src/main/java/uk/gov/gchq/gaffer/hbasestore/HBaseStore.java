@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
@@ -47,6 +48,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -56,6 +59,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
@@ -93,6 +97,7 @@ public class HBaseStore extends Store {
                     STORE_VALIDATION
             ));
     private static final Logger LOGGER = LoggerFactory.getLogger(HBaseStore.class);
+    public static final String SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) for property '%s' in the group '%s' is not instance of %s";
     private Connection connection;
 
     @Override
@@ -100,6 +105,31 @@ public class HBaseStore extends Store {
             throws StoreException {
         super.initialise(schema, properties);
         TableUtils.ensureTableExists(this);
+    }
+
+    @Override
+    public void validateSchemas() {
+        super.validateSchemas();
+
+        final ValidationResult validationResult = new ValidationResult();
+
+        getSchemaElements().entrySet().forEach(entrySet -> entrySet.getValue().getProperties().forEach(propertyName -> {
+            final Serialiser serialisation = entrySet.getValue().getPropertyTypeDef(propertyName).getSerialiser();
+
+            if (serialisation != null && !(serialisation instanceof ToBytesSerialiser)) {
+                validationResult.addError(
+                        String.format(SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S,
+                                serialisation.getClass().getName(),
+                                propertyName,
+                                entrySet.getKey(),
+                                ToBytesSerialiser.class.getCanonicalName()));
+            }
+        }));
+
+        if (!validationResult.isValid()) {
+            throw new SchemaException("Schema is not valid. "
+                    + validationResult.getErrorString());
+        }
     }
 
     public Configuration getConfiguration() {
