@@ -50,7 +50,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
@@ -175,7 +174,7 @@ public class ProxyStore extends Store {
                            final Context context) throws StoreException {
 
 
-        final Builder request = createRequest(jsonBody, url, context);
+        final Invocation.Builder request = createRequest(jsonBody, url, context);
         final Response response;
         try {
             response = request.post(Entity.json(jsonBody));
@@ -224,7 +223,7 @@ public class ProxyStore extends Store {
         return output;
     }
 
-    protected Builder createRequest(final String body, final URL url, final Context context) {
+    protected Invocation.Builder createRequest(final String body, final URL url, final Context context) {
         final Invocation.Builder request = client.target(url.toString())
                 .request();
         if (null != body) {
