@@ -24,7 +24,6 @@ import org.apache.hadoop.io.Text;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityAccumuloElementConverter;
@@ -57,7 +56,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableWithAllRequiredIterators() throws Exception {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
@@ -142,7 +141,7 @@ public class TableUtilsTest {
 
     @Test
     public void shouldCreateTableWithCorrectLocalityGroups() throws Exception {
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
@@ -170,7 +169,7 @@ public class TableUtilsTest {
     @Test
     public void shouldCreateTableCorrectlyIfSchemaContainsNoAggregators() throws Exception {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, String.class)
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)

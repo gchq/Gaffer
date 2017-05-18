@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
@@ -206,7 +206,7 @@ public class AddElementsFromHdfsIT {
         properties.setKeyPackageClass(keyPackageClass.getName());
         properties.setInstance("instance_" + keyPackageClass.getName());
 
-        final AccumuloStore store = new MockAccumuloStore();
+        final AccumuloStore store = new SingleUseMockAccumuloStore();
         store.initialise(schema, properties);
 
         return new Graph.Builder()

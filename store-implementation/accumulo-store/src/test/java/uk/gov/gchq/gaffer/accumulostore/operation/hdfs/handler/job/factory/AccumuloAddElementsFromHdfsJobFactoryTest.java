@@ -17,7 +17,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
@@ -127,7 +127,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNoMoreThanMaxNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
@@ -191,7 +191,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNoLessThanMinNumberOfReducersSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));
@@ -255,7 +255,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
     @Test
     public void shouldSetNumberOfReducersBetweenMinAndMaxSpecified() throws IOException, StoreException, OperationException {
         // Given
-        final MockAccumuloStore store = new MockAccumuloStore();
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloAddElementsFromHdfsJobFactoryTest.class));
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(StreamUtil.storeProps(AccumuloAddElementsFromHdfsJobFactoryTest.class));

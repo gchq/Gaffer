@@ -94,8 +94,8 @@ public class ImportRDDOfElementsHandlerTest {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         configuration.write(new DataOutputStream(baos));
         final String configurationString = new String(baos.toByteArray(), CommonConstants.UTF_8);
-        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load";
-        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure";
+        final String outputPath = this.getClass().getResource("/").getPath().toString() + "load" + Math.random();
+        final String failurePath = this.getClass().getResource("/").getPath().toString() + "failure" + Math.random();
         final File file = new File(outputPath);
         if (file.exists()) {
             FileUtils.forceDelete(file);
@@ -109,7 +109,7 @@ public class ImportRDDOfElementsHandlerTest {
                 .option("failurePath", failurePath)
                 .build();
         graph1.execute(addRdd, user);
-        FileUtils.forceDelete(file);
+        FileUtils.forceDeleteOnExit(file);
 
         // Check all elements were added
         final GetRDDOfAllElements rddQuery = new GetRDDOfAllElements.Builder()
