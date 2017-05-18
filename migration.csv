@@ -32,9 +32,10 @@ GetAdjacentEntitySeeds,GetAdjacentIds
 GetRelatedEdges,GetEdges
 GetRelatedEntities,GetEntities
 GetRelatedElements,GetElements
+GetElements<>,GetElements
 GetElements<Element>,GetElements
-GetAllElements<>,GetAllElements
 GetAllElements<Element>,GetAllElements
+GetAllElements<>,GetAllElements
 uk.gov.gchq.gaffer.operation.impl.export.Exporter,uk.gov.gchq.gaffer.operation.export.Exporter
 uk.gov.gchq.gaffer.operation.impl.Deduplicate,uk.gov.gchq.gaffer.operation.impl.output.ToSet
 new Deduplicate,new ToSet
@@ -50,9 +51,32 @@ DirectedType.ALL,DirectedType.BOTH
 
 # Operation builder methods have been renamed to input
 .addSeed(,.input(
+.addSeedB(,.inputB(
 .seeds(,.input(
+.seedsB(,.inputB(
 .elements(,.input(
 .objects(,.input(
+"seeds":,"input":
+"seeds" :,"input" :
+"seedsB":,"inputB":
+"seedsB" :,"inputB" :
+"elements":,"input":
+"elements" :,"input" :
+"objects":,"input":
+"objects" :,"input" :
+.populateProperties(true),
+"populateProperties":true,
+"populateProperties": true,
+"populateProperties" : true,
+.populateProperties(false),
+"populateProperties":false,
+"populateProperties": false,
+"populateProperties" : false,
+.deduplicate(false),
+"deduplicate":false,
+"deduplicate": false,
+"deduplicate" : false,
+
 # - Manually change any instances of .input(x).input(y) to input(x, y)
 
 # Some Operation options have been removed

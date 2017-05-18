@@ -9,7 +9,7 @@
 
 <body>
 
-<h1>Gaffer Migration Tool 0.6.6 to 0.7.1</h1>
+<h1>Gaffer Migration Tool</h1>
 
 <h2>Input</h2>
 <textarea id="input" style="width:80%; margin:0 20px; height:250px"
@@ -19,14 +19,36 @@
 <br/>
 
 <h2>Output</h2>
-<textarea id="output" style="width:80%; margin:0 20px; height:250px"></textarea>
+<textarea id="output"
+          placeholder="Output will automatically appear here"
+          style="width:80%; margin:0 20px; height:250px"></textarea>
+
+
+<h2>Manual Steps</h2>
+<p>
+    Not all migrations can be applied automatically.
+    This is a list of further migrations you may need to apply.
+    The majority of the steps refer to Java code changes but similar changes
+    may be needed in JSON and python.
+</p>
+<div id="manualSteps">
+</div>
 
 <script>
 var migrations;
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.onreadystatechange = function () {
-    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+    if (xmlhttp.readyState == 4 && (xmlhttp.status == 200 || xmlhttp.status == 0)) {
         migrations=xmlhttp.responseText;
+
+        manualSteps="";
+        migrations.split("\n").forEach(function(line){
+            if(line && line.startsWith("#")){
+                manualSteps = manualSteps + ("<p>" + line.substring(1) + "</p>");
+            }
+        });
+        console.log("manualSteps = " + manualSteps);
+        document.getElementById("manualSteps").innerHTML="<pre>" + manualSteps + "</pre>";
     }
 }
 xmlhttp.open("GET", "migration.csv", false);
@@ -51,9 +73,6 @@ var migrate = function(){
 
     document.getElementById("output").value=output;
 }
-
-
-
 
 </script>
 </body>
