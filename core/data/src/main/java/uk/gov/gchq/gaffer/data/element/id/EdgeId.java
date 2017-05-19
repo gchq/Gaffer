@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -31,9 +32,18 @@ public interface EdgeId extends ElementId {
 
     void setDestination(final Object destination);
 
+    @JsonGetter("directed")
+    Boolean getDirected();
+
+    /**
+     * Note if directed is null then false will be returned.
+     * If you want the nullable boolean value then call getDirected()
+     *
+     * @return true if directed, otherwise false.
+     */
     boolean isDirected();
 
-    void setDirected(final boolean directed);
+    void setDirected(final Boolean directed);
 
     @Override
     default boolean isEqual(final ElementId that) {
@@ -41,16 +51,18 @@ public interface EdgeId extends ElementId {
     }
 
     default boolean isEqual(final EdgeId that) {
-        return new EqualsBuilder()
-                .append(isDirected(), that.isDirected())
+        return null != that
+                && (new EqualsBuilder()
+                .append(getDirected(), that.getDirected())
                 .append(getSource(), that.getSource())
                 .append(getDestination(), that.getDestination())
                 .isEquals()
                 || new EqualsBuilder()
                 .append(isDirected(), false)
+                .append(getDirected(), that.getDirected())
                 .append(getSource(), that.getDestination())
                 .append(getDestination(), that.getSource())
-                .isEquals();
+                .isEquals());
     }
 
     /**

@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -77,16 +76,34 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         }
     }
 
+
     @Override
-    protected Key getKeyFromEdgeId(final EdgeId seed, final GraphFilters operation,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Boolean directed,
+                                   final GraphFilters operation) throws RangeFactoryException {
+        return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, operation, false), true,
+                getKeyFromEdgeId(sourceVal, destVal, directed, operation, true), true));
+    }
+
+    protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final Boolean directed,
+                                   final GraphFilters operation,
                                    final boolean endKey) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
 
-        final byte directionFlag1 = seed.isDirected()
-                ? inOutType == IncludeIncomingOutgoingType.INCOMING
-                ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
-                : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE
-                : ClassicBytePositions.UNDIRECTED_EDGE;
+        final byte directionFlag1;
+        if (null == directed) {
+            // Get directed and undirected edges
+            directionFlag1 = endKey
+                    ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
+                    : ClassicBytePositions.UNDIRECTED_EDGE;
+        } else if (directed) {
+            if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
+                directionFlag1 = ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE;
+            } else {
+                directionFlag1 = ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE;
+            }
+        } else {
+            directionFlag1 = ClassicBytePositions.UNDIRECTED_EDGE;
+        }
 
         final Serialisation vertexSerialiser = schema.getVertexSerialiser();
 
@@ -94,14 +111,14 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         // necessary
         byte[] source;
         try {
-            source = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
+            source = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(sourceVal));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
 
         byte[] destination;
         try {
-            destination = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getDestination()));
+            destination = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(destVal));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }

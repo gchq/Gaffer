@@ -69,7 +69,7 @@ public class LazyEdge extends Edge {
     @Override
     public boolean isDirected() {
         if (!loadedIdentifiers.contains(IdentifierType.DIRECTED)) {
-            return edge.isDirected();
+            return edge.getDirected();
         }
 
         return (boolean) lazyLoadIdentifier(IdentifierType.DIRECTED);

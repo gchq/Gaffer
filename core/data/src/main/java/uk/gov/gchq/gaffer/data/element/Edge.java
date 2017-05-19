@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -77,12 +78,26 @@ public class Edge extends Element implements EdgeId {
     }
 
     @Override
+    public Boolean getDirected() {
+        return isDirected();
+    }
+
+    @Override
     public boolean isDirected() {
         return directed;
     }
 
-    @Override
+    @JsonSetter("directed")
     public void setDirected(final boolean directed) {
+        this.directed = directed;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void setDirected(final Boolean directed) {
+        if (null == directed) {
+            this.directed = false;
+        }
         this.directed = directed;
     }
 
@@ -156,6 +171,7 @@ public class Edge extends Element implements EdgeId {
                 .isEquals()
                 || new EqualsBuilder()
                 .append(directed, false)
+                .append(edge.isDirected(), false)
                 .append(source, edge.getDestination())
                 .append(destination, edge.getSource())
                 .appendSuper(super.equals(edge))
@@ -169,7 +185,7 @@ public class Edge extends Element implements EdgeId {
                 this.getGroup(),
                 this.getSource(),
                 this.getDestination(),
-                this.isDirected()
+                this.getDirected()
         );
     }
 

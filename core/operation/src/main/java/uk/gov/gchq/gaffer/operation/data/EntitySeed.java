@@ -65,7 +65,7 @@ public class EntitySeed extends ElementSeed implements EntityId {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("vertex" + vertex)
+                .append("vertex", vertex)
                 .build();
     }
 }
