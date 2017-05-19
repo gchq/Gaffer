@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -633,12 +634,11 @@ public class GraphTest {
         try {
             new Graph.Builder()
                     .addSchema(new Schema.Builder()
-                            .type("intnoagg", new TypeDefinition.Builder()
-                                    .clazz(Integer.class)
-                                    .build())
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
+                                    // invalid serialiser
+                                    .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
                                     .clazz(String.class)
@@ -649,7 +649,6 @@ public class GraphTest {
                                     .source("string")
                                     .destination("string")
                                     .directed("boolean")
-                                    .property("p", "intnoagg")
                                     .build())
                             .entity("ENTITY", new SchemaEntityDefinition.Builder()
                                     .vertex("string")
