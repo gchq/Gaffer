@@ -376,6 +376,17 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         identifiers = Collections.unmodifiableMap(identifiers);
     }
 
+    @JsonIgnore
+    public boolean isAggregationEnabled() {
+        for (final String type : properties.values()) {
+            if (null == getTypeDef(type).getAggregateFunction()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
             CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
         protected ELEMENT_DEF elDef;

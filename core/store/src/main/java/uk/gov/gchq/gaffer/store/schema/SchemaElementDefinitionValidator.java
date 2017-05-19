@@ -25,8 +25,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * An <code>SchemaElementDefinitionValidator</code> validates a {@link SchemaElementDefinition}.
@@ -55,7 +53,6 @@ public class SchemaElementDefinitionValidator {
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
         result.add(validateComponentTypes(elementDef));
-        result.add(validateAggregator(aggregator, elementDef, requiresAggregators));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
 
@@ -126,50 +123,6 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
-        return result;
-    }
-
-    private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
-        final ValidationResult result = new ValidationResult();
-
-        if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
-            // if no properties then no aggregation is necessary
-            return result;
-        }
-
-        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
-            if (requiresAggregators) {
-                result.addError("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
-            }
-
-            // if aggregate functions are not defined then it is valid
-            return result;
-        }
-
-        // if aggregate functions are defined then check all properties are aggregated
-        final Set<String> aggregatedProperties = new HashSet<>();
-        if (aggregator.getComponents() != null) {
-            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
-                final String[] selection = adaptedFunction.getSelection();
-                if (selection != null) {
-                    for (final String key : selection) {
-                        final IdentifierType idType = IdentifierType.fromName(key);
-                        if (null == idType) {
-                            aggregatedProperties.add(key);
-                        }
-                    }
-                }
-            }
-        }
-
-        final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
-        propertyNamesTmp.removeAll(aggregatedProperties);
-        if (propertyNamesTmp.isEmpty()) {
-            return result;
-        }
-
-        result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
-                + "This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
         return result;
     }
 

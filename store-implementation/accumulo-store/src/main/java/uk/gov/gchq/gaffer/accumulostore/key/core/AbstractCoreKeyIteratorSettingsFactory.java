@@ -64,7 +64,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     public IteratorSetting getAggregatorIteratorSetting(final AccumuloStore store) throws IteratorSettingException {
         return new IteratorSettingBuilder(AccumuloStoreConstants.AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, AggregatorIterator.class)
-                .all()
+                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
@@ -78,7 +78,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
         return new IteratorSettingBuilder(AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.ROW_ID_AGGREGATOR_ITERATOR_NAME, RowIDAggregator.class)
-                .all()
+                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .columnFamily(columnFamily)
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
@@ -103,7 +103,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
         }
         return new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_NAME, CoreKeyGroupByAggregatorIterator.class)
-                .all()
+                .combinerColumnFamilies(store.getSchema().getAggregatedGroups())
                 .schema(store.getSchema())
                 .view(view)
                 .keyConverter(store.getKeyPackage().getKeyConverter())

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
@@ -32,9 +33,11 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -116,6 +119,31 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         return schemaContainsAggregators;
+    }
+
+    @JsonIgnore
+    public List<String> getAggregatedGroups() {
+        final List<String> groups = new ArrayList<>();
+
+        for (final Entry<String, ? extends SchemaElementDefinition> entry : getElementDefinitions()) {
+            if (null != entry.getValue() && entry.getValue().isAggregationEnabled()) {
+                groups.add(entry.getKey());
+            }
+        }
+
+        return groups;
+    }
+
+    private Iterable<Map.Entry<String, ? extends SchemaElementDefinition>> getElementDefinitions() {
+        if (null == getEntities()) {
+            return (Iterable) getEdges().entrySet();
+        }
+
+        if (null == getEdges()) {
+            return (Iterable) getEntities().entrySet();
+        }
+
+        return new ChainedIterable<>(getEntities().entrySet(), getEdges().entrySet());
     }
 
     /**

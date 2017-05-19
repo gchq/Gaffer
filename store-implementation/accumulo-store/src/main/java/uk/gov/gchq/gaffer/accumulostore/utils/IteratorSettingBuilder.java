@@ -16,9 +16,11 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.Combiner;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
@@ -33,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public class IteratorSettingBuilder {
     private final IteratorSetting setting;
@@ -62,6 +65,11 @@ public class IteratorSettingBuilder {
 
     public IteratorSettingBuilder columnFamily(final String columnFamily) {
         setting.addOption(AccumuloStoreConstants.COLUMN_FAMILY, columnFamily);
+        return this;
+    }
+
+    public IteratorSettingBuilder combinerColumnFamilies(final List<String> columnFamilies) {
+        Combiner.setColumns(setting, Lists.transform(columnFamilies, IteratorSetting.Column::new));
         return this;
     }
 

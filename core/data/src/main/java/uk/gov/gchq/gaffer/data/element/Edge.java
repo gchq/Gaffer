@@ -186,7 +186,7 @@ public class Edge extends Element implements EdgeId {
                 this.getGroup(),
                 this.getSource(),
                 this.getDestination(),
-                this.getDirected()
+                this.isDirected()
         );
     }
 
