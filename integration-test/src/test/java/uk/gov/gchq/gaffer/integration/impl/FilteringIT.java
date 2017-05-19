@@ -31,11 +31,9 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
@@ -194,21 +192,11 @@ public class FilteringIT extends AbstractStoreIT {
 
         // When - without filtering
         final List<Element> resultsWithoutFiltering = Lists.newArrayList(
-                graph.execute(new OperationChain.Builder()
-                        .first(getElementsWithoutFiltering)
-                        .then(new Sort.Builder()
-                                .comparators(getJsonSort())
-                                .build())
-                        .build(), getUser()));
+                graph.execute(getElementsWithoutFiltering, getUser()));
 
         // When - with filtering
         final List<Element> resultsWithFiltering = Lists.newArrayList(
-                graph.execute(new OperationChain.Builder()
-                        .first(getElementsWithFiltering)
-                        .then(new Sort.Builder()
-                                .comparators(getJsonSort())
-                                .build())
-                        .build(), getUser()));
+                graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
         List<Element> expectedResults = Arrays.asList(
@@ -228,6 +216,7 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("B5")
         );
         expectedResults.sort(getJsonSort());
+        resultsWithoutFiltering.sort(getJsonSort());
         assertEquals(expectedResults, resultsWithoutFiltering);
 
         // Then - with filtering
@@ -244,6 +233,7 @@ public class FilteringIT extends AbstractStoreIT {
                 getEntity("A5")
         );
         expectedFilteredResults.sort(getJsonSort());
+        resultsWithFiltering.sort(getJsonSort());
         assertEquals(expectedFilteredResults, resultsWithFiltering);
     }
 
