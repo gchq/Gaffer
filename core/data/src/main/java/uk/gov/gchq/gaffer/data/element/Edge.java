@@ -97,8 +97,9 @@ public class Edge extends Element implements EdgeId {
     public void setDirected(final Boolean directed) {
         if (null == directed) {
             this.directed = false;
+        } else {
+            this.directed = directed;
         }
-        this.directed = directed;
     }
 
     @Override
