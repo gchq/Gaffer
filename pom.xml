@@ -33,7 +33,6 @@
         <module>integration-test</module>
         <module>store-implementation</module>
         <module>rest-api</module>
-        <module>ui</module>
         <module>example</module>
         <module>doc</module>
     </modules>
