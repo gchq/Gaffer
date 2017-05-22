@@ -195,7 +195,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(1, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertEquals(new String[]{"property"},
+        assertArrayEquals(new String[]{"property"},
                 aggregator.getComponents().get(0).getSelection());
     }
 

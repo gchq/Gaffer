@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.spark.operation.dataframe;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.And;
 import org.apache.spark.sql.sources.EqualTo;
 import org.apache.spark.sql.sources.Filter;
@@ -472,6 +473,9 @@ public class FilterToOperationConverterTest {
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
-        return new SQLContext(new SparkContext(sparkConf));
+        return SparkSession.builder()
+                           .sparkContext(new SparkContext(sparkConf))
+                           .getOrCreate()
+                           .sqlContext();
     }
 }

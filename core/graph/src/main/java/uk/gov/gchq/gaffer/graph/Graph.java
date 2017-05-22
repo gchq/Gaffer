@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.graph;
 
 
+import org.apache.commons.io.IOUtils;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -386,7 +388,7 @@ public final class Graph {
 
         public Builder addSchema(final InputStream schemaStream) {
             try {
-                return addSchema(sun.misc.IOUtils.readFully(schemaStream, schemaStream.available(), true));
+                return addSchema(IOUtils.toByteArray(schemaStream, schemaStream.available()));
             } catch (final IOException e) {
                 throw new SchemaException("Unable to read schema from input stream", e);
             } finally {
@@ -416,10 +418,12 @@ public final class Graph {
 
         public Builder addSchema(final Path schemaPath) {
             try {
-                if (Files.isDirectory(schemaPath)) {
-                    for (final Path path : Files.newDirectoryStream(schemaPath)) {
+                if (schemaPath.toFile().isDirectory()) {
+                    final DirectoryStream<Path> directoryStream = Files.newDirectoryStream(schemaPath);
+                    for (final Path path : directoryStream) {
                         addSchema(path);
                     }
+                    directoryStream.close();
                 } else {
                     addSchema(Files.readAllBytes(schemaPath));
                 }

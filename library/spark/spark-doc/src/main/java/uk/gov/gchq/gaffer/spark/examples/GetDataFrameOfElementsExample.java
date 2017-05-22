@@ -22,6 +22,7 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.doc.operation.OperationExample;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -56,7 +57,10 @@ public class GetDataFrameOfElementsExample extends OperationExample {
                 .set("spark.driver.allowMultipleContexts", "true");
         final SparkContext sc = new SparkContext(sparkConf);
         sc.setLogLevel("OFF");
-        final SQLContext sqlc = new SQLContext(sc);
+        final SQLContext sqlc = SparkSession.builder()
+                                            .sparkContext(sc)
+                                            .getOrCreate()
+                                            .sqlContext();
         final Graph graph = getGraph();
         try {
             getDataFrameOfElementsWithEntityGroup(sqlc, graph);

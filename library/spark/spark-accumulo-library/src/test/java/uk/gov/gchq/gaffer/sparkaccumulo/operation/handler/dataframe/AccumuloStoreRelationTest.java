@@ -20,6 +20,7 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.sources.Filter;
 import org.apache.spark.sql.sources.GreaterThan;
 import org.junit.Test;
@@ -256,7 +257,10 @@ public class AccumuloStoreRelationTest {
                 .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                 .set("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                 .set("spark.driver.allowMultipleContexts", "true");
-        return new SQLContext(new SparkContext(sparkConf));
+        return SparkSession.builder()
+                           .sparkContext(new SparkContext(sparkConf))
+                           .getOrCreate()
+                           .sqlContext();
     }
 
     private static List<Element> getElements() {

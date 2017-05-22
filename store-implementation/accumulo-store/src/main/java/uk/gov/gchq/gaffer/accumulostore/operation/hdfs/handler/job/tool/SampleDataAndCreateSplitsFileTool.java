@@ -23,9 +23,11 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.SequenceFile.Reader;
 import org.apache.hadoop.mapred.Task;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.TaskCounter;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+
+import static org.apache.hadoop.io.SequenceFile.*;
 
 
 public class SampleDataAndCreateSplitsFileTool extends Configured implements Tool {
@@ -87,11 +91,11 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         // versions of Hadoop.
         Counter counter;
         try {
-            counter = job.getCounters().findCounter(Task.Counter.REDUCE_OUTPUT_RECORDS);
+            counter = job.getCounters().findCounter(TaskCounter.REDUCE_OUTPUT_RECORDS);
             LOGGER.info("Number of records output = {}", counter);
         } catch (final IOException e) {
             LOGGER.error("Failed to get counter org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
-            throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
+            throw new OperationException("Failed to get counter: " + TaskCounter.REDUCE_OUTPUT_RECORDS, e);
         }
 
         int numberTabletServers;
@@ -121,7 +125,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         final Value value = new Value();
         long count = 0;
         int numberSplitPointsOutput = 0;
-        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
+        try (final Reader reader = new Reader(conf, Reader.file(resultsFile.makeQualified(fs.getUri(), fs.getWorkingDirectory())));
              final PrintStream splitsWriter = new PrintStream(
                      new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)),
                      false, CommonConstants.UTF_8)
@@ -148,6 +152,12 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         } catch (final IOException e) {
             LOGGER.error("Failed to delete the results file {}", resultsFile);
             throw new OperationException("Failed to delete the results file: " + e.getMessage(), e);
+        } finally {
+            try {
+                fs.close();
+            } catch (final IOException e) {
+                LOGGER.warn("Failed to close the filesystem {}", fs);
+            }
         }
 
         return SUCCESS_RESPONSE;
