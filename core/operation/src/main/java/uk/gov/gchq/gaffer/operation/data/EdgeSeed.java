@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -30,12 +29,16 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     private static final long serialVersionUID = -8137886975649690000L;
     private Object source;
     private Object destination;
-    private boolean directed;
+    private Boolean directed;
 
     public EdgeSeed() {
     }
 
-    public EdgeSeed(final Object source, final Object destination, final boolean directed) {
+    public EdgeSeed(final Object source, final Object destination) {
+        this(source, destination, null);
+    }
+
+    public EdgeSeed(final Object source, final Object destination, final Boolean directed) {
         this.source = source;
         this.destination = destination;
         this.directed = directed;
@@ -62,12 +65,17 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     @Override
-    public boolean isDirected() {
+    public Boolean getDirected() {
         return directed;
     }
 
     @Override
-    public void setDirected(final boolean directed) {
+    public boolean isDirected() {
+        return null != directed && directed;
+    }
+
+    @Override
+    public void setDirected(final Boolean directed) {
         this.directed = directed;
     }
 
@@ -75,28 +83,13 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     public boolean equals(final Object obj) {
         return null != obj
                 && (obj instanceof EdgeSeed)
-                && equals((EdgeSeed) obj);
-    }
-
-    private boolean equals(final EdgeSeed that) {
-        return null != that
-                && (new EqualsBuilder()
-                .append(directed, that.isDirected())
-                .append(source, that.getSource())
-                .append(destination, that.getDestination())
-                .isEquals()
-                || new EqualsBuilder()
-                .append(directed, false)
-                .append(source, that.getDestination())
-                .append(destination, that.getSource())
-                .isEquals()
-        );
+                && isEqual((EdgeSeed) obj);
     }
 
     @Override
     public int hashCode() {
         int hash;
-        if (directed) {
+        if (null != directed && directed) {
             hash = new HashCodeBuilder(21, 3)
                     .append(source)
                     .append(destination)

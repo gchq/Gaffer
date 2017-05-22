@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.hbasestore.retriever;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.BooleanUtils;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -60,20 +61,41 @@ public class RowRangeFactory {
             final List<RowRange> ranges = new ArrayList<>();
             if (operation.getView().hasEdges()
                     && (null == operation.getDirectedType()
-                    || DirectedType.BOTH == operation.getDirectedType()
-                    || (DirectedType.DIRECTED == operation.getDirectedType() && edgeId.isDirected())
-                    || (DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeId.isDirected()))) {
+                    || GraphFilters.DirectedType.BOTH == operation.getDirectedType()
+                    || (GraphFilters.DirectedType.DIRECTED == operation.getDirectedType() && BooleanUtils.isNotFalse(edgeId.getDirected()))
+                    || (GraphFilters.DirectedType.UNDIRECTED == operation.getDirectedType() && BooleanUtils.isNotTrue(edgeId.getDirected())))) {
                 // Get Edges with the given EdgeSeed - This is applicable for
                 // EQUALS and RELATED seed matching.
-                ranges.add(new RowRange(
-                        getEdgeRowId(edgeId, false), true,
-                        getEdgeRowId(edgeId, true), true
-                ));
+                final Boolean directed;
+                if (null == operation.getDirectedType() || GraphFilters.DirectedType.BOTH == operation.getDirectedType()) {
+                    directed = edgeId.getDirected();
+                } else if (null == edgeId.getDirected()) {
+                    directed = GraphFilters.DirectedType.DIRECTED == operation.getDirectedType();
+                } else {
+                    directed = edgeId.getDirected();
+                }
+                // If directed is null then this means search for directed or undirected edges
+                // To do that we need to create 2 ranges
+                if (null == directed) {
+                    ranges.add(new RowRange(
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, false), true,
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, true), true)
+                    );
+                    ranges.add(new RowRange(
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), true, false), true,
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), true, true), true)
+                    );
+                } else {
+                    ranges.add(new RowRange(
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed, false), true,
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed, true), true)
+                    );
+                }
             }
 
             // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
             final boolean doRelated = !(operation instanceof SeedMatching)
-                    || !SeedMatching.SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
+                    || !SeedMatchingType.EQUAL.equals(((SeedMatching) operation).getSeedMatching());
             if (doRelated && operation.getView().hasEntities()) {
                 // Get Entities related to EdgeIds
                 ranges.addAll(getRowRange(edgeId.getSource(), operation, false));
@@ -203,11 +225,11 @@ public class RowRangeFactory {
         return key;
     }
 
-    private byte[] getEdgeRowId(final EdgeId edgeId, final boolean endKey) throws SerialisationException {
-        final byte directionFlag1 = edgeId.isDirected() ? HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE
+    private byte[] getEdgeRowId(final Object source, final Object destination, final boolean directed, final boolean endKey) throws SerialisationException {
+        final byte directionFlag1 = directed ? HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE
                 : HBaseStoreConstants.UNDIRECTED_EDGE;
-        byte[] sourceValue = serialiser.serialiseVertex(edgeId.getSource());
-        byte[] destinationValue = serialiser.serialiseVertex(edgeId.getDestination());
+        byte[] sourceValue = serialiser.serialiseVertex(source);
+        byte[] destinationValue = serialiser.serialiseVertex(destination);
         int length;
         byte[] key;
         if (endKey) {
