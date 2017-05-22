@@ -69,7 +69,7 @@ public interface EntityId extends ElementId {
         boolean matchesDestination = (getVertex() == null) ? that.getDestination() == null : getVertex().equals(that.getDestination());
         if (matchesSource) {
             if (matchesDestination) {
-                return Matches.ANY;
+                return Matches.BOTH;
             }
             return Matches.SOURCE;
         }

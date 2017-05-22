@@ -42,7 +42,7 @@ public interface ElementId extends Serializable {
     }
 
     enum Matches {
-        ANY,
+        BOTH,
         VERTEX,
         SOURCE,
         DESTINATION,
@@ -53,11 +53,11 @@ public interface ElementId extends Serializable {
         }
 
         public boolean isSource() {
-            return this == ANY || this == SOURCE;
+            return this == BOTH || this == SOURCE;
         }
 
         public boolean isDestination() {
-            return this == ANY || this == DESTINATION;
+            return this == BOTH || this == DESTINATION;
         }
 
         public boolean isMatch() {

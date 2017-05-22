@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -33,7 +34,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -844,7 +844,7 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When directedType is ANY
+        // When directedType is EITHER
         GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
                 .directedType(DirectedType.EITHER)
@@ -956,7 +956,7 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When inOutType is ANY
+        // When inOutType is EITHER
         GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
                 .inOutType(IncludeIncomingOutgoingType.EITHER)

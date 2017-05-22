@@ -35,7 +35,7 @@ public interface EdgeId extends ElementId {
     DirectedType getDirectedType();
 
     /**
-     * @return true if directed is DIRECTED, ANY or null. Otherwise false.
+     * @return true if directed is DIRECTED, EITHER or null. Otherwise false.
      */
     @JsonIgnore
     default boolean isDirected() {
@@ -43,7 +43,7 @@ public interface EdgeId extends ElementId {
     }
 
     /**
-     * @return true if directed is UNDIRECTED, ANY or null. Otherwise false.
+     * @return true if directed is UNDIRECTED, EITHER or null. Otherwise false.
      */
     @JsonIgnore
     default boolean isUndirected() {
@@ -93,7 +93,7 @@ public interface EdgeId extends ElementId {
     default Matches isRelated(final ElementId that) {
         if (that instanceof EdgeId) {
             if (isEqual(that)) {
-                return Matches.ANY;
+                return Matches.BOTH;
             }
 
             return Matches.NONE;
@@ -115,7 +115,7 @@ public interface EdgeId extends ElementId {
         boolean matchesDestination = (getDestination() == null) ? that.getVertex() == null : getDestination().equals(that.getVertex());
         if (matchesSource) {
             if (matchesDestination) {
-                return Matches.ANY;
+                return Matches.BOTH;
             }
             return Matches.SOURCE;
         }
