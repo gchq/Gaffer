@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -78,24 +79,24 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
 
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation) throws RangeFactoryException {
         return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, operation, false), true,
                 getKeyFromEdgeId(sourceVal, destVal, directed, operation, true), true));
     }
 
-    protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation,
                                    final boolean endKey) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
 
         final byte directionFlag1;
-        if (null == directed) {
+        if (DirectedType.isBoth(directed)) {
             // Get directed and undirected edges
             directionFlag1 = endKey
                     ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
                     : ClassicBytePositions.UNDIRECTED_EDGE;
-        } else if (directed) {
+        } else if (directed.isDirected()) {
             if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                 directionFlag1 = ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE;
             } else {

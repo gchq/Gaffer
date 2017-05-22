@@ -17,9 +17,9 @@
 package uk.gov.gchq.gaffer.hbasestore.retriever;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.BooleanUtils;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -59,24 +58,14 @@ public class RowRangeFactory {
         } else {
             final EdgeId edgeId = (EdgeId) elementId;
             final List<RowRange> ranges = new ArrayList<>();
-            if (operation.getView().hasEdges()
-                    && (null == operation.getDirectedType()
-                    || GraphFilters.DirectedType.BOTH == operation.getDirectedType()
-                    || (GraphFilters.DirectedType.DIRECTED == operation.getDirectedType() && BooleanUtils.isNotFalse(edgeId.getDirected()))
-                    || (GraphFilters.DirectedType.UNDIRECTED == operation.getDirectedType() && BooleanUtils.isNotTrue(edgeId.getDirected())))) {
+            if (operation.getView().hasEdges() && DirectedType.areCompatible(operation.getDirectedType(), edgeId.getDirectedType())) {
                 // Get Edges with the given EdgeSeed - This is applicable for
                 // EQUALS and RELATED seed matching.
-                final Boolean directed;
-                if (null == operation.getDirectedType() || GraphFilters.DirectedType.BOTH == operation.getDirectedType()) {
-                    directed = edgeId.getDirected();
-                } else if (null == edgeId.getDirected()) {
-                    directed = GraphFilters.DirectedType.DIRECTED == operation.getDirectedType();
-                } else {
-                    directed = edgeId.getDirected();
-                }
+                final DirectedType directed = DirectedType.and(operation.getDirectedType(), edgeId.getDirectedType());
+
                 // If directed is null then this means search for directed or undirected edges
                 // To do that we need to create 2 ranges
-                if (null == directed) {
+                if (DirectedType.isBoth(directed)) {
                     ranges.add(new RowRange(
                             getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, false), true,
                             getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, true), true)
@@ -87,8 +76,8 @@ public class RowRangeFactory {
                     );
                 } else {
                     ranges.add(new RowRange(
-                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed, false), true,
-                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed, true), true)
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed.isDirected(), false), true,
+                            getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), directed.isDirected(), true), true)
                     );
                 }
             }

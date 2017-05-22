@@ -20,13 +20,13 @@ import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
@@ -55,7 +55,7 @@ public class GetAdjacentIdsHandlerTest {
                 .input(ids)
                 .option("option1", "optionValue")
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
-                .directedType(GraphFilters.DirectedType.DIRECTED)
+                .directedType(DirectedType.DIRECTED)
                 .view(new View())
                 .build();
 

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
-import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
@@ -46,11 +46,10 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation) throws RangeFactoryException {
-        // If directed is null then this means search for directed or undirected edges
-        // To do that we need to create 2 ranges
-        if (null == directed) {
+        // To do BOTH we need to create 2 ranges
+        if (DirectedType.isBoth(directed)) {
             return Arrays.asList(
                     new Range(getKeyFromEdgeId(sourceVal, destVal, false, false), true,
                             getKeyFromEdgeId(sourceVal, destVal, false, true), true),
@@ -60,8 +59,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
 
         return Collections.singletonList(
-                new Range(getKeyFromEdgeId(sourceVal, destVal, directed, false), true,
-                        getKeyFromEdgeId(sourceVal, destVal, directed, true), true)
+                new Range(getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), false), true,
+                        getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), true), true)
         );
     }
 

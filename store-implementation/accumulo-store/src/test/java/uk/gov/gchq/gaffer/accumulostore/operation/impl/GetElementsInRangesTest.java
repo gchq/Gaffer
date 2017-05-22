@@ -4,12 +4,12 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,13 +55,13 @@ public class GetElementsInRangesTest implements OperationTest {
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
                 .input(seed)
-                .directedType(GraphFilters.DirectedType.UNDIRECTED)
+                .directedType(DirectedType.UNDIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .build();
         assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
-        assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
+        assertEquals(DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());
     }
