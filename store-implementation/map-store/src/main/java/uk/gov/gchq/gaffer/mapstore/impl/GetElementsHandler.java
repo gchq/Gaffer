@@ -136,8 +136,7 @@ public class GetElementsHandler
                         && ((Edge) e).isDirected()
                         && ((Edge) e).getSource().equals(((EntityId) elementId).getVertex())
                         && !((Edge) e).getDestination().equals(((EntityId) elementId).getVertex()));
-            }
-            if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.OUTGOING) {
+            } else if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.OUTGOING) {
                 relevantElements.removeIf(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
                         && ((Edge) e).getDestination().equals(((EntityId) elementId).getVertex())

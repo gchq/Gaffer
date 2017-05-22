@@ -34,6 +34,8 @@ public interface EdgeId extends ElementId {
 
     DirectedType getDirectedType();
 
+    void setDirectedType(final DirectedType directed);
+
     /**
      * @return true if directed is DIRECTED, EITHER or null. Otherwise false.
      */
@@ -49,8 +51,6 @@ public interface EdgeId extends ElementId {
     default boolean isUndirected() {
         return DirectedType.DIRECTED != getDirectedType();
     }
-
-    void setDirectedType(final DirectedType directed);
 
     default void setDirected(final boolean directed) {
         if (directed) {
