@@ -42,7 +42,7 @@ Splitting the schema up into these 3 files helps to illustrate the different rol
 
 ##### The DataSchema
 
-The DataSchema is a json document that describes the Elements (Edges and Entities) in the Graph. We will start by using this very basic schema:
+The DataSchema is a JSON document that describes the Elements (Edges and Entities) in the Graph. We will start by using this very basic schema:
 
 ${DATA_SCHEMA_JSON}
 
@@ -55,7 +55,7 @@ These types are defined in the DataType file.
 
 ##### The DataTypes
 
-The DataTypes is a json document that describes the types of objects used by Elements
+The DataTypes is a JSON document that describes the types of objects used by Elements
 
 ${DATA_TYPES_JSON}
 

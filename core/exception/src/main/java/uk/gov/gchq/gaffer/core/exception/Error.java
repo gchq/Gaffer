@@ -104,13 +104,13 @@ public final class Error {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ErrorBuilder {
         private static final Logger LOGGER = LoggerFactory.getLogger(ErrorBuilder.class);
-        private static Boolean isDebug;
+        private static boolean isDebug = checkDebugMode();
         private int statusCode;
         private Status status;
         private String simpleMessage;
         private String detailMessage;
 
-        static {
+        private static boolean checkDebugMode() {
             try {
                 isDebug = Boolean.valueOf(System.getProperty(DEBUG, DEBUG_DEFAULT).trim());
                 if (isDebug) {
@@ -120,6 +120,12 @@ public final class Error {
                 LOGGER.error("Defaulting Debug flag. Could not assign from System Properties: {}", e.getMessage());
                 isDebug = Boolean.valueOf(DEBUG_DEFAULT);
             }
+
+            return isDebug;
+        }
+
+        public static void updateDebugMode() {
+            isDebug = checkDebugMode();
         }
 
         public ErrorBuilder() {
