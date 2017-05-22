@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialisation;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
@@ -125,7 +126,7 @@ public class SchemaTest {
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
-        final List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getComponents();
+        List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getComponents();
         int index = 0;
 
         TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
@@ -187,6 +188,26 @@ public class SchemaTest {
         assertEquals(String.class, type.getClazz());
         assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
+        validator = entityDefinition.getValidator();
+        valContexts = validator.getComponents();
+        index = 0;
+        tuplePredicate = valContexts.get(index++);
+
+        assertTrue(tuplePredicate.getPredicate() instanceof IsXMoreThanY);
+        assertEquals(2, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
+        assertEquals(TestPropertyNames.VISIBILITY, tuplePredicate.getSelection()[1]);
+
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.VERTEX.name(), tuplePredicate.getSelection()[0]);
+
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
+
 
         final ElementAggregator aggregator = edgeDefinition.getAggregator();
         final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
