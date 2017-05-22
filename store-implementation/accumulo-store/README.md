@@ -532,7 +532,7 @@ mvn verify
 
 ## Accumulo 1.8.0 Support
 
-Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven repository of any Gaffer artefacts and compile Gaffer with the Accumulo-1.8 profile:
+Gaffer can be compiled with support for Accumulo 1.8.0. Clear your Maven repository of any Gaffer artifacts and compile Gaffer with the Accumulo-1.8 profile:
 
 ```
 mvn clean install -Paccumulo-1.8

@@ -85,6 +85,9 @@
                                 <roadTraffic.dataLoader.dataPath>
                                     ${project.build.outputDirectory}/roadTrafficSampleData.csv
                                 </roadTraffic.dataLoader.dataPath>
+                                <gaffer.error-mode.debug>
+                                    false
+                                </gaffer.error-mode.debug>
                             </systemProperties>
                         </configuration>
                         <dependencies>
