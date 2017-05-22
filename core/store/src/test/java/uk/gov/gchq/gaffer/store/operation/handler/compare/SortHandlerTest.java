@@ -96,11 +96,11 @@ public class SortHandlerTest {
         final Sort sort = new Sort.Builder()
                 .input(input)
                 .comparators(new ElementPropertyComparator.Builder()
-                                .groups(TestGroups.ENTITY)
-                                .property("property")
-                                .comparator(new PropertyComparatorImpl())
-                                .reverse(true)
-                                .build()
+                        .groups(TestGroups.ENTITY)
+                        .property("property")
+                        .comparator(new PropertyComparatorImpl())
+                        .reverse(true)
+                        .build()
                 )
                 .build();
 
@@ -334,7 +334,10 @@ public class SortHandlerTest {
         // Given
         final int streamSize = 10000;
 
-        final Stream<Element> stream = new Random().ints(streamSize)
+        final Stream<Element> stream = new Random()
+                .ints(streamSize * 2) // generate a few extra in case there are duplicates
+                .distinct()
+                .limit(streamSize)
                 .mapToObj(i -> new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .property("property", i)
