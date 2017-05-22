@@ -16,33 +16,40 @@ limitations under the License.
 Graph
 ============
 
-This module contains the Graph. The entry point or proxy for you chosen Gaffer Store.
+This module contains the Gaffer `Graph` object and related utilities. This
+is the entry point (or proxy) for your chosen Gaffer store.
 
-The Graph separates the user from the underlying store. It holds a connection to the acts as a proxy, delegating Operations to the store.
-It provides users with a single point of entry for executing operations on a store. 
-This allows the underlying store to be swapped and the same operations can still be applied.
+The `Graph` separates the user from the underlying store. It holds a connection
+which acts as a proxy, delegating operations to the store.
+It provides users with a single point of entry for executing operations
+on a store. This allows the underlying store to be swapped and the same
+operations can still be applied.
 
 ## Instantiating a Graph 
-When you instantiate a Graph, this doesn't mean you are creating an entirely new
-Graph, you are simply setting up a connection to your Store where you data is held.
+When you instantiate a `Graph`, this doesn't mean you are creating an entirely
+new graph with its own data, you are simply creating a connection to a store
+where some data is held.
 
-To create an instance of Graph, we recommend you use the Graph Builder. This has
-several helpful methods to create the Graph from various different sources. But,
-essentially a Graph requires just 2 things: some store properties and a schema.
+To create an instance of `Graph`, we recommend you use the `Graph.Builder`
+class. This has several helpful methods to create the graph from various
+different sources. But, essentially a graph requires just 2 things: some
+store properties and a valid schema.
 
-The store properties tell the Graph the type of Store to connect to and the
-connection details for how to do that.
+The store properties tells the graph the type of store to connect to
+along with any required connection details.
 
-The Schema is passed to the Store to instruct the Store how to store and and process the data.
+The schema is passed to the store to instruct the store how to store
+and process the data.
  
 
 ## Graph Hooks
-The Graph class is final. We want to ensure that all users have a common point of entry
-to Gaffer, so all users have to start by instantiating a Graph. Initially this seems
-quite limiting, but to allow custom logic for different types of Graphs we have
-added Graph Hooks. These Graph Hooks allow custom code to be run before and after
-an Operation Chain is executed.
+The `Graph` class is final and must be used when creating a new connection
+to a store. We want to ensure that all users have a common point of entry
+to Gaffer, so all users have to start by instantiating a `Graph`. Initially
+this seems quite limiting, but to allow custom logic for different types
+of graphs we have added graph hooks. These graph hooks allow custom code
+to be run before and after an operation chain is executed.
 
-So you can use hooks to do things like custom logging or special operation chain
-authorisation. To implement your own hook, just implement the GraphHook interface and
-add register it with the Graph when you build a Graph instance.
+You can use hooks to do things like custom logging or special operation
+chain authorisation. To implement your own hook, just implement the `GraphHook`
+interface and register it with the graph when you build a `Graph` instance.

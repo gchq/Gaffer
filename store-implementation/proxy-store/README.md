@@ -16,11 +16,11 @@ limitations under the License.
 Proxy Store
 ============
 
-As the name suggests this Store implemention is simply a proxy that delegates all
+The `ProxyStore` implementation is simply a Gaffer store which delegates all
 operations to a Gaffer REST API.
 
-To create a Proxy Store you just need to provide a host, port and context root.
-This can be done via the ProxyStore Builder:
+To create a `ProxyStore` you just need to provide a host, port and context
+root. This can be done via the `ProxyStore.Builder`:
 
 ```java
 Graph graph = new Graph.Builder()
@@ -32,8 +32,8 @@ Graph graph = new Graph.Builder()
     .build();
 ```
 
-You can then write your queries in Java and the ProxyStore will convert them into
-JSON and execute them over the REST API.
+You can then write your queries in Java and the `ProxyStore` will convert
+them into JSON and execute them over the REST API.
 
 These are the full set of configurable properties:
 

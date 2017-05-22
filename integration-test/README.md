@@ -17,8 +17,9 @@ Integration Tests
 
 This module contains Gaffer's Integration Test suite for testing Store implementations.
 
-Please note that this is not a representative example of how to use the Gaffer framework.
-For an example of how the Gaffer framework can be used, please see the example road-traffic project with the following GAV coordinates:
+Please note that this is not a representative example of how to use the
+Gaffer framework. For an example of how the Gaffer framework can be used,
+please see the example road-traffic project with the following GAV coordinates:
 
 ```
 groupId - gaffer

@@ -16,12 +16,13 @@ limitations under the License.
 Serialisation
 =============
 
-A simple module containing the logic for converting an Object into serialised 
-objects (normally a byte[]).
+A simple module containing the logic for converting an Object into serialised
+objects (normally a byte array).
 
 The main interface is Serialisation. We have provided a small set of serialisers
-for commonly used objects. The serialisers we have provided aim to optimise speed
-and size.
+for commonly used objects. The serialisers we have been designed to optimise
+speed and size.
 
-Choose your serialiser's wisely as once your data is persisted using a chosen
-serialiser, there is no easy way of migrating your date into a different format.
+It is important to choose your serialisers wisely as once your data is persisted
+using a chosen serialiser, there is no easy way of migrating your data into
+a different format.

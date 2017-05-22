@@ -16,6 +16,7 @@ limitations under the License.
 Data
 ======
 
-This module contains the Gaffer's data objects, Elements: Edge and Entity.
+This module contains Gaffer's data objects: `Element`, `Edge` and `Entity`.
 
-It also contains the logic for processing these Elements - ElementAggregator, ElementFilter and ElementTransformer.
+It also contains the logic for processing these `Element`s - `ElementAggregator`,
+`ElementFilter` and `ElementTransformer`.
