@@ -48,8 +48,8 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
         if (includeEdges
-                && DirectedType.isBoth(directedType)
-                && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
+                && DirectedType.isEither(directedType)
+                && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 && includeEntities && !deduplicateUndirectedEdges) {
             return null;
         }

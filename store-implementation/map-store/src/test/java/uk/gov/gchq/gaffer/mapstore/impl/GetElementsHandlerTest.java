@@ -844,10 +844,10 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When directedType is BOTH
+        // When directedType is ANY
         GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
         CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 
@@ -956,10 +956,10 @@ public class GetElementsHandlerTest {
                 .build();
         graph.execute(addElements, new User());
 
-        // When inOutType is BOTH
+        // When inOutType is ANY
         GetElements getElements = new GetElements.Builder()
                 .input(new EntitySeed("A"), new EntitySeed("X"))
-                .inOutType(IncludeIncomingOutgoingType.BOTH)
+                .inOutType(IncludeIncomingOutgoingType.EITHER)
                 .build();
         CloseableIterable<? extends Element> results = graph.execute(getElements, new User());
 

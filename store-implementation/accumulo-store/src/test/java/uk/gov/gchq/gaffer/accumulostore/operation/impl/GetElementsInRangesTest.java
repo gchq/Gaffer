@@ -53,14 +53,14 @@ public class GetElementsInRangesTest implements OperationTest {
     public void builderShouldCreatePopulatedOperation() {
         final Pair<ElementId, ElementId> seed = new Pair<>(AccumuloTestData.SEED_A, AccumuloTestData.SEED_B);
         final GetElementsInRanges getElementsInRanges = new GetElementsInRanges.Builder()
-                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 .input(seed)
                 .directedType(DirectedType.UNDIRECTED)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder().edge("testEdgeGroup").build())
                 .build();
         assertEquals("true", getElementsInRanges.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH, getElementsInRanges.getIncludeIncomingOutGoing());
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER, getElementsInRanges.getIncludeIncomingOutGoing());
         assertEquals(DirectedType.UNDIRECTED, getElementsInRanges.getDirectedType());
         assertEquals(seed, getElementsInRanges.getInput().iterator().next());
         assertNotNull(getElementsInRanges.getView());

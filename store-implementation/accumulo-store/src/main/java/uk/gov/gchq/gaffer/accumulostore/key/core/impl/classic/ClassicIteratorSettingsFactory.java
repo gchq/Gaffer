@@ -44,9 +44,9 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.BOTH)
+        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.EITHER)
                 && includeEdges
-                && (DirectedType.isBoth(directedType))
+                && (DirectedType.isEither(directedType))
                 && !deduplicateUndirectedEdges) {
             return null;
         }

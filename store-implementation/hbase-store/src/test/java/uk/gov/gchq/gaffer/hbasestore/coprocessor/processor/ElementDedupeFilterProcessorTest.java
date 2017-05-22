@@ -66,7 +66,7 @@ public class ElementDedupeFilterProcessorTest {
     @Test
     public void shouldOnlyAcceptEdges() throws OperationException, SerialisationException {
         // Given
-        final ElementDedupeFilterProcessor processor = new ElementDedupeFilterProcessor(false, true, DirectedType.BOTH);
+        final ElementDedupeFilterProcessor processor = new ElementDedupeFilterProcessor(false, true, DirectedType.EITHER);
 
         // When / Then
         for (final Element element : ELEMENTS) {

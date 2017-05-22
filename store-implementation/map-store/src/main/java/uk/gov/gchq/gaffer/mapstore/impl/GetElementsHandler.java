@@ -130,7 +130,7 @@ public class GetElementsHandler
                 return Collections.emptySet();
             }
             // Apply inOutType options
-            // If option is BOTH then nothing to do
+            // If option is EITHER then nothing to do
             if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING) {
                 relevantElements.removeIf(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
@@ -152,7 +152,7 @@ public class GetElementsHandler
         } else {
             final EdgeId edgeId = (EdgeSeed) elementId;
             final Set<Element> relevantElements = new HashSet<>();
-            if (DirectedType.isBoth(edgeId.getDirectedType())) {
+            if (DirectedType.isEither(edgeId.getDirectedType())) {
                 final Set<Element> elements = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false));
                 if (elements != null) {
                     relevantElements.addAll(elements);
@@ -205,7 +205,7 @@ public class GetElementsHandler
         Stream<Element> elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
         if (!includeEdges) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> !(e instanceof Edge));
-        } else if (DirectedType.isBoth(directedType)) {
+        } else if (DirectedType.isEither(directedType)) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
         } else if (directedType == DirectedType.DIRECTED) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> {

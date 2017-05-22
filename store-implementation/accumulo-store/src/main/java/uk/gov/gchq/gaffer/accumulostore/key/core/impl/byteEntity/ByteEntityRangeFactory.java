@@ -48,8 +48,8 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     @Override
     protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation) throws RangeFactoryException {
-        // To do BOTH we need to create 2 ranges
-        if (DirectedType.isBoth(directed)) {
+        // To do EITHER we need to create 2 ranges
+        if (DirectedType.isEither(directed)) {
             return Arrays.asList(
                     new Range(getKeyFromEdgeId(sourceVal, destVal, false, false), true,
                             getKeyFromEdgeId(sourceVal, destVal, false, true), true),

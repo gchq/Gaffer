@@ -77,13 +77,13 @@ public class GetElementsTest implements OperationTest {
     private void builderShouldCreatePopulatedOperationAll() {
         final GetElements op = new GetElements.Builder()
                 .input(new EntitySeed("A"))
-                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
+                .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
 
-        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.BOTH,
+        assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.EITHER,
                 op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
     }
@@ -122,11 +122,11 @@ public class GetElementsTest implements OperationTest {
     public void shouldSetDirectedTypeToBoth() {
         // When
         final GetElements op = new GetElements.Builder()
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
 
         // Then
-        assertEquals(DirectedType.BOTH, op.getDirectedType());
+        assertEquals(DirectedType.EITHER, op.getDirectedType());
     }
 
     @Test

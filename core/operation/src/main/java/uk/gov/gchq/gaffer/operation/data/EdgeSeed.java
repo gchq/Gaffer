@@ -37,7 +37,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     public EdgeSeed(final Object source, final Object destination) {
-        this(source, destination, DirectedType.BOTH);
+        this(source, destination, DirectedType.EITHER);
     }
 
     public EdgeSeed(final Object source, final Object destination, final boolean directed) {
@@ -78,7 +78,7 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     @Override
     public void setDirectedType(final DirectedType directed) {
         if (null == directed) {
-            this.directed = DirectedType.BOTH;
+            this.directed = DirectedType.EITHER;
         } else {
             this.directed = directed;
         }

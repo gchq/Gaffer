@@ -52,11 +52,11 @@ public class GetAllElementsTest implements OperationTest {
     public void shouldSetDirectedTypeToBoth() {
         // When
         final GetAllElements op = new GetAllElements.Builder()
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
 
         // Then
-        assertEquals(DirectedType.BOTH, op.getDirectedType());
+        assertEquals(DirectedType.EITHER, op.getDirectedType());
     }
 
     @Test

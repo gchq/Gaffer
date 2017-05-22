@@ -221,11 +221,11 @@ public class GetElementsIT extends AbstractStoreIT {
             if (DirectedType.UNDIRECTED != directedType) {
                 expectedElementIds.add(new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true));
 
-                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
                     expectedElementIds.add(new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true));
                 }
 
-                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
                     expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true));
                 }
             }
@@ -321,7 +321,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 entity.putProperty("stringProperty", "3");
                 elements.add(entity);
             } else {
-                if (DirectedType.isBoth(((EdgeId) seed).getDirectedType())) {
+                if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
                     if (BooleanUtils.isNotTrue(direction)) {
                         final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), false);
                         edge.putProperty("intProperty", 1);

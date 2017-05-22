@@ -278,7 +278,7 @@ public class GetAllElementsHandlerTest {
 
         // When directedType is ALL
         GetAllElements getAllElements = new GetAllElements.Builder()
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
         CloseableIterable<? extends Element> results = graph.execute(getAllElements, new User());
 

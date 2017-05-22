@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.doc.properties.walkthrough;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.doc.properties.generator.LongsSketchElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -86,7 +87,7 @@ public class LongsSketch extends PropertiesWalkthrough {
         // [get frequencies of 1 and 9 for edge a b] Get the edge A-B and print estimates of frequencies of 1L and 9L
         // ---------------------------------------------------------
         final GetElements query = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
         final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();

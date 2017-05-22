@@ -36,7 +36,7 @@ public interface GraphFilters extends OperationView {
     default boolean validateFlags(final Edge edge) {
         final DirectedType dirType = getDirectedType();
         return null == dirType
-                || DirectedType.BOTH == dirType
+                || DirectedType.EITHER == dirType
                 || (DirectedType.DIRECTED == dirType && edge.isDirected())
                 || (DirectedType.UNDIRECTED == dirType && !edge.isDirected());
     }

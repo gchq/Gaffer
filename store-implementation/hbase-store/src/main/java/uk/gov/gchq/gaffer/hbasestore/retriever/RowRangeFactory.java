@@ -65,7 +65,7 @@ public class RowRangeFactory {
 
                 // If directed is null then this means search for directed or undirected edges
                 // To do that we need to create 2 ranges
-                if (DirectedType.isBoth(directed)) {
+                if (DirectedType.isEither(directed)) {
                     ranges.add(new RowRange(
                             getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, false), true,
                             getEdgeRowId(edgeId.getSource(), edgeId.getDestination(), false, true), true)

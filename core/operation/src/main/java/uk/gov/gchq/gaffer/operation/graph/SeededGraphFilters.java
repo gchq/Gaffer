@@ -39,7 +39,7 @@ public interface SeededGraphFilters extends GraphFilters {
      * the operation.
      */
     enum IncludeIncomingOutgoingType {
-        BOTH, INCOMING, OUTGOING
+        EITHER, INCOMING, OUTGOING
     }
 
     interface Builder<OP extends SeededGraphFilters, B extends Builder<OP, ?>> extends GraphFilters.Builder<OP, B> {

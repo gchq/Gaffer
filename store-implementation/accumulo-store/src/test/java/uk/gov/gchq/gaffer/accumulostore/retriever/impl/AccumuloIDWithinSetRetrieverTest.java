@@ -253,7 +253,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(seeds)
                 .build();
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
-        bothDirectedAndUndirectedOp.setDirectedType(DirectedType.BOTH);
+        bothDirectedAndUndirectedOp.setDirectedType(DirectedType.EITHER);
         final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, new User(), loadIntoMemory);
         assertThat(bothDirectedAndUndirectedResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_C_D_DIRECTED, (Element) AccumuloTestData.EDGE_C_D_UNDIRECTED));
     }

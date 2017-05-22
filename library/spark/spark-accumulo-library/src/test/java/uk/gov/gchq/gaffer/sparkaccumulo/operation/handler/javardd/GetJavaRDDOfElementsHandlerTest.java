@@ -301,7 +301,7 @@ public class GetJavaRDDOfElementsHandlerTest {
                 .view(new View.Builder()
                         .edge(EDGE_GROUP)
                         .build())
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
         rddQuery.addOption(AbstractGetRDDHandler.HADOOP_CONFIGURATION_KEY, configurationString);
         rdd = graph1.execute(rddQuery, user);

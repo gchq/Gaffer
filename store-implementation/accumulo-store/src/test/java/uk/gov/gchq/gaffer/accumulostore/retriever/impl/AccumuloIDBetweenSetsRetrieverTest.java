@@ -243,7 +243,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
             final Set<Element> secondResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(secondResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_1));
             // Turn off directed / undirected edges only option and check get both EDGE_A1_B1 and EDGE_B2_A2
-            op.setDirectedType(DirectedType.BOTH);
+            op.setDirectedType(DirectedType.EITHER);
 
             final Set<Element> thirdResults = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
             assertThat(thirdResults, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A_B_2));
@@ -372,7 +372,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         // Query for all edges between the set {A0} and the set {A23}
         final GetElementsBetweenSets op = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(edgeOnlyView).build();
         // Set graph to give us edges only
-        op.setDirectedType(DirectedType.BOTH);
+        op.setDirectedType(DirectedType.EITHER);
 
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_A0_A23));
@@ -392,7 +392,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
                 .entity("entityX")
                 .build();
         final GetElementsBetweenSets thirdOp = new GetElementsBetweenSets.Builder().input(AccumuloTestData.SEED_A0_SET).inputB(AccumuloTestData.SEED_A23_SET).view(view).build();
-        thirdOp.setDirectedType(DirectedType.BOTH);
+        thirdOp.setDirectedType(DirectedType.EITHER);
 
         final Set<Element> thirdResults = returnElementsFromOperation(store, thirdOp, new User(), loadIntoMemory);
         assertEquals(0, thirdResults.size());

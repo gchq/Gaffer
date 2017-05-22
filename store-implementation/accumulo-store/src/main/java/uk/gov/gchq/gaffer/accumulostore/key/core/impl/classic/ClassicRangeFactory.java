@@ -91,7 +91,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
 
         final byte directionFlag1;
-        if (DirectedType.isBoth(directed)) {
+        if (DirectedType.isEither(directed)) {
             // Get directed and undirected edges
             directionFlag1 = endKey
                     ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE

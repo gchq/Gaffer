@@ -24,14 +24,14 @@ public enum DirectedType {
     /**
      * Edges are either DIRECTED or UNDIRECTED. This is the default value.
      */
-    BOTH,
+    EITHER,
 
     DIRECTED,
 
     UNDIRECTED;
 
-    public static boolean isBoth(final DirectedType directedType) {
-        return null == directedType || BOTH == directedType;
+    public static boolean isEither(final DirectedType directedType) {
+        return null == directedType || EITHER == directedType;
     }
 
     public static boolean isDirected(final DirectedType directedType) {
@@ -53,14 +53,14 @@ public enum DirectedType {
     }
 
     public static DirectedType and(final DirectedType dirType1, final DirectedType dirType2) {
-        if (null == dirType1 || BOTH == dirType1) {
+        if (null == dirType1 || EITHER == dirType1) {
             if (null == dirType2) {
-                return BOTH;
+                return EITHER;
             }
             return dirType2;
         }
 
-        if (null == dirType2 || BOTH == dirType2) {
+        if (null == dirType2 || EITHER == dirType2) {
             return dirType1;
         }
 

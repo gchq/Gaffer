@@ -200,7 +200,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         if (includeEdges) {
             for (final Edge edge : getEdges().values()) {
-                if (DirectedType.BOTH == directedType
+                if (DirectedType.EITHER == directedType
                         || (edge.isDirected() && DirectedType.DIRECTED == directedType)
                         || (!edge.isDirected() && DirectedType.UNDIRECTED == directedType)) {
                     expectedElements.add(edge);

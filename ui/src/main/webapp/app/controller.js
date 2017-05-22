@@ -35,7 +35,7 @@ angular.module('app').controller('AppController',
     $scope.expandEdges = [];
     $scope.expandEntitiesContent = {};
     $scope.expandEdgesContent = {};
-    $scope.inOutFlag = "BOTH";
+    $scope.inOutFlag = "EITHER";
     $scope.editingOperations = false;
 
     $scope.buildQuery = function() {
