@@ -103,7 +103,6 @@ public class Edge extends Element implements EdgeId {
         this.directed = directed;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     public void setDirectedType(final DirectedType directed) {
         this.directed = DirectedType.UNDIRECTED != directed;
