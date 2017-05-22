@@ -23,7 +23,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
@@ -35,7 +34,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -45,7 +43,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -140,16 +137,4 @@ public class HBaseStoreTest {
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
     }
 
-
-    @Test(expected = SchemaException.class)
-    public void shouldFindInvalidSerialiser() throws Exception {
-        final Schema schemaInvalid = Schema.fromJson(StreamUtil.openStreams(HBaseStoreTest.class, "/schemaInvalid/"));
-        try {
-           store.initialise(schemaInvalid, PROPERTIES);
-        } catch (SchemaException e) {
-            assertEquals(String.format("Schema is not valid. Validation errors: \n%s", String.format(HBaseStore.SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S, NonToBytesSerialiser.class.getCanonicalName(), "property1", "BasicEntity", ToBytesSerialiser.class.getCanonicalName())), e.getMessage());
-            throw e;
-        }
-        fail("Exception wasn't caught");
-    }
 }

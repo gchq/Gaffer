@@ -44,7 +44,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -56,7 +55,6 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -73,7 +71,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -291,18 +288,6 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain STORE_VALIDATION trait", traits.contains(STORE_VALIDATION));
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
-    }
-
-    @Test(expected = SchemaException.class)
-    public void shouldFindInvalidSerialiser() throws Exception {
-        final Schema schemaInvalid = Schema.fromJson(StreamUtil.openStreams(AccumuloStoreTest.class, "/schemaInvalid/"));
-        try {
-            new SingleUseMockAccumuloStore().initialise(schemaInvalid, CLASSIC_PROPERTIES);
-        } catch (SchemaException e) {
-            assertEquals(String.format("Schema is not valid. Validation errors: \n%s", String.format(AccumuloStore.SCHEMA_SERIALISER_S_FOR_PROPERTY_S_IN_THE_GROUP_S_IS_NOT_INSTANCE_OF_S, NonToBytesSerialiser.class.getCanonicalName(), "property1", "BasicEntity", ToBytesSerialiser.class.getCanonicalName())), e.getMessage());
-            throw e;
-        }
-        fail("Exception wasn't caught");
     }
 
 }

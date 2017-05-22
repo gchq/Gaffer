@@ -36,6 +36,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -68,6 +70,11 @@ public class ProxyStore extends Store {
     private Set<StoreTrait> traits;
     private Schema schema;
     private Set<Class<? extends Operation>> supportedOperations;
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
+    }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override

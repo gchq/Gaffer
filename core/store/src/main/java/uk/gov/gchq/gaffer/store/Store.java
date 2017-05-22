@@ -119,10 +119,11 @@ import java.util.concurrent.Executors;
  * Optional functionality can be added to store implementations defined by the {@link uk.gov.gchq.gaffer.store.StoreTrait}s.
  */
 public abstract class Store {
+    public static final String SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) is not instance of %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    public final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
-
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
@@ -139,9 +140,12 @@ public abstract class Store {
     private ExecutorService executorService;
 
     public Store() {
+        this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.viewValidator = new ViewValidator();
         this.schemaOptimiser = new SchemaOptimiser();
     }
+
+    protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
@@ -361,6 +365,7 @@ public abstract class Store {
         schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
+
     public void validateSchemas() {
         final ValidationResult validationResult = new ValidationResult();
         if (null == schema) {
@@ -384,9 +389,23 @@ public abstract class Store {
             }));
         }
 
+        validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+        getSchema().getTypes().entrySet().forEach(entrySet ->
+                validateSchema(validationResult, entrySet.getValue().getSerialiser()));
+
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
+        }
+    }
+
+    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
+        if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+            validationResult.addError(
+                    String.format(SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S,
+                            serialiser.getClass().getSimpleName(),
+                            requiredParentSerialiserClass.getSimpleName()));
         }
     }
 

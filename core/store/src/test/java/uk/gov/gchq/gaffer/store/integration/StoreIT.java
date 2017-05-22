@@ -28,6 +28,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -75,6 +77,11 @@ public class StoreIT {
 
     private class TestStore extends Store {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
+        }
 
         @Override
         public Set<StoreTrait> getTraits() {
