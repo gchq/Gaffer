@@ -243,6 +243,6 @@ The top one is from the first query.
 
 The next is a summary over the two hours we specified in our second query. (You can verify this by querying again for second hour separately and then adding counts from the two single-hour summaries together).
 
-In this example we have sumarised the vehicle counts by adding them together. Gaffer users are free to define the objects that represent the properties on an edge and the functions used to summarise them and so supports things that are much more complex than adding integers together.
+In this example we have summarised the vehicle counts by adding them together. Gaffer users are free to define the objects that represent the properties on an edge and the functions used to summarise them and so supports things that are much more complex than adding integers together.
 
 There are some in-depth examples based around the Java API here: [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started).

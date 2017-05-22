@@ -41,8 +41,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
-
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
     protected final Schema schema;
@@ -156,7 +154,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
                 final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                final ToBytesSerialiser<?> serialiser = (typeDefinition != null) ? (ToBytesSerialiser<?>) typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                     final byte[] length = new byte[numBytesForLength];
@@ -341,7 +339,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final ToBytesSerialiser<?> serialiser = (typeDefinition != null) ? (ToBytesSerialiser<?>) typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                 final byte[] length = new byte[numBytesForLength];
@@ -444,7 +442,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] serialiseVertex(final Object vertex) {
         try {
-            return ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException(
                     "Failed to serialise given identifier object for use in the bloom filter", e);
@@ -485,8 +483,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
         try {
-            final Edge edge = new Edge(group, getSchemaVertexToBytesSerialiser(schema).deserialise(result[0]),
-                    getSchemaVertexToBytesSerialiser(schema).deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, schema.getVertexSerialiser().deserialise(result[0]),
+                    schema.getVertexSerialiser().deserialise(result[1]), directed);
             addPropertiesToElement(edge, key);
             return edge;
         } catch (final SerialisationException e) {
@@ -496,7 +494,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected byte[] getSerialisedSource(final Edge edge) {
         try {
-            return ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(edge.getSource()));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(edge.getSource()));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Source", e);
         }
@@ -504,7 +502,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected byte[] getSerialisedDestination(final Edge edge) {
         try {
-            return ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(edge.getDestination()));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(edge.getDestination()));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Destination", e);
         }

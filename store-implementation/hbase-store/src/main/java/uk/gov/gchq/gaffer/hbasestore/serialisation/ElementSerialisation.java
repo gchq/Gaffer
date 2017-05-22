@@ -43,8 +43,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
-
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
 
@@ -372,7 +370,7 @@ public class ElementSerialisation {
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
         try {
-            return ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to serialise given vertex object.", e);
         }
@@ -573,8 +571,8 @@ public class ElementSerialisation {
         final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
         final String group = getGroup(cell);
         try {
-            final Edge edge = new Edge(group, getSchemaVertexToBytesSerialiser(schema).deserialise(result[0]),
-                    getSchemaVertexToBytesSerialiser(schema).deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
             addPropertiesToElement(edge, cell);
             return edge;
         } catch (final SerialisationException e) {
@@ -586,7 +584,7 @@ public class ElementSerialisation {
 
         try {
             final byte[] row = CellUtil.cloneRow(cell);
-            final Entity entity = new Entity(getGroup(cell), getSchemaVertexToBytesSerialiser(schema)
+            final Entity entity = new Entity(getGroup(cell), ((ToBytesSerialiser) schema.getVertexSerialiser())
                     .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
             addPropertiesToElement(entity, cell);
             return entity;

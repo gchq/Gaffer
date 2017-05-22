@@ -34,8 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.store.schema.SerialiserUtils.getSchemaVertexToBytesSerialiser;
-
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
     private final Schema schema;
@@ -61,7 +59,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(getSchemaVertexToBytesSerialiser(schema).serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -89,7 +87,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
                 : ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE
                 : ClassicBytePositions.UNDIRECTED_EDGE;
 
-        final ToBytesSerialiser vertexSerialiser = getSchemaVertexToBytesSerialiser(schema);
+        final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
 
         // Serialise source and destination to byte arrays, escaping if
         // necessary
