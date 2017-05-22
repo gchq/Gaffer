@@ -38,8 +38,8 @@ In addition to the job tracker, it is recommended that you enable a cache to sto
 The job result cache is simply a second Gaffer Graph. So, if you are running on Accumulo, this can just be a separate table in your existing Accumulo cluster.
 
 Two operations are required for exporting and getting results from a Gaffer cache - ExportToGafferResultCache and GetGafferResultCacheExport.
-These two operations need to be registered by providing an Operations Declarations json file in your store.properties file.
-To use the Accumulo store as your Gaffer cache the operations declarations json file would need to look something like:
+These two operations need to be registered by providing an Operations Declarations JSON file in your store.properties file.
+To use the Accumulo store as your Gaffer cache the operations declarations JSON file would need to look something like:
 
 ${RESULT_CACHE_EXPORT_OPERATIONS}
 
