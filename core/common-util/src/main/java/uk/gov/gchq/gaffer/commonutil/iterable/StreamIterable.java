@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
-public final class CloseableUtil {
-    private CloseableUtil() {
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import java.util.stream.Stream;
+
+public class StreamIterable<T> implements CloseableIterable<T> {
+    private final Stream<T> stream;
+
+    public StreamIterable(final Stream<T> stream) {
+        this.stream = stream;
     }
 
-    public static void close(final Object obj) {
-        if (obj instanceof AutoCloseable) {
-            close((AutoCloseable) obj);
-        }
+    @Override
+    public void close() {
+        CloseableUtil.close(stream);
     }
 
-    public static void close(final AutoCloseable closeable) {
-        try {
-            if (null != closeable) {
-                closeable.close();
-            }
-        } catch (final Exception e) {
-            // Ignore exception
-        }
+    @Override
+    public CloseableIterator<T> iterator() {
+        return new StreamIterator<>(stream);
     }
 }

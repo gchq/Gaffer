@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -417,6 +418,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
+        @JsonSetter("validateFunctions")
         public CHILD_CLASS validateFunctions(final List<TupleAdaptedPredicate<String, Tuple<String>>> predicates) {
             if (null == getElementDef().validator) {
                 getElementDef().validator = new ElementFilter();
@@ -425,7 +427,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        @JsonIgnore
         @SafeVarargs
         public final CHILD_CLASS validateFunctions(final TupleAdaptedPredicate<String, Tuple<String>>... predicates) {
             if (null == getElementDef().validator) {
@@ -435,7 +436,6 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
-        @JsonIgnore
         public final CHILD_CLASS validateFunctions(final ElementFilter elementFilter) {
             return validateFunctions((List<TupleAdaptedPredicate<String, Tuple<String>>>) (List) elementFilter.getComponents());
         }

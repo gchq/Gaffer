@@ -36,6 +36,14 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
         }
     }
 
+    public WrappedCloseableIterable(final Iterator<T> iterator) {
+        if (null == iterator) {
+            this.iterable = EmptyCloseableIterator::new;
+        } else {
+            this.iterable = () -> iterator;
+        }
+    }
+
     @Override
     public void close() {
         CloseableUtil.close(iterable);
