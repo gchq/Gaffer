@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -102,6 +103,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -575,10 +577,19 @@ public abstract class Store {
         final OperationHandler<Operation> handler = getOperationHandler(
                 operation.getClass());
         Object result;
-        if (null != handler) {
-            result = handler.doOperation(operation, context, this);
-        } else {
-            result = doUnhandledOperation(operation, context);
+        try {
+            if (null != handler) {
+                result = handler.doOperation(operation, context, this);
+            } else {
+                result = doUnhandledOperation(operation, context);
+            }
+        } catch (final Exception e) {
+            CloseableUtil.close(operation);
+            throw e;
+        }
+
+        if (null == result || !(result instanceof Closeable)) {
+            CloseableUtil.close(operation);
         }
 
         return result;
