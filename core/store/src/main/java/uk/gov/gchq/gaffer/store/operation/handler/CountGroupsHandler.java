@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.operation.handler;
 
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.GroupCounts;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -29,24 +30,28 @@ public class CountGroupsHandler implements OutputOperationHandler<CountGroups, G
     public GroupCounts doOperation(final CountGroups operation,
                                    final Context context, final Store store)
             throws OperationException {
-        int count = 0;
         final GroupCounts groupCounts = new GroupCounts();
-        if (null != operation.getInput()) {
-            for (final Element element : operation.getInput()) {
-                if (null != operation.getLimit()) {
-                    count++;
-                    if (count > operation.getLimit()) {
-                        groupCounts.setLimitHit(true);
-                        break;
+        try {
+            int count = 0;
+            if (null != operation.getInput()) {
+                for (final Element element : operation.getInput()) {
+                    if (null != operation.getLimit()) {
+                        count++;
+                        if (count > operation.getLimit()) {
+                            groupCounts.setLimitHit(true);
+                            break;
+                        }
+                    }
+
+                    if (element instanceof Entity) {
+                        groupCounts.addEntityGroup(element.getGroup());
+                    } else {
+                        groupCounts.addEdgeGroup(element.getGroup());
                     }
                 }
-
-                if (element instanceof Entity) {
-                    groupCounts.addEntityGroup(element.getGroup());
-                } else {
-                    groupCounts.addEdgeGroup(element.getGroup());
-                }
             }
+        } finally {
+            CloseableUtil.close(operation);
         }
 
         return groupCounts;

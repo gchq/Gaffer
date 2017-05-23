@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -34,13 +35,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class CountGroupsHandlerTest {
     private static final String GROUP1 = "GROUP1";
     private static final String GROUP2 = "GROUP2";
 
     @Test
-    public void shouldReturnNoCountsIfElementsAreNull() throws OperationException {
+    public void shouldReturnNoCountsIfElementsAreNull() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
@@ -56,10 +58,11 @@ public class CountGroupsHandlerTest {
         assertFalse(counts.isLimitHit());
         assertEquals(0, counts.getEntityGroups().size());
         assertEquals(0, counts.getEdgeGroups().size());
+        verify(countGroups).close();
     }
 
     @Test
-    public void shouldReturnGroupCountsWithoutLimit() throws OperationException {
+    public void shouldReturnGroupCountsWithoutLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
@@ -83,10 +86,11 @@ public class CountGroupsHandlerTest {
         assertEquals(2, counts.getEdgeGroups().size());
         assertEquals(1, (int) counts.getEdgeGroups().get(GROUP1));
         assertEquals(3, (int) counts.getEdgeGroups().get(GROUP2));
+        verify(countGroups).close();
     }
 
     @Test
-    public void shouldReturnAllGroupCountsWhenLessThanLimit() throws OperationException {
+    public void shouldReturnAllGroupCountsWhenLessThanLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
@@ -111,10 +115,11 @@ public class CountGroupsHandlerTest {
         assertEquals(2, counts.getEdgeGroups().size());
         assertEquals(1, (int) counts.getEdgeGroups().get(GROUP1));
         assertEquals(3, (int) counts.getEdgeGroups().get(GROUP2));
+        verify(countGroups).close();
     }
 
     @Test
-    public void shouldReturnGroupCountsUpToLimit() throws OperationException {
+    public void shouldReturnGroupCountsUpToLimit() throws OperationException, IOException {
         // Given
         final CountGroupsHandler handler = new CountGroupsHandler();
         final Store store = mock(Store.class);
@@ -135,7 +140,7 @@ public class CountGroupsHandlerTest {
         assertEquals(2, counts.getEntityGroups().size());
         assertEquals(2, (int) counts.getEntityGroups().get(GROUP1));
         assertEquals(1, (int) counts.getEntityGroups().get(GROUP2));
-
+        verify(countGroups).close();
     }
 
     static CloseableIterable<Element> getElements() {
