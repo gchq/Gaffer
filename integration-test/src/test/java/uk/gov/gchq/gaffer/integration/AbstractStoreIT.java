@@ -20,8 +20,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -67,8 +65,6 @@ import static org.junit.Assume.assumeTrue;
  * prior to running the tests.
  */
 public abstract class AbstractStoreIT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStoreIT.class);
-
     protected static final String USER_01 = "user01";
     protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
 
@@ -153,8 +149,6 @@ public abstract class AbstractStoreIT {
      */
     @Before
     public void setup() throws Exception {
-        LOGGER.info("Running test: " + getClass().getName());
-        
         assumeTrue("Skipping test as no store properties have been defined.", null != storeProperties);
 
         final String originalMethodName = name.getMethodName().endsWith("]")
