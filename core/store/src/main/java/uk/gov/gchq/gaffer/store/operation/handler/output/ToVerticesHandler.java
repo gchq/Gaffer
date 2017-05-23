@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -33,10 +32,10 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class ToVerticesHandler implements OutputOperationHandler<ToVertices, CloseableIterable<? extends Object>> {
+public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
 
     @Override
-    public CloseableIterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
+    public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
