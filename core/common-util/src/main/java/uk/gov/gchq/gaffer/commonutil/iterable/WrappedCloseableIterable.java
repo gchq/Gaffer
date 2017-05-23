@@ -20,6 +20,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
     private final Iterable<T> iterable;

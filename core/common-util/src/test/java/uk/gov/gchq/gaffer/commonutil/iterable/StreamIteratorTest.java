@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.commonutil;
+package uk.gov.gchq.gaffer.commonutil.iterable;
 
-public final class CloseableUtil {
-    private CloseableUtil() {
-    }
+import org.junit.Test;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
-    public static void close(final Object obj) {
-        if (obj instanceof AutoCloseable) {
-            close((AutoCloseable) obj);
-        }
-    }
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-    public static void close(final AutoCloseable closeable) {
-        try {
-            if (null != closeable) {
-                closeable.close();
-            }
-        } catch (final Exception e) {
-            // Ignore exception
-        }
+public class StreamIteratorTest {
+
+    @Test
+    public void shouldDelegateCloseToWrappedIterator() {
+        // Given
+        final Stream<Object> stream = mock(Stream.class);
+        final StreamIterator<Object> streamIterator = new StreamIterator<>(stream);
+
+        // When
+        streamIterator.close();
+
+        // Then
+        verify(stream).close();
     }
 }

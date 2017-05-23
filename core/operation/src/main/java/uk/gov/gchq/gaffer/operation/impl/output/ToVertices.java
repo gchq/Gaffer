@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -31,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class ToVertices implements
         Operation,
-        InputOutput<Iterable<? extends ElementId>, Iterable<? extends Object>>,
+        InputOutput<Iterable<? extends ElementId>, CloseableIterable<? extends Object>>,
         MultiInput<ElementId> {
 
     private Iterable<? extends ElementId> input;
@@ -48,8 +49,8 @@ public class ToVertices implements
     }
 
     @Override
-    public TypeReference<Iterable<? extends Object>> getOutputTypeReference() {
-        return new TypeReferenceImpl.IterableObj();
+    public TypeReference<CloseableIterable<? extends Object>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableObj();
     }
 
     public EdgeVertices getEdgeVertices() {
@@ -69,7 +70,7 @@ public class ToVertices implements
 
     public static final class Builder
             extends BaseBuilder<ToVertices, Builder>
-            implements InputOutput.Builder<ToVertices, Iterable<? extends ElementId>, Iterable<? extends Object>, Builder>,
+            implements InputOutput.Builder<ToVertices, Iterable<? extends ElementId>, CloseableIterable<? extends Object>, Builder>,
             MultiInput.Builder<ToVertices, ElementId, Builder> {
         public Builder() {
             super(new ToVertices());

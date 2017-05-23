@@ -16,7 +16,8 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -32,17 +33,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Iterable<? extends Object>> {
+public class ToVerticesHandler implements OutputOperationHandler<ToVertices, CloseableIterable<? extends Object>> {
 
     @Override
-    public Iterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<Object> doOperation(final ToVertices operation, final Context context, final Store store) throws OperationException {
         if (null == operation.getInput()) {
             return null;
         }
 
-        return new WrappedCloseableIterable<>(Streams.toStream(operation.getInput())
-                                                     .flatMap(elementIdsToVertices(operation))
-                                                     .iterator());
+        return new StreamIterable<>(Streams.toStream(operation.getInput())
+                                           .flatMap(elementIdsToVertices(operation)));
     }
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {

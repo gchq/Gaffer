@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -30,7 +31,7 @@ import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
  */
 public class ToEntitySeeds implements
         Operation,
-        InputOutput<Iterable<? extends Object>, Iterable<? extends EntitySeed>>,
+        InputOutput<Iterable<? extends Object>, CloseableIterable<? extends EntitySeed>>,
         MultiInput<Object> {
     private Iterable<? extends Object> input;
 
@@ -45,13 +46,13 @@ public class ToEntitySeeds implements
     }
 
     @Override
-    public TypeReference<Iterable<? extends EntitySeed>> getOutputTypeReference() {
-        return new TypeReferenceImpl.IterableEntitySeed();
+    public TypeReference<CloseableIterable<? extends EntitySeed>> getOutputTypeReference() {
+        return new TypeReferenceImpl.CloseableIterableEntitySeed();
     }
 
     public static final class Builder
             extends BaseBuilder<ToEntitySeeds, Builder>
-            implements InputOutput.Builder<ToEntitySeeds, Iterable<? extends Object>, Iterable<? extends EntitySeed>, Builder>,
+            implements InputOutput.Builder<ToEntitySeeds, Iterable<? extends Object>, CloseableIterable<? extends EntitySeed>, Builder>,
             MultiInput.Builder<ToEntitySeeds, Object, Builder> {
         public Builder() {
             super(new ToEntitySeeds());
