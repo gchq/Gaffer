@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.cache;
 
 
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-
 import java.util.Collection;
 import java.util.Set;
 
