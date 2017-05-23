@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -42,7 +41,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -120,14 +118,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
@@ -273,12 +271,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
             if (result instanceof Entity) {
-                Entity entity = (Entity) result;
-
-                final Collection<Element> listOfElements = new LinkedList<>();
-                Iterables.addAll(listOfElements, results);
-
-                assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));
+                assertTrue("Entity was not expected: " + result, expectedElements.contains(result));
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
