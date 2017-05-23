@@ -34,7 +34,6 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.HashMap;
 
 import static org.junit.Assert.fail;
