@@ -254,16 +254,16 @@ The following HBase key-value pairs are created for an `Edge`:
 </tr>
 <tr>
     <td>(serialised_source_vertex)0x0(serialised_destination_vertex)0x</td>
-    <td>group</td>
-    <td>group by properties</td>
+    <td>e</td>
+    <td>group and group by properties</td>
     <td>visibility property</td>
     <td>timestamp</td>
     <td>the visibility property (again) and all other properties</td>
 </tr>
 <tr>
     <td>(serialised_destination_vertex)0y0(serialised_source_vertex)0y</td>
-    <td>group</td>
-    <td>group by properties</td>
+    <td>e</td>
+    <td>group and group by properties</td>
     <td>visibility property</td>
     <td>timestamp</td>
     <td>the visibility property (again) and all other properties</td>

@@ -232,6 +232,45 @@ public class StoreTest {
     }
 
     @Test
+    public void shouldCloseOperationIfResultIsNotCloseable() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        final Operation operation = mock(Operation.class);
+        final StoreImpl store = new StoreImpl();
+        store.initialise(schema, properties);
+
+        // When
+        store.handleOperation(operation, context);
+
+        // Then
+        verify(operation).close();
+    }
+
+    @Test
+    public void shouldCloseOperationIfExceptionThrown() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        final Operation operation = mock(Operation.class);
+        final StoreImpl store = new StoreImpl();
+        final OperationHandler opHandler = mock(OperationHandler.class);
+        store.addOperationHandler(Operation.class, opHandler);
+        store.initialise(schema, properties);
+
+        given(opHandler.doOperation(operation, context, store)).willThrow(new RuntimeException());
+
+        // When / Then
+        try {
+            store.handleOperation(operation, context);
+        } catch (final Exception e) {
+            verify(operation).close();
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionIfOperationViewIsInvalid() throws OperationException, StoreException {
         // Given
         // Given

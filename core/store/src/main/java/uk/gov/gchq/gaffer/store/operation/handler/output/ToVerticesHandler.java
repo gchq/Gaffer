@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -39,9 +40,8 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
             return null;
         }
 
-        return () -> Streams.toStream(operation.getInput())
-                            .flatMap(elementIdsToVertices(operation))
-                            .iterator();
+        return new StreamIterable<>(Streams.toStream(operation.getInput())
+                                           .flatMap(elementIdsToVertices(operation)));
     }
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {

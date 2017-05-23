@@ -43,7 +43,6 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -126,14 +125,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
@@ -279,10 +278,9 @@ public class GetElementsIT extends AbstractStoreIT {
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
             if (result instanceof Entity) {
-                Entity entity = (Entity) result;
-                assertTrue("Entity was not expected: " + entity
+                assertTrue("Entity was not expected: " + result
                                 + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
-                        expectedElements.contains(entity));
+                        expectedElements.contains(result));
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
