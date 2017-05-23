@@ -574,7 +574,7 @@ public abstract class Store {
             throw e;
         }
 
-        if (null == result || !(result instanceof Closeable)) {
+        if (null == result) {
             CloseableUtil.close(operation);
         }
 
