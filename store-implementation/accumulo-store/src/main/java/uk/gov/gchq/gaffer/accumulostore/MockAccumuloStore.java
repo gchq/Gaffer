@@ -25,7 +25,6 @@ import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.hadoop.conf.Configuration;
 import uk.gov.gchq.gaffer.operation.Operation;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -88,8 +87,4 @@ public class MockAccumuloStore extends AccumuloStore {
         return super.getOperationHandler(opClass);
     }
 
-    @Override
-    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-        return Serialiser.class;
-    }
 }
