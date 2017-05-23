@@ -26,10 +26,10 @@ cd Gaffer
 # This will download several maven dependencies such as tomcat.
 # Using -pl we tell maven only to build the demo module and just download the other Gaffer binaries from maven.
 # The -Proad-traffic-demo is a profile that will automatically startup a standalone instance of tomcat with the REST API and UI deployed.
-mvn install -Pquick -Proad-traffic-demo -pl example/road-traffic/road-traffic-demo
+mvn install -Pquick -Proad-traffic-demo -pl example/road-traffic/road-traffic-rest
 ```
 
-If you wish to build all of Gaffer first then just remove the "-pl example/road-traffic/road-traffic-demo" part.
+If you wish to build all of Gaffer first then just remove the "-pl example/road-traffic/road-traffic-rest" part.
 
 The rest api will be deployed to localhost:8080/rest and the ui will be deployed to localhost:8080/ui.
 

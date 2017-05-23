@@ -28,6 +28,8 @@
 
     <properties>
         <store.type>accumulo</store.type>
+        <standalone-path>/</standalone-path>
+        <standalone-port>8080</standalone-port>
     </properties>
 
     <dependencies>
@@ -110,4 +112,52 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>road-traffic-demo</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.tomcat.maven</groupId>
+                        <artifactId>tomcat7-maven-plugin</artifactId>
+                        <version>2.0</version>
+                        <configuration>
+                            <path>${standalone-path}</path>
+                            <port>${standalone-port}</port>
+                            <path>rest</path>
+                            <systemProperties>
+                                <gaffer.rest-api.basePath>rest/v1
+                                </gaffer.rest-api.basePath>
+                                <gaffer.schemas>
+                                    ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
+                                </gaffer.schemas>
+                                <gaffer.storeProperties>
+                                    ${project.build.outputDirectory}/mockaccumulo.properties
+                                </gaffer.storeProperties>
+                                <roadTraffic.dataLoader.dataPath>
+                                    ${project.build.outputDirectory}/roadTrafficSampleData.csv
+                                </roadTraffic.dataLoader.dataPath>
+                                <gaffer.error-mode.debug>
+                                    false
+                                </gaffer.error-mode.debug>
+                            </systemProperties>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>run-war</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

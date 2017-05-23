@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>road-traffic-demo</artifactId>
+            <artifactId>road-traffic-rest</artifactId>
             <version>${project.parent.version}</version>
             <classifier>classes</classifier>
         </dependency>
