@@ -70,11 +70,6 @@ public class ProxyStore extends Store {
     private Schema schema;
     private Set<Class<? extends Operation>> supportedOperations;
 
-    @Override
-    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-        return ToBytesSerialiser.class;
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
     public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
@@ -310,6 +305,11 @@ public class ProxyStore extends Store {
         client.property(ClientProperties.CONNECT_TIMEOUT, proxyProps.getConnectTimeout());
         client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
         return client;
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     public static final class Builder {

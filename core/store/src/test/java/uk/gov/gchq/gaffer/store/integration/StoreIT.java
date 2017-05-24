@@ -79,11 +79,6 @@ public class StoreIT {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION));
 
         @Override
-        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-            return ToBytesSerialiser.class;
-        }
-
-        @Override
         public Set<StoreTrait> getTraits() {
             return TRAITS;
         }
@@ -120,6 +115,11 @@ public class StoreIT {
         @Override
         public boolean isValidationRequired() {
             return false;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
         }
     }
 }

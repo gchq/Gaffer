@@ -668,11 +668,6 @@ public class GraphTest {
 
     static class StoreImpl extends Store {
         @Override
-        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-            return ToBytesSerialiser.class;
-        }
-
-        @Override
         public Set<StoreTrait> getTraits() {
             return new HashSet<>(0);
         }
@@ -710,6 +705,11 @@ public class GraphTest {
         @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
         }
     }
 

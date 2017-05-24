@@ -566,11 +566,6 @@ public class StoreTest {
         public StoreImpl() {
         }
 
-        @Override
-        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-            return Serialiser.class;
-        }
-
         public StoreImpl(final ViewValidator viewValidator) {
             setViewValidator(viewValidator);
         }
@@ -655,6 +650,11 @@ public class StoreTest {
             }
 
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
         }
     }
 }

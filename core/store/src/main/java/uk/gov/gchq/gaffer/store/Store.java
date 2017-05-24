@@ -146,8 +146,6 @@ public abstract class Store {
         this.schemaOptimiser = new SchemaOptimiser();
     }
 
-    protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
-
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         this.schema = schema;
         this.properties = properties;
@@ -158,17 +156,6 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
-    }
-
-    private void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
-    }
-
-    protected JobTracker createJobTracker(final StoreProperties properties) {
-        if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
-        }
-        return null;
     }
 
     /**
@@ -366,7 +353,6 @@ public abstract class Store {
         schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
-
     public void validateSchemas() {
         final ValidationResult validationResult = new ValidationResult();
         if (null == schema) {
@@ -468,6 +454,13 @@ public abstract class Store {
         }
     }
 
+    protected JobTracker createJobTracker(final StoreProperties properties) {
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
+        }
+        return null;
+    }
+
     protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
         this.schemaOptimiser = schemaOptimiser;
     }
@@ -524,6 +517,8 @@ public abstract class Store {
         schemaElements.putAll(getSchema().getEntities());
         return schemaElements;
     }
+
+    protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
      * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
@@ -678,5 +673,9 @@ public abstract class Store {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
             }
         }
+    }
+
+    private void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 }

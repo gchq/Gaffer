@@ -69,11 +69,6 @@ public class MapStore extends Store {
     private MapImpl mapImpl;
 
     @Override
-    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
-        return Serialiser.class;
-    }
-
-    @Override
     public void initialise(final Schema schema, final StoreProperties storeProperties) throws StoreException {
         if (!(storeProperties instanceof MapStoreProperties)) {
             throw new StoreException("storeProperties must be an instance of MapStoreProperties");
@@ -128,5 +123,10 @@ public class MapStore extends Store {
     @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported");
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return Serialiser.class;
     }
 }
