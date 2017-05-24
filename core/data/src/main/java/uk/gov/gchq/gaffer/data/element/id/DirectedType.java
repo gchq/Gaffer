@@ -68,12 +68,12 @@ public enum DirectedType {
             if (DIRECTED == dirType2) {
                 return DIRECTED;
             } else {
-                throw new IllegalArgumentException("Cannot merged incompatible directed types DIRECTED and UNDIRECTED");
+                throw new IllegalArgumentException("Cannot merge incompatible directed types DIRECTED and UNDIRECTED");
             }
         } else if (UNDIRECTED == dirType2) {
             return UNDIRECTED;
         } else {
-            throw new IllegalArgumentException("Cannot merged incompatible directed types UNDIRECTED and DIRECTED");
+            throw new IllegalArgumentException("Cannot merge incompatible directed types UNDIRECTED and DIRECTED");
         }
     }
 
