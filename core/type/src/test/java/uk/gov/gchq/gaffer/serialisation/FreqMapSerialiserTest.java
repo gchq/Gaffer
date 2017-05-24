@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
+public class FreqMapSerialiserTest extends ToByteSerialisationTest<FreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
@@ -43,7 +43,7 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
 
         // When
         final byte[] serialised = serialiser.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
+        final FreqMap deserialised = serialiser.deserialise(serialised);
 
         // Then
         assertEquals((Long) 10L, deserialised.get("x"));
@@ -61,7 +61,7 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
 
         // When
         final byte[] serialised = serialiser.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
+        final FreqMap deserialised = serialiser.deserialise(serialised);
 
         assertEquals((Long) 10L, deserialised.get(""));
         assertEquals((Long) 5L, deserialised.get("y"));
@@ -78,7 +78,7 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
 
         // When
         final byte[] serialised = serialiser.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
+        final FreqMap deserialised = serialiser.deserialise(serialised);
 
         assertFalse(deserialised.containsKey("x"));
         assertEquals((Long) 5L, deserialised.get("y"));
@@ -97,7 +97,7 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
 
         // When
         final byte[] serialised = serialiser.serialise(freqMap);
-        final FreqMap deserialised = (FreqMap) serialiser.deserialise(serialised);
+        final FreqMap deserialised = serialiser.deserialise(serialised);
 
         assertFalse(deserialised.containsKey("v"));
         assertEquals((Long) 5L, deserialised.get("w"));
@@ -107,9 +107,9 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
     }
 
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final FreqMap value = serialiser.deserialiseEmptyBytes();
+        final FreqMap value = serialiser.deserialiseEmpty();
 
         // Then
         assertEquals(new FreqMap(), value);
@@ -126,7 +126,7 @@ public class FreqMapSerialiserTest extends SerialisationTest<FreqMap> {
     }
 
     @Override
-    public Serialisation<FreqMap> getSerialisation() {
+    public Serialiser<FreqMap, byte[]> getSerialisation() {
         return new FreqMapSerialiser();
     }
 }

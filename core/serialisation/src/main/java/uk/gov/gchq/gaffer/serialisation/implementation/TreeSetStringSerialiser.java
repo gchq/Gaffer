@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import com.google.common.base.Splitter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
  * {@link String} values.
  */
-public class TreeSetStringSerialiser implements Serialisation<TreeSet> {
+public class TreeSetStringSerialiser implements ToBytesSerialiser<TreeSet<String>> {
     private static final long serialVersionUID = -8241328807929077861L;
     private static final String COMMA = "\\,";
     private static final String OPEN = "{";
@@ -39,7 +39,7 @@ public class TreeSetStringSerialiser implements Serialisation<TreeSet> {
     }
 
     @Override
-    public byte[] serialise(final TreeSet treeSet) throws SerialisationException {
+    public byte[] serialise(final TreeSet<String> treeSet) throws SerialisationException {
         final StringBuilder builder = new StringBuilder(OPEN);
         final Iterator values = treeSet.iterator();
         if (values.hasNext()) {
@@ -78,7 +78,7 @@ public class TreeSetStringSerialiser implements Serialisation<TreeSet> {
     }
 
     @Override
-    public TreeSet deserialiseEmptyBytes() {
+    public TreeSet<String> deserialiseEmpty() {
         return new TreeSet<>();
     }
 

@@ -36,7 +36,7 @@ import java.io.InputStream;
 /**
  * This class is used to serialise and deserialise avro files
  */
-public class AvroSerialiser implements Serialisation<Object> {
+public class AvroSerialiser implements ToBytesSerialiser<Object> {
 
     private static final long serialVersionUID = -6264923181170362212L;
     private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerialiser.class);
@@ -71,7 +71,7 @@ public class AvroSerialiser implements Serialisation<Object> {
     }
 
     @Override
-    public Object deserialiseEmptyBytes() {
+    public Object deserialiseEmpty() {
         return null;
     }
 
@@ -91,17 +91,6 @@ public class AvroSerialiser implements Serialisation<Object> {
             return false;
         }
         return true;
-    }
-
-    public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
-        DatumReader<T> datumReader = new ReflectDatumReader<>();
-        T ret = null;
-        try (final  DataFileStream<T> in = new DataFileStream<>(new ByteArrayInputStream(bytes), datumReader)) {
-            ret = in.next();
-        } catch (final IOException e) {
-            throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
-        }
-        return ret;
     }
 
     private void close(final Closeable close) {

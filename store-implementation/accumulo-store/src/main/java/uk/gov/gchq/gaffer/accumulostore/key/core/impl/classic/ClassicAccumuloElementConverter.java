@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // No Delimiters but need to escape bytes
         // because later we check how many delimiter characters there are
         try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(entity.getVertex()));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }
@@ -120,7 +121,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     @Override
     protected Entity getEntityFromKey(final Key key) {
         try {
-            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser()
+            final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
                     .deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
             addPropertiesToElement(entity, key);
             return entity;

@@ -86,7 +86,7 @@ public class HyperLogLogPlusSerialiserTest {
     @Test
     public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
         // Given
-        final HyperLogLogPlus hllp = HYPER_LOG_LOG_PLUS_SERIALISER.deserialiseEmptyBytes();
+        final HyperLogLogPlus hllp = HYPER_LOG_LOG_PLUS_SERIALISER.deserialiseEmpty();
 
         // Then
         assertNull(hllp);

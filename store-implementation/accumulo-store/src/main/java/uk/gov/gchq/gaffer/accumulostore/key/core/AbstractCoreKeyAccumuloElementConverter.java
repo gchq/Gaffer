@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -107,7 +107,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (isStoredInValue(propertyName, elementDefinition)) {
-                final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 try {
                     if (null != serialiser) {
                         Object value = properties.get(propertyName);
@@ -154,7 +154,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
                 final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                     final byte[] length = new byte[numBytesForLength];
@@ -173,7 +173,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         }
                     } else {
                         try {
-                            properties.put(propertyName, serialiser.deserialiseEmptyBytes());
+                            properties.put(propertyName, serialiser.deserialiseEmpty());
                         } catch (final SerialisationException e) {
                             throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                         }
@@ -239,14 +239,15 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
             if (null != propertyDef) {
                 final Object property = properties.get(schema.getVisibilityProperty());
+                final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
                 if (property != null) {
                     try {
-                        return propertyDef.getSerialiser().serialise(property);
+                        return serialiser.serialise(property);
                     } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException(e.getMessage(), e);
                     }
                 } else {
-                    return propertyDef.getSerialiser().serialiseNull();
+                    return serialiser.serialiseNull();
                 }
             }
         }
@@ -266,10 +267,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (null != schema.getVisibilityProperty()) {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
             if (null != propertyDef) {
-                final Serialisation serialiser = propertyDef.getSerialiser();
+                final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
                 try {
                     if (columnVisibility == null || columnVisibility.length == 0) {
-                        final Object value = serialiser.deserialiseEmptyBytes();
+                        final Object value = serialiser.deserialiseEmpty();
                         if (value != null) {
                             properties.put(schema.getVisibilityProperty(), value);
                         }
@@ -297,7 +298,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         while (propertyNames.hasNext()) {
             String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
@@ -338,7 +339,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                 final byte[] length = new byte[numBytesForLength];
@@ -441,7 +442,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     @Override
     public byte[] serialiseVertex(final Object vertex) {
         try {
-            return ByteArrayEscapeUtils.escape(this.schema.getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException(
                     "Failed to serialise given identifier object for use in the bloom filter", e);
@@ -472,10 +473,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 getPropertiesFromTimestamp(element.getGroup(), key.getTimestamp()));
     }
 
-    protected Serialisation getVertexSerialiser() {
-        return schema.getVertexSerialiser();
-    }
-
     protected Edge getEdgeFromKey(final Key key, final Map<String, String> options) {
         final byte[][] result = new byte[3][];
         final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
@@ -486,8 +483,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
         try {
-            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
-                    getVertexSerialiser().deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, schema.getVertexSerialiser().deserialise(result[0]),
+                    schema.getVertexSerialiser().deserialise(result[1]), directed);
             addPropertiesToElement(edge, key);
             return edge;
         } catch (final SerialisationException e) {
@@ -497,7 +494,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected byte[] getSerialisedSource(final Edge edge) {
         try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getSource()));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(edge.getSource()));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Source", e);
         }
@@ -505,7 +502,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected byte[] getSerialisedDestination(final Edge edge) {
         try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(edge.getDestination()));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(edge.getDestination()));
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Edge Destination", e);
         }

@@ -73,6 +73,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -118,14 +119,13 @@ public class AccumuloStore extends Store {
                     TRANSFORMATION,
                     STORE_VALIDATION
             ));
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -201,6 +201,11 @@ public class AccumuloStore extends Store {
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
+    }
+
+    @Override
+    protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {

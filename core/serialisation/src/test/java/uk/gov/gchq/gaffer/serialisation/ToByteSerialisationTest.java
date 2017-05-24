@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.serialisation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
-public class AvroSerialiserTest extends ToByteSerialisationTest<Object>{
+public abstract class ToByteSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
     @Test
-    public void testCanHandleObjectClass() {
-        assertTrue(serialiser.canHandle(Object.class));
+    public void shouldSerialiseNull() throws SerialisationException {
+        // When
+        final byte[] bytes = serialiser.serialiseNull();
+
+        // Then
+        assertArrayEquals(new byte[0], bytes);
     }
 
     @Test
-    public void testPrimitiveSerialisation() throws SerialisationException {
-        byte[] b = serialiser.serialise(2);
-        Object o = serialiser.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(2, o);
-    }
-
     @Override
-    public Serialiser<Object, byte[]> getSerialisation() {
-        return new AvroSerialiser();
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertNull(serialiser.deserialiseEmpty());
     }
 }
