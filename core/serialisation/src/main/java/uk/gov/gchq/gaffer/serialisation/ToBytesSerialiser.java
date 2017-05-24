@@ -17,16 +17,17 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import java.io.Serializable;
 
 /**
  * A class that implements this interface is responsible for serialising an
  * object of class T to a byte array, and for deserialising it back again.
- *
  * It must also be able to deal with serialising null values.
  */
-public interface Serialisation<T> extends Serializable {
+public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
 
+    /**
+     * Handle an incoming null value and generate an appropriate {@code byte[]} representation.
+     */
     byte[] EMPTY_BYTES = new byte[0];
 
     /**
@@ -34,17 +35,10 @@ public interface Serialisation<T> extends Serializable {
      *
      * @return byte[] the serialised bytes
      */
+    @Override
     default byte[] serialiseNull() {
         return EMPTY_BYTES;
     }
-
-    /**
-     * Check whether the serialiser can serialise a particular class.
-     *
-     * @param clazz the object class to serialise
-     * @return boolean true if it can be handled
-     */
-    boolean canHandle(final Class clazz);
 
     /**
      * Serialise some object and returns the raw bytes of the serialised form.
@@ -53,6 +47,7 @@ public interface Serialisation<T> extends Serializable {
      * @return byte[] the serialised bytes
      * @throws SerialisationException if the object fails to serialise
      */
+    @Override
     byte[] serialise(final T object) throws SerialisationException;
 
     /**
@@ -62,26 +57,27 @@ public interface Serialisation<T> extends Serializable {
      * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
      */
+    @Override
     T deserialise(final byte[] bytes) throws SerialisationException;
 
     /**
-     * Handle an empty byte array and reconstruct an appropriate representation in Object form.
+     * Handle an empty byte array and reconstruct an appropriate representation in T form.
      *
      * @return T the deserialised object
      * @throws SerialisationException if the object fails to deserialise
      */
-    T deserialiseEmptyBytes() throws SerialisationException;
+    @Override
+    T deserialiseEmpty() throws SerialisationException;
 
     /**
      * Indicates whether the serialisation process preserves the ordering of the T,
      * i.e. if x and y are objects of class T, and x is less than y, then this method should
      * return true if the serialised form of x is guaranteed to be less than the serialised form
      * of y (using the standard ordering of byte arrays).
-     *
      * If T is not Comparable then this test makes no sense and false should be returned.
      *
      * @return true if the serialisation will preserve the order of the T, otherwise false.
      */
+    @Override
     boolean preservesObjectOrdering();
-
 }

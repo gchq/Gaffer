@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
@@ -52,6 +54,11 @@ public class TestStore extends Store {
     @Override
     public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
         return mockStore._execute(operationChain, context);
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     @Override

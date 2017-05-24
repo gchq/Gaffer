@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class FloatSerialiser implements Serialisation<Float> {
+public class FloatSerialiser implements ToBytesSerialiser<Float> {
     private static final long serialVersionUID = -4732565151514793209L;
 
     @Override
@@ -52,7 +52,7 @@ public class FloatSerialiser implements Serialisation<Float> {
     }
 
     @Override
-    public Float deserialiseEmptyBytes() {
+    public Float deserialiseEmpty() {
         return null;
     }
 

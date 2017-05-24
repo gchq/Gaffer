@@ -26,7 +26,7 @@ import java.util.Date;
  * instead.
  */
 @Deprecated
-public class DateSerialiser implements Serialisation<Date> {
+public class DateSerialiser implements ToBytesSerialiser<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -55,7 +55,7 @@ public class DateSerialiser implements Serialisation<Date> {
     }
 
     @Override
-    public Date deserialiseEmptyBytes() {
+    public Date deserialiseEmpty() {
         return null;
     }
 
