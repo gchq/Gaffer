@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.operation.handler.output;
 
-import com.google.common.collect.Lists;
 import uk.gov.gchq.gaffer.commonutil.iterable.StreamIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -27,8 +26,6 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices.EdgeVertices;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -46,40 +43,29 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
 
     private Function<ElementId, Stream<Object>> elementIdsToVertices(final ToVertices operation) {
         return e -> {
-            final List<Object> vertices = new ArrayList<>();
+            Stream<Object> vertices = Stream.empty();
 
             if (e instanceof EdgeId) {
+                final EdgeId edgeId = (EdgeId) e;
                 if (operation.getEdgeVertices() != EdgeVertices.NONE) {
                     switch (operation.getEdgeVertices()) {
                         case BOTH:
-                            vertices.addAll(getBothVertices((EdgeId) e));
+                            vertices = Stream.of(edgeId.getSource(), edgeId.getDestination());
                             break;
                         case SOURCE:
-                            vertices.add(getSourceVertices((EdgeId) e));
+                            vertices = Stream.of(edgeId.getSource());
                             break;
                         case DESTINATION:
-                            vertices.add(getDestinationVertices((EdgeId) e));
+                            vertices = Stream.of(edgeId.getDestination());
                             break;
                         default:
                             break;
                     }
                 }
             } else {
-                vertices.add(((EntityId) e).getVertex());
+                vertices = Stream.of(((EntityId) e).getVertex());
             }
-            return vertices.stream();
+            return vertices;
         };
-    }
-
-    private Object getSourceVertices(final EdgeId edgeId) {
-        return edgeId.getSource();
-    }
-
-    private Object getDestinationVertices(final EdgeId edgeId) {
-        return edgeId.getDestination();
-    }
-
-    private List<Object> getBothVertices(final EdgeId edgeId) {
-        return Lists.newArrayList(edgeId.getSource(), edgeId.getDestination());
     }
 }
