@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class IntegerSerialiser implements Serialisation<Integer> {
+public class IntegerSerialiser implements ToBytesSerialiser<Integer> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -52,7 +52,7 @@ public class IntegerSerialiser implements Serialisation<Integer> {
     }
 
     @Override
-    public Integer deserialiseEmptyBytes() throws SerialisationException {
+    public Integer deserialiseEmpty() throws SerialisationException {
         return null;
     }
 

@@ -67,7 +67,7 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -108,7 +108,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -121,10 +120,11 @@ import java.util.concurrent.Executors;
  * Optional functionality can be added to store implementations defined by the {@link uk.gov.gchq.gaffer.store.StoreTrait}s.
  */
 public abstract class Store {
+    public static final String SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) is not instance of %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    public final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
-
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
@@ -141,6 +141,7 @@ public abstract class Store {
     private ExecutorService executorService;
 
     public Store() {
+        this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.viewValidator = new ViewValidator();
         this.schemaOptimiser = new SchemaOptimiser();
     }
@@ -155,17 +156,6 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
-    }
-
-    private void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
-    }
-
-    protected JobTracker createJobTracker(final StoreProperties properties) {
-        if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
-        }
-        return null;
     }
 
     /**
@@ -370,36 +360,39 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-            schemaElements.putAll(getSchema().getEdges());
-            schemaElements.putAll(getSchema().getEntities());
-            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    final Serialisation serialisation = schemaElementDefinitionEntry
-                            .getValue()
-                            .getPropertyTypeDef(propertyName)
-                            .getSerialiser();
-                    if (null == serialisation) {
-                        validationResult.addError(
-                                "Could not find a serialiser for property '"
-                                        + propertyName
-                                        + "' in the group '"
-                                        + schemaElementDefinitionEntry.getKey() + "'.");
-                    } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError("Schema serialiser ("
-                                + serialisation.getClass().getName()
-                                + ") for property '" + propertyName
-                                + "' in the group '" + schemaElementDefinitionEntry.getKey()
-                                + "' cannot handle property found in the schema");
-                    }
+            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
+                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                final Serialiser serialisation = schemaElementDefinitionEntry
+                        .getValue()
+                        .getPropertyTypeDef(propertyName)
+                        .getSerialiser();
+
+                if (null == serialisation) {
+                    validationResult.addError(
+                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                } else if (!serialisation.canHandle(propertyClass)) {
+                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                 }
-            }
+            }));
         }
+
+        validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+        getSchema().getTypes().entrySet().forEach(entrySet ->
+                validateSchema(validationResult, entrySet.getValue().getSerialiser()));
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
+        }
+    }
+
+    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
+        if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+            validationResult.addError(
+                    String.format(SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S,
+                            serialiser.getClass().getSimpleName(),
+                            requiredParentSerialiserClass.getSimpleName()));
         }
     }
 
@@ -461,6 +454,13 @@ public abstract class Store {
         }
     }
 
+    protected JobTracker createJobTracker(final StoreProperties properties) {
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
+        }
+        return null;
+    }
+
     protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
         this.schemaOptimiser = schemaOptimiser;
     }
@@ -510,6 +510,15 @@ public abstract class Store {
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
+
+    protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        return schemaElements;
+    }
+
+    protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
      * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
@@ -664,5 +673,9 @@ public abstract class Store {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
             }
         }
+    }
+
+    private void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 }
