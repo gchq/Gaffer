@@ -33,7 +33,7 @@ public abstract class UserWalkthroughStrSubstitutor extends WalkthroughStrSubsti
         params.put("CSV_GENERATOR_JAVA",
                 JavaSourceUtil.getJava(RoadUseCsvGenerator.class.getName(), "doc"));
         params.put("DESCRIPTION_TRANSFORM_LINK", getGitHubCodeLink(DescriptionTransform.class, "example/road-traffic-model"));
-        params.put("ROAD_TRAFFIC_SAMPLE_DATA_LINK", getGitHubFileLink("Road Traffic Sample ", "example/road-traffic/road-traffic-rest/src/main/resources/roadTrafficSampleData.csv"));
+        params.put("ROAD_TRAFFIC_SAMPLE_DATA_LINK", getGitHubFileLink("Road Traffic Sample ", "example/road-traffic/road-traffic-demo/src/main/resources/roadTrafficSampleData.csv"));
         return params;
     }
 }
