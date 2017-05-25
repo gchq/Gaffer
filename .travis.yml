@@ -1,5 +1,5 @@
 language: java
-cache:
+uk.gov.gchq.gaffer.cache:
   directories:
   - $HOME/.m2
 jdk:
@@ -20,5 +20,5 @@ install: mvn -q install -P quick,travis -B -V
 script: mvn -q verify -P travis,build-extras -B
 after_success:
   - ./cd/before_deploy.sh
-  - ./cd/deploy.sh
+  - travis_wait ./cd/deploy.sh
   - bash <(curl -s https://codecov.io/bash)

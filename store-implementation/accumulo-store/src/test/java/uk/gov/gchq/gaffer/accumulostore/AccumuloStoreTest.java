@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
+import uk.gov.gchq.gaffer.accumulostore.operation.impl.SummariseGroupOverRanges;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -53,6 +54,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -65,11 +68,16 @@ import java.io.IOException;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
-import static uk.gov.gchq.g affer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
@@ -80,16 +88,16 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class AccumuloStoreTest {
 
-    private static MockAccumuloStore byteEntityStore;
-    private static MockAccumuloStore gaffer1KeyStore;
+    private static SingleUseMockAccumuloStore byteEntityStore;
+    private static SingleUseMockAccumuloStore gaffer1KeyStore;
     private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
     @BeforeClass
     public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
-        byteEntityStore = new MockAccumuloStore();
-        gaffer1KeyStore = new MockAccumuloStore();
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
 
@@ -105,6 +113,52 @@ public class AccumuloStoreTest {
     public void shouldBeAnOrderedStore() {
         assertTrue(byteEntityStore.hasTrait(StoreTrait.ORDERED));
         assertTrue(gaffer1KeyStore.hasTrait(StoreTrait.ORDERED));
+    }
+
+    @Test
+    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+        // Given
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final Serialiser serialiser = mock(ToBytesSerialiser.class);
+        given(serialiser.preservesObjectOrdering()).willReturn(true);
+
+        store.initialise(
+                new Schema.Builder()
+                        .vertexSerialiser(serialiser)
+                        .build(),
+                PROPERTIES);
+
+        // When
+        final boolean isGetElementsInRangesSupported = store.isSupported(GetElementsInRanges.class);
+        final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
+
+        // Then
+        assertTrue(isGetElementsInRangesSupported);
+        assertTrue(isSummariseGroupOverRangesSupported);
+        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
+    }
+
+    @Test
+    public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+        // Given
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final Serialiser serialiser = mock(ToBytesSerialiser.class);
+        given(serialiser.preservesObjectOrdering()).willReturn(false);
+
+        store.initialise(
+                new Schema.Builder()
+                        .vertexSerialiser(serialiser)
+                        .build(),
+                PROPERTIES);
+
+        // When
+        final boolean isGetElementsInRangesSupported = store.isSupported(GetElementsInRanges.class);
+        final boolean isSummariseGroupOverRangesSupported = store.isSupported(SummariseGroupOverRanges.class);
+
+        // Then
+        assertFalse(isGetElementsInRangesSupported);
+        assertFalse(isSummariseGroupOverRangesSupported);
+        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
@@ -182,7 +236,7 @@ public class AccumuloStoreTest {
         testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
     }
 
-    public void testStoreReturnsHandlersForRegisteredOperations(final MockAccumuloStore store) throws StoreException {
+    public void testStoreReturnsHandlersForRegisteredOperations(final SingleUseMockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
@@ -206,11 +260,11 @@ public class AccumuloStoreTest {
         testRequestForNullHandlerManaged(byteEntityStore);
     }
 
-
-    public void testRequestForNullHandlerManaged(final MockAccumuloStore store) {
+    public void testRequestForNullHandlerManaged(final SingleUseMockAccumuloStore store) {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
+
 
     @Test
     public void testStoreTraitsGaffer1() throws OperationException {
@@ -236,5 +290,4 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
     }
-
 }

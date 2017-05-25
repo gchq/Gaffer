@@ -10,35 +10,36 @@ When we refer to a 'Job' we are really just talking about an Operation Chain con
 
 #### Configuration
 
-By default the Job Tracker is disabled. To enable the job tracker you will need to add a dependency on the
-job tracker implementation you want e.g. job-tracker-jcs:
+By default the Job Tracker is disabled. To enable the job tracker set this store.property:
+
+```
+gaffer.store.job.tracker.enabled=true
+```
+
+You will also need to configure what cache to use for the job tracker. The same cache is used for named operations and the job tracker.
+For example, to use the JCS cache service, add a dependency on the jcs-cache-service and set these store.properties:
 
 ```xml
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
-    <artifactId>job-tracker-jcs</artifactId>
-    <version>gaffer.version</version>
+    <artifactId>jcs-cache-service</artifactId>
+    <version>[gaffer.version]</version>
 </dependency>
 ```
 
-You will then need to register the job tracker in your store.properties file.
-
 ```
-gaffer.store.job.tracker.class=uk.gov.gchq.gaffer.jobtracker.JcsJobTracker
-```
+gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
 
-you can optionally provide a config file (e.g a cache.ccf file):
-
-```
-gaffer.store.job.tracker.config.path=/path/to/config/file
+# Optionally provide custom cache properties
+gaffer.cache.config.file=/path/to/config/file
 ```
 
 In addition to the job tracker, it is recommended that you enable a cache to store the job results in. The caching mechanism is implemented as operations and operation handlers. By default these are disabled.
 The job result cache is simply a second Gaffer Graph. So, if you are running on Accumulo, this can just be a separate table in your existing Accumulo cluster.
 
 Two operations are required for exporting and getting results from a Gaffer cache - ExportToGafferResultCache and GetGafferResultCacheExport.
-These two operations need to be registered by providing an Operations Declarations json file in your store.properties file.
-To use the Accumulo store as your Gaffer cache the operations declarations json file would need to look something like:
+These two operations need to be registered by providing an Operations Declarations JSON file in your store.properties file.
+To use the Accumulo store as your Gaffer cache the operations declarations JSON file would need to look something like:
 
 ${RESULT_CACHE_EXPORT_OPERATIONS}
 
@@ -52,21 +53,20 @@ gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
 ```
 
 The JSON files can either be placed on your file system or bundled as a resource in your JAR or WAR archive.
 
-The cache-store.properties file is:
+For this example the cache-store.properties just references another MockAccumuloStore table:
 
 ${CACHE_STORE_PROPERTIES}
 
-An example of all of this can be seen in the example/example-rest module. So you you launch the example REST API it will have the Job Tracker and Gaffer cache configured.
 
 #### Using Jobs
 OK, now for some examples of using Jobs.
 
-We will use the same basic schema and data from the first dev.walkthrough.
+We will use the same basic schema and data from the first developer walkthrough.
 
 Start by creating your user instance and graph as you will have done previously:
 

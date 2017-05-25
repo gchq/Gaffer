@@ -15,13 +15,14 @@
  */
 package uk.gov.gchq.gaffer.commonutil.stream;
 
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import java.util.ArrayList;
+import uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -31,6 +32,10 @@ import java.util.stream.Collector;
 /**
  * Java 8 {@link java.util.stream.Collector}s for Gaffer, based on the {@link java.util.stream.Collectors}
  * class.
+ *
+ * Please note that using a {@link java.util.stream.Collector} to gather together
+ * the items contained in a {@link java.util.stream.Stream} will result in those
+ * items being loaded into memory.
  */
 public final class GafferCollectors {
 
@@ -40,30 +45,69 @@ public final class GafferCollectors {
 
     /**
      * Returns a {@link java.util.stream.Collector} that accumulates the input
-     * elements into a {@link java.util.List}, before wrapping the list in a
-     * {@link uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable}.
+     * items into a {@link java.util.LinkedHashSet}.
      *
-     * @param <T> the type of the input elements
-     * @return a {@link java.util.stream.Collector} which collects all the input
-     * elements into a {@link uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable}
-     */
-    public static <T> Collector<T, List<T>, CloseableIterable<T>> toCloseableIterable() {
-        return new GafferCollectorImpl<>(ArrayList::new, List::add,
-                (left, right) -> { left.addAll(right); return left; },
-                list -> new WrappedCloseableIterable<T>(list));
-    }
-
-    /**
-     * Returns a {@link java.util.stream.Collector} that accumulates the input
-     * elements into a {@link java.util.LinkedHashSet}.
-     *
-     * @param <T> the type of the input elements
+     * @param <T> the type of the input items
      * @return a {@link java.util.stream.Collector} which collects all the input
      * elements into a {@link java.util.LinkedHashSet}
      */
     public static <T> Collector<T, ?, Set<T>> toLinkedHashSet() {
-        return new GafferCollectorImpl<>((Supplier<Set<T>>) LinkedHashSet::new, Set::add,
-                (left, right) -> { left.addAll(right); return left; }, set -> set);
+        return new GafferCollectorImpl<>(
+                (Supplier<Set<T>>) LinkedHashSet::new,
+                Set::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                },
+                set -> set
+        );
+    }
+
+    /**
+     * Returns a {@link java.util.stream.Collector} that accumulates the input
+     * items into a {@link java.util.SortedSet}.
+     *
+     * @param comparator the {@link java.util.Comparator} to use when comparing
+     *                   items
+     * @param <T> the type of input items
+     * @return a {@link java.util.stream.Collector} which collects all the input
+     * elements into a {@link java.util.SortedSet}
+     */
+    public static <T> Collector<T, Set<T>, SortedSet<T>> toSortedSet(final Comparator<T> comparator) {
+        return new GafferCollectorImpl<>(
+                () -> new TreeSet<>(comparator),
+                Collection::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
+    }
+
+    /**
+     * Returns a {@link java.util.stream.Collector} that accumulates the input
+     * items into a {@link uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet}.
+     *
+     * The usage of a {@link uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet}
+     * ensures that only relevant results are stored in memory, as the output is
+     * built up incrementally.
+     *
+     * @param comparator the {@link java.util.Comparator} to use when comparing
+     *                   items
+     * @param limit the maximum number of items to collect
+     * @param <T> the type of input items
+     * @return a {@link java.util.stream.Collector} which collects all the input
+     * elements into a {@link uk.gov.gchq.gaffer.commonutil.collection.LimitedSortedSet}
+     */
+    public static <T> Collector<T, Set<T>, LimitedSortedSet<T>> toLimitedSortedSet(final Comparator<T> comparator, final int limit) {
+        return new GafferCollectorImpl<>(
+                () -> new LimitedSortedSet<>(comparator, limit),
+                Collection::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                }
+        );
     }
 
     /**
@@ -79,9 +123,9 @@ public final class GafferCollectors {
         private final Function<A, R> finisher;
 
         GafferCollectorImpl(final Supplier<A> supplier,
-                final BiConsumer<A, T> accumulator,
-                final BinaryOperator<A> combiner,
-                final Function<A, R> finisher) {
+                            final BiConsumer<A, T> accumulator,
+                            final BinaryOperator<A> combiner,
+                            final Function<A, R> finisher) {
             this.supplier = supplier;
             this.accumulator = accumulator;
             this.combiner = combiner;
@@ -89,8 +133,8 @@ public final class GafferCollectors {
         }
 
         GafferCollectorImpl(final Supplier<A> supplier,
-                final BiConsumer<A, T> accumulator,
-                final BinaryOperator<A> combiner) {
+                            final BiConsumer<A, T> accumulator,
+                            final BinaryOperator<A> combiner) {
             this(supplier, accumulator, combiner, i -> (R) i);
         }
 

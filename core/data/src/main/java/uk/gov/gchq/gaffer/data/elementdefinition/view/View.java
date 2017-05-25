@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -80,7 +81,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @Override
     public String toString() {
         try {
-            return "View" + new String(toJson(true), CommonConstants.UTF_8);
+            return new ToStringBuilder(this)
+                    .append(new String(toJson(true), CommonConstants.UTF_8))
+                    .build();
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

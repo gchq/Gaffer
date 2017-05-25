@@ -34,7 +34,13 @@ public class SingleUseAccumuloStore extends AccumuloStore {
         // Initialise is deliberately called both before and after the deletion of the table.
         // The first call sets up a connection to the Accumulo instance
         // The second call is used to re-create the table
-        super.initialise(schema, properties);
+
+        try {
+            super.initialise(schema, properties);
+        } catch (final StoreException e) {
+            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
+        }
+
         try {
             getConnection().tableOperations().delete(getProperties().getTable());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {

@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -109,7 +110,9 @@ public final class TableUtils {
         final TableName tableName = store.getProperties().getTable();
         try {
             final Admin admin = connection.getAdmin();
-            if (!admin.tableExists(tableName)) {
+            if (admin.tableExists(tableName)) {
+                validateTable(tableName, admin);
+            } else {
                 try {
                     TableUtils.createTable(store);
                 } catch (final Exception e) {
@@ -232,5 +235,33 @@ public final class TableUtils {
         final Map<String, String> options = new HashMap<>(1);
         options.put(HBaseStoreConstants.SCHEMA, schemaJson);
         htable.addCoprocessor(GafferCoprocessor.class.getName(), store.getProperties().getDependencyJarsHdfsDirPath(), Coprocessor.PRIORITY_USER, options);
+    }
+
+    private static void validateTable(final TableName tableName, final Admin admin) throws StoreException {
+        final ValidationResult validationResult = new ValidationResult();
+
+        final HTableDescriptor descriptor;
+        try {
+            descriptor = admin.getTableDescriptor(tableName);
+        } catch (IOException e) {
+            throw new StoreException("Unable to look up the table coprocessors", e);
+        }
+
+        final HColumnDescriptor col = descriptor.getFamily(HBaseStoreConstants.getColFam());
+        if (null == col) {
+            validationResult.addError("The Gaffer element 'e' column family does not exist");
+        } else if (Integer.MAX_VALUE != col.getMaxVersions()) {
+            validationResult.addError("The maximum number of versions should be set to " + Integer.MAX_VALUE);
+        }
+
+        if (!descriptor.hasCoprocessor(GafferCoprocessor.class.getName())) {
+            validationResult.addError("Missing coprocessor: " + GafferCoprocessor.class.getName());
+        }
+
+        if (!validationResult.isValid()) {
+            throw new StoreException("Your table " + tableName + " is configured incorrectly. "
+                    + validationResult.getErrorString()
+                    + "\nEither delete the table and let Gaffer create it for you or fix it manually using the HBase shell or the Gaffer TableUtils utility.");
+        }
     }
 }

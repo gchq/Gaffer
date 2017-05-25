@@ -36,7 +36,7 @@ public class Log4jLogger implements GraphHook {
      */
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
-        LOGGER.info("Running {} as {}", opChain.toString(), user.getUserId());
+        LOGGER.info("Running {} as {}", opChain, user.getUserId());
     }
 
     @Override

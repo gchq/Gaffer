@@ -17,15 +17,15 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class ByteSerialiserTest extends SerialisationTest<byte[]> {
+public class ByteSerialiserTest extends ToByteSerialisationTest<byte[]> {
 
     @Test
     public void cantSerialiseLongClass() throws SerialisationException {
@@ -63,16 +63,16 @@ public class ByteSerialiserTest extends SerialisationTest<byte[]> {
 
     @Test
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final byte[] value = serialiser.deserialiseEmptyBytes();
+        final byte[] value = serialiser.deserialiseEmpty();
 
         // Then
         assertEquals(0, value.length);
     }
 
     @Override
-    public Serialisation<byte[]> getSerialisation() {
+    public Serialiser<byte[], byte[]> getSerialisation() {
         return new BytesSerialiser();
     }
 }

@@ -11,7 +11,7 @@ We first need to add an additional Edge to our Schema. We will add a RoadHasJunc
 In the data schema we need to define the new Road Edge:
 ${DATA_SCHEMA_JSON}
 
-Here we have used a new 'road' type so we also have to define that in our data schema. It is defined to be a simple java String.  
+Here we have used a new 'road' type so we also have to define that in our data schema. It is defined to be a simple java String.
 
 #### Element Generator
 

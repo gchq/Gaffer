@@ -17,20 +17,20 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawFloatSerialiserTest {
-
-    private static final RawFloatSerialiser SERIALISER = new RawFloatSerialiser();
+public class RawFloatSerialiserTest extends ToByteSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (float i = 0; i < 1000; i+=1.1) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,28 +38,32 @@ public class RawFloatSerialiserTest {
 
     @Test
     public void canSerialiseFloatMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Float.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseFloatMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Float.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseFloatClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Float.class));
+        assertTrue(serialiser.canHandle(Float.class));
     }
 
+    @Override
+    public Serialiser<Float, byte[]> getSerialisation() {
+        return new RawFloatSerialiser();
+    }
 }

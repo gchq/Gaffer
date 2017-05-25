@@ -42,7 +42,7 @@ public final class TypeReferenceImpl {
     public static class Object extends TypeReference<java.lang.Object> {
     }
 
-    public static class Element extends TypeReference<Element> {
+    public static class Element extends TypeReference<uk.gov.gchq.gaffer.data.element.Element> {
     }
 
     public static class Boolean extends TypeReference<java.lang.Boolean> {
@@ -78,7 +78,7 @@ public final class TypeReferenceImpl {
     }
 
     public static class CloseableIterableEntitySeed extends
-            TypeReference<CloseableIterable<EntitySeed>> {
+            TypeReference<CloseableIterable<? extends uk.gov.gchq.gaffer.operation.data.EntitySeed>> {
     }
 
     public static class Exporter extends TypeReference<uk.gov.gchq.gaffer.operation.export.Exporter> {

@@ -30,9 +30,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.io.IOException;
@@ -125,7 +127,7 @@ public class SchemaTest {
 
         // Check validator
         ElementFilter validator = edgeDefinition.getValidator();
-        final List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getComponents();
+        List<TupleAdaptedPredicate<String, ?>> valContexts = validator.getComponents();
         int index = 0;
 
         TupleAdaptedPredicate<String, ?> tuplePredicate = valContexts.get(index++);
@@ -187,6 +189,26 @@ public class SchemaTest {
         assertEquals(String.class, type.getClazz());
         assertNull(type.getSerialiser());
         assertTrue(type.getAggregateFunction() instanceof ExampleAggregateFunction);
+        validator = entityDefinition.getValidator();
+        valContexts = validator.getComponents();
+        index = 0;
+        tuplePredicate = valContexts.get(index++);
+
+        assertTrue(tuplePredicate.getPredicate() instanceof IsXMoreThanY);
+        assertEquals(2, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
+        assertEquals(TestPropertyNames.VISIBILITY, tuplePredicate.getSelection()[1]);
+
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(IdentifierType.VERTEX.name(), tuplePredicate.getSelection()[0]);
+
+        tuplePredicate = valContexts.get(index++);
+        assertTrue(tuplePredicate.getPredicate() instanceof IsA);
+        assertEquals(1, tuplePredicate.getSelection().length);
+        assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
+
 
         final ElementAggregator aggregator = edgeDefinition.getAggregator();
         final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
@@ -437,7 +459,7 @@ public class SchemaTest {
     @Test
     public void shouldBuildSchema() {
         // Given
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
 
         // When
         final Schema schema = new Schema.Builder()
@@ -470,7 +492,7 @@ public class SchemaTest {
         // Given
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
@@ -511,7 +533,7 @@ public class SchemaTest {
         // Given
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
@@ -592,8 +614,8 @@ public class SchemaTest {
     @Test
     public void shouldThrowExceptionWhenMergeSchemasWithConflictingVertexSerialiser() {
         // Given
-        final Serialisation vertexSerialiser1 = mock(Serialisation.class);
-        final Serialisation vertexSerialiser2 = mock(SerialisationImpl.class);
+        final Serialiser vertexSerialiser1 = mock(Serialiser.class);
+        final Serialiser vertexSerialiser2 = mock(SerialisationImpl.class);
         final Schema schema1 = new Schema.Builder()
                 .vertexSerialiser(vertexSerialiser1)
                 .build();
@@ -887,7 +909,7 @@ public class SchemaTest {
         assertEquals(allGroups, groups);
     }
 
-    private class SerialisationImpl implements Serialisation<Object> {
+    private class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
 
         @Override
@@ -906,7 +928,7 @@ public class SchemaTest {
         }
 
         @Override
-        public Object deserialiseEmptyBytes() throws SerialisationException {
+        public Object deserialiseEmpty() throws SerialisationException {
             return null;
         }
 

@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.doc.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -32,7 +30,6 @@ public abstract class Example {
     public static final String METHOD_DIVIDER = DIVIDER + "\n";
     public static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
     private final Class<?> classForExample;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final String description;
 
     public Example(final Class<?> classForExample) {
@@ -116,6 +113,6 @@ public abstract class Example {
 
 
     protected void log(final String message) {
-        logger.info(message);
+        System.out.println(message);
     }
 }
