@@ -49,7 +49,9 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -104,11 +106,12 @@ public class StoreTest {
     private JobTracker jobTracker;
     private OperationHandler<ExportToGafferResultCache> exportToGafferResultCacheHandler;
     private OperationHandler<GetGafferResultCacheExport> getGafferResultCacheExportHandler;
+    private StoreImpl store;
 
     @Before
     public void setup() {
         schemaOptimiser = mock(SchemaOptimiser.class);
-
+        store = new StoreImpl();
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
@@ -163,7 +166,7 @@ public class StoreTest {
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
         try {
@@ -178,7 +181,6 @@ public class StoreTest {
     public void shouldCreateStoreWithValidSchemasAndRegisterOperations() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         final OperationHandler<AddElements> addElementsHandlerOverridden = mock(OperationHandler.class);
         final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
                 .declaration(new OperationDeclaration.Builder()
@@ -187,6 +189,7 @@ public class StoreTest {
                         .build())
                 .build();
         given(properties.getOperationDeclarations()).willReturn(opDeclarations);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
         store.initialise(schema, properties);
@@ -217,8 +220,8 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         final AddElements addElements = new AddElements();
-        final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
         // When
@@ -226,6 +229,45 @@ public class StoreTest {
 
         // Then
         verify(addElementsHandler).doOperation(addElements, context, store);
+    }
+
+    @Test
+    public void shouldCloseOperationIfResultIsNotCloseable() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        final Operation operation = mock(Operation.class);
+        final StoreImpl store = new StoreImpl();
+        store.initialise(schema, properties);
+
+        // When
+        store.handleOperation(operation, context);
+
+        // Then
+        verify(operation).close();
+    }
+
+    @Test
+    public void shouldCloseOperationIfExceptionThrown() throws Exception {
+        // Given
+        final Schema schema = createSchemaMock();
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        final Operation operation = mock(Operation.class);
+        final StoreImpl store = new StoreImpl();
+        final OperationHandler opHandler = mock(OperationHandler.class);
+        store.addOperationHandler(Operation.class, opHandler);
+        store.initialise(schema, properties);
+
+        given(opHandler.doOperation(operation, context, store)).willThrow(new RuntimeException());
+
+        // When / Then
+        try {
+            store.handleOperation(operation, context);
+        } catch (final Exception e) {
+            verify(operation).close();
+        }
     }
 
     @Test
@@ -239,6 +281,7 @@ public class StoreTest {
         final ViewValidator viewValidator = mock(ViewValidator.class);
         final StoreImpl store = new StoreImpl(viewValidator);
 
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         op.setView(view);
         given(schema.validate()).willReturn(new ValidationResult());
         ValidationResult validationResult = new ValidationResult();
@@ -262,7 +305,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
-        final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise(schema, properties);
 
@@ -283,6 +326,7 @@ public class StoreTest {
         final Store store = new StoreImpl();
         given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
         given(lazyElement.getElement()).willReturn(entity);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise(schema, properties);
 
@@ -301,8 +345,8 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         final CloseableIterable getElementsResult = mock(CloseableIterable.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         final AddElements addElements1 = new AddElements();
         final GetElements getElements = new GetElements();
@@ -330,9 +374,8 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-
-        final StoreImpl store = new StoreImpl();
-        final int expectedNumberOfOperations = 30;
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        final int expectedNumberOfOperations = 33;
         store.initialise(schema, properties);
 
         // When
@@ -349,7 +392,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         store.initialise(schema, properties);
 
         // WHen
@@ -368,7 +411,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         store.initialise(schema, properties);
 
         // When
@@ -383,8 +426,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-
-        final StoreImpl store = new StoreImpl();
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         store.initialise(schema, properties);
 
         // When
@@ -403,6 +445,7 @@ public class StoreTest {
                 .then(new ExportToGafferResultCache())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
@@ -429,6 +472,7 @@ public class StoreTest {
         final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
@@ -453,6 +497,7 @@ public class StoreTest {
     public void shouldGetJobTracker() throws OperationException, ExecutionException, InterruptedException, StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
@@ -467,8 +512,49 @@ public class StoreTest {
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());
-        given(schema.getVertexSerialiser()).willReturn(mock(Serialisation.class));
+        given(schema.getVertexSerialiser()).willReturn(mock(Serialiser.class));
         return schema;
+    }
+
+
+    @Test(expected = SchemaException.class)
+    public void shouldFindInvalidSerialiser() throws Exception {
+        final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
+        Schema invalidSchema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("invalidString")
+                        .directed("true")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new StringSerialiser())
+                        .build())
+                .type("invalidString", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(invalidSerialiserClass.newInstance())
+                        .build())
+                .type("true", Boolean.class)
+                .build();
+
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        final Class<ToBytesSerialiser> validSerialiserInterface = ToBytesSerialiser.class;
+        try {
+            new StoreImpl() {
+                @Override
+                protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+                    return validSerialiserInterface;
+                }
+            }.initialise(invalidSchema, properties);
+        } catch (SchemaException e) {
+            assertEquals(String.format("Schema is not valid. Validation errors: \n%s", String.format(StoreImpl.SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S, invalidSerialiserClass.getSimpleName(), validSerialiserInterface.getSimpleName())), e.getMessage());
+            throw e;
+        }
+        fail("Exception wasn't caught");
     }
 
     private class StoreImpl extends Store {
@@ -564,6 +650,11 @@ public class StoreTest {
             }
 
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
         }
     }
 }

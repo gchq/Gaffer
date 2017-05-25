@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.data.generator;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.data.TransformOneToManyIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformOneToManyIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.util.Arrays;
 

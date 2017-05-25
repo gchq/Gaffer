@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
 import java.util.HashSet;
@@ -127,7 +127,7 @@ public class SchemaOptimiser {
         }
     }
 
-    private Serialisation getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
+    private Serialiser getDefaultVertexSerialiser(final Schema schema, final boolean isStoreOrdered) {
         if (null != schema.getVertexSerialiser()) {
             return schema.getVertexSerialiser();
         }
@@ -143,7 +143,7 @@ public class SchemaOptimiser {
         vertexClasses.remove(null);
 
         if (!vertexClasses.isEmpty()) {
-            Serialisation serialiser = null;
+            Serialiser serialiser = null;
 
             if (vertexClasses.size() == 1) {
                 serialiser = serialisationFactory.getSerialiser(vertexClasses.iterator().next(), isStoreOrdered);

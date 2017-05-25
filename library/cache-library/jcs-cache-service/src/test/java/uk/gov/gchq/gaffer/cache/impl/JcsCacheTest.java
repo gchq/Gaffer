@@ -9,8 +9,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class JcsCacheTest {
 

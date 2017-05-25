@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
 import java.util.Properties;
 
 /**
@@ -48,7 +47,7 @@ public final class CacheServiceLoader {
 
         if (cacheClass == null) {
             if (service == null) {
-                LOGGER.warn("No cache service class was specified in properties.");
+                LOGGER.debug("No cache service class was specified in properties.");
             }
             return;
         }

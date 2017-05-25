@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
@@ -35,7 +33,6 @@ public abstract class AbstractWalkthrough {
     protected final String modulePath;
     protected final String storePropertiesLocation;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, StringBuilder> logCache = new HashMap<>();
     private final String exampleId;
     private final String header;
@@ -92,7 +89,7 @@ public abstract class AbstractWalkthrough {
             }
             logs.append(message);
         } else {
-            logger.info(message);
+            System.out.println(message);
         }
     }
 

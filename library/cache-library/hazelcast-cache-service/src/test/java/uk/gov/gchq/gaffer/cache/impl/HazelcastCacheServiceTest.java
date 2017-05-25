@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
 import java.io.File;
 import java.util.Properties;
 

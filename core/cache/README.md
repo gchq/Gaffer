@@ -14,7 +14,7 @@ limitations under the License.
 
 Cache
 =====
-In the cache module you will find the CacheServiceLoader which is
+In the cache module you will find the `CacheServiceLoader` which is
 started when the store is initialised. The cache service loader can be
 called when a component needs access to short term data storage. To
 get access to the cache service you need to call:
@@ -29,11 +29,11 @@ gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.HashMapCacheService
 If needs be you can add an additional configuration file which will
 contain properties for the cache itself:
 ```
-gaffer.cache.config.file=/path/to/file.xml
+gaffer.cache.config.file=/path/to/file
 ```
 
 By default there is no service loaded so if your using a component that
-makes use of the CacheServiceLoader, be sure to specify the service class
+makes use of the `CacheServiceLoader`, be sure to specify the service class
 in the store.properties file.
 
 If using an external cache service (anything found in the cache library) be

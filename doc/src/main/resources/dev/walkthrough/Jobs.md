@@ -23,12 +23,11 @@ For example, to use the JCS cache service, add a dependency on the jcs-cache-ser
 <dependency>
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>jcs-cache-service</artifactId>
-    <version>${project.parent.version}</version>
+    <version>[gaffer.version]</version>
 </dependency>
 ```
 
 ```
-gaffer.cache.service.class
 gaffer.cache.service.class=uk.gov.gchq.gaffer.cache.impl.JcsCacheService
 
 # Optionally provide custom cache properties
@@ -39,8 +38,8 @@ In addition to the job tracker, it is recommended that you enable a cache to sto
 The job result cache is simply a second Gaffer Graph. So, if you are running on Accumulo, this can just be a separate table in your existing Accumulo cluster.
 
 Two operations are required for exporting and getting results from a Gaffer cache - ExportToGafferResultCache and GetGafferResultCacheExport.
-These two operations need to be registered by providing an Operations Declarations json file in your store.properties file.
-To use the Accumulo store as your Gaffer cache the operations declarations json file would need to look something like:
+These two operations need to be registered by providing an Operations Declarations JSON file in your store.properties file.
+To use the Accumulo store as your Gaffer cache the operations declarations JSON file would need to look something like:
 
 ${RESULT_CACHE_EXPORT_OPERATIONS}
 
@@ -54,21 +53,20 @@ gaffer.store.operation.declarations=/path/to/ResultCacheExportOperations.json
 If you are also adding NamedOperation handlers you can just supply a comma separated list of operation declaration files:
 
 ```
-gaffer.store.operation.declarations=/path/to/JCSNamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
+gaffer.store.operation.declarations=/path/to/NamedOperationDeclarations,/path/to/ResultCacheExportOperations.json
 ```
 
 The JSON files can either be placed on your file system or bundled as a resource in your JAR or WAR archive.
 
-The cache-store.properties file is:
+For this example the cache-store.properties just references another MockAccumuloStore table:
 
 ${CACHE_STORE_PROPERTIES}
 
-An example of all of this can be seen in the example/example-rest module. So you you launch the example REST API it will have the Job Tracker and Gaffer cache configured.
 
 #### Using Jobs
 OK, now for some examples of using Jobs.
 
-We will use the same basic schema and data from the first dev.walkthrough.
+We will use the same basic schema and data from the first developer walkthrough.
 
 Start by creating your user instance and graph as you will have done previously:
 

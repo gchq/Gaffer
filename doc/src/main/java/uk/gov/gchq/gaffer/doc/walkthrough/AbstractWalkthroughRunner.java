@@ -16,8 +16,6 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import java.io.IOException;
@@ -27,7 +25,6 @@ import java.util.Locale;
 
 public class AbstractWalkthroughRunner {
     public static final String EXAMPLE_DIVIDER = "\n\n";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWalkthroughRunner.class);
 
     private final List<Class<? extends AbstractWalkthrough>> examples;
 
@@ -46,8 +43,8 @@ public class AbstractWalkthroughRunner {
         printIntro();
         printWalkthroughTitle();
         for (final Class<? extends AbstractWalkthrough> aClass : examples) {
-            LOGGER.info(aClass.newInstance().walkthrough());
-            LOGGER.info(EXAMPLE_DIVIDER);
+            System.out.println(aClass.newInstance().walkthrough());
+            System.out.println(EXAMPLE_DIVIDER);
         }
     }
 
@@ -59,11 +56,11 @@ public class AbstractWalkthroughRunner {
             throw new RuntimeException(e);
         }
 
-        LOGGER.info(WalkthroughStrSubstitutor.substitute(intro, modulePath));
+        System.out.println(WalkthroughStrSubstitutor.substitute(intro, modulePath));
     }
 
     private void printHeader() {
-        LOGGER.info("Copyright 2016-2017 Crown Copyright\n"
+        System.out.println("Copyright 2016-2017 Crown Copyright\n"
                 + "\n"
                 + "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
                 + "you may not use this file except in compliance with the License.\n"
@@ -82,21 +79,20 @@ public class AbstractWalkthroughRunner {
 
     private void printTableOfContents() throws InstantiationException, IllegalAccessException {
         int index = 1;
-        LOGGER.info("{}. [Introduction](#introduction)", index);
+        System.out.println(index + ". [Introduction](#introduction)");
         index++;
-        LOGGER.info("{}. [Walkthroughs](#walkthroughs)", index);
+        System.out.println(index + ". [Walkthroughs](#walkthroughs)");
 
         index = 1;
         for (final Class<? extends AbstractWalkthrough> aClass : examples) {
             final String header = aClass.newInstance().getHeader();
-            LOGGER.info("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
-            LOGGER.info("  {}. [{}](#{})", index, header, header.toLowerCase(Locale.getDefault()).replace(" ", "-"));
+            System.out.println("   " + index + ". [" + header + "](#" + header.toLowerCase(Locale.getDefault()).replace(" ", "-") + ")");
             index++;
         }
-        LOGGER.info("\n");
+        System.out.println("\n");
     }
 
     private void printWalkthroughTitle() {
-        LOGGER.info("## Walkthroughs");
+        System.out.println("## Walkthroughs");
     }
 }

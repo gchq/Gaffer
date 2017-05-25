@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -48,6 +47,10 @@ public class StoreProperties implements Cloneable {
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
+
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
+    private static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+
 
     private Properties props = new Properties();
 
@@ -125,6 +128,11 @@ public class StoreProperties implements Cloneable {
         return get(STORE_CLASS);
     }
 
+    @JsonIgnore
+    public void setStoreClass(final Class<? extends Store> storeClass) {
+        setStoreClass(storeClass.getName());
+    }
+
     public void setStoreClass(final String storeClass) {
         set(STORE_CLASS, storeClass);
     }
@@ -191,6 +199,10 @@ public class StoreProperties implements Cloneable {
 
     public String getOperationDeclarationPaths() {
         return get(OPERATION_DECLARATIONS);
+    }
+
+    public Integer getJobExecutorThreadCount() {
+        return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
 
     public void setOperationDeclarationPaths(final String paths) {

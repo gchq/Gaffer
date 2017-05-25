@@ -39,6 +39,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
+import uk.gov.gchq.gaffer.operation.io.Input;
+import uk.gov.gchq.gaffer.operation.io.MultiInput;
+import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -46,6 +50,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class OperationChainTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
@@ -66,11 +71,11 @@ public class OperationChainTest {
         assertNotNull(deserialisedOp);
         assertEquals(2, deserialisedOp.getOperations().size());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(0)
-                                                        .getClass());
+                .get(0)
+                .getClass());
         assertEquals(OperationImpl.class, deserialisedOp.getOperations()
-                                                        .get(1)
-                                                        .getClass());
+                .get(1)
+                .getClass());
     }
 
     @Test
@@ -136,29 +141,6 @@ public class OperationChainTest {
     }
 
     @Test
-    public void shouldReturnReadableStringForToString() {
-        // Given
-        final AddElements addElements = new AddElements();
-        final GetAdjacentIds getAdj1 = new GetAdjacentIds();
-        final GetAdjacentIds getAdj2 = new GetAdjacentIds();
-        final GetElements getRelElements = new GetElements();
-        final OperationChain<CloseableIterable<? extends Element>> opChain = new Builder()
-                .first(addElements)
-                .then(getAdj1)
-                .then(getAdj2)
-                .then(getRelElements)
-                .build();
-
-        // When
-        final String toString = opChain.toString();
-
-        // Then
-        final String expectedToString =
-                "OperationChain[AddElements->GetAdjacentIds->GetAdjacentIds->GetElements]";
-        assertEquals(expectedToString, toString);
-    }
-
-    @Test
     public void shouldBuildOperationChainWithSingleOperation() throws SerialisationException {
         // Given
         final GetAdjacentIds getAdjacentIds = mock(GetAdjacentIds.class);
@@ -208,5 +190,28 @@ public class OperationChainTest {
 
         // When / Then
         assertSame(typeRef, opChain.getOutputTypeReference());
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputs() throws IOException {
+        // Given
+        final Operation[] operations = {
+                mock(Operation.class),
+                mock(Input.class),
+                mock(Input.class),
+                mock(MultiInput.class),
+                mock(Input.class)
+        };
+
+        // When
+        final OperationChain opChain = new OperationChain(Arrays.asList(operations));
+
+        // When
+        opChain.close();
+
+        // Then
+        for (final Operation operation : operations) {
+            verify(operation).close();
+        }
     }
 }

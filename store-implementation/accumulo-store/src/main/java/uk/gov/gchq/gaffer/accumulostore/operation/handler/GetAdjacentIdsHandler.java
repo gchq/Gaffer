@@ -23,8 +23,8 @@ import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.impl.AccumuloSingleIDRetriever;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.IsEdgeValidator;
-import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -44,14 +44,14 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
 
     @Override
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds operation,
-                                                               final Context context, final Store store)
+                                                             final Context context, final Store store)
             throws OperationException {
         return doOperation(operation, context.getUser(), (AccumuloStore) store);
     }
 
     public CloseableIterable<? extends EntityId> doOperation(final GetAdjacentIds op,
-                                                               final User user,
-                                                               final AccumuloStore store)
+                                                             final User user,
+                                                             final AccumuloStore store)
             throws OperationException {
 
         final AccumuloRetriever<?> edgeRetriever;
@@ -88,11 +88,6 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
         @Override
         protected EntityId transform(final Element element) {
             return new EntitySeed(((Edge) element).getDestination());
-        }
-
-        @Override
-        public void close() {
-            ((CloseableIterable) super.getInput()).close();
         }
     }
 }

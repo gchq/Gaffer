@@ -17,20 +17,23 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawIntegerSerialiserTest {
+public class RawIntegerSerialiserTest extends ToByteSerialisationTest<Integer> {
 
-    private static final RawIntegerSerialiser SERIALISER = new RawIntegerSerialiser();
+    private RawIntegerSerialiser serialiser
+            = new RawIntegerSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (int i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,28 +41,33 @@ public class RawIntegerSerialiserTest {
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Integer.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Integer.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseIntegerClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Integer.class));
+        assertTrue(serialiser.canHandle(Integer.class));
     }
 
+
+    @Override
+    public Serialiser<Integer, byte[]> getSerialisation() {
+        return new RawIntegerSerialiser();
+    }
 }

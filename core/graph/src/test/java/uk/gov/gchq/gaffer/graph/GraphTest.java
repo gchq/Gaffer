@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +38,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -45,6 +47,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -86,6 +90,12 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
+
+    @Before
+    public void before() throws Exception {
+        TestStore.mockStore = mock(TestStore.class);
+    }
+
     @Test
     public void shouldConstructGraphFromSchemaModules() {
         // Given
@@ -200,6 +210,58 @@ public class GraphTest {
         if (resourceURL == null)
             fail("Test json file not found: " + resource);
         return resourceURL;
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
+        final Exception exception = mock(RuntimeException.class);
+        final User user = mock(User.class);
+        given(TestStore.mockStore.execute(opChain, user)).willThrow(exception);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertSame(exception, e);
+            verify(opChain).close();
+        }
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
+        final Exception exception = mock(RuntimeException.class);
+        final User user = mock(User.class);
+        given(TestStore.mockStore.executeJob(opChain, user)).willThrow(exception);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertSame(exception, e);
+            verify(opChain).close();
+        }
     }
 
     @Test
@@ -605,7 +667,6 @@ public class GraphTest {
     }
 
     static class StoreImpl extends Store {
-
         @Override
         public Set<StoreTrait> getTraits() {
             return new HashSet<>(0);
@@ -644,6 +705,11 @@ public class GraphTest {
         @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
         }
     }
 

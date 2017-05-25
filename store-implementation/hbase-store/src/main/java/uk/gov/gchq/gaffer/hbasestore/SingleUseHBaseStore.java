@@ -26,30 +26,20 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * Meant to be used for testing.
  */
 public class SingleUseHBaseStore extends HBaseStore {
-    private static boolean dropTable = false;
-
-    public static void setDropTable(final boolean dropTable) {
-        SingleUseHBaseStore.dropTable = dropTable;
-    }
-
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         // Initialise is deliberately called both before and after the deletion of the table.
         // The first call sets up a connection to the HBase instance
         // The second call is used to re-create the table
-        super.initialise(schema, properties);
 
-        if (dropTable) {
-            TableUtils.dropTable(this);
-            TableUtils.createTable(this);
-        } else {
-            try {
-                TableUtils.deleteAllRows(this);
-            } catch (final StoreException e) {
-                TableUtils.dropTable(this);
-                TableUtils.createTable(this);
-            }
+        try {
+            super.initialise(schema, properties);
+        } catch (final StoreException e) {
+            // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }
+
+        TableUtils.dropTable(this);
+        super.initialise(schema, properties);
     }
 }

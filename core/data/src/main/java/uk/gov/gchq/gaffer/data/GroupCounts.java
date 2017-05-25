@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,10 +75,10 @@ public class GroupCounts {
 
     @Override
     public String toString() {
-        return "GroupCounts{"
-                + "entityGroups=" + entityGroups
-                + ", edgeGroups=" + edgeGroups
-                + ", limitHit=" + limitHit
-                + '}';
+        return new ToStringBuilder(this)
+                .append("entityGroups", entityGroups)
+                .append("edgeGroups", edgeGroups)
+                .append("limitHit", limitHit)
+                .build();
     }
 }

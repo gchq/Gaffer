@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>gaffer2</artifactId>
-        <version>0.7.1-SNAPSHOT</version>
+        <version>0.7.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>integration-test</artifactId>
@@ -30,11 +30,6 @@
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>graph</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>core-library</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
