@@ -88,7 +88,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         Counter counter;
         try {
             counter = job.getCounters().findCounter(Task.Counter.REDUCE_OUTPUT_RECORDS);
-            LOGGER.info("Number of records output = {}", counter);
+            LOGGER.info("Number of records output = {}", counter.getValue());
         } catch (final IOException e) {
             LOGGER.error("Failed to get counter org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
             throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
@@ -96,7 +96,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
 
         int numberTabletServers;
         try {
-            numberTabletServers = store.getConnection().instanceOperations().getTabletServers().size();
+            numberTabletServers = store.getTabletServers().size();
             LOGGER.info("Number of tablet servers is {}", numberTabletServers);
         } catch (final StoreException e) {
             LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
