@@ -19,9 +19,10 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.mapstore.MapFactory;
 import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
-import uk.gov.gchq.gaffer.mapstore.SimpleMapFactory;
+import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
+import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
+import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -43,9 +44,9 @@ public class MapImpl {
     // group-by properties
     Map<Element, Properties> elementToProperties;
     // entityIdToElements is a map from an EntityId to the element key from elementToProperties
-    Map<EntityId, Set<Element>> entityIdToElements;
+    MultiMap<EntityId, Element> entityIdToElements;
     // edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
-    Map<EdgeId, Set<Element>> edgeIdToElements;
+    MultiMap<EdgeId, Element> edgeIdToElements;
     final boolean maintainIndex;
     final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
@@ -65,8 +66,8 @@ public class MapImpl {
         maintainIndex = mapStoreProperties.getCreateIndex();
         elementToProperties = mapFactory.newMap("elementToProperties");
         if (maintainIndex) {
-            entityIdToElements = mapFactory.newMap("entityIdToElements");
-            edgeIdToElements = mapFactory.newMap("edgeIdToElements");
+            entityIdToElements = mapFactory.newMultiMap("entityIdToElements");
+            edgeIdToElements = mapFactory.newMultiMap("edgeIdToElements");
         }
         this.schema = schema;
         schema.getEntityGroups().forEach(g -> addToGroupByMap(this.schema, g));
@@ -78,10 +79,8 @@ public class MapImpl {
         groupToGroupByProperties.clear();
         groupToNonGroupByProperties.clear();
         groupsWithNoAggregation.clear();
-        if (null != entityIdToElements) {
+        if (maintainIndex) {
             entityIdToElements.clear();
-        }
-        if (null != edgeIdToElements) {
             edgeIdToElements.clear();
         }
 

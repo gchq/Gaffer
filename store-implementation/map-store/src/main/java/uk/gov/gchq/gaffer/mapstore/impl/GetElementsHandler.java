@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -45,6 +44,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -112,7 +112,7 @@ public class GetElementsHandler
                     })
                     .flatMap(x -> x.stream());
             final Stream<Element> afterView = applyView(elementsWithProperties, mapImpl.schema, getElements.getView());
-            final Stream<Element> clonedElements = afterView.map(element -> ElementCloner.cloneElement(element, mapImpl.schema));
+            final Stream<Element> clonedElements = afterView.map(element -> mapImpl.mapFactory.cloneElement(element, mapImpl.schema));
             return new WrappedCloseableIterator<>(clonedElements.iterator());
         }
     }
@@ -122,8 +122,9 @@ public class GetElementsHandler
                                             final GetElements getElements) {
         if (elementId instanceof EntityId) {
             final Set<Element> relevantElements = new HashSet<>();
-            if (null != mapImpl.entityIdToElements.get(elementId)) {
-                relevantElements.addAll(mapImpl.entityIdToElements.get(elementId));
+            final Collection<Element> elements = mapImpl.entityIdToElements.get((EntityId) elementId);
+            if (null != elements) {
+                relevantElements.addAll(elements);
             }
             if (relevantElements.isEmpty()) {
                 return Collections.emptySet();

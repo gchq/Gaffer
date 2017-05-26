@@ -19,11 +19,11 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
-public class MapStoreIHazelcastTs extends AbstractStoreITs {
+public class MapStoreHazelcastITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES =
-            StoreProperties.loadStoreProperties(StreamUtil.openStream(MapStoreIHazelcastTs.class, "hazelcast-store.properties"));
+            StoreProperties.loadStoreProperties(StreamUtil.openStream(MapStoreHazelcastITs.class, "hazelcast-store.properties"));
 
-    public MapStoreIHazelcastTs() {
+    public MapStoreHazelcastITs() {
         super(STORE_PROPERTIES);
     }
 }

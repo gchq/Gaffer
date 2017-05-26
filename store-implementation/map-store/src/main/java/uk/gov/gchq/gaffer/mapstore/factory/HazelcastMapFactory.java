@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore;
+package uk.gov.gchq.gaffer.mapstore.factory;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.multimap.GafferToHazelcastMap;
+import uk.gov.gchq.gaffer.mapstore.multimap.GafferToHazelcastMultiMap;
+import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Map;
 
 public class HazelcastMapFactory implements MapFactory {
@@ -30,6 +37,7 @@ public class HazelcastMapFactory implements MapFactory {
 
     private static HazelcastInstance hazelcast;
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     @Override
     public void initialise(final MapStoreProperties properties) {
         if (null == hazelcast) {
@@ -51,17 +59,29 @@ public class HazelcastMapFactory implements MapFactory {
 
     @Override
     public <K, V> Map<K, V> newMap(final String mapName) {
-        return hazelcast.getMap(mapName);
+        return new GafferToHazelcastMap<>(hazelcast.getMap(mapName));
+    }
+
+    @Override
+    public <K, V> MultiMap<K, V> newMultiMap(final String mapName) {
+        return new GafferToHazelcastMultiMap<>(hazelcast.getMultiMap(mapName));
+    }
+
+    @Override
+    public <K, V> void updateValue(final Map<K, V> map, final K key, final V adaptedValue) {
+        map.put(key, adaptedValue);
+    }
+
+    @Override
+    public Element cloneElement(final Element element, final Schema schema) {
+        // Element will already be cloned
+        return element;
     }
 
     @Override
     public void clear() {
-        for (final String mapName : hazelcast.getConfig().getMapConfigs().keySet()) {
-            final IMap<Object, Object> map = hazelcast.getMap(mapName);
-            if (null != map) {
-                map.clear();
-                map.flush();
-            }
+        for (final DistributedObject map : hazelcast.getDistributedObjects()) {
+            map.destroy();
         }
     }
 }

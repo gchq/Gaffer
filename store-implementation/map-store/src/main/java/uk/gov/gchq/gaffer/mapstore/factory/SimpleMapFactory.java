@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore;
+package uk.gov.gchq.gaffer.mapstore.factory;
 
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.mapstore.MapStoreProperties;
+import uk.gov.gchq.gaffer.mapstore.multimap.MapOfSets;
+import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
+import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleMapFactory implements MapFactory {
-
-    private Class<? extends Map> mapClass;
+    private Class<? extends Map> mapClass = HashMap.class;
 
     @Override
     public void initialise(final MapStoreProperties properties) {
@@ -42,5 +48,15 @@ public class SimpleMapFactory implements MapFactory {
     @Override
     public void clear() {
         // no action required
+    }
+
+    @Override
+    public <K, V> MultiMap<K, V> newMultiMap(final String mapName) {
+        return new MapOfSets<>(newMap(mapName));
+    }
+
+    @Override
+    public Element cloneElement(final Element element, final Schema schema) {
+        return ElementCloner.cloneElement(element, schema);
     }
 }

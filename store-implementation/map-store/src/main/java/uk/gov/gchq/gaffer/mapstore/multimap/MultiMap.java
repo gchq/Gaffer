@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.mapstore;
 
-import java.util.Map;
+package uk.gov.gchq.gaffer.mapstore.multimap;
 
-public interface MapFactory {
-    void initialise(final MapStoreProperties properties);
+import java.util.Collection;
 
-    default <K, V> Map<K, V> newMap() {
-        return newMap("default");
-    }
+public interface MultiMap<K, V> {
+    boolean put(K key, V value);
 
-    <K, V> Map<K, V> newMap(final String mapName);
+    Collection<V> get(K key);
 
     void clear();
 }

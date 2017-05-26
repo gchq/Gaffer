@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore;
 
+import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
