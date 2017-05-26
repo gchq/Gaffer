@@ -24,15 +24,15 @@ import java.util.Map;
 public interface MapFactory {
     void initialise(final MapStoreProperties properties);
 
-    default <K, V> Map<K, V> newMap() {
-        return newMap("default");
+    default <K, V> Map<K, V> getMap() {
+        return getMap("default");
     }
 
-    <K, V> Map<K, V> newMap(final String mapName);
+    <K, V> Map<K, V> getMap(final String mapName);
 
     void clear();
 
-    <K, V> MultiMap<K, V> newMultiMap(String mapName);
+    <K, V> MultiMap<K, V> getMultiMap(String mapName);
 
     default <K, V> void updateValue(Map<K, V> map, K key, V adaptedValue) {
         // no action required.

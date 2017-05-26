@@ -58,12 +58,12 @@ public class HazelcastMapFactory implements MapFactory {
     }
 
     @Override
-    public <K, V> Map<K, V> newMap(final String mapName) {
+    public <K, V> Map<K, V> getMap(final String mapName) {
         return new GafferToHazelcastMap<>(hazelcast.getMap(mapName));
     }
 
     @Override
-    public <K, V> MultiMap<K, V> newMultiMap(final String mapName) {
+    public <K, V> MultiMap<K, V> getMultiMap(final String mapName) {
         return new GafferToHazelcastMultiMap<>(hazelcast.getMultiMap(mapName));
     }
 

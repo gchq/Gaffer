@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import com.google.common.collect.Sets;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -26,6 +27,7 @@ import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,16 +39,24 @@ import java.util.Set;
  * exposing the internal state of the MapStore to classes outside of this package.
  */
 public class MapImpl {
-
-    static final String COUNT = "COUNT";
+    public static final String COUNT = "COUNT";
+    public static final String ELEMENT_TO_PROPERTIES = "elementToProperties";
+    public static final String ENTITY_ID_TO_ELEMENTS = "entityIdToElements";
+    public static final String EDGE_ID_TO_ELEMENTS = "edgeIdToElements";
+    public static final Set<String> MAP_NAMES = Collections.unmodifiableSet(
+            Collections.singleton(ELEMENT_TO_PROPERTIES));
+    public static final Set<String> MULTI_MAP_NAMES = Collections.unmodifiableSet(
+            Sets.newHashSet(ENTITY_ID_TO_ELEMENTS, EDGE_ID_TO_ELEMENTS));
 
     // elementToProperties maps from an Element containing the group-by properties to a Properties object without the
     // group-by properties
-    Map<Element, Properties> elementToProperties;
+    final Map<Element, Properties> elementToProperties;
     // entityIdToElements is a map from an EntityId to the element key from elementToProperties
-    MultiMap<EntityId, Element> entityIdToElements;
+    final MultiMap<EntityId, Element> entityIdToElements;
     // edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
-    MultiMap<EdgeId, Element> edgeIdToElements;
+    final MultiMap<EdgeId, Element> edgeIdToElements;
+
+
     final boolean maintainIndex;
     final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
@@ -64,10 +74,13 @@ public class MapImpl {
 
         mapFactory.initialise(mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
-        elementToProperties = mapFactory.newMap("elementToProperties");
+        elementToProperties = mapFactory.getMap(ELEMENT_TO_PROPERTIES);
         if (maintainIndex) {
-            entityIdToElements = mapFactory.newMultiMap("entityIdToElements");
-            edgeIdToElements = mapFactory.newMultiMap("edgeIdToElements");
+            entityIdToElements = mapFactory.getMultiMap(ENTITY_ID_TO_ELEMENTS);
+            edgeIdToElements = mapFactory.getMultiMap(EDGE_ID_TO_ELEMENTS);
+        } else {
+            entityIdToElements = null;
+            edgeIdToElements = null;
         }
         this.schema = schema;
         schema.getEntityGroups().forEach(g -> addToGroupByMap(this.schema, g));
