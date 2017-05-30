@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 public class MapStoreProperties extends StoreProperties {
-    public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
     public static final String MAP_FACTORY = "gaffer.store.mapstore.map.factory";
     public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
@@ -43,14 +42,6 @@ public class MapStoreProperties extends StoreProperties {
     @Override
     public MapStoreProperties clone() {
         return (MapStoreProperties) super.clone();
-    }
-
-    public void setMapClass(final String mapClass) {
-        set(MAP_CLASS, mapClass);
-    }
-
-    public String getMapClass() {
-        return get(MAP_CLASS, "java.util.HashMap");
     }
 
     public void setCreateIndex(final String createIndex) {

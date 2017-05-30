@@ -25,14 +25,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleMapFactory implements MapFactory {
+    public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
+    public static final String MAP_CLASS_DEFAULT = HashMap.class.getName();
+
+    private final ElementCloner cloner;
     private Class<? extends Map> mapClass = HashMap.class;
+
+    public SimpleMapFactory() {
+        this(new ElementCloner());
+    }
+
+    protected SimpleMapFactory(final ElementCloner cloner) {
+        this.cloner = cloner;
+    }
 
     @Override
     public void initialise(final MapStoreProperties properties) {
+        final String mapClassName = properties.get(MAP_CLASS, MAP_CLASS_DEFAULT);
         try {
-            mapClass = Class.forName(properties.getMapClass()).asSubclass(Map.class);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Map Class is invalid: " + properties.getMapClass(), e);
+            mapClass = Class.forName(mapClassName).asSubclass(Map.class);
+        } catch (final ClassNotFoundException | ClassCastException e) {
+            throw new IllegalArgumentException("Map Class is invalid: " + mapClassName, e);
         }
     }
 
@@ -40,14 +53,9 @@ public class SimpleMapFactory implements MapFactory {
     public <K, V> Map<K, V> getMap(final String mapName) {
         try {
             return mapClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (final InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException("Unable to create new map instance of type: " + mapClass.getName());
         }
-    }
-
-    @Override
-    public void clear() {
-        // no action required
     }
 
     @Override
@@ -57,6 +65,15 @@ public class SimpleMapFactory implements MapFactory {
 
     @Override
     public Element cloneElement(final Element element, final Schema schema) {
-        return ElementCloner.cloneElement(element, schema);
+        return cloner.cloneElement(element, schema);
+    }
+
+    @Override
+    public void clear() {
+        // no action required
+    }
+
+    protected Class<? extends Map> getMapClass() {
+        return mapClass;
     }
 }

@@ -24,10 +24,6 @@ import java.util.Map;
 public interface MapFactory {
     void initialise(final MapStoreProperties properties);
 
-    default <K, V> Map<K, V> getMap() {
-        return getMap("default");
-    }
-
     <K, V> Map<K, V> getMap(final String mapName);
 
     void clear();

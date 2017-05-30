@@ -24,15 +24,26 @@ import java.util.Set;
 public class MapOfSets<K, V> implements MultiMap<K, V> {
     private final Map<K, Set<V>> multiMap;
 
+    /**
+     * The type of Set to use.
+     * If null then a {@link HashSet} will be used.
+     */
+    private final Class<? extends Set> setClass;
+
     public MapOfSets(final Map<K, Set<V>> multiMap) {
+        this(multiMap, null);
+    }
+
+    public MapOfSets(final Map<K, Set<V>> multiMap, final Class<? extends Set> setClass) {
         this.multiMap = multiMap;
+        this.setClass = setClass;
     }
 
     @Override
     public boolean put(final K key, final V value) {
         Set<V> values = multiMap.get(key);
         if (null == values) {
-            values = new HashSet<>();
+            values = createSet();
             multiMap.put(key, values);
         }
         return values.add(value);
@@ -46,5 +57,23 @@ public class MapOfSets<K, V> implements MultiMap<K, V> {
     @Override
     public void clear() {
         multiMap.clear();
+    }
+
+    protected Set<V> createSet() {
+        final Set<V> values;
+        if (null == setClass) {
+            values = new HashSet<>();
+        } else {
+            try {
+                values = setClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new IllegalArgumentException("Unable to create new instance of set " + setClass.getName(), e);
+            }
+        }
+        return values;
+    }
+
+    public Map<K, Set<V>> getWrappedMap() {
+        return multiMap;
     }
 }

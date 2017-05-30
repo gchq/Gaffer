@@ -23,13 +23,10 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-public final class ElementCloner {
+public class ElementCloner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementCloner.class);
 
-    private ElementCloner() {
-    }
-
-    public static Element cloneElement(final Element element, final Schema schema) {
+    public Element cloneElement(final Element element, final Schema schema) {
         try {
             final Element clone = element.emptyClone();
             final SchemaElementDefinition sed = schema.getElement(clone.getGroup());
