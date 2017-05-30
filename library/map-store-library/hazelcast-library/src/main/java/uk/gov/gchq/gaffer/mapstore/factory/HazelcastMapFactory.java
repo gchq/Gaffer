@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.mapstore.factory;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
@@ -30,6 +31,8 @@ import uk.gov.gchq.gaffer.mapstore.multimap.GafferToHazelcastMap;
 import uk.gov.gchq.gaffer.mapstore.multimap.GafferToHazelcastMultiMap;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 public class HazelcastMapFactory implements MapFactory {
@@ -37,24 +40,33 @@ public class HazelcastMapFactory implements MapFactory {
 
     private static HazelcastInstance hazelcast;
 
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
+    @SuppressFBWarnings(value = {"ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", "REC_CATCH_EXCEPTION"})
     @Override
     public void initialise(final MapStoreProperties properties) {
         if (null == hazelcast) {
             String configFile = properties.getMapFactoryConfig();
             if (configFile == null) {
                 hazelcast = Hazelcast.newHazelcastInstance();
-            } else {
+            } else if (new File(configFile).exists()) {
                 try {
-                    final Config config = new XmlConfigBuilder(StreamUtil.openStream(getClass(), configFile)).build();
+                    final Config config = new FileSystemXmlConfig(configFile);
                     hazelcast = Hazelcast.newHazelcastInstance(config);
                 } catch (Exception e) {
-                    throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+                    throw new IllegalArgumentException("Could not create hazelcast instance using config path: " + configFile, e);
+                }
+            } else {
+                try (final InputStream configStream = StreamUtil.openStream(getClass(), configFile)) {
+                    final Config config = new XmlConfigBuilder(configStream).build();
+                    hazelcast = Hazelcast.newHazelcastInstance(config);
+                } catch (final Exception e) {
+                    throw new IllegalArgumentException("Could not create hazelcast instance using config resource: " + configFile, e);
                 }
             }
-        }
 
-        LOGGER.info("Initialised hazelcast", hazelcast.getCluster().getClusterState().name()); // bootstraps hazelcast
+            LOGGER.info("Initialised hazelcast: {}", hazelcast.getCluster().getClusterState().name());
+        } else {
+            LOGGER.debug("Hazelcast had already been initialised: {}", hazelcast.getCluster().getClusterState().name());
+        }
     }
 
     @Override

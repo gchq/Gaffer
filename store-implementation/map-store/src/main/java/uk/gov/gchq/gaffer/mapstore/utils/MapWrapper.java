@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.mapstore.multimap;
+package uk.gov.gchq.gaffer.mapstore.utils;
 
-import com.hazelcast.core.IMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-public class GafferToHazelcastMap<K, V> implements Map<K, V> {
-    private final IMap<K, V> map;
+public class MapWrapper<K, V> implements Map<K, V> {
+    private final Map<K, V> map;
 
-    public GafferToHazelcastMap(final IMap<K, V> map) {
+    public MapWrapper(final Map<K, V> map) {
         if (null == map) {
-            throw new IllegalArgumentException("Hazelcast map cannot be null");
+            throw new IllegalArgumentException("Map cannot be null");
         }
         this.map = map;
     }
@@ -58,9 +57,7 @@ public class GafferToHazelcastMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(final K key, final V value) {
-        // This is more efficient.
-        map.set(key, value);
-        return null;
+        return map.put(key, value);
     }
 
     @Override
@@ -91,5 +88,9 @@ public class GafferToHazelcastMap<K, V> implements Map<K, V> {
     @Override
     public Set<Entry<K, V>> entrySet() {
         return map.entrySet();
+    }
+
+    protected Map<K, V> getMap() {
+        return map;
     }
 }

@@ -16,13 +16,11 @@
 package uk.gov.gchq.gaffer.mapstore;
 
 import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
+import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-/**
- *
- */
 public class MapStoreProperties extends StoreProperties {
     public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
@@ -63,21 +61,16 @@ public class MapStoreProperties extends StoreProperties {
         return Boolean.parseBoolean(get(CREATE_INDEX, "true"));
     }
 
-    public MapFactory getMapFactory() {
-        final String factoryClass = get(MAP_FACTORY);
-        if (null == factoryClass) {
-            return null;
-        }
+    public String getMapFactory() {
+        return get(MAP_FACTORY, SimpleMapFactory.class.getName());
+    }
 
-        try {
-            return Class.forName(factoryClass).asSubclass(MapFactory.class).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new IllegalArgumentException("MapFactory is invalid: " + factoryClass, e);
-        }
+    public void setMapFactory(final String mapFactory) {
+        set(MAP_FACTORY, mapFactory);
     }
 
     public void setMapFactory(final Class<? extends MapFactory> mapFactory) {
-        set(MAP_FACTORY, mapFactory.getName());
+        setMapFactory(mapFactory.getName());
     }
 
     public String getMapFactoryConfig() {

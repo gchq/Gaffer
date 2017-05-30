@@ -48,12 +48,20 @@ public class MapImpl {
     public static final Set<String> MULTI_MAP_NAMES = Collections.unmodifiableSet(
             Sets.newHashSet(ENTITY_ID_TO_ELEMENTS, EDGE_ID_TO_ELEMENTS));
 
-    // elementToProperties maps from an Element containing the group-by properties to a Properties object without the
-    // group-by properties
+    /**
+     * elementToProperties maps from an Element containing the group-by properties
+     * to a Properties object without the group-by properties
+     */
     final Map<Element, Properties> elementToProperties;
-    // entityIdToElements is a map from an EntityId to the element key from elementToProperties
+
+    /**
+     * entityIdToElements is a map from an EntityId to the element key from elementToProperties
+     */
     final MultiMap<EntityId, Element> entityIdToElements;
-    // edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
+
+    /**
+     * edgeIdToElements is a map from an EdgeId to the element key from elementToProperties
+     */
     final MultiMap<EdgeId, Element> edgeIdToElements;
 
 
@@ -65,14 +73,7 @@ public class MapImpl {
     final MapFactory mapFactory;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
-        final MapFactory mapFactoryTmp = mapStoreProperties.getMapFactory();
-        if (null == mapFactoryTmp) {
-            mapFactory = new SimpleMapFactory();
-        } else {
-            mapFactory = mapFactoryTmp;
-        }
-
-        mapFactory.initialise(mapStoreProperties);
+        mapFactory = createMapFactory(mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
         elementToProperties = mapFactory.getMap(ELEMENT_TO_PROPERTIES);
         if (maintainIndex) {
@@ -98,6 +99,23 @@ public class MapImpl {
         }
 
         mapFactory.clear();
+    }
+
+    protected MapFactory createMapFactory(final MapStoreProperties mapStoreProperties) {
+        final MapFactory mapFactory;
+        final String factoryClass = mapStoreProperties.getMapFactory();
+        if (null == factoryClass) {
+            mapFactory = new SimpleMapFactory();
+        } else {
+            try {
+                mapFactory = Class.forName(factoryClass).asSubclass(MapFactory.class).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new IllegalArgumentException("MapFactory is invalid: " + factoryClass, e);
+            }
+        }
+
+        mapFactory.initialise(mapStoreProperties);
+        return mapFactory;
     }
 
     private void addToGroupByMap(final Schema schema, final String group) {

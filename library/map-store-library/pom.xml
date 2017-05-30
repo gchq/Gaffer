@@ -17,38 +17,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <artifactId>gaffer2</artifactId>
+        <artifactId>library</artifactId>
         <version>0.7.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>library</artifactId>
+    <artifactId>map-store-library</artifactId>
     <packaging>pom</packaging>
-
     <modules>
-        <module>hdfs-library</module>
-        <module>sketches-library</module>
-        <module>spark</module>
-        <module>named-operation-library</module>
-        <module>bitmap-library</module>
-        <module>cache-library</module>
-        <module>map-store-library</module>
+        <module>hazelcast-library</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>serialisation-compatibility</id>
-            <properties>
-                <jackson.version>${jackson.min.version}</jackson.version>
-            </properties>
-            <!-- Skip spark as requires a newer version of jackson-->
-            <modules>
-                <module>hdfs-library</module>
-                <module>sketches-library</module>
-                <module>named-operation-library</module>
-                <module>bitmap-library</module>
-                <module>cache-library</module>
-            </modules>
-        </profile>
-    </profiles>
+
 </project>
