@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import com.google.common.collect.Lists;
-import net.iharder.base64.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -111,7 +111,7 @@ public class CreateSplitPointsIT {
         final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), 10));
         final List<String> stringSplitsOnTable = Lists.transform(splitsOnTable, t -> StringUtil.toString(t.getBytes()));
         final List<String> fileSplits = FileUtils.readLines(new File(splitsFile));
-        final List<String> fileSplitsDecoded = Lists.transform(fileSplits, t -> StringUtil.toString(Base64.decode(t)));
+        final List<String> fileSplitsDecoded = Lists.transform(fileSplits, t -> StringUtil.toString(Base64.decodeBase64(t)));
         assertEquals(fileSplitsDecoded, stringSplitsOnTable);
         assertEquals(2, splitsOnTable.size());
         assertEquals(VERTEX_ID_PREFIX + "53\u0000\u0001", stringSplitsOnTable.get(0));

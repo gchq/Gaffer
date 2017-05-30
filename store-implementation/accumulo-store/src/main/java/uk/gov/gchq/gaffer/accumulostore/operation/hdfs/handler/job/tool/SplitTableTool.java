@@ -15,10 +15,10 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool;
 
-import net.iharder.base64.Base64;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.util.Base64;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -81,7 +81,7 @@ public class SplitTableTool extends Configured implements Tool {
                 new InputStreamReader(fs.open(new Path(operation.getInputPath())), CommonConstants.UTF_8))) {
             String line = br.readLine();
             while (line != null) {
-                splits.add(new Text(Base64.decode(line)));
+                splits.add(new Text(Base64.decodeBase64(line)));
                 line = br.readLine();
             }
         } catch (final IOException e) {
