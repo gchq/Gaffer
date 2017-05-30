@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.mapstore.multimap;
+package uk.gov.gchq.gaffer.mapstore.util;
 
 import com.hazelcast.core.IMap;
 import uk.gov.gchq.gaffer.mapstore.utils.MapWrapper;

@@ -19,12 +19,14 @@ import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import uk.gov.gchq.gaffer.store.StoreException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -93,5 +95,40 @@ public class MapOfSetsTest {
         final ArgumentCaptor<Set> setCaptor = ArgumentCaptor.forClass(Set.class);
         verify(map).put(eq(key), setCaptor.capture());
         assertEquals(Sets.newLinkedHashSet(Collections.singleton(value)), setCaptor.getValue());
+    }
+
+    @Test
+    public void shouldGetSetFromMap() throws StoreException {
+        // Given
+        final String key = "key1";
+        final Set<String> set = mock(Set.class);
+        final Map<String, Set<String>> map = mock(Map.class);
+        final MapOfSets<String, String> mapOfSets = new MapOfSets<>(map, LinkedHashSet.class);
+
+        given(map.get(key)).willReturn(set);
+
+        // When
+        final Collection<String> result = mapOfSets.get(key);
+
+        // Then
+        verify(map).get(key);
+        assertSame(set, result);
+    }
+
+    @Test
+    public void shouldClearMap() throws StoreException {
+        // Given
+        final String key = "key1";
+        final Set<String> set = mock(Set.class);
+        final Map<String, Set<String>> map = mock(Map.class);
+        final MapOfSets<String, String> mapOfSets = new MapOfSets<>(map, LinkedHashSet.class);
+
+        given(map.get(key)).willReturn(set);
+
+        // When
+        mapOfSets.clear();
+
+        // Then
+        verify(map).clear();
     }
 }

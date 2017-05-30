@@ -142,12 +142,11 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 .forEach(propertyName -> properties.put(propertyName, element.getProperty(propertyName)));
         Properties existingProperties = elementToProperties.get(elementWithGroupByProperties);
         if (null == existingProperties) {
-            existingProperties = new Properties();
-            elementToProperties.put(elementWithGroupByProperties, existingProperties);
+            elementToProperties.put(elementWithGroupByProperties, properties);
+        } else {
+            existingProperties = schema.getElement(group).getAggregator().apply(existingProperties, properties);
+            mapFactory.updateValue(elementToProperties, elementWithGroupByProperties, existingProperties);
         }
-
-        existingProperties = schema.getElement(group).getAggregator().apply(existingProperties, properties);
-        mapFactory.updateValue(elementToProperties, elementWithGroupByProperties, existingProperties);
         return elementWithGroupByProperties;
     }
 
