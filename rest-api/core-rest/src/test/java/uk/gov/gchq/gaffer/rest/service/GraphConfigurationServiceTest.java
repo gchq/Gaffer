@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
@@ -41,6 +42,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -65,11 +67,13 @@ public class GraphConfigurationServiceTest {
     @Mock
     private UserFactory userFactory;
 
+    @Mock
+    private Store store;
+
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
     public void setup() {
-        final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
@@ -132,6 +136,42 @@ public class GraphConfigurationServiceTest {
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldGetNextOperations() throws IOException {
+        // Given
+        final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
+        given(store.getNextOperations(GetElements.class)).willReturn(expectedNextOperations);
+
+        // When
+        final Set<Class> nextOperations = service.getNextOperations(GetElements.class.getName());
+
+
+        // Then
+        assertSame(expectedNextOperations, nextOperations);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetNextOperationsWithUnknownClassName() throws IOException {
+        // When / Then
+        try {
+            service.getNextOperations("an unknown class name");
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation class was not found"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetNextOperationsWithNonOperationClassName() throws IOException {
+        // When / Then
+        try {
+            service.getNextOperations(String.class.getName());
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("does not extend Operation"));
         }
     }
 
