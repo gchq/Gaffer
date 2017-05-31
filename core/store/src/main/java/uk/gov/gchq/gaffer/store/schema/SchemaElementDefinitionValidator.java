@@ -25,6 +25,8 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An <code>SchemaElementDefinitionValidator</code> validates a {@link SchemaElementDefinition}.
@@ -43,15 +45,15 @@ public class SchemaElementDefinitionValidator {
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
-     * @param elementDef          the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
-     * @param requiresAggregators true if aggregators are required
+     * @param elementDef the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public ValidationResult validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+    public ValidationResult validate(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
 
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
+        result.add(validateAggregator(aggregator, elementDef));
         result.add(validateComponentTypes(elementDef));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
@@ -123,6 +125,51 @@ public class SchemaElementDefinitionValidator {
             }
         }
 
+        return result;
+    }
+
+    private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
+        final ValidationResult result = new ValidationResult();
+
+        if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
+            // if no properties then no aggregation is necessary
+            return result;
+        }
+
+        if (!elementDef.isAggregate()) {
+            return result;
+        }
+
+        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
+            result.addError("Some properties do not have aggregators defined.");
+            return result;
+        }
+
+        // if aggregate functions are defined then check all properties are aggregated
+        final Set<String> aggregatedProperties = new HashSet<>();
+        if (aggregator.getComponents() != null) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
+                final String[] selection = adaptedFunction.getSelection();
+                if (selection != null) {
+                    for (final String key : selection) {
+                        final IdentifierType idType = IdentifierType.fromName(key);
+                        if (null == idType) {
+                            aggregatedProperties.add(key);
+                        }
+                    }
+                }
+            }
+        }
+
+        final Set<String> propertyNamesTmp = new HashSet<>(elementDef.getProperties());
+        propertyNamesTmp.removeAll(aggregatedProperties);
+        if (propertyNamesTmp.isEmpty()) {
+            return result;
+        }
+
+        result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
+                + "This framework requires that all of the defined properties have an aggregator function associated with them. "
+                + "To disable aggregation for a group set the 'aggregate' field to false.");
         return result;
     }
 

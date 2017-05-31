@@ -248,7 +248,7 @@ public class SchemaTest {
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
-        assertTrue(schemaWithAggregators.hasAggregators());
+        assertTrue(schemaWithAggregators.isAggregationEnabled());
     }
 
     @Test
@@ -273,7 +273,7 @@ public class SchemaTest {
                 .visibilityProperty(TestPropertyNames.VISIBILITY)
                 .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
-        assertFalse(schemaNoAggregators.hasAggregators());
+        assertFalse(schemaNoAggregators.isAggregationEnabled());
     }
 
     @Test

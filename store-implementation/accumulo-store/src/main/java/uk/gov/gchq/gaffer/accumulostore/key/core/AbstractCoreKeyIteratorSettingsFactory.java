@@ -72,7 +72,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getRowIDAggregatorIteratorSetting(final AccumuloStore store, final String columnFamily) throws IteratorSettingException {
-        if (!store.getSchema().hasAggregators()) {
+        if (!store.getSchema().isAggregationEnabled()) {
             return null;
         }
 
@@ -112,7 +112,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     public boolean queryTimeAggregatorRequired(final View view, final AccumuloStore store) {
         Schema schema = store.getSchema();
-        if (!schema.hasAggregators()) {
+        if (!schema.isAggregationEnabled()) {
             return false;
         }
 

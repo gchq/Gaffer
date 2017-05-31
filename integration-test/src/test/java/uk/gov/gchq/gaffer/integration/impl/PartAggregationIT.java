@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -115,24 +116,32 @@ public class PartAggregationIT extends AbstractStoreIT {
     protected Schema createSchema() {
         final Schema defaultSchema = super.createSchema();
 
-        // Add 2 new groups that are the same as the defaults but with a non aggregated property.
+        // Add 2 new groups that are the same as the defaults but with no aggregation.
         return new Schema.Builder()
                 .merge(defaultSchema)
                 .entity(TestGroups.ENTITY_3,
                         new SchemaEntityDefinition.Builder()
                                 .merge(defaultSchema.getEntity(TestGroups.ENTITY))
                                 .property("NonAggregatedProperty", "NonAggregatedString")
+                                .property("NonAggregatedProperty", "AggregatedString")
+                                .aggregate(false)
                                 .groupBy()
                                 .build())
                 .edge(TestGroups.EDGE_3,
                         new SchemaEdgeDefinition.Builder()
                                 .merge(defaultSchema.getEdge(TestGroups.EDGE))
                                 .property("NonAggregatedProperty", "NonAggregatedString")
+                                .aggregate(false)
                                 .groupBy()
                                 .build())
                 .type("NonAggregatedString",
                         new TypeDefinition.Builder()
                                 .clazz(String.class)
+                                .build())
+                .type("AggregatedString",
+                        new TypeDefinition.Builder()
+                                .clazz(String.class)
+                                .aggregateFunction(new StringConcat())
                                 .build())
                 .build();
     }

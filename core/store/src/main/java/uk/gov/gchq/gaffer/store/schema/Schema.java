@@ -109,16 +109,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      *
      * @return {@code true} if the schema contains aggregators, otherwise {@code false}
      */
-    public boolean hasAggregators() {
-        boolean schemaContainsAggregators = false;
+    @JsonIgnore
+    public boolean isAggregationEnabled() {
+        boolean isEnabled = false;
 
-        for (final TypeDefinition type : types.values()) {
-            if (null != type.getAggregateFunction()) {
-                schemaContainsAggregators = true;
+        for (final Entry<String, ? extends SchemaElementDefinition> entry : getElementDefinitions()) {
+            if (null != entry.getValue() && entry.getValue().isAggregate()) {
+                isEnabled = true;
+                break;
             }
         }
 
-        return schemaContainsAggregators;
+        return isEnabled;
     }
 
     @JsonIgnore
@@ -126,7 +128,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         final List<String> groups = new ArrayList<>();
 
         for (final Entry<String, ? extends SchemaElementDefinition> entry : getElementDefinitions()) {
-            if (null != entry.getValue() && entry.getValue().isAggregationEnabled()) {
+            if (null != entry.getValue() && entry.getValue().isAggregate()) {
                 groups.add(entry.getKey());
             }
         }
@@ -162,19 +164,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        final boolean hasAggregators = hasAggregators();
         for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
-            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
+            result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
         }
 
         for (final Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
-            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
+            result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
         return result;
     }
