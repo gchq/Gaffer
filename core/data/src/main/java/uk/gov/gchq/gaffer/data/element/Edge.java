@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
