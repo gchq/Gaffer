@@ -59,6 +59,8 @@
         <jackson.min.version>2.3.1</jackson.min.version>
         <jackson.version>${jackson.compile.version}</jackson.version>
 
+        <hazelcast.version>3.8</hazelcast.version>
+
         <clearspring.version>2.7.0</clearspring.version>
         <datasketches.version>0.9.1</datasketches.version>
         <commons-codec.version>1.6</commons-codec.version>

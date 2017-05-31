@@ -15,16 +15,16 @@
  */
 package uk.gov.gchq.gaffer.mapstore;
 
+import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
+import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-/**
- *
- */
 public class MapStoreProperties extends StoreProperties {
-    public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
+    public static final String MAP_FACTORY = "gaffer.store.mapstore.map.factory";
+    public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
 
     public MapStoreProperties() {
         super();
@@ -44,14 +44,6 @@ public class MapStoreProperties extends StoreProperties {
         return (MapStoreProperties) super.clone();
     }
 
-    public void setMapClass(final String mapClass) {
-        set(MAP_CLASS, mapClass);
-    }
-
-    public String getMapClass() {
-        return get(MAP_CLASS, "java.util.HashMap");
-    }
-
     public void setCreateIndex(final String createIndex) {
         set(CREATE_INDEX, createIndex);
     }
@@ -60,4 +52,23 @@ public class MapStoreProperties extends StoreProperties {
         return Boolean.parseBoolean(get(CREATE_INDEX, "true"));
     }
 
+    public String getMapFactory() {
+        return get(MAP_FACTORY, SimpleMapFactory.class.getName());
+    }
+
+    public void setMapFactory(final String mapFactory) {
+        set(MAP_FACTORY, mapFactory);
+    }
+
+    public void setMapFactory(final Class<? extends MapFactory> mapFactory) {
+        setMapFactory(mapFactory.getName());
+    }
+
+    public String getMapFactoryConfig() {
+        return get(MAP_FACTORY_CONFIG);
+    }
+
+    public void setMapFactoryConfig(final String path) {
+        set(MAP_FACTORY_CONFIG, path);
+    }
 }

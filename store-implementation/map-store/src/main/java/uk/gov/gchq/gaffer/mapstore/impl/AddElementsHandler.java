@@ -23,6 +23,8 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
+import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
+import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -31,7 +33,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,8 +55,8 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     private void addElements(final Iterable<? extends Element> elements, final MapImpl mapImpl, final Schema schema) {
         final boolean maintainIndex = mapImpl.maintainIndex;
         final Set<String> groupsWithNoAggregation = mapImpl.groupsWithNoAggregation;
-        final Map<EntityId, Set<Element>> entityIdToElements = mapImpl.entityIdToElements;
-        final Map<EdgeId, Set<Element>> edgeIdToElements = mapImpl.edgeIdToElements;
+        final MultiMap<EntityId, Element> entityIdToElements = mapImpl.entityIdToElements;
+        final MultiMap<EdgeId, Element> edgeIdToElements = mapImpl.edgeIdToElements;
         final Map<String, Set<String>> groupToGroupByProperties = mapImpl.groupToGroupByProperties;
         final Map<String, Set<String>> groupToNonGroupByProperties = mapImpl.groupToNonGroupByProperties;
         final Map<Element, Properties> elementToProperties = mapImpl.elementToProperties;
@@ -65,7 +66,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                     // Update main map of element with group-by properties to properties
                     final Element elementWithGroupByProperties = updateElementToProperties(schema,
                             element, elementToProperties, groupsWithNoAggregation, groupToGroupByProperties,
-                            groupToNonGroupByProperties);
+                            groupToNonGroupByProperties, mapImpl.mapFactory);
                     // Update entityIdToElements and edgeIdToElements if index required
                     if (maintainIndex) {
                         updateEntityIdIndex(entityIdToElements, elementWithGroupByProperties);
@@ -79,18 +80,18 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                                               final Map<Element, Properties> elementToProperties,
                                               final Set<String> groupsWithNoAggregation,
                                               final Map<String, Set<String>> groupToGroupByProperties,
-                                              final Map<String, Set<String>> groupToNonGroupByProperties) {
+                                              final Map<String, Set<String>> groupToNonGroupByProperties, final MapFactory mapFactory) {
         final Element elementForIndexing;
         if (groupsWithNoAggregation.contains(element.getGroup())) {
-            elementForIndexing = updateElementToPropertiesNoGroupBy(element, elementToProperties);
+            elementForIndexing = updateElementToPropertiesNoGroupBy(element, elementToProperties, mapFactory);
         } else {
             elementForIndexing = updateElementToPropertiesWithGroupBy(schema, elementToProperties, groupToGroupByProperties,
-                    groupToNonGroupByProperties, element);
+                    groupToNonGroupByProperties, element, mapFactory);
         }
         return elementForIndexing;
     }
 
-    private void updateEntityIdIndex(final Map<EntityId, Set<Element>> entityIdToElements,
+    private void updateEntityIdIndex(final MultiMap<EntityId, Element> entityIdToElements,
                                      final Element elementWithGroupByProperties) {
         if (elementWithGroupByProperties instanceof Entity) {
             final EntityId entityId = new EntitySeed(((Entity) elementWithGroupByProperties).getVertex());
@@ -104,7 +105,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private void updateEdgeIdIndex(final Map<EdgeId, Set<Element>> edgeIdToElements,
+    private void updateEdgeIdIndex(final MultiMap<EdgeId, Element> edgeIdToElements,
                                    final Element elementWithGroupByProperties) {
         if (elementWithGroupByProperties instanceof Edge) {
             final Edge edge = (Edge) elementWithGroupByProperties;
@@ -113,33 +114,24 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
     }
 
-    private void updateEntityIdToElementsMap(final Map<EntityId, Set<Element>> entityIdToElements,
+    private void updateEntityIdToElementsMap(final MultiMap<EntityId, Element> entityIdToElements,
                                              final EntityId entityId,
                                              final Element element) {
-        Set<Element> elements = entityIdToElements.get(entityId);
-        if (null == elements) {
-            elements = new HashSet<>();
-            entityIdToElements.put(entityId, elements);
-        }
-        elements.add(element);
+        entityIdToElements.put(entityId, element);
     }
 
-    private void updateEdgeIdToElementsMap(final Map<EdgeId, Set<Element>> edgeIdToElements,
+    private void updateEdgeIdToElementsMap(final MultiMap<EdgeId, Element> edgeIdToElements,
                                            final EdgeId edgeId,
                                            final Element element) {
-        Set<Element> elements = edgeIdToElements.get(edgeId);
-        if (null == elements) {
-            elements = new HashSet<>();
-            edgeIdToElements.put(edgeId, elements);
-        }
-        elements.add(element);
+        edgeIdToElements.put(edgeId, element);
     }
 
     private Element updateElementToPropertiesWithGroupBy(final Schema schema,
                                                          final Map<Element, Properties> elementToProperties,
                                                          final Map<String, Set<String>> groupToGroupByProperties,
                                                          final Map<String, Set<String>> groupToNonGroupByProperties,
-                                                         final Element element) {
+                                                         final Element element,
+                                                         final MapFactory mapFactory) {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
         final Properties properties = new Properties();
@@ -148,19 +140,19 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         .putProperty(propertyName, element.getProperty(propertyName)));
         groupToNonGroupByProperties.get(group)
                 .forEach(propertyName -> properties.put(propertyName, element.getProperty(propertyName)));
-
         Properties existingProperties = elementToProperties.get(elementWithGroupByProperties);
         if (null == existingProperties) {
-            existingProperties = new Properties();
-            elementToProperties.put(elementWithGroupByProperties, existingProperties);
+            elementToProperties.put(elementWithGroupByProperties, properties);
+        } else {
+            existingProperties = schema.getElement(group).getAggregator().apply(existingProperties, properties);
+            mapFactory.updateValue(elementToProperties, elementWithGroupByProperties, existingProperties);
         }
-
-        schema.getElement(group).getAggregator().apply(existingProperties, properties);
         return elementWithGroupByProperties;
     }
 
     private Element updateElementToPropertiesNoGroupBy(final Element element,
-                                                       final Map<Element, Properties> elementToProperties) {
+                                                       final Map<Element, Properties> elementToProperties,
+                                                       final MapFactory mapFactory) {
         final Properties existingProperties = elementToProperties.get(element);
         if (null == existingProperties) {
             // Clone element and add to map with properties containing 1
@@ -171,6 +163,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             elementToProperties.put(elementWithGroupByProperties, properties);
         } else {
             existingProperties.put(MapImpl.COUNT, ((int) existingProperties.get(MapImpl.COUNT)) + 1);
+            mapFactory.updateValue(elementToProperties, element, existingProperties);
         }
         return element;
     }

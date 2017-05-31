@@ -118,14 +118,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: includeEntities=" + includeEntities
                                     + ", includeEdges=" + includeEdges + ", directedType=" + directedType + ", inOutType=" + inOutType, e);
                         }
@@ -271,7 +271,7 @@ public class GetElementsIT extends AbstractStoreIT {
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
             if (result instanceof Entity) {
-                assertTrue("Entity was not expected: " + result, expectedElements.contains(result));
+                assertTrue("Entity was not expected: " + result + ". \nSeeds: " + seeds, expectedElements.contains(result));
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
