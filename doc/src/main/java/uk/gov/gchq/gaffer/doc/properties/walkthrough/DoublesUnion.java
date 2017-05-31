@@ -19,6 +19,7 @@ import com.yahoo.sketches.quantiles.DoublesSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.doc.properties.generator.DoubleUnionElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -88,7 +89,7 @@ public class DoublesUnion extends PropertiesWalkthrough {
         // [get 0.25 0.5 0.75 percentiles for edge a b] Get the edge A-B and print an estimate of the 0.25, 0.5 and 0.75 quantiles, i.e. the 25th, 50th and 75th percentiles
         // ---------------------------------------------------------
         final GetElements query = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
         final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();
@@ -105,7 +106,7 @@ public class DoublesUnion extends PropertiesWalkthrough {
         // [get cdf] Get the edge A-B and print some values from the cumulative density function
         // ---------------------------------------------------------
         final GetElements query2 = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
         final CloseableIterable<? extends Element> edges2 = graph.execute(query2, user);
         final Element edge2 = edges2.iterator().next();

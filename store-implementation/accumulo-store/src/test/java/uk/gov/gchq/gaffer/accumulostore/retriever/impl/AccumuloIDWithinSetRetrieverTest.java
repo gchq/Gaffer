@@ -38,12 +38,11 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -238,7 +237,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(seeds)
                 .build();
         // Set undirected edges only option, and query for edges in set {C, D} - should get the undirected edge
-        op.setDirectedType(GraphFilters.DirectedType.UNDIRECTED);
+        op.setDirectedType(DirectedType.UNDIRECTED);
         final Set<Element> results = returnElementsFromOperation(store, op, new User(), loadIntoMemory);
         assertThat(results, IsCollectionContaining.hasItem(AccumuloTestData.EDGE_C_D_UNDIRECTED));
 
@@ -254,7 +253,7 @@ public class AccumuloIDWithinSetRetrieverTest {
                 .input(seeds)
                 .build();
         // Turn off directed / undirected edges only option and check get both the undirected and directed edge
-        bothDirectedAndUndirectedOp.setDirectedType(DirectedType.BOTH);
+        bothDirectedAndUndirectedOp.setDirectedType(DirectedType.EITHER);
         final Set<Element> bothDirectedAndUndirectedResults = returnElementsFromOperation(store, bothDirectedAndUndirectedOp, new User(), loadIntoMemory);
         assertThat(bothDirectedAndUndirectedResults, IsCollectionContaining.hasItems(AccumuloTestData.EDGE_C_D_DIRECTED, (Element) AccumuloTestData.EDGE_C_D_UNDIRECTED));
     }
