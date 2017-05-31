@@ -85,6 +85,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -362,5 +363,9 @@ public class AccumuloStore extends Store {
     @Override
     public boolean isValidationRequired() {
         return false;
+    }
+
+    public List<String> getTabletServers() throws StoreException {
+        return getConnection().instanceOperations().getTabletServers();
     }
 }
