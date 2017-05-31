@@ -17,17 +17,16 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.RangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,14 +42,10 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
             final EdgeId edgeId = (EdgeId) elementId;
             final List<Range> ranges = new ArrayList<>();
             if (operation.getView().hasEdges()
-                    && (null == operation.getDirectedType()
-                    || GraphFilters.DirectedType.BOTH == operation.getDirectedType()
-                    || (GraphFilters.DirectedType.DIRECTED == operation.getDirectedType() && edgeId.isDirected())
-                    || (GraphFilters.DirectedType.UNDIRECTED == operation.getDirectedType() && !edgeId.isDirected()))) {
-                // Get Edges with the given EdgeSeed - This is applicable for
+                    && DirectedType.areCompatible(operation.getDirectedType(), edgeId.getDirectedType())) {
                 // EQUALS and RELATED seed matching.
-                ranges.add(new Range(getKeyFromEdgeId(edgeId, operation, false), true,
-                        getKeyFromEdgeId(edgeId, operation, true), true));
+                final DirectedType directed = DirectedType.and(operation.getDirectedType(), edgeId.getDirectedType());
+                ranges.addAll(getRange(edgeId.getSource(), edgeId.getDestination(), directed, operation));
             }
 
             // Do related - if operation doesn't have seed matching or it has seed matching equal to RELATED
@@ -88,9 +83,10 @@ public abstract class AbstractCoreKeyRangeFactory implements RangeFactory {
         return new Range(min.getStartKey(), max.getEndKey());
     }
 
-    protected abstract <OP extends SeededGraphFilters> Key getKeyFromEdgeId(final EdgeId id, final GraphFilters operation,
-                                                                              final boolean endKey) throws RangeFactoryException;
+    protected abstract List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
+                                            final GraphFilters operation) throws RangeFactoryException;
 
-    protected abstract <OP extends SeededGraphFilters> List<Range> getRange(final Object vertex, final GraphFilters operation,
-                                                                            final boolean includeEdges) throws RangeFactoryException;
+    protected abstract List<Range> getRange(final Object vertex,
+                                            final GraphFilters operation,
+                                            final boolean includeEdges) throws RangeFactoryException;
 }

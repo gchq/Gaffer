@@ -88,7 +88,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         Counter counter;
         try {
             counter = job.getCounters().findCounter(Task.Counter.REDUCE_OUTPUT_RECORDS);
-            LOGGER.info("Number of records output = {}", counter);
+            LOGGER.info("Number of records output = {}", counter.getValue());
         } catch (final IOException e) {
             LOGGER.error("Failed to get counter org.apache.hadoop.mapred.Task.Counter.REDUCE_OUTPUT_RECORDS from job: {}", e.getMessage());
             throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
@@ -96,7 +96,7 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
 
         int numberTabletServers;
         try {
-            numberTabletServers = store.getConnection().instanceOperations().getTabletServers().size();
+            numberTabletServers = store.getTabletServers().size();
             LOGGER.info("Number of tablet servers is {}", numberTabletServers);
         } catch (final StoreException e) {
             LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
@@ -116,12 +116,27 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             LOGGER.error("Exception getting filesystem: {}", e.getMessage());
             throw new OperationException("Failed to get filesystem from configuration: " + e.getMessage(), e);
         }
+
+        writeSplits(fs, resultsFile, outputEveryNthRecord, numberTabletServers);
+
+        try {
+            fs.delete(resultsFile, true);
+            LOGGER.info("Deleted the results file {}", resultsFile);
+        } catch (final IOException e) {
+            LOGGER.error("Failed to delete the results file {}", resultsFile);
+            throw new OperationException("Failed to delete the results file: " + e.getMessage(), e);
+        }
+
+        return SUCCESS_RESPONSE;
+    }
+
+    private void writeSplits(final FileSystem fs, final Path resultsFile, final long outputEveryNthRecord, final int numberTabletServers) throws OperationException {
         LOGGER.info("Writing splits to {}", operation.getResultingSplitsFilePath());
         final Key key = new Key();
         final Value value = new Value();
         long count = 0;
         int numberSplitPointsOutput = 0;
-        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, conf);
+        try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, fs.getConf());
              final PrintStream splitsWriter = new PrintStream(
                      new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)),
                      false, CommonConstants.UTF_8)
@@ -141,16 +156,6 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             LOGGER.error("Exception reading results file and outputting split points: {}", e.getMessage());
             throw new OperationException(e.getMessage(), e);
         }
-
-        try {
-            fs.delete(resultsFile, true);
-            LOGGER.info("Deleted the results file {}", resultsFile);
-        } catch (final IOException e) {
-            LOGGER.error("Failed to delete the results file {}", resultsFile);
-            throw new OperationException("Failed to delete the results file: " + e.getMessage(), e);
-        }
-
-        return SUCCESS_RESPONSE;
     }
 
 }

@@ -27,8 +27,10 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -38,6 +40,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,6 +48,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 public class FilteringIT extends AbstractStoreIT {
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+
     @Override
     @Before
     public void setup() throws Exception {
@@ -56,7 +61,7 @@ public class FilteringIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void testFilteringGroups() throws OperationException {
         // Given
-        final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
+        final List<ElementId> seeds = Collections.singletonList(new EntitySeed("A3"));
 
         final GetElements getElementsWithoutFiltering =
                 new GetElements.Builder()
@@ -78,14 +83,19 @@ public class FilteringIT extends AbstractStoreIT {
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
-        assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A3", "C3", false),
-                        getEdge("A3", "D3", false),
-                        getEntity("A3")}
-        ));
+        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A3")));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
@@ -99,7 +109,7 @@ public class FilteringIT extends AbstractStoreIT {
     @TraitRequirement(StoreTrait.PRE_AGGREGATION_FILTERING)
     public void testFilteringIdentifiers() throws OperationException {
         // Given
-        final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
+        final List<ElementId> seeds = Collections.singletonList(new EntitySeed("A3"));
 
         final GetElements getElementsWithoutFiltering =
                 new GetElements.Builder()
@@ -127,22 +137,27 @@ public class FilteringIT extends AbstractStoreIT {
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
-        assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A3", "C3", false),
-                        getEdge("A3", "D3", false),
-                        getEntity("A3")}
-        ));
+        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A3")));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
-        assertEquals(2, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "B3", false),
-                        getEntity("A3")}
-        ));
+        assertEquals(3, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "B3", false),
+                getEdge("A3", "B3", true),
+                getEntity("A3")));
     }
 
     @Test
@@ -176,42 +191,57 @@ public class FilteringIT extends AbstractStoreIT {
                 .build();
 
         // When - without filtering
-        final List<Element> resultsWithoutFiltering = Lists.newArrayList(graph.execute(getElementsWithoutFiltering, getUser()));
+        final List<Element> resultsWithoutFiltering = Lists.newArrayList(
+                graph.execute(getElementsWithoutFiltering, getUser()));
 
         // When - with filtering
-        final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
+        final List<Element> resultsWithFiltering = Lists.newArrayList(
+                graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
-        assertNotNull(resultsWithoutFiltering);
-        assertEquals(8, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A3", "C3", false),
-                        getEdge("A3", "D3", false),
-                        getEdge("A5", "B5", false),
-                        getEntity("A5"),
-                        getEntity("B5")}
-        ));
+        List<Element> expectedResults = Arrays.asList(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+                getEdge("A5", "B5", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A3"),
+                getEntity("A5"),
+                getEntity("B5")
+        );
+        expectedResults.sort(getJsonSort());
+        resultsWithoutFiltering.sort(getJsonSort());
+        assertEquals(expectedResults, resultsWithoutFiltering);
 
         // Then - with filtering
-        assertNotNull(resultsWithFiltering);
-        assertEquals(6, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A5", "B5", false),
-                        getEdge("A3", "D3", false),
-                        getEdge("A3", "C3", false),
-                        getEntity("A5")}
-        ));
+        List<Element> expectedFilteredResults = Arrays.asList(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "D3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A5", "B5", false),
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+                getEntity("A5")
+        );
+        expectedFilteredResults.sort(getJsonSort());
+        resultsWithFiltering.sort(getJsonSort());
+        assertEquals(expectedFilteredResults, resultsWithFiltering);
     }
 
     @Test
     @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     public void testPostAggregationFilteringIdentifiers() throws OperationException {
         // Given
-        final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
+        final List<ElementId> seeds = Collections.singletonList(new EntitySeed("A3"));
 
         final GetElements getElementsWithoutFiltering =
                 new GetElements.Builder()
@@ -239,22 +269,27 @@ public class FilteringIT extends AbstractStoreIT {
 
         // Then - without filtering
         assertNotNull(resultsWithoutFiltering);
-        assertEquals(5, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A3", "C3", false),
-                        getEdge("A3", "D3", false),
-                        getEntity("A3")}
-        ));
+        assertEquals(9, resultsWithoutFiltering.size());
+        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A3")));
 
         // Then - with filtering
         assertNotNull(resultsWithFiltering);
-        assertEquals(2, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "B3", false),
-                        getEntity("A3")}
-        ));
+        assertEquals(3, resultsWithFiltering.size());
+        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(
+                getEdge("A3", "B3", false),
+                getEdge("A3", "B3", true),
+                getEntity("A3")));
     }
 
     @Test
@@ -294,30 +329,54 @@ public class FilteringIT extends AbstractStoreIT {
         final List<Element> resultsWithFiltering = Lists.newArrayList(graph.execute(getElementsWithFiltering, getUser()));
 
         // Then - without filtering
-        assertNotNull(resultsWithoutFiltering);
-        assertEquals(8, resultsWithoutFiltering.size());
-        assertThat(resultsWithoutFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A3", "C3", false),
-                        getEdge("A3", "D3", false),
-                        getEdge("A5", "B5", false),
-                        getEntity("A5"),
-                        getEntity("B5")}
-        ));
+        List<Element> expectedResults = Arrays.asList(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A3", "C3", false),
+                getEdge("A3", "D3", false),
+                getEdge("A5", "B5", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A3"),
+                getEntity("A5"),
+                getEntity("B5")
+        );
+        resultsWithoutFiltering.sort(getJsonSort());
+        expectedResults.sort(getJsonSort());
+        assertEquals(expectedResults, resultsWithoutFiltering);
 
         // Then - with filtering
-        assertNotNull(resultsWithFiltering);
-        assertEquals(6, resultsWithFiltering.size());
-        assertThat(resultsWithFiltering, IsCollectionContaining.hasItems(new Element[]{
-                        getEdge("A3", "A3", false),
-                        getEdge("A3", "B3", false),
-                        getEdge("A5", "B5", false),
-                        getEdge("A3", "D3", false),
-                        getEdge("A3", "C3", false),
-                        getEntity("A5")}
-        ));
+        List<Element> expectedFilteredResults = Arrays.asList(
+                getEdge("A3", "A3", false),
+                getEdge("A3", "B3", false),
+                getEdge("A5", "B5", false),
+                getEdge("A3", "D3", false),
+                getEdge("A3", "C3", false),
+
+                getEdge("A3", "A3", true),
+                getEdge("A3", "B3", true),
+                getEdge("A3", "C3", true),
+                getEdge("A3", "D3", true),
+
+                getEntity("A5")
+        );
+        resultsWithFiltering.sort(getJsonSort());
+        expectedFilteredResults.sort(getJsonSort());
+        assertEquals(expectedFilteredResults, resultsWithFiltering);
     }
 
+    private Comparator<Element> getJsonSort() {
+        return Comparator.comparing(a -> {
+            try {
+                return new String(SERIALISER.serialise(a));
+            } catch (SerialisationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 
 }

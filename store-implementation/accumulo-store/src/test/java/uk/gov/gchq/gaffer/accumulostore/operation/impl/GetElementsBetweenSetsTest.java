@@ -2,11 +2,11 @@ package uk.gov.gchq.gaffer.accumulostore.operation.impl;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloTestData;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
@@ -50,7 +50,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
         final GetElementsBetweenSets getElementsBetweenSets = new GetElementsBetweenSets.Builder()
                 .input(AccumuloTestData.SEED_B)
                 .inputB(AccumuloTestData.SEED_A)
-                .directedType(GraphFilters.DirectedType.UNDIRECTED)
+                .directedType(DirectedType.UNDIRECTED)
                 .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING)
                 .option(AccumuloTestData.TEST_OPTION_PROPERTY_KEY, "true")
                 .view(new View.Builder()
@@ -58,7 +58,7 @@ public class GetElementsBetweenSetsTest implements OperationTest {
                         .build())
                 .build();
         assertEquals("true", getElementsBetweenSets.getOption(AccumuloTestData.TEST_OPTION_PROPERTY_KEY));
-        assertEquals(GraphFilters.DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
+        assertEquals(DirectedType.UNDIRECTED, getElementsBetweenSets.getDirectedType());
         assertEquals(SeededGraphFilters.IncludeIncomingOutgoingType.INCOMING, getElementsBetweenSets.getIncludeIncomingOutGoing());
         assertEquals(AccumuloTestData.SEED_B, getElementsBetweenSets.getInput().iterator().next());
         assertEquals(AccumuloTestData.SEED_A, getElementsBetweenSets.getInputB().iterator().next());

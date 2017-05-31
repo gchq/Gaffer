@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
@@ -47,20 +46,38 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected Key getKeyFromEdgeId(final EdgeId seed, final GraphFilters operation,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
+                                   final GraphFilters operation) throws RangeFactoryException {
+        // To do EITHER we need to create 2 ranges
+        if (DirectedType.isEither(directed)) {
+            return Arrays.asList(
+                    new Range(getKeyFromEdgeId(sourceVal, destVal, false, false), true,
+                            getKeyFromEdgeId(sourceVal, destVal, false, true), true),
+                    new Range(getKeyFromEdgeId(sourceVal, destVal, true, false), true,
+                            getKeyFromEdgeId(sourceVal, destVal, true, true), true)
+            );
+        }
+
+        return Collections.singletonList(
+                new Range(getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), false), true,
+                        getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), true), true)
+        );
+    }
+
+    protected Key getKeyFromEdgeId(final Object source, final Object destination, final boolean directed,
                                    final boolean endKey) throws RangeFactoryException {
         final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
-        final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
+        final byte directionFlag1 = directed ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
-            sourceValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
+            sourceValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(source));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
         byte[] destinationValue;
         try {
-            destinationValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getDestination()));
+            destinationValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(destination));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -31,9 +32,33 @@ public interface EdgeId extends ElementId {
 
     void setDestination(final Object destination);
 
-    boolean isDirected();
+    DirectedType getDirectedType();
 
-    void setDirected(final boolean directed);
+    void setDirectedType(final DirectedType directed);
+
+    /**
+     * @return true if directed is DIRECTED, EITHER or null. Otherwise false.
+     */
+    @JsonIgnore
+    default boolean isDirected() {
+        return DirectedType.UNDIRECTED != getDirectedType();
+    }
+
+    /**
+     * @return true if directed is UNDIRECTED, EITHER or null. Otherwise false.
+     */
+    @JsonIgnore
+    default boolean isUndirected() {
+        return DirectedType.DIRECTED != getDirectedType();
+    }
+
+    default void setDirected(final boolean directed) {
+        if (directed) {
+            setDirectedType(DirectedType.DIRECTED);
+        } else {
+            setDirectedType(DirectedType.UNDIRECTED);
+        }
+    }
 
     @Override
     default boolean isEqual(final ElementId that) {
@@ -41,16 +66,18 @@ public interface EdgeId extends ElementId {
     }
 
     default boolean isEqual(final EdgeId that) {
-        return new EqualsBuilder()
-                .append(isDirected(), that.isDirected())
+        return null != that
+                && (new EqualsBuilder()
+                .append(getDirectedType(), that.getDirectedType())
                 .append(getSource(), that.getSource())
                 .append(getDestination(), that.getDestination())
                 .isEquals()
                 || new EqualsBuilder()
-                .append(isDirected(), false)
+                .append(isUndirected(), true)
+                .append(getDirectedType(), that.getDirectedType())
                 .append(getSource(), that.getDestination())
                 .append(getDestination(), that.getSource())
-                .isEquals();
+                .isEquals());
     }
 
     /**
