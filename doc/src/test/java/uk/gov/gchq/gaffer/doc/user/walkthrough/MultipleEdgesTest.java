@@ -47,7 +47,7 @@ public class MultipleEdgesTest {
                 new Edge.Builder()
                         .group("RoadHasJunction")
                         .source("M5")
-                        .dest("10")
+                        .destination("10")
                         .directed(true)
                         .build(),
         };

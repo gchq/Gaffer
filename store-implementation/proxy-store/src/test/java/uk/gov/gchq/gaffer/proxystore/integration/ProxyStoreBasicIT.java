@@ -85,7 +85,7 @@ public class ProxyStoreBasicIT {
             new Edge.Builder()
                     .group(TestGroups.EDGE)
                     .source("1")
-                    .dest("2")
+                    .destination("2")
                     .directed(true)
                     .property(TestPropertyNames.PROP_1, 1)
                     .property(TestPropertyNames.PROP_2, 2)

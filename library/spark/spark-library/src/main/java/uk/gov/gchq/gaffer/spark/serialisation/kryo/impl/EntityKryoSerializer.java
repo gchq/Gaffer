@@ -39,10 +39,10 @@ public class EntityKryoSerializer extends Serializer<Entity> {
     @Override
     public Entity read(final Kryo kryo, final Input input, final Class<Entity> type) {
         final String group = input.readString();
-        final Entity entity = new Entity(group);
         final Registration reg = kryo.readClass(input);
-        entity.setVertex(kryo.readObject(input, reg.getType()));
-        entity.copyProperties(kryo.readObjectOrNull(input, Properties.class));
-        return entity;
+        return new Entity.Builder().group(group)
+                                   .vertex(kryo.readObject(input, reg.getType()))
+                                   .properties(kryo.readObjectOrNull(input, Properties.class))
+                                   .build();
     }
 }

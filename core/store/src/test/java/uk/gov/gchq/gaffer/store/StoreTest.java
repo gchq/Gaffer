@@ -24,9 +24,6 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
@@ -316,29 +313,6 @@ public class StoreTest {
         // Then
         assertEquals(1, store.getDoUnhandledOperationCalls().size());
         assertSame(operation, store.getDoUnhandledOperationCalls().get(0));
-    }
-
-    @Test
-    public void shouldFullyLoadLazyElement() throws StoreException {
-        // Given
-        final StoreProperties properties = mock(StoreProperties.class);
-        final LazyEntity lazyElement = mock(LazyEntity.class);
-        final Entity entity = mock(Entity.class);
-        final Store store = new StoreImpl();
-        given(lazyElement.getGroup()).willReturn(TestGroups.ENTITY);
-        given(lazyElement.getElement()).willReturn(entity);
-        given(properties.getJobExecutorThreadCount()).willReturn(1);
-
-        store.initialise(schema, properties);
-
-        // When
-        final Element result = store.populateElement(lazyElement);
-
-        // Then
-        assertSame(entity, result);
-        verify(lazyElement).getGroup();
-        verify(lazyElement).getProperty(TestPropertyNames.PROP_1);
-        verify(lazyElement).getIdentifier(IdentifierType.VERTEX);
     }
 
     @Test

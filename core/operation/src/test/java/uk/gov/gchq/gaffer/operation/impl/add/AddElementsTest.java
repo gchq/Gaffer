@@ -53,7 +53,7 @@ public class AddElementsTest implements OperationTest {
             "    },%n" +
             "    \"group\" : \"edge type 2\",%n" +
             "    \"source\" : \"source vertex 1\",%n" +
-            "    \"destination\" : \"dest vertex 1\",%n" +
+            "    \"destination\" : \"destination vertex 1\",%n" +
             "    \"directed\" : true%n" +
             "  } ]%n" +
             "}");
@@ -86,7 +86,7 @@ public class AddElementsTest implements OperationTest {
 
         }
         {
-            final Edge elm2 = new Edge("edge type 2", "source vertex 1", "dest vertex 1", true);
+            final Edge elm2 = new Edge("edge type 2", "source vertex 1", "destination vertex 1", true);
             elm2.putProperty("property 2", "property 2 value");
             elements.add(elm2);
         }
@@ -119,7 +119,7 @@ public class AddElementsTest implements OperationTest {
 
         final Edge elm2 = (Edge) itr.next();
         assertEquals("source vertex 1", elm2.getSource());
-        assertEquals("dest vertex 1", elm2.getDestination());
+        assertEquals("destination vertex 1", elm2.getDestination());
         assertTrue(elm2.isDirected());
         assertEquals(1, elm2.getProperties().size());
         assertEquals("property 2 value", elm2.getProperty("property 2"));
@@ -130,7 +130,7 @@ public class AddElementsTest implements OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge("testEdgeGroup");
+        Element element = new Edge.Builder().group("testEdgeGroup").build();
         AddElements addElements = new AddElements.Builder()
                 .input(element)
                 .skipInvalidElements(true)

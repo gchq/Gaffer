@@ -131,8 +131,11 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues,
-                                                        final Map<String, String> options) {
+    protected boolean[] getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues,
+                                                        final Map<String, String> options) throws AccumuloElementConversionException {
+        final boolean[] directedReversedValues = new boolean[2];
+        directedReversedValues[0] = false;
+        directedReversedValues[1]  = false;
         // Get element class, sourceValue, destinationValue and directed flag from row key
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];
@@ -164,23 +167,28 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             // Edge is undirected
             sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
             sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
+
+            return directedReversedValues;
         } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the first identifier is the source of the edge
             sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
             sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
+
+            directedReversedValues[0] = true;
+            return directedReversedValues;
         } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
             // Edge is directed and the second identifier is the source of the edge
+            directedReversedValues[0] = true;
             int src = 1;
             int dst = 0;
             if (matchEdgeSource(options)) {
+                directedReversedValues[1] = true;
                 src = 0;
                 dst = 1;
             }
             sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
             sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
+            return directedReversedValues;
         } else {
             throw new AccumuloElementConversionException(
                     "Invalid direction flag in row key - flag was " + directionFlag);

@@ -40,11 +40,6 @@ public class EntitySeed extends ElementSeed implements EntityId {
     }
 
     @Override
-    public void setVertex(final Object vertex) {
-        this.vertex = vertex;
-    }
-
-    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;

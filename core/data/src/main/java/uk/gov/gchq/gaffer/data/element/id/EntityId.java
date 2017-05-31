@@ -24,9 +24,6 @@ public interface EntityId extends ElementId {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     Object getVertex();
 
-    void setVertex(final Object vertex);
-
-    @Override
     default boolean isEqual(final ElementId that) {
         return that instanceof EntityId && isEqual((EntityId) that);
     }

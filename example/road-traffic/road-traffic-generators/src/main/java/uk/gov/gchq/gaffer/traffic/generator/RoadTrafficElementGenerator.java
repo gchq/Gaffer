@@ -70,49 +70,49 @@ public class RoadTrafficElementGenerator implements OneToManyElementGenerator<St
                 new Edge.Builder()
                         .group(ElementGroup.REGION_CONTAINS_LOCATION)
                         .source(region)
-                        .dest(location)
+                        .destination(location)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.LOCATION_CONTAINS_ROAD)
                         .source(location)
-                        .dest(road)
+                        .destination(road)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.ROAD_HAS_JUNCTION)
                         .source(road)
-                        .dest(junctionA)
+                        .destination(junctionA)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.ROAD_HAS_JUNCTION)
                         .source(road)
-                        .dest(junctionB)
+                        .destination(junctionB)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.JUNCTION_LOCATED_AT)
                         .source(junctionA)
-                        .dest(junctionALocation)
+                        .destination(junctionALocation)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.JUNCTION_LOCATED_AT)
                         .source(junctionB)
-                        .dest(junctionBLocation)
+                        .destination(junctionBLocation)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group(ElementGroup.ROAD_USE)
                         .source(junctionA)
-                        .dest(junctionB)
+                        .destination(junctionB)
                         .directed(true)
                         .property("startDate", startDate)
                         .property("endDate", endDate)

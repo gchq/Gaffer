@@ -19,6 +19,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator;
@@ -38,11 +39,12 @@ public class TestEdgeKryoSerializer {
     @Test
     public void testEdge() {
         // Given
-        final Edge edge = new Edge("group");
-        edge.setSource("abc");
-        edge.setDestination("xyz");
-        edge.setDirected(true);
-        edge.putProperty("property1", 1);
+        final Edge edge = new Edge.Builder().group("group")
+                                            .source("abc")
+                                            .destination("xyz")
+                                            .directed(true)
+                                            .property("property1", 1)
+                                            .build();
 
         // When
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -47,7 +47,7 @@ public class AggregationTest {
         final Edge[] expectedResults = {
                 new Edge.Builder()
                         .source("10")
-                        .dest("11")
+                        .destination("11")
                         .directed(true)
                         .group("RoadUse")
                         .property("count", 2L)

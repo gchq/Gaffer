@@ -47,7 +47,7 @@ public class FilteringTest {
                 new Edge.Builder()
                         .group("RoadUse")
                         .source("10")
-                        .dest("11")
+                        .destination("11")
                         .directed(true)
                         .property("count", 3L)
                         .build()

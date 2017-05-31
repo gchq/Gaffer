@@ -36,7 +36,7 @@ public class DoubleUnionElementGenerator implements OneToManyElementGenerator<St
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
-                    .dest("B")
+                    .destination("B")
                     .property("doublesUnion", doublesUnion)
                     .build();
             elements.add(edge);

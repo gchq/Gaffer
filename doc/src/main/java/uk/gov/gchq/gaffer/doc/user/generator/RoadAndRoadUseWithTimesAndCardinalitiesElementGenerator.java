@@ -62,21 +62,21 @@ public class RoadAndRoadUseWithTimesAndCardinalitiesElementGenerator implements 
                 new Edge.Builder()
                         .group("RoadHasJunction")
                         .source(road)
-                        .dest(junctionA)
+                        .destination(junctionA)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group("RoadHasJunction")
                         .source(road)
-                        .dest(junctionB)
+                        .destination(junctionB)
                         .directed(true)
                         .build(),
 
                 new Edge.Builder()
                         .group("RoadUse")
                         .source(junctionA)
-                        .dest(junctionB)
+                        .destination(junctionB)
                         .directed(true)
                         .property("count", 1L)
                         .property("startDate", startDate)

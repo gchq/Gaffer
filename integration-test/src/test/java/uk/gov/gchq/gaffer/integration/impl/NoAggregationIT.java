@@ -101,7 +101,7 @@ public class NoAggregationIT extends AbstractStoreIT {
         return new Edge.Builder()
                 .group(TestGroups.EDGE)
                 .source(A)
-                .dest(B)
+                .destination(B)
                 .property(TestPropertyNames.STRING, PROPERTY_VALUE)
                 .build();
     }

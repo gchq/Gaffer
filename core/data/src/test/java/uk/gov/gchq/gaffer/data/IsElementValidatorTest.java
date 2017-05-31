@@ -30,7 +30,7 @@ public class IsElementValidatorTest {
     @Test
     public void shouldValidateWhenEntity() {
         // Given
-        final Element element = new Entity(TestGroups.ENTITY);
+        final Element element = new Entity.Builder().group(TestGroups.ENTITY).build();
 
         // When
         final boolean valid = new IsElementValidator().validate(element);
@@ -42,7 +42,7 @@ public class IsElementValidatorTest {
     @Test
     public void shouldValidateWhenEdge() {
         // Given
-        final Element element = new Edge(TestGroups.EDGE);
+        final Element element = new Edge.Builder().group(TestGroups.EDGE).build();
 
         // When
         final boolean valid = new IsElementValidator().validate(element);

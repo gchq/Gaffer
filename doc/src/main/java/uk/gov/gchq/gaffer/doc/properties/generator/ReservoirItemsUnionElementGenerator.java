@@ -38,7 +38,7 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
-                    .dest("B")
+                    .destination("B")
                     .property("stringsSample", reservoirStringsUnion)
                     .build();
             elements.add(edge);
@@ -47,7 +47,7 @@ public class ReservoirItemsUnionElementGenerator implements OneToManyElementGene
             final Edge edge = new Edge.Builder()
                     .group("blue")
                     .source("X")
-                    .dest("Y" + i)
+                    .destination("Y" + i)
                     .build();
             elements.add(edge);
             final ReservoirItemsUnion<String> reservoirStringsUnionX = ReservoirItemsUnion.getInstance(20);

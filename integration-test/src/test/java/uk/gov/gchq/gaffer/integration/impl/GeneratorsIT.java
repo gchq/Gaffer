@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.integration.impl;
 
 import com.google.common.collect.Lists;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -41,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -78,8 +78,7 @@ public class GeneratorsIT extends AbstractStoreIT {
         // Then
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(
-                entityDomainObject, edgeDomainObject));
+        assertThat(results, hasItems(entityDomainObject, edgeDomainObject));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class GeneratorsIT extends AbstractStoreIT {
 
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertThat(results, IsCollectionContaining.hasItems(new Element[]{
+        assertThat(results, hasItems(new Element[]{
                 expectedEntity, expectedEdge}));
     }
 }

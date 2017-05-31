@@ -36,7 +36,7 @@ public class LongsSketchElementGenerator implements OneToManyElementGenerator<St
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
-                    .dest("B")
+                    .destination("B")
                     .property("longsSketch", longsSketch)
                     .build();
             elements.add(edge);

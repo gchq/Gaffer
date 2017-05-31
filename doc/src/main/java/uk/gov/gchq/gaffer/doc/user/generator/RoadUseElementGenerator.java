@@ -32,7 +32,7 @@ public class RoadUseElementGenerator implements OneToOneElementGenerator<String>
         return new Edge.Builder()
                 .group("RoadUse")
                 .source(junctionA)
-                .dest(junctionB)
+                .destination(junctionB)
                 .directed(true)
                 .property("count", 1L)
                 .build();
