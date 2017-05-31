@@ -123,10 +123,6 @@ public class Edge extends Element implements EdgeId {
         return reversed;
     }
 
-    public void setReversed(final boolean reversed) {
-        this.reversed = reversed;
-    }
-
     public void reinitialise(final String group, final Object source, final Object destination, final boolean directed) {
         super.setGroup(group);
         this.source = source;
