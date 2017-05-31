@@ -21,20 +21,20 @@ import org.apache.accumulo.core.data.Range;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
@@ -49,12 +49,12 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     @Override
     protected Key getKeyFromEdgeId(final EdgeId seed, final GraphFilters operation,
                                    final boolean endKey) throws RangeFactoryException {
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
+        final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
         final byte directionFlag1 = seed.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
-            sourceValue = ByteArrayEscapeUtils.escape((vertexSerialiser.serialise(seed.getSource())));
+            sourceValue = ByteArrayEscapeUtils.escape(vertexSerialiser.serialise(seed.getSource()));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Source", e);
         }
@@ -106,7 +106,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -191,7 +191,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
                             new Range(getUnDirectedEdgeKey(serialisedVertex, false), true,
                                     getUnDirectedEdgeKey(serialisedVertex, true), true));
                 } else {
-                    final Pair<Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
+                    final Pair<Key, Key> keys = getAllEdgeOnlyKeys(serialisedVertex);
                     return Collections.singletonList(new Range(keys.getFirst(), false, keys.getSecond(), false));
                 }
             }
@@ -250,7 +250,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
-    private Pair<Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
+    private Pair<Key, Key> getAllEdgeOnlyKeys(final byte[] serialisedVertex) {
         final byte[] endKeyBytes = Arrays.copyOf(serialisedVertex, serialisedVertex.length + 3);
         endKeyBytes[serialisedVertex.length] = ByteArrayEscapeUtils.DELIMITER;
         endKeyBytes[serialisedVertex.length + 1] = ByteEntityPositions.UNDIRECTED_EDGE;

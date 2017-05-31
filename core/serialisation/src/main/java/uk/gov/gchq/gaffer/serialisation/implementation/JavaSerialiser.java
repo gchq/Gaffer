@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -32,11 +32,12 @@ import java.io.Serializable;
 /**
  * This class is used to serialise and deserialise objects in java.
  */
-public class JavaSerialiser implements Serialisation<Object> {
+public class JavaSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 2073581763875104361L;
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);
 
+    @Override
     public byte[] serialise(final Object object) throws SerialisationException {
         ObjectOutputStream out = null;
         ByteArrayOutputStream byteOut = null;
@@ -53,6 +54,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         }
     }
 
+    @Override
     public Object deserialise(final byte[] bytes) throws SerialisationException {
         try (final InputStream inputStream = new ByteArrayInputStream(bytes);
              final ObjectInputStream is = new ObjectInputStream(inputStream)) {
@@ -63,12 +65,8 @@ public class JavaSerialiser implements Serialisation<Object> {
     }
 
     @Override
-    public Object deserialiseEmptyBytes() {
+    public Object deserialiseEmpty() {
         return null;
-    }
-
-    public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
-        return clazz.cast(this.deserialise(bytes));
     }
 
     private void close(final Closeable close) {
@@ -81,6 +79,7 @@ public class JavaSerialiser implements Serialisation<Object> {
         }
     }
 
+    @Override
     public boolean canHandle(final Class clazz) {
         return SERIALISABLE.isAssignableFrom(clazz);
     }

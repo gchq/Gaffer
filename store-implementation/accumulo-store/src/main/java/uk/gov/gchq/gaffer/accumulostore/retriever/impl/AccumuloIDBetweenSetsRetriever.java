@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -97,7 +98,14 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
     protected boolean hasSeeds() {
         seedSetAIter = seedSetA.iterator();
         seedSetBIter = seedSetB.iterator();
-        return seedSetAIter.hasNext() && seedSetBIter.hasNext();
+        final boolean hasSeeds = seedSetAIter.hasNext() && seedSetBIter.hasNext();
+        if (!hasSeeds) {
+            CloseableUtil.close(seedSetAIter);
+            CloseableUtil.close(seedSetBIter);
+            CloseableUtil.close(operation);
+        }
+
+        return hasSeeds;
     }
 
     @Override
@@ -140,9 +148,16 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
 
     private class ElementIteratorFromBatches extends AbstractElementIteratorFromBatches {
         ElementIteratorFromBatches() throws RetrieverException {
-            addToBloomFilter(seedSetBIter, filter, clientSideFilter);
-            idsAIterator = seedSetAIter;
-            updateScanner();
+            try {
+                addToBloomFilter(seedSetBIter, filter, clientSideFilter);
+                idsAIterator = seedSetAIter;
+                updateScanner();
+            } catch (final Exception e) {
+                CloseableUtil.close(seedSetAIter);
+                CloseableUtil.close(seedSetBIter);
+
+                throw e;
+            }
         }
 
         @Override
@@ -150,6 +165,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
             // no action required.
         }
 
+        @Override
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {
                 return true;
@@ -176,7 +192,7 @@ public class AccumuloIDBetweenSetsRetriever extends AccumuloSetRetriever<GetElem
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (destIsInCurrent && sourceMatchesClientFilter);
+            return destIsInCurrent && sourceMatchesClientFilter;
         }
     }
 }

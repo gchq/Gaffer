@@ -21,7 +21,7 @@ import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.broadcast.Broadcast;
 import scala.Tuple2;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class ElementConverterFunction implements PairFlatMapFunction<Element, Ke
     @Override
     public Iterator<Tuple2<Key, Value>> call(final Element e) throws Exception {
         final List<Tuple2<Key, Value>> tuples = new ArrayList<>(2);
-        final Pair<Key> keys = converterBroadcast.value().getKeysFromElement(e);
+        final Pair<Key, Key> keys = converterBroadcast.value().getKeysFromElement(e);
         final Value value = converterBroadcast.value().getValueFromElement(e);
         tuples.add(new Tuple2<>(keys.getFirst(), value));
         final Key second = keys.getSecond();

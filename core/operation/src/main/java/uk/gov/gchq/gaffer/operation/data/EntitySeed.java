@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
@@ -33,12 +34,9 @@ public class EntitySeed extends ElementSeed implements EntityId {
         this.vertex = vertex;
     }
 
+    @Override
     public Object getVertex() {
         return vertex;
-    }
-
-    public void setVertex(final Object vertex) {
-        this.vertex = vertex;
     }
 
     @Override
@@ -61,8 +59,8 @@ public class EntitySeed extends ElementSeed implements EntityId {
 
     @Override
     public String toString() {
-        return "EntityId{"
-                + "vertex=" + vertex
-                + '}';
+        return new ToStringBuilder(this)
+                .append("vertex" + vertex)
+                .build();
     }
 }

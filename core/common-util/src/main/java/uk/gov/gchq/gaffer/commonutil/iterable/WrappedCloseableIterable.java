@@ -16,14 +16,16 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
     private final Iterable<T> iterable;
 
     public WrappedCloseableIterable() {
-        this(null);
+        this(Collections.emptyList());
     }
 
     public WrappedCloseableIterable(final Iterable<T> iterable) {
@@ -34,18 +36,24 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
         }
     }
 
+    public WrappedCloseableIterable(final Iterator<T> iterator) {
+        if (null == iterator) {
+            this.iterable = EmptyCloseableIterator::new;
+        } else {
+            this.iterable = () -> iterator;
+        }
+    }
+
     @Override
     public void close() {
-        if (iterable instanceof CloseableIterable) {
-            ((CloseableIterable) iterable).close();
-        }
+        CloseableUtil.close(iterable);
     }
 
     @Override
     public CloseableIterator<T> iterator() {
         final Iterator<T> iterator = iterable.iterator();
         if (iterator instanceof CloseableIterator) {
-            return ((CloseableIterator<T>) iterator);
+            return (CloseableIterator<T>) iterator;
         }
 
         return new WrappedCloseableIterator<>(iterator);

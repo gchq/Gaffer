@@ -21,8 +21,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge.Builder;
@@ -112,7 +114,7 @@ public class Edge extends Element implements EdgeId {
                 directed = (boolean) propertyToBeSet;
                 break;
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                LOGGER.error("Unknown identifier type: {} detected.", identifierType);
         }
     }
 
@@ -168,8 +170,12 @@ public class Edge extends Element implements EdgeId {
                     .toHashCode();
         } else {
             hash = super.hashCode();
-            hash ^= source.hashCode();
-            hash ^= destination.hashCode();
+            if (null != source) {
+                hash ^= source.hashCode();
+            }
+            if (null != destination) {
+                hash ^= destination.hashCode();
+            }
         }
         return hash;
     }
@@ -184,16 +190,16 @@ public class Edge extends Element implements EdgeId {
     public boolean equals(final Edge edge) {
         return null != edge
                 && (new EqualsBuilder()
-                .appendSuper(super.equals(edge))
                 .append(directed, edge.isDirected())
                 .append(source, edge.getSource())
                 .append(destination, edge.getDestination())
+                .appendSuper(super.equals(edge))
                 .isEquals()
                 || new EqualsBuilder()
-                .appendSuper(super.equals(edge))
                 .append(directed, false)
                 .append(source, edge.getDestination())
                 .append(destination, edge.getSource())
+                .appendSuper(super.equals(edge))
                 .isEquals()
         );
     }
@@ -210,12 +216,12 @@ public class Edge extends Element implements EdgeId {
 
     @Override
     public String toString() {
-        return "Edge{"
-                + "source=" + source
-                + ", destination=" + destination
-                + ", directed=" + directed
-                + super.toString()
-                + "} ";
+        return new ToStringBuilder(this)
+                .append("source", source)
+                .append("destination", destination)
+                .append("directed", directed)
+                .appendSuper(super.toString())
+                .build();
     }
 
     @JsonPOJOBuilder(withPrefix = "")

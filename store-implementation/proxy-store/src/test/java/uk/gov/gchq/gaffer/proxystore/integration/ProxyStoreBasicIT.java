@@ -43,6 +43,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
+import uk.gov.gchq.gaffer.proxystore.ProxyStore;
 import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.user.User;
@@ -111,7 +112,11 @@ public class ProxyStoreBasicIT {
 
         // setup ProxyStore
         graph = new Graph.Builder()
-                .storeProperties(StreamUtil.openStream(ProxyStoreBasicIT.class, "proxy-store.properties"))
+                .store(new ProxyStore.Builder()
+                        .host("localhost")
+                        .port(8080)
+                        .contextRoot("rest/v1")
+                        .build())
                 .build();
     }
 

@@ -155,7 +155,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             elementToProperties.put(elementWithGroupByProperties, existingProperties);
         }
 
-        schema.getElement(group).getAggregator().apply(properties, existingProperties);
+        schema.getElement(group).getAggregator().apply(existingProperties, properties);
         return elementWithGroupByProperties;
     }
 

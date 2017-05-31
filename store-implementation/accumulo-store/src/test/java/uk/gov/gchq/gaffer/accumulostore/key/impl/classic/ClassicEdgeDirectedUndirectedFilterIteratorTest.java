@@ -21,10 +21,9 @@ import org.apache.accumulo.core.data.Value;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicEdgeDirectedUndirectedFilterIterator;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
@@ -62,7 +61,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -76,7 +75,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertTrue("Failed for edge: " + edge.toString(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -87,7 +86,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -101,7 +100,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -112,7 +111,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -126,7 +125,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             // First key is deduplicated
             assertEquals("Failed for edge: " + edge.toString(), !edge.isDirected(), filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
@@ -137,7 +136,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptDirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -151,7 +150,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (final Edge edge : EDGES) {
             final boolean expectedResult = edge.isDirected();
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -161,7 +160,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptUndirectedEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptUndirectedEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -175,7 +174,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
         // When / Then
         for (final Edge edge : EDGES) {
             final boolean expectedResult = !edge.isDirected();
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -185,7 +184,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptIncomingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptIncomingEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -199,7 +198,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             assertEquals("Failed for edge: " + edge.toString(), false, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {
                 // self edges are not added the other way round
@@ -210,7 +209,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptOutgoingEdges() throws OperationException, AccumuloElementConversionException {
+    public void shouldOnlyAcceptOutgoingEdges() throws OperationException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -224,7 +223,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
 
         // When / Then
         for (final Edge edge : EDGES) {
-            final Pair<Key> keys = converter.getKeysFromEdge(edge);
+            final Pair<Key, Key> keys = converter.getKeysFromEdge(edge);
             final boolean expectedResult = edge.isDirected();
             assertEquals("Failed for edge: " + edge.toString(), expectedResult, filter.accept(keys.getFirst(), value));
             if (null != keys.getSecond()) {

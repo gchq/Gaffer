@@ -19,7 +19,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>core</artifactId>
-        <version>0.6.7-SNAPSHOT</version>
+        <version>0.7.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,13 +27,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
+            <groupId>uk.gov.gchq.koryphe</groupId>
             <artifactId>koryphe</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${koryphe.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>serialisation</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.gov.gchq.gaffer</groupId>
+            <artifactId>type</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

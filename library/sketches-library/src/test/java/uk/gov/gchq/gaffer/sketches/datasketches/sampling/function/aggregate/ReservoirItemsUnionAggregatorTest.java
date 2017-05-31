@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -65,7 +66,7 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         expectedSamples.add("3");
         assertEquals(expectedSamples, samples);
 
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(99L, currentState.getResult().getN());
         assertEquals(20L, currentState.getResult().getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present
@@ -82,6 +83,7 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new ReservoirItemsUnionAggregator(), new ReservoirItemsUnionAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -91,7 +93,7 @@ public class ReservoirItemsUnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate.ReservoirItemsUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirItemsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

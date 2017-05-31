@@ -36,6 +36,7 @@ import static org.junit.Assert.assertTrue;
 public class AddElementsTest implements OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
             "  \"validate\" : true,%n" +
             "  \"skipInvalidElements\" : false,%n" +
             "  \"input\" : [ {%n" +
@@ -68,6 +69,7 @@ public class AddElementsTest implements OperationTest {
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
                 "  \"validate\" : true,%n" +
                 "  \"skipInvalidElements\" : false%n" +
                 "}"), json);

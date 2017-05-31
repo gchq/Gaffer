@@ -16,42 +16,72 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunctionComposite;
-import java.util.function.BiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperatorComposite;
+import java.util.function.BinaryOperator;
 
-public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
-    private final PropertiesTuple propertiesTuple = new PropertiesTuple();
+public class ElementAggregator extends TupleAdaptedBinaryOperatorComposite<String> {
     private final PropertiesTuple stateTuple = new PropertiesTuple();
+    private final PropertiesTuple propertiesTuple = new PropertiesTuple();
 
     /**
      * Aggregates the element. Note - only the element properties are aggregated.
      * Aggregation requires elements to have the same identifiers and group.
      *
-     * @param element the element to aggregated
      * @param state   the other element to aggregate. This is normally the 'state' where the aggregated results will be set.
+     * @param element the element to aggregated
      * @return Element - the aggregated element
      */
-    public Element apply(final Element element, final Element state) {
+    public Element apply(final Element state, final Element element) {
         if (null == state) {
             return element;
         }
 
-        apply(element.getProperties(), state.getProperties());
+        apply(state.getProperties(), element.getProperties());
         return state;
     }
 
-    public Properties apply(final Properties properties, final Properties state) {
+    public Properties apply(final Properties state, final Properties properties) {
         if (null == state) {
             return properties;
         }
 
         propertiesTuple.setProperties(properties);
         stateTuple.setProperties(state);
-        apply(propertiesTuple, stateTuple);
+        apply(stateTuple, propertiesTuple);
         return state;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ElementAggregator that = (ElementAggregator) obj;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(stateTuple, that.stateTuple)
+                .append(propertiesTuple, that.propertiesTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(stateTuple)
+                .append(propertiesTuple)
+                .toHashCode();
     }
 
     public static class Builder {
@@ -66,7 +96,7 @@ public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
         }
 
         public SelectedBuilder select(final String... selection) {
-            final TupleAdaptedBiFunction<String, Object, Object> current = new TupleAdaptedBiFunction<>();
+            final TupleAdaptedBinaryOperator<String, Object> current = new TupleAdaptedBinaryOperator<>();
             current.setSelection(selection);
             return new SelectedBuilder(aggregator, current);
         }
@@ -78,16 +108,16 @@ public class ElementAggregator extends TupleAdaptedBiFunctionComposite {
 
     public static final class SelectedBuilder {
         private final ElementAggregator aggregator;
-        private final TupleAdaptedBiFunction<String, Object, Object> current;
+        private final TupleAdaptedBinaryOperator<String, Object> current;
 
-        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBiFunction<String, Object, Object> current) {
+        private SelectedBuilder(final ElementAggregator aggregator, final TupleAdaptedBinaryOperator<String, Object> current) {
             this.aggregator = aggregator;
             this.current = current;
         }
 
-        public Builder execute(final BiFunction function) {
-            current.setFunction(function);
-            aggregator.getFunctions().add(current);
+        public Builder execute(final BinaryOperator function) {
+            current.setBinaryOperator(function);
+            aggregator.getComponents().add(current);
             return new Builder(aggregator);
         }
     }

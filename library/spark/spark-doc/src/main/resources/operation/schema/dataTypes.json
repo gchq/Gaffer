@@ -1,0 +1,15 @@
+{
+  "types": {
+    "int": {
+      "class": "java.lang.Integer"
+    },
+    "true": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsTrue"
+        }
+      ]
+    }
+  }
+}

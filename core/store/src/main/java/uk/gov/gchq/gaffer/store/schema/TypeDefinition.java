@@ -22,14 +22,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
 /**
@@ -39,9 +39,9 @@ import java.util.function.Predicate;
 @JsonFilter(JSONSerialiser.FILTER_FIELDS_BY_NAME)
 public class TypeDefinition {
     private Class<?> clazz;
-    private Serialisation serialiser;
+    private Serialiser serialiser;
     private List<Predicate> validateFunctions;
-    private BiFunction aggregateFunction;
+    private BinaryOperator aggregateFunction;
     private String description;
 
     public TypeDefinition() {
@@ -80,17 +80,17 @@ public class TypeDefinition {
     }
 
     /**
-     * @return the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} for the property.
+     * @return the {@link Serialiser} for the property.
      */
     @JsonIgnore
-    public Serialisation getSerialiser() {
+    public Serialiser getSerialiser() {
         return serialiser;
     }
 
     /**
-     * @param serialiser the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} for the property.
+     * @param serialiser the {@link Serialiser} for the property.
      */
-    public void setSerialiser(final Serialisation serialiser) {
+    public void setSerialiser(final Serialiser serialiser) {
         this.serialiser = serialiser;
     }
 
@@ -106,9 +106,9 @@ public class TypeDefinition {
         if (null == clazz) {
             this.serialiser = null;
         } else {
-            final Class<? extends Serialisation> serialiserClass;
+            final Class<? extends Serialiser> serialiserClass;
             try {
-                serialiserClass = Class.forName(clazz).asSubclass(Serialisation.class);
+                serialiserClass = Class.forName(clazz).asSubclass(Serialiser.class);
             } catch (final ClassNotFoundException e) {
                 throw new SchemaException(e.getMessage(), e);
             }
@@ -121,11 +121,11 @@ public class TypeDefinition {
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
-    public BiFunction getAggregateFunction() {
+    public BinaryOperator getAggregateFunction() {
         return aggregateFunction;
     }
 
-    public <F extends BiFunction<I, O, O>, I, O> void setAggregateFunction(final F aggregateFunction) {
+    public <F extends BinaryOperator<T>, T> void setAggregateFunction(final F aggregateFunction) {
         this.aggregateFunction = aggregateFunction;
     }
 
@@ -227,7 +227,7 @@ public class TypeDefinition {
             return this;
         }
 
-        public Builder serialiser(final Serialisation serialiser) {
+        public Builder serialiser(final Serialiser serialiser) {
             type.setSerialiser(serialiser);
             return this;
         }
@@ -241,7 +241,7 @@ public class TypeDefinition {
             return validateFunctions(Lists.newArrayList(validateFunctions));
         }
 
-        public <F extends BiFunction<I, O, O>, I, O> Builder aggregateFunction(final F aggregateFunction) {
+        public <F extends BinaryOperator<T>, T> Builder aggregateFunction(final F aggregateFunction) {
             type.setAggregateFunction(aggregateFunction);
             return this;
         }

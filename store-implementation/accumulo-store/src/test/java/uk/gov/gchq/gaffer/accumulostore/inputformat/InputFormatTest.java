@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -44,6 +44,8 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -64,6 +66,7 @@ public class InputFormatTest {
     private static final int NUM_ENTRIES = 1000;
     private static final List<Element> DATA = new ArrayList<>();
     private static final List<Element> DATA_WITH_VISIBILITIES = new ArrayList<>();
+    private static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
 
     static {
         for (int i = 0; i < NUM_ENTRIES; i++) {
@@ -122,12 +125,16 @@ public class InputFormatTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
+    private static String getJsonString(final Object o) throws SerialisationException {
+        return new String(JSON_SERIALISER.serialise(o));
+    }
+
     @Test
     public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
         final View view = new View.Builder().build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
-            expectedResults.add(element.toString());
+            expectedResults.add(getJsonString(element));
         }
         shouldReturnCorrectDataToMapReduceJob(getSchema(),
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
@@ -152,7 +159,7 @@ public class InputFormatTest {
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
             if (element.getGroup().equals(TestGroups.EDGE)) {
-                expectedResults.add(element.toString());
+                expectedResults.add(getJsonString(element));
             }
         }
         shouldReturnCorrectDataToMapReduceJob(schema,
@@ -178,9 +185,9 @@ public class InputFormatTest {
         final Set<String> expectedResultsPublicNotPrivate = new HashSet<>();
         final Set<String> expectedResultsPrivate = new HashSet<>();
         for (final Element element : DATA_WITH_VISIBILITIES) {
-            expectedResultsPrivate.add(element.toString());
+            expectedResultsPrivate.add(getJsonString(element));
             if (element.getProperty("visibility").equals("public")) {
-                expectedResultsPublicNotPrivate.add(element.toString());
+                expectedResultsPublicNotPrivate.add(getJsonString(element));
             }
         }
         final Set<String> privateAuth = new HashSet<>();
@@ -229,9 +236,8 @@ public class InputFormatTest {
             final String instanceName,
             final Set<String> expectedResults)
             throws Exception {
-        final AccumuloStore store = new MockAccumuloStore();
-        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil
-                .storeProps(getClass()));
+        final AccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
@@ -312,13 +318,6 @@ public class InputFormatTest {
         CLASSIC_KEY_PACKAGE
     }
 
-    private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
-
-        protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
-            context.write(new Text(key.toString()), nw);
-        }
-    }
-
     private class Driver extends Configured implements Tool {
 
         private final String outputDir;
@@ -346,6 +345,14 @@ public class InputFormatTest {
             job.waitForCompletion(true);
 
             return job.isSuccessful() ? 0 : 1;
+        }
+    }
+
+    private static class AMapper extends Mapper<Element, NullWritable, Text, NullWritable> {
+
+        @Override
+        protected void map(final Element key, final NullWritable nw, final Context context) throws IOException, InterruptedException {
+            context.write(new Text(getJsonString(key)), nw);
         }
     }
 

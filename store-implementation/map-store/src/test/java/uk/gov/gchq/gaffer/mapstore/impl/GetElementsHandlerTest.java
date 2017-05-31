@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
@@ -41,6 +40,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.function.KorypheFunction;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 
 public class GetElementsHandlerTest {
-    private final static int NUM_LOOPS = 10;
+    private static final int NUM_LOOPS = 10;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();

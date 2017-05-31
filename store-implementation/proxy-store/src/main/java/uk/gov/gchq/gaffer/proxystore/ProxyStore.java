@@ -36,6 +36,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -50,7 +52,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
@@ -87,7 +88,7 @@ public class ProxyStore extends Store {
     protected void checkDelegateStoreStatus(final ProxyProperties proxyProps) throws StoreException {
         final URL url = proxyProps.getGafferUrl("status");
         final LinkedHashMap status = doGet(url, new TypeReferenceImpl.Map(), null);
-        LOGGER.info("Delegate REST API status: " + status.get("description"));
+        LOGGER.info("Delegate REST API status: {}", status.get("description"));
     }
 
     @SuppressFBWarnings(value = "SIC_INNER_SHOULD_BE_STATIC_ANON")
@@ -175,7 +176,7 @@ public class ProxyStore extends Store {
                            final Context context) throws StoreException {
 
 
-        final Builder request = createRequest(jsonBody, url, context);
+        final Invocation.Builder request = createRequest(jsonBody, url, context);
         final Response response;
         try {
             response = request.post(Entity.json(jsonBody));
@@ -207,8 +208,8 @@ public class ProxyStore extends Store {
             throws StoreException {
         final String outputJson = response.hasEntity() ? response.readEntity(String.class) : null;
         if (200 != response.getStatus() && 204 != response.getStatus()) {
-            LOGGER.warn("Gaffer bad status " + response.getStatus());
-            LOGGER.warn("Detail: " + outputJson);
+            LOGGER.warn("Gaffer bad status {}", response.getStatus());
+            LOGGER.warn("Detail: {}", outputJson);
             throw new StoreException("Delegate Gaffer store returned status: " + response.getStatus() + ". Response content was: " + outputJson);
         }
 
@@ -224,7 +225,7 @@ public class ProxyStore extends Store {
         return output;
     }
 
-    protected Builder createRequest(final String body, final URL url, final Context context) {
+    protected Invocation.Builder createRequest(final String body, final URL url, final Context context) {
         final Invocation.Builder request = client.target(url.toString())
                 .request();
         if (null != body) {
@@ -304,5 +305,61 @@ public class ProxyStore extends Store {
         client.property(ClientProperties.CONNECT_TIMEOUT, proxyProps.getConnectTimeout());
         client.property(ClientProperties.READ_TIMEOUT, proxyProps.getReadTimeout());
         return client;
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
+    }
+
+    public static final class Builder {
+        private final ProxyStore store;
+        private final ProxyProperties properties;
+
+        public Builder() {
+            store = new ProxyStore();
+            properties = new ProxyProperties();
+            properties.setStoreClass(ProxyStore.class);
+            properties.setStorePropertiesClass(ProxyProperties.class);
+        }
+
+        public Builder host(final String host) {
+            properties.setGafferHost(host);
+            return this;
+        }
+
+        public Builder port(final int port) {
+            properties.setGafferPort(port);
+            return this;
+        }
+
+        public Builder contextRoot(final String contextRoot) {
+            properties.setGafferContextRoot(contextRoot);
+            return this;
+        }
+
+        public Builder connextTimeout(final int timeout) {
+            properties.setConnectTimeout(timeout);
+            return this;
+        }
+
+        public Builder readTimeout(final int timeout) {
+            properties.setReadTimeout(timeout);
+            return this;
+        }
+
+        public Builder jsonSerialiser(final Class<? extends JSONSerialiser> serialiserClass) {
+            properties.setJsonSerialiserClass(serialiserClass);
+            return this;
+        }
+
+        public ProxyStore build() {
+            try {
+                store.initialise(new Schema(), properties);
+            } catch (final StoreException e) {
+                throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
+            }
+            return store;
+        }
     }
 }

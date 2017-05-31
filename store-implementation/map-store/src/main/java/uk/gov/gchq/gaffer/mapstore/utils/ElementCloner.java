@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -37,10 +37,10 @@ public final class ElementCloner {
                 final Object property = element.getProperty(propertyName);
                 if (null == sed.getPropertyTypeDef(propertyName) || null == sed.getPropertyTypeDef(propertyName).getSerialiser()) {
                     // This can happen if transient properties are derived - they will not have serialisers.
-                    LOGGER.warn("Can't find Serialisation for " + propertyName + ", returning uncloned property");
+                    LOGGER.warn("Can't find Serialisation for {}, returning uncloned property", propertyName);
                     clone.putProperty(propertyName, property);
                 } else if (null != property) {
-                    final Serialisation serialisation = sed.getPropertyTypeDef(propertyName).getSerialiser();
+                    final ToBytesSerialiser serialisation = (ToBytesSerialiser) sed.getPropertyTypeDef(propertyName).getSerialiser();
                     final byte[] serialised = serialisation.serialise(property);
                     final Object deserialised = serialisation.deserialise(serialised);
                     clone.putProperty(propertyName, deserialised);

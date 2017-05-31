@@ -16,19 +16,46 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunctionComposite;
 import java.util.function.Function;
 
-public class ElementTransformer extends TupleAdaptedFunctionComposite {
-
+public class ElementTransformer extends TupleAdaptedFunctionComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
     public Element apply(final Element element) {
         elementTuple.setElement(element);
         apply(elementTuple);
         return element;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ElementTransformer that = (ElementTransformer) obj;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(elementTuple, that.elementTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(elementTuple)
+                .toHashCode();
     }
 
     public static class Builder {
@@ -79,7 +106,7 @@ public class ElementTransformer extends TupleAdaptedFunctionComposite {
 
         public Builder project(final String... projection) {
             current.setProjection(projection);
-            transformer.getFunctions().add(current);
+            transformer.getComponents().add(current);
             return new Builder(transformer);
         }
     }

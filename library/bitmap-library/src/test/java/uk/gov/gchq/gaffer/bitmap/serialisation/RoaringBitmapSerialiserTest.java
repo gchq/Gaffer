@@ -18,12 +18,12 @@ package uk.gov.gchq.gaffer.bitmap.serialisation;
 import org.junit.Test;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 
-public class RoaringBitmapSerialiserTest extends SerialisationTest<RoaringBitmap> {
+public class RoaringBitmapSerialiserTest extends ToByteSerialisationTest<RoaringBitmap> {
 
     private static final RoaringBitmapSerialiser SERIALISER = new RoaringBitmapSerialiser();
 
@@ -45,16 +45,16 @@ public class RoaringBitmapSerialiserTest extends SerialisationTest<RoaringBitmap
     }
 
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final RoaringBitmap value = serialiser.deserialiseEmptyBytes();
+        final RoaringBitmap value = serialiser.deserialiseEmpty();
 
         // Then
         assertEquals(new RoaringBitmap(), value);
     }
 
     @Override
-    public Serialisation<RoaringBitmap> getSerialisation() {
+    public Serialiser<RoaringBitmap,byte[]> getSerialisation() {
         return new RoaringBitmapSerialiser();
     }
 }

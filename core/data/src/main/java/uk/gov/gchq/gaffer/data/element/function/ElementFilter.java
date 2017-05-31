@@ -16,17 +16,45 @@
 
 package uk.gov.gchq.gaffer.data.element.function;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicateComposite;
 import java.util.function.Predicate;
 
-public class ElementFilter extends TupleAdaptedPredicateComposite {
+public class ElementFilter extends TupleAdaptedPredicateComposite<String> {
     private final ElementTuple elementTuple = new ElementTuple();
 
     public boolean test(final Element element) {
         elementTuple.setElement(element);
         return test(elementTuple);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final ElementFilter that = (ElementFilter) obj;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(elementTuple, that.elementTuple)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(elementTuple)
+                .toHashCode();
     }
 
     public static class Builder {
@@ -61,8 +89,8 @@ public class ElementFilter extends TupleAdaptedPredicateComposite {
         }
 
         public Builder execute(final Predicate function) {
-            current.setFunction(function);
-            filter.getFunctions().add(current);
+            current.setPredicate(function);
+            filter.getComponents().add(current);
             return new Builder(filter);
         }
     }

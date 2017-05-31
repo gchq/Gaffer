@@ -20,10 +20,10 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -81,7 +81,7 @@ public class GafferResultCacheUtilTest {
 
         // Then
         assertTrue(isValid);
-        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) (schema.getType("timestamp").getValidateFunctions().get(0))).getAgeOffTime());
+        assertEquals(GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
     }

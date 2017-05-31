@@ -27,8 +27,6 @@ import org.apache.spark.sql.sources.Or;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
@@ -37,6 +35,8 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema.SchemaToStr
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfAllElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.GetRDDOfElements;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -216,13 +216,13 @@ public class FilterToOperationConverterTest {
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
         assertArrayEquals(new String[]{"property1"}, entityPostAggFilters.get(0).getSelection());
-        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getFunction());
+        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getPredicate());
         for (final String edgeGroup : EDGE_GROUPS) {
             final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
             assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
-            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
+            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getPredicate());
         }
 
         // LessThan
@@ -237,12 +237,12 @@ public class FilterToOperationConverterTest {
                 .getEntity(ENTITY_GROUP).getPostAggregationFilterFunctions();
         assertEquals(1, entityPostAggFilters.size());
         assertArrayEquals(new String[]{"property4"}, entityPostAggFilters.get(0).getSelection());
-        assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getFunction());
+        assertEquals(new IsLessThan(8L, false), entityPostAggFilters.get(0).getPredicate());
         List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(1, edgePostAggFilters.size());
         assertArrayEquals(new String[]{"property4"}, edgePostAggFilters.get(0).getSelection());
-        assertEquals(new IsLessThan(8L, false), edgePostAggFilters.get(0).getFunction());
+        assertEquals(new IsLessThan(8L, false), edgePostAggFilters.get(0).getPredicate());
 
         // And
         final Filter left = new GreaterThan("property1", 5);
@@ -266,8 +266,8 @@ public class FilterToOperationConverterTest {
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
         expectedFunctions.add(new IsMoreThan(8L, false));
-        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
-        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
         edgePostAggFilters = opView.getEdge(EDGE_GROUP).getPostAggregationFilterFunctions();
         assertEquals(2, edgePostAggFilters.size());
         assertEquals(1, edgePostAggFilters.get(0).getSelection().length);
@@ -306,8 +306,8 @@ public class FilterToOperationConverterTest {
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
         expectedFunctions.add(new IsLessThan(8L, false));
-        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
-        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
         final List<TupleAdaptedPredicate<String, ?>> edgePostAggFilters = opView.getEdge(EDGE_GROUP)
                 .getPostAggregationFilterFunctions();
         assertEquals(2, edgePostAggFilters.size());
@@ -350,7 +350,7 @@ public class FilterToOperationConverterTest {
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
         final ArrayList<Predicate> expectedFunctions = new ArrayList<>();
         expectedFunctions.add(new IsMoreThan(5, false));
-        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
 
         // Specify vertex and filters on properties property1 and property4
         filters = new Filter[3];
@@ -382,8 +382,8 @@ public class FilterToOperationConverterTest {
         expectedFunctions.clear();
         expectedFunctions.add(new IsMoreThan(5, false));
         expectedFunctions.add(new IsLessThan(8, false));
-        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getFunction());
-        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getFunction());
+        assertEquals(expectedFunctions.get(0), entityPostAggFilters.get(0).getPredicate());
+        assertEquals(expectedFunctions.get(1), entityPostAggFilters.get(1).getPredicate());
 
         sqlContext.sparkContext().stop();
     }
@@ -415,7 +415,7 @@ public class FilterToOperationConverterTest {
                     .getEdge(edgeGroup).getPostAggregationFilterFunctions();
             assertEquals(1, edgePostAggFilters.size());
             assertArrayEquals(new String[]{"property1"}, edgePostAggFilters.get(0).getSelection());
-            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getFunction());
+            assertEquals(new IsMoreThan(5, false), edgePostAggFilters.get(0).getPredicate());
         }
 
         // Specify src and filters on property1 and property4
@@ -443,10 +443,10 @@ public class FilterToOperationConverterTest {
         expectedProperties.add("property4");
         assertEquals(1, entityPostAggFilters.get(0).getSelection().length);
         assertEquals(expectedProperties.get(0), entityPostAggFilters.get(0).getSelection()[0]);
-        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getFunction());
+        assertEquals(new IsMoreThan(5, false), entityPostAggFilters.get(0).getPredicate());
         assertEquals(1, entityPostAggFilters.get(1).getSelection().length);
         assertEquals(expectedProperties.get(1), entityPostAggFilters.get(1).getSelection()[0]);
-        assertEquals(new IsLessThan(8, false), entityPostAggFilters.get(1).getFunction());
+        assertEquals(new IsLessThan(8, false), entityPostAggFilters.get(1).getPredicate());
 
         sqlContext.sparkContext().stop();
     }

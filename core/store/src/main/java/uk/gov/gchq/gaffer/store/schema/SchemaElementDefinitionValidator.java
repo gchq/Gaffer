@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.signature.Signature;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class SchemaElementDefinitionValidator {
 
     /**
      * Checks each identifier and property has a type associated with it.
-     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BiFunction}s defined are
+     * Checks all {@link java.util.function.Predicate}s and {@link java.util.function.BinaryOperator}s defined are
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
@@ -69,7 +69,7 @@ public class SchemaElementDefinitionValidator {
                 if (null == elementDef.getIdentifierClass(idType)) {
                     result.addError("Class for " + idType + " could not be found.");
                 }
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 result.addError("Class " + elementDef.getIdentifierTypeName(idType) + " for identifier " + idType + " could not be found");
             }
         }
@@ -82,7 +82,7 @@ public class SchemaElementDefinitionValidator {
                     if (null == elementDef.getPropertyClass(propertyName)) {
                         result.addError("Class for " + propertyName + " could not be found.");
                     }
-                } catch (IllegalArgumentException e) {
+                } catch (final IllegalArgumentException e) {
                     result.addError("Class " + elementDef.getPropertyTypeName(propertyName) + " for property " + propertyName + " could not be found");
                 }
             }
@@ -94,12 +94,12 @@ public class SchemaElementDefinitionValidator {
     protected ValidationResult validateFunctionArgumentTypes(
             final ElementFilter filter, final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
-        if (null != filter && null != filter.getFunctions()) {
-            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getFunctions()) {
-                if (null == adaptedPredicate.getFunction()) {
+        if (null != filter && null != filter.getComponents()) {
+            for (final TupleAdaptedPredicate<String, ?> adaptedPredicate : filter.getComponents()) {
+                if (null == adaptedPredicate.getPredicate()) {
                     result.addError(filter.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getFunction());
+                    final Signature inputSig = Signature.getInputSignature(adaptedPredicate.getPredicate());
                     result.add(inputSig.assignable(getTypeClasses(adaptedPredicate.getSelection(), schemaElDef)));
                 }
             }
@@ -112,15 +112,15 @@ public class SchemaElementDefinitionValidator {
             final ElementAggregator aggregator,
             final SchemaElementDefinition schemaElDef) {
         final ValidationResult result = new ValidationResult();
-        if (null != aggregator && null != aggregator.getFunctions()) {
-            for (final TupleAdaptedBiFunction<String, ?, ?> adaptedFunction : aggregator.getFunctions()) {
-                if (null == adaptedFunction.getFunction()) {
+        if (null != aggregator && null != aggregator.getComponents()) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
+                if (null == adaptedFunction.getBinaryOperator()) {
                     result.addError(aggregator.getClass().getSimpleName() + " contains a null function.");
                 } else {
-                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getFunction());
+                    final Signature inputSig = Signature.getInputSignature(adaptedFunction.getBinaryOperator());
                     result.add(inputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), schemaElDef)));
 
-                    final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getFunction());
+                    final Signature outputSig = Signature.getOutputSignature(adaptedFunction.getBinaryOperator());
                     result.add(outputSig.assignable(getTypeClasses(adaptedFunction.getSelection(), schemaElDef)));
                 }
             }
@@ -137,7 +137,7 @@ public class SchemaElementDefinitionValidator {
             return result;
         }
 
-        if (null == aggregator || null == aggregator.getFunctions() || aggregator.getFunctions().isEmpty()) {
+        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
             if (requiresAggregators) {
                 result.addError("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
             }
@@ -148,8 +148,8 @@ public class SchemaElementDefinitionValidator {
 
         // if aggregate functions are defined then check all properties are aggregated
         final Set<String> aggregatedProperties = new HashSet<>();
-        if (aggregator.getFunctions() != null) {
-            for (final TupleAdaptedBiFunction<String, ?, ?> adaptedFunction : aggregator.getFunctions()) {
+        if (aggregator.getComponents() != null) {
+            for (final TupleAdaptedBinaryOperator<String, ?> adaptedFunction : aggregator.getComponents()) {
                 final String[] selection = adaptedFunction.getSelection();
                 if (selection != null) {
                     for (final String key : selection) {
@@ -195,22 +195,16 @@ public class SchemaElementDefinitionValidator {
             if (null != idType) {
                 final String typeName = schemaElDef.getIdentifierTypeName(idType);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition " + typeName
-                            + " used by identifier " + idType
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for type definition {} used by identifier {}. Please ensure it is defined in the schema.", typeName, idType);
                 } else {
-                    LOGGER.error("No type definition defined for identifier " + idType
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No type definition defined for identifier {}. Please ensure it is defined in the schema.", idType);
                 }
             } else {
                 final String typeName = schemaElDef.getPropertyTypeName(key);
                 if (null != typeName) {
-                    LOGGER.error("No class type found for type definition " + typeName
-                            + " used by property " + key
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for type definition {} used by property {}. Please ensure it is defined in the schema.", typeName, key);
                 } else {
-                    LOGGER.error("No class type found for property " + key
-                            + ". Please ensure it is defined in the schema.");
+                    LOGGER.error("No class type found for property {}. Please ensure it is defined in the schema.", key);
                 }
             }
 

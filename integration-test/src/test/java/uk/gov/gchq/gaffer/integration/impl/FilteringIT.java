@@ -27,8 +27,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsEqual;
-import uk.gov.gchq.gaffer.function.filter.IsLessThan;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.TraitRequirement;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -36,6 +34,8 @@ import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -208,7 +208,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
+    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     public void testPostAggregationFilteringIdentifiers() throws OperationException {
         // Given
         final List<ElementId> seeds = Collections.singletonList((ElementId) new EntitySeed("A3"));
@@ -258,7 +258,7 @@ public class FilteringIT extends AbstractStoreIT {
     }
 
     @Test
-    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.STORE_AGGREGATION})
+    @TraitRequirement({StoreTrait.POST_AGGREGATION_FILTERING, StoreTrait.INGEST_AGGREGATION})
     public void testPostAggregationFilteringProperties() throws OperationException {
         // Given
         final List<ElementId> seeds = Arrays.asList(new EntitySeed("A3"),

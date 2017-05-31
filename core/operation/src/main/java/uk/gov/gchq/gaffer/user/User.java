@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.user;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -85,11 +86,11 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{"
-                + "userId='" + userId + '\''
-                + ", dataAuths=" + dataAuths
-                + ", opAuths=" + opAuths
-                + '}';
+        return new ToStringBuilder(this)
+                .append("userId", userId)
+                .append("dataAuths", dataAuths)
+                .append("opAuths", opAuths)
+                .build();
     }
 
     public static class Builder {

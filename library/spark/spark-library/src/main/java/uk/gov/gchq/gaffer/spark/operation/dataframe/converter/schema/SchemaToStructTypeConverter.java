@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.spark.operation.dataframe.converter.schema;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
@@ -188,9 +188,7 @@ public class SchemaToStructTypeConverter {
         for (final String group : groups) {
             final StructType groupSchema = structTypeByGroup.get(group);
             for (final String field : groupSchema.fieldNames()) {
-                if (fieldToStructs.get(field) == null) {
-                    fieldToStructs.put(field, new HashSet<StructField>());
-                }
+                fieldToStructs.computeIfAbsent(field, k -> new HashSet<StructField>());
                 fieldToStructs.get(field).add(groupSchema.apply(field));
             }
         }
@@ -250,19 +248,12 @@ public class SchemaToStructTypeConverter {
     private static boolean needsConversion(final String className) {
         switch (className) {
             case "java.lang.String":
-                return false;
             case "java.lang.Integer":
-                return false;
             case "java.lang.Long":
-                return false;
             case "java.lang.Boolean":
-                return false;
             case "java.lang.Double":
-                return false;
             case "java.lang.Float":
-                return false;
             case "java.lang.Byte":
-                return false;
             case "java.lang.Short":
                 return false;
             default:

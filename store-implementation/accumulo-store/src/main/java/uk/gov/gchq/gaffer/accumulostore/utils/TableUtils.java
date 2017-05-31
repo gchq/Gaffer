@@ -22,6 +22,7 @@ import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
+import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableExistsException;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
@@ -34,12 +35,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloRuntimeException;
+import uk.gov.gchq.gaffer.accumulostore.key.core.impl.CoreKeyBloomFunctor;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +69,9 @@ public final class TableUtils {
             throw new AccumuloRuntimeException("Table name is required.");
         }
         final Connector connector = store.getConnection();
-        if (!connector.tableOperations().exists(tableName)) {
+        if (connector.tableOperations().exists(tableName)) {
+            validateTable(store, tableName, connector);
+        } else {
             try {
                 TableUtils.createTable(store);
             } catch (final TableExistsException e) {
@@ -231,6 +237,100 @@ public final class TableUtils {
         } catch (final TableNotFoundException e) {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
                     + store.getProperties().getTable(), e);
+        }
+    }
+
+    private static void validateTable(final AccumuloStore store, final String tableName, final Connector connector) throws StoreException {
+        final IteratorSetting requiredAggItrSetting;
+        if (store.getSchema().hasAggregators()) {
+            try {
+                requiredAggItrSetting = store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store);
+                if (null != requiredAggItrSetting) {
+                    requiredAggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                }
+            } catch (final IteratorSettingException e) {
+                throw new StoreException("Unable to create aggregator iterator settings", e);
+            }
+        } else {
+            requiredAggItrSetting = null;
+        }
+
+        final IteratorSetting requiredValidatorItrSetting;
+        if (store.getProperties().getEnableValidatorIterator()) {
+            requiredValidatorItrSetting = store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store);
+            if (null != requiredValidatorItrSetting) {
+                requiredValidatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+            }
+        } else {
+            requiredValidatorItrSetting = null;
+        }
+
+        final ValidationResult validationResult = new ValidationResult();
+        for (final IteratorScope iteratorScope : EnumSet.allOf(IteratorScope.class)) {
+            final IteratorSetting aggItrSetting;
+            final IteratorSetting validatorItrSetting;
+            final IteratorSetting versioningIterSetting;
+            try {
+                aggItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME, iteratorScope);
+                if (null != aggItrSetting) {
+                    aggItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                }
+                validatorItrSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, iteratorScope);
+                if (null != validatorItrSetting) {
+                    validatorItrSetting.removeOption(AccumuloStoreConstants.SCHEMA);
+                }
+                versioningIterSetting = store.getConnection().tableOperations().getIteratorSetting(tableName, "vers", iteratorScope);
+            } catch (AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+                throw new StoreException("Unable to find iterators on the table " + tableName, e);
+            }
+
+            if (!Objects.equals(requiredAggItrSetting, aggItrSetting)) {
+                validationResult.addError("Aggregator iterator for scope " + iteratorScope.name() + " is not as expected. "
+                        + "Expected: " + requiredAggItrSetting + ", but found: " + aggItrSetting);
+            }
+            if (!Objects.equals(requiredValidatorItrSetting, validatorItrSetting)) {
+                validationResult.addError("Validator iterator for scope " + iteratorScope.name() + " is not as expected. "
+                        + "Expected: " + requiredValidatorItrSetting + ", but found: " + validatorItrSetting);
+            }
+            if (null != versioningIterSetting) {
+                validationResult.addError("The versioning iterator for scope " + iteratorScope.name() + " should not be set on the table.");
+            }
+        }
+
+        final Iterable<Map.Entry<String, String>> tableProps;
+        try {
+            tableProps = connector.tableOperations().getProperties(tableName);
+        } catch (AccumuloException | TableNotFoundException e) {
+            throw new StoreException("Unable to get table properties.", e);
+        }
+
+        boolean bloomFilterEnabled = false;
+        String bloomKeyFunctor = null;
+        for (final Map.Entry<String, String> tableProp : tableProps) {
+            if (Property.TABLE_BLOOM_ENABLED.getKey().equals(tableProp.getKey())) {
+                if (Boolean.parseBoolean(tableProp.getValue())) {
+                    bloomFilterEnabled = true;
+                }
+            } else if (Property.TABLE_BLOOM_KEY_FUNCTOR.getKey().equals(tableProp.getKey())) {
+                if (null == bloomKeyFunctor || CoreKeyBloomFunctor.class.getName().equals(tableProp.getValue())) {
+                    bloomKeyFunctor = tableProp.getValue();
+                }
+            }
+        }
+
+        if (!bloomFilterEnabled) {
+            validationResult.addError("Bloom filter is not enabled. " + Property.TABLE_BLOOM_ENABLED.getKey() + " = " + bloomFilterEnabled);
+        }
+
+        if (!CoreKeyBloomFunctor.class.getName().equals(bloomKeyFunctor)) {
+            validationResult.addError("Bloom key functor class is incorrect. "
+                    + "Expected: " + CoreKeyBloomFunctor.class.getName() + ", but found: " + bloomKeyFunctor);
+        }
+
+        if (!validationResult.isValid()) {
+            throw new StoreException("Your table " + tableName + " is configured incorrectly. "
+                    + validationResult.getErrorString()
+                    + "\nEither delete the table and let Gaffer create it for you or fix it manually using the Accumulo shell or the Gaffer AddUpdateTableIterator utility.");
         }
     }
 }

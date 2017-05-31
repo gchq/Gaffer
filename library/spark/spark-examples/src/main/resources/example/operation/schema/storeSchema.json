@@ -1,3 +1,0 @@
-{
-  "vertexSerialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
-}

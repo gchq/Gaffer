@@ -27,13 +27,14 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import uk.gov.gchq.koryphe.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,15 +42,16 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_TRANSFORMATION_FILTERING;
 import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.STORE_VALIDATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
@@ -65,13 +67,15 @@ public class GraphConfigurationServiceTest {
     @Mock
     private UserFactory userFactory;
 
+    @Mock
+    private Store store;
+
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     @Before
     public void setup() {
-        final Store store = mock(Store.class);
         final Schema schema = mock(Schema.class);
-        final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(STORE_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
+        final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder().store(store).build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
@@ -136,13 +140,49 @@ public class GraphConfigurationServiceTest {
     }
 
     @Test
+    public void shouldGetNextOperations() throws IOException {
+        // Given
+        final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
+        given(store.getNextOperations(GetElements.class)).willReturn(expectedNextOperations);
+
+        // When
+        final Set<Class> nextOperations = service.getNextOperations(GetElements.class.getName());
+
+
+        // Then
+        assertSame(expectedNextOperations, nextOperations);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetNextOperationsWithUnknownClassName() throws IOException {
+        // When / Then
+        try {
+            service.getNextOperations("an unknown class name");
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation class was not found"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGetNextOperationsWithNonOperationClassName() throws IOException {
+        // When / Then
+        try {
+            service.getNextOperations(String.class.getName());
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("does not extend Operation"));
+        }
+    }
+
+    @Test
     public void shouldGetStoreTraits() throws IOException {
         // When
         final Set<StoreTrait> traits = service.getStoreTraits();
         // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 6", traits.size() == 6);
-        assertTrue("Collection should contain STORE_AGGREGATION trait", traits.contains(STORE_AGGREGATION));
+        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING));
         assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING));
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING));
@@ -207,7 +247,7 @@ public class GraphConfigurationServiceTest {
         // Then
         assertNotNull(traits);
         assertTrue("Collection size should be 6", traits.size() == 6);
-        assertTrue("Collection should contain STORE_AGGREGATION trait", traits.contains(STORE_AGGREGATION.name()));
+        assertTrue("Collection should contain INGEST_AGGREGATION trait", traits.contains(INGEST_AGGREGATION.name()));
         assertTrue("Collection should contain PRE_AGGREGATION_FILTERING trait", traits.contains(PRE_AGGREGATION_FILTERING.name()));
         assertTrue("Collection should contain POST_AGGREGATION_FILTERING trait", traits.contains(POST_AGGREGATION_FILTERING.name()));
         assertTrue("Collection should contain POST_TRANSFORMATION_FILTERING trait", traits.contains(POST_TRANSFORMATION_FILTERING.name()));

@@ -55,7 +55,7 @@ public class StatusService {
                 return new SystemStatus("The system is working normally.");
             }
         } catch (final Exception e) {
-            throw new GafferRuntimeException("Unable to create graph.", e, Status.IM_A_TEAPOT);
+            throw new GafferRuntimeException("Unable to create graph.", e, Status.INTERNAL_SERVER_ERROR);
         }
 
         return new SystemStatus("Unable to create graph.");

@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.graph.hook;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.exception.UnauthorisedException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -129,11 +129,7 @@ public class OperationAuthoriser implements GraphHook {
      * @param auths   the authorisations
      */
     public void addOpAuths(final Class<? extends Operation> opClass, final String... auths) {
-        Set<String> opAuths = opAuthsMap.get(opClass);
-        if (null == opAuths) {
-            opAuths = new HashSet<>();
-            opAuthsMap.put(opClass, opAuths);
-        }
+        final Set<String> opAuths = opAuthsMap.computeIfAbsent(opClass, k -> new HashSet<>());
         Collections.addAll(opAuths, auths);
         Collections.addAll(allOpAuths, auths);
     }
@@ -148,11 +144,10 @@ public class OperationAuthoriser implements GraphHook {
             final Set<String> userOpAuths = user.getOpAuths();
             boolean authorised = true;
             for (final Entry<Class<?>, Set<String>> entry : opAuthsMap.entrySet()) {
-                if (entry.getKey().isAssignableFrom(opClass)) {
-                    if (!userOpAuths.containsAll(entry.getValue())) {
-                        authorised = false;
-                        break;
-                    }
+                if ((entry.getKey().isAssignableFrom(opClass))
+                        && (!userOpAuths.containsAll(entry.getValue()))) {
+                    authorised = false;
+                    break;
                 }
             }
 
@@ -205,7 +200,7 @@ public class OperationAuthoriser implements GraphHook {
             } catch (final IOException e) {
                 throw new IllegalArgumentException("Failed to load store properties file : " + e.getMessage(), e);
             } finally {
-                IOUtils.closeQuietly(stream);
+                CloseableUtil.close(stream);
             }
         }
 

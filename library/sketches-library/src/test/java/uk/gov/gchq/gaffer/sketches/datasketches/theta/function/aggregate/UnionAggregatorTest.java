@@ -22,6 +22,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
@@ -49,7 +50,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         final UnionAggregator unionAggregator = new UnionAggregator();
         Union currentState = union1;
         assertEquals(2.0D, currentState.getResult().getEstimate(), DELTA);
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(4.0D, currentState.getResult().getEstimate(), DELTA);
     }
 
@@ -58,6 +59,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new UnionAggregator(), new UnionAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -67,7 +69,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.function.aggregate.UnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

@@ -34,7 +34,7 @@ public class EdgeToObjectGenerator implements OneToOneObjectGenerator<EdgeDomain
     @Override
     public EdgeDomainObject _apply(final Element element) {
         if (element instanceof Edge) {
-            final Edge edge = ((Edge) element);
+            final Edge edge = (Edge) element;
             final EdgeDomainObject basicEdge = new EdgeDomainObject();
             basicEdge.setSource((String) edge.getSource());
             basicEdge.setDestination((String) edge.getDestination());

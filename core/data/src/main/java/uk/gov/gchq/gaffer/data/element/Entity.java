@@ -21,8 +21,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Entity.Builder;
@@ -77,7 +78,7 @@ public class Entity extends Element implements EntityId {
                 this.vertex = propertyToBeSet;
                 break;
             default:
-                LOGGER.error("Unknown identifier type: " + identifierType + " detected.");
+                LOGGER.error("Unknown identifier type: {} detected.", identifierType);
                 break;
         }
     }
@@ -111,7 +112,10 @@ public class Entity extends Element implements EntityId {
 
     @Override
     public String toString() {
-        return "Entity{vertex=" + vertex + super.toString() + "} ";
+        return new ToStringBuilder(this)
+                .append("vertex", vertex)
+                .appendSuper(super.toString())
+                .build();
     }
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -16,12 +16,13 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate;
 
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsUnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -64,7 +65,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         expectedSamples.add(3L);
         assertEquals(expectedSamples, samples);
 
-        currentState = unionAggregator.apply(union2, currentState);
+        currentState = unionAggregator.apply(currentState, union2);
         assertEquals(99L, currentState.getResult().getN());
         assertEquals(20L, currentState.getResult().getNumSamples());
         // As more items have been added than the capacity, we can't know exactly what items will be present
@@ -81,6 +82,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         assertEquals(new ReservoirLongsUnionAggregator(), new ReservoirLongsUnionAggregator());
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -90,7 +92,7 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.function.aggregate.ReservoirLongsUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.sampling.binaryoperator.ReservoirLongsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2

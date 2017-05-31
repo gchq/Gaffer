@@ -33,7 +33,7 @@ public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonSetter("input")
-    default void setInput(I_ITEM[] input) {
+    default void setInput(final I_ITEM[] input) {
         setInput(Lists.newArrayList(input));
     }
 
@@ -47,6 +47,7 @@ public interface MultiInput<I_ITEM> extends Input<Iterable<? extends I_ITEM>> {
             return input(Lists.newArrayList(input));
         }
 
+        @Override
         default B input(final Iterable<? extends I_ITEM> input) {
             if (null != _getOp().getInput()) {
                 throw new IllegalStateException("Input has already been set");

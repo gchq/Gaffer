@@ -21,11 +21,12 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -139,6 +140,20 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     @Override
     public Set<StoreTrait> getStoreTraits() {
         return graphFactory.getGraph().getStoreTraits();
+    }
+
+    @Override
+    public Set<Class> getNextOperations(final String operationClassName) {
+        Class<? extends Operation> opClass;
+        try {
+            opClass = Class.forName(operationClassName).asSubclass(Operation.class);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Operation class was not found: " + operationClassName, e);
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException(operationClassName + " does not extend Operation", e);
+        }
+
+        return (Set) graphFactory.getGraph().getNextOperations(opClass);
     }
 
     @Override

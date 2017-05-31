@@ -22,12 +22,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.MockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -59,8 +59,8 @@ public class AccumuloRangeIDRetrieverTest {
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
-        byteEntityStore = new MockAccumuloStore();
-        gaffer1KeyStore = new MockAccumuloStore();
+        byteEntityStore = new SingleUseMockAccumuloStore();
+        gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
         defaultView = new View.Builder().edge(TestGroups.EDGE).entity(TestGroups.ENTITY).build();
@@ -87,7 +87,7 @@ public class AccumuloRangeIDRetrieverTest {
 
     private void shouldRetieveElementsInRangeBetweenSeeds(final AccumuloStore store) throws StoreException {
         // Create set to query for
-        final Set<Pair<ElementId>> simpleEntityRanges = new HashSet<>();
+        final Set<Pair<ElementId, ElementId>> simpleEntityRanges = new HashSet<>();
         simpleEntityRanges.add(new Pair<>(new EntitySeed("0000"), new EntitySeed("0999")));
 
         // Retrieve elements when less simple entities are provided than the max number of entries for the batch scanner

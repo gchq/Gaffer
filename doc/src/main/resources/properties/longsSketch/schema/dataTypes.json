@@ -1,0 +1,23 @@
+{
+  "types": {
+    "vertex.string": {
+      "class": "java.lang.String",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.Exists"
+        }
+      ]
+    },
+    "longs.sketch": {
+      "class": "com.yahoo.sketches.frequencies.LongsSketch"
+    },
+    "false": {
+      "class": "java.lang.Boolean",
+      "validateFunctions": [
+        {
+          "class": "uk.gov.gchq.koryphe.impl.predicate.IsFalse"
+        }
+      ]
+    }
+  }
+}

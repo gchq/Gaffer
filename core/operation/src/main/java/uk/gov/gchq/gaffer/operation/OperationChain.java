@@ -19,13 +19,16 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +49,7 @@ import java.util.List;
  *              {@link uk.gov.gchq.gaffer.operation.Operation} in the chain.
  * @see uk.gov.gchq.gaffer.operation.OperationChain.Builder
  */
-public class OperationChain<OUT> {
+public class OperationChain<OUT> implements Closeable {
     private List<Operation> operations;
 
     public OperationChain() {
@@ -82,7 +85,6 @@ public class OperationChain<OUT> {
         return operations;
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     @JsonGetter("operations")
     Operation[] getOperationArray() {
         return null != operations ? operations.toArray(new Operation[operations.size()]) : new Operation[0];
@@ -99,23 +101,18 @@ public class OperationChain<OUT> {
 
     @Override
     public String toString() {
-        final StringBuilder strBuilder = new StringBuilder("OperationChain[");
+        return new ToStringBuilder(this)
+                .append("operations", operations)
+                .build();
+    }
 
+    @Override
+    public void close() throws IOException {
         if (null != operations) {
-            boolean first = true;
-            for (final Operation op : operations) {
-                if (first) {
-                    first = false;
-                } else {
-                    strBuilder.append("->");
-                }
-
-                strBuilder.append(op.getClass().getSimpleName());
+            for (final Operation operation : operations) {
+                CloseableUtil.close(operation);
             }
         }
-
-        strBuilder.append("]");
-        return strBuilder.toString();
     }
 
     /**

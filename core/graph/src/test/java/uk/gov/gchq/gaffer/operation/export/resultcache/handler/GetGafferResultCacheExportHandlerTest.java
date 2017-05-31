@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -40,6 +39,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -157,7 +157,7 @@ public class GetGafferResultCacheExportHandlerTest {
         final Schema schema = graph.getSchema();
         JsonUtil.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
         assertTrue(schema.validate().isValid());
-        assertEquals(timeToLive, ((AgeOff) (schema.getType("timestamp").getValidateFunctions().get(0))).getAgeOffTime());
+        assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
         assertFalse(new ElementValidator(schema).validate(oldEdge));
     }

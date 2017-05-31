@@ -19,14 +19,14 @@ package uk.gov.gchq.gaffer.operation.export.resultcache.handler.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.function.filter.AgeOff;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 
 public final class GafferResultCacheUtil {
-    public static final long ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+    public static final long ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000L;
     public static final long DEFAULT_TIME_TO_LIVE = ONE_DAY_IN_MILLISECONDS;
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferResultCacheUtil.class);
 
@@ -35,7 +35,7 @@ public final class GafferResultCacheUtil {
 
     public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
-            throw new IllegalArgumentException("Gaffer result cache Store properties are required");
+            throw new IllegalArgumentException("Gaffer result uk.gov.gchq.gaffer.cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()
@@ -44,7 +44,7 @@ public final class GafferResultCacheUtil {
 
         final Graph graph = graphBuilder.build();
         if (!graph.hasTrait(StoreTrait.STORE_VALIDATION)) {
-            LOGGER.warn("Gaffer JSON export graph does not have " + StoreTrait.STORE_VALIDATION.name() + " trait so results may not be aged off.");
+            LOGGER.warn("Gaffer JSON export graph does not have {} trait so results may not be aged off.", StoreTrait.STORE_VALIDATION.name());
         }
 
         return graph;

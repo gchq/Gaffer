@@ -16,27 +16,27 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.dataframe;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 
 /**
  * A serialiser for {@link MyProperty}.
  */
-public class MyPropertySerialiser implements Serialisation {
+public class MyPropertySerialiser implements ToBytesSerialiser<MyProperty> {
     private final CompactRawIntegerSerialiser integerSerialiser = new CompactRawIntegerSerialiser();
 
     @Override
-    public boolean canHandle(Class clazz) {
+    public boolean canHandle(final Class clazz) {
         return MyProperty.class.equals(clazz);
     }
 
     @Override
-    public byte[] serialise(Object object) throws SerialisationException {
-        return integerSerialiser.serialise(((MyProperty) object).getA());
+    public byte[] serialise(final MyProperty object) throws SerialisationException {
+        return integerSerialiser.serialise(object.getA());
     }
 
     @Override
-    public Object deserialise(byte[] bytes) throws SerialisationException {
+    public MyProperty deserialise(final byte[] bytes) throws SerialisationException {
         return new MyProperty(integerSerialiser.deserialise(bytes));
     }
 
@@ -46,7 +46,7 @@ public class MyPropertySerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialiseEmptyBytes() {
+    public MyProperty deserialiseEmpty() {
         return null;
     }
 

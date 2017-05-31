@@ -20,10 +20,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.koryphe.bifunction.KorypheBiFunction;
-import uk.gov.gchq.koryphe.tuple.bifunction.TupleAdaptedBiFunction;
+import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
+import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.n.Tuple3;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
@@ -35,13 +34,13 @@ import static org.mockito.Mockito.mock;
 public class ElementAggregatorTest {
 
     @Test
-    public void shouldAggregateElementUsingMockBiFunction() {
+    public void shouldAggregateElementUsingMockBinaryOperator() {
         // Given
         final String reference = "reference1";
         final Integer valueResult = 3;
 
-        final BiFunction<String, Integer, Integer> function = mock(BiFunction.class);
-        given(function.apply("value1", 2)).willReturn(valueResult);
+        final BinaryOperator<Integer> function = mock(BinaryOperator.class);
+        given(function.apply(1, 2)).willReturn(valueResult);
 
         final ElementAggregator aggregator = new ElementAggregator.Builder()
                 .select(reference)
@@ -49,7 +48,7 @@ public class ElementAggregatorTest {
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .property(reference, "value1")
+                .property(reference, 1)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
@@ -61,32 +60,6 @@ public class ElementAggregatorTest {
 
         // Then
         assertEquals(valueResult, result.getProperty(reference));
-    }
-
-    @Test
-    public void shouldAggregateElementUsingLambdaBiFunction() {
-        // Given
-        final String reference = "reference1";
-
-        final BiFunction<String, Integer, Integer> function = (a, b) -> a.length() + b;
-        final ElementAggregator aggregator = new ElementAggregator.Builder()
-                .select(reference)
-                .execute(function)
-                .build();
-
-        final Edge edge1 = new Edge.Builder()
-                .property(reference, "value1")
-                .build();
-
-        final Edge edge2 = new Edge.Builder()
-                .property(reference, 3)
-                .build();
-
-        // When
-        final Element result = aggregator.apply(edge1, edge2);
-
-        // Then
-        assertEquals("value1".length() + 3, result.getProperty(reference));
     }
 
     @Test
@@ -116,14 +89,14 @@ public class ElementAggregatorTest {
     }
 
     @Test
-    public void shouldAggregateElementUsingKorypheBiFunction() {
+    public void shouldAggregateElementUsingKorypheBinaryOperator() {
         // Given
         final String reference = "reference1";
 
-        final BiFunction<String, Integer, Integer> function = new KorypheBiFunction<String, Integer, Integer>() {
+        final BinaryOperator<Integer> function = new KorypheBinaryOperator<Integer>() {
             @Override
-            public Integer apply(final String a, final Integer b) {
-                return a.length() + b;
+            public Integer _apply(final Integer a, final Integer b) {
+                return a + b;
             }
         };
 
@@ -133,29 +106,29 @@ public class ElementAggregatorTest {
                 .build();
 
         final Edge edge1 = new Edge.Builder()
-                .property(reference, "value1")
+                .property(reference, 1)
                 .build();
 
         final Edge edge2 = new Edge.Builder()
-                .property(reference, 3)
+                .property(reference, 2)
                 .build();
 
         // When
         final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertEquals("value1".length() + 3, result.getProperty(reference));
+        assertEquals(3, result.getProperty(reference));
     }
 
     @Test
     public void shouldAggregateProperties() {
         // Given
         final String reference = "reference1";
-        final String value1 = "value1";
+        final Integer value1 = 1;
         final Integer value2 = 2;
         final Integer valueResult = 3;
 
-        final BiFunction<String, Integer, Integer> function = mock(BiFunction.class);
+        final BinaryOperator<Integer> function = mock(BinaryOperator.class);
         given(function.apply(value1, value2)).willReturn(valueResult);
 
         final ElementAggregator aggregator = new ElementAggregator.Builder()
@@ -200,7 +173,7 @@ public class ElementAggregatorTest {
 
         // When
         Properties state = aggregator.apply(properties1, properties2);
-        state = aggregator.apply(properties3, state);
+        state = aggregator.apply(state, properties3);
 
         // Then
         assertEquals(1000, state.get("max"));
@@ -236,7 +209,7 @@ public class ElementAggregatorTest {
 
         // When
         Properties state = aggregator.apply(properties1, properties2);
-        state = aggregator.apply(properties3, state);
+        state = aggregator.apply(state, properties3);
 
         // Then
         assertEquals(1000, state.get("max"));
@@ -255,7 +228,7 @@ public class ElementAggregatorTest {
         final Element result = aggregator.apply(edge1, edge2);
 
         // Then
-        assertSame(edge2, result);
+        assertEquals(edge2, result);
         assertTrue(result.getProperties().isEmpty());
     }
 
@@ -267,9 +240,9 @@ public class ElementAggregatorTest {
         final String property2b = "property 2b";
         final String property3 = "property 3";
 
-        final BiFunction func1 = mock(BiFunction.class);
-        final BiFunction func2 = mock(BiFunction.class);
-        final BiFunction func3 = mock(BiFunction.class);
+        final BinaryOperator func1 = mock(BinaryOperator.class);
+        final BinaryOperator func2 = mock(BinaryOperator.class);
+        final BinaryOperator func3 = mock(BinaryOperator.class);
 
         // When - check you can build the selection/function in any order,
         // although normally it will be done - select then execute.
@@ -284,22 +257,22 @@ public class ElementAggregatorTest {
 
         // Then
         int i = 0;
-        TupleAdaptedBiFunction<String, ?, ?> adaptedFunction = aggregator.getFunctions().get(i++);
+        TupleAdaptedBinaryOperator<String, ?> adaptedFunction = aggregator.getComponents().get(i++);
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property1, adaptedFunction.getSelection()[0]);
-        assertSame(func1, adaptedFunction.getFunction());
+        assertSame(func1, adaptedFunction.getBinaryOperator());
 
-        adaptedFunction = aggregator.getFunctions().get(i++);
+        adaptedFunction = aggregator.getComponents().get(i++);
         assertEquals(2, adaptedFunction.getSelection().length);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
-        assertSame(func2, adaptedFunction.getFunction());
+        assertSame(func2, adaptedFunction.getBinaryOperator());
 
-        adaptedFunction = aggregator.getFunctions().get(i++);
-        assertSame(func3, adaptedFunction.getFunction());
+        adaptedFunction = aggregator.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getBinaryOperator());
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        assertEquals(i, aggregator.getFunctions().size());
+        assertEquals(i, aggregator.getComponents().size());
     }
 }

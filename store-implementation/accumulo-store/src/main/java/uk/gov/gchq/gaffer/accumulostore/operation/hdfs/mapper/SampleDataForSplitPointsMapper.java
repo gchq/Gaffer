@@ -21,8 +21,8 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
@@ -40,6 +40,7 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
     private float proportionToSample;
     private AccumuloElementConverter elementConverter;
 
+    @Override
     protected void setup(final Context context) {
         super.setup(context);
         proportionToSample = context.getConfiguration().getFloat(SampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
@@ -62,10 +63,11 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
         }
     }
 
+    @Override
     protected void map(final Element element, final Context context) throws IOException, InterruptedException {
         if (Math.random() < proportionToSample) {
             context.getCounter("Split points", "Number sampled").increment(1L);
-            final Pair<Key> keyPair;
+            final Pair<Key, Key> keyPair;
             try {
                 keyPair = elementConverter.getKeysFromElement(element);
             } catch (final AccumuloElementConversionException e) {

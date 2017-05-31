@@ -20,8 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -53,9 +54,9 @@ import java.util.Set;
  */
 @JsonDeserialize(builder = View.Builder.class)
 public class View extends ElementDefinitions<ViewElementDefinition, ViewElementDefinition> implements Cloneable {
-    public List<GlobalViewElementDefinition> globalElements;
-    public List<GlobalViewElementDefinition> globalEntities;
-    public List<GlobalViewElementDefinition> globalEdges;
+    private List<GlobalViewElementDefinition> globalElements;
+    private List<GlobalViewElementDefinition> globalEntities;
+    private List<GlobalViewElementDefinition> globalEdges;
 
     public View() {
         super();
@@ -80,7 +81,9 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     @Override
     public String toString() {
         try {
-            return "View" + new String(toJson(true), CommonConstants.UTF_8);
+            return new ToStringBuilder(this)
+                    .append(new String(toJson(true), CommonConstants.UTF_8))
+                    .build();
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -169,12 +172,10 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             if (null != globalElement.groups) {
                 globalGroups = new HashSet<>(globalElement.groups);
                 final boolean hasMissingGroups = globalGroups.retainAll(groups);
-                if (hasMissingGroups) {
-                    if (!skipMissingGroups) {
-                        final Set<String> missingGroups = new HashSet<>(globalElement.groups);
-                        missingGroups.removeAll(groups);
-                        throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
-                    }
+                if (hasMissingGroups && !skipMissingGroups) {
+                    final Set<String> missingGroups = new HashSet<>(globalElement.groups);
+                    missingGroups.removeAll(groups);
+                    throw new IllegalArgumentException("A global element definition is invalid, these groups do not exist: " + missingGroups);
                 }
             } else {
                 globalGroups = groups;

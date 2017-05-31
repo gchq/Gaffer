@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.data.Validator;
+import uk.gov.gchq.gaffer.commonutil.iterable.Validator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -126,7 +126,7 @@ public class ElementValidator implements Validator<Element> {
     public boolean validateWithSchema(final Element element) {
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
         if (null == elementDef) {
-            LOGGER.warn("No element definition found for : " + element.getGroup());
+            LOGGER.warn("No element definition found for : {}", element.getGroup());
             return false;
         }
 
@@ -159,4 +159,11 @@ public class ElementValidator implements Validator<Element> {
         }
     }
 
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public View getView() {
+        return view;
+    }
 }

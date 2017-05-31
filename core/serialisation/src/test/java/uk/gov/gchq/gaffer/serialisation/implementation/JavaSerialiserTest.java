@@ -19,94 +19,58 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class JavaSerialiserTest {
-
-    final private JavaSerialiser SERIALISER = new JavaSerialiser();
+public class JavaSerialiserTest extends ToByteSerialisationTest<Object> {
 
     @Test
     public void testPrimitiveSerialisation() throws SerialisationException {
-        final byte[] b = SERIALISER.serialise(2);
-        final Object o = SERIALISER.deserialise(b);
+        final byte[] b = serialiser.serialise(2);
+        final Object o = serialiser.deserialise(b);
         assertEquals(Integer.class, o.getClass());
         assertEquals(2, o);
     }
 
     @Test
     public void canHandleUnParameterisedDAO() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(SimpleTestObject.class));
+        assertTrue(serialiser.canHandle(SimpleTestObject.class));
     }
 
     @Test
     public void testDAOSerialisation() throws SerialisationException {
         final SimpleTestObject test = new SimpleTestObject();
         test.setX("Test");
-        final byte[] b = SERIALISER.serialise(test);
-        final Object o = SERIALISER.deserialise(b);
+        final byte[] b = serialiser.serialise(test);
+        final Object o = serialiser.deserialise(b);
         assertEquals(SimpleTestObject.class, o.getClass());
         assertEquals("Test", ((SimpleTestObject) o).getX());
     }
 
     @Test
     public void canHandleParameterisedDAO() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(ParameterisedTestObject.class));
+        assertTrue(serialiser.canHandle(ParameterisedTestObject.class));
     }
 
     @Test
     public void testParameterisedDAOSerialisation() throws SerialisationException {
-        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject();
+        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject<>();
         test.setX("Test");
         test.setK(2);
-        final byte[] b = SERIALISER.serialise(test);
-        final Object o = SERIALISER.deserialise(b);
+        final byte[] b = serialiser.serialise(test);
+        final Object o = serialiser.deserialise(b);
         assertEquals(ParameterisedTestObject.class, o.getClass());
         assertEquals("Test", ((ParameterisedTestObject) o).getX());
         assertEquals(Integer.class, ((ParameterisedTestObject) o).getK().getClass());
         assertEquals(2, ((ParameterisedTestObject) o).getK());
     }
 
-    @Test
-    public void testParameterisedDeserialisationOfSimpleObject() throws SerialisationException {
-        final byte[] b = SERIALISER.serialise(2);
-        final Integer o = SERIALISER.deserialise(b, Integer.class);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(0, o.compareTo(2));
+    @Override
+    public Serialiser<Object, byte[]> getSerialisation() {
+        return new JavaSerialiser();
     }
-
-    @Test
-    public void testParameterisedDeserialisationOfComplexObject() throws SerialisationException {
-        SimpleTestObject test = new SimpleTestObject();
-        test.setX("Test");
-        byte[] b = SERIALISER.serialise(test);
-        SimpleTestObject o = SERIALISER.deserialise(b, SimpleTestObject.class);
-        assertEquals(SimpleTestObject.class, o.getClass());
-        assertEquals("Test", o.getX());
-    }
-
-    @Test
-    public void testParameterisedDeserialisationOfParameterisedComplexObject() throws SerialisationException {
-        final ParameterisedTestObject<Integer> test = new ParameterisedTestObject();
-        test.setX("Test");
-        test.setK(2);
-        final byte[] b = SERIALISER.serialise(test);
-        final ParameterisedTestObject o = SERIALISER.deserialise(b, ParameterisedTestObject.class);
-        assertEquals(ParameterisedTestObject.class, o.getClass());
-        assertEquals("Test", o.getX());
-        assertEquals(Integer.class, o.getK().getClass());
-        assertEquals(2, o.getK());
-    }
-
-
-    @Test(expected = ClassCastException.class)
-    public void testParameterisedDeserialisationOfComplexObjectToIncorrectType() throws SerialisationException {
-        final SimpleTestObject test = new SimpleTestObject();
-        test.setX("Test");
-        final byte[] b = SERIALISER.serialise(test);
-        final Integer o = SERIALISER.deserialise(b, Integer.class);
-    }
-
 }

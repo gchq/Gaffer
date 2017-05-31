@@ -19,10 +19,10 @@ package uk.gov.gchq.gaffer.data.elementdefinition;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
@@ -102,12 +102,12 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
 
     @JsonIgnore
     public Set<String> getEdgeGroups() {
-        return null != edges ? edges.keySet() : Collections.EMPTY_SET;
+        return null != edges ? edges.keySet() : Collections.emptySet();
     }
 
     @JsonIgnore
     public Set<String> getEntityGroups() {
-        return null != entities ? entities.keySet() : Collections.EMPTY_SET;
+        return null != entities ? entities.keySet() : Collections.emptySet();
     }
 
     /**
@@ -280,7 +280,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             } finally {
                 if (null != inputStreams) {
                     for (final InputStream inputStream : inputStreams) {
-                        IOUtils.closeQuietly(inputStream);
+                        CloseableUtil.close(inputStream);
                     }
                 }
             }
@@ -294,7 +294,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
             for (final Object jsonItem : jsonItems) {
                 try {
                     if (jsonItem instanceof InputStream) {
-                        merge(JSON_SERIALISER.deserialise(((InputStream) jsonItem), clazz));
+                        merge(JSON_SERIALISER.deserialise((InputStream) jsonItem, clazz));
                     } else if (jsonItem instanceof Path) {
                         final Path path = (Path) jsonItem;
                         if (Files.isDirectory(path)) {
@@ -305,7 +305,7 @@ public abstract class ElementDefinitions<ENTITY_DEF extends ElementDefinition, E
                             merge(JSON_SERIALISER.deserialise(Files.readAllBytes(path), clazz));
                         }
                     } else {
-                        merge(JSON_SERIALISER.deserialise(((byte[]) jsonItem), clazz));
+                        merge(JSON_SERIALISER.deserialise((byte[]) jsonItem, clazz));
                     }
                 } catch (final IOException e) {
                     throw new SchemaException("Failed to load element definitions from bytes", e);

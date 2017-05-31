@@ -33,6 +33,7 @@ public abstract class SystemProperty {
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
     public static final String PACKAGE_PREFIXES = "gaffer.package.prefixes";
     public static final String OP_AUTHS_PATH = "gaffer.operation.auths.path";
+    public static final String REST_DEBUG = uk.gov.gchq.gaffer.core.exception.Error.DEBUG;
 
     // DEFAULTS
     /**
@@ -44,4 +45,9 @@ public abstract class SystemProperty {
     public static final String CORE_VERSION = "1.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
+    public static final String REST_DEBUG_DEFAULT =  uk.gov.gchq.gaffer.core.exception.Error.DEBUG_DEFAULT;
+
+    private SystemProperty() {
+        // Private constructor to prevent instantiation.
+    }
 }

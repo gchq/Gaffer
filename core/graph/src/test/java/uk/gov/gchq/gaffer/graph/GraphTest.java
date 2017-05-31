@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.graph;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -36,9 +37,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.aggregate.StringConcat;
-import uk.gov.gchq.gaffer.function.aggregate.Sum;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -47,6 +47,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -58,9 +60,12 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,13 +73,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
@@ -84,6 +92,12 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
+
+    @Before
+    public void before() throws Exception {
+        TestStore.mockStore = mock(TestStore.class);
+    }
+
     @Test
     public void shouldConstructGraphFromSchemaModules() {
         // Given
@@ -160,6 +174,96 @@ public class GraphTest {
 
         // Then
         JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    @Test
+    public void shouldConstructGraphFromSchemaURL() throws IOException {
+        // Given
+        final URL typeInputURL = getResourceUrl(StreamUtil.DATA_TYPES);
+        final URL schemaInputUrl = getResourceUrl(StreamUtil.DATA_SCHEMA);
+        final URL storeInputUrl = getResourceUrl(StreamUtil.STORE_PROPERTIES);
+        final Schema expectedSchema = new Schema.Builder()
+                .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
+                .build();
+        Graph graph = null;
+        File schemaDir = null;
+
+        try {
+            schemaDir = createSchemaDirectory();
+
+            // When
+            graph = new Graph.Builder()
+                    .storeProperties(storeInputUrl)
+                    .addSchemas(typeInputURL, schemaInputUrl)
+                    .build();
+        } finally {
+            if (schemaDir != null) {
+                FileUtils.deleteDirectory(schemaDir);
+            }
+        }
+
+        // Then
+        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+    }
+
+    private URL getResourceUrl(String resource) {
+        resource = resource.replaceFirst(Pattern.quote("/"), "");
+        final URL resourceURL = getClass().getClassLoader().getResource(resource);
+        if (resourceURL == null)
+            fail("Test json file not found: " + resource);
+        return resourceURL;
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenExecuted() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
+        final Exception exception = mock(RuntimeException.class);
+        final User user = mock(User.class);
+        given(TestStore.mockStore.execute(opChain, user)).willThrow(exception);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When / Then
+        try {
+            graph.execute(opChain, user);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertSame(exception, e);
+            verify(opChain).close();
+        }
+    }
+
+    @Test
+    public void shouldCloseAllOperationInputsWhenExceptionIsThrownWhenJobExecuted() throws OperationException, IOException {
+        // Given
+        final Operation operation = mock(Operation.class);
+        final OperationChain opChain = mock(OperationChain.class);
+        given(opChain.getOperations()).willReturn(Collections.singletonList(operation));
+
+        final Exception exception = mock(RuntimeException.class);
+        final User user = mock(User.class);
+        given(TestStore.mockStore.executeJob(opChain, user)).willThrow(exception);
+
+        final Graph graph = new Graph.Builder()
+                .storeProperties(StreamUtil.storeProps(getClass()))
+                .addSchema(new Schema.Builder().build())
+                .build();
+
+        // When / Then
+        try {
+            graph.executeJob(opChain, user);
+            fail("Exception expected");
+        } catch (final Exception e) {
+            assertSame(exception, e);
+            verify(opChain).close();
+        }
     }
 
     @Test
@@ -407,7 +511,6 @@ public class GraphTest {
         }
     }
 
-
     @Test
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
@@ -420,7 +523,7 @@ public class GraphTest {
 
 
         // When
-        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.STORE_AGGREGATION, StoreTrait.TRANSFORMATION));
+        final Set<StoreTrait> storeTraits = new HashSet<>(Arrays.asList(StoreTrait.INGEST_AGGREGATION, StoreTrait.TRANSFORMATION));
         given(store.getTraits()).willReturn(storeTraits);
         final Collection<StoreTrait> returnedTraits = graph.getStoreTraits();
 
@@ -564,8 +667,62 @@ public class GraphTest {
         }
     }
 
-    static class StoreImpl extends Store {
+    @Test
+    public void shouldDelegateGetNextOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
 
+        final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
+        given(store.getNextOperations(GetElements.class)).willReturn(expectedNextOperations);
+
+        // When
+        final Set<Class<? extends Operation>> nextOperations = graph.getNextOperations(GetElements.class);
+
+        // Then
+        assertSame(expectedNextOperations, nextOperations);
+    }
+
+    @Test
+    public void shouldDelegateIsSupportedToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        given(store.isSupported(GetElements.class)).willReturn(true);
+        given(store.isSupported(GetAllElements.class)).willReturn(false);
+
+        // When / Then
+        assertTrue(graph.isSupported(GetElements.class));
+        assertFalse(graph.isSupported(GetAllElements.class));
+    }
+
+    @Test
+    public void shouldDelegateGetSupportedOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        final Set<Class<? extends Operation>> expectedSupportedOperations = mock(Set.class);
+        given(store.getSupportedOperations()).willReturn(expectedSupportedOperations);
+
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = graph.getSupportedOperations();
+
+        // Then
+        assertSame(expectedSupportedOperations, supportedOperations);
+    }
+
+    static class StoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
             return new HashSet<>(0);
@@ -604,6 +761,11 @@ public class GraphTest {
         @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
         }
     }
 

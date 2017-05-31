@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloSetRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
 import uk.gov.gchq.gaffer.accumulostore.utils.BloomFilterUtils;
+import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -93,7 +94,12 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
     @Override
     protected boolean hasSeeds() {
         this.seedsIter = seeds.iterator();
-        return seedsIter.hasNext();
+        final boolean hasNext = seedsIter.hasNext();
+        if (!hasNext) {
+            CloseableUtil.close(seedsIter);
+            CloseableUtil.close(operation);
+        }
+        return hasNext;
     }
 
     @Override
@@ -149,6 +155,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
             addToBloomFilter(seed, filter, clientSideFilter);
         }
 
+        @Override
         protected boolean secondaryCheck(final Element elm) {
             if (Entity.class.isInstance(elm)) {
                 return true;
@@ -178,7 +185,7 @@ public class AccumuloIDWithinSetRetriever extends AccumuloSetRetriever<GetElemen
             } catch (final AccumuloElementConversionException e) {
                 return false;
             }
-            return (destIsInCurrent && sourceMatchesClientFilter);
+            return destIsInCurrent && sourceMatchesClientFilter;
         }
     }
 }

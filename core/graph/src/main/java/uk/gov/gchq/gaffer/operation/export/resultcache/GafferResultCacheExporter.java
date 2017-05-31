@@ -20,17 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.iterable.AlwaysValid;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
-import uk.gov.gchq.gaffer.data.AlwaysValid;
-import uk.gov.gchq.gaffer.data.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.function.filter.AreIn;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -39,8 +38,8 @@ import uk.gov.gchq.gaffer.operation.export.Exporter;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.AreIn;
 import java.io.UnsupportedEncodingException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -76,6 +75,7 @@ public class GafferResultCacheExporter implements Exporter {
         userOpAuths.add(user.getUserId());
     }
 
+    @Override
     public void add(final String key, final Iterable<?> values) throws OperationException {
         if (null == values) {
             return;
@@ -118,6 +118,7 @@ public class GafferResultCacheExporter implements Exporter {
                 .build(), user);
     }
 
+    @Override
     public CloseableIterable<?> get(final String key) throws OperationException {
         final GetElements getEdges = new GetElements.Builder()
                 .input(new EdgeSeed(jobId, key, true))
@@ -133,7 +134,7 @@ public class GafferResultCacheExporter implements Exporter {
 
         final CloseableIterable<? extends Element> edges = resultCache.execute(getEdges, user);
         if (null == edges) {
-            return new WrappedCloseableIterable<>(Collections.emptyList());
+            return new WrappedCloseableIterable<>();
         }
         return new TransformJsonResult(edges, jsonSerialiser);
     }
@@ -158,7 +159,7 @@ public class GafferResultCacheExporter implements Exporter {
             try {
                 resultClass = Class.forName(resultClassName);
             } catch (final ClassNotFoundException e) {
-                LOGGER.error("Result class name was not found: " + resultClassName, e);
+                LOGGER.error("Result class name was not found: {}", resultClassName, e);
                 throw new RuntimeException(e);
             }
 
@@ -166,7 +167,7 @@ public class GafferResultCacheExporter implements Exporter {
                 return jsonSerialiser.deserialise(resultBytes, resultClass);
             } catch (final SerialisationException e) {
                 try {
-                    LOGGER.error("Unable to deserialise result: " + new String(resultBytes, CommonConstants.UTF_8), e);
+                    LOGGER.error("Unable to deserialise result: {}", new String(resultBytes, CommonConstants.UTF_8), e);
                 } catch (final UnsupportedEncodingException e1) {
                     throw new RuntimeException(e);
                 }

@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
@@ -112,6 +112,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("transientProperties")
     public Map<String, String> getTransientPropertyMapWithClassNames() {
+        if (transientProperties.isEmpty()) {
+            return null;
+        }
+
         Map<String, String> propertyMap = new HashMap<>();
         for (final Entry<String, Class<?>> entry : transientProperties.entrySet()) {
             propertyMap.put(entry.getKey(), entry.getValue().getName());
@@ -127,7 +131,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("preAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPreAggregationFilterFunctions() {
-        return null != preAggregationFilter ? preAggregationFilter.getFunctions() : null;
+        return null != preAggregationFilter ? preAggregationFilter.getComponents() : null;
     }
 
     @JsonIgnore
@@ -137,7 +141,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("postAggregationFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostAggregationFilterFunctions() {
-        return null != postAggregationFilter ? postAggregationFilter.getFunctions() : null;
+        return null != postAggregationFilter ? postAggregationFilter.getComponents() : null;
     }
 
     @JsonIgnore
@@ -147,7 +151,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("postTransformFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
-        return null != postTransformFilter ? postTransformFilter.getFunctions() : null;
+        return null != postTransformFilter ? postTransformFilter.getComponents() : null;
     }
 
     @JsonIgnore
@@ -157,7 +161,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
     @JsonGetter("transformFunctions")
     public List<TupleAdaptedFunction<String, ?, ?>> getTransformFunctions() {
-        return null != transformer ? transformer.getFunctions() : null;
+        return null != transformer ? transformer.getComponents() : null;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -267,7 +271,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
         public CHILD_CLASS preAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().preAggregationFilter = new ElementFilter();
-            getElementDef().preAggregationFilter.getFunctions().addAll(filterFunctions);
+            getElementDef().preAggregationFilter.getComponents().addAll(filterFunctions);
             return self();
         }
 
@@ -283,7 +287,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
         public CHILD_CLASS postAggregationFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postAggregationFilter = new ElementFilter();
-            getElementDef().postAggregationFilter.getFunctions().addAll(filterFunctions);
+            getElementDef().postAggregationFilter.getComponents().addAll(filterFunctions);
             return self();
         }
 
@@ -299,7 +303,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
         public CHILD_CLASS postTransformFilterFunctions(final List<TupleAdaptedPredicate<String, ?>> filterFunctions) {
             getElementDef().postTransformFilter = new ElementFilter();
-            getElementDef().postTransformFilter.getFunctions().addAll(filterFunctions);
+            getElementDef().postTransformFilter.getComponents().addAll(filterFunctions);
             return self();
         }
 
@@ -310,7 +314,7 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
 
         public CHILD_CLASS transformFunctions(final List<TupleAdaptedFunction<String, ?, ?>> transformFunctions) {
             getElementDef().transformer = new ElementTransformer();
-            getElementDef().transformer.getFunctions().addAll(transformFunctions);
+            getElementDef().transformer.getComponents().addAll(transformFunctions);
             return self();
         }
 
@@ -355,25 +359,25 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
             if (null == getElementDef().preAggregationFilter) {
                 getElementDef().preAggregationFilter = elementDef.preAggregationFilter;
             } else if (null != elementDef.preAggregationFilter) {
-                getElementDef().preAggregationFilter.getFunctions().addAll(elementDef.preAggregationFilter.getFunctions());
+                getElementDef().preAggregationFilter.getComponents().addAll(elementDef.preAggregationFilter.getComponents());
             }
 
             if (null == getElementDef().postAggregationFilter) {
                 getElementDef().postAggregationFilter = elementDef.postAggregationFilter;
             } else if (null != elementDef.postAggregationFilter) {
-                getElementDef().postAggregationFilter.getFunctions().addAll(elementDef.postAggregationFilter.getFunctions());
+                getElementDef().postAggregationFilter.getComponents().addAll(elementDef.postAggregationFilter.getComponents());
             }
 
             if (null == getElementDef().postTransformFilter) {
                 getElementDef().postTransformFilter = elementDef.postTransformFilter;
             } else if (null != elementDef.postTransformFilter) {
-                getElementDef().postTransformFilter.getFunctions().addAll(elementDef.postTransformFilter.getFunctions());
+                getElementDef().postTransformFilter.getComponents().addAll(elementDef.postTransformFilter.getComponents());
             }
 
             if (null == getElementDef().transformer) {
                 getElementDef().transformer = elementDef.transformer;
             } else if (null != elementDef.transformer) {
-                getElementDef().transformer.getFunctions().addAll(elementDef.transformer.getFunctions());
+                getElementDef().transformer.getComponents().addAll(elementDef.transformer.getComponents());
             }
 
             if (null != elementDef.getGroupBy()) {

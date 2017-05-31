@@ -20,11 +20,12 @@ import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Map;
@@ -61,10 +62,10 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected byte[] getRowKeyFromEntity(final Entity entity) throws AccumuloElementConversionException {
+    protected byte[] getRowKeyFromEntity(final Entity entity) {
         byte[] value;
         try {
-            value = ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
+            value = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(entity.getVertex()));
             final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
             returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
@@ -75,7 +76,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected Pair<byte[]> getRowKeysFromEdge(final Edge edge) throws AccumuloElementConversionException {
+    protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) {
         byte directionFlag1;
         byte directionFlag2;
         if (edge.isDirected()) {
@@ -117,11 +118,11 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected Entity getEntityFromKey(final Key key) throws AccumuloElementConversionException {
+    protected Entity getEntityFromKey(final Key key) {
         try {
-            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser()
+            final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
                     .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0,
-                            (key.getRowData().getBackingArray().length) - 2))));
+                            key.getRowData().getBackingArray().length - 2))));
             addPropertiesToElement(entity, key);
             return entity;
         } catch (final SerialisationException e) {

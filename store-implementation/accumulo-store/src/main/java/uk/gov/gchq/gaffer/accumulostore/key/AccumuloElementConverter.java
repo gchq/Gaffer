@@ -18,8 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.Pair;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -41,9 +40,8 @@ public interface AccumuloElementConverter {
      *
      * @param element the element to be converted
      * @return The key(s) that represent the given element.
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Pair<Key> getKeysFromElement(final Element element) throws AccumuloElementConversionException;
+    Pair<Key, Key> getKeysFromElement(final Element element);
 
     /**
      * Converts an {@link uk.gov.gchq.gaffer.data.element.Edge} to a pair of
@@ -51,9 +49,8 @@ public interface AccumuloElementConverter {
      *
      * @param edge The edge to be converted
      * @return The key(s) that represent the given edge
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Pair<Key> getKeysFromEdge(final Edge edge) throws AccumuloElementConversionException;
+    Pair<Key, Key> getKeysFromEdge(final Edge edge);
 
     /**
      * Converts an {@link uk.gov.gchq.gaffer.data.element.Entity} to a
@@ -61,9 +58,8 @@ public interface AccumuloElementConverter {
      *
      * @param entity the entity to be converted
      * @return The key(s) that represent the given entity
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Key getKeyFromEntity(final Entity entity) throws AccumuloElementConversionException;
+    Key getKeyFromEntity(final Entity entity);
 
     /**
      * Converts a set of {@link uk.gov.gchq.gaffer.data.element.Properties} to an Accumulo
@@ -72,10 +68,8 @@ public interface AccumuloElementConverter {
      * @param group      the element group
      * @param properties the properties to use to create a Value
      * @return A new Accumulo {@link Value} containing the serialised {@link uk.gov.gchq.gaffer.data.element.Properties}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Value getValueFromProperties(final String group, final Properties properties)
-            throws AccumuloElementConversionException;
+    Value getValueFromProperties(final String group, final Properties properties);
 
     /**
      * Converts the {@link uk.gov.gchq.gaffer.data.element.Properties} in an element to an
@@ -85,9 +79,8 @@ public interface AccumuloElementConverter {
      * @param element the element to be converted
      * @return An Accumulo {@link Value} representing the
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that should be stored in the value.
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Value getValueFromElement(final Element element) throws AccumuloElementConversionException;
+    Value getValueFromElement(final Element element);
 
     /**
      * Converts an Accumulo {@link org.apache.accumulo.core.data.Value} to a
@@ -97,9 +90,8 @@ public interface AccumuloElementConverter {
      * @param value the Value containing the serialised properties
      * @return A set of {@link uk.gov.gchq.gaffer.data.element.Properties} that represent
      * the property stored within the {@link Value}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Properties getPropertiesFromValue(final String group, final Value value) throws AccumuloElementConversionException;
+    Properties getPropertiesFromValue(final String group, final Value value);
 
     /**
      * Gets a new {@link Element} from an Accumulo {@link Key}.
@@ -107,9 +99,8 @@ public interface AccumuloElementConverter {
      * @param key the Key containing serialised parts of the Element
      * @return A new {@link Element} including a partial set of
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that were gaffer.accumulostore in the {@link Key}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Element getElementFromKey(final Key key) throws AccumuloElementConversionException;
+    Element getElementFromKey(final Key key);
 
     /**
      * Gets a new {@link Element} from an Accumulo {@link Key}.
@@ -118,10 +109,8 @@ public interface AccumuloElementConverter {
      * @param options operation options
      * @return A new {@link Element} including a partial set of
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that were store in the {@link Key}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Element getElementFromKey(final Key key, final Map<String, String> options)
-            throws AccumuloElementConversionException;
+    Element getElementFromKey(final Key key, final Map<String, String> options);
 
     /**
      * Returns an {@link Element} populated with all the properties defined
@@ -131,9 +120,8 @@ public interface AccumuloElementConverter {
      * @param value the accumulo Value containing serialised properties of the Element
      * @return Returns an {@link Element} populated with all the properties
      * defined within the {@link Key} and {@link Value}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Element getFullElement(final Key key, final Value value) throws AccumuloElementConversionException;
+    Element getFullElement(final Key key, final Value value);
 
     /**
      * Returns an {@link Element} populated with all the properties defined
@@ -144,10 +132,8 @@ public interface AccumuloElementConverter {
      * @param options operation options
      * @return Returns an {@link Element} populated with all the properties defined within the {@link Key}
      * and {@link Value}
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Element getFullElement(final Key key, final Value value, final Map<String, String> options)
-            throws AccumuloElementConversionException;
+    Element getFullElement(final Key key, final Value value, final Map<String, String> options);
 
     /**
      * Helper Used to create Bloom Filters, method Serialises a given object
@@ -156,9 +142,8 @@ public interface AccumuloElementConverter {
      *
      * @param vertex the vertex identifier to serialise
      * @return A byte array representing the given object
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] serialiseVertex(final Object vertex) throws AccumuloElementConversionException;
+    byte[] serialiseVertex(final Object vertex);
 
     /**
      * Creates a byte array representing a set of
@@ -169,10 +154,8 @@ public interface AccumuloElementConverter {
      * @param properties the element properties
      * @return A byte array representing the provided {@link uk.gov.gchq.gaffer.data.element.Properties} that are marked as to be stored in the provided
      * position in the {@link uk.gov.gchq.gaffer.accumulostore} schema.
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] buildColumnQualifier(final String group, final Properties properties)
-            throws AccumuloElementConversionException;
+    byte[] buildColumnQualifier(final String group, final Properties properties);
 
     /**
      * Returns a set of {@link uk.gov.gchq.gaffer.data.element.Properties} that are stored
@@ -181,10 +164,8 @@ public interface AccumuloElementConverter {
      * @param group           the element group
      * @param columnQualifier the element column qualifier properties serialised into bytes
      * @return The Properties stored within the part of the {@link Key} specified e.g Column Qualifier
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Properties getPropertiesFromColumnQualifier(final String group, final byte[] columnQualifier)
-            throws AccumuloElementConversionException;
+    Properties getPropertiesFromColumnQualifier(final String group, final byte[] columnQualifier);
 
     /**
      * Truncates the provided columnQualifier, returning the byte representation of the serialised version of the specified
@@ -194,27 +175,24 @@ public interface AccumuloElementConverter {
      * @param bytes    the full list of property bytes
      * @param numProps the number of properties to extract
      * @return the truncated property bytes.
-     * @throws AccumuloElementConversionException if truncation of the bytes fails
      */
-    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps) throws AccumuloElementConversionException;
+    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
 
     /**
      * Creates a byte array representing the group.
      *
      * @param group the element group
      * @return A byte array representing the group
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] buildColumnFamily(final String group) throws AccumuloElementConversionException;
+    byte[] buildColumnFamily(final String group);
 
     /**
      * Returns the element class from the given bytes.
      *
      * @param columnFamily the column family bytes
      * @return The element class
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    String getGroupFromColumnFamily(final byte[] columnFamily) throws AccumuloElementConversionException;
+    String getGroupFromColumnFamily(final byte[] columnFamily);
 
     /**
      * Creates a byte array representing a set of
@@ -225,10 +203,8 @@ public interface AccumuloElementConverter {
      * @param properties the element properties
      * @return A byte array representing the provided {@link uk.gov.gchq.gaffer.data.element.Properties} that are marked as to be stored in the provided
      * position in the schema.
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    byte[] buildColumnVisibility(final String group, final Properties properties)
-            throws AccumuloElementConversionException;
+    byte[] buildColumnVisibility(final String group, final Properties properties);
 
     /**
      * Returns a set of {@link uk.gov.gchq.gaffer.data.element.Properties} that are stored
@@ -237,10 +213,8 @@ public interface AccumuloElementConverter {
      * @param group            the element group
      * @param columnVisibility the element visibility property serialised into bytes
      * @return The Properties stored within the part of the {@link Key} specified e.g Column Qualifier
-     * @throws AccumuloElementConversionException If conversion fails
      */
-    Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility)
-            throws AccumuloElementConversionException;
+    Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility);
 
     /**
      * Creates a timestamp based on the provided {@link Properties}
@@ -248,9 +222,8 @@ public interface AccumuloElementConverter {
      *
      * @param properties the element properties
      * @return the timestamp
-     * @throws AccumuloElementConversionException If the timestamp extraction fails.
      */
-    long buildTimestamp(final Properties properties) throws AccumuloElementConversionException;
+    long buildTimestamp(final Properties properties);
 
 
     /**
@@ -262,9 +235,7 @@ public interface AccumuloElementConverter {
      *                  should contain the timestamp.
      * @param timestamp the timestamp
      * @return a properties object populated with the provided timestamp.
-     * @throws AccumuloElementConversionException if timestamp extraction fails.
      */
-    Properties getPropertiesFromTimestamp(final String group, final long timestamp)
-            throws AccumuloElementConversionException;
+    Properties getPropertiesFromTimestamp(final String group, final long timestamp);
 
 }

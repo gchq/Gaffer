@@ -24,6 +24,7 @@ public interface GraphFilters extends OperationView {
      * @param edge the {@link Edge} to be validated.
      * @return true if the {@link Edge} is valid. Otherwise false and a reason should be logged.
      */
+    @Override
     default boolean validate(final Edge edge) {
         return null != edge && validateFlags(edge)
                 && validatePreAggregationFilter(edge)

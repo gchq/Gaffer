@@ -35,7 +35,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.gaffer.function.filter.IsMoreThan;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -44,6 +43,7 @@ import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Conversio
 import uk.gov.gchq.gaffer.spark.operation.dataframe.converter.property.Converter;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +62,9 @@ import static org.junit.Assert.fail;
  */
 public class GetDataFrameOfElementsHandlerTest {
 
+    static final String ENTITY_GROUP = "BasicEntity";
+    static final String EDGE_GROUP = "BasicEdge";
+    static final String EDGE_GROUP2 = "BasicEdge2";
     private static final int NUM_ELEMENTS = 10;
 
     static List<Element> getElements() {
@@ -651,7 +654,7 @@ public class GetDataFrameOfElementsHandlerTest {
         private static final long serialVersionUID = 7777521632508320165L;
 
         @Override
-        public boolean canHandle(Class clazz) {
+        public boolean canHandle(final Class clazz) {
             return MyProperty.class.equals(clazz);
         }
 
@@ -661,7 +664,7 @@ public class GetDataFrameOfElementsHandlerTest {
         }
 
         @Override
-        public Object convert(Object object) throws ConversionException {
+        public Object convert(final Object object) throws ConversionException {
             return ((MyProperty) object).getA();
         }
     }

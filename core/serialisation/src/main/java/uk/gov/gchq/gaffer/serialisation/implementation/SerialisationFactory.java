@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
  * is design to provide compatible serialisers for given object classes.
  */
 public class SerialisationFactory {
-    private static final Serialisation[] SERIALISERS = new Serialisation[]{
+    private static final Serialiser[] SERIALISERS = new Serialiser[]{
             new StringSerialiser(),
             new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),
@@ -50,7 +50,7 @@ public class SerialisationFactory {
      * @throws IllegalArgumentException if the object class parameter is null or
      *                                  no compatible serialiser could be found
      */
-    public Serialisation getSerialiser(final Class<?> objClass) {
+    public Serialiser getSerialiser(final Class<?> objClass) {
         return getSerialiser(objClass, false);
     }
 
@@ -61,13 +61,13 @@ public class SerialisationFactory {
      * @throws IllegalArgumentException if the object class parameter is null or
      *                                  no compatible serialiser could be found
      */
-    public Serialisation getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
+    public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
         if (null == objClass) {
             throw new IllegalArgumentException("Object class for serialising is required");
         }
 
-        for (final Serialisation serialiser : SERIALISERS) {
-            if (serialiser.canHandle(objClass) && (!preserveOrder || (serialiser.preservesObjectOrdering()))) {
+        for (final Serialiser serialiser : SERIALISERS) {
+            if (serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering())) {
                 return serialiser;
             }
         }

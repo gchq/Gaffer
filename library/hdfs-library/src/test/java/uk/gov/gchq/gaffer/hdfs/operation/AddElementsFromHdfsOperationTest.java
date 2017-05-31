@@ -34,6 +34,7 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
 
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
+            "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputPaths\" : [ \"TestInput\" ],%n" +
             "  \"outputPath\" : \"TestOutput\",%n" +
             "  \"validate\" : true%n" +
@@ -59,6 +60,7 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
                 "  \"inputPaths\" : [ \"inputPath\" ],%n" +

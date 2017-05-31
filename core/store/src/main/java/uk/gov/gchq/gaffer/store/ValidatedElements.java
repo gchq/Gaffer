@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import uk.gov.gchq.gaffer.data.TransformIterable;
+import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -63,7 +63,7 @@ public class ValidatedElements extends TransformIterable<Element, Element> {
     }
 
     @Override
-    protected void handleInvalidItem(final Element item) throws IllegalArgumentException {
+    protected void handleInvalidItem(final Element item) {
         final String elementDescription = null != item ? item.toString() : "<unknown>";
         throw new IllegalArgumentException("Element of type " + elementDescription + " is not valid.");
 

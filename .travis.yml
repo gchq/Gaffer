@@ -1,5 +1,5 @@
 language: java
-cache:
+uk.gov.gchq.gaffer.cache:
   directories:
   - $HOME/.m2
 jdk:
@@ -17,8 +17,8 @@ env:
     - secure: dTfNDVvqeZSx+hlQahSc3Ft3H/48e4q8NsfNuHE4Vxal44N1XvdgUcc3TGJSMCNx7lyp2jIR8ezLRyVnh8heQ7iCTxP0eQgNW9fZJygbnqy9Ar7j9nYUkaSSzAxTSFGR+sFVlRHM98vKoeYGMxp6+h4F7Krzfu7vDeJYXTixwh887Yb/hil9yOvRKqQ2zZ2wKxd8Z4QKbcf1pjRbgNsiK6FVHFZziouBWjJI36Eu/vr2NT0gSHA1Zio9LvV935bImrxf3hAronfPIz+K8q8CEfbcEaeLcfOFkzh0apRhPXWrwqpC6+eApB6S7gcIgvmZhjAQczME6bpOWdLxdGSFaw2c0FJCaDHVRtlPRgt8EuHnrVslxkqQqGR5gIRPBA2zI/cHP6upQGYsPRXpG0zmDnx1S2mS/1w6qHQnF/Ww1c7vbR2hBg8RO4jwl/jeuYe6Yr9CvjsCj7OoAk2CoFLByhl55gN5I28KNsCvA+jecS5hwxcHp/IAFsdj6mWlN+H94NOv6F2Ncod84a6DlbxpaV9rumCM0D6/GWe/XnGy8rKV4fKyUOb+YqlKKO3T+RzuYoeXpHes/GPj3vRsrtIJImov6aJ+zmz1/fMjAkUAzhDjoSRFAgo1Czu/YunlSP0UDQTAA6/uw0w+8slJIW9bPl5hVVFidYDgTBssbKD/rQg=
     - MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 install: mvn -q install -P quick,travis -B -V
-script: mvn -q test -P travis,build-extras -B
+script: mvn -q verify -P travis,build-extras -B
 after_success:
   - ./cd/before_deploy.sh
-  - ./cd/deploy.sh
+  - travis_wait ./cd/deploy.sh
   - bash <(curl -s https://codecov.io/bash)

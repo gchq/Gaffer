@@ -16,7 +16,8 @@
 
 package uk.gov.gchq.gaffer.proxystore;
 
-import org.apache.commons.lang.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.net.MalformedURLException;
@@ -103,7 +104,13 @@ public class ProxyProperties extends StoreProperties {
     }
 
     public void setGafferContextRoot(final String gafferContextRoot) {
-        set(GAFFER_CONTEXT_ROOT, gafferContextRoot);
+        final String checkedGafferContextRoot;
+        if (!gafferContextRoot.startsWith("/")) {
+            checkedGafferContextRoot = "/" + gafferContextRoot;
+        } else {
+            checkedGafferContextRoot = gafferContextRoot;
+        }
+        set(GAFFER_CONTEXT_ROOT, checkedGafferContextRoot);
     }
 
     public JSONSerialiser getJsonSerialiser() {
@@ -112,6 +119,11 @@ public class ProxyProperties extends StoreProperties {
 
     public String getJsonSerialiserClass() {
         return get(JSON_SERIALISER_CLASS, DEFAULT_JSON_SERIALISER_CLASS);
+    }
+
+    @JsonIgnore
+    public void setJsonSerialiserClass(final Class<? extends JSONSerialiser> jsonSerialiserClass) {
+        setJsonSerialiserClass(jsonSerialiserClass.getName());
     }
 
     public void setJsonSerialiserClass(final String jsonSerialiserClass) {

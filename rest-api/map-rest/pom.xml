@@ -16,14 +16,16 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>0.6.7-SNAPSHOT</version>
+        <version>0.7.4-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
+
     <artifactId>map-rest</artifactId>
     <packaging>war</packaging>
+
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
@@ -31,6 +33,7 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>

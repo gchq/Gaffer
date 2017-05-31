@@ -17,10 +17,15 @@
 package uk.gov.gchq.gaffer.data.element.function;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
+import uk.gov.gchq.koryphe.impl.predicate.Or;
 import uk.gov.gchq.koryphe.tuple.predicate.KoryphePredicate2;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
 import java.util.function.Predicate;
@@ -191,22 +196,112 @@ public class ElementFilterTest {
 
         // Then
         int i = 0;
-        TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getFunctions().get(i++);
+        TupleAdaptedPredicate<String, ?> adaptedFunction = filter.getComponents().get(i++);
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property1, adaptedFunction.getSelection()[0]);
-        assertSame(func1, adaptedFunction.getFunction());
+        assertSame(func1, adaptedFunction.getPredicate());
 
-        adaptedFunction = filter.getFunctions().get(i++);
+        adaptedFunction = filter.getComponents().get(i++);
         assertEquals(2, adaptedFunction.getSelection().length);
         assertEquals(property2a, adaptedFunction.getSelection()[0]);
         assertEquals(property2b, adaptedFunction.getSelection()[1]);
-        assertSame(func2, adaptedFunction.getFunction());
+        assertSame(func2, adaptedFunction.getPredicate());
 
-        adaptedFunction = filter.getFunctions().get(i++);
-        assertSame(func3, adaptedFunction.getFunction());
+        adaptedFunction = filter.getComponents().get(i++);
+        assertSame(func3, adaptedFunction.getPredicate());
         assertEquals(1, adaptedFunction.getSelection().length);
         assertEquals(property3, adaptedFunction.getSelection()[0]);
 
-        assertEquals(i, filter.getFunctions().size());
+        assertEquals(i, filter.getComponents().size());
+    }
+
+    @Test
+    public void shouldExecuteOrPredicates() {
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                .execute(new Or.Builder<>()
+                        .select(0)
+                        .execute(new IsMoreThan(2))
+                        .select(1)
+                        .execute(new IsEqual("some value"))
+                        .build())
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 3)
+                .property(TestPropertyNames.PROP_2, "some value")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_2, "some value")
+                .build();
+
+        final Entity element3 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 3)
+                .property(TestPropertyNames.PROP_2, "some invalid value")
+                .build();
+
+        final Entity element4 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_2, "some invalid value")
+                .build();
+
+        // When
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
+        final boolean result3 = filter.test(element3);
+        final boolean result4 = filter.test(element4);
+
+        // Then
+        assertTrue(result1);
+        assertTrue(result2);
+        assertTrue(result3);
+        assertFalse(result4);
+    }
+
+    @Test
+    public void shouldExecuteNotPredicates() {
+        final ElementFilter filter = new ElementFilter.Builder()
+                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                .execute(new Not<>(new Or.Builder<>()
+                        .select(0)
+                        .execute(new IsMoreThan(2))
+                        .select(1)
+                        .execute(new IsEqual("some value"))
+                        .build()))
+                .build();
+
+        final Entity element1 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 3)
+                .property(TestPropertyNames.PROP_2, "some value")
+                .build();
+
+        final Entity element2 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_2, "some value")
+                .build();
+
+        final Entity element3 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 3)
+                .property(TestPropertyNames.PROP_2, "some invalid value")
+                .build();
+
+        final Entity element4 = new Entity.Builder()
+                .property(TestPropertyNames.PROP_1, 1)
+                .property(TestPropertyNames.PROP_2, "some invalid value")
+                .build();
+
+        // When
+        final boolean result1 = filter.test(element1);
+        final boolean result2 = filter.test(element2);
+        final boolean result3 = filter.test(element3);
+        final boolean result4 = filter.test(element4);
+
+        // Then
+        assertFalse(result1);
+        assertFalse(result2);
+        assertFalse(result3);
+        assertTrue(result4);
     }
 }

@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan;
 import uk.gov.gchq.koryphe.predicate.PredicateTest;
 import java.util.function.Predicate;
 
@@ -106,6 +107,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         assertFalse(accepted);
     }
 
+    @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
@@ -116,7 +118,7 @@ public class HyperLogLogPlusIsLessThanTest extends PredicateTest {
         final String json = new String(new JSONSerialiser().serialise(filter, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.function.filter.HyperLogLogPlusIsLessThan\",%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.predicate.HyperLogLogPlusIsLessThan\",%n" +
                 "  \"orEqualTo\" : false,%n" +
                 "  \"value\" : 15%n" +
                 "}"), json);

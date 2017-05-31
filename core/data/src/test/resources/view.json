@@ -26,7 +26,7 @@
           "selection": [
             "transientProperty1"
           ],
-          "function": {
+          "predicate": {
             "class": "uk.gov.gchq.gaffer.function.ExampleFilterFunction"
           }
         }

@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.koryphe.function.Identity;
+import uk.gov.gchq.koryphe.impl.function.Identity;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import java.util.function.Function;
 
@@ -132,14 +132,14 @@ public class ElementTransformerTest {
 
         // Then
         int i = 0;
-        TupleAdaptedFunction<String, ?, ?> context = transformer.getFunctions().get(i++);
+        TupleAdaptedFunction<String, ?, ?> context = transformer.getComponents().get(i++);
         assertEquals(1, context.getSelection().length);
         assertEquals(property1, context.getSelection()[0]);
         assertSame(func1, context.getFunction());
         assertEquals(1, context.getProjection().length);
         assertEquals(property1Proj, context.getProjection()[0]);
 
-        context = transformer.getFunctions().get(i++);
+        context = transformer.getComponents().get(i++);
         assertEquals(2, context.getSelection().length);
         assertEquals(property2a, context.getSelection()[0]);
         assertEquals(property2b, context.getSelection()[1]);
@@ -148,13 +148,13 @@ public class ElementTransformerTest {
         assertEquals(property2aProj, context.getProjection()[0]);
         assertEquals(property2bProj, context.getProjection()[1]);
 
-        context = transformer.getFunctions().get(i++);
+        context = transformer.getComponents().get(i++);
         assertSame(func3, context.getFunction());
         assertEquals(1, context.getSelection().length);
         assertEquals(identifier3.name(), context.getSelection()[0]);
         assertEquals(1, context.getProjection().length);
         assertEquals(identifier3Proj.name(), context.getProjection()[0]);
 
-        assertEquals(i, transformer.getFunctions().size());
+        assertEquals(i, transformer.getComponents().size());
     }
 }
