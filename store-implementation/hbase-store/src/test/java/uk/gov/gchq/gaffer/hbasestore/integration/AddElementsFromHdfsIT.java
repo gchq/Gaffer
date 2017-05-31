@@ -22,9 +22,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -36,7 +34,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.hbasestore.SingleUseHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
@@ -66,16 +63,6 @@ public class AddElementsFromHdfsIT {
     public String outputDir;
     public String stagingDir;
     public String failureDir;
-
-    @BeforeClass
-    public static void beforeClass() {
-        SingleUseHBaseStore.setDropTable(true);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        SingleUseHBaseStore.setDropTable(false);
-    }
 
     @Before
     public void setup() {

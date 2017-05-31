@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -160,6 +161,11 @@ public class HBaseStore extends Store {
     @Override
     public HBaseProperties getProperties() {
         return (HBaseProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     @Override

@@ -19,14 +19,14 @@ package uk.gov.gchq.gaffer.bitmap.serialisation;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RoaringBitmapSerialiser implements Serialisation {
+public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap> {
 
     private static final long serialVersionUID = 3772387954385745791L;
 
@@ -36,12 +36,11 @@ public class RoaringBitmapSerialiser implements Serialisation {
     }
 
     @Override
-    public byte[] serialise(final Object object) throws SerialisationException {
-        RoaringBitmap value = (RoaringBitmap) object;
+    public byte[] serialise(final RoaringBitmap object) throws SerialisationException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(byteOut);
         try {
-            value.serialize(out);
+            object.serialize(out);
         } catch (final IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
@@ -49,7 +48,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public RoaringBitmap deserialise(final byte[] bytes) throws SerialisationException {
         RoaringBitmap value = new RoaringBitmap();
         byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(bytes);
         ByteArrayInputStream byteIn = new ByteArrayInputStream(convertedBytes);
@@ -68,7 +67,7 @@ public class RoaringBitmapSerialiser implements Serialisation {
     }
 
     @Override
-    public Object deserialiseEmptyBytes() {
+    public RoaringBitmap deserialiseEmpty() {
         return new RoaringBitmap();
     }
 

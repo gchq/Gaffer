@@ -16,20 +16,23 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.apache.commons.io.IOUtils;
-import java.io.Closeable;
-
 public final class CloseableUtil {
     private CloseableUtil() {
     }
 
     public static void close(final Object obj) {
-        if (obj instanceof Closeable) {
-            close(((Closeable) obj));
+        if (obj instanceof AutoCloseable) {
+            close((AutoCloseable) obj);
         }
     }
 
-    public static void close(final Closeable closeable) {
-        IOUtils.closeQuietly(closeable);
+    public static void close(final AutoCloseable closeable) {
+        try {
+            if (null != closeable) {
+                closeable.close();
+            }
+        } catch (final Exception e) {
+            // Ignore exception
+        }
     }
 }

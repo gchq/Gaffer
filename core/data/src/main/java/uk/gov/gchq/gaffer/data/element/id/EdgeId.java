@@ -16,7 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.id;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -32,18 +32,33 @@ public interface EdgeId extends ElementId {
 
     void setDestination(final Object destination);
 
-    @JsonGetter("directed")
-    Boolean getDirected();
+    DirectedType getDirectedType();
+
+    void setDirectedType(final DirectedType directed);
 
     /**
-     * Note if directed is null then false will be returned.
-     * If you want the nullable boolean value then call getDirected()
-     *
-     * @return true if directed, otherwise false.
+     * @return true if directed is DIRECTED, EITHER or null. Otherwise false.
      */
-    boolean isDirected();
+    @JsonIgnore
+    default boolean isDirected() {
+        return DirectedType.UNDIRECTED != getDirectedType();
+    }
 
-    void setDirected(final Boolean directed);
+    /**
+     * @return true if directed is UNDIRECTED, EITHER or null. Otherwise false.
+     */
+    @JsonIgnore
+    default boolean isUndirected() {
+        return DirectedType.DIRECTED != getDirectedType();
+    }
+
+    default void setDirected(final boolean directed) {
+        if (directed) {
+            setDirectedType(DirectedType.DIRECTED);
+        } else {
+            setDirectedType(DirectedType.UNDIRECTED);
+        }
+    }
 
     @Override
     default boolean isEqual(final ElementId that) {
@@ -53,13 +68,13 @@ public interface EdgeId extends ElementId {
     default boolean isEqual(final EdgeId that) {
         return null != that
                 && (new EqualsBuilder()
-                .append(getDirected(), that.getDirected())
+                .append(getDirectedType(), that.getDirectedType())
                 .append(getSource(), that.getSource())
                 .append(getDestination(), that.getDestination())
                 .isEquals()
                 || new EqualsBuilder()
-                .append(isDirected(), false)
-                .append(getDirected(), that.getDirected())
+                .append(isUndirected(), true)
+                .append(getDirectedType(), that.getDirectedType())
                 .append(getSource(), that.getDestination())
                 .append(getDestination(), that.getSource())
                 .isEquals());

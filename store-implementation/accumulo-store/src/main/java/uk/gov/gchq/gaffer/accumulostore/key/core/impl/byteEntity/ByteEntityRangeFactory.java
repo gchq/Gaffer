@@ -23,18 +23,18 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
-import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
@@ -46,11 +46,10 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     }
 
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation) throws RangeFactoryException {
-        // If directed is null then this means search for directed or undirected edges
-        // To do that we need to create 2 ranges
-        if (null == directed) {
+        // To do EITHER we need to create 2 ranges
+        if (DirectedType.isEither(directed)) {
             return Arrays.asList(
                     new Range(getKeyFromEdgeId(sourceVal, destVal, false, false), true,
                             getKeyFromEdgeId(sourceVal, destVal, false, true), true),
@@ -60,16 +59,15 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         }
 
         return Collections.singletonList(
-                new Range(getKeyFromEdgeId(sourceVal, destVal, directed, false), true,
-                        getKeyFromEdgeId(sourceVal, destVal, directed, true), true)
+                new Range(getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), false), true,
+                        getKeyFromEdgeId(sourceVal, destVal, directed.isDirected(), true), true)
         );
     }
 
     protected Key getKeyFromEdgeId(final Object source, final Object destination, final boolean directed,
                                    final boolean endKey) throws RangeFactoryException {
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
-        final byte directionFlag1 = directed
-                ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
+        final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
+        final byte directionFlag1 = directed ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
@@ -125,7 +123,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }

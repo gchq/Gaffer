@@ -19,13 +19,13 @@ import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.ArrayOfNumbersSerDe;
 import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A <code>ReservoirNumbersUnionSerialiser</code> serialises a {@link ReservoirItemsUnion} of {@link Number}s using its
  * <code>toByteArray()</code> method.
  */
-public class ReservoirNumbersUnionSerialiser implements Serialisation<ReservoirItemsUnion<Number>> {
+public class ReservoirNumbersUnionSerialiser implements ToBytesSerialiser<ReservoirItemsUnion<Number>> {
     private static final long serialVersionUID = -1935225742362536044L;
     private static final ArrayOfNumbersSerDe SERIALISER = new ArrayOfNumbersSerDe();
 
@@ -45,7 +45,7 @@ public class ReservoirNumbersUnionSerialiser implements Serialisation<ReservoirI
     }
 
     @Override
-    public ReservoirItemsUnion<Number> deserialiseEmptyBytes() throws SerialisationException {
+    public ReservoirItemsUnion<Number> deserialiseEmpty() throws SerialisationException {
         return null;
     }
 

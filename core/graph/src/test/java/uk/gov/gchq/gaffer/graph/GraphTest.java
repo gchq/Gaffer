@@ -47,6 +47,8 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -76,10 +78,12 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
@@ -508,7 +512,6 @@ public class GraphTest {
         }
     }
 
-
     @Test
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
@@ -663,6 +666,61 @@ public class GraphTest {
         }
     }
 
+    @Test
+    public void shouldDelegateGetNextOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
+        given(store.getNextOperations(GetElements.class)).willReturn(expectedNextOperations);
+
+        // When
+        final Set<Class<? extends Operation>> nextOperations = graph.getNextOperations(GetElements.class);
+
+        // Then
+        assertSame(expectedNextOperations, nextOperations);
+    }
+
+    @Test
+    public void shouldDelegateIsSupportedToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        given(store.isSupported(GetElements.class)).willReturn(true);
+        given(store.isSupported(GetAllElements.class)).willReturn(false);
+
+        // When / Then
+        assertTrue(graph.isSupported(GetElements.class));
+        assertFalse(graph.isSupported(GetAllElements.class));
+    }
+
+    @Test
+    public void shouldDelegateGetSupportedOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        final Set<Class<? extends Operation>> expectedSupportedOperations = mock(Set.class);
+        given(store.getSupportedOperations()).willReturn(expectedSupportedOperations);
+
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = graph.getSupportedOperations();
+
+        // Then
+        assertSame(expectedSupportedOperations, supportedOperations);
+    }
+
     static class StoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
@@ -702,6 +760,11 @@ public class GraphTest {
         @Override
         protected Object doUnhandledOperation(final Operation operation, final Context context) {
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return ToBytesSerialiser.class;
         }
     }
 

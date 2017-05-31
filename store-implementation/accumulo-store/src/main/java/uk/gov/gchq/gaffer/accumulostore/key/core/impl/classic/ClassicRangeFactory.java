@@ -21,18 +21,18 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
+import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 
 public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -59,7 +59,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
         byte[] serialisedVertex;
         try {
-            serialisedVertex = ByteArrayEscapeUtils.escape(schema.getVertexSerialiser().serialise(vertex));
+            serialisedVertex = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise identifier", e);
         }
@@ -78,24 +78,24 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
 
 
     @Override
-    protected List<Range> getRange(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected List<Range> getRange(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation) throws RangeFactoryException {
         return Collections.singletonList(new Range(getKeyFromEdgeId(sourceVal, destVal, directed, operation, false), true,
                 getKeyFromEdgeId(sourceVal, destVal, directed, operation, true), true));
     }
 
-    protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final Boolean directed,
+    protected Key getKeyFromEdgeId(final Object sourceVal, final Object destVal, final DirectedType directed,
                                    final GraphFilters operation,
                                    final boolean endKey) throws RangeFactoryException {
         final IncludeIncomingOutgoingType inOutType = (operation instanceof SeededGraphFilters) ? ((SeededGraphFilters) operation).getIncludeIncomingOutGoing() : IncludeIncomingOutgoingType.OUTGOING;
 
         final byte directionFlag1;
-        if (null == directed) {
+        if (DirectedType.isEither(directed)) {
             // Get directed and undirected edges
             directionFlag1 = endKey
                     ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE
                     : ClassicBytePositions.UNDIRECTED_EDGE;
-        } else if (directed) {
+        } else if (directed.isDirected()) {
             if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                 directionFlag1 = ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE;
             } else {
@@ -105,7 +105,7 @@ public class ClassicRangeFactory extends AbstractCoreKeyRangeFactory {
             directionFlag1 = ClassicBytePositions.UNDIRECTED_EDGE;
         }
 
-        final Serialisation vertexSerialiser = schema.getVertexSerialiser();
+        final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
 
         // Serialise source and destination to byte arrays, escaping if
         // necessary

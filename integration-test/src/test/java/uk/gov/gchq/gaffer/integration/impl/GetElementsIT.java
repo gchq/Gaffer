@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -36,7 +37,6 @@ import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.user.User;
@@ -126,14 +126,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final AssertionError e) {
+                        } catch (final Exception e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
@@ -177,10 +177,10 @@ public class GetElementsIT extends AbstractStoreIT {
         }
 
         if (includeEdges) {
-            if (DirectedType.UNDIRECTED != directedType) {
+            if (DirectedType.isDirected(directedType)) {
                 expectedElements.addAll(EDGES_DIR_EXIST);
             }
-            if (DirectedType.DIRECTED != directedType) {
+            if (DirectedType.isUndirected(directedType)) {
                 expectedElements.addAll(EDGES_EXIST);
             }
         }
@@ -221,11 +221,11 @@ public class GetElementsIT extends AbstractStoreIT {
             if (DirectedType.UNDIRECTED != directedType) {
                 expectedElementIds.add(new EdgeSeed(SOURCE_DIR_1, DEST_DIR_1, true));
 
-                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.OUTGOING == inOutType) {
                     expectedElementIds.add(new EdgeSeed(SOURCE_DIR_2, DEST_DIR_2, true));
                 }
 
-                if (null == inOutType || IncludeIncomingOutgoingType.BOTH == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
+                if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
                     expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true));
                 }
             }
@@ -239,10 +239,10 @@ public class GetElementsIT extends AbstractStoreIT {
 
         expectedElements.addAll(getElements(expectedElementIds, null));
         if (DirectedType.DIRECTED == directedType) {
-            expectedElements.removeIf(e -> e instanceof Edge && BooleanUtils.isFalse(((Edge) e).getDirected()));
+            expectedElements.removeIf(e -> e instanceof Edge && ((Edge) e).isUndirected());
         }
         if (DirectedType.UNDIRECTED == directedType) {
-            expectedElements.removeIf(e -> e instanceof Edge && BooleanUtils.isTrue(((Edge) e).getDirected()));
+            expectedElements.removeIf(e -> e instanceof Edge && ((Edge) e).isDirected());
         }
         shouldGetElements(expectedElements, SeedMatchingType.RELATED, directedType, includeEntities, includeEdges, inOutType, ALL_SEEDS);
     }
@@ -279,12 +279,15 @@ public class GetElementsIT extends AbstractStoreIT {
         final List<Element> expectedElementsCopy = Lists.newArrayList(expectedElements);
         for (final Element result : results) {
             if (result instanceof Entity) {
-                Entity entity = (Entity) result;
-                assertTrue("Entity was not expected: " + entity, expectedElements.contains(entity));
+                assertTrue("Entity was not expected: " + result
+                                + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
+                        expectedElements.contains(result));
             } else {
                 Edge edge = (Edge) result;
                 if (edge.isDirected()) {
-                    assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
+                    assertTrue("Edge was not expected: " + edge
+                                    + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
+                            expectedElements.contains(edge));
                 } else {
                     final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
 
@@ -292,7 +295,9 @@ public class GetElementsIT extends AbstractStoreIT {
                     edgeReversed.copyProperties(properties);
 
                     expectedElementsCopy.remove(edgeReversed);
-                    assertTrue("Edge was not expected: " + result, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
+                    assertTrue("Edge was not expected: " + result
+                                    + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
+                            expectedElements.contains(result) || expectedElements.contains(edgeReversed));
                 }
             }
             expectedElementsCopy.remove(result);
@@ -315,7 +320,7 @@ public class GetElementsIT extends AbstractStoreIT {
                 entity.putProperty("stringProperty", "3");
                 elements.add(entity);
             } else {
-                if (null == ((EdgeId) seed).getDirected()) {
+                if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
                     if (BooleanUtils.isNotTrue(direction)) {
                         final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), false);
                         edge.putProperty("intProperty", 1);
