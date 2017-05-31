@@ -100,11 +100,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
-        elementDefinition.getProperties().forEach(propertyName -> {
+        for (final String propertyName : elementDefinition.getProperties()) {
             if (isStoredInValue(propertyName, elementDefinition)) {
                 serialiseSizeAndPropertyValue(propertyName, elementDefinition, properties, stream);
             }
-        });
+        }
 
         return new Value(stream.toByteArray());
     }
@@ -262,8 +262,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
-        elementDefinition.getGroupBy()
-                .forEach(groupByPropertyName -> serialiseSizeAndPropertyValue(groupByPropertyName, elementDefinition, properties, stream));
+        for (final String groupByPropertyName : elementDefinition.getGroupBy()) {
+            serialiseSizeAndPropertyValue(groupByPropertyName, elementDefinition, properties, stream);
+        }
 
         return stream.toByteArray();
     }
