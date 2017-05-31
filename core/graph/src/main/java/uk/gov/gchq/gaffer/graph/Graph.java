@@ -228,6 +228,15 @@ public final class Graph {
     }
 
     /**
+     * @param operation the class of the operation to check
+     * @return a collection of all the compatible {@link Operation}s that could
+     * be added to an operation chain after the provided operation.
+     */
+    public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
+        return store.getNextOperations(operation);
+    }
+
+    /**
      * Returns the graph view.
      *
      * @return the graph view.

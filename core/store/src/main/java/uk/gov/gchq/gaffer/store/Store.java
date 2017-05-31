@@ -22,26 +22,22 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -68,6 +64,8 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -106,6 +104,7 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,9 +121,11 @@ import java.util.concurrent.Executors;
 public abstract class Store {
     public static final String SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) is not instance of %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
-    public final Class<? extends Serialiser> requiredParentSerialiserClass;
+    private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+    private final OperationChainValidator opChainValidator;
+
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
      */
@@ -136,14 +137,14 @@ public abstract class Store {
     private StoreProperties properties;
 
     private SchemaOptimiser schemaOptimiser;
-    private ViewValidator viewValidator;
+
     private JobTracker jobTracker;
     private ExecutorService executorService;
 
     public Store() {
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
-        this.viewValidator = new ViewValidator();
-        this.schemaOptimiser = new SchemaOptimiser();
+        this.opChainValidator = createOperationChainValidator();
+        this.schemaOptimiser = createSchemaOptimiser();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -305,6 +306,27 @@ public abstract class Store {
         return operationHandlers.keySet();
     }
 
+    public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
+        if (null == operation || !Output.class.isAssignableFrom(operation)) {
+            return getSupportedOperations();
+        }
+
+        final Set<Class<? extends Operation>> ops = new LinkedHashSet<>();
+        if (Output.class.isAssignableFrom(operation)) {
+            final Class<?> outputType = OperationUtil.getOutputType((Class) operation);
+            for (final Class<? extends Operation> nextOp : getSupportedOperations()) {
+                if (Input.class.isAssignableFrom(nextOp)) {
+                    final Class<?> inputType = OperationUtil.getInputType((Class) nextOp);
+                    if (OperationUtil.isValid(outputType, inputType).isValid()) {
+                        ops.add(nextOp);
+                    }
+                }
+            }
+        }
+
+        return ops;
+    }
+
     /**
      * Ensures all identifier and property values are populated on an element by triggering getters on the element for
      * all identifier and properties in the {@link Schema} forcing a lazy element to load all of its values.
@@ -397,61 +419,16 @@ public abstract class Store {
     }
 
     protected <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context) {
-        validateOperationChain(operationChain, context.getUser());
+        final ValidationResult validationResult = opChainValidator.validate(operationChain, context.getUser(), this);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult.getErrorString());
+        }
 
         OperationChain<O> optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
             optimisedOperationChain = opChainOptimiser.optimise(optimisedOperationChain);
         }
         return optimisedOperationChain;
-    }
-
-    protected void validateOperationChain(
-            final OperationChain<?> operationChain, final User user) {
-        if (operationChain.getOperations().isEmpty()) {
-            throw new IllegalArgumentException("Operation chain contains no operations");
-        }
-
-        for (final Operation op : operationChain.getOperations()) {
-            final View opView;
-            if (op instanceof GraphFilters) {
-                opView = ((GraphFilters) op).getView();
-            } else {
-                opView = null;
-            }
-            final ValidationResult viewValidationResult = viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED));
-            if (!viewValidationResult.isValid()) {
-                throw new SchemaException("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. " + viewValidationResult.getErrorString());
-            }
-
-            if (op instanceof ElementComparison) {
-                for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
-                    final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
-                    if (null == elementDef) {
-                        throw new IllegalArgumentException(op.getClass().getName()
-                                + " references " + pair.getFirst()
-                                + " group that does not exist in the schema");
-                    }
-                    Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
-                    if (null != propertyClass && !Comparable.class.isAssignableFrom(propertyClass)) {
-                        throw new SchemaException("Property " + pair.getSecond()
-                                + " in group " + pair.getFirst()
-                                + " has a java class of " + propertyClass.getName()
-                                + " which does not extend Comparable.");
-                    }
-                }
-
-                final ValidationResult operationValidationResult = viewValidator
-                        .validate(opView, schema, hasTrait(StoreTrait.ORDERED));
-                if (!operationValidationResult.isValid()) {
-                    throw new SchemaException("View for operation "
-                            + op.getClass().getName()
-                            + " is not valid. " + operationValidationResult.getErrorString());
-                }
-            }
-        }
     }
 
     protected JobTracker createJobTracker(final StoreProperties properties) {
@@ -461,12 +438,12 @@ public abstract class Store {
         return null;
     }
 
-    protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
-        this.schemaOptimiser = schemaOptimiser;
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser();
     }
 
-    protected void setViewValidator(final ViewValidator viewValidator) {
-        this.viewValidator = viewValidator;
+    protected OperationChainValidator createOperationChainValidator() {
+        return new OperationChainValidator(new ViewValidator());
     }
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
