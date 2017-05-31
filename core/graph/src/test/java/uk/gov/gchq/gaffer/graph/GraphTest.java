@@ -77,10 +77,12 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.BDDMockito.given;
@@ -509,7 +511,6 @@ public class GraphTest {
         }
     }
 
-
     @Test
     public void shouldExposeGetTraitsMethod() throws OperationException {
         // Given
@@ -664,6 +665,61 @@ public class GraphTest {
         } catch (final SchemaException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldDelegateGetNextOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        final Set<Class<? extends Operation>> expectedNextOperations = mock(Set.class);
+        given(store.getNextOperations(GetElements.class)).willReturn(expectedNextOperations);
+
+        // When
+        final Set<Class<? extends Operation>> nextOperations = graph.getNextOperations(GetElements.class);
+
+        // Then
+        assertSame(expectedNextOperations, nextOperations);
+    }
+
+    @Test
+    public void shouldDelegateIsSupportedToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        given(store.isSupported(GetElements.class)).willReturn(true);
+        given(store.isSupported(GetAllElements.class)).willReturn(false);
+
+        // When / Then
+        assertTrue(graph.isSupported(GetElements.class));
+        assertFalse(graph.isSupported(GetAllElements.class));
+    }
+
+    @Test
+    public void shouldDelegateGetSupportedOperationsToStore() {
+        // Given
+        final Store store = mock(Store.class);
+        given(store.getSchema()).willReturn(new Schema());
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
+
+        final Set<Class<? extends Operation>> expectedSupportedOperations = mock(Set.class);
+        given(store.getSupportedOperations()).willReturn(expectedSupportedOperations);
+
+        // When
+        final Set<Class<? extends Operation>> supportedOperations = graph.getSupportedOperations();
+
+        // Then
+        assertSame(expectedSupportedOperations, supportedOperations);
     }
 
     static class StoreImpl extends Store {
