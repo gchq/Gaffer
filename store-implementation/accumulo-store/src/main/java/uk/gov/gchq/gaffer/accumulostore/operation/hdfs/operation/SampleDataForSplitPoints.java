@@ -16,15 +16,14 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import java.util.List;
 import java.util.Map;
 
@@ -32,20 +31,16 @@ import java.util.Map;
 /**
  * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link SplitTable} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
- * This operation requires an input and output path as well as a path to a file to use as the resulitngSplitsFile.
+ * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
  * {@link MapperGenerator} class name and a
  * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
- * <p>
- * For normal operation handlers the operation {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View} will be ignored.
- * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
  * @see SampleDataForSplitPoints.Builder
  */
 public class SampleDataForSplitPoints implements
         Operation,
-        Output<String>,
         MapReduce,
         Options {
 
@@ -64,6 +59,7 @@ public class SampleDataForSplitPoints implements
     private JobInitialiser jobInitialiser;
     private Integer numMapTasks;
     private Map<String, String> options;
+    private Class<? extends CompressionCodec> compressionCodec = GzipCodec.class;
 
     public SampleDataForSplitPoints() {
         setNumReduceTasks(1);
@@ -168,9 +164,12 @@ public class SampleDataForSplitPoints implements
         throw new IllegalArgumentException(getClass().getSimpleName() + " is not able to set its own partitioner");
     }
 
-    @Override
-    public TypeReference<String> getOutputTypeReference() {
-        return new TypeReferenceImpl.String();
+    public Class<? extends CompressionCodec> getCompressionCodec() {
+        return compressionCodec;
+    }
+
+    public void setCompressionCodec(final Class<? extends CompressionCodec> compressionCodec) {
+        this.compressionCodec = compressionCodec;
     }
 
     @Override
@@ -185,7 +184,6 @@ public class SampleDataForSplitPoints implements
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
             implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,
-            Output.Builder<SampleDataForSplitPoints, String, Builder>,
             Options.Builder<SampleDataForSplitPoints, Builder> {
         public Builder() {
             super(new SampleDataForSplitPoints());
@@ -208,6 +206,11 @@ public class SampleDataForSplitPoints implements
 
         public Builder proportionToSample(final float proportionToSample) {
             _getOp().setProportionToSample(proportionToSample);
+            return _self();
+        }
+
+        public Builder compressionCodec(final Class<? extends CompressionCodec> compressionCodec) {
+            _getOp().setCompressionCodec(compressionCodec);
             return _self();
         }
     }

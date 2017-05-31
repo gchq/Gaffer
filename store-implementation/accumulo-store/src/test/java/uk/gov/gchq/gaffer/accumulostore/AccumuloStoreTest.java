@@ -290,5 +290,4 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
     }
-
 }
