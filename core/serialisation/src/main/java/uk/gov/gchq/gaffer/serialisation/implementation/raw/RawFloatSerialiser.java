@@ -34,7 +34,7 @@ public class RawFloatSerialiser implements ToBytesSerialiser<Float> {
     public byte[] serialise(final Float f) throws SerialisationException {
         final byte[] out = new byte[4];
         final int value = Float.floatToRawIntBits(f);
-        out[0] = (byte) ((int) (value & 255));
+        out[0] = (byte) (value & 255);
         out[1] = (byte) ((value >> 8) & 255);
         out[2] = (byte) ((value >> 16) & 255);
         out[3] = (byte) ((value >> 24) & 255);
@@ -42,11 +42,17 @@ public class RawFloatSerialiser implements ToBytesSerialiser<Float> {
     }
 
     @Override
+    public Float deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        return Float.intBitsToFloat((int) (allBytes[carriage++] & 255L
+                | (allBytes[carriage++] & 255L) << 8
+                | (allBytes[carriage++] & 255L) << 16
+                | (allBytes[carriage] & 255L) << 24));
+    }
+
+    @Override
     public Float deserialise(final byte[] bytes) throws SerialisationException {
-        return Float.intBitsToFloat((int) ((int) bytes[0] & 255L
-                | ((int) bytes[1] & 255L) << 8
-                | ((int) bytes[2] & 255L) << 16
-                | ((int) bytes[3] & 255L) << 24));
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

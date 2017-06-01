@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * A <code>TreeSetStringSerialiser</code> is a serialiser for {@link TreeSet}s with
  * {@link String} values.
  */
-public class TreeSetStringSerialiser implements ToBytesSerialiser<TreeSet<String>> {
+public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSet<String>> {
     private static final long serialVersionUID = -8241328807929077861L;
     private static final String COMMA = "\\,";
     private static final String OPEN = "{";
@@ -51,25 +51,19 @@ public class TreeSetStringSerialiser implements ToBytesSerialiser<TreeSet<String
         builder.append(CLOSE);
 
         try {
-            return builder.toString().getBytes(CommonConstants.UTF_8);
+            return builder.toString().getBytes(getCharset());
         } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public TreeSet<String> deserialise(final byte[] bytes) throws SerialisationException {
-        final String str;
-        try {
-            str = new String(bytes, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    public TreeSet<String> deserialiseString(final String value) throws SerialisationException {
 
         final TreeSet<String> treeSet = new TreeSet<>();
         final Iterable<String> items = Splitter.on(COMMA)
                 .omitEmptyStrings()
-                .split(str.substring(1, str.length() - 1));
+                .split(value.substring(1, value.length() - 1));
         for (final String item : items) {
             treeSet.add(item);
         }
@@ -85,5 +79,10 @@ public class TreeSetStringSerialiser implements ToBytesSerialiser<TreeSet<String
     @Override
     public boolean preservesObjectOrdering() {
         return true;
+    }
+
+    @Override
+    public String getCharset() {
+        return CommonConstants.UTF_8;
     }
 }

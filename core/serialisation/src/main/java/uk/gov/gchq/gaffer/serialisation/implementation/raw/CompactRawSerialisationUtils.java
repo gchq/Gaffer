@@ -51,9 +51,9 @@ public final class CompactRawSerialisationUtils {
         int place = 1;
         len = (len < -120) ? -(len + 120) : -(len + 112);
         for (int idx = len; idx != 0; idx--) {
-            final int shiftbits = (idx - 1) * 8;
-            final long mask = 0xFFL << shiftbits;
-            temp[place++] = (byte) ((value & mask) >> shiftbits);
+            final int shiftBits = (idx - 1) * 8;
+            final long mask = 0xFFL << shiftBits;
+            temp[place++] = (byte) ((value & mask) >> shiftBits);
         }
         final byte[] result = new byte[place];
         System.arraycopy(temp, 0, result, 0, place);
@@ -61,19 +61,31 @@ public final class CompactRawSerialisationUtils {
     }
 
     public static long readLong(final byte[] bytes) throws SerialisationException {
-        final byte firstByte = bytes[0];
-        final int len = decodeVIntSize(firstByte);
-        if (len == 1) {
-            return (long) firstByte;
+        return readLong(bytes, 0);
+    }
+
+    public static long readLong(final byte[] allBytes, final int offset) throws SerialisationException {
+        try {
+            int carriage = offset;
+            final byte firstByte = allBytes[carriage++];
+            final int len = decodeVIntSize(firstByte);
+            long rtn;
+            if (len == 1) {
+                rtn = (long) firstByte;
+            } else {
+                rtn = 0;
+                final int end = offset + len;
+                while (carriage < end) {
+                    final byte b = allBytes[carriage++];
+                    rtn <<= 8;
+                    rtn |= (b & 0xFF);
+                }
+                rtn = isNegativeVInt(firstByte) ? ~rtn : rtn;
+            }
+            return rtn;
+        } catch (Exception e) {
+            throw new SerialisationException(e.getMessage(), e);
         }
-        long i = 0;
-        short place = 1;
-        for (int idx = 0; idx < len - 1; idx++) {
-            final byte b = bytes[place++];
-            i = i << 8;
-            i = i | (b & 0xFF);
-        }
-        return isNegativeVInt(firstByte) ? i ^ -1L : i;
     }
 
     /**
@@ -107,9 +119,9 @@ public final class CompactRawSerialisationUtils {
             output.write((byte) len);
             len = (len < -120) ? -(len + 120) : -(len + 112);
             for (int idx = len; idx != 0; idx--) {
-                final int shiftbits = (idx - 1) * 8;
-                final long mask = 0xFFL << shiftbits;
-                output.write((byte) ((value & mask) >> shiftbits));
+                final int shiftBits = (idx - 1) * 8;
+                final long mask = 0xFFL << shiftBits;
+                output.write((byte) ((value & mask) >> shiftBits));
             }
         } catch (final IOException e) {
             throw new SerialisationException("Exception reading bytes", e);
@@ -141,7 +153,7 @@ public final class CompactRawSerialisationUtils {
                 i = i << 8;
                 i = i | (b & 0xFF);
             }
-            return isNegativeVInt(firstByte) ? i ^ -1L : i;
+            return isNegativeVInt(firstByte) ? ~i : i;
         } catch (final IOException e) {
             throw new SerialisationException("Exception writing bytes", e);
         }

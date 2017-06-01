@@ -15,20 +15,20 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 public class RawFloatSerialiserTest extends ToByteSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (float i = 0; i < 1000; i+=1.1) {
+        for (float i = 0; i < 1000; i += 1.1) {
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
             assertEquals(Float.class, o.getClass());

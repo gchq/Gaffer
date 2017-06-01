@@ -16,6 +16,14 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -29,14 +37,6 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import java.util.Collections;
 import java.util.Date;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinition> {
     public static final String PROPERTY_STRING_TYPE = "property.string";
@@ -195,7 +195,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         // Then
         assertEquals(1, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertEquals(new String[]{"property"},
+        assertArrayEquals(new String[]{"property"},
                 aggregator.getComponents().get(0).getSelection());
     }
 
