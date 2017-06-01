@@ -34,6 +34,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisati
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -96,38 +97,16 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public Value getValueFromProperties(final String group, final Properties properties) {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
-        final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
-        String propertyName;
-        while (propertyNames.hasNext()) {
-            propertyName = propertyNames.next();
-            final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
+
+        for (final String propertyName : elementDefinition.getProperties()) {
             if (isStoredInValue(propertyName, elementDefinition)) {
-                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
-                try {
-                    if (null != serialiser) {
-                        Object value = properties.get(propertyName);
-                        if (null != value) {
-                            final byte[] bytes = serialiser.serialise(value);
-                            writeBytes(bytes, out);
-                        } else {
-                            final byte[] bytes = serialiser.serialiseNull();
-                            writeBytes(bytes, out);
-                        }
-                    } else {
-                        writeBytes(AccumuloStoreConstants.EMPTY_BYTES, out);
-                    }
-                } catch (final IOException e) {
-                    throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
-                }
+                serialiseSizeAndPropertyValue(propertyName, elementDefinition, properties, stream);
             }
         }
 
-        return new Value(out.toByteArray());
+        return new Value(stream.toByteArray());
     }
 
     @Override
@@ -145,10 +124,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         int lastDelimiter = 0;
         final int arrayLength = bytes.length;
         long currentPropLength;
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
         final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
@@ -231,10 +207,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public byte[] buildColumnVisibility(final String group, final Properties properties) {
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
         if (null != schema.getVisibilityProperty()) {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
             if (null != propertyDef) {
@@ -259,10 +232,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     public Properties getPropertiesFromColumnVisibility(final String group, final byte[] columnVisibility) {
         final Properties properties = new Properties();
 
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
         if (null != schema.getVisibilityProperty()) {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
@@ -289,43 +259,45 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public byte[] buildColumnQualifier(final String group, final Properties properties) {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
+
+        for (final String groupByPropertyName : elementDefinition.getGroupBy()) {
+            serialiseSizeAndPropertyValue(groupByPropertyName, elementDefinition, properties, stream);
+        }
+
+        return stream.toByteArray();
+    }
+
+    private SchemaElementDefinition getSchemaElementDefinition(final String group) {
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
-        final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
-        while (propertyNames.hasNext()) {
-            String propertyName = propertyNames.next();
-            final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
-            try {
-                if (null != serialiser) {
-                    Object value = properties.get(propertyName);
-                    if (null != value) {
-                        final byte[] bytes = serialiser.serialise(value);
-                        writeBytes(bytes, out);
-                    } else {
-                        final byte[] bytes = serialiser.serialiseNull();
-                        writeBytes(bytes, out);
-                    }
-                } else {
-                    writeBytes(AccumuloStoreConstants.EMPTY_BYTES, out);
-                }
-            } catch (final IOException e) {
-                throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
-            }
-        }
+        return elementDefinition;
+    }
 
-        return out.toByteArray();
+    protected void serialiseSizeAndPropertyValue(final String propertyName, final SchemaElementDefinition elementDefinition, final Properties properties, final ByteArrayOutputStream stream) {
+        try {
+            final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
+            final ToBytesSerialiser serialiser = (typeDefinition == null) ? null : (ToBytesSerialiser) typeDefinition.getSerialiser();
+            byte[] bytes;
+            if (serialiser == null) {
+                bytes = AccumuloStoreConstants.EMPTY_BYTES;
+            } else {
+                Object value = properties.get(propertyName);
+                //serialiseNull could be different to AccumuloStoreConstants.EMPTY_BYTES
+                bytes = (value == null) ? serialiser.serialiseNull() : serialiser.serialise(value);
+            }
+            writeBytes(bytes, stream);
+        } catch (final IOException e) {
+            throw new AccumuloElementConversionException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
+        }
     }
 
     @Override
     public Properties getPropertiesFromColumnQualifier(final String group, final byte[] bytes) {
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
         final Properties properties = new Properties();
         if (bytes == null || bytes.length == 0) {
@@ -368,10 +340,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         if (numProps == 0 || bytes == null || bytes.length == 0) {
             return AccumuloStoreConstants.EMPTY_BYTES;
         }
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
         if (numProps == elementDefinition.getProperties().size()) {
             return bytes;
         }
@@ -426,10 +395,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
      */
     @Override
     public Properties getPropertiesFromTimestamp(final String group, final long timestamp) {
-        final SchemaElementDefinition elementDefinition = schema.getElement(group);
-        if (null == elementDefinition) {
-            throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
-        }
+        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
 
         final Properties properties = new Properties();
         // If the element group requires a timestamp property then add it.
