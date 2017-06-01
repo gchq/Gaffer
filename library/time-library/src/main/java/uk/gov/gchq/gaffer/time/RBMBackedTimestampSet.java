@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
@@ -61,7 +63,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
     ));
 
     private final TimeBucket bucket;
-    private final RoaringBitmap rbm = new RoaringBitmap();
+    private RoaringBitmap rbm = new RoaringBitmap();
 
     public RBMBackedTimestampSet(final TimeBucket bucket) {
         if (!VALID_TIMEBUCKETS.contains(bucket)) {
@@ -116,6 +118,50 @@ public class RBMBackedTimestampSet implements TimestampSet {
             return null;
         }
         return getInstantFromInt(it.next());
+    }
+
+    public TimeBucket getTimeBucket() {
+        return bucket;
+    }
+
+    /**
+     * This exposes the underlying {@link RoaringBitmap} so that serialisers can access it.
+     *
+     * @return the {@link RoaringBitmap} used by this class to store the timestamps.
+     */
+    public RoaringBitmap getRbm() {
+        return rbm;
+    }
+
+    /**
+     * Allows the {@link RoaringBitmap} to be set.
+     *
+     * @param rbm the {@link RoaringBitmap} to set the {@link RoaringBitmap} of this class to.
+     */
+    public void setRbm(final RoaringBitmap rbm) {
+        this.rbm = rbm;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return null != obj
+                && (obj instanceof RBMBackedTimestampSet)
+                && equals((RBMBackedTimestampSet) obj);
+    }
+
+    private boolean equals(final RBMBackedTimestampSet other) {
+        return new EqualsBuilder()
+                .append(bucket, other.bucket)
+                .append(rbm, other.rbm)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(21, 3)
+                .append(bucket)
+                .append(rbm)
+                .toHashCode();
     }
 
     private int toInt(final long time) {

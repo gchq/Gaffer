@@ -24,7 +24,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 /**
@@ -85,6 +85,38 @@ public class RBMBackedTimestampSetTest {
 
         // Then
         assertEquals(4, numberOfTimestamps);
+    }
+
+    @Test
+    public void testEqualsAndHashcode() {
+        // Given
+        final RBMBackedTimestampSet timestampSet1 = new RBMBackedTimestampSet(TimeBucket.SECOND);
+        timestampSet1.add(instant1);
+        timestampSet1.add(instant2);
+        final RBMBackedTimestampSet timestampSet2 = new RBMBackedTimestampSet(TimeBucket.SECOND);
+        timestampSet2.add(instant1);
+        timestampSet2.add(instant2);
+        final RBMBackedTimestampSet timestampSet3 = new RBMBackedTimestampSet(TimeBucket.SECOND);
+        timestampSet3.add(instant1);
+        final RBMBackedTimestampSet timestampSet4 = new RBMBackedTimestampSet(TimeBucket.MINUTE);
+        timestampSet4.add(instant1);
+
+        // When
+        final boolean equal1And2 = timestampSet1.equals(timestampSet2);
+        final boolean equal1And3 = timestampSet1.equals(timestampSet3);
+        final boolean equal1And4 = timestampSet1.equals(timestampSet4);
+        final int hashCode1 = timestampSet1.hashCode();
+        final int hashCode2 = timestampSet2.hashCode();
+        final int hashCode3 = timestampSet3.hashCode();
+        final int hashCode4 = timestampSet4.hashCode();
+
+        // Then
+        assertTrue(equal1And2);
+        assertFalse(equal1And3);
+        assertFalse(equal1And4);
+        assertEquals(hashCode1, hashCode2);
+        assertNotEquals(hashCode1, hashCode3);
+        assertNotEquals(hashCode1, hashCode4);
     }
 
     private void testGet(final SortedSet<Instant> dates) {

@@ -16,6 +16,12 @@ limitations under the License.
 Time Library
 ============
 
+TODO:
+
+- Write aggregator
+- Write an extension of RBMBackedTimestampSet that has a fixed maximum size N, and when that size is reached it retains
+a uniform random sample of size N of the times (using the reservoir sampling from Datasketches) 
+
 This library contains classes that represent concepts relating to time. For example, there is a class that can be used to represent a set of timestamps.
 
 To use this library, you will need to include the following dependency:
