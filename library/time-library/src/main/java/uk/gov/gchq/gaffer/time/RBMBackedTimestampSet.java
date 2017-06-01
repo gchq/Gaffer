@@ -142,6 +142,10 @@ public class RBMBackedTimestampSet implements TimestampSet {
         this.rbm = rbm;
     }
 
+    public void addAll(final RBMBackedTimestampSet other) {
+        rbm.or(other.getRbm());
+    }
+
     @Override
     public boolean equals(final Object obj) {
         return null != obj

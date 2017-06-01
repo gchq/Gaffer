@@ -18,9 +18,10 @@ Time Library
 
 TODO:
 
-- Write aggregator
 - Write an extension of RBMBackedTimestampSet that has a fixed maximum size N, and when that size is reached it retains
-a uniform random sample of size N of the times (using the reservoir sampling from Datasketches) 
+a uniform random sample of size N of the times (using the reservoir sampling from Datasketches)
+- Should we be using a RBM serialiser that deals with multiple versions?
+- Add to this README
 
 This library contains classes that represent concepts relating to time. For example, there is a class that can be used to represent a set of timestamps.
 
