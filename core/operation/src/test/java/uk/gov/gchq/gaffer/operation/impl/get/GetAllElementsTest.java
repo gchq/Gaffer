@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -52,11 +52,11 @@ public class GetAllElementsTest implements OperationTest {
     public void shouldSetDirectedTypeToBoth() {
         // When
         final GetAllElements op = new GetAllElements.Builder()
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
 
         // Then
-        assertEquals(DirectedType.BOTH, op.getDirectedType());
+        assertEquals(DirectedType.EITHER, op.getDirectedType());
     }
 
     @Test

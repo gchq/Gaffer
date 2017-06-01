@@ -20,7 +20,6 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -110,8 +109,10 @@ public class SampleDataForSplitPointsJobFactory {
     private void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
-        SequenceFileOutputFormat.setCompressOutput(job, true);
-        SequenceFileOutputFormat.setOutputCompressorClass(job, GzipCodec.class);
-        SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+        if (null != operation.getCompressionCodec()) {
+            SequenceFileOutputFormat.setCompressOutput(job, true);
+            SequenceFileOutputFormat.setOutputCompressorClass(job, operation.getCompressionCodec());
+            SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+        }
     }
 }

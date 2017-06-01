@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.integration.impl;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -23,7 +25,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.user.User;
@@ -50,9 +52,17 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
 
     @Test
     public void shouldGetEntityIds() throws Exception {
-        for (final IncludeIncomingOutgoingType inOutType : IncludeIncomingOutgoingType.values()) {
-            for (final DirectedType directedType : DirectedType.values()) {
+        final List<DirectedType> directedTypes = Lists.newArrayList(DirectedType.values());
+        directedTypes.add(null);
+
+        final List<IncludeIncomingOutgoingType> inOutTypes = Lists.newArrayList(IncludeIncomingOutgoingType.values());
+        inOutTypes.add(null);
+        inOutTypes.clear();
+        inOutTypes.add(IncludeIncomingOutgoingType.OUTGOING);
+        for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
+            for (final DirectedType directedType : directedTypes) {
                 final List<String> expectedSeeds = new ArrayList<>();
+
 
                 if (DirectedType.DIRECTED != directedType) {
                     expectedSeeds.add(DEST_1);
@@ -69,6 +79,10 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
                     if (DirectedType.UNDIRECTED != directedType) {
                         expectedSeeds.add(DEST_DIR + "1");
                         expectedSeeds.add(DEST_DIR_3);
+                        expectedSeeds.add("A1");
+                        expectedSeeds.add("B1");
+                        expectedSeeds.add("C1");
+                        expectedSeeds.add("D1");
                     }
                 }
 
@@ -112,6 +126,10 @@ public class GetAdjacentIdsIT extends AbstractStoreIT {
         }
         Collections.sort(resultSeeds);
         Collections.sort(expectedResultSeeds);
-        assertArrayEquals("InOut=" + inOutType + ", directedType=" + directedType + ". Expected: " + expectedResultSeeds + ", but got: " + resultSeeds, expectedResultSeeds.toArray(), resultSeeds.toArray());
+        assertArrayEquals("InOut=" + inOutType + ", directedType=" + directedType
+                        + ".\nExpected: \n  " + StringUtils.join(expectedResultSeeds, "\n  ")
+                        + " \nbut got: \n  " + StringUtils.join(resultSeeds, "\n  "),
+                expectedResultSeeds.toArray(),
+                resultSeeds.toArray());
     }
 }

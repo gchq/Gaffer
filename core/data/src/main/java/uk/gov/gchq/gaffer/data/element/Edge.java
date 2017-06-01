@@ -17,11 +17,15 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
 /**
@@ -76,14 +80,32 @@ public class Edge extends Element implements EdgeId {
         this.destination = destination;
     }
 
+    @JsonIgnore
+    @Override
+    public DirectedType getDirectedType() {
+        if (directed) {
+            return DirectedType.DIRECTED;
+        }
+
+        return DirectedType.UNDIRECTED;
+    }
+
+    @JsonIgnore(false)
+    @JsonGetter("directed")
     @Override
     public boolean isDirected() {
         return directed;
     }
 
+    @JsonSetter("directed")
     @Override
     public void setDirected(final boolean directed) {
         this.directed = directed;
+    }
+
+    @Override
+    public void setDirectedType(final DirectedType directed) {
+        this.directed = DirectedType.UNDIRECTED != directed;
     }
 
     @Override
@@ -120,20 +142,20 @@ public class Edge extends Element implements EdgeId {
     @Override
     public int hashCode() {
         int hash;
-        if (directed) {
+        if (isDirected()) {
             hash = new HashCodeBuilder(21, 3)
                     .appendSuper(super.hashCode())
-                    .append(source)
-                    .append(destination)
-                    .append(directed)
+                    .append(getSource())
+                    .append(getDestination())
+                    .append(isDirected())
                     .toHashCode();
         } else {
             hash = super.hashCode();
-            if (null != source) {
-                hash ^= source.hashCode();
+            if (null != getSource()) {
+                hash ^= getSource().hashCode();
             }
-            if (null != destination) {
-                hash ^= destination.hashCode();
+            if (null != getDestination()) {
+                hash ^= getDestination().hashCode();
             }
         }
         return hash;
@@ -149,15 +171,16 @@ public class Edge extends Element implements EdgeId {
     public boolean equals(final Edge edge) {
         return null != edge
                 && (new EqualsBuilder()
-                .append(directed, edge.isDirected())
-                .append(source, edge.getSource())
-                .append(destination, edge.getDestination())
+                .append(isDirected(), edge.isDirected())
+                .append(getSource(), edge.getSource())
+                .append(getDestination(), edge.getDestination())
                 .appendSuper(super.equals(edge))
                 .isEquals()
                 || new EqualsBuilder()
-                .append(directed, false)
-                .append(source, edge.getDestination())
-                .append(destination, edge.getSource())
+                .append(isDirected(), false)
+                .append(edge.isDirected(), false)
+                .append(getSource(), edge.getDestination())
+                .append(getDestination(), edge.getSource())
                 .appendSuper(super.equals(edge))
                 .isEquals()
         );
@@ -166,19 +189,19 @@ public class Edge extends Element implements EdgeId {
     @Override
     public Edge emptyClone() {
         return new Edge(
-                this.getGroup(),
-                this.getSource(),
-                this.getDestination(),
-                this.isDirected()
+                getGroup(),
+                getSource(),
+                getDestination(),
+                isDirected()
         );
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("source", source)
-                .append("destination", destination)
-                .append("directed", directed)
+                .append("source", getSource())
+                .append("destination", getDestination())
+                .append("directed", isDirected())
                 .appendSuper(super.toString())
                 .build();
     }

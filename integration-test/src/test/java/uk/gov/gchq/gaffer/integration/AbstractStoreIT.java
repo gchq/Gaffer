@@ -287,17 +287,22 @@ public abstract class AbstractStoreIT {
                 edge.putProperty(TestPropertyNames.INT, 1);
                 edge.putProperty(TestPropertyNames.COUNT, 1L);
                 addToMap(edge, edges);
+
+                final Edge edgeDir = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, true);
+                edgeDir.putProperty(TestPropertyNames.INT, 1);
+                edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+                addToMap(edgeDir, edges);
             }
 
-            final Edge firstEdge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
-            firstEdge.putProperty(TestPropertyNames.INT, 1);
-            firstEdge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(firstEdge, edges);
+            final Edge edge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
+            edge.putProperty(TestPropertyNames.INT, 1);
+            edge.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(edge, edges);
 
-            final Edge secondEdge = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
-            secondEdge.putProperty(TestPropertyNames.INT, 1);
-            secondEdge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(secondEdge, edges);
+            final Edge edgeDir = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
+            edgeDir.putProperty(TestPropertyNames.INT, 1);
+            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(edgeDir, edges);
         }
 
         return edges;

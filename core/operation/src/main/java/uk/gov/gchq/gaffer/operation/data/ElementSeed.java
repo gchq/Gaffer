@@ -41,6 +41,6 @@ public abstract class ElementSeed implements ElementId {
     }
 
     public static EdgeSeed createSeed(final EdgeId edgeId) {
-        return new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
+        return new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), edgeId.getDirectedType());
     }
 }

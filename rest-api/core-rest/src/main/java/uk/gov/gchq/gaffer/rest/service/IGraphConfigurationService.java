@@ -39,43 +39,49 @@ import java.util.Set;
 public interface IGraphConfigurationService {
     @GET
     @Path("/schema")
-    @ApiOperation(value = "Gets the schema", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets the schema", response = String.class, responseContainer = "list")
     Schema getSchema();
 
     @GET
     @Path("/filterFunctions")
-    @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions. See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
     Set<Class> getFilterFunctions();
 
     @GET
     @Path("/filterFunctions/{inputClass}")
-    @ApiOperation(value = "Gets available filter functions for the given input class is provided.  See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available filter functions for the given input class is provided.  See <a href='https://github.com/gchq/Gaffer/wiki/filter-function-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
     Set<Class> getFilterFunctions(@ApiParam(value = "a function input java class") @PathParam("inputClass") final String inputClass);
 
     @GET
     @Path("/transformFunctions")
-    @ApiOperation(value = "Gets available transform functions", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available transform functions", response = String.class, responseContainer = "list")
     Set<Class> getTransformFunctions();
 
     @GET
     @Path("/elementGenerators")
-    @ApiOperation(value = "Gets available element generators", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available element generators", response = String.class, responseContainer = "list")
     Set<Class> getElementGenerators();
 
     @GET
     @Path("/objectGenerators")
-    @ApiOperation(value = "Gets available object generators", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets available object generators", response = String.class, responseContainer = "list")
     Set<Class> getObjectGenerators();
 
     @GET
     @Path("/operations")
-    @ApiOperation(value = "Gets all operations supported by the store. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = Class.class, responseContainer = "list")
+    @ApiOperation(value = "Gets all operations supported by the store. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank' style='text-decoration: underline;'>Wiki</a>.", response = String.class, responseContainer = "list")
     Set<Class> getOperations();
 
     @GET
     @Path("/storeTraits")
     @ApiOperation(value = "Gets all supported store traits", response = StoreTrait.class, responseContainer = "list")
     Set<StoreTrait> getStoreTraits();
+
+    @GET
+    @Path("/nextOperations/{className}")
+    @ApiOperation(value = "Gets all the compatible operations that could be added to an operation chain after the provided operation.",
+            response = String.class, responseContainer = "list")
+    Set<Class> getNextOperations(@ApiParam(value = "an operation class name") @PathParam("className") final String operationClassName);
 
     @POST
     @Path("/isOperationSupported")
