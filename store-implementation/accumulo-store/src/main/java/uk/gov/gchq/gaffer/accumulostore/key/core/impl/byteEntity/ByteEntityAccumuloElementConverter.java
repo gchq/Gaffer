@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementC
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.ByteCopyingUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -96,13 +97,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     private void copyToRowKey(final byte[] first, final byte[] second, final byte[] rowKey, final byte directionFlag) {
-        System.arraycopy(first, 0, rowKey, 0, first.length);
-        int carriage = first.length;
-        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey[carriage++] = directionFlag;
-        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(second, 0, rowKey, carriage, second.length);
-        carriage += second.length;
+        int carriage = ByteCopyingUtil.copyFirstAndSecondByteArrayDelimitedWithFlag(first, second, rowKey, directionFlag);
         rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
         rowKey[carriage] = directionFlag;
     }

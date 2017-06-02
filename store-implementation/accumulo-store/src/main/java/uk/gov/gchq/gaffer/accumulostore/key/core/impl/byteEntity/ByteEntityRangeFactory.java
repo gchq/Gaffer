@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyRangeFactory;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.ByteCopyingUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -29,13 +30,12 @@ import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -95,11 +95,9 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
             key[key.length - 2] = ByteArrayEscapeUtils.DELIMITER;
             key[key.length - 1] = directionFlag1;
         }
-        System.arraycopy(sourceValue, 0, key, 0, sourceValue.length);
-        key[sourceValue.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[sourceValue.length + 1] = directionFlag1;
-        key[sourceValue.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destinationValue, 0, key, sourceValue.length + 3, destinationValue.length);
+
+        ByteCopyingUtil.copyFirstAndSecondByteArrayDelimitedWithFlag(sourceValue, destinationValue, key, directionFlag1);
+
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }
 
