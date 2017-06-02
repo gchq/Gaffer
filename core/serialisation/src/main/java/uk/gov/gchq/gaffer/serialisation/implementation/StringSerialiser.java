@@ -15,9 +15,9 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import java.io.UnsupportedEncodingException;
 
 public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {

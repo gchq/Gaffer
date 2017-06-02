@@ -157,10 +157,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
-                    final byte[] length = new byte[numBytesForLength];
-                    System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
                     try {
-                        currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                        currentPropLength = CompactRawSerialisationUtils.readLong(bytes, lastDelimiter);
                     } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException("Exception reading length of property", e);
                     }
@@ -342,10 +340,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
-                final byte[] length = new byte[numBytesForLength];
-                System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
                 try {
-                    currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                    currentPropLength = CompactRawSerialisationUtils.readLong(bytes, lastDelimiter);
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Exception reading length of property", e);
                 }
@@ -381,10 +377,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         int propIndex = 0;
         while (propIndex < numProps && lastDelimiter < arrayLength) {
             final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
-            final byte[] length = new byte[numBytesForLength];
-            System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
             try {
-                currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                currentPropLength = CompactRawSerialisationUtils.readLong(bytes, lastDelimiter);
             } catch (final SerialisationException e) {
                 throw new AccumuloElementConversionException("Exception reading length of property", e);
             }
@@ -483,7 +477,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throw new AccumuloElementConversionException(e.getMessage(), e);
         }
         try {
-            final Edge edge = new Edge(group, schema.getVertexSerialiser().deserialise(result[0]),
+            final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
                     schema.getVertexSerialiser().deserialise(result[1]), directed);
             addPropertiesToElement(edge, key);
             return edge;
