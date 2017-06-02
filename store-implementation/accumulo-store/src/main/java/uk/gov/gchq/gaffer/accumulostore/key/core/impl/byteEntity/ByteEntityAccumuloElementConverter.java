@@ -77,39 +77,34 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
 
     @Override
     protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) {
-        byte directionFlag1;
-        byte directionFlag2;
-        if (edge.isDirected()) {
-            directionFlag1 = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
-        } else {
-            directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
-        }
-        final byte[] source = getSerialisedSource(edge);
-        final byte[] destination = getSerialisedDestination(edge);
+        byte[] source = getSerialisedSource(edge);
+        byte[] destination = getSerialisedDestination(edge);
 
-        final int length = source.length + destination.length + 5;
+        int length = source.length + destination.length + 5;
         final byte[] rowKey1 = new byte[length];
-        System.arraycopy(source, 0, rowKey1, 0, source.length);
-        rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[source.length + 1] = directionFlag1;
-        rowKey1[source.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destination, 0, rowKey1, source.length + 3, destination.length);
-        rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[rowKey1.length - 1] = directionFlag1;
-        final byte[] rowKey2 = new byte[length];
-        System.arraycopy(destination, 0, rowKey2, 0, destination.length);
-        rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[destination.length + 1] = directionFlag2;
-        rowKey2[destination.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(source, 0, rowKey2, destination.length + 3, source.length);
-        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[rowKey2.length - 1] = directionFlag2;
-        if (selfEdge(edge)) {
-            return new Pair<>(rowKey1, null);
+        byte directionFlag = edge.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
+        copyToRowKey(source, destination, rowKey1, directionFlag);
+
+        byte[] rowKey2 = null;
+        if (!selfEdge(edge)) {
+            rowKey2 = new byte[length];
+            byte invertDirectedFlag = (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) ? ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
+            copyToRowKey(destination, source, rowKey2, invertDirectedFlag);
         }
+
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    private void copyToRowKey(final byte[] first, final byte[] second, final byte[] rowKey, final byte directionFlag) {
+        System.arraycopy(first, 0, rowKey, 0, first.length);
+        int carriage = first.length;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage++] = directionFlag;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(second, 0, rowKey, carriage, second.length);
+        carriage += second.length;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage] = directionFlag;
     }
 
     @Override

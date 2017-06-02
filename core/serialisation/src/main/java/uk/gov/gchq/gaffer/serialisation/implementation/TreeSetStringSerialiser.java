@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import com.google.common.base.Splitter;
-import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TreeSet;

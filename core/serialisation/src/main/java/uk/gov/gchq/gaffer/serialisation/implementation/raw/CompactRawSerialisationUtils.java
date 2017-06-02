@@ -60,10 +60,6 @@ public final class CompactRawSerialisationUtils {
         return result;
     }
 
-    public static long readLong(final byte[] bytes) throws SerialisationException {
-        return readLong(bytes, 0);
-    }
-
     public static long readLong(final byte[] allBytes, final int offset) throws SerialisationException {
         try {
             int carriage = offset;
@@ -86,6 +82,10 @@ public final class CompactRawSerialisationUtils {
         } catch (Exception e) {
             throw new SerialisationException(e.getMessage(), e);
         }
+    }
+
+    public static long readLong(final byte[] bytes) throws SerialisationException {
+        return readLong(bytes, 0);
     }
 
     /**
