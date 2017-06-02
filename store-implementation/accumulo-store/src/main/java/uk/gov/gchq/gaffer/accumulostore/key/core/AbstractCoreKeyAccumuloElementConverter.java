@@ -120,11 +120,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final Properties properties = new Properties();
         if (isNotEmpty(value)) {
             final byte[] bytes = value.get();
-            int carriage = 0;
+            int delimiterPosition = 0;
             final int arrayLength = bytes.length;
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
             final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
-            while (propertyNames.hasNext() && carriage < arrayLength) {
+            while (propertyNames.hasNext() && delimiterPosition < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
                     if (isStoredInValue(propertyName, elementDefinition)) {
@@ -132,12 +132,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         if (typeDefinition != null) {
                             ToBytesSerialiser serialiser = (ToBytesSerialiser) typeDefinition.getSerialiser();
                             if (serialiser != null) {
-                                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
-                                long currentPropLength = getCurrentPropLength(bytes, carriage, numBytesForLength);
-                                carriage += numBytesForLength;
-
-                                properties.put(propertyName, getDesialisedObject(serialiser, bytes, carriage, currentPropLength));
-                                carriage += currentPropLength;
+                                byte delimiterByte = bytes[delimiterPosition];
+                                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(delimiterByte);
+                                final long currentPropLength = getCurrentPropLength(bytes, delimiterPosition, numBytesForLength);
+                                Object deserialisedObject = getDeserialisedObject(serialiser, bytes, delimiterPosition + numBytesForLength, currentPropLength);
+                                properties.put(propertyName, deserialisedObject);
+                                delimiterPosition += numBytesForLength + currentPropLength;
                             }
                         }
                     }
@@ -149,11 +149,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return properties;
     }
 
-    private Object getDesialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int carriage, final long currentPropLength) throws SerialisationException {
+    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final long currentPropLength) throws SerialisationException {
         //Don't initialise with  #deserialiseEmpty() as this might initialise an complex empty structure to be immediately overwritten e.g. TreeSet<String>
         Object deserialisedObject;
         if (currentPropLength > 0) {
-            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, carriage, carriage + (int) currentPropLength));
+            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter + (int) currentPropLength));
         } else {
             deserialisedObject = serialiser.deserialiseEmpty();
         }
@@ -164,9 +164,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return value != null && value.getSize() != 0;
     }
 
-    private long getCurrentPropLength(final byte[] bytes, final int carriage, final int numBytesForLength) {
+    private long getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) {
         final byte[] length = new byte[numBytesForLength];
-        System.arraycopy(bytes, carriage, length, 0, numBytesForLength);
+        System.arraycopy(bytes, pos, length, 0, numBytesForLength);
 
         try {
             return CompactRawSerialisationUtils.readLong(length);
@@ -453,7 +453,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 getPropertiesFromTimestamp(element.getGroup(), key.getTimestamp()));
     }
 
-    private Edge getEdgeFromKey(final Key key, final Map<String, String> options) {
+    @SuppressWarnings("WeakerAccess")
+    protected Edge getEdgeFromKey(final Key key, final Map<String, String> options) {
         final byte[][] result = new byte[3][];
         final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
         String group;
