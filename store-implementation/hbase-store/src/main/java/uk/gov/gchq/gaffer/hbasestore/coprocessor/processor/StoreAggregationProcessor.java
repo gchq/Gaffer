@@ -32,11 +32,13 @@ import java.util.Set;
 public class StoreAggregationProcessor implements GafferScannerProcessor {
     private final ElementSerialisation serialisation;
     private final Schema schema;
+    private final List<String> aggregatedGroups;
 
     public StoreAggregationProcessor(final ElementSerialisation serialisation,
                                      final Schema schema) {
         this.serialisation = serialisation;
         this.schema = schema;
+        aggregatedGroups = schema.getAggregatedGroups();
     }
 
     @Override
@@ -56,9 +58,13 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
-            } else if (!HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
+                aggregatedProperties = null;
+                aggregator = null;
+            } else if (!aggregatedGroups.contains(elementCell.getGroup())
+                    || !HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
                 completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
                 aggregator = null;
             } else {
                 final String group = firstElementCell.getGroup();

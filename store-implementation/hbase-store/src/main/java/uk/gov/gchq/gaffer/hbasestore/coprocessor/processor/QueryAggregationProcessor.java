@@ -35,6 +35,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
     private final ElementSerialisation serialisation;
     private final Schema schema;
     private final View view;
+    private final List<String> aggregatedGroups;
 
     public QueryAggregationProcessor(final ElementSerialisation serialisation,
                                      final Schema schema,
@@ -42,6 +43,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
         this.serialisation = serialisation;
         this.schema = schema;
         this.view = view;
+        aggregatedGroups = schema.getAggregatedGroups();
     }
 
     @Override
@@ -61,6 +63,13 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
+                aggregator = null;
+            } else if (!aggregatedGroups.contains(elementCell.getGroup())) {
+                completeAggregator(firstElementCell, aggregatedProperties, output);
+                firstElementCell = elementCell;
+                aggregatedProperties = null;
+                aggregator = null;
             } else {
                 final String group = elementCell.getGroup();
                 final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
@@ -68,6 +77,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                 if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
                     completeAggregator(firstElementCell, aggregatedProperties, output);
                     firstElementCell = elementCell;
+                    aggregatedProperties = null;
                     aggregator = null;
                 } else {
                     if (null == aggregator) {
