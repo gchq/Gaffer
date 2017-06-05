@@ -1,12 +1,12 @@
 package uk.gov.gchq.gaffer.commonutil;
 
-import org.junit.Test;
-import java.io.InputStream;
-import java.net.URL;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+
+import org.junit.Test;
+import java.io.InputStream;
+import java.net.URI;
 
 /**
  * Created on 25/04/2017.
@@ -18,7 +18,7 @@ public class StreamUtilTest {
     @Test
     public void testOpenStreamsURLNotEmpty() throws Exception {
         //Given
-        final URL resource = getClass().getClassLoader().getResource(FILE_NAME);
+        final URI resource = getClass().getClassLoader().getResource(FILE_NAME).toURI();
         if (resource == null) fail("Test json file not found:" + FILE_NAME);
 
         //When
