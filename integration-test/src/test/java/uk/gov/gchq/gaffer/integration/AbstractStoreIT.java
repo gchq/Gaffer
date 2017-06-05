@@ -48,7 +48,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -67,9 +66,6 @@ import static org.junit.Assume.assumeTrue;
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
     protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
-
-    // Temporary folder location
-    protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
 
     // Identifier prefixes
     public static final String SOURCE = "source";

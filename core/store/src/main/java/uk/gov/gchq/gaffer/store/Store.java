@@ -119,7 +119,6 @@ import java.util.concurrent.Executors;
  * Optional functionality can be added to store implementations defined by the {@link uk.gov.gchq.gaffer.store.StoreTrait}s.
  */
 public abstract class Store {
-    public static final String SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S = "Schema serialiser (%s) is not instance of %s";
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
     private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
@@ -412,7 +411,7 @@ public abstract class Store {
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
         if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
             validationResult.addError(
-                    String.format(SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S,
+                    String.format("Schema serialiser (%s) is not instance of %s",
                             serialiser.getClass().getSimpleName(),
                             requiredParentSerialiserClass.getSimpleName()));
         }

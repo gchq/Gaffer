@@ -49,6 +49,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -110,6 +111,7 @@ public class GraphTest {
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
                         .build())
                 .build();
 
@@ -119,18 +121,21 @@ public class GraphTest {
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
                         .build())
                 .build();
 
         final Schema schemaModule3 = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
                         .build())
                 .build();
 
         final Schema schemaModule4 = new Schema.Builder()
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
                         .build())
                 .build();
 
@@ -636,12 +641,11 @@ public class GraphTest {
         try {
             new Graph.Builder()
                     .addSchema(new Schema.Builder()
-                            .type("intnoagg", new TypeDefinition.Builder()
-                                    .clazz(Integer.class)
-                                    .build())
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
+                                    // invalid serialiser
+                                    .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
                                     .clazz(String.class)
@@ -652,7 +656,6 @@ public class GraphTest {
                                     .source("string")
                                     .destination("string")
                                     .directed("boolean")
-                                    .property("p", "intnoagg")
                                     .build())
                             .entity("ENTITY", new SchemaEntityDefinition.Builder()
                                     .vertex("string")
