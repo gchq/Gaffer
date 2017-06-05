@@ -21,6 +21,7 @@ import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
@@ -360,16 +361,16 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps) {
+    public BytesAndRange getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps) {
         if (numProps == 0 || bytes == null || bytes.length == 0) {
-            return AccumuloStoreConstants.EMPTY_BYTES;
+            return new BytesAndRange(bytes, 0, 0);
         }
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new AccumuloElementConversionException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
         }
         if (numProps == elementDefinition.getProperties().size()) {
-            return bytes;
+            return new BytesAndRange(bytes, 0, bytes.length);
         }
         int lastDelimiter = 0;
         final int arrayLength = bytes.length;
@@ -390,10 +391,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
             propIndex++;
         }
-
-        final byte[] propertyBytes = new byte[lastDelimiter];
-        System.arraycopy(bytes, 0, propertyBytes, 0, lastDelimiter);
-        return propertyBytes;
+        return new BytesAndRange(bytes, 0, lastDelimiter);
     }
 
     @Override
