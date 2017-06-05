@@ -63,9 +63,12 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
+                aggregator = null;
             } else if (!aggregatedGroups.contains(elementCell.getGroup())) {
                 completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
                 aggregator = null;
             } else {
                 final String group = elementCell.getGroup();
@@ -74,6 +77,7 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                 if (!compareGroupByKeys(firstElementCell.getCell(), elementCell.getCell(), group, schemaGroupBy, groupBy)) {
                     completeAggregator(firstElementCell, aggregatedProperties, output);
                     firstElementCell = elementCell;
+                    aggregatedProperties = null;
                     aggregator = null;
                 } else {
                     if (null == aggregator) {

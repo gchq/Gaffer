@@ -58,10 +58,13 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
+                aggregator = null;
             } else if (!aggregatedGroups.contains(elementCell.getGroup())
                     || !HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
                 completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
                 aggregator = null;
             } else {
                 final String group = firstElementCell.getGroup();
