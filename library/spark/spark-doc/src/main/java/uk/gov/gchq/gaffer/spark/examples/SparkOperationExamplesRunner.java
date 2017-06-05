@@ -38,6 +38,6 @@ public class SparkOperationExamplesRunner extends ExampleDocRunner {
 
     @Override
     protected void printEditWarning() {
-        log("_This page has been generated from code. To make any changes please update the examples in the [spark-examples](https://github.com/gchq/Gaffer/tree/master/library/spark/spark-examples/src/main/java/uk/gov/gchq/gaffer/spark/examples) module, run it and replace the content of this page with the output._\n\n");
+        log("_This page has been generated from code. To make any changes please update the examples in the [spark-doc](https://github.com/gchq/Gaffer/tree/master/library/spark/spark-doc/src/main/java/uk/gov/gchq/gaffer/spark/examples) module, run it and replace the content of this page with the output._\n\n");
     }
 }

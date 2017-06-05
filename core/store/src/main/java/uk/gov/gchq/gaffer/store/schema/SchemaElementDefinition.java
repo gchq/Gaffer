@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.store.schema;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -80,6 +81,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     protected Set<String> groupBy;
     protected Set<String> parents;
     protected String description;
+    protected boolean aggregate = true;
 
     public SchemaElementDefinition() {
         this.elementDefValidator = new SchemaElementDefinitionValidator();
@@ -92,11 +94,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     /**
      * Uses the element definition validator to validate the element definition.
      *
-     * @param requiresAggregators true if aggregators are required
      * @return true if the element definition is valid, otherwise false.
      */
-    public ValidationResult validate(final boolean requiresAggregators) {
-        return elementDefValidator.validate(this, requiresAggregators);
+    public ValidationResult validate() {
+        return elementDefValidator.validate(this);
     }
 
     public Set<String> getProperties() {
@@ -171,8 +172,10 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementAggregator getAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
-        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-            addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+        if (aggregate) {
+            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+            }
         }
 
         return aggregator;
@@ -377,6 +380,15 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         identifiers = Collections.unmodifiableMap(identifiers);
     }
 
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    public boolean isAggregate() {
+        return aggregate;
+    }
+
+    public void setAggregate(final boolean aggregate) {
+        this.aggregate = aggregate;
+    }
+
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
             CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
         protected ELEMENT_DEF elDef;
@@ -461,6 +473,11 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return self();
         }
 
+        public CHILD_CLASS aggregate(final boolean aggregate) {
+            elDef.aggregate = aggregate;
+            return self();
+        }
+
         public CHILD_CLASS merge(final ELEMENT_DEF elementDef) {
             if (getElementDef().properties.isEmpty()) {
                 getElementDef().properties.putAll(elementDef.getPropertyMap());
@@ -491,6 +508,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             getElementDef().groupBy = new LinkedHashSet<>(elementDef.groupBy);
             getElementDef().parents = null != elementDef.parents ? new LinkedHashSet<>(elementDef.parents) : null;
             getElementDef().description = elementDef.description;
+            getElementDef().aggregate = getElementDef().aggregate && elementDef.aggregate;
 
             return self();
         }

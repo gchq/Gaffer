@@ -64,7 +64,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
         try {
             final HTable table = store.getTable();
-            final boolean hasAggregators = store.getSchema().hasAggregators();
+            final boolean hasAggregators = store.getSchema().isAggregationEnabled();
             final String visibilityProperty = store.getSchema().getVisibilityProperty();
             final Iterator<? extends Element> elements = addElementsOperation.getInput().iterator();
             final ElementSerialisation serialisation = new ElementSerialisation(store.getSchema());

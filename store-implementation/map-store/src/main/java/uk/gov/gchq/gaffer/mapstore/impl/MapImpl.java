@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ public class MapImpl {
     final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     final Set<String> groupsWithNoAggregation = new HashSet<>();
     final Schema schema;
+    final List<String> aggregatedGroups;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) throws StoreException {
         maintainIndex = mapStoreProperties.getCreateIndex();
@@ -62,6 +64,7 @@ public class MapImpl {
             throw new StoreException("Exception instantiating map of class " + mapStoreProperties.getMapClass(), e);
         }
         this.schema = schema;
+        this.aggregatedGroups = schema.getAggregatedGroups();
         schema.getEntityGroups().forEach(g -> addToGroupByMap(this.schema, g));
         schema.getEdgeGroups().forEach(g -> addToGroupByMap(this.schema, g));
     }
@@ -69,7 +72,7 @@ public class MapImpl {
     private void addToGroupByMap(final Schema schema, final String group) {
         final SchemaElementDefinition sed = schema.getElement(group);
         groupToGroupByProperties.put(group, sed.getGroupBy());
-        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty()) {
+        if (null == sed.getGroupBy() || sed.getGroupBy().isEmpty() || !aggregatedGroups.contains(group)) {
             groupsWithNoAggregation.add(group);
         }
         final Set<String> nonGroupByProperties = new HashSet<>(sed.getProperties());
