@@ -45,17 +45,16 @@ public class SchemaElementDefinitionValidator {
      * compatible with the identifiers and properties - this is done by comparing the function input and output types with
      * the identifier and property types.
      *
-     * @param elementDef          the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
-     * @param requiresAggregators true if aggregators are required
+     * @param elementDef the {@link uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition} to validate
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public ValidationResult validate(final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+    public ValidationResult validate(final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
 
         final ElementFilter validator = elementDef.getValidator();
         final ElementAggregator aggregator = elementDef.getAggregator();
+        result.add(validateAggregator(aggregator, elementDef));
         result.add(validateComponentTypes(elementDef));
-        result.add(validateAggregator(aggregator, elementDef, requiresAggregators));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
         result.add(validateFunctionArgumentTypes(aggregator, elementDef));
 
@@ -129,7 +128,7 @@ public class SchemaElementDefinitionValidator {
         return result;
     }
 
-    private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef, final boolean requiresAggregators) {
+    private ValidationResult validateAggregator(final ElementAggregator aggregator, final SchemaElementDefinition elementDef) {
         final ValidationResult result = new ValidationResult();
 
         if (null == elementDef.getPropertyMap() || elementDef.getPropertyMap().isEmpty()) {
@@ -137,12 +136,12 @@ public class SchemaElementDefinitionValidator {
             return result;
         }
 
-        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
-            if (requiresAggregators) {
-                result.addError("This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
-            }
+        if (!elementDef.isAggregate()) {
+            return result;
+        }
 
-            // if aggregate functions are not defined then it is valid
+        if (null == aggregator || null == aggregator.getComponents() || aggregator.getComponents().isEmpty()) {
+            result.addError("Some properties do not have aggregators defined.");
             return result;
         }
 
@@ -169,7 +168,8 @@ public class SchemaElementDefinitionValidator {
         }
 
         result.addError("No aggregator found for properties '" + propertyNamesTmp.toString() + "' in the supplied schema. "
-                + "This framework requires that either all of the defined properties have an aggregator function associated with them, or none of them do.");
+                + "This framework requires that all of the defined properties have an aggregator function associated with them. "
+                + "To disable aggregation for a group set the 'aggregate' field to false.");
         return result;
     }
 

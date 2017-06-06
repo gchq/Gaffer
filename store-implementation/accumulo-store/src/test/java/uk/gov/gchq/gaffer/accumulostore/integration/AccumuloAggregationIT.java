@@ -641,6 +641,7 @@ public class AccumuloAggregationIT {
                                         AccumuloPropertyNames.COLUMN_QUALIFIER_2,
                                         AccumuloPropertyNames.COLUMN_QUALIFIER_3,
                                         AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                                .aggregate(false)
                                 .build())
                         .build())
                 .build();

@@ -123,7 +123,7 @@ public final class TableUtils {
             final EnumSet<IteratorScope> iteratorScopes = EnumSet.allOf(IteratorScope.class);
             connector.tableOperations().removeIterator(tableName, "vers", iteratorScopes);
 
-            if (store.getSchema().hasAggregators()) {
+            if (store.getSchema().isAggregationEnabled()) {
                 // Add Combiner iterator to table for all scopes
                 LOGGER.info("Adding Aggregator iterator to table {} for all scopes", tableName);
                 connector.tableOperations().attachIterator(tableName,
@@ -242,7 +242,7 @@ public final class TableUtils {
 
     private static void validateTable(final AccumuloStore store, final String tableName, final Connector connector) throws StoreException {
         final IteratorSetting requiredAggItrSetting;
-        if (store.getSchema().hasAggregators()) {
+        if (store.getSchema().isAggregationEnabled()) {
             try {
                 requiredAggItrSetting = store.getKeyPackage().getIteratorFactory().getAggregatorIteratorSetting(store);
                 if (null != requiredAggItrSetting) {
