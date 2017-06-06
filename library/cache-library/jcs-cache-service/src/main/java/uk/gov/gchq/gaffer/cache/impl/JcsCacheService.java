@@ -46,7 +46,7 @@ public class JcsCacheService implements ICacheService {
                 manager.configure(cacheProperties);
                 return;
             } catch (IOException e) {
-                throw new IllegalArgumentException("Cannot create uk.gov.gchq.gaffer.cache using config file " + configFile, e);
+                throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);
             }
         }
         LOGGER.debug("No config file configured. Using default.");

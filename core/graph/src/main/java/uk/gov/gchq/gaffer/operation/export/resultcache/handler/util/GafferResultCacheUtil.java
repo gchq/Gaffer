@@ -35,7 +35,7 @@ public final class GafferResultCacheUtil {
 
     public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
-            throw new IllegalArgumentException("Gaffer result uk.gov.gchq.gaffer.cache Store properties are required");
+            throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()

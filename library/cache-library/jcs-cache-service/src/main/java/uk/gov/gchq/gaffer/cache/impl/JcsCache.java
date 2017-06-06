@@ -54,7 +54,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
         try {
             cache.putInGroup(key, groupName, value);
         } catch (CacheException e) {
-            throw new CacheOperationException("Failed to add item to uk.gov.gchq.gaffer.cache", e);
+            throw new CacheOperationException("Failed to add item to cache", e);
         }
     }
 
@@ -99,7 +99,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
         try {
             cache.clear();
         } catch (CacheException e) {
-            throw new CacheOperationException("Failed to clear uk.gov.gchq.gaffer.cache", e);
+            throw new CacheOperationException("Failed to clear cache", e);
         }
     }
 }

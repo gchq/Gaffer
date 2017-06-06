@@ -145,5 +145,4 @@ public class JcsCacheTest {
 
         assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
     }
-
 }

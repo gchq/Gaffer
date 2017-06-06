@@ -24,28 +24,12 @@
         </layout>
     </appender>
 
-    <logger name="uk.gov.gchq.gaffer.accumulostore.utils.TableUtils">
-        <level value="WARN"/>
-    </logger>
-
     <logger name="org.reflections.Reflections">
         <level value="WARN"/>
     </logger>
 
-    <logger name="org.apache.hadoop.conf.Configuration">
-        <level value="WARN"/>
-    </logger>
-
-    <logger name="org.apache.hadoop.util.NativeCodeLoader">
-        <level value="ERROR"/>
-    </logger>
-
-    <logger name="org.apache.commons.jcs">
-        <level value="ERROR"/>
-    </logger>
-
     <root>
-        <priority value="info"/>
-        <appender-ref ref="console"/>
+        <priority value="info"></priority>
+        <appender-ref ref="console"></appender-ref>
     </root>
 </log4j:configuration>

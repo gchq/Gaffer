@@ -1,0 +1,11 @@
+jcs.default=LTCP
+jcs.default.cacheattributes=org.apache.commons.jcs.engine.CompositeCacheAttributes
+jcs.default.cacheattributes.MaxObjects=100
+jcs.default.cacheattributes.MemoryCacheName=org.apache.commons.jcs.engine.memory.lru.LRUMemoryCache
+
+jcs.auxiliary.LTCP=org.apache.commons.jcs.auxiliary.lateral.socket.tcp.LateralTCPCacheFactory
+jcs.auxiliary.LTCP.attributes=org.apache.commons.jcs.auxiliary.lateral.socket.tcp.TCPLateralCacheAttributes
+jcs.auxiliary.LTCP.attributes.TcpServers=
+jcs.auxiliary.LTCP.attributes.TcpListenerPort=1110
+jcs.auxiliary.LTCP.attributes.UdpDiscoveryEnabled=false
+jcs.auxiliary.LTCP.attributes.AllowGet=false

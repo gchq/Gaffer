@@ -1,5 +1,5 @@
 language: java
-uk.gov.gchq.gaffer.cache:
+cache:
   directories:
   - $HOME/.m2
 jdk:

@@ -36,7 +36,7 @@ public class JobTracker {
         try {
             CacheServiceLoader.getService().putInCache(CACHE_NAME, jobDetail.getJobId(), jobDetail);
         } catch (CacheOperationException e) {
-            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the uk.gov.gchq.gaffer.cache", e);
+            throw new RuntimeException("Failed to add jobDetail " + jobDetail.toString() + " to the cache", e);
         }
     }
 
@@ -64,7 +64,7 @@ public class JobTracker {
         try {
             CacheServiceLoader.getService().clearCache(CACHE_NAME);
         } catch (CacheOperationException e) {
-            throw new RuntimeException("Failed to clear job tracker uk.gov.gchq.gaffer.cache", e);
+            throw new RuntimeException("Failed to clear job tracker cache", e);
         }
     }
 
