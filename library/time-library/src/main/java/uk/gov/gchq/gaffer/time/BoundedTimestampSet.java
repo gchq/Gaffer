@@ -28,7 +28,10 @@ import java.util.TreeSet;
 
 /**
  * A <code>BoundedTimestampSet</code> is an implementation of {@link TimestampSet} that can contain a maximum number
- * N of timestamps. This is useful in avoiding the in-memory or serialised size of the set of timestamps becoming too
+ * N of timestamps. If more than N timestamps are added then a uniform random sample of size approximately N of the
+ * timestamps is retained.
+ *
+ * <p>This is useful in avoiding the in-memory or serialised size of the set of timestamps becoming too
  * large. If less than N timestamps are added then the timestamps are stored in a {@link RBMBackedTimestampSet}. If
  * more than N timestamps are added then a uniform random sample of size N of the timestamps is retained.
  */
@@ -121,19 +124,14 @@ public class BoundedTimestampSet implements TimestampSet {
         return maxSize;
     }
 
+    /**
+     * Returns {@link State#NOT_FULL} if less than or equal to {@link #getMaxSize()} timestamps have been added.
+     * Otherwise {@link State#SAMPLE} is returned.
+     *
+     * @return The {@link State} that this object is currently in.
+     */
     public State getState() {
         return state;
-    }
-
-    public void setState(final State newState) {
-        // NB: Not possible to go back from SAMPLE to NOT_FULL. So:
-        //  - If current state is NOT_FULL and newState is NOT_FULL then there is nothing to do.
-        //  - If current state is NOT_FULL and newState is SAMPLE then need to transition state.
-        //  - If current state is SAMPLE and newState is NOT_FULL then it should be left in SAMPLE state.
-        //  - If current state is SAMPLE and newState is SAMPLE then there is nothing to do.
-        if (getState().equals(State.NOT_FULL) && newState.equals(State.SAMPLE)) {
-            switchToSampleState();
-        }
     }
 
     /**

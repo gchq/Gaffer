@@ -43,7 +43,8 @@ import java.util.stream.Stream;
  * <p>NB: This class does not accept {@link Instant}s that are before the Unix epoch or after the {@link Instant}
  * which is <code>Integer.MAX_VALUE * 1000L</code> milliseconds after the epoch (approximately 3:14 on January 19th
  * 2038). This is due to {@link RoaringBitmap} only accepting integers. As the smallest {@link TimeBucket} is
- * a second then the maximum supported {@link Instant} is the maximum integer multiplied by 1000L.
+ * a second then the maximum supported {@link Instant} is the maximum integer multiplied by 1000L milliseconds after
+ * the epoch.
  */
 public class RBMBackedTimestampSet implements TimestampSet {
     private static final long MILLISECONDS_IN_SECOND = 1000L;

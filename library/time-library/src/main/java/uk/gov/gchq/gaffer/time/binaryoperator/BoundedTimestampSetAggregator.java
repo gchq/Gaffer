@@ -19,7 +19,9 @@ import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- *
+ * A <code>BoundedTimestampSetAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * {@link BoundedTimestampSet}s and aggregates the second one into the first. The {@link BoundedTimestampSet}s can
+ * only be aggregated if they have the same time bucket and maximum size.
  */
 public class BoundedTimestampSetAggregator extends KorypheBinaryOperator<BoundedTimestampSet> {
 

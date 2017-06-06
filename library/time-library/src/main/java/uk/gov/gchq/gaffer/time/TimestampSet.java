@@ -20,19 +20,49 @@ import java.util.Collection;
 import java.util.SortedSet;
 
 /**
- *
+ * This represents a set of timestamps.
  */
 public interface TimestampSet {
 
+    /**
+     * Adds the provided timestamp to the set.
+     *
+     * @param instant The timestamp to be added.
+     */
     void add(Instant instant);
 
+    /**
+     * Adds all the provided timestamps to the set.
+     *
+     * @param instants The {@link Collection} of timestamps to be added.
+     */
     void add(Collection<Instant> instants);
 
+    /**
+     * Returns all the timestamps in the set, sorted in their natural order.
+     *
+     * @return All the timestamps in the set, sorted in their natural order.
+     */
     SortedSet<Instant> get();
 
+    /**
+     * Returns the number of distinct timestamps in the set.
+     *
+     * @return The number of distinct timestamps in the set.
+     */
     long getNumberOfTimestamps();
 
+    /**
+     * The earliest timestamp in the set.
+     *
+     * @return The earliest timestamp in the set.
+     */
     Instant getEarliest();
 
+    /**
+     * The latest timestamp in the set.
+     *
+     * @return The latest timestamp in the set.
+     */
     Instant getLatest();
 }

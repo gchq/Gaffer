@@ -27,9 +27,6 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.*;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
-/**
- *
- */
 public class RBMBackedTimestampSetTest {
     private SortedSet<Instant> instants = new TreeSet<>();
     private Instant instant1;
