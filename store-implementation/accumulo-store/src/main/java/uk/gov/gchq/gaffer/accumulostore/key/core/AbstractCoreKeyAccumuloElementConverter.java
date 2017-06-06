@@ -119,11 +119,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final Properties properties = new Properties();
         if (isNotEmpty(value)) {
             final byte[] bytes = value.get();
-            int delimiterPosition = 0;
+            int carriage = 0;
             final int arrayLength = bytes.length;
             final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
             final Iterator<String> propertyNames = elementDefinition.getProperties().iterator();
-            while (propertyNames.hasNext() && delimiterPosition < arrayLength) {
+            while (propertyNames.hasNext() && carriage < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
                     if (isStoredInValue(propertyName, elementDefinition)) {
@@ -131,11 +131,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         if (typeDefinition != null) {
                             ToBytesSerialiser serialiser = (ToBytesSerialiser) typeDefinition.getSerialiser();
                             if (serialiser != null) {
-                                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[delimiterPosition]);
-                                final long currentPropLength = getCurrentPropLength(bytes, delimiterPosition, numBytesForLength);
-                                Object deserialisedObject = getDeserialisedObjectOrEmpty(serialiser, bytes, delimiterPosition + numBytesForLength, currentPropLength);
+                                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
+                                final int currentPropLength = (int) getCurrentPropLength(bytes, carriage, numBytesForLength);
+                                Object deserialisedObject = getDeserialisedObject(serialiser, bytes, carriage += numBytesForLength, carriage += currentPropLength);
                                 properties.put(propertyName, deserialisedObject);
-                                delimiterPosition += numBytesForLength + currentPropLength;
                             }
                         }
                     }
@@ -286,22 +285,23 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
         final Properties properties = new Properties();
         if (bytes != null && bytes.length != 0) {
-            int delimiterPosition = 0;
+            int carriage = 0;
             final int arrayLength = bytes.length;
             final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
-            while (propertyNames.hasNext() && delimiterPosition < arrayLength) {
+            while (propertyNames.hasNext() && carriage < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
                     final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
                     final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                     if (null != serialiser) {
-                        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[delimiterPosition]);
-                        int currentPropLength = (int) getCurrentPropLength(bytes, delimiterPosition, numBytesForLength);
+                        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
+                        int currentPropLength = (int) getCurrentPropLength(bytes, carriage, numBytesForLength);
+                        carriage += numBytesForLength;
                         if (currentPropLength > 0) {
-                            Object deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, delimiterPosition + numBytesForLength, delimiterPosition + numBytesForLength + currentPropLength));
+                            Object deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, carriage, carriage + currentPropLength));
                             properties.put(propertyName, deserialisedObject);
                         }
-                        delimiterPosition += numBytesForLength + currentPropLength;
+                        carriage += currentPropLength;
                     }
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
@@ -313,38 +313,31 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps) {
-        if (numProps == 0 || bytes == null || bytes.length == 0) {
-            return AccumuloStoreConstants.EMPTY_BYTES;
-        }
-        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
-        if (numProps == elementDefinition.getProperties().size()) {
-            return bytes;
-        }
-        int lastDelimiter = 0;
-        final int arrayLength = bytes.length;
-        long currentPropLength;
-        int propIndex = 0;
-        while (propIndex < numProps && lastDelimiter < arrayLength) {
-            final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
-            final byte[] length = new byte[numBytesForLength];
-            System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
-            try {
-                currentPropLength = CompactRawSerialisationUtils.readLong(length);
-            } catch (final SerialisationException e) {
-                throw new AccumuloElementConversionException("Exception reading length of property", e);
+        byte[] rtn = AccumuloStoreConstants.EMPTY_BYTES;
+        if (isColumnQualifierBytesValid(bytes, numProps)) {
+            final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
+            if (numProps == elementDefinition.getProperties().size()) {
+                rtn = bytes;
+            } else {
+                int delimiterPosition = 0;
+                final int arrayLength = bytes.length;
+                int propIndex = 0;
+                while (propIndex < numProps && delimiterPosition < arrayLength) {
+                    final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[delimiterPosition]);
+                    final long currentPropLength = getCurrentPropLength(bytes, delimiterPosition, numBytesForLength);
+                    delimiterPosition += currentPropLength + numBytesForLength;
+                    propIndex++;
+                }
+
+                rtn = new byte[delimiterPosition];
+                System.arraycopy(bytes, 0, rtn, 0, delimiterPosition);
             }
-
-            lastDelimiter += numBytesForLength;
-            if (currentPropLength > 0) {
-                lastDelimiter += currentPropLength;
-            }
-
-            propIndex++;
         }
+        return rtn;
+    }
 
-        final byte[] propertyBytes = new byte[lastDelimiter];
-        System.arraycopy(bytes, 0, propertyBytes, 0, lastDelimiter);
-        return propertyBytes;
+    protected boolean isColumnQualifierBytesValid(final byte[] bytes, final int numProps) {
+        return numProps != 0 && bytes != null && bytes.length != 0;
     }
 
     @Override
@@ -471,11 +464,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         out.write(bytes);
     }
 
-    private Object getDeserialisedObjectOrEmpty(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final long currentPropLength) throws SerialisationException {
+    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int from, final int to) throws SerialisationException {
         //Don't initialise with  #deserialiseEmpty() as this might initialise an complex empty structure to be immediately overwritten e.g. TreeSet<String>
         Object deserialisedObject;
-        if (currentPropLength > 0) {
-            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter + (int) currentPropLength));
+        if (from < to) {
+            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, from, to));
         } else {
             deserialisedObject = serialiser.deserialiseEmpty();
         }
