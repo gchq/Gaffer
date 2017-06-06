@@ -97,7 +97,10 @@ public class GraphConfigurationService implements IGraphConfigurationService {
             try {
                 final Predicate function = (Predicate) functionClass.newInstance();
                 final Signature signature = Signature.getInputSignature(function);
-                if (signature.assignable(clazz).isValid()) {
+                if (null == signature.getNumClasses()
+                        || (1 == signature.getNumClasses() &&
+                        (Signature.UnknownGenericType.class.isAssignableFrom(signature.getClasses()[0])
+                                || signature.getClasses()[0].isAssignableFrom(clazz)))) {
                     classes.add(functionClass);
                 }
             } catch (final Exception e) {
