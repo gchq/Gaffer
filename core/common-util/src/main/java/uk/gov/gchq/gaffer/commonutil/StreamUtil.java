@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
@@ -131,11 +131,11 @@ public abstract class StreamUtil {
         return folderPathChecked;
     }
 
-    public static InputStream[] openStreams(final URL... urls) throws IOException {
-        final InputStream[] schemas = new InputStream[urls.length];
-        for (int pos = 0; pos < urls.length; pos++) {
+    public static InputStream[] openStreams(final URI... uris) throws IOException {
+        final InputStream[] schemas = new InputStream[uris.length];
+        for (int pos = 0; pos < uris.length; pos++) {
             try {
-                schemas[pos] = openStream(urls[pos]);
+                schemas[pos] = openStream(uris[pos]);
             } catch (final Exception e) {
                 int closedStreamsCount = closeStreams(schemas);
                 LOGGER.info("Closed {} input streams", closedStreamsCount);
@@ -145,11 +145,11 @@ public abstract class StreamUtil {
         return schemas;
     }
 
-    public static InputStream openStream(final URL url) throws IOException {
+    public static InputStream openStream(final URI uri) throws IOException {
         try {
-            return url.openStream();
+            return uri.toURL().openStream();
         } catch (final IOException e) {
-            LOGGER.error("Failed to create input stream: {}", url, e);
+            LOGGER.error("Failed to create input stream: {}", uri, e);
             throw e;
         }
     }

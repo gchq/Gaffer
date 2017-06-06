@@ -16,6 +16,21 @@
 
 package uk.gov.gchq.gaffer.graph;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +64,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -65,7 +81,8 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,21 +91,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
@@ -110,6 +112,7 @@ public class GraphTest {
                         .build())
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
                         .build())
                 .build();
 
@@ -119,18 +122,21 @@ public class GraphTest {
                         .build())
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
                         .build())
                 .build();
 
         final Schema schemaModule3 = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
                         .build())
                 .build();
 
         final Schema schemaModule4 = new Schema.Builder()
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
                         .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
                         .build())
                 .build();
 
@@ -177,11 +183,11 @@ public class GraphTest {
     }
 
     @Test
-    public void shouldConstructGraphFromSchemaURL() throws IOException {
+    public void shouldConstructGraphFromSchemaURI() throws IOException, URISyntaxException {
         // Given
-        final URL typeInputURL = getResourceUrl(StreamUtil.DATA_TYPES);
-        final URL schemaInputUrl = getResourceUrl(StreamUtil.DATA_SCHEMA);
-        final URL storeInputUrl = getResourceUrl(StreamUtil.STORE_PROPERTIES);
+        final URI typeInputUri = getResourceUri(StreamUtil.DATA_TYPES);
+        final URI schemaInputUri = getResourceUri(StreamUtil.DATA_SCHEMA);
+        final URI storeInputUri = getResourceUri(StreamUtil.STORE_PROPERTIES);
         final Schema expectedSchema = new Schema.Builder()
                 .json(StreamUtil.dataSchema(getClass()), StreamUtil.dataTypes(getClass()))
                 .build();
@@ -193,8 +199,8 @@ public class GraphTest {
 
             // When
             graph = new Graph.Builder()
-                    .storeProperties(storeInputUrl)
-                    .addSchemas(typeInputURL, schemaInputUrl)
+                    .storeProperties(storeInputUri)
+                    .addSchemas(typeInputUri, schemaInputUri)
                     .build();
         } finally {
             if (schemaDir != null) {
@@ -206,12 +212,12 @@ public class GraphTest {
         JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
-    private URL getResourceUrl(String resource) {
+    private URI getResourceUri(String resource) throws URISyntaxException {
         resource = resource.replaceFirst(Pattern.quote("/"), "");
-        final URL resourceURL = getClass().getClassLoader().getResource(resource);
-        if (resourceURL == null)
+        final URI resourceURI = getClass().getClassLoader().getResource(resource).toURI();
+        if (resourceURI == null)
             fail("Test json file not found: " + resource);
-        return resourceURL;
+        return resourceURI;
     }
 
     @Test
@@ -636,12 +642,11 @@ public class GraphTest {
         try {
             new Graph.Builder()
                     .addSchema(new Schema.Builder()
-                            .type("intnoagg", new TypeDefinition.Builder()
-                                    .clazz(Integer.class)
-                                    .build())
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
+                                    // invalid serialiser
+                                    .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
                                     .clazz(String.class)
@@ -652,7 +657,6 @@ public class GraphTest {
                                     .source("string")
                                     .destination("string")
                                     .directed("boolean")
-                                    .property("p", "intnoagg")
                                     .build())
                             .entity("ENTITY", new SchemaEntityDefinition.Builder()
                                     .vertex("string")

@@ -4,7 +4,8 @@
       "vertex": "id.string",
       "properties": {
         "stringProperty": "prop.string"
-      }
+      },
+      "aggregate": false
     }
   },
   "edges": {
@@ -15,7 +16,8 @@
       "properties": {
         "intProperty": "prop.integer",
         "count": "prop.count"
-      }
+      },
+      "aggregate": false
     }
   }
 }

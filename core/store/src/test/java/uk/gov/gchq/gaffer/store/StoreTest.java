@@ -70,6 +70,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -152,6 +153,7 @@ public class StoreTest {
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
                         .serialiser(new StringSerialiser())
+                        .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
                 .build();
@@ -552,7 +554,7 @@ public class StoreTest {
                 }
             }.initialise(invalidSchema, properties);
         } catch (SchemaException e) {
-            assertEquals(String.format("Schema is not valid. Validation errors: \n%s", String.format(StoreImpl.SCHEMA_SERIALISER_S_IS_NOT_INSTANCE_OF_S, invalidSerialiserClass.getSimpleName(), validSerialiserInterface.getSimpleName())), e.getMessage());
+            assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
             throw e;
         }
         fail("Exception wasn't caught");

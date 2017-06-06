@@ -65,7 +65,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
             }
         }
 
-        if (schema.hasAggregators()) {
+        if (schema.isAggregationEnabled()) {
             processors.add(new StoreAggregationProcessor(serialisation, schema));
         }
 
@@ -73,7 +73,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
 
         if (null != view) {
             processors.add(new PreAggregationFilterProcessor(view));
-            if (schema.hasAggregators()) {
+            if (schema.isAggregationEnabled()) {
                 processors.add(new QueryAggregationProcessor(serialisation, schema, view));
             }
             processors.add(new PostAggregationFilterProcessor(view));

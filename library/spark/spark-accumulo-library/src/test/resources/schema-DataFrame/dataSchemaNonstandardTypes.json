@@ -5,7 +5,8 @@
       "properties": {
         "freqMap": "freqMapProperty",
         "hllpp": "hyperLogLogPlus"
-      }
+      },
+      "aggregate": false
     }
   },
   "edges": {
@@ -16,7 +17,8 @@
       "properties": {
         "freqMap": "freqMapProperty",
         "hllpp": "hyperLogLogPlus"
-      }
+      },
+      "aggregate": false
     }
   }
 }

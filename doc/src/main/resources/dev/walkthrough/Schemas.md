@@ -36,6 +36,7 @@ Edges and Entities can optionally have the following fields:
 - validateFunctions - an array of predicates to be applied to the element as a whole. This allows you to validate based on multiple properties at once - like check a timestamp property together with a time to live property to check if the element should be aged off. Individual property validation is best done as a validateFunction in the property type definition in Data Types.
 - visibilityProperty - if you are using visibility properties in your graph, then ensure the sensitive elements have a visibility property and then set this visibilityProperty field to that property name so Gaffer knows to restrict access to this element.
 - timestampProperty - if you are using timestamp property in your graph, then set this timestampProperty field to that property name so Gaffer knows to treat that property specially.
+- aggregate - this is true by default. If you would like to disable aggregation for this element group set this to false.
 
 Here is an example of a Data Schema
 ${DATA_SCHEMA_JSON}
