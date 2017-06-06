@@ -16,8 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Test;
+import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
@@ -33,12 +42,6 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
 
 public class OperationChainValidatorTest {
     @Test
@@ -116,6 +119,22 @@ public class OperationChainValidatorTest {
         )), false);
     }
 
+    @Test
+    public void shouldNotValidateInvalidOperationChain() {
+
+        //Given
+        Operation operation = Mockito.mock(Operation.class);
+        given(operation.validate()).willReturn(new ValidationResult("SparkContext is required"));
+
+        OperationChain opChain = new OperationChain(operation);
+
+        // When
+        validateOperationChain(opChain, false);
+
+        // Then
+        verify(operation).validate();
+    }
+
     private void validateOperationChain(final OperationChain opChain, final boolean expectedResult) {
         // Given
         final ViewValidator viewValidator = mock(ViewValidator.class);
@@ -125,6 +144,7 @@ public class OperationChainValidatorTest {
 
 
         given(viewValidator.validate(any(View.class), any(Schema.class), anyBoolean())).willReturn(new ValidationResult());
+
 
         // When
         final ValidationResult validationResult = validator.validate(opChain, user, store);
