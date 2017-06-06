@@ -149,32 +149,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return properties;
     }
 
-    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final long currentPropLength) throws SerialisationException {
-        //Don't initialise with  #deserialiseEmpty() as this might initialise an complex empty structure to be immediately overwritten e.g. TreeSet<String>
-        Object deserialisedObject;
-        if (currentPropLength > 0) {
-            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter + (int) currentPropLength));
-        } else {
-            deserialisedObject = serialiser.deserialiseEmpty();
-        }
-        return deserialisedObject;
-    }
-
-    private boolean isNotEmpty(final Value value) {
-        return value != null && value.getSize() != 0;
-    }
-
-    private long getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) {
-        final byte[] length = new byte[numBytesForLength];
-        System.arraycopy(bytes, pos, length, 0, numBytesForLength);
-
-        try {
-            return CompactRawSerialisationUtils.readLong(length);
-        } catch (final SerialisationException e) {
-            throw new AccumuloElementConversionException("Exception reading length of property", e);
-        }
-    }
-
     @Override
     public Element getElementFromKey(final Key key) {
         return getElementFromKey(key, null);
@@ -497,7 +471,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         }
     }
 
-    private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
+    protected boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
         return !elementDef.getGroupBy().contains(propertyName)
                 && !propertyName.equals(schema.getVisibilityProperty())
                 && !propertyName.equals(schema.getTimestampProperty());
@@ -507,6 +481,32 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             throws IOException {
         CompactRawSerialisationUtils.write(bytes.length, out);
         out.write(bytes);
+    }
+
+    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final long currentPropLength) throws SerialisationException {
+        //Don't initialise with  #deserialiseEmpty() as this might initialise an complex empty structure to be immediately overwritten e.g. TreeSet<String>
+        Object deserialisedObject;
+        if (currentPropLength > 0) {
+            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter + (int) currentPropLength));
+        } else {
+            deserialisedObject = serialiser.deserialiseEmpty();
+        }
+        return deserialisedObject;
+    }
+
+    private boolean isNotEmpty(final Value value) {
+        return value != null && value.getSize() != 0;
+    }
+
+    private long getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) {
+        final byte[] length = new byte[numBytesForLength];
+        System.arraycopy(bytes, pos, length, 0, numBytesForLength);
+
+        try {
+            return CompactRawSerialisationUtils.readLong(length);
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException("Exception reading length of property", e);
+        }
     }
 
 }
