@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.time.serialisation;
 import com.yahoo.memory.NativeMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -85,7 +86,14 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
             if (NOT_FULL == state) {
                 final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(bucket);
                 final RoaringBitmap rbm = new RoaringBitmap();
-                rbm.deserialize(dis);
+                final byte[] serialisedRBM = new byte[bais.available()];
+                if (-1 == dis.read(serialisedRBM)) {
+                    throw new SerialisationException("Unexpected end of stream when reading serialised RoaringBitmap");
+                }
+                final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM);
+                final ByteArrayInputStream baisConvertedBytes = new ByteArrayInputStream(convertedBytes);
+                final DataInputStream disConvertedBytes = new DataInputStream(baisConvertedBytes);
+                rbm.deserialize(disConvertedBytes);
                 rbmBackedTimestampSet.setRbm(rbm);
                 boundedTimestampSet.setRBMBackedTimestampSet(rbmBackedTimestampSet);
             } else if (SAMPLE == state) {
