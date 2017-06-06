@@ -35,6 +35,9 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
+import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.impl.predicate.Not;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -101,10 +104,12 @@ public class GraphConfigurationServiceTest {
     @Test
     public void shouldGetFilterFunctionsWithInputClass() throws IOException {
         // When
-        final Set<Class> classes = service.getFilterFunctions(String.class.getName());
+        final Set<Class> classes = service.getFilterFunctions(Long.class.getName());
 
         // Then
-        assertThat(classes, IsCollectionContaining.hasItem(IsA.class));
+        assertThat(classes, IsCollectionContaining.hasItem(IsLessThan.class));
+        assertThat(classes, IsCollectionContaining.hasItem(IsMoreThan.class));
+        assertThat(classes, IsCollectionContaining.hasItem(Not.class));
     }
 
     @Test
