@@ -28,9 +28,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-/**
- *
- */
 public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBackedTimestampSet> {
     private static final long serialVersionUID = -5820977643949438174L;
 

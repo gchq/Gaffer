@@ -139,7 +139,7 @@ public class RBMBackedTimestampSetTest {
 
         // Then
         assertEquals(datesTruncatedToBucket.size(), instants.size());
-        final Iterator it = instants.iterator();
+        final Iterator<Instant> it = instants.iterator();
         for (final long l : datesTruncatedToBucket) {
             assertEquals(Instant.ofEpochMilli(CommonTimeUtil.timeToBucket(l, bucket)), it.next());
         }
