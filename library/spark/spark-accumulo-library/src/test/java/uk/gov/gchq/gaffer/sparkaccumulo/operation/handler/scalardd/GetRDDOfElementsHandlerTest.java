@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -377,7 +378,7 @@ public class GetRDDOfElementsHandlerTest {
         sparkContext.stop();
     }
 
-    @Test(expected = java.lang.IllegalArgumentException.class)
+    @Test
     public void testNoSparkContext() throws OperationException {
         final Graph graph1 = new Graph.Builder()
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
@@ -392,7 +393,12 @@ public class GetRDDOfElementsHandlerTest {
                         .edge(EDGE_GROUP)
                         .build())
                 .build();
-        graph1.execute(rddQuery, user);
+        try {
+            graph1.execute(rddQuery, user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
 }
