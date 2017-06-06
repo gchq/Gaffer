@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time.serialisation;
 
 import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -28,6 +29,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * A <code>RBMBackedTimestampSetSerialiser</code> serialises a {@link RBMBackedTimestampSet} to an array of bytes.
+ */
 public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBackedTimestampSet> {
     private static final long serialVersionUID = -5820977643949438174L;
 
@@ -65,7 +69,15 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
         final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(bucket);
         final RoaringBitmap rbm = new RoaringBitmap();
         try {
-            rbm.deserialize(dis);
+            final byte[] serialisedRBM = new byte[dis.available()];
+            if (-1 == dis.read(serialisedRBM)) {
+                throw new SerialisationException("Unexpected end of stream when reading serialised RoaringBitmap");
+            }
+            // Deal with different versions of RoaringBitmap
+            final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM);
+            final ByteArrayInputStream baisConvertedBytes = new ByteArrayInputStream(convertedBytes);
+            final DataInputStream disConvertedBytes = new DataInputStream(baisConvertedBytes);
+            rbm.deserialize(disConvertedBytes);
         } catch (final IOException e) {
             throw new SerialisationException("IOException deserialising RoaringBitmap from byte array", e);
         }
