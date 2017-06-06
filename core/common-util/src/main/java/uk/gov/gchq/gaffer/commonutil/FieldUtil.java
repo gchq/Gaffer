@@ -19,11 +19,20 @@ package uk.gov.gchq.gaffer.commonutil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
 
+/**
+ * Utility methods for a field
+ */
 public final class FieldUtil {
     private FieldUtil() {
 
     }
 
+    /**
+     * Checks the second value of a @Pair is not null
+     *
+     * @param fields the fields to validate
+     * @return a validationResult
+     */
     public static ValidationResult validateRequiredFields(final Pair... fields) {
         final ValidationResult validationResult = new ValidationResult();
         for (final Pair field : fields) {
