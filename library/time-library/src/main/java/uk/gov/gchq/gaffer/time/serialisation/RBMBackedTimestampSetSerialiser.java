@@ -62,17 +62,14 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
         if (0 == bytes.length) {
             return null;
         }
-        final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-        final DataInputStream dis = new DataInputStream(bais);
-        final int bucketInt = (int) CompactRawSerialisationUtils.read(dis);
+        final int bucketInt = (int) CompactRawSerialisationUtils.readLong(bytes);
+        final int numBytesForInt = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]);
         final TimeBucket bucket = TimeBucket.values()[bucketInt];
         final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(bucket);
         final RoaringBitmap rbm = new RoaringBitmap();
         try {
-            final byte[] serialisedRBM = new byte[dis.available()];
-            if (-1 == dis.read(serialisedRBM)) {
-                throw new SerialisationException("Unexpected end of stream when reading serialised RoaringBitmap");
-            }
+            final byte[] serialisedRBM = new byte[bytes.length - numBytesForInt];
+            System.arraycopy(bytes, numBytesForInt, serialisedRBM, 0, serialisedRBM.length);
             // Deal with different versions of RoaringBitmap
             final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM);
             final ByteArrayInputStream baisConvertedBytes = new ByteArrayInputStream(convertedBytes);
