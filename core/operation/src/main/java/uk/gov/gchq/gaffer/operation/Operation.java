@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -78,6 +79,16 @@ public interface Operation extends Closeable {
         // do nothing by default
     }
 
+    /**
+     * Validates an operation. This should be used to validate that fields have been be configured correctly.
+     * By default no validation is applied. Override this method to implement validation.
+     *
+     * @return validation result.
+     */
+    default ValidationResult validate() {
+        return new ValidationResult();
+    }
+
     interface Builder<OP, B extends Builder<OP, ?>> {
         OP _getOp();
 
@@ -110,6 +121,7 @@ public interface Operation extends Closeable {
         public B _self() {
             return (B) this;
         }
+
     }
 }
 
