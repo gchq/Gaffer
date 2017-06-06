@@ -75,7 +75,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // plus one for the direction flag at the end.
         final int length = source.length + destination.length + 3;
         final byte[] rowKey1 = new byte[length];
-        final byte[] rowKey2 = new byte[length];
+        final byte[] rowKey2;
 
         // Create first key: source DELIMITER destination
         // DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
@@ -85,18 +85,20 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
         rowKey1[rowKey1.length - 1] = directionFlag1;
 
-        // Create second key: destination DELIMITER source
-        // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        System.arraycopy(destination, 0, rowKey2, 0, destination.length);
-        rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(source, 0, rowKey2, destination.length + 1, source.length);
-        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[rowKey2.length - 1] = directionFlag2;
 
         // Is this a self-edge? If so then return null for the second rowKey as
         // we don't want the same edge to go into Accumulo twice.
         if (selfEdge(edge)) {
-            return new Pair<>(rowKey1, null);
+            rowKey2 = null;
+        } else {
+            rowKey2 = new byte[length];
+            // Create second key: destination DELIMITER source
+            // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
+            System.arraycopy(destination, 0, rowKey2, 0, destination.length);
+            rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
+            System.arraycopy(source, 0, rowKey2, destination.length + 1, source.length);
+            rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
+            rowKey2[rowKey2.length - 1] = directionFlag2;
         }
         return new Pair<>(rowKey1, rowKey2);
     }
