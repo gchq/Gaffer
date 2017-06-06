@@ -16,10 +16,11 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
-import org.apache.jcs.JCS;
-import org.apache.jcs.access.exception.CacheException;
-import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
-import org.apache.jcs.engine.control.CompositeCache;
+import org.apache.commons.jcs.JCS;
+import org.apache.commons.jcs.access.GroupCacheAccess;
+import org.apache.commons.jcs.access.exception.CacheException;
+import org.apache.commons.jcs.engine.behavior.ICompositeCacheAttributes;
+import org.apache.commons.jcs.engine.control.CompositeCache;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Set;
 
 public class JcsCache <K, V> implements ICache<K, V> {
 
-    private final JCS cache;
+    private final GroupCacheAccess<K, V> cache;
     private final String groupName;
 
     public JcsCache(final CompositeCache cache) throws CacheException {
@@ -37,7 +38,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
 
     private JcsCache(final String cacheName, final ICompositeCacheAttributes attr) throws CacheException {
         this.groupName = cacheName;
-        this.cache = JCS.getInstance(cacheName, attr);
+        this.cache = JCS.getGroupCacheInstance(cacheName, attr);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
 
     @Override
     public void remove(final K key) {
-        cache.remove(key, groupName);
+        cache.removeFromGroup(key, groupName);
     }
 
     @Override

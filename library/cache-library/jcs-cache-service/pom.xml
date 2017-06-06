@@ -35,8 +35,8 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.jcs</groupId>
-            <artifactId>jcs</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs-core</artifactId>
             <version>${jcs.version}</version>
         </dependency>
     </dependencies>
