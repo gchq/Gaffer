@@ -57,7 +57,7 @@ public class RawDateSerialiserTest extends ToByteSerialisationTest<Date> {
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        Date now = new Date();
+        Date now = new Date(1L);
         Date aDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000L);
         assertTrue(compare(serialiser.serialise(now), serialiser.serialise(aDayLater)) < 0);
     }
