@@ -31,6 +31,17 @@ import java.io.IOException;
 
 /**
  * A <code>RBMBackedTimestampSetSerialiser</code> serialises a {@link RBMBackedTimestampSet} to an array of bytes.
+ *
+ * <p>The following figures illustrate the serialised size of some {@link RBMBackedTimestampSet}s with different
+ * numbers of timestamps added and different time buckets:
+ * <ul>
+ *     <li> When the time bucket is a minute and 100 random minutes from a single day are added then the serialised
+ *     size is 211 bytes.
+ *     <li> When the time bucket is a minute and every minute in a single year is added then the serialised size is
+ *     73809 bytes.
+ *     <li> When the time bucket is a second and every second in a single year is added then the serialised size is
+ *     3952409 bytes.
+ * </ul>
  */
 public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBackedTimestampSet> {
     private static final long serialVersionUID = -5820977643949438174L;
