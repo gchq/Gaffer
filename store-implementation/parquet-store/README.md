@@ -1,0 +1,411 @@
+Copyright 2017 Crown Copyright
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+# Parquet Store User Guide
+
+1. [Introduction](./README.md#introduction)
+2. [Use cases](./README.md#use-cases)
+3. [Properties file](./README.md#properties-file)
+4. [Schema](./README.md#schema)
+5. [Inserting data](./README.md#inserting-data)
+6. [Queries](./README.md#queries)
+7. [Troubleshooting](./README.md#troubleshooting)
+8. [Implementation details](./README.md#implementation-details)
+   - [Graph folder structure](./README.md#graph-folder-structure)
+   - [High level operations process](./README.md#high-level-operations-process)
+
+## Introduction
+
+Gaffer contains a store implemented using Apache Parquet version 1.8.1. This offers the following functionality:
+- A scalable data store of edges and entities;
+- A very compact data store using a columnar file format;
+- Fast full scan and random access queries from the same data source even at TB scales assuming that files get stored in HDFS;
+- Flexible query time filtering of data;
+- Integration with Apache Spark to allow Gaffer data stored in Parquet to be analysed as a `Dataframe`;
+- User-configured persistent aggregation of properties for the same vertices and edges;
+- The ability to split vertices into multiple columns of data (using classes that implement `ParquetSerialisation` if 
+default serialiser's are not suitable);
+- The ability to store properties as nested columns or multiple columns (again using classes that implement 
+`ParquetSerialisation` if default serialiser's are not suitable).
+
+## Use cases
+Gaffer's `ParquetStore` is particularly well suited to graphs with lots of properties on the vertices and 
+edges where you want to perform both, full table scans and random access queries on the data. While the graph is mutable
+it is not recommend as a store for regularly adding elements to as Parquet files are immutable which means each time you 
+add new elements, all the data has to be read and reprocessed to generate the new files.
+
+An example use case would be applying a Page Rank algorithm against yesterday's data. Or another use of the `ParquetStore` 
+would be as part of a hybrid system where you use a Gaffer store that can handle the streaming of data 
+and then overnight you take a snapshot of that data and write it into a `ParquetStore` to benefit from the 
+smaller storage requirements and fast full scan capabilities while maintaining fast random access.
+
+## Properties file
+While the `ParquetStoreProperties` has sensible defaults for all the exposed parameters for data sets of the order of 
+10GB - 500GB, users may want to tune these properties to suit their data.
+- `spark.master`: The string that sets what mode to run spark in. By default, if Spark is installed on the machine it 
+will use Spark's defaults, otherwise it will run in local mode using all available threads;
+- `parquet.data.dir`: The file path to save the graph files under, by default this will be a relative path 
+\<current path\>/parquet_data;
+- `parquet.temp_data.dir`: The file path to save the temporary graph files under, by default this will be a relative path 
+  \<current path\>/.gaffer/temp_parquet_data. Warning this directory will automatically be deleted at the start and end 
+  of any `AddElements` operation;
+- `parquet.add_elements.threadsAvailable`: The number of threads to make available to the `AddElements` operations to 
+increase the parallelism, by default this is set to 3 which will provide maximum parallelism when adding a single Gaffer group;
+- `parquet.add_elements.row_group.size`: This just exposes the Parquet file format parameter controlling the maximum row 
+group size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more 
+information. By default this is set to 4MB;
+- `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and 
+dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) 
+for more information. By default this is set to 1MB;
+- `parquet.add_elements.batch.size`: This is the maximum file size in bytes of the temporary files. By default this is set to 1GB;
+- `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group.
+By default this is set to 100 files.
+
+A complete Gaffer properties file using a `ParquetStore` will look like:
+
+```
+gaffer.store.class=uk.gov.gchq.gaffer.parquetstore.ParquetStore
+gaffer.store.properties.class=uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties
+spark.master=yarn
+parquet.data.dir=/User/me/my_gaffer_parquet_store
+parquet.temp_data_dir=/tmp/my_gaffer_parquet_store_tmp
+parquet.add_elements.threadsAvailable=9
+parquet.add_elements.row_group.size=1073741824
+parquet.add_elements.page.size=4194304
+parquet.add_elements.batch.size=4294967296
+parquet.add_elements.output_files_per_group=2
+```
+
+Note that apart from the first two lines which are required by Gaffer so it knows which store to use, the rest of the 
+lines are optional.
+
+## Schema
+See [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started.md) for details of how to write a schema that 
+tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can 
+be created using:
+
+```
+Graph graph = new Graph.Builder()
+      .addSchemas(schemas)
+      .storeProperties(storeProperties)
+      .build();
+```
+Note that the `ParquetStore` currently does not make use of the `visibilityProperty` or `timestampProperty`. Also to get the 
+best performance you should allow Gaffer to detect the best serialiser or provide a serialiser class that implements 
+`ParquetSerialisation`.
+
+## Inserting data
+
+The `ParquetStore` has two ways in which you can insert data into the graph. The first method is via the standard Gaffer 
+`AddElements` operation which allows data to be inserted from a Java `Iterable` which is not infinitely long, as the data 
+is not queryable until the iterable has been completely consumed. 
+
+```
+AddElements addElements = new AddElements.Builder()
+        .elements(elements)
+        .build();
+graph.execute(addElements, new User());
+```
+
+The other allows users to import data directly from an `RDD<Element>` using the `ImportRDDOfElements` operation.
+
+```
+RDD<Element> elements = getElements();
+AddElementsFromRDD addElements = new ImportRDDOfElements.Builder().input(elements).build();
+graph.execute(addElements, new User());
+```
+
+Inserting the data via the `ImportRDDOfElements` operation will be the faster of the two methods.
+
+## Queries
+
+The `ParquetStore` currently supports most of the [standard Gaffer queries](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Operation-examples) 
+as well as the [standard Spark queries](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Spark-operation-examples). 
+
+The operations that are not currently supported are:
+- `GetAdjacentEntitySeeds`
+- `GetJavaRDDOfAllElements`
+- `GetJavaRDDOfElements`
+- `GetRDDOfAllElements`
+- `GetRDDOfElements`
+
+The current limitations on the queries are based on the Gaffer View's that you can set, see [Getting started guide](https://github.com/gchq/Gaffer/wiki/Getting-Started#filtering)
+Currently those limitations are:
+- Query time aggregation is not supported;
+- Transformations are not supported;
+- Only the preAggregationFilter's will be applied;
+- The best Gaffer filters to use are those listed below which translate well to Parquet filters, which means they can be 
+pushed down to the file readers. Other filters can be used but will take longer to run:
+  - `IsEqual`
+  - `IsLessThan`
+  - `IsMoreThan`
+  - `IsTrue`
+  - `IsFalse`
+  - `And`
+  - `Or`
+  - `Not`
+
+## Writing a custom serialiser
+
+For the `ParquetStore` to be able to make the most out of the Parquet file format, it needs to know how to convert a Java 
+object into primitive Java types that Parquet knows how to make the most of. Rather than using Gaffer's serialisers 
+which will convert everything to bytes, which Parquet can use, however you can get better performance by using other 
+primitives where possible.
+
+A simple example which is already part of the default serialisers, is a serialiser for `Long` objects. The 
+`ParquetSerialiser` interface has three methods that need to be implemented.
+
+```
+public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
+
+    /**
+     * This method provides the user a way of specifying the Parquet schema for this object. Note that the
+     * root of this schema must be have the same name as the input colName
+     *
+     * @param colName The column name as a String as seen in the Gaffer schema that this object is from
+     * @return A String representation of the part of the Parquet schema that this object will be stored as
+     */
+    String getParquetSchema(final String colName);
+
+    /**
+     * This method provides the user a way of specifying how to convert a Plain Old Java Object (POJO)
+     * into the Parquet primitive types
+     *
+     * @param object The POJO that you will convert to Parquet primitives
+     * @return An object array of Parquet primitives, if this serialiser is used as the vertex serialiser
+     * then the order of the objects will determine the sorting order
+     * @throws SerialisationException If the POJO fails to be converted to ParquetObjects then this will be thrown
+     */
+    @Override
+    Object[] serialise(final INPUT object) throws SerialisationException;
+
+    /**
+     * This method provides the user a way of specifying how to recreate the Plain Old Java Object (POJO)
+     * from the Parquet primitive types
+     *
+     * @param objects An object array of Parquet primitives
+     * @return The POJO that you have recreated from the Parquet primitives
+     * @throws SerialisationException If the ParquetObjects fails to be converted to a POJO then this will be thrown
+     */
+    @Override
+    INPUT deserialise(final Object[] objects) throws SerialisationException;
+}
+```
+
+Therefore to simply store this object as a long you would have the following class as your serialiser, where the last 
+five methods are required by Gaffer's Serialisation interface but only the first one is used by the `ParquetStore`:
+
+```
+public class LongParquetSerialiser implements ParquetSerialiser<Long> {
+
+    private static final long serialVersionUID = 1336116011156359680L;
+
+    @Override
+    public String getParquetSchema(final String colName) {
+        return "optional int64 " + colName + ";";
+    }
+
+    @Override
+    public Object[] serialise(final Long object) throws SerialisationException {
+        final Object[] parquetObjects = new Object[1];
+        parquetObjects[0] = object;
+        return parquetObjects;
+    }
+
+    @Override
+    public Long deserialise(final Object[] objects) throws SerialisationException {
+        if (objects.length == 1 && objects[0] instanceof Long) {
+            return (Long) objects[0];
+        }
+        return null;
+    }
+
+    @Override
+    public Long deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public Object[] serialiseNull() {
+        return new Object[0];
+    }
+
+    @Override
+    public boolean canHandle(final Class clazz) {
+        return Long.class.equals(clazz);
+    }
+}
+```
+
+An example of a more complex serialiser where it is preferable to store the Java object in multiple columns is with a 
+`HyperLogLogPlus` sketch. The reason for this is because having to deserialise the object from bytes will take longer 
+than reading a long that represents the cardinality, however you still need to be able to get back the `HyperLogLogPlus` 
+object to be able to aggregate the property. Therefore the `HyperLogLogPlus` sketch serialiser which would look like:
+
+```
+public class HyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
+
+    private static final long serialVersionUID = -898356489062346070L;
+
+    @Override
+    public String getParquetSchema(final String colName) {
+        return "optional binary " + colName + "_raw_bytes;\n" +
+                "optional int64 " + colName + "_cardinality;";
+    }
+
+    @Override
+    public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
+        try {
+            if (object != null) {
+                final Object[] parquetObjects = new Object[2];
+                parquetObjects[0] = object.getBytes();
+                parquetObjects[1] = object.cardinality();
+                return parquetObjects;
+            }
+        } catch (IOException e) {
+            throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");
+        }
+        return new Comparable[0];
+    }
+
+    @Override
+    public HyperLogLogPlus deserialise(final Object[] objects) throws SerialisationException {
+        try {
+            if (objects.length == 2 && objects[0] instanceof byte[]) {
+                return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+            }
+        } catch (IOException e) {
+            throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
+        }
+        return null;
+    }
+
+    @Override
+    public HyperLogLogPlus deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
+    public Object[] serialiseNull() {
+        return new Object[0];
+    }
+
+    @Override
+    public boolean canHandle(final Class clazz) {
+        return HyperLogLogPlus.class.equals(clazz);
+    }
+}
+```
+
+We have seen that the Parquet serialiser can split an object into multiple columns. If however the serialiser is only to 
+be used for properties on an Element, then you could simply change the Parquet schema to make it store that object in a 
+tree structure using Parquet's nested columns. An example of this for the HyperLogLogPlus sketch is:
+
+```
+public String getParquetSchema(final String colName) {
+    return "optional group " + colName + " {\n" +
+            "\toptional binary raw_bytes;\n" +
+            "\toptional int64 cardinality;\n" +
+            "}";
+}
+```
+
+It is also worth noting that the order of the `Object[]` created by the `getParquetObjectsFromPOJO` method and used by the
+`getPOJOFromObjects` method should match the ordering of the leaf nodes in the Parquet schema, so in the example the 
+raw_bytes is first and the cardinality is second.
+
+## Troubleshooting
+
+When trying to filter a column you get `store.schema.ViewValidator ERROR  - No class type found for transient property 
+property8.cardinality. Please ensure it is defined in the view.` If the column you are filtering on is actually a Gaffer 
+column split ito many columns or nested columns then your `View` will need to specify the column as a transient property.
+
+For example to filter the "HLLP" property of type `HyperLogLogPlus` which has been serialised using the 
+`InLineHyperLogLogPlusParquetSerialiser`:
+```
+View view = new View.Builder()
+                .entity("BasicEntity",
+                        new ViewElementDefinition.Builder()
+                        .preAggregationFilter(
+                            new ElementFilter.Builder()
+                            .select("HLLP_cardinality")
+                            .execute(new IsMoreThan(2L, false))
+                            .build())
+                        .transientProperty("HLLP_cardinality", Long.class)
+                        .build())
+                .build();
+```
+If you had used the `NestedHyperLogLogPlusParquetSerialiser` then you can replace the "HLLP_cardinality" with "HLLP.cardinality"
+
+## Implementation details
+
+This section contains brief details on the implementation of the `ParquetStore`. The first part shows the high level 
+folder structure of how the data is stored. The second part gives the high level process that the two main operations follow.
+
+### Graph folder structure
+
+Assuming we had an `Entity` group called "BasicEntity" and an `Edge` group called "BasicEdge" then the folder structure 
+would look like: 
+
+```
+parquet_data
+`-- <A long representing the number of milliseconds since epoch at which the data was written>
+    |-- graph
+    |   |-- GROUP=BasicEdge
+    |   |   |-- _index
+    |   |   `-- part-00000.gz.parquet
+    |   `-- GROUP=BasicEntity
+    |       |-- _index
+    |       `-- part-00000.gz.parquet
+    `-- reverseEdges
+        `-- GROUP=BasicEdge
+            |-- _index
+            `-- part-00000.gz.parquet
+```
+
+The root directory has two folders, one for the main graph which is what is returned when a `GetAllElements` operation is 
+executed and the other is a reverseEdges folder. The reverseEdges folder is there to store all the Edge groups data again 
+but this time the data is sorted by the destination, allowing for quick random access for seeds equal to the destination 
+of an edge.
+
+### High level operations process
+
+The main two operations are the `AddElements` and the `GetElements`.
+
+The `AddElements` operation can be thought of as a 4 stage process. 
+1. Copy the previous latest store files into the temporary files directory;
+2. Write the unsorted data split by group and `Element` type into Parquet files using the `AvroParquetWriter` into the 
+temporary files directory;
+3. Using Spark, sort and aggregate the data in the temporary files directory on a per group, per `Element` type basis;
+4. Generate an index containing the range of vertices in each file and load that into memory.
+
+
+The `GetElements` operation can also be thought of as a 4 stage process per group.
+1. From the Gaffer view build up a corresponding Parquet filter;
+2. For each seed, build up a file path to Parquet filter map. This is done by using the index to determine which files 
+will contain which seeds;
+3. If the query has seeds then for each filter in the path to filter map add in the group filter built in the first stage;
+4. Using the path to filter map build an `Iterable` that will iterate through the required files applying only the 
+relevant filters for that file.
+

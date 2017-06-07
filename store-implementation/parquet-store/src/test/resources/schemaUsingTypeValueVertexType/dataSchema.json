@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "vertex.typevalue",
+      "properties": {
+        "property1": "simpleByteProperty",
+        "property2": "simpleDoubleProperty",
+        "property3": "simpleFloatProperty",
+        "property4": "HyperLogLogPlus.inline",
+        "property5": "simpleLongProperty",
+        "property6": "simpleShortProperty",
+        "property7": "simpleDateProperty",
+        "property8": "HyperLogLogPlus.nested",
+        "count": "simpleIntProperty"
+      },
+      "groupBy": [
+        "property7"
+      ]
+    },
+    "BasicEntity2": {
+      "vertex": "vertex.typevalue",
+      "properties": {
+        "property1": "simpleByteProperty",
+        "property2": "simpleDoubleProperty",
+        "property3": "simpleFloatProperty",
+        "property4": "HyperLogLogPlus.inline",
+        "property5": "simpleLongProperty",
+        "property6": "simpleShortProperty",
+        "property7": "simpleDateProperty",
+        "property8": "HyperLogLogPlus.nested",
+        "count": "simpleIntProperty"
+      }
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "vertex.typevalue",
+      "destination": "vertex.typevalue",
+      "directed": "directed.either",
+      "properties": {
+        "property1": "simpleByteProperty",
+        "property2": "simpleDoubleProperty",
+        "property3": "simpleFloatProperty",
+        "property4": "HyperLogLogPlus.inline",
+        "property5": "simpleLongProperty",
+        "property6": "simpleShortProperty",
+        "property7": "simpleDateProperty",
+        "property8": "HyperLogLogPlus.nested",
+        "count": "simpleIntProperty"
+      },
+      "groupBy": [
+        "property7"
+      ]
+    },
+    "BasicEdge2": {
+      "source": "vertex.typevalue",
+      "destination": "vertex.typevalue",
+      "directed": "directed.either",
+      "properties": {
+        "property1": "simpleByteProperty",
+        "property2": "simpleDoubleProperty",
+        "property3": "simpleFloatProperty",
+        "property4": "HyperLogLogPlus.inline",
+        "property5": "simpleLongProperty",
+        "property6": "simpleShortProperty",
+        "property7": "simpleDateProperty",
+        "property8": "HyperLogLogPlus.nested",
+        "count": "simpleIntProperty"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "types": {
+    "simpleByteProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    },
+    "simpleDoubleProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleIntProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleFloatProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser"
+    },
+    "HyperLogLogPlus.nested": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
+      },
+      "serialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.NestedHyperLogLogPlusParquetSerialiser"
+    },
+    "HyperLogLogPlus.inline": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
+      }
+    },
+    "simpleLongProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleShortProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "simpleDateProperty": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Max"
+      }
+    }
+  }
+}
