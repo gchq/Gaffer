@@ -57,7 +57,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     
     @BeforeClass
     public static void genData() throws OperationException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         getGraph().execute(new AddElements.Builder().input(getElements()).build(), USER);
     }
 

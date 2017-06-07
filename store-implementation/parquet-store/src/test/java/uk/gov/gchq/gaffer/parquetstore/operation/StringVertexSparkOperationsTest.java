@@ -41,7 +41,7 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
 
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         final ParquetStore store = getParquetStore();
         getGraph(store).execute(new ImportRDDOfElements.Builder().input(getElements(spark)).build(), USER);
     }

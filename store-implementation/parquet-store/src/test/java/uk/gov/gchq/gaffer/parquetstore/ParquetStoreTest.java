@@ -34,7 +34,7 @@ public class ParquetStoreTest {
 
     @Test
     public void testTraits() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         final ParquetStore store = new ParquetStore();
         final Set<StoreTrait> expectedTraits = new HashSet<>();
         expectedTraits.add(StoreTrait.INGEST_AGGREGATION);

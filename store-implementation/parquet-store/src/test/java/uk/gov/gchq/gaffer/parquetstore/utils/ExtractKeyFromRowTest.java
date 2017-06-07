@@ -50,7 +50,7 @@ public class ExtractKeyFromRowTest {
     private SchemaUtils utils;
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         this.groupByColumns = new LinkedHashSet<>();
         groupByColumns.add("property2");
         groupByColumns.add("property7");

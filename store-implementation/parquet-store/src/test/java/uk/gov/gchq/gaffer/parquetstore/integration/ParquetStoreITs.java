@@ -22,6 +22,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.AggregationIT;
@@ -48,6 +49,11 @@ import java.io.IOException;
  */
 public class ParquetStoreITs extends AbstractStoreITs {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
+
+    @BeforeClass
+    public static void setup() {
+        Logger.getRootLogger().setLevel(Level.WARN);
+    }
 
     @AfterClass
     public static void cleanUp() throws IOException {

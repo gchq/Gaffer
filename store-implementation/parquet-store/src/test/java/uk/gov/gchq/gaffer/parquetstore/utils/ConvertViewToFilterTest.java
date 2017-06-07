@@ -39,7 +39,7 @@ public class ConvertViewToFilterTest {
 
     @Before
     public void setUp() throws StoreException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),

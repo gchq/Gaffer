@@ -41,7 +41,7 @@ public class ParquetFileIteratorTest {
 
     @Before
     public void setUp() throws IOException {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         final ParquetStoreProperties pp = new ParquetStoreProperties();
         this.rootDir = pp.getTempFilesDir();
         this.fs = FileSystem.get(new Configuration());

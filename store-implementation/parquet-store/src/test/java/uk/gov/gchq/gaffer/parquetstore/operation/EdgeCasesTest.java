@@ -68,7 +68,7 @@ public class EdgeCasesTest {
 
     @BeforeClass
     public static void setup() {
-        org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
+        org.apache.log4j.Logger.getRootLogger().setLevel(Level.WARN);
     }
 
     @AfterClass

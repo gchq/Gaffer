@@ -32,7 +32,7 @@ public class ParquetStorePropertiesTest {
 
     @Before
     public void setUp() throws Exception {
-        Logger.getRootLogger().setLevel(Level.INFO);
+        Logger.getRootLogger().setLevel(Level.WARN);
         this.props = new ParquetStoreProperties();
     }
 
