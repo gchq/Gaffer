@@ -127,16 +127,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 final String propertyName = propertyNames.next();
                 try {
                     if (isStoredInValue(propertyName, elementDefinition)) {
-                        final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                        if (typeDefinition != null) {
-                            ToBytesSerialiser serialiser = (ToBytesSerialiser) typeDefinition.getSerialiser();
-                            if (serialiser != null) {
-                                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
-                                final int currentPropLength = (int) getCurrentPropLength(bytes, carriage, numBytesForLength);
-                                Object deserialisedObject = getDeserialisedObject(serialiser, bytes, carriage += numBytesForLength, carriage += currentPropLength);
-                                properties.put(propertyName, deserialisedObject);
-                            }
-                        }
+                        carriage = addDeserialisedProperty(bytes, carriage, properties, elementDefinition, propertyName);
                     }
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
@@ -281,32 +272,35 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public Properties getPropertiesFromColumnQualifier(final String group, final byte[] bytes) {
-        final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
-
         final Properties properties = new Properties();
         if (bytes != null && bytes.length != 0) {
             int carriage = 0;
             final int arrayLength = bytes.length;
+            final SchemaElementDefinition elementDefinition = getSchemaElementDefinition(group);
             final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
             while (propertyNames.hasNext() && carriage < arrayLength) {
                 final String propertyName = propertyNames.next();
                 try {
-                    final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                    final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
-                    if (null != serialiser) {
-                        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
-                        int currentPropLength = (int) getCurrentPropLength(bytes, carriage, numBytesForLength);
-                        carriage += numBytesForLength;
-                        Object deserialisedObject = getDeserialisedObject(serialiser, bytes, carriage, carriage + currentPropLength);
-                        properties.put(propertyName, deserialisedObject);
-                        carriage += currentPropLength;
-                    }
+                    carriage = addDeserialisedProperty(bytes, carriage, properties, elementDefinition, propertyName);
                 } catch (final SerialisationException e) {
                     throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                 }
             }
         }
         return properties;
+    }
+
+    private int addDeserialisedProperty(final byte[] bytes, final int carriage, final Properties properties, final SchemaElementDefinition elementDefinition, final String propertyName) throws SerialisationException {
+        int rtn = carriage;
+        final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
+        final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
+        if (serialiser != null) {
+            final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[rtn]);
+            final int currentPropLength = (int) getCurrentPropLength(bytes, rtn, numBytesForLength);
+            Object deserialisedObject = getDeserialisedObject(serialiser, bytes, rtn += numBytesForLength, rtn += currentPropLength);
+            properties.put(propertyName, deserialisedObject);
+        }
+        return rtn;
     }
 
     @Override
