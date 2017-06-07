@@ -297,10 +297,8 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                         final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
                         int currentPropLength = (int) getCurrentPropLength(bytes, carriage, numBytesForLength);
                         carriage += numBytesForLength;
-                        if (currentPropLength > 0) {
-                            Object deserialisedObject = getDeserialisedObject(serialiser, bytes, carriage, carriage + currentPropLength);
-                            properties.put(propertyName, deserialisedObject);
-                        }
+                        Object deserialisedObject = getDeserialisedObject(serialiser, bytes, carriage, carriage + currentPropLength);
+                        properties.put(propertyName, deserialisedObject);
                         carriage += currentPropLength;
                     }
                 } catch (final SerialisationException e) {
