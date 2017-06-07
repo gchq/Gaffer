@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.handler.scalardd;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
@@ -40,9 +44,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class GetRDDOfElementsHandlerTest {
 
@@ -375,6 +376,29 @@ public class GetRDDOfElementsHandlerTest {
         assertEquals(expectedElements, results);
 
         sparkContext.stop();
+    }
+
+    @Test
+    public void testNoSparkContext() throws OperationException {
+        final Graph graph1 = new Graph.Builder()
+                .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
+                .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
+                .storeProperties(getClass().getResourceAsStream("/store.properties"))
+                .build();
+        final User user = new User();
+        GetRDDOfElements rddQuery = new GetRDDOfElements.Builder()
+                .input(new EdgeSeed("1", "B", false))
+                .view(new View.Builder()
+                        .edge(EDGE_GROUP)
+                        .build())
+                .build();
+        try {
+            graph1.execute(rddQuery, user);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
 }

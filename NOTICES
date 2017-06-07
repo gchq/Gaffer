@@ -45,7 +45,7 @@ Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
 
 - Apache License, Version 2.0
 
-Apache Commons JCS (org.apache.jcs:jcs:1.3):
+Apache Commons JCS (org.apache.commons:commons-jcs-core:2.0):
 
 - Apache Licence, Version 2.0
 

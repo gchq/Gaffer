@@ -34,7 +34,7 @@ public class NamedOperationCache {
     private static final String CACHE_NAME = "NamedOperation";
 
     /**
-     * If the user is just adding to the uk.gov.gchq.gaffer.cache, ie the overwrite flag is set to false, then no security is added.
+     * If the user is just adding to the cache, ie the overwrite flag is set to false, then no security is added.
      * However if the user is overwriting the named operation stored in the cache, then their opAuths must be checked
      * against the write roles associated with the {@link NamedOperationDetail}. If it turns out the user is overwriting a
      * non-existent NamedOperationDetail, then the users NamedOperationDetail will be added normally.
@@ -77,7 +77,7 @@ public class NamedOperationCache {
 
     /**
      * Checks whether a {@link User} has write access to the cache. If they do then the NamedOperationDetail and name is
-     * removed from the uk.gov.gchq.gaffer.cache. If they don't or the NamedOperationDetail doesn't exist then an Exception is thrown.
+     * removed from the cache. If they don't or the NamedOperationDetail doesn't exist then an Exception is thrown.
      *
      * @param name The name of the NamedOperationDetail a user would like to delete
      * @param user A {@link User} object that can optionally be used for checking permissions
@@ -102,7 +102,7 @@ public class NamedOperationCache {
      * If the NamedOperationDetail doesn't exist or the User doesn't have permission to read this NamedOperationDetail, then an
      * exception is thrown.
      *
-     * @param name The name of the NamedOperationDetail held in the uk.gov.gchq.gaffer.cache.
+     * @param name The name of the NamedOperationDetail held in the cache.
      * @param user The {@link User} object that is used for checking read permissions.
      * @return NamedOperationDetail
      * @throws CacheOperationFailedException thrown if the NamedOperationDetail doesn't exist or the User doesn't have permission
