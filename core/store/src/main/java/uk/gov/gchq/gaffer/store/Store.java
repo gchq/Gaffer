@@ -374,6 +374,10 @@ public abstract class Store {
         schema = schemaOptimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
     }
 
+    public void optimiseSchema(final SchemaOptimiser optimiser) {
+        schema = optimiser.optimise(schema, hasTrait(StoreTrait.ORDERED));
+    }
+
     public void validateSchemas() {
         final ValidationResult validationResult = new ValidationResult();
         if (null == schema) {

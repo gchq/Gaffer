@@ -74,6 +74,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -82,6 +83,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -136,6 +138,7 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
+        super.optimiseSchema(createSchemaOptimiser(new AccumuloSerialisationFactory()));
     }
 
     /**
@@ -368,4 +371,9 @@ public class AccumuloStore extends Store {
     public List<String> getTabletServers() throws StoreException {
         return getConnection().instanceOperations().getTabletServers();
     }
+
+    public SchemaOptimiser createSchemaOptimiser(final SerialisationFactory factory) {
+        return new SchemaOptimiser(factory);
+    }
+
 }
