@@ -158,6 +158,18 @@ public abstract class Store {
         addExecutorService();
     }
 
+    public void initialise(final Schema schema, final StoreProperties properties, final SchemaOptimiser schemaOptimiser) throws StoreException {
+        this.schema = schema;
+        this.properties = properties;
+        startCacheServiceLoader(properties);
+        this.jobTracker = createJobTracker(properties);
+
+        optimiseSchema(schemaOptimiser);
+        validateSchemas();
+        addOpHandlers();
+        addExecutorService();
+    }
+
     /**
      * Returns true if the Store can handle the provided trait and false if it cannot.
      *

@@ -129,7 +129,7 @@ public class AccumuloStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        super.initialise(schema, properties);
+        super.initialise(schema, properties, createSchemaOptimiser(new AccumuloSerialisationFactory()));
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -138,7 +138,6 @@ public class AccumuloStore extends Store {
         }
         this.keyPackage.setSchema(getSchema());
         TableUtils.ensureTableExists(this);
-        super.optimiseSchema(createSchemaOptimiser(new AccumuloSerialisationFactory()));
     }
 
     /**
