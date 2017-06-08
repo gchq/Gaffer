@@ -69,7 +69,6 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @Override
     void checkGetDataFrameOfElements(Dataset<Row> data) {
-        data.show();
         assertEquals(18, data.columns().length);
         assertEquals(175L, data.count());
     }

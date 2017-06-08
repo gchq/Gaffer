@@ -103,7 +103,6 @@ public class ExtractKeyFromRowTest {
         h.offer("B");
         final Row row = DataGen.generateEntityRow(this.utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = entityConverter.call(row);
-        System.err.println(results);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("vertex", results.apply(1));
         assertEquals(date, new Date((long) results.apply(2)));
@@ -119,7 +118,6 @@ public class ExtractKeyFromRowTest {
         h.offer("B");
         final Row row = DataGen.generateEdgeRow(this.utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = edgeConverter.call(row);
-        System.err.println(results);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("dst", results.apply(1));
         assertEquals("src", results.apply(2));

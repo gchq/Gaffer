@@ -92,9 +92,6 @@ public class AggregateGafferRowsFunctionTest {
         final GenericRowWithSchema row2 = DataGen.generateEntityRow(this.utils, group, "vertex", (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
         final RawFloatSerialiser floatSerialiser = new RawFloatSerialiser();
-        System.out.println(row1);
-        System.out.println(row2);
-        System.out.println(merged);
         assertEquals(12, merged.size());
         assertEquals(group, merged.apply(0));
         assertEquals("vertex", merged.apply(1));

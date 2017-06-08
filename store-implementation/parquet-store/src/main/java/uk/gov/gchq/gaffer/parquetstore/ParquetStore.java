@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -272,6 +273,7 @@ public class ParquetStore extends Store {
                     index.add(new Tuple3<>(minObjects, maxObjects, indexDir + fileString));
                 }
                 reader.close();
+                index.sort(Comparator.comparing(Tuple3::_3));
                 if (identifier.equals(Constants.DESTINATION)) {
                     this.groupToIndex.put(group + "_reversed", index);
                 } else {
