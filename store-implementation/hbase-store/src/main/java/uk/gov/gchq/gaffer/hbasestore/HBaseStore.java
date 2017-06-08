@@ -48,6 +48,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -56,6 +57,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Collections;
@@ -99,7 +101,7 @@ public class HBaseStore extends Store {
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        super.initialise(schema, properties, createSchemaOptimiser(new HBaseSerialisationFactory()));
         TableUtils.ensureTableExists(this);
     }
 
@@ -200,5 +202,9 @@ public class HBaseStore extends Store {
     @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
+    }
+
+    public SchemaOptimiser createSchemaOptimiser(final SerialisationFactory factory) {
+        return new SchemaOptimiser(factory);
     }
 }
