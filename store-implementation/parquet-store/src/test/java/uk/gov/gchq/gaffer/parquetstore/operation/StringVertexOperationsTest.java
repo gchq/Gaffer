@@ -21,9 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -45,7 +43,7 @@ import uk.gov.gchq.koryphe.impl.predicate.Or;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -123,163 +121,47 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     protected void checkData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src0", "dst0", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src0", "dst0", true, null, null, null, null, null, null, null, 2);
-        for (int i = 0; i < 46; i++) {
+        int counter = 0;
+        while (dataIter.hasNext()) {
             dataIter.next();
+            counter++;
         }
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src9", "dst9", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src9", "dst9", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src0", "dst0", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src0", "dst0", true, null, null, null, null, null, null, null, 2);
-        for (int i = 0; i < 46; i++) {
-            dataIter.next();
-        }
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src9", "dst9", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src9", "dst9", true, null, null, null, null, null, null, null, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert0", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert1", null, null, null, null, null, null, null, 2);
-        for (int i = 0; i < 23; i++) {
-            dataIter.next();
-        }
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", "vert0", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", "vert1", null, null, null, null, null, null, null, 2);
-        for (int i = 0; i < 23; i++) {
-            dataIter.next();
-        }
-        assertFalse(dataIter.hasNext());
+        assertEquals(150, counter);
     }
 
     @Override
     void checkGetSeededElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src13", "dst13", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src2", "dst2", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src13", "dst13", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src2", "dst2", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src5", "dst5", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src5", "dst5", true, null, null, null, null, null, null, null, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert10", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", "vert10", null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src15", "dst15", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src15", "dst15", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src15", "dst15", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src15", "dst15", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src7", "dst7", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", "src7", "dst7", true, null, null, null, null, null, null, null, 2);
-        assertFalse(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
+            dataIter.next();
+            counter++;
+        }
+        assertEquals(18, counter);
     }
 
     @Override
     void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src0", "dst0", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src0", "dst0", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src1", "dst1", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src1", "dst1", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src10", "dst10", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src10", "dst10", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src11", "dst11", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src11", "dst11", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src12", "dst12", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src12", "dst12", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src4", "dst4", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src4", "dst4", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src6", "dst6", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src6", "dst6", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src8", "dst8", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src8", "dst8", true, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src9", "dst9", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src9", "dst9", true, null, null, null, null, null, null, null, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert0", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert1", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert10", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert11", null, null, null, null, null, null, null, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert12", null, null, null, null, null, null, null, 2);
-        assertFalse(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
+            dataIter.next();
+            counter++;
+        }
+        assertEquals(27, counter);
     }
 
     @Override
     void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src5", "dst5", true, null, null, null, null, null, null, null, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", "vert10", null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", false, null, null, null, null, null, null, null, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", "src7", "dst7", true, null, null, null, null, null, null, null, 2);
-        assertFalse(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
+            dataIter.next();
+            counter++;
+        }
+        assertEquals(5, counter);
     }
 }

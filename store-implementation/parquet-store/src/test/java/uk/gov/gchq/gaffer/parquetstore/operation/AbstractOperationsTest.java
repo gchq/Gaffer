@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,14 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
-import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
@@ -42,14 +37,13 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.user.User;
+import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -88,53 +82,6 @@ public abstract class AbstractOperationsTest {
                 fs.delete(dataDir, true);
             }
         }
-    }
-
-    void checkEdge(final Edge edge, final String expectedGroup, final Object expectedSource, final Object expectedDestination,
-                   final boolean expectedIsDirected, final Byte p1, final Double p2, final Float p3, final Long p4,
-                   final Long p5, final Short p6, final Date p7, final Integer count) {
-        assertEquals(expectedGroup, edge.getGroup());
-        assertEquals(expectedSource, edge.getSource());
-        assertEquals(expectedDestination, edge.getDestination());
-        assertEquals(expectedIsDirected, edge.isDirected());
-        checkProperties(edge.getProperties(), p1, p2, p3, p4, p5, p6, p7, count);
-    }
-
-    void checkEntity(final Entity entity, final String expectedGroup, final Object expectedVertex, final Byte p1,
-                     final Double p2, final Float p3, final Long p4, final Long p5, final Short p6,
-                     final Date p7, final Integer count) {
-        assertEquals(expectedGroup, entity.getGroup());
-        assertEquals(expectedVertex, entity.getVertex());
-        checkProperties(entity.getProperties(), p1, p2, p3, p4, p5, p6, p7, count);
-    }
-
-    private void checkProperties(final Properties properties, final Byte p1, final Double p2, final Float p3, final Long p4,
-                                 final Long p5, final Short p6, final Date p7, final Integer count) {
-        assertEquals(p1, properties.get("property1"));
-        if (p2 == null) {
-            assertEquals(null, properties.get("property2"));
-        } else {
-            assertEquals(p2, (Double) properties.get("property2"), 0.01);
-        }
-        assertEquals(p3, properties.get("property3"));
-        if (p4 == null) {
-            assertEquals(null, properties.get("property4"));
-        } else {
-            assertEquals((long) p4, ((HyperLogLogPlus) properties.get("property4")).cardinality());
-        }
-
-        assertEquals(p5, properties.get("property5"));
-        assertEquals(p6, properties.get("property6"));
-        if (p7 != null) {
-            assertTrue((p7.getTime() + 20) + " should be greater than " + ((Date) properties.get("property7")).getTime(), p7.getTime() + 20 > ((Date) properties.get("property7")).getTime());
-            assertTrue((p7.getTime() - 20) + " should be less than " + ((Date) properties.get("property7")).getTime(), p7.getTime() - 20 < ((Date) properties.get("property7")).getTime());
-        }
-        if (p4 == null) {
-            assertEquals(null, properties.get("property8"));
-        } else {
-            assertEquals((long) p4, ((HyperLogLogPlus) properties.get("property8")).cardinality());
-        }
-        assertEquals(count, properties.get("count"));
     }
 
     @Test

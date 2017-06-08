@@ -21,9 +21,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -44,10 +42,9 @@ import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -129,111 +126,47 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     protected void checkData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        Date date = (Date) edge.getProperty("property7");
-        checkEdge(edge, "BasicEdge", new TypeValue("type0", "src0"), new TypeValue("type0", "dst1"), false, (byte) 'a', 0.0, 2f, 2L, 5L, (short) 6, date, 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type0", "src0"), new TypeValue("type0", "dst1"), false, (byte) 'b', 0.3, 4f, 2L, 0L, (short) 7, new Date(date.getTime() + 1000), 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type0", "src0"), new TypeValue("type0", "dst1"), true, (byte) 'b', 0.3, 6f, 3L, 5L, (short) 13, date, 2);
-        for (int i = 0; i < 71; i++) {
+        int counter = 0;
+        while (dataIter.hasNext()) {
             dataIter.next();
+            counter++;
         }
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type4", "src9"), new TypeValue("type4", "dst10"), true, (byte) 'b', 2.1, 6f, 3L, 59L, (short) 13, date, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type0", "src0"), new TypeValue("type0", "dst1"), false, (byte) 'b', 0.3, 6f, 3L, 5L, (short) 13, new Date(date.getTime() + 1000), 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type0", "src0"), new TypeValue("type0", "dst1"), true, (byte) 'b', 0.3, 6f, 3L, 5L, (short) 13, date, 2);
-        for (int i = 0; i < 47; i++) {
-            dataIter.next();
-        }
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type4", "src9"), new TypeValue("type4", "dst10"), true, (byte) 'b', 2.1, 6f, 3L, 59L, (short) 13, date, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", new TypeValue("type0", "vrt0"), (byte) 'b', 0.5, 7f, 3L, 0L, (short) 13, date, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, 3L, 110L, (short) 13, date, 2);
-        for (int i = 0; i < 3; i++) {
-            dataIter.next();
-        }
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", new TypeValue("type1", "vrt1"), (byte) 'b', 0.5, 7f, 3L, 11L, (short) 13, date, 2);
-        for (int i = 0; i < 19; i++) {
-            dataIter.next();
-        }
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", new TypeValue("type0", "vrt0"), (byte) 'b', 0.5, 7f, 3L, 0L, (short) 13, date, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, 3L, 110L, (short) 13, date, 2);
-        for (int i = 0; i < 3; i++) {
-            dataIter.next();
-        }
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", new TypeValue("type1", "vrt1"), (byte) 'b', 0.5, 7f, 3L, 11L, (short) 13, date, 2);
-        for (int i = 0; i < 19; i++) {
-            dataIter.next();
-        }
-        assertFalse(dataIter.hasNext());
+        assertEquals(175, counter);
     }
 
     @Override
     void checkGetSeededElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        Date date = (Date) edge.getProperty("property7");
-        checkEdge(edge, "BasicEdge", new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'a', 0.2, 2f, 2L, 5L, (short) 6, date, 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.3, 4f, 2L, 6L, (short) 7, new Date(date.getTime() + 1000), 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, 3L, 71L, (short) 13, date, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'a', 3.4, 2f, 2L, 5L, (short) 6, date, 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'b', 0.3, 4f, 2L, 102L, (short) 7, new Date(date.getTime() + 1000), 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, 3L, 107L, (short) 13, date, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type1", "src1"), new TypeValue("type1", "dst2"), false, (byte) 'b', 0.5, 6f, 3L, 11L, (short) 13, new Date(date.getTime() + 1000), 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true, (byte) 'b', 2.5, 6f, 3L, 71L, (short) 13, date, 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'b', 3.7, 6f, 3L, 107L, (short) 13, new Date(date.getTime() + 1000), 2);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge2", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, 3L, 107L, (short) 13, date, 2);
-        Entity entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, 3L, 110L, (short) 13, date, 2);
-        entity = (Entity) dataIter.next();
-        checkEntity(entity, "BasicEntity2", new TypeValue("type0", "vrt10"), (byte) 'b', 0.5, 7f, 3L, 110L, (short) 13, date, 2);
-        assertFalse(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
+            dataIter.next();
+            counter++;
+        }
+        assertEquals(12, counter);
     }
 
     @Override
     void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
-        Edge edge = (Edge) dataIter.next();
-        Date date = (Date) edge.getProperty("property7");
-        checkEdge(edge, "BasicEdge", new TypeValue("type0", "src15"), new TypeValue("type0", "dst16"), false, (byte) 'a', 3.0, 2f, 2L, 5L, (short) 6, date, 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type0", "src15"), new TypeValue("type0", "dst16"), true, (byte) 'b', 3.3, 6f, 3L, 95L, (short) 13, date, 2);
-        for (int i = 0; i < 18; i++) {
+        assertTrue(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
             dataIter.next();
+            counter++;
         }
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type4", "src24"), new TypeValue("type4", "dst25"), true, (byte) 'b', 5.1, 6f, 3L, 149L, (short) 13, date, 2);
-        assertFalse(dataIter.hasNext());
+        assertEquals(21, counter);
     }
 
     @Override
     void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
-        Edge edge = (Edge) dataIter.next();
-        Date date = (Date) edge.getProperty("property7");
-        checkEdge(edge, "BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), false, (byte) 'a', 3.4, 2f, 2L, 5L, (short) 6, date, 1);
-        edge = (Edge) dataIter.next();
-        checkEdge(edge, "BasicEdge", new TypeValue("type2", "src17"), new TypeValue("type2", "dst18"), true, (byte) 'b', 3.7, 6f, 3L, 107L, (short) 13, date, 2);
-        assertFalse(dataIter.hasNext());
+        int counter = 0;
+        while (dataIter.hasNext()) {
+            dataIter.next();
+            counter++;
+        }
+        assertEquals(2, counter);
     }
 }
