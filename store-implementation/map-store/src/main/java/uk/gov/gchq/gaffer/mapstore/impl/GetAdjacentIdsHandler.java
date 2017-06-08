@@ -37,6 +37,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -62,16 +63,18 @@ public class GetAdjacentIdsHandler implements
         if (null == operation.getInput() || !operation.getInput().iterator().hasNext()) {
             return new EmptyClosableIterable<>();
         }
-        return new EntityIdIterable(mapStore.getMapImpl(), operation);
+        return new EntityIdIterable(mapStore.getMapImpl(), operation, mapStore.getSchema());
     }
 
     private static class EntityIdIterable extends WrappedCloseableIterable<EntityId> {
         private final MapImpl mapImpl;
         private final GetAdjacentIds getAdjacentIds;
+        private final Schema schema;
 
-        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds) {
+        EntityIdIterable(final MapImpl mapImpl, final GetAdjacentIds getAdjacentIds, final Schema schema) {
             this.mapImpl = mapImpl;
             this.getAdjacentIds = getAdjacentIds;
+            this.schema = schema;
         }
 
         @Override
@@ -105,7 +108,7 @@ public class GetAdjacentIdsHandler implements
                                     return clone;
                                 })
                                 .map(element -> {
-                                    final Properties properties = mapImpl.elementToProperties.get(element);
+                                    final Properties properties = mapImpl.aggElements.get(element.getGroup()).get(element);
                                     element.copyProperties(properties);
                                     return element;
                                 })
@@ -117,7 +120,7 @@ public class GetAdjacentIdsHandler implements
                     entityIdRelevantFullElementsStream
                             .map(pair -> {
                                 final Stream<Element> elementsAfterView = GetElementsHandler
-                                        .applyView(pair.getSecond().stream(), mapImpl.schema,
+                                        .applyView(pair.getSecond().stream(), schema,
                                                 getAdjacentIds.getView());
                                 return new Pair<>(pair.getFirst(), elementsAfterView);
                             });

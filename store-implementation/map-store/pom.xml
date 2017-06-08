@@ -27,7 +27,7 @@
     <artifactId>map-store</artifactId>
 
     <dependencies>
-        <!-- Internal Gaffer2 framework dependencies -->
+        <!-- Internal Gaffer framework dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>

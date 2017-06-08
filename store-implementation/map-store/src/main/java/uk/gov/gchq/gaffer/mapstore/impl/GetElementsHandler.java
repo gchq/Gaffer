@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
@@ -44,15 +43,13 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
+import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
@@ -77,42 +74,50 @@ public class GetElementsHandler
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }
-        return new ElementsIterable(mapImpl, operation);
+        return new ElementsIterable(mapImpl, operation, mapStore.getSchema());
     }
 
     private static class ElementsIterable extends WrappedCloseableIterable<Element> {
         private final MapImpl mapImpl;
         private final GetElements getElements;
+        private final Schema schema;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final Schema schema) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
+            this.schema = schema;
         }
 
         @Override
         public CloseableIterator<Element> iterator() {
             final Stream<Set<Element>> elementsSets = Streams.toParallelStream(getElements.getInput())
                     .map(elementId -> getRelevantElements(mapImpl, elementId, getElements));
-            final Stream<Element> elements = elementsSets.flatMap(s -> s.stream());
+            final Stream<Element> elements = elementsSets.flatMap(Collection::stream);
             final Stream<Element> elementsAfterIncludeEntitiesEdgesOption =
                     applyIncludeEntitiesEdgesOptions(elements, getElements.getView().hasEntities(), getElements.getView().hasEdges(), getElements.getDirectedType());
+
             // Generate final elements by copying properties into element
+            final Function<Element, List<Element>> elementMapper = element -> {
+                if (!mapImpl.isAggregationEnabled(element)) {
+                    final Integer count = mapImpl.nonAggElements.get(element.getGroup()).get(element);
+                    if (null == count) {
+                        return Collections.emptyList();
+                    }
+                    return Collections.nCopies(count, element);
+                } else {
+                    final Properties properties = mapImpl.aggElements.get(element.getGroup()).get(element);
+                    element.copyProperties(properties);
+                    return Collections.singletonList(element);
+                }
+            };
+
             Stream<Element> elementsWithProperties = elementsAfterIncludeEntitiesEdgesOption
-                    .map(element -> {
-                        if (mapImpl.groupsWithNoAggregation.contains(element.getGroup())) {
-                            final int count = (int) mapImpl.elementToProperties.get(element).get(COUNT);
-                            List<Element> duplicateElements = new ArrayList<>(count);
-                            IntStream.range(0, count).forEach(i -> duplicateElements.add(element));
-                            return duplicateElements;
-                        } else {
-                            final Properties properties = mapImpl.elementToProperties.get(element);
-                            element.copyProperties(properties);
-                            return Collections.singletonList(element);
-                        }
-                    })
-                    .flatMap(x -> x.stream());
-            final Stream<Element> afterView = applyView(elementsWithProperties, mapImpl.schema, getElements.getView());
-            final Stream<Element> clonedElements = afterView.map(element -> ElementCloner.cloneElement(element, mapImpl.schema));
+                    .map(elementMapper)
+                    .flatMap(Collection::stream);
+
+
+            final Stream<Element> afterView = applyView(elementsWithProperties, schema, getElements.getView());
+            final Stream<Element> clonedElements = afterView.map(element -> mapImpl.mapFactory.cloneElement(element, schema));
             return new WrappedCloseableIterator<>(clonedElements.iterator());
         }
     }
@@ -122,7 +127,7 @@ public class GetElementsHandler
                                             final GetElements getElements) {
         if (elementId instanceof EntityId) {
             final Set<Element> relevantElements = new HashSet<>();
-            final Set<Element> elements = mapImpl.entityIdToElements.get(elementId);
+            final Collection<Element> elements = mapImpl.entityIdToElements.get((EntityId) elementId);
             if (null != elements) {
                 relevantElements.addAll(elements);
             }
@@ -152,28 +157,28 @@ public class GetElementsHandler
             final EdgeId edgeId = (EdgeSeed) elementId;
             final Set<Element> relevantElements = new HashSet<>();
             if (DirectedType.isEither(edgeId.getDirectedType())) {
-                final Set<Element> elements = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false));
+                final Collection<Element> elements = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false));
                 if (elements != null) {
                     relevantElements.addAll(elements);
                 }
-                final Set<Element> elementsDir = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true));
+                final Collection<Element> elementsDir = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true));
                 if (elementsDir != null) {
                     relevantElements.addAll(elementsDir);
                 }
             } else {
-                final Set<Element> elements = mapImpl.edgeIdToElements.get(edgeId);
+                final Collection<Element> elements = mapImpl.edgeIdToElements.get(edgeId);
                 if (elements != null) {
                     relevantElements.addAll(elements);
                 }
             }
-            final Set<Element> elementsFromSource = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource()));
+            final Collection<Element> elementsFromSource = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource()));
             if (elementsFromSource != null) {
                 final Set<Element> related = new HashSet<>();
                 related.addAll(elementsFromSource);
                 related.removeIf(e -> e instanceof Edge);
                 relevantElements.addAll(related);
             }
-            final Set<Element> elementsFromDest = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination()));
+            final Collection<Element> elementsFromDest = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination()));
             if (elementsFromDest != null) {
                 final Set<Element> related = new HashSet<>();
                 related.addAll(elementsFromDest);
