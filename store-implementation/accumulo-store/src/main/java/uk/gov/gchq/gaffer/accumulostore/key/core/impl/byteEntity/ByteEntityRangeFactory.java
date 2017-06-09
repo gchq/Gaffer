@@ -36,6 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -96,7 +97,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
             key[key.length - 1] = directionFlag1;
         }
 
-        ByteCopyingUtil.copyFirstAndSecondByteArrayDelimitedWithFlag(sourceValue, destinationValue, key, directionFlag1);
+        ByteCopyingUtil.copyFirstAndSecondByteArrayOptionallyDelimitedWithFlag(sourceValue, destinationValue, key, Optional.of(directionFlag1));
 
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
     }

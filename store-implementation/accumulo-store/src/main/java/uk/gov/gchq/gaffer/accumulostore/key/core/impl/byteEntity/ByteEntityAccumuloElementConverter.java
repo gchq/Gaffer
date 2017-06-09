@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
@@ -97,7 +98,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     private void copyToRowKey(final byte[] first, final byte[] second, final byte[] rowKey, final byte directionFlag) {
-        int carriage = ByteCopyingUtil.copyFirstAndSecondByteArrayDelimitedWithFlag(first, second, rowKey, directionFlag);
+        int carriage = ByteCopyingUtil.copyFirstAndSecondByteArrayOptionallyDelimitedWithFlag(first, second, rowKey, Optional.of(directionFlag));
         rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
         rowKey[carriage] = directionFlag;
     }

@@ -21,6 +21,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementC
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.ByteCopyingUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -55,15 +56,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // the direction flag is 2 indicating that the first identifier
         // in the key is the destination and the second identifier
         // in the key is the source, i.e. they need flipping around.
-        byte directionFlag1;
-        byte directionFlag2;
-        if (edge.isDirected()) {
-            directionFlag1 = ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE;
-            directionFlag2 = ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE;
-        } else {
-            directionFlag1 = ClassicBytePositions.UNDIRECTED_EDGE;
-            directionFlag2 = ClassicBytePositions.UNDIRECTED_EDGE;
-        }
+        byte directionFlag = edge.isDirected() ? ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE : ClassicBytePositions.UNDIRECTED_EDGE;
 
         // Serialise source and destination to byte arrays, escaping if necessary
         final byte[] source = getSerialisedSource(edge);
@@ -75,32 +68,31 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // plus one for the direction flag at the end.
         final int length = source.length + destination.length + 3;
         final byte[] rowKey1 = new byte[length];
-        final byte[] rowKey2;
 
         // Create first key: source DELIMITER destination
         // DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        System.arraycopy(source, 0, rowKey1, 0, source.length);
-        rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destination, 0, rowKey1, source.length + 1, destination.length);
-        rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[rowKey1.length - 1] = directionFlag1;
+        copyToRowKey(destination, source, rowKey1, directionFlag);
 
 
         // Is this a self-edge? If so then return null for the second rowKey as
         // we don't want the same edge to go into Accumulo twice.
+        final byte[] rowKey2;
         if (selfEdge(edge)) {
             rowKey2 = null;
         } else {
+            final byte invertDirectedFlag = (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
             rowKey2 = new byte[length];
             // Create second key: destination DELIMITER source
             // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-            System.arraycopy(destination, 0, rowKey2, 0, destination.length);
-            rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
-            System.arraycopy(source, 0, rowKey2, destination.length + 1, source.length);
-            rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-            rowKey2[rowKey2.length - 1] = directionFlag2;
+            copyToRowKey(source, destination, rowKey2, invertDirectedFlag);
         }
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    private void copyToRowKey(final byte[] source, final byte[] destination, final byte[] rowKey2, final byte invertDirectedFlag) {
+        ByteCopyingUtil.copyFirstAndSecondByteArray(destination, source, rowKey2);
+        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey2[rowKey2.length - 1] = invertDirectedFlag;
     }
 
     @Override
