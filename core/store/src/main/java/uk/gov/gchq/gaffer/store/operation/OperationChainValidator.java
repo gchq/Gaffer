@@ -45,6 +45,7 @@ public class OperationChainValidator {
         } else {
             Class<? extends Output> output = null;
             for (final Operation op : operationChain.getOperations()) {
+                validationResult.add(op.validate());
                 output = validateInputOutputTypes(op, validationResult, store, output);
                 validateViews(op, validationResult, store);
                 validateComparables(op, validationResult, store);

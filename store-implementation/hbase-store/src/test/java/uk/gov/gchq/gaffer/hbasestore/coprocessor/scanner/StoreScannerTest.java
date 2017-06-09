@@ -67,9 +67,11 @@ public class StoreScannerTest {
                     .source("string")
                     .destination("string")
                     .directed("true")
+                    .aggregate(false)
                     .build())
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex("string")
+                    .aggregate(false)
                     .build())
             .vertexSerialiser(new StringSerialiser())
             .build();

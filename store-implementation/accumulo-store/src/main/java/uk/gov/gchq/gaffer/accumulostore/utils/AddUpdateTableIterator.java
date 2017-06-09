@@ -134,7 +134,7 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
-                && (store.getSchema().hasAggregators())) {
+                && (store.getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
                                         .getIteratorFactory()
