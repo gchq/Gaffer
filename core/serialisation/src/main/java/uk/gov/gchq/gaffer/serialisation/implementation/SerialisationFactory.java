@@ -115,7 +115,7 @@ public class SerialisationFactory {
      * @param objClass      the class of an object to be serialised.
      * @param preserveOrder if true then the returned serialiser should preserve the order
      * @param serialiser    a compatible serialiser
-     * @return <CODE> true </CODE> if serialiser can serialise the class, <CODE> false </CODE> otherwise
+     * @return <code> true </code> if serialiser can serialise the class, <code> false </code> otherwise
      */
     private boolean canSerialiseClass(final Class<?> objClass, final boolean preserveOrder, final Serialiser serialiser) {
         return serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering());

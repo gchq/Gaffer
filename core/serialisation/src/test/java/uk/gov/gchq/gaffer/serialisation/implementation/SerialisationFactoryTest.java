@@ -19,6 +19,9 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 
 import static org.junit.Assert.assertEquals;
@@ -113,5 +116,66 @@ public class SerialisationFactoryTest {
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldReturnCustomSerialiserIfSerialiserFoundInCustomSet() {
+        // Given
+        final Serialiser[] serialisers = new Serialiser[]{
+                new RawDateSerialiser(),
+                new RawDoubleSerialiser(),
+                new RawFloatSerialiser()
+        };
+        final SerialisationFactory factory = new SerialisationFactory(serialisers);
+        final Class<?> clazz = Double.class;
+
+        // When
+        final Serialiser serialiser = factory.getSerialiser(clazz);
+
+
+        // Then
+        assertTrue(serialiser.canHandle(clazz));
+        assertEquals(RawDoubleSerialiser.class, serialiser.getClass());
+    }
+
+    @Test
+    public void shouldReturnJavaSerialiserIfNoSerialiserFoundFromCustomSet() {
+        // Given
+        final Serialiser[] serialisers = new Serialiser[]{
+                new RawDateSerialiser(),
+                new RawDoubleSerialiser(),
+                new RawFloatSerialiser()
+        };
+        final SerialisationFactory factory = new SerialisationFactory(serialisers);
+        final Class<?> clazz = String.class;
+
+        // When
+        final Serialiser serialiser = factory.getSerialiser(clazz);
+
+
+        // Then
+        assertTrue(serialiser.canHandle(clazz));
+        assertEquals(JavaSerialiser.class, serialiser.getClass());
+    }
+
+    @Test
+    public void testAddSerialisers() {
+        // Given
+        final Serialiser[] serialisers = new Serialiser[]{
+                new RawDateSerialiser(),
+                new RawDoubleSerialiser(),
+                new RawFloatSerialiser()
+        };
+        final SerialisationFactory factory = new SerialisationFactory(serialisers);
+        final Class<?> clazz = String.class;
+
+
+        // When
+        factory.addSerialisers(new StringSerialiser());
+        Serialiser serialiser = factory.getSerialiser(clazz);
+
+        // Then
+        assertTrue(serialiser.canHandle(clazz));
+        assertEquals(StringSerialiser.class, serialiser.getClass());
     }
 }
