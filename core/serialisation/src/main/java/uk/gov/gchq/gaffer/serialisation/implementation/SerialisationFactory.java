@@ -132,7 +132,7 @@ public class SerialisationFactory {
     /**
      * Checks if the given serialiser is already in the serialisers list.
      *
-     * @param newSerialiser
+     * @param newSerialiser new serialiser to be added to serialisers.
      * @return <code> true </code> if given serialiser is already present in serialisers, <code> false </code> otherwise.
      */
     private boolean serialiserAlreadyinList(final Serialiser newSerialiser) {
