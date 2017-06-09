@@ -22,9 +22,9 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import java.util.Properties;
 
 /**
- * Initialised when the store is initialised. Looks at a system property to determine the uk.gov.gchq.gaffer.cache service to load.
+ * Initialised when the store is initialised. Looks at a system property to determine the cache service to load.
  * Then initialises it, after which any component may use {@code CacheServiceLoader.getService()} to get the service
- * that can retrieve the appropriate uk.gov.gchq.gaffer.cache.
+ * that can retrieve the appropriate cache.
  */
 public final class CacheServiceLoader {
 
@@ -32,11 +32,11 @@ public final class CacheServiceLoader {
     private static ICacheService service;
 
     /**
-     * Looks at a system property and initialises an appropriate uk.gov.gchq.gaffer.cache service. If no uk.gov.gchq.gaffer.cache service is specified in the
+     * Looks at a system property and initialises an appropriate cache service. If no cache service is specified in the
      * system property, the loader falls back onto a default which is backed by HashMaps.
      *
      * @param properties the cache service properties
-     * @throws IllegalArgumentException if an invalid uk.gov.gchq.gaffer.cache class is specified in the system property
+     * @throws IllegalArgumentException if an invalid cache class is specified in the system property
      */
     public static void initialise(final Properties properties) {
         if (properties == null) {
@@ -62,7 +62,7 @@ public final class CacheServiceLoader {
     }
 
     /**
-     * @return the uk.gov.gchq.gaffer.cache service
+     * @return the cache service
      */
     public static ICacheService getService() {
         return service;
