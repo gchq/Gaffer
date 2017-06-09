@@ -119,7 +119,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnCustomSerialiserIfSerialiserFoundInCustomSet() throws SerialisationException {
+    public void shouldReturnCustomSerialiserIfCustomSerialiserFound() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
@@ -139,7 +139,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnJavaSerialiserIfNoSerialiserFoundFromCustomSet() throws SerialisationException {
+    public void shouldReturnJavaSerialiserIfNoCustomSerialiserFound() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
@@ -190,7 +190,7 @@ public class SerialisationFactoryTest {
         // When
         factory.addSerialisers(new BooleanSerialiser());
 
-        // Then / still has 1 element, BooleanSerialiser already exists
+        // Then / still has 1 element, BooleanSerialiser already existed
         assertEquals(1, factory.getSerialisers().size());
     }
 }
