@@ -119,7 +119,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnCustomSerialiserIfSerialiserFoundInCustomSet() {
+    public void shouldReturnCustomSerialiserIfSerialiserFoundInCustomSet() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
@@ -139,7 +139,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void shouldReturnJavaSerialiserIfNoSerialiserFoundFromCustomSet() {
+    public void shouldReturnJavaSerialiserIfNoSerialiserFoundFromCustomSet() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
@@ -159,7 +159,7 @@ public class SerialisationFactoryTest {
     }
 
     @Test
-    public void testAddSerialisers() {
+    public void testAddSerialisers() throws SerialisationException {
         // Given
         final Serialiser[] serialisers = new Serialiser[]{
                 new RawDateSerialiser(),
@@ -177,5 +177,20 @@ public class SerialisationFactoryTest {
         // Then
         assertTrue(serialiser.canHandle(clazz));
         assertEquals(StringSerialiser.class, serialiser.getClass());
+    }
+
+    @Test
+    public void shouldNotReAddClassToFactory() throws SerialisationException {
+        // Given / new factory created with only 1 element
+        final Serialiser[] serialisers = new Serialiser[]{
+                new BooleanSerialiser()
+        };
+        final SerialisationFactory factory = new SerialisationFactory(serialisers);
+
+        // When
+        factory.addSerialisers(new BooleanSerialiser());
+
+        // Then / still has 1 element, BooleanSerialiser already exists
+        assertEquals(1, factory.getSerialisers().size());
     }
 }

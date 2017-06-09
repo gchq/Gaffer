@@ -24,7 +24,6 @@ import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -72,7 +71,13 @@ public class SerialisationFactory {
      * @param newSerialisers a list of Serialisers.
      */
     public void addSerialisers(final Serialiser... newSerialisers) {
-        Collections.addAll(serialisers, newSerialisers);
+        if (newSerialisers != null) {
+            for (final Serialiser newSerialiser : newSerialisers) {
+                if (!serialiserAlreadyinList(newSerialiser)) {
+                    serialisers.add(newSerialiser);
+                }
+            }
+        }
     }
 
     /**
@@ -120,4 +125,14 @@ public class SerialisationFactory {
     private boolean canSerialiseClass(final Class<?> objClass, final boolean preserveOrder, final Serialiser serialiser) {
         return serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering());
     }
+
+    private boolean serialiserAlreadyinList(final Serialiser newSerialiser) {
+        for (final Serialiser serialiser : serialisers) {
+            if (serialiser.getClass().equals(newSerialiser.getClass())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
