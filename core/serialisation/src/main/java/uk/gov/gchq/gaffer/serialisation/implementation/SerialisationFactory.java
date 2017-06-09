@@ -34,7 +34,7 @@ public class SerialisationFactory {
 
     private final List<Serialiser> serialisers;
     private static final Serialiser LAST_RESORT_FINALISER = new JavaSerialiser();
-    private static final Serialiser[] SERIALISERS = new Serialiser[]{
+    private static final Serialiser[] CORE_SERIALISERS = new Serialiser[]{
             new StringSerialiser(),
             new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),
@@ -49,7 +49,7 @@ public class SerialisationFactory {
     };
 
     public SerialisationFactory() {
-        this.serialisers = Lists.newArrayList(SERIALISERS);
+        this.serialisers = Lists.newArrayList(CORE_SERIALISERS);
     }
 
     /**
@@ -61,6 +61,9 @@ public class SerialisationFactory {
         this.serialisers = Lists.newArrayList(serialisers);
     }
 
+    /**
+     * @return List of set Serialisers.
+     */
     public List<Serialiser> getSerialisers() {
         return serialisers;
     }
@@ -84,7 +87,7 @@ public class SerialisationFactory {
      * @param objClass the class of an object to be serialised.
      * @return a compatible serialiser.
      * @throws IllegalArgumentException if the object class parameter is null or
-     *                                  no compatible serialiser could be found
+     *                                  no compatible serialiser could be found.
      */
     public Serialiser getSerialiser(final Class<?> objClass) {
         return getSerialiser(objClass, false);
@@ -92,10 +95,10 @@ public class SerialisationFactory {
 
     /**
      * @param objClass      the class of an object to be serialised.
-     * @param preserveOrder if true then the returned serialiser should preserve order
+     * @param preserveOrder if true then the returned serialiser should preserve order.
      * @return a compatible serialiser.
      * @throws IllegalArgumentException if the object class parameter is null or
-     *                                  no compatible serialiser could be found
+     *                                  no compatible serialiser could be found.
      */
     public Serialiser getSerialiser(final Class<?> objClass, final boolean preserveOrder) {
         if (null == objClass) {
@@ -115,17 +118,23 @@ public class SerialisationFactory {
     }
 
     /**
-     * Checks the given serialiser is able to serialise the given class
+     * Checks the given serialiser is able to serialise the given class.
      *
      * @param objClass      the class of an object to be serialised.
-     * @param preserveOrder if true then the returned serialiser should preserve the order
-     * @param serialiser    a compatible serialiser
-     * @return <code> true </code> if serialiser can serialise the class, <code> false </code> otherwise
+     * @param preserveOrder if true then the returned serialiser should preserve the order.
+     * @param serialiser    a compatible serialiser.
+     * @return <code> true </code> if serialiser can serialise the class, <code> false </code> otherwise.
      */
     private boolean canSerialiseClass(final Class<?> objClass, final boolean preserveOrder, final Serialiser serialiser) {
         return serialiser.canHandle(objClass) && (!preserveOrder || serialiser.preservesObjectOrdering());
     }
 
+    /**
+     * Checks if the given serialiser is already in the serialisers list.
+     *
+     * @param newSerialiser
+     * @return <code> true </code> if given serialiser is already present in serialisers, <code> false </code> otherwise.
+     */
     private boolean serialiserAlreadyinList(final Serialiser newSerialiser) {
         for (final Serialiser serialiser : serialisers) {
             if (serialiser.getClass().equals(newSerialiser.getClass())) {
