@@ -296,8 +296,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
         if (serialiser != null) {
             final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[rtn]);
-            final int currentPropLength = (int) getCurrentPropLength(bytes, rtn, numBytesForLength);
-            Object deserialisedObject = getDeserialisedObject(serialiser, bytes, rtn += numBytesForLength, rtn += currentPropLength);
+            final int currentPropLength = getCurrentPropLength(bytes, rtn, numBytesForLength);
+            int from = rtn += numBytesForLength;
+            int to = rtn += currentPropLength;
+            Object deserialisedObject = getDeserialisedObject(serialiser, bytes, from, to);
             properties.put(propertyName, deserialisedObject);
         }
         return rtn;
@@ -471,12 +473,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         return value != null && value.getSize() != 0;
     }
 
-    private long getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) {
+    private int getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) {
         final byte[] length = new byte[numBytesForLength];
         System.arraycopy(bytes, pos, length, 0, numBytesForLength);
-
         try {
-            return CompactRawSerialisationUtils.readLong(length);
+            //This value will be no bigger than an int, no casting issues should occur.
+            return (int) CompactRawSerialisationUtils.readLong(length);
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Exception reading length of property", e);
         }
