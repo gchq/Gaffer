@@ -60,7 +60,7 @@ To use Gaffer the only required dependencies are the Gaffer graph module and a s
 
 ```
 <dependency>
-    <groupId>uk.gov.gchq.gaffer.core</groupId>
+    <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>graph</artifactId>
     <version>${gaffer.version}</version>
 </dependency>
