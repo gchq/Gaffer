@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.serialisation.implementation;
+package uk.gov.gchq.gaffer.store;
 
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.TypeSubTypeValueSerialiser;
+import uk.gov.gchq.gaffer.serialisation.TypeValueSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.BytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
@@ -46,6 +54,9 @@ public class SerialisationFactory {
             new RawDoubleSerialiser(),
             new RawFloatSerialiser(),
             new TreeSetStringSerialiser(),
+            new TypeValueSerialiser(),
+            new TypeSubTypeValueSerialiser(),
+            new FreqMapSerialiser()
     };
 
     public SerialisationFactory() {
