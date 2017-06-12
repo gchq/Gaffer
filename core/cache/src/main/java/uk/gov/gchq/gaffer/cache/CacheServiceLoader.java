@@ -32,8 +32,7 @@ public final class CacheServiceLoader {
     private static ICacheService service;
 
     /**
-     * Looks at a system property and initialises an appropriate cache service. If no cache service is specified in the
-     * system property, the loader falls back onto a default which is backed by HashMaps.
+     * Looks at a system property and initialises an appropriate cache service. Then adds a shutdown hook.
      *
      * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
@@ -59,6 +58,9 @@ public final class CacheServiceLoader {
         }
 
         service.initialise(properties);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            shutdown();
+        }));
     }
 
     /**
@@ -72,6 +74,8 @@ public final class CacheServiceLoader {
         if (service != null) {
             service.shutdown();
         }
+
+        service = null;
     }
 
     private CacheServiceLoader() {
