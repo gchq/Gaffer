@@ -1,5 +1,6 @@
 language: java
 cache:
+  timeout: 1000
   directories:
   - $HOME/.m2
 jdk:
