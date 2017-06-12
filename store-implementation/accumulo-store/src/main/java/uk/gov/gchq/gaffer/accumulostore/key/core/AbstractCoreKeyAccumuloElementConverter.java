@@ -38,7 +38,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -136,7 +135,7 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                                 byte delimiterByte = bytes[delimiterPosition];
                                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(delimiterByte);
                                 final long currentPropLength = getCurrentPropLength(bytes, delimiterPosition);
-                                Object deserialisedObject = getDeserialisedObject(serialiser, bytes, delimiterPosition + numBytesForLength, currentPropLength);
+                                Object deserialisedObject = getDeserialisedObject(serialiser, bytes, delimiterPosition + numBytesForLength, (int) currentPropLength);
                                 properties.put(propertyName, deserialisedObject);
                                 delimiterPosition += numBytesForLength + currentPropLength;
                             }
@@ -311,10 +310,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
                 lastDelimiter += numBytesForLength;
                 if (currentPropLength > 0) {
                     try {
-                        properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
+                        properties.put(propertyName, serialiser.deserialise(bytes, lastDelimiter, (int) currentPropLength));
                     } catch (final SerialisationException e) {
                         throw new AccumuloElementConversionException("Failed to deserialise property " + propertyName, e);
                     }
+                    lastDelimiter += currentPropLength;
                 }
             }
         }
@@ -477,11 +477,11 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
         out.write(bytes);
     }
 
-    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final long currentPropLength) throws SerialisationException {
+    private Object getDeserialisedObject(final ToBytesSerialiser serialiser, final byte[] bytes, final int lastDelimiter, final int currentPropLength) throws SerialisationException {
         //Don't initialise with  #deserialiseEmpty() as this might initialise an complex empty structure to be immediately overwritten e.g. TreeSet<String>
         Object deserialisedObject;
         if (currentPropLength > 0) {
-            deserialisedObject = serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter + (int) currentPropLength));
+            deserialisedObject = serialiser.deserialise(bytes, lastDelimiter, currentPropLength);
         } else {
             deserialisedObject = serialiser.deserialiseEmpty();
         }
