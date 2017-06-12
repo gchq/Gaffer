@@ -102,6 +102,9 @@
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
         <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
 
+        <skip.surefire.tests>false</skip.surefire.tests>
+        <skip.failsafe.tests>false</skip.failsafe.tests>
+
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
             https://github.com/gchq/Gaffer
@@ -542,6 +545,7 @@
                 <version>${surefire.plugin.version}</version>
                 <configuration>
                     <argLine>${surefireArgLine}</argLine>
+                    <skipTests>${skip.surefire.tests}</skipTests>
                 </configuration>
             </plugin>
             <plugin>
@@ -558,6 +562,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skipITs>${skip.failsafe.tests}</skipITs>
                     <argLine>${failsafeArgLine}</argLine>
                     <excludes>
                         <exclude>**/*$*</exclude>
@@ -777,6 +782,77 @@
             <id>quick</id>
             <properties>
                 <skipTests>true</skipTests>
+                <skip.surefire.tests>true</skip.surefire.tests>
+                <skip.failsafe.tests>true</skip.failsafe.tests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>validate</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>analyze-compile</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>analyze</id>
+            <properties>
+                <skip.surefire.tests>true</skip.surefire.tests>
+                <skip.failsafe.tests>true</skip.failsafe.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>integration-test</id>
+            <properties>
+                <skip.surefire.tests>true</skip.surefire.tests>
+                <skip.failsafe.tests>false</skip.failsafe.tests>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>validate</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>analyze-compile</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>unit-test</id>
+            <properties>
+                <skip.surefire.tests>false</skip.surefire.tests>
+                <skip.failsafe.tests>true</skip.failsafe.tests>
             </properties>
             <build>
                 <plugins>
