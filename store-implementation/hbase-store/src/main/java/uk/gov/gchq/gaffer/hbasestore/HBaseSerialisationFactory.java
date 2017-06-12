@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.hbasestore;
 
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.StringsSketchSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation.DoublesUnionSerialiser;
@@ -27,6 +26,7 @@ import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.Reservoir
 import uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation.ReservoirStringsUnionSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation.UnionSerialiser;
 import uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 public class HBaseSerialisationFactory extends SerialisationFactory {
     private static final Serialiser[] HBASE_SERIALISERS = new Serialiser[]{
