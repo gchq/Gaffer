@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.store.Store;
 
 /**
  * An <code>OperationHandler</code> defines how to handle a specific {@link uk.gov.gchq.gaffer.operation.Operation}.
+ * All instances of an OperationHandler must be stateless as they are reused for all concurrent operations.
  */
 public interface OperationHandler<OP extends Operation> {
     /**
