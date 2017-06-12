@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Collections;
@@ -99,7 +100,7 @@ public class HBaseStore extends Store {
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties, createSchemaOptimiser(new HBaseSerialisationFactory()));
+        super.initialise(schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
@@ -145,6 +146,11 @@ public class HBaseStore extends Store {
                     final Iterable<? extends ElementId> ids,
                     final Class<?>... extraProcessors) throws StoreException {
         return new HBaseRetriever<>(this, operation, user, ids, extraProcessors);
+    }
+
+    @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new HBaseSerialisationFactory());
     }
 
     @Override

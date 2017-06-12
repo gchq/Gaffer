@@ -82,6 +82,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -127,7 +128,7 @@ public class AccumuloStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        super.initialise(schema, properties, createSchemaOptimiser(new AccumuloSerialisationFactory()));
+        super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -202,6 +203,11 @@ public class AccumuloStore extends Store {
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
+    }
+
+    @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new AccumuloSerialisationFactory());
     }
 
     @Override

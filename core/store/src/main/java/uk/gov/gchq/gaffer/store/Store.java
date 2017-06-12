@@ -64,7 +64,6 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -154,18 +153,6 @@ public abstract class Store {
         this.jobTracker = createJobTracker(properties);
 
         optimiseSchema();
-        validateSchemas();
-        addOpHandlers();
-        addExecutorService();
-    }
-
-    public void initialise(final Schema schema, final StoreProperties properties, final SchemaOptimiser schemaOptimiser) throws StoreException {
-        this.schema = schema;
-        this.properties = properties;
-        startCacheServiceLoader(properties);
-        this.jobTracker = createJobTracker(properties);
-
-        optimiseSchema(schemaOptimiser);
         validateSchemas();
         addOpHandlers();
         addExecutorService();
@@ -456,10 +443,6 @@ public abstract class Store {
 
     protected SchemaOptimiser createSchemaOptimiser() {
         return new SchemaOptimiser();
-    }
-
-    public SchemaOptimiser createSchemaOptimiser(final SerialisationFactory factory) {
-        return new SchemaOptimiser(factory);
     }
 
     protected OperationChainValidator createOperationChainValidator() {
