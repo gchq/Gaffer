@@ -40,6 +40,8 @@
     <properties>
         <disable.forking>false</disable.forking>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skip.surefire.tests>false</skip.surefire.tests>
+        <skip.failsafe.tests>false</skip.failsafe.tests>
 
         <java.version>1.8</java.version>
         <scala.version>2.11</scala.version>
@@ -101,9 +103,6 @@
         <source.plugin.version>2.4</source.plugin.version>
         <surefire.plugin.version>2.19.1</surefire.plugin.version>
         <tomcat-maven-plugin.version>2.2</tomcat-maven-plugin.version>
-
-        <skip.surefire.tests>false</skip.surefire.tests>
-        <skip.failsafe.tests>false</skip.failsafe.tests>
 
         <!-- Define SCM properties for use with Release Plugin -->
         <scm.url>
