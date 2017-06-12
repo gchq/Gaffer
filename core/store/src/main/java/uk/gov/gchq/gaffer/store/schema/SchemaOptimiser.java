@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;

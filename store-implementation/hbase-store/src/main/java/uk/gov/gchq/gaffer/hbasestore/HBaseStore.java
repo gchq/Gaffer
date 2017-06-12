@@ -56,6 +56,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Collections;
@@ -148,6 +149,11 @@ public class HBaseStore extends Store {
     }
 
     @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new HBaseSerialisationFactory());
+    }
+
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -201,4 +207,5 @@ public class HBaseStore extends Store {
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
+
 }
