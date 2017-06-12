@@ -1,0 +1,202 @@
+/*
+ * Copyright 2017 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package uk.gov.gchq.gaffer.time;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.roaringbitmap.IntIterator;
+import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Stream;
+
+/**
+ * An <code>RBMBackedTimestampSet</code> is an implementation of {@link TimestampSet} that stores timestamps
+ * truncated to a certain {@link TimeBucket}, e.g. if a {@link TimeBucket} of a minute is specified then a timestamp
+ * of 12:34:56 on January 1st 2015 would be truncated to the previous minute, namely 12:34:00 on January 1st 2015.
+ * Timebuckets of second, minute, hour, day, week, month and year are supported.
+ *
+ * <p>Internally this class stores the timestamps in a {@link RoaringBitmap}.
+ *
+ * <p>NB: This class does not accept {@link Instant}s that are before the Unix epoch or after the {@link Instant}
+ * which is <code>Integer.MAX_VALUE * 1000L</code> milliseconds after the epoch (approximately 3:14 on January 19th
+ * 2038). This is due to {@link RoaringBitmap} only accepting integers. As the smallest {@link TimeBucket} is
+ * a second then the maximum supported {@link Instant} is the maximum integer multiplied by 1000L milliseconds after
+ * the epoch.
+ */
+public class RBMBackedTimestampSet implements TimestampSet {
+    private static final long MILLISECONDS_IN_SECOND = 1000L;
+    private static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
+    private static final long MILLISECONDS_IN_HOUR = 60 * MILLISECONDS_IN_MINUTE;
+    private static final long MILLISECONDS_IN_DAY = 24 * MILLISECONDS_IN_HOUR;
+    private static final Instant MIN_TIME = Instant.ofEpochMilli(0L);
+    private static final Instant MAX_TIME = Instant.ofEpochMilli(Integer.MAX_VALUE * MILLISECONDS_IN_SECOND);
+    private static final Set<TimeBucket> VALID_TIMEBUCKETS = new HashSet<>(Arrays.asList(
+            TimeBucket.SECOND,
+            TimeBucket.MINUTE,
+            TimeBucket.HOUR,
+            TimeBucket.DAY,
+            TimeBucket.WEEK,
+            TimeBucket.MONTH,
+            TimeBucket.YEAR
+    ));
+
+    private final TimeBucket bucket;
+    private RoaringBitmap rbm = new RoaringBitmap();
+
+    public RBMBackedTimestampSet(final TimeBucket bucket) {
+        if (!VALID_TIMEBUCKETS.contains(bucket)) {
+            throw new IllegalArgumentException("A TimeBucket of " + bucket + " is not supported");
+        }
+        this.bucket = bucket;
+    }
+
+    public RBMBackedTimestampSet(final TimeBucket bucket, final Instant... instants) {
+        this(bucket);
+        Stream.of(instants).forEach(this::add);
+    }
+
+    @Override
+    public void add(final Instant instant) {
+        if (instant.isBefore(MIN_TIME) || instant.isAfter(MAX_TIME)) {
+            throw new IllegalArgumentException("Invalid instant of " + instant);
+        }
+        rbm.add(toInt(instant.toEpochMilli()));
+    }
+
+    @Override
+    public void add(final Collection<Instant> instants) {
+        instants.forEach(this::add);
+    }
+
+    @Override
+    public SortedSet<Instant> get() {
+        final SortedSet<Instant> instants = new TreeSet<>();
+        rbm.forEach(i -> instants.add(getInstantFromInt(i)));
+        return instants;
+    }
+
+    @Override
+    public long getNumberOfTimestamps() {
+        return rbm.getCardinality();
+    }
+
+    @Override
+    public Instant getEarliest() {
+        final IntIterator it = rbm.getIntIterator();
+        if (!it.hasNext()) {
+            return null;
+        }
+        return getInstantFromInt(it.next());
+    }
+
+    @Override
+    public Instant getLatest() {
+        final IntIterator it = rbm.getReverseIntIterator();
+        if (!it.hasNext()) {
+            return null;
+        }
+        return getInstantFromInt(it.next());
+    }
+
+    public TimeBucket getTimeBucket() {
+        return bucket;
+    }
+
+    /**
+     * This exposes the underlying {@link RoaringBitmap} so that serialisers can access it.
+     *
+     * @return the {@link RoaringBitmap} used by this class to store the timestamps.
+     */
+    public RoaringBitmap getRbm() {
+        return rbm;
+    }
+
+    /**
+     * Allows the {@link RoaringBitmap} to be set.
+     *
+     * @param rbm the {@link RoaringBitmap} to set the {@link RoaringBitmap} of this class to.
+     */
+    public void setRbm(final RoaringBitmap rbm) {
+        this.rbm = rbm;
+    }
+
+    public void addAll(final RBMBackedTimestampSet other) {
+        rbm.or(other.getRbm());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return null != obj
+                && (obj instanceof RBMBackedTimestampSet)
+                && equals((RBMBackedTimestampSet) obj);
+    }
+
+    private boolean equals(final RBMBackedTimestampSet other) {
+        return new EqualsBuilder()
+                .append(bucket, other.bucket)
+                .append(rbm, other.rbm)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(21, 3)
+                .append(bucket)
+                .append(rbm)
+                .toHashCode();
+    }
+
+    private int toInt(final long time) {
+        final long timeTruncatedToBucket = CommonTimeUtil.timeToBucket(time, bucket);
+        switch (bucket) {
+            case SECOND: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_SECOND);
+            case MINUTE: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_MINUTE);
+            case HOUR: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_HOUR);
+            case DAY: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case WEEK: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case MONTH: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case YEAR: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            default: throw new IllegalStateException("Unknown time bucket of " + bucket);
+        }
+    }
+
+    private long fromInt(final int i) {
+        switch (bucket) {
+            case SECOND: return i * MILLISECONDS_IN_SECOND;
+            case MINUTE: return i * MILLISECONDS_IN_MINUTE;
+            case HOUR: return i * MILLISECONDS_IN_HOUR;
+            case DAY: return i * MILLISECONDS_IN_DAY;
+            case WEEK: return i * MILLISECONDS_IN_DAY;
+            case MONTH: return i * MILLISECONDS_IN_DAY;
+            case YEAR: return i * MILLISECONDS_IN_DAY;
+            default: throw new IllegalStateException("Unknown time bucket of " + bucket);
+        }
+    }
+
+    private Instant getInstantFromInt(final int i) {
+        return Instant.ofEpochMilli(fromInt(i));
+    }
+}
