@@ -819,8 +819,8 @@
         <profile>
             <id>test</id>
             <properties>
-                <skip.surefire.tests>true</skip.surefire.tests>
-                <skip.failsafe.tests>true</skip.failsafe.tests>
+                <skip.surefire.tests>false</skip.surefire.tests>
+                <skip.failsafe.tests>false</skip.failsafe.tests>
             </properties>
             <build>
                 <plugins>
