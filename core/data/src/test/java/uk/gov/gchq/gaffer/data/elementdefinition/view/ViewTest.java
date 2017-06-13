@@ -16,19 +16,31 @@
 
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -130,37 +142,37 @@ public class ViewTest {
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"edges\" : {%n" +
-                "    \"BasicEdge\" : {%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property3\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"postTransformFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property3\" ]%n" +
-                "      } ],%n" +
-                "      \"transformFunctions\" : [ {%n" +
-                "        \"function\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleTransformFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\", \"property2\" ],%n" +
-                "        \"projection\" : [ \"property3\" ]%n" +
-                "      } ]%n" +
-                "    }%n" +
-                "  },%n" +
-                "  \"entities\" : {%n" +
-                "    \"BasicEntity\" : {%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ]%n" +
-                "    }%n" +
-                "  }%n" +
-                "}"), new String(json));
+            "  \"edges\" : {%n" +
+            "    \"BasicEdge\" : {%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property3\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"postTransformFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property3\" ]%n" +
+            "      } ],%n" +
+            "      \"transformFunctions\" : [ {%n" +
+            "        \"function\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleTransformFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\", \"property2\" ],%n" +
+            "        \"projection\" : [ \"property3\" ]%n" +
+            "      } ]%n" +
+            "    }%n" +
+            "  },%n" +
+            "  \"entities\" : {%n" +
+            "    \"BasicEntity\" : {%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ]%n" +
+            "    }%n" +
+            "  }%n" +
+            "}"), new String(json));
     }
 
     @Test
@@ -211,154 +223,118 @@ public class ViewTest {
     @Test
     public void shouldCreateViewWithGlobalDefinitions() {
         // Given
-        final View view = new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy(TestPropertyNames.PROP_1)
-                        .transientProperty(TestPropertyNames.PROP_2, String.class)
-                        .build())
-                .globalEntities(new GlobalViewElementDefinition.Builder()
-                        .postAggregationFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.VERTEX.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groups(TestGroups.ENTITY, TestGroups.ENTITY_2)
-                        .build())
-                .globalEdges(new GlobalViewElementDefinition.Builder()
-                        .postTransformFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.SOURCE.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy()
-                        .groups(TestGroups.EDGE, TestGroups.EDGE_2)
-                        .build())
-                .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.DATE)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy(TestPropertyNames.DATE)
-                        .build())
-                .entity(TestGroups.ENTITY)
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE)
-                .edge(TestGroups.EDGE_2)
-                .edge(TestGroups.EDGE_3)
-                .build();
+        final View view = createViewWithGroupByFields();
 
         // When
         view.expandGlobalDefinitions();
 
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"edges\" : {%n" +
-                "    \"BasicEdge2\" : {%n" +
-                "      \"groupBy\" : [ ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ],%n" +
-                "      \"postTransformFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"SOURCE\" ]%n" +
-                "      } ]%n" +
-                "    },%n" +
-                "    \"BasicEdge\" : {%n" +
-                "      \"groupBy\" : [ ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ],%n" +
-                "      \"postTransformFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"SOURCE\" ]%n" +
-                "      } ]%n" +
-                "    },%n" +
-                "    \"BasicEdge3\" : {%n" +
-                "      \"groupBy\" : [ \"property1\" ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ]%n" +
-                "    }%n" +
-                "  },%n" +
-                "  \"entities\" : {%n" +
-                "    \"BasicEntity2\" : {%n" +
-                "      \"groupBy\" : [ \"property1\" ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ],%n" +
-                "      \"postAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"VERTEX\" ]%n" +
-                "      } ]%n" +
-                "    },%n" +
-                "    \"BasicEntity\" : {%n" +
-                "      \"groupBy\" : [ \"property1\" ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      } ],%n" +
-                "      \"postAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"VERTEX\" ]%n" +
-                "      } ]%n" +
-                "    },%n" +
-                "    \"BasicEntity3\" : {%n" +
-                "      \"groupBy\" : [ \"dateProperty\" ],%n" +
-                "      \"transientProperties\" : {%n" +
-                "        \"property2\" : \"java.lang.String\"%n" +
-                "      },%n" +
-                "      \"preAggregationFilterFunctions\" : [ {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"property1\" ]%n" +
-                "      }, {%n" +
-                "        \"predicate\" : {%n" +
-                "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\" : [ \"dateProperty\" ]%n" +
-                "      } ]%n" +
-                "    }%n" +
-                "  }%n" +
-                "}"), new String(view.toJson(true)));
+            "  \"edges\" : {%n" +
+            "    \"BasicEdge2\" : {%n" +
+            "      \"groupBy\" : [ ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ],%n" +
+            "      \"postTransformFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"SOURCE\" ]%n" +
+            "      } ]%n" +
+            "    },%n" +
+            "    \"BasicEdge\" : {%n" +
+            "      \"groupBy\" : [ ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ],%n" +
+            "      \"postTransformFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"SOURCE\" ]%n" +
+            "      } ]%n" +
+            "    },%n" +
+            "    \"BasicEdge3\" : {%n" +
+            "      \"groupBy\" : [ \"property1\" ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ]%n" +
+            "    }%n" +
+            "  },%n" +
+            "  \"entities\" : {%n" +
+            "    \"BasicEntity2\" : {%n" +
+            "      \"groupBy\" : [ \"property1\" ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ],%n" +
+            "      \"postAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"VERTEX\" ]%n" +
+            "      } ]%n" +
+            "    },%n" +
+            "    \"BasicEntity\" : {%n" +
+            "      \"groupBy\" : [ \"property1\" ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      } ],%n" +
+            "      \"postAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"VERTEX\" ]%n" +
+            "      } ]%n" +
+            "    },%n" +
+            "    \"BasicEntity3\" : {%n" +
+            "      \"groupBy\" : [ \"dateProperty\" ],%n" +
+            "      \"transientProperties\" : {%n" +
+            "        \"property2\" : \"java.lang.String\"%n" +
+            "      },%n" +
+            "      \"preAggregationFilterFunctions\" : [ {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"property1\" ]%n" +
+            "      }, {%n" +
+            "        \"predicate\" : {%n" +
+            "          \"class\" : \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+            "        },%n" +
+            "        \"selection\" : [ \"dateProperty\" ]%n" +
+            "      } ]%n" +
+            "    }%n" +
+            "  }%n" +
+            "}"), new String(view.toJson(true)));
     }
 
     @Test
@@ -453,6 +429,164 @@ public class ViewTest {
         assertEquals(allGroups, groups);
     }
 
+    @Test
+    public void shouldCollectAllElementsTogetherIfNoGroupByIsStated() {
+        // given
+        View view = createView();
+
+        // when
+        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex2")
+                .build()
+        );
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(new HashSet<>(), input);
+
+        assertEquals(expected, results);
+    }
+
+    @Test
+    public void shouldCollectElementsTogetherIfGroupByIsSpecifiedInTheGlobalElementDefinitions() {
+        // given
+        View view = createViewWithGroupByFields();
+        // safe to assume global edges are expanded
+        view.expandGlobalDefinitions();
+        // when
+        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex2")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex3")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build(),
+            new Edge.Builder()  // group by is overwritten by global Edges
+                .group(TestGroups.EDGE)
+                .source("vertex1")
+                .dest("vertex2")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build()
+        );
+
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(Sets.newHashSet(), Collections.singletonList(input.get(3)));
+        expected.put(Sets.newHashSet("test1"), Collections.singletonList(input.get(0)));
+        expected.put(Sets.newHashSet("test2"), Lists.newArrayList(input.get(1), input.get(2)));
+
+        assertEquals(expected, results);
+
+    }
+
+    @Test
+    public void shouldCollectElementsTogetherWhenGroupByIsDefinedByViewDefinition() {
+        // given
+        View view = createViewWithGroupByFields();
+        view.expandGlobalDefinitions();
+
+        // when
+
+        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_3)
+                .vertex("vertex1")
+                .property(TestPropertyNames.DATE, "10-03-2017")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_3)
+                .vertex("vertex2")
+                .property(TestPropertyNames.DATE, "10-03-2017")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex2")
+                .property(TestPropertyNames.DATE, "10-03-2017")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_3)
+                .vertex("vertex2")
+                .property(TestPropertyNames.DATE, "21-06-2016")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build()
+        );
+
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(Sets.newHashSet("10-03-2017"), Lists.newArrayList(input.get(0), input.get(1)));
+        expected.put(Sets.newHashSet("test1"), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet("21-06-2016"), Lists.newArrayList(input.get(3)));
+
+
+        assertEquals(expected, results);
+
+    }
+
+    private View createViewWithGroupByFields() {
+        return new View.Builder()
+            .globalElements(new GlobalViewElementDefinition.Builder()
+                .preAggregationFilter(new ElementFilter.Builder()
+                    .select(TestPropertyNames.PROP_1)
+                    .execute(new ExampleFilterFunction())
+                    .build())
+                .groupBy(TestPropertyNames.PROP_1)
+                .transientProperty(TestPropertyNames.PROP_2, String.class)
+                .build())
+            .globalEntities(new GlobalViewElementDefinition.Builder()
+                .postAggregationFilter(new ElementFilter.Builder()
+                    .select(IdentifierType.VERTEX.name())
+                    .execute(new ExampleFilterFunction())
+                    .build())
+                .groups(TestGroups.ENTITY, TestGroups.ENTITY_2)
+                .build())
+            .globalEdges(new GlobalViewElementDefinition.Builder()
+                .postTransformFilter(new ElementFilter.Builder()
+                    .select(IdentifierType.SOURCE.name())
+                    .execute(new ExampleFilterFunction())
+                    .build())
+                .groupBy()
+                .groups(TestGroups.EDGE, TestGroups.EDGE_2)
+                .build())
+            .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
+                .preAggregationFilter(new ElementFilter.Builder()
+                    .select(TestPropertyNames.DATE)
+                    .execute(new ExampleFilterFunction())
+                    .build())
+                .groupBy(TestPropertyNames.DATE)
+                .build())
+            .entity(TestGroups.ENTITY)
+            .entity(TestGroups.ENTITY_2)
+            .edge(TestGroups.EDGE)
+            .edge(TestGroups.EDGE_2)
+            .edge(TestGroups.EDGE_3)
+            .build();
+    }
     private View createView() {
         return new View.Builder()
                 .globalElements(new GlobalViewElementDefinition.Builder()

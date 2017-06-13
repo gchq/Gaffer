@@ -24,6 +24,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -158,6 +160,22 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;
         }
+    }
+
+    @JsonIgnore
+    public Function<Element, Set<Object>> getGroupByFunction() {
+        return element -> {
+            Set<Object> key = new HashSet<>();
+            String group = element.getGroup();
+            Set<String> groupBy = getElementGroupBy(group);
+            if (groupBy == null) {
+                return key;
+            }
+            for (final String property: groupBy) {
+                key.add(element.getProperty(property));
+            }
+            return key;
+        };
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
