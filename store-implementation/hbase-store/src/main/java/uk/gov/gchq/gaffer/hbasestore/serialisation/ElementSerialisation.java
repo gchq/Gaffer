@@ -274,6 +274,12 @@ public class ElementSerialisation {
                     } catch (final SerialisationException e) {
                         throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                     }
+                } else {
+                    try {
+                        properties.put(propertyName, serialiser.deserialiseEmpty());
+                    } catch (final SerialisationException e) {
+                        throw new SerialisationException("Failed to deserialise property " + propertyName, e);
+                    }
                 }
             }
         }
