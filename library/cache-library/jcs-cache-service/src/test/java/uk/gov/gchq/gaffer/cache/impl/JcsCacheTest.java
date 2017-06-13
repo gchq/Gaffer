@@ -1,8 +1,8 @@
 package uk.gov.gchq.gaffer.cache.impl;
 
 
-import org.apache.jcs.access.exception.CacheException;
-import org.apache.jcs.engine.control.CompositeCacheManager;
+import org.apache.commons.jcs.access.exception.CacheException;
+import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -145,5 +145,4 @@ public class JcsCacheTest {
 
         assertThat(cache.getAllValues(), IsCollectionContaining.hasItems(1, 2, 3));
     }
-
 }

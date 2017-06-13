@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
@@ -49,7 +50,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class GetAllElementsIT extends AbstractStoreIT {
     @Override
@@ -200,7 +200,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
 
         if (includeEdges) {
             for (final Edge edge : getEdges().values()) {
-                if (DirectedType.BOTH == directedType
+                if (DirectedType.EITHER == directedType
                         || (edge.isDirected() && DirectedType.DIRECTED == directedType)
                         || (!edge.isDirected() && DirectedType.UNDIRECTED == directedType)) {
                     expectedElements.add(edge);

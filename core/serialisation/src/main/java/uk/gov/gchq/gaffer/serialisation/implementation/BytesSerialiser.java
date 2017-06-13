@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-public class BytesSerialiser implements Serialisation<byte[]> {
+public class BytesSerialiser implements ToBytesSerialiser<byte[]> {
     private static final long serialVersionUID = -7718650654168267452L;
 
     @Override
@@ -37,7 +37,7 @@ public class BytesSerialiser implements Serialisation<byte[]> {
     }
 
     @Override
-    public byte[] deserialiseEmptyBytes() {
+    public byte[] deserialiseEmpty() {
         return new byte[0];
     }
 

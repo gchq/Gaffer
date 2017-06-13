@@ -20,6 +20,7 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -37,7 +38,7 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
     public IteratorSetting getElementPropertyRangeQueryFilter(final GraphFilters operation) {
         final boolean includeEntities = operation.getView().hasEntities();
         final boolean includeEdges = operation.getView().hasEdges();
-        final GraphFilters.DirectedType directedType = operation.getDirectedType();
+        final DirectedType directedType = operation.getDirectedType();
         final SeededGraphFilters.IncludeIncomingOutgoingType inOutType;
         if (operation instanceof SeededGraphFilters) {
             inOutType = ((SeededGraphFilters) operation).getIncludeIncomingOutGoing();
@@ -46,8 +47,9 @@ public class ByteEntityIteratorSettingsFactory extends AbstractCoreKeyIteratorSe
         }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if (includeEdges && (null == directedType || directedType == GraphFilters.DirectedType.BOTH)
-                && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.BOTH)
+        if (includeEdges
+                && DirectedType.isEither(directedType)
+                && (null == inOutType || inOutType == SeededGraphFilters.IncludeIncomingOutgoingType.EITHER)
                 && includeEntities && !deduplicateUndirectedEdges) {
             return null;
         }

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.doc.user.generator;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;

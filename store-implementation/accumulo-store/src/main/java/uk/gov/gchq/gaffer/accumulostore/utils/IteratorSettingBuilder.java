@@ -16,23 +16,26 @@
 
 package uk.gov.gchq.gaffer.accumulostore.utils;
 
+import com.google.common.collect.Lists;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.Combiner;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.hadoop.util.bloom.BloomFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public class IteratorSettingBuilder {
     private final IteratorSetting setting;
@@ -65,6 +68,11 @@ public class IteratorSettingBuilder {
         return this;
     }
 
+    public IteratorSettingBuilder combinerColumnFamilies(final List<String> columnFamilies) {
+        Combiner.setColumns(setting, Lists.transform(columnFamilies, IteratorSetting.Column::new));
+        return this;
+    }
+
     public IteratorSettingBuilder bloomFilter(final BloomFilter filter) throws IteratorSettingException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -89,10 +97,10 @@ public class IteratorSettingBuilder {
         return this;
     }
 
-    public IteratorSettingBuilder directedType(final GraphFilters.DirectedType directedType) {
-        if (GraphFilters.DirectedType.DIRECTED == directedType) {
+    public IteratorSettingBuilder directedType(final DirectedType directedType) {
+        if (DirectedType.DIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
-        } else if (GraphFilters.DirectedType.UNDIRECTED == directedType) {
+        } else if (DirectedType.UNDIRECTED == directedType) {
             setting.addOption(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
         }
         return this;

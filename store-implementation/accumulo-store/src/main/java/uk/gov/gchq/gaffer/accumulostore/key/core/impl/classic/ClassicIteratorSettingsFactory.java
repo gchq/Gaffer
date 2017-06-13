@@ -19,12 +19,11 @@ import org.apache.accumulo.core.client.IteratorSetting;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyIteratorSettingsFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorSettingBuilder;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-
-import static uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 
 public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSettingsFactory {
     private static final String EDGE_DIRECTED_UNDIRECTED_FILTER = ClassicEdgeDirectedUndirectedFilterIterator.class
@@ -45,9 +44,9 @@ public class ClassicIteratorSettingsFactory extends AbstractCoreKeyIteratorSetti
         }
         final boolean deduplicateUndirectedEdges = operation instanceof GetAllElements;
 
-        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.BOTH)
+        if ((null == inOutType || inOutType == IncludeIncomingOutgoingType.EITHER)
                 && includeEdges
-                && (null == directedType || directedType == DirectedType.BOTH)
+                && (DirectedType.isEither(directedType))
                 && !deduplicateUndirectedEdges) {
             return null;
         }

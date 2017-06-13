@@ -25,16 +25,19 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -59,9 +62,9 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private final TypeDefinition unknownType = new TypeDefinition();
 
     /**
-     * The {@link uk.gov.gchq.gaffer.serialisation.Serialisation} for all vertices.
+     * The {@link Serialiser} for all vertices.
      */
-    private Serialisation vertexSerialiser;
+    private Serialiser vertexSerialiser;
 
     /**
      * A map of custom type name to {@link TypeDefinition}.
@@ -106,16 +109,43 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      *
      * @return {@code true} if the schema contains aggregators, otherwise {@code false}
      */
-    public boolean hasAggregators() {
-        boolean schemaContainsAggregators = false;
+    @JsonIgnore
+    public boolean isAggregationEnabled() {
+        boolean isEnabled = false;
 
-        for (final TypeDefinition type : types.values()) {
-            if (null != type.getAggregateFunction()) {
-                schemaContainsAggregators = true;
+        for (final Entry<String, ? extends SchemaElementDefinition> entry : getElementDefinitions()) {
+            if (null != entry.getValue() && entry.getValue().isAggregate()) {
+                isEnabled = true;
+                break;
             }
         }
 
-        return schemaContainsAggregators;
+        return isEnabled;
+    }
+
+    @JsonIgnore
+    public List<String> getAggregatedGroups() {
+        final List<String> groups = new ArrayList<>();
+
+        for (final Entry<String, ? extends SchemaElementDefinition> entry : getElementDefinitions()) {
+            if (null != entry.getValue() && entry.getValue().isAggregate()) {
+                groups.add(entry.getKey());
+            }
+        }
+
+        return groups;
+    }
+
+    private Iterable<Map.Entry<String, ? extends SchemaElementDefinition>> getElementDefinitions() {
+        if (null == getEntities()) {
+            return (Iterable) getEdges().entrySet();
+        }
+
+        if (null == getEdges()) {
+            return (Iterable) getEntities().entrySet();
+        }
+
+        return new ChainedIterable<>(getEntities().entrySet(), getEdges().entrySet());
     }
 
     /**
@@ -134,19 +164,18 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             }
         }
 
-        final boolean hasAggregators = hasAggregators();
         for (final Entry<String, SchemaEdgeDefinition> elementDefEntry : getEdges().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Edge definition was null for group: " + elementDefEntry.getKey());
             }
-            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
+            result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid edge definition for group: " + elementDefEntry.getKey());
         }
 
         for (final Entry<String, SchemaEntityDefinition> elementDefEntry : getEntities().entrySet()) {
             if (null == elementDefEntry.getValue()) {
                 throw new SchemaException("Entity definition was null for group: " + elementDefEntry.getKey());
             }
-            result.add(elementDefEntry.getValue().validate(hasAggregators), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
+            result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
         return result;
     }
@@ -171,10 +200,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * the byte representation of the search term's (seeds) must match the byte representation stored,
      * i.e you need to know how your results have been serialised which effectively means all vertices must be serialised the same way within a table.
      *
-     * @return An implementation of {@link uk.gov.gchq.gaffer.serialisation.Serialisation} that will be used to serialise all vertices.
+     * @return An implementation of {@link Serialiser} that will be used to serialise all vertices.
      */
     @JsonIgnore
-    public Serialisation getVertexSerialiser() {
+    public Serialiser getVertexSerialiser() {
         return vertexSerialiser;
     }
 
@@ -234,29 +263,29 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         /**
-         * Sets the {@link uk.gov.gchq.gaffer.serialisation.Serialisation}.
+         * Sets the {@link Serialiser}.
          *
-         * @param vertexSerialiser the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} to set
+         * @param vertexSerialiser the {@link Serialiser} to set
          * @return this Builder
          */
-        public CHILD_CLASS vertexSerialiser(final Serialisation vertexSerialiser) {
+        public CHILD_CLASS vertexSerialiser(final Serialiser vertexSerialiser) {
             getThisSchema().vertexSerialiser = vertexSerialiser;
             return self();
         }
 
         /**
-         * Sets the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} from class name.
+         * Sets the {@link Serialiser} from class name.
          *
-         * @param vertexSerialiserClass the {@link uk.gov.gchq.gaffer.serialisation.Serialisation} class name to set
+         * @param vertexSerialiserClass the {@link Serialiser} class name to set
          * @return this Builder
          */
         public CHILD_CLASS vertexSerialiserClass(final String vertexSerialiserClass) {
             if (null == vertexSerialiserClass) {
                 getThisSchema().vertexSerialiser = null;
             } else {
-                Class<? extends Serialisation> serialiserClass;
+                Class<? extends Serialiser> serialiserClass;
                 try {
-                    serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialisation.class);
+                    serialiserClass = Class.forName(vertexSerialiserClass).asSubclass(Serialiser.class);
                 } catch (final ClassNotFoundException e) {
                     throw new SchemaException(e.getMessage(), e);
                 }

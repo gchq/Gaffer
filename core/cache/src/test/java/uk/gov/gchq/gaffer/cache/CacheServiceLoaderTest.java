@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class CacheServiceLoaderTest {
@@ -90,5 +91,18 @@ public class CacheServiceLoaderTest {
 
         // then
         assertEquals(component1Service, component2Service);
+    }
+
+    @Test
+    public void shouldSetServiceToNullAfterCallingShutdown() {
+        // given
+        serviceLoaderProperties.setProperty(CacheProperties.CACHE_SERVICE_CLASS, EmptyCacheService.class.getName());
+        CacheServiceLoader.initialise(serviceLoaderProperties);
+
+        // when
+        CacheServiceLoader.shutdown();
+
+        // then
+        assertNull(CacheServiceLoader.getService());
     }
 }

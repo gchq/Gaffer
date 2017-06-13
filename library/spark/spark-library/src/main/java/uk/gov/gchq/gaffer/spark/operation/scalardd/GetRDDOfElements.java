@@ -18,7 +18,10 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.commonutil.FieldUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -27,6 +30,7 @@ import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.spark.serialisation.TypeReferenceSparkImpl;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Map;
 
 public class GetRDDOfElements implements
@@ -114,6 +118,11 @@ public class GetRDDOfElements implements
     @Override
     public void setDirectedType(final DirectedType directedType) {
         this.directedType = directedType;
+    }
+
+    @Override
+    public ValidationResult validate() {
+        return FieldUtil.validateRequiredFields(new Pair<>("sparkContext", sparkContext));
     }
 
     public static class Builder extends Operation.BaseBuilder<GetRDDOfElements, Builder>

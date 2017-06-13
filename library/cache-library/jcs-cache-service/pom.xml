@@ -18,7 +18,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>cache-library</artifactId>
-        <version>0.7.3</version>
+        <version>0.7.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,8 +35,8 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.jcs</groupId>
-            <artifactId>jcs</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jcs-core</artifactId>
             <version>${jcs.version}</version>
         </dependency>
     </dependencies>

@@ -20,7 +20,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>rest-api</artifactId>
-        <version>0.7.3</version>
+        <version>0.7.4</version>
     </parent>
 
     <artifactId>core-rest</artifactId>

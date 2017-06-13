@@ -26,7 +26,7 @@ public interface SeededGraphFilters extends GraphFilters {
     IncludeIncomingOutgoingType getIncludeIncomingOutGoing();
 
     /**
-     * @param inOutType a {@link DirectedType}
+     * @param inOutType a {@link IncludeIncomingOutgoingType}
      *                  that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
      *                  filtered out in the operation.
      * @see IncludeIncomingOutgoingType
@@ -39,7 +39,7 @@ public interface SeededGraphFilters extends GraphFilters {
      * the operation.
      */
     enum IncludeIncomingOutgoingType {
-        BOTH, INCOMING, OUTGOING
+        EITHER, INCOMING, OUTGOING
     }
 
     interface Builder<OP extends SeededGraphFilters, B extends Builder<OP, ?>> extends GraphFilters.Builder<OP, B> {

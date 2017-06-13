@@ -10,7 +10,8 @@
         "opAuths": "stringSet",
         "resultClass": "string",
         "result": "json"
-      }
+      },
+      "aggregate": false
     }
   },
   "visibilityProperty": "visibility",

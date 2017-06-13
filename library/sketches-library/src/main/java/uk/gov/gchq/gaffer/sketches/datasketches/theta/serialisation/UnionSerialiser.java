@@ -20,13 +20,13 @@ import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * A <code>UnionSerialiser</code> serialises an {@link Union} using the <code>toByteArray()</code> method from the
  * sketch
  */
-public class UnionSerialiser implements Serialisation<Union> {
+public class UnionSerialiser implements ToBytesSerialiser<Union> {
     private static final long serialVersionUID = -7510002118163110532L;
 
     @Override
@@ -47,7 +47,7 @@ public class UnionSerialiser implements Serialisation<Union> {
     }
 
     @Override
-    public Union deserialiseEmptyBytes() throws SerialisationException {
+    public Union deserialiseEmpty() throws SerialisationException {
         return null;
     }
 

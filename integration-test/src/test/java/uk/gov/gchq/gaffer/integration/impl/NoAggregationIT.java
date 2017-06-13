@@ -112,8 +112,7 @@ public class NoAggregationIT extends AbstractStoreIT {
             fail("Iterator with expected size was null.");
         }
 
-        @SuppressWarnings("unchecked")
-        final ArrayList shallowClone = (ArrayList) elements.clone();
+        @SuppressWarnings("unchecked") final ArrayList shallowClone = (ArrayList) elements.clone();
 
         while (elementIterator.hasNext()) {
             Element next = elementIterator.next();
@@ -130,12 +129,14 @@ public class NoAggregationIT extends AbstractStoreIT {
                         new SchemaEntityDefinition.Builder()
                                 .vertex(TestTypes.ID_STRING)
                                 .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                                .aggregate(false)
                                 .build())
                 .edge(TestGroups.EDGE,
                         new SchemaEdgeDefinition.Builder()
                                 .source(TestTypes.ID_STRING)
                                 .destination(TestTypes.ID_STRING)
                                 .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
+                                .aggregate(false)
                                 .build())
                 .type(TestTypes.ID_STRING,
                         new TypeDefinition.Builder()
