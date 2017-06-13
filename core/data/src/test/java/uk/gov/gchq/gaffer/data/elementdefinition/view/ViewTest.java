@@ -433,6 +433,7 @@ public class ViewTest {
     public void shouldCollectAllElementsTogetherIfNoGroupByIsStated() {
         // given
         View view = createView();
+        view.expandGlobalDefinitions();
 
         // when
         Function<Element, Set<Object>> fn = view.getGroupByFunction();
