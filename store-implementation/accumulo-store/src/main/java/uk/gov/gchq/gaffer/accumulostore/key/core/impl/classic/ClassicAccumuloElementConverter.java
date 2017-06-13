@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
@@ -148,41 +147,33 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // (no need to worry about which direction the vertices should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
         final int directionFlag = rowKey[rowKey.length - 1];
-        if (directionFlag == ClassicBytePositions.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValue[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValue[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValue[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValue[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new AccumuloElementConversionException(
-                    "Invalid direction flag in row key - flag was " + directionFlag);
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]);
+        sourceDestValue[0] = sourceBytes;
+        sourceDestValue[1] = destBytes;
+        boolean rtn;
+        switch (directionFlag) {
+            case ClassicBytePositions.UNDIRECTED_EDGE:
+                // Edge is undirected
+                rtn = false;
+                break;
+            case ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the first identifier is the source of the edge
+                rtn = true;
+                break;
+            case ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the second identifier is the source of the edge
+                if (!matchEdgeSource(options)) {
+                    sourceDestValue[0] = destBytes;
+                    sourceDestValue[1] = sourceBytes;
+                }
+                rtn = true;
+                break;
+            default:
+                throw new AccumuloElementConversionException(
+                        "Invalid direction flag in row key - flag was " + directionFlag);
         }
-    }
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        return rtn;
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {

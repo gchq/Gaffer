@@ -523,31 +523,33 @@ public class ElementSerialisation {
         } catch (final NumberFormatException e) {
             throw new SerialisationException("Error parsing direction flag from row cell - " + e);
         }
-        if (directionFlag == HBaseStoreConstants.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new SerialisationException(
-                    "Invalid direction flag in row cell - flag was " + directionFlag);
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
+        sourceDestValues[0] = sourceBytes;
+        sourceDestValues[1] = destBytes;
+        boolean rtn;
+        switch (directionFlag) {
+            case HBaseStoreConstants.UNDIRECTED_EDGE:
+                // Edge is undirected
+                rtn = false;
+                break;
+            case HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the first identifier is the source of the edge
+                rtn = true;
+                break;
+            case HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the second identifier is the source of the edge
+                if (!matchEdgeSource(options)) {
+                    sourceDestValues[0] = destBytes;
+                    sourceDestValues[1] = sourceBytes;
+                }
+                rtn = true;
+                break;
+            default:
+                throw new SerialisationException(
+                        "Invalid direction flag in row cell - flag was " + directionFlag);
         }
+        return rtn;
     }
 
     private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
@@ -591,23 +593,12 @@ public class ElementSerialisation {
         try {
             final byte[] row = CellUtil.cloneRow(cell);
             final Entity entity = new Entity(getGroup(cell), ((ToBytesSerialiser) schema.getVertexSerialiser())
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(row, 0, row.length - 2)));
             addPropertiesToElement(entity, cell);
             return entity;
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to re-create Entity from cell", e);
         }
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-    }
-
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {

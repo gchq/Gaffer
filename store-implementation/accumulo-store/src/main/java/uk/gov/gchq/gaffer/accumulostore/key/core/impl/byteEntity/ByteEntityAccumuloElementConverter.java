@@ -112,8 +112,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     protected Entity getEntityFromKey(final Key key) {
         try {
             final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0,
-                            key.getRowData().getBackingArray().length - 2))));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray(), 0, key.getRowData().getBackingArray().length - 2)));
             addPropertiesToElement(entity, key);
             return entity;
         } catch (final SerialisationException e) {
@@ -152,8 +151,8 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
 
-        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
         boolean rtn;
         sourceDestValues[0] = sourceBytes;
         sourceDestValues[1] = destBytes;

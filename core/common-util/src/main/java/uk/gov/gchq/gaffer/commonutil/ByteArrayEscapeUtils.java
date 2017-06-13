@@ -16,6 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import java.security.InvalidParameterException;
+
 /**
  * Removes the 0 byte from a byte array. Preserves ordering.
  */
@@ -35,8 +37,7 @@ public final class ByteArrayEscapeUtils {
      * Escapes the provided string so that it no longer contains the
      * Constants.DELIMITER character.
      *
-     * @param bytes
-     *            the byte array to escape
+     * @param bytes the byte array to escape
      * @return the escaped byte array
      */
     public static byte[] escape(final byte[] bytes) {
@@ -62,15 +63,59 @@ public final class ByteArrayEscapeUtils {
      * Unescapes the provided byte array - this should only be called on byte
      * arrays that have been through the <code>escape</code> method.
      *
-     * @param bytes
-     *            the byte array to unescape
+     * @param bytes the byte array to unescape
      * @return the unescaped byte array
      */
     public static byte[] unEscape(final byte[] bytes) {
-        final byte[] temp = new byte[bytes.length];
+        return unEscapeByLength(bytes, 0, bytes.length);
+    }
+
+    /**
+     * Unescapes the provided byte array - this should only be called on byte
+     * arrays that have been through the <code>escape</code> method.
+     *
+     * @param allBytes The backing byte array which contains the subset to unEscape
+     * @param start    The position to start the unEscape, inclusive.
+     * @param end      The position to end the unEscape, exclusive
+     * @return the unescaped byte array
+     */
+    public static byte[] unEscape(final byte[] allBytes, final int start, final int end) {
+        return unEscapeByPosition(allBytes, start, end);
+    }
+
+
+    /**
+     * Unescapes the provided byte array - this should only be called on byte
+     * arrays that have been through the <code>escape</code> method.
+     *
+     * @param allBytes The backing byte array which contains the subset to unEscape
+     * @param start    The position to start the unEscape, inclusive.
+     * @param end      The position to end the unEscape, exclusive
+     * @return the unescaped byte array
+     */
+    public static byte[] unEscapeByPosition(final byte[] allBytes, final int start, final int end) {
+        return unEscapeByLength(allBytes, start, end - start);
+    }
+
+    /**
+     * Unescapes the provided byte array - this should only be called on byte
+     * arrays that have been through the <code>escape</code> method.
+     *
+     * @param allBytes The backing byte array which contains the subset to unEscape.
+     * @param offset   The position to start the unEscape, inclusive
+     * @param length   The length of bytes to unEscape
+     * @return the unescaped byte array
+     */
+    public static byte[] unEscapeByLength(final byte[] allBytes, final int offset, final int length) {
+        if (allBytes.length < offset + length) {
+            throw new InvalidParameterException(String.format("unEscape parameters larger than allByte.length:%d, offset:%d, length:%d", allBytes.length, offset, length));
+        }
+        final byte[] temp = new byte[length];
         int currentPosition = 0;
         boolean isEscaped = false;
-        for (final byte b : bytes) {
+
+        for (int i = offset; i < allBytes.length && i < offset + length; i++) {
+            byte b = allBytes[i];
             if (isEscaped) {
                 if (b == REPLACEMENT_CHAR) {
                     temp[currentPosition++] = ESCAPE_CHAR;
