@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation;
 
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.SerialisationFactory;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 
 /**
  * A <code>ParquetSerialisationFactory</code> holds a list of core serialisers and
