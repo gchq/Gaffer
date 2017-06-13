@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.util.Date;
@@ -172,6 +173,7 @@ public abstract class ElementTest {
         final Element deserialisedElement = serialiser.deserialise(serialisedElement, element.getClass());
 
         // Then
+        assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.util.Date\":5}"));
         assertEquals(element, deserialisedElement);
     }
 
