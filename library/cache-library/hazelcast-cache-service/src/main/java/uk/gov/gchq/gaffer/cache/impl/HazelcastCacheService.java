@@ -21,7 +21,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
@@ -36,18 +36,20 @@ public class HazelcastCacheService implements ICacheService {
     private static HazelcastInstance hazelcast;
 
     private static void configureHazelcast(final Properties properties) {
-        String configFile = properties.getProperty(CACHE_CONFIG_FILE);
-        if (configFile == null) {
-            LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
-                    + ". Using default settings");
+        if (null == hazelcast || !Hazelcast.getAllHazelcastInstances().contains(hazelcast)) {
+            String configFile = properties.getProperty(CACHE_CONFIG_FILE);
+            if (configFile == null) {
+                LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
+                        + ". Using default settings");
 
-            hazelcast = Hazelcast.newHazelcastInstance();
-        } else {
-            try {
-                final Config config = new FileSystemXmlConfig(configFile);
-                hazelcast = Hazelcast.newHazelcastInstance(config);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+                hazelcast = Hazelcast.newHazelcastInstance();
+            } else {
+                try {
+                    final Config config = new FileSystemXmlConfig(configFile);
+                    hazelcast = Hazelcast.newHazelcastInstance(config);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+                }
             }
         }
     }
@@ -58,14 +60,23 @@ public class HazelcastCacheService implements ICacheService {
         LOGGER.info(hazelcast.getCluster().getClusterState().name()); // bootstraps hazelcast
     }
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     @Override
     public void shutdown() {
-        hazelcast.shutdown();
+        if (null != hazelcast) {
+            hazelcast.shutdown();
+        }
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        IMap<K, V> cache = hazelcast.getMap(cacheName);
-        return new HazelcastCache<>(cache);
+        final ICache<K, V> cache;
+        if (null != hazelcast) {
+            cache = new HazelcastCache<>(hazelcast.getMap(cacheName));
+        } else {
+            cache = null;
+        }
+
+        return cache;
     }
 }
