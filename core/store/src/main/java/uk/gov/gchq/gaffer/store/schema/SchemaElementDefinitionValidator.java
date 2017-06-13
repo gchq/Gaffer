@@ -137,7 +137,7 @@ public class SchemaElementDefinitionValidator {
         }
 
         if (!elementDef.isAggregate()) {
-            if (elementDef.getGroupBy().size() != 0) {
+            if (!elementDef.getGroupBy().isEmpty()) {
                 result.addError("Groups with aggregation disabled should not have groupBy properties.");
             }
             return result;
