@@ -45,3 +45,10 @@ sure to include the library as a dependency:
    <version>${gaffer.version}</version>
 </dependency>
 ```
+
+When the cache service is initialised a shutdown hook is added to the JVM.
+This allows the teardown process to happen gracefully.
+
+If using the Hazelcast instance of the Cache service be aware that once the last
+node shuts down, all data will be lost. This is due to the data being held in
+memory in a distributed system.
