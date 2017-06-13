@@ -70,7 +70,7 @@ public abstract class Element implements ElementId {
         return properties.get(name);
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "class")
     public Properties getProperties() {
         return properties;
     }
