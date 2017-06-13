@@ -124,6 +124,8 @@ uk.gov.gchq.gaffer.rest.mapper
 uk.gov.gchq.gaffer.rest.serialisation
 uk.gov.gchq.gaffer.rest.service
 uk.gov.gchq.gaffer.serialisation
+uk.gov.gchq.gaffer.serialisation.ToStringSerialiser
+uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation
 uk.gov.gchq.gaffer.serialisation.implementation
 uk.gov.gchq.gaffer.serialisation.implementation.raw
 uk.gov.gchq.gaffer.sketches.binaryoperator
@@ -160,6 +162,7 @@ uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.java
 uk.gov.gchq.gaffer.sparkaccumulo.operation.utils.scala
 uk.gov.gchq.gaffer.store
 uk.gov.gchq.gaffer.store.element
+uk.gov.gchq.gaffer.store.operation
 uk.gov.gchq.gaffer.store.operation.handler
 uk.gov.gchq.gaffer.store.operation.handler.compare
 uk.gov.gchq.gaffer.store.operation.handler.export
