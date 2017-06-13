@@ -154,8 +154,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // (no need to worry about which direction the vertices should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
         final int directionFlag = rowKey[rowKey.length - 1];
-        byte[] sourceBytes = getSourceBytes(rowKey, positionsOfDelimiters);
-        byte[] destBytes = getDestBytes(rowKey, positionsOfDelimiters);
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
         sourceDestValue[0] = sourceBytes;
         sourceDestValue[1] = destBytes;
         boolean rtn;
@@ -181,16 +181,6 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
                         "Invalid direction flag in row key - flag was " + directionFlag);
         }
         return rtn;
-    }
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {
