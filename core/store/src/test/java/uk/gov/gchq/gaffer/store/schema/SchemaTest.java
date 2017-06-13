@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -23,6 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
+import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -37,15 +41,20 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -277,6 +286,18 @@ public class SchemaTest {
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                    .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                    .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                    .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                    .description(ENTITY_DESCRIPTION)
+                    .validator(new ElementFilter.Builder()
+                            .select(TestPropertyNames.PROP_1)
+                            .execute(new ExampleFilterFunction())
+                            .build())
+                    .build())
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -322,6 +343,22 @@ public class SchemaTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : {%n" +
+                "    \"BasicEntity2\": {%n" +
+                "      \"properties\": {%n" +
+                "        \"property1\": \"prop.string\",%n" +
+                "        \"property2\": \"prop.integer\",%n" +
+                "        \"timestamp\": \"timestamp\"%n" +
+                "      },%n" +
+                "      \"groupBy\": [ \"property1\", \"property2\"],%n" +
+                "      \"description\": \"Entity description\",%n" +
+                "      \"vertex\": \"id.string\",%n" +
+                "      \"validateFunctions\": [ {%n "+
+                "        \"predicate\": {%n" +
+                "          \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
+                "        },%n" +
+                "        \"selection\": [ \"property1\" ]%n" +
+                "      } ]%n" +
+                "    },%n" +
                 "    \"BasicEntity\" : {%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
@@ -876,6 +913,118 @@ public class SchemaTest {
         allGroups.addAll(schema.getEdgeGroups());
 
         assertEquals(allGroups, groups);
+    }
+
+    @Test
+    public void shouldCollectAllElementsTogetherIfNoGroupByIsStated() {
+        // given
+        Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
+
+        // when
+        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex2")
+                .build()
+        );
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(new HashSet<>(), input);
+
+        assertEquals(expected, results);
+    }
+
+    @Test
+    public void shouldCollectElementsTogetherIfOneGroupByValueSpecified() {
+        // given
+        Schema schema = createSchema();
+
+        // when
+        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex1")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("vertex2")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build(),
+            new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("vertex1")
+                .dest("vertex2")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .build()
+        );
+
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(Sets.newHashSet("test1"), Collections.singletonList(input.get(0)));
+        expected.put(Sets.newHashSet("test2"), Lists.newArrayList(input.get(1), input.get(2)));
+
+        assertEquals(expected, results);
+
+    }
+
+    @Test
+    public void shouldCollectElementsTogetherWhenMoreThanOneGroupByPropertyIsSpecified() {
+        // given
+        Schema schema = createSchema();
+
+        // when
+
+        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+        List<Element> input = Arrays.asList(
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex1")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .property(TestPropertyNames.PROP_2, 1)
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex2")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .property(TestPropertyNames.PROP_2, 2)
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex2")
+                .property(TestPropertyNames.PROP_1, "test1")
+                .property(TestPropertyNames.PROP_2, 1)
+                .build(),
+            new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex2")
+                .property(TestPropertyNames.PROP_1, "test2")
+                .property(TestPropertyNames.PROP_2, 2)
+                .build()
+        );
+
+        // then
+
+        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Set<Object>, List<Element>> expected = new HashMap<>();
+        expected.put(Sets.newHashSet("test1", 1), Lists.newArrayList(input.get(0), input.get(2)));
+        expected.put(Sets.newHashSet("test1", 2), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", 2), Lists.newArrayList(input.get(3)));
+
+
+        assertEquals(expected, results);
+
     }
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {

@@ -26,10 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
+
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -41,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Contains the full list of {@link uk.gov.gchq.gaffer.data.element.Element} types to be stored in the graph.
@@ -121,6 +124,21 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         return isEnabled;
+    }
+
+    @JsonIgnore
+    public Function<Element, Set<Object>> getGroupByFunction() {
+        return element -> {
+            Set<Object> key = new HashSet<>();
+            String group = element.getGroup();
+            final SchemaElementDefinition elDef = this.getElement(group);
+            Set<String> groupBy = elDef.getGroupBy();
+
+            for (final String property: groupBy) {
+                key.add(element.getProperty(property));
+            }
+            return key;
+        };
     }
 
     @JsonIgnore
