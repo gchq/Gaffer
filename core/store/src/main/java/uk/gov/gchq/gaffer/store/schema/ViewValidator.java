@@ -25,7 +25,9 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.composite.Composite;
 import uk.gov.gchq.koryphe.signature.Signature;
 import uk.gov.gchq.koryphe.tuple.function.TupleAdaptedFunction;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
@@ -48,12 +50,14 @@ public class ViewValidator {
      * compatible with the identifiers and properties in the {@link Schema}
      * and transient properties in the {@link View}.
      *
-     * @param view           the {@link View} to validate
-     * @param schema         the {@link Schema} to validate the view against
-     * @param isStoreOrdered true if the store is ordered
+     * @param view        the {@link View} to validate
+     * @param schema      the {@link Schema} to validate the view against
+     * @param storeTraits the store traits
      * @return true if the element definition is valid, otherwise false and an error is logged
      */
-    public ValidationResult validate(final View view, final Schema schema, final boolean isStoreOrdered) {
+    public ValidationResult validate(final View view, final Schema schema, final Set<StoreTrait> storeTraits) {
+        final boolean isStoreOrdered = storeTraits.contains(StoreTrait.ORDERED);
+
         final ValidationResult result = new ValidationResult();
 
         if (null != view) {
@@ -72,6 +76,7 @@ public class ViewValidator {
                             }
                         }
 
+                        result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
@@ -96,6 +101,7 @@ public class ViewValidator {
                             }
                         }
 
+                        result.add(validateAgainstStoreTraits(viewElDef, storeTraits));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPreAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getPostAggregationFilter(), viewElDef, schemaElDef));
                         result.add(validateFunctionArgumentTypes(viewElDef.getTransformer(), viewElDef, schemaElDef));
@@ -105,6 +111,17 @@ public class ViewValidator {
                 }
             }
         }
+
+        return result;
+    }
+
+    protected ValidationResult validateAgainstStoreTraits(final ViewElementDefinition viewElDef, final Set<StoreTrait> storeTraits) {
+        final ValidationResult result = new ValidationResult();
+
+        validateStoreTrait(viewElDef.getPreAggregationFilter(), StoreTrait.PRE_AGGREGATION_FILTERING, storeTraits, result);
+        validateStoreTrait(viewElDef.getPostAggregationFilter(), StoreTrait.POST_AGGREGATION_FILTERING, storeTraits, result);
+        validateStoreTrait(viewElDef.getTransformer(), StoreTrait.TRANSFORMATION, storeTraits, result);
+        validateStoreTrait(viewElDef.getPostTransformFilter(), StoreTrait.POST_TRANSFORMATION_FILTERING, storeTraits, result);
 
         return result;
     }
@@ -127,6 +144,15 @@ public class ViewValidator {
         }
 
         return result;
+    }
+
+    private void validateStoreTrait(final Composite functions, final StoreTrait storeTrait, final Set<StoreTrait> storeTraits, final ValidationResult result) {
+        if (!storeTraits.contains(storeTrait)
+                && functions != null
+                && functions.getComponents() != null
+                && !functions.getComponents().isEmpty()) {
+            result.addError("This store does not currently support " + storeTrait.name());
+        }
     }
 
     private ValidationResult validateFunctionArgumentTypes(

@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,11 +33,12 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class HazelcastCacheServiceTest {
 
-    private HazelcastCacheService service = new HazelcastCacheService();
+    private static HazelcastCacheService service = new HazelcastCacheService();
     private Properties cacheProperties = new Properties();
     private static final String CACHE_NAME = "test";
 
@@ -50,16 +52,31 @@ public class HazelcastCacheServiceTest {
 
     @After
     public void afterEach() {
+        try {
+            service.clearCache(CACHE_NAME);
+        } catch (final Exception e) {
+            // ignore errors
+        }
+    }
+
+    @AfterClass
+    public static void afterClass() {
         service.shutdown();
     }
 
     @Test
     public void shouldThrowAnExceptionWhenConfigFileIsMisConfigured() {
-        String madeUpFile = "/made/up/file.xml";
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(madeUpFile);
-        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, "/made/up/file.xml");
-        service.initialise(cacheProperties);
+        service.shutdown();
+
+        final String madeUpFile = "/made/up/file.xml";
+        cacheProperties.setProperty(CacheProperties.CACHE_CONFIG_FILE, madeUpFile);
+
+        try {
+            service.initialise(cacheProperties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains(madeUpFile));
+        }
     }
 
     private void initialiseWithTestConfig() {
@@ -79,7 +96,6 @@ public class HazelcastCacheServiceTest {
 
         // then
         Assert.assertEquals(0, cache.size());
-        service.shutdown();
     }
 
     @Test
@@ -96,9 +112,6 @@ public class HazelcastCacheServiceTest {
         // then
         Assert.assertEquals(1, sameCache.size());
         Assert.assertEquals(new Integer(1), sameCache.get("key"));
-
-        service.shutdown();
-
     }
 
     @Test
@@ -115,10 +128,6 @@ public class HazelcastCacheServiceTest {
         // then
         assertEquals(1, service.getCache(CACHE_NAME).size());
         assertEquals(2, service.getCache(CACHE_NAME).get("Test"));
-
-        service1.shutdown();
-        service.shutdown();
-
     }
 
     @Test
@@ -142,7 +151,7 @@ public class HazelcastCacheServiceTest {
             assertEquals((Integer) 1, service.getFromCache(CACHE_NAME, "test"));
         }
 
-        service.putInCache(CACHE_NAME,"test", 2);
+        service.putInCache(CACHE_NAME, "test", 2);
 
         assertEquals((Integer) 2, service.getFromCache(CACHE_NAME, "test"));
     }
