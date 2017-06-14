@@ -128,6 +128,15 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return isEnabled;
     }
 
+    /**
+     * Creates a Function that takes and element as input and outputs a set of objects including the
+     * Group-by values, the Identifiers and the group. These act as a key and can be used in a
+     * Collector. This function is dependent on the hashcode of the key components so make sure the
+     * Identifiers and Group-By objects all have a valid hashcode method.
+     *
+     * @return a Set which makes up a unique Idenfifier. The set is composed of the input Element's
+     * Group-By, Identifiers and Group.
+     */
     public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
             Set<Object> key;
