@@ -413,10 +413,10 @@ public class SchemaTest {
                 .build();
 
         assertEquals(JavaSerialiser.class,
-                store.getElement(TestGroups.EDGE)
-                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                        .getSerialiser()
-                        .getClass());
+            store.getElement(TestGroups.EDGE)
+                .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                .getSerialiser()
+                .getClass());
     }
 
     @Test
@@ -669,8 +669,8 @@ public class SchemaTest {
         // When
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                        .parents(TestGroups.EDGE)
-                        .build())
+                    .parents(TestGroups.EDGE)
+                    .build())
                 .build();
 
         // Then
@@ -747,20 +747,20 @@ public class SchemaTest {
 
         // Check entities
         assertArrayEquals(new String[]{
-                        TestPropertyNames.PROP_1,
-                        TestPropertyNames.PROP_2,
-                        TestPropertyNames.PROP_3,
-                        TestPropertyNames.PROP_4},
-                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+                TestPropertyNames.PROP_1,
+                TestPropertyNames.PROP_2,
+                TestPropertyNames.PROP_3,
+                TestPropertyNames.PROP_4},
+            schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
-                        TestPropertyNames.PROP_1,
-                        TestPropertyNames.PROP_2,
-                        TestPropertyNames.PROP_3,
-                        TestPropertyNames.PROP_4,
-                        TestPropertyNames.PROP_5},
-                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+                TestPropertyNames.PROP_1,
+                TestPropertyNames.PROP_2,
+                TestPropertyNames.PROP_3,
+                TestPropertyNames.PROP_4,
+                TestPropertyNames.PROP_5},
+            schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -1028,6 +1028,30 @@ public class SchemaTest {
 
 
         assertEquals(expected, results);
+
+    }
+
+    @Test
+    public void shouldThrowExceptionIfElementBelongsToGroupThatDoesntExistInSchema() {
+        // given
+        Schema schema = createSchema();
+
+        // when
+        List<Element> elements = Lists.newArrayList(
+            new Entity.Builder()
+                .group("Unknown group")
+                .vertex("vertex1")
+                .property("Meaning of life", 42)
+                .build()
+        );
+
+        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
+        // then
+        try {
+            Map<Set<Object>, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
+        } catch (RuntimeException e) {
+            assertNotNull(e.getMessage());
+        }
 
     }
 
