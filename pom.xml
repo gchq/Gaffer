@@ -21,7 +21,7 @@
     <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>gaffer2</artifactId>
     <packaging>pom</packaging>
-    <version>0.7.4-SNAPSHOT</version>
+    <version>0.7.5-SNAPSHOT</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A scalable Graph database framework</description>
@@ -75,7 +75,7 @@
         <httpcomponents.version>4.3.3</httpcomponents.version>
         <javassist.version>3.19.0-GA</javassist.version>
         <javax-activation.version>1.1.1</javax-activation.version>
-        <jcs.version>2.0</jcs.version>
+        <jcs.version>2.1</jcs.version>
         <jersey.version>2.25</jersey.version>
         <json4s.version>3.2.11</json4s.version>
         <log4j.version>1.2.17</log4j.version>

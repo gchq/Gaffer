@@ -30,10 +30,11 @@ public final class CacheServiceLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
+    private static boolean shutdownHookAdded = false;
 
     /**
-     * Looks at a system property and initialises an appropriate cache service. If no cache service is specified in the
-     * system property, the loader falls back onto a default which is backed by HashMaps.
+     * Looks at a system property and initialises an appropriate cache service. Then adds a shutdown hook to close the
+     * cache service gracefully.
      *
      * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
@@ -59,6 +60,15 @@ public final class CacheServiceLoader {
         }
 
         service.initialise(properties);
+
+        if (!shutdownHookAdded) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    shutdown();
+                }
+            });
+            shutdownHookAdded = true;
+        }
     }
 
     /**
@@ -72,6 +82,8 @@ public final class CacheServiceLoader {
         if (service != null) {
             service.shutdown();
         }
+
+        service = null;
     }
 
     private CacheServiceLoader() {

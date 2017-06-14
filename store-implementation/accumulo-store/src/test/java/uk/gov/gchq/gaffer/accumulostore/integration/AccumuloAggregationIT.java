@@ -15,6 +15,10 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
@@ -42,10 +46,6 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 
 public class AccumuloAggregationIT {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
@@ -106,12 +106,25 @@ public class AccumuloAggregationIT {
         final Entity expectedSummarisedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
                 .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY + "," + PUBLIC_VISIBILITY)
                 .build();
+
+        final Entity expectedEntity = new Entity.Builder()
+                .vertex(VERTEX)
+                .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "value 3b")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "value 4")
+                .property(AccumuloPropertyNames.VISIBILITY, PRIVATE_VISIBILITY)
+                .build();
+
         assertThat(results, IsCollectionContaining.hasItems(
-                expectedSummarisedEntity, entity3
+                expectedSummarisedEntity, expectedEntity
         ));
     }
 
@@ -221,8 +234,10 @@ public class AccumuloAggregationIT {
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, ",") //String Aggregation is combining two empty strings -> "",""
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, ",") //String Aggregation is combining two empty strings -> "",""
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3") //String Aggregation is combining one empty strings -> "","test 3"
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4") //String Aggregation is combining one empty strings -> "","test 4"
                 .build();
         assertEquals(expectedEntity, results.get(0));
     }
@@ -267,6 +282,8 @@ public class AccumuloAggregationIT {
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
         assertEquals(expectedEntity, results.get(0));
     }
@@ -309,6 +326,8 @@ public class AccumuloAggregationIT {
         final Entity expectedEntity = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -403,6 +422,8 @@ public class AccumuloAggregationIT {
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -411,23 +432,27 @@ public class AccumuloAggregationIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4")
                 .build();
 
         final Entity expectedEntity3 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, ",test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, ",test 4")
                 .build();
 
         final Entity expectedEntity4 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test2a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
 
         assertThat(results, IsCollectionContaining.hasItems(
@@ -524,6 +549,8 @@ public class AccumuloAggregationIT {
         final Entity expectedEntity1 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -532,6 +559,7 @@ public class AccumuloAggregationIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -540,6 +568,7 @@ public class AccumuloAggregationIT {
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
                 .build();
@@ -547,8 +576,10 @@ public class AccumuloAggregationIT {
         final Entity expectedEntity4 = new Entity.Builder()
                 .vertex(VERTEX)
                 .group(TestGroups.ENTITY)
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test2a")
                 .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
+                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
                 .build();
 
         assertThat(results, IsCollectionContaining.hasItems(
