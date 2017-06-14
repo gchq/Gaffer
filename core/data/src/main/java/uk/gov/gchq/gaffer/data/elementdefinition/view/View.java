@@ -24,9 +24,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 
@@ -40,7 +37,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -163,37 +159,6 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             setEdges(expandGlobalDefinitions(getEdges(), getEdgeGroups(), globalElements, true));
             globalElements = null;
         }
-    }
-
-    public Function<Element, Set<Object>> createGroupByFunction() {
-        return element -> {
-            Set<Object> key;
-            String group = element.getGroup();
-            Set<String> groupBy = getElementGroupBy(group);
-
-            if (groupBy == null) {
-                groupBy = Collections.emptySet();
-            }
-
-            int size = groupBy.size();
-
-            if (element instanceof Entity) {
-                key = new HashSet<>(size + 2);
-                key.add(((Entity) element).getVertex());
-            } else {
-                key = new HashSet<>(size + 4);
-                key.add(((Edge) element).getSource());
-                key.add(((Edge) element).getDestination());
-                key.add(((Edge) element).getDirectedType());
-            }
-
-            key.add(group);
-
-            for (final String property: groupBy) {
-                key.add(element.getProperty(property));
-            }
-            return key;
-        };
     }
 
     private Map<String, ViewElementDefinition> expandGlobalDefinitions(
