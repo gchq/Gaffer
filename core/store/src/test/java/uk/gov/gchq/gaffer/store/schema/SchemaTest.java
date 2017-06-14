@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
@@ -937,8 +938,8 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(new HashSet<>(Lists.newArrayList("vertex1")), Lists.newArrayList(input.get(0)));
-        expected.put(new HashSet<>(Lists.newArrayList("vertex2")), Lists.newArrayList(input.get(1)));
+        expected.put(new HashSet<>(Lists.newArrayList("vertex1", TestGroups.ENTITY)), Lists.newArrayList(input.get(0)));
+        expected.put(new HashSet<>(Lists.newArrayList("vertex2", TestGroups.ENTITY)), Lists.newArrayList(input.get(1)));
 
         assertEquals(expected, results);
     }
@@ -973,9 +974,9 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1", "vertex1"), Collections.singletonList(input.get(0)));
-        expected.put(Sets.newHashSet("test2", "vertex2"), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", "vertex1", "vertex2", false), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet("test1", "vertex1", TestGroups.ENTITY), Collections.singletonList(input.get(0)));
+        expected.put(Sets.newHashSet("test2", "vertex2", TestGroups.ENTITY), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", "vertex1", "vertex2", DirectedType.UNDIRECTED, TestGroups.EDGE), Lists.newArrayList(input.get(2)));
 
         assertEquals(expected, results);
 
@@ -1020,10 +1021,10 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1", 1, "vertex1"), Lists.newArrayList(input.get(0)));
-        expected.put(Sets.newHashSet("test1", 1, "vertex2"), Lists.newArrayList(input.get(2)));
-        expected.put(Sets.newHashSet("test1", 2, "vertex2"), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", 2, "vertex2"), Lists.newArrayList(input.get(3)));
+        expected.put(Sets.newHashSet("test1", 1, "vertex1", TestGroups.ENTITY_2), Lists.newArrayList(input.get(0)));
+        expected.put(Sets.newHashSet("test1", 1, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet("test1", 2, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", 2, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(3)));
 
 
         assertEquals(expected, results);

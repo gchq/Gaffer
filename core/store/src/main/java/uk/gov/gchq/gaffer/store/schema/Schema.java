@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -131,21 +130,33 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
-            Set<Object> key = new HashSet<>();
-            String group = element.getGroup();
+            Set<Object> key;
+
+            final String group = element.getGroup();
             final SchemaElementDefinition elDef = this.getElement(group);
+
+            if (elDef == null)  {
+                throw new RuntimeException("received element " + element + " which belongs to a " +
+                    "group not found in the schema");
+            }
+
             Set<String> groupBy = elDef.getGroupBy();
+
+
+            if (element instanceof Entity) {
+                key = new HashSet<>(groupBy.size() + 2);
+                key.add(((Entity) element).getVertex());
+            } else {
+                key = new HashSet<>(groupBy.size() + 4);
+                key.add(((Edge) element).getSource());
+                key.add(((Edge) element).getDestination());
+                key.add(((Edge) element).getDirectedType());
+            }
+
+            key.add(group);
 
             for (final String property: groupBy) {
                 key.add(element.getProperty(property));
-            }
-
-            if (element instanceof Entity) {
-                key.add(element.getIdentifier(IdentifierType.VERTEX));
-            } else if (element instanceof Edge) {
-                key.add(element.getIdentifier(IdentifierType.SOURCE));
-                key.add(element.getIdentifier(IdentifierType.DESTINATION));
-                key.add(element.getIdentifier(IdentifierType.DIRECTED));
             }
             return key;
         };
