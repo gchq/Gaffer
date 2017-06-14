@@ -21,6 +21,8 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -53,33 +55,32 @@ public class RBMBackedTimestampSetSerialiserTest {
         assertFalse(RBM_BACKED_TIMESTAMP_SET_SERIALISER.canHandle(String.class));
     }
 
-    /**
-     * Used to calculate the sizes of the serialised {@link RBMBackedTimestampSet} given in the Javadoc for
-     * {@link RBMBackedTimestampSetSerialiser}.
-     *
-     * @param args No arguments are needed.
-     * @throws SerialisationException Won't happen
-     */
-    public static void main(final String[] args) throws SerialisationException {
-        final Instant instant = Instant.now();
-
-        // Serialised size when 100 minutes in a day are set and the time bucket is a minute
-        final Random random = new Random();
+    @Test
+    public void testSerialisationSizesQuotedInJavadoc() throws SerialisationException {
+        // Given
+        final Random random = new Random(123456789L);
+        final Instant instant = ZonedDateTime.of(2017, 1, 1, 1, 1, 1, 0, ZoneId.of("UTC")).toInstant();
+        // Set of 100 minutes in a day and the time bucket is a minute
         final RBMBackedTimestampSet rbmBackedTimestampSet1 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
         IntStream.range(0, 100)
                 .forEach(i -> rbmBackedTimestampSet1.add(instant.plusSeconds(random.nextInt(24 * 60) * 60)));
-        System.out.println(RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet1).length);
-
-        // Serialised size when every minute in a year is set and the time bucket is a minute
+        // Set of every minute in a year and the time bucket is a minute
         final RBMBackedTimestampSet rbmBackedTimestampSet2 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
         IntStream.range(0, 365 * 24 * 60)
                 .forEach(i -> rbmBackedTimestampSet2.add(instant.plusSeconds(i * 60)));
-        System.out.println(RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet2).length);
-
-        // Serialised size when every second in a year is set and the time bucket is a second
+        // Set of every second in a year is set and the time bucket is a second
         final RBMBackedTimestampSet rbmBackedTimestampSet3 = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
         IntStream.range(0, 365 * 24 * 60 * 60)
                 .forEach(i -> rbmBackedTimestampSet3.add(instant.plusSeconds(i)));
-        System.out.println(RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet3).length);
+
+        // When
+        final int lengthSet1 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet1).length;
+        final int lengthSet2 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet2).length;
+        final int lengthSet3 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet3).length;
+
+        // Then
+        assertTrue(200 < lengthSet1 && lengthSet1 < 220);
+        assertTrue(72000 < lengthSet2 && lengthSet2 < 74000);
+        assertTrue(3900000 < lengthSet3 && lengthSet3 < 4100000);
     }
 }
