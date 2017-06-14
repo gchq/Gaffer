@@ -31,9 +31,6 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
-/**
- *
- */
 public class GetDataframeOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataframeOfElementsHandler.class);
@@ -57,7 +54,7 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
             final ParquetStoreProperties props = store.getProperties();
             Dataset<Row> dataset = spark.read().option("mergeSchema", true).parquet(props.getDataDir() + "/" + store.getCurrentSnapshot() + "/graph");
             //TODO apply views to the returned dataset
-            LOGGER.info("The merged schema that the data is being loaded using is: " + dataset.schema().treeString());
+            LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {
             throw new OperationException("Views are not supported by this operation yet");

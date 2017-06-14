@@ -27,27 +27,26 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -73,8 +72,9 @@ public class EdgeCasesTest {
 
     @AfterClass
     public static void cleanUp() throws IOException {
-        final FileSystem fs = FileSystem.get(new Configuration());
-        deleteFolder("parquet_data", fs);
+        try (final FileSystem fs = FileSystem.get(new Configuration())) {
+            deleteFolder("parquet_data", fs);
+        }
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {
@@ -134,13 +134,13 @@ public class EdgeCasesTest {
         parquetProperties.setDataDir("readElementsWithZeroElementFiles");
         parquetProperties.setAddElementsOutputFilesPerGroup(200);
         parquetProperties.setAddElementsBatchSize(1024);
-        ParquetStore store = new ParquetStore(gafferSchema, parquetProperties);
-        Graph graph = new Graph.Builder()
-                .store(store)
+        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        final Graph graph = new Graph.Builder()
+                .addSchema(optimiser.optimise(gafferSchema, true))
+                .storeProperties(parquetProperties)
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
 
-        assertEquals(4, new File(parquetProperties.getDataDir() + "/" + store.getCurrentSnapshot() + "/graph").listFiles().length);
         final Iterable<? extends Element> retrievedElements = graph.execute(new GetAllElements(), USER);
         final Iterator<? extends Element> iter = retrievedElements.iterator();
         assertTrue(iter.hasNext());
@@ -150,7 +150,9 @@ public class EdgeCasesTest {
             counter++;
         }
         assertEquals(150, counter);
-        deleteFolder("readElementsWithZeroElementFiles", FileSystem.get(new Configuration()));
+        try (final FileSystem fs = FileSystem.get(new Configuration())) {
+            deleteFolder("readElementsWithZeroElementFiles", fs);
+        }
     }
 
     @Test
@@ -232,7 +234,5 @@ public class EdgeCasesTest {
         assertEquals(false, edge.isDirected());
         assertEquals(1, edge.getProperty("count"));
         assertFalse(iter.hasNext());
-
-
     }
 }

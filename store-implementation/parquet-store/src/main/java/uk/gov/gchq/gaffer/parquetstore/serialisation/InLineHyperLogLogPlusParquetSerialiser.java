@@ -21,9 +21,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.io.IOException;
 
-/**
- *
- */
 public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
 
     private static final long serialVersionUID = -898356489062346070L;
@@ -38,10 +35,7 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
         try {
             if (object != null) {
-                final Object[] parquetObjects = new Object[2];
-                parquetObjects[0] = object.getBytes();
-                parquetObjects[1] = object.cardinality();
-                return parquetObjects;
+                return new Object[]{object.getBytes(), object.cardinality()};
             }
         } catch (IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");

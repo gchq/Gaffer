@@ -30,11 +30,26 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ByteParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.DateParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.DoubleParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.FloatParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.InLineHyperLogLogPlusParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.LongParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ShortParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.TypeValueParquetSerialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.spark.SparkUser;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -62,25 +77,41 @@ public abstract class AbstractSparkOperationsTest {
             .getOrCreate();
     static User USER = new SparkUser(new User(), spark);
     Graph graph;
+    private static final Serialiser[] SERIALISERS = new Serialiser[] {
+            new StringParquetSerialiser(),
+            new ByteParquetSerialiser(),
+            new IntegerParquetSerialiser(),
+            new LongParquetSerialiser(),
+            new BooleanParquetSerialiser(),
+            new DateParquetSerialiser(),
+            new DoubleParquetSerialiser(),
+            new FloatParquetSerialiser(),
+            new InLineHyperLogLogPlusParquetSerialiser(),
+            new ShortParquetSerialiser(),
+            new TypeValueParquetSerialiser(),
+            new JavaSerialiser()};
 
     static ParquetStoreProperties getParquetStoreProperties() {
         return (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractSparkOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
     }
 
-    static Graph getGraph(final ParquetStore store) throws StoreException {
+    static Graph getGraph(final Schema schema, final ParquetStoreProperties properties) throws StoreException {
+        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(SERIALISERS));
         return new Graph.Builder()
-                .store(store)
+                .addSchema(optimiser.optimise(schema, true))
+                .storeProperties(properties)
                 .build();
     }
 
     @AfterClass
     public static void cleanUpData() throws IOException {
         LOGGER.info("Cleaning up the data");
-        final FileSystem fs = FileSystem.get(new Configuration());
-        final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                StreamUtil.storeProps(AbstractSparkOperationsTest.class));
-        deleteFolder(props.getDataDir(), fs);
+        try (final FileSystem fs = FileSystem.get(new Configuration())) {
+            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+                    StreamUtil.storeProps(AbstractSparkOperationsTest.class));
+            deleteFolder(props.getDataDir(), fs);
+        }
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

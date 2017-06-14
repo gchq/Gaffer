@@ -25,12 +25,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import scala.collection.Seq;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -60,22 +60,22 @@ public class ExtractKeyFromRowTest {
         String[] prop7Paths = new String[1];
         prop7Paths[0] = "property7";
         String[] vertPaths = new String[1];
-        vertPaths[0] = Constants.VERTEX;
+        vertPaths[0] = ParquetStoreConstants.VERTEX;
         String[] srcPaths = new String[1];
-        srcPaths[0] = Constants.SOURCE;
+        srcPaths[0] = ParquetStoreConstants.SOURCE;
         String[] dstPaths = new String[1];
-        dstPaths[0] = Constants.DESTINATION;
+        dstPaths[0] = ParquetStoreConstants.DESTINATION;
         this.columnsToPaths.put("property2", prop2Paths);
         this.columnsToPaths.put("property7", prop7Paths);
-        this.columnsToPaths.put(Constants.VERTEX, vertPaths);
-        this.columnsToPaths.put(Constants.SOURCE, srcPaths);
-        this.columnsToPaths.put(Constants.DESTINATION, dstPaths);
+        this.columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
+        this.columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
+        this.columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
         final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStore store = new ParquetStore(schema, new ParquetStoreProperties());
-        this.utils = store.getSchemaUtils();
+        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After

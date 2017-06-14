@@ -21,14 +21,11 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.io.IOException;
 
-/**
- *
- */
 public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
 
     private static final long serialVersionUID = -8284005451029455563L;
 
-    //TODO This is not the best way to represent HLLP, this just allows for the testing of nested properties
+    // This is not the best way to represent HLLP, this just allows for the testing of nested properties
     @Override
     public String getParquetSchema(final String colName) {
         return "optional group " + colName + " {\n" +
@@ -41,10 +38,7 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     public Object[] serialise(final HyperLogLogPlus object) throws SerialisationException {
         try {
             if (object != null) {
-                final Object[] parquetObjects = new Object[2];
-                parquetObjects[0] = object.getBytes();
-                parquetObjects[1] = object.cardinality();
-                return parquetObjects;
+                return new Object[]{object.getBytes(), object.cardinality()};
             }
         } catch (IOException e) {
             throw new SerialisationException("Failed to get bytes from the HyperLogLogPlus object.");

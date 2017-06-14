@@ -87,7 +87,7 @@ public class ParquetStorePropertiesTest {
 
     @Test
     public void sparkMasterTest(){
-        //TODO might fail if Spark is properly installed
+        //might fail if Spark is properly installed
         assertEquals("local[*]", props.getSparkMaster());
         props.setSparkMaster("Test");
         assertEquals("Test", props.getSparkMaster());

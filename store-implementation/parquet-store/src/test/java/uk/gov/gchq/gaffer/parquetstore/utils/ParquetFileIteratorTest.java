@@ -50,7 +50,7 @@ public class ParquetFileIteratorTest {
         fs.create(new Path(rootDir + "/test.parquet"));
         fs.create(new Path(rootDir + "/test1.txt"));
         fs.create(new Path(rootDir + "/test2.parquet"));
-        this.iterator = new ParquetFileIterator(new Path(rootDir), FileSystem.get(new Configuration()));
+        this.iterator = new ParquetFileIterator(new Path(rootDir), this.fs);
     }
 
     @After
@@ -61,6 +61,7 @@ public class ParquetFileIteratorTest {
             tempDir = tempDir.getParent();
             fs.delete(tempDir, true);
         }
+        this.fs.close();
         this.fs = null;
         this.rootDir = null;
         this.iterator = null;

@@ -42,24 +42,22 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
-/**
- *
- */
 public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
@@ -71,9 +69,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final SeedMatching.SeedMatchingType seedMachingType;
     private final Iterable<? extends ElementId> seeds;
     private final String dataDir;
-    private final HashMap<String, ArrayList<Tuple3<Object[], Object[], String>>> indices;
+    private final Map<String, List<Tuple3<Object[], Object[], String>>> indices;
     private FileSystem fs;
-
 
     public ParquetElementRetriever(final View view, final ParquetStore store, final DirectedType directedType,
                                    final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
@@ -91,7 +88,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     @Override
     public void close() {
-
     }
 
     @Override
@@ -100,14 +96,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 this.seedMachingType, this.seeds, this.dataDir, this.indices, this.fs);
     }
 
-
-
     protected static class ParquetIterator implements CloseableIterator<Element> {
         private Element currentElement = null;
         private ParquetReader<GenericRecord> reader;
         private SchemaUtils schemaUtils;
-        private HashMap<String, GafferGroupObjectConverter> groupToObjectConverter;
-        private HashMap<Path, FilterPredicate> pathToFilterMap;
+        private Map<String, GafferGroupObjectConverter> groupToObjectConverter;
+        private Map<Path, FilterPredicate> pathToFilterMap;
         private Path currentPath;
         private Iterator<Path> paths;
         private ParquetFileIterator fileIterator;
@@ -121,18 +115,18 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                   final SeedMatching.SeedMatchingType seedMachingType,
                                   final Iterable<? extends ElementId> seeds,
-                                  final String dataDir, final HashMap<String, ArrayList<Tuple3<Object[], Object[], String>>> indices,
+                                  final String dataDir, final Map<String, List<Tuple3<Object[], Object[], String>>> indices,
                                   final FileSystem fs) {
             try {
-                Tuple2<HashMap<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils.buildPathToFilterMap(schemaUtils, view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, indices);
+                Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils.buildPathToFilterMap(schemaUtils, view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, indices);
                 this.pathToFilterMap = results.get0();
                 this.needsValidation = results.get1();
-                LOGGER.debug("pathToFilterMap: " + pathToFilterMap.toString());
+                LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
                 if (!pathToFilterMap.isEmpty()) {
                     this.fs = fs;
                     this.view = view;
                     this.paths = pathToFilterMap.keySet().stream().sorted().iterator();
-                    LOGGER.debug("Created new ParquetElementRetriever for paths: " + this.paths.toString());
+                    LOGGER.debug("Created new ParquetElementRetriever for paths: {}", this.paths);
                     this.schemaUtils = schemaUtils;
                     this.groupToObjectConverter = new HashMap<>();
                     //find all the parquet files
@@ -147,14 +141,14 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     LOGGER.info("There are no results for this query");
                 }
             } catch (OperationException | SerialisationException e) {
-                LOGGER.error("Error while creating the mapping of file paths to Parquet filters: " + e.getMessage());
+                LOGGER.error("Error while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
             }
         }
 
         private ParquetReader<GenericRecord> openParquetReader() throws IOException {
             if (this.fileIterator.hasNext()) {
                 Path file = this.fileIterator.next();
-                LOGGER.debug("Opening a new Parquet reader for file: " + file.toString());
+                LOGGER.debug("Opening a new Parquet reader for file: {}", file);
                 FilterPredicate filter = this.pathToFilterMap.get(this.currentPath);
                 if (filter != null) {
                     return AvroParquetReader.builder(new AvroReadSupport<GenericRecord>(), file).withFilter(FilterCompat.get(filter)).build();
@@ -188,10 +182,15 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         public Element next() throws NoSuchElementException {
             Element e = getNextElement();
             if (this.needsValidation) {
-                final ElementFilter preAggFilter = view.getElement(e.getGroup()).getPreAggregationFilter();
+                String group = e.getGroup();
+                ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
                 if (preAggFilter != null) {
                     while (!preAggFilter.test(e)) {
                         e = getNextElement();
+                        if (!group.equals(e.getGroup())) {
+                            group = e.getGroup();
+                            preAggFilter = view.getElement(group).getPreAggregationFilter();
+                        }
                     }
                 }
             }
@@ -202,7 +201,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             Element e;
             try {
                 if (this.currentElement != null) {
-                    LOGGER.debug("Current element: " + this.currentElement);
+                    LOGGER.debug("Current element: {}", this.currentElement);
                     e = this.currentElement;
                     this.currentElement = null;
                 } else {
@@ -243,30 +242,30 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
 
         private Element convertGenericRecordToElement(final GenericRecord record) throws OperationException, SerialisationException {
-            String group = (String) record.get(Constants.GROUP);
+            String group = (String) record.get(ParquetStoreConstants.GROUP);
             GafferGroupObjectConverter converter = getConverter(group);
             Element e;
             if (this.schemaUtils.getEntityGroups().contains(group)) {
-                final String[] paths = this.schemaUtils.getPaths(group, Constants.VERTEX);
+                final String[] paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX);
                 final Object[] parquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
-                    parquetObjects[i] = recursivlyGetObjectFromRecord(paths[i], (GenericData.Record) record);
+                    parquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
-                e = new Entity(group, converter.parquetObjectsToGafferObject(Constants.VERTEX, parquetObjects));
+                e = new Entity(group, converter.parquetObjectsToGafferObject(ParquetStoreConstants.VERTEX, parquetObjects));
             } else {
-                String[] paths = this.schemaUtils.getPaths(group, Constants.SOURCE);
+                String[] paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.SOURCE);
                 final Object[] srcParquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
-                    srcParquetObjects[i] = recursivlyGetObjectFromRecord(paths[i], (GenericData.Record) record);
+                    srcParquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
-                paths = this.schemaUtils.getPaths(group, Constants.DESTINATION);
+                paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.DESTINATION);
                 final Object[] dstParquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
-                    dstParquetObjects[i] = recursivlyGetObjectFromRecord(paths[i], (GenericData.Record) record);
+                    dstParquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
-                e = new Edge(group, converter.parquetObjectsToGafferObject(Constants.SOURCE, srcParquetObjects),
-                        converter.parquetObjectsToGafferObject(Constants.DESTINATION, dstParquetObjects),
-                        (boolean) record.get(Constants.DIRECTED));
+                e = new Edge(group, converter.parquetObjectsToGafferObject(ParquetStoreConstants.SOURCE, srcParquetObjects),
+                        converter.parquetObjectsToGafferObject(ParquetStoreConstants.DESTINATION, dstParquetObjects),
+                        (boolean) record.get(ParquetStoreConstants.DIRECTED));
             }
 
             for (final String column : this.schemaUtils.getGafferSchema().getElement(group).getProperties()) {
@@ -274,16 +273,17 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 final Object[] parquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
                     final String path = paths[i];
-                    parquetObjects[i] = recursivlyGetObjectFromRecord(path, (GenericData.Record) record);
+                    parquetObjects[i] = recursivelyGetObjectFromRecord(path, (GenericData.Record) record);
                 }
                 e.putProperty(column, this.getConverter(group).parquetObjectsToGafferObject(column, parquetObjects));
             }
             return e;
         }
 
-        private Object recursivlyGetObjectFromRecord(final String path, final GenericData.Record record) {
+        private Object recursivelyGetObjectFromRecord(final String path, final GenericData.Record record) {
             if (path.contains(".")) {
-                return recursivlyGetObjectFromRecord(path.substring(path.indexOf(".") + 1), (GenericData.Record) record.get(path.substring(0, path.indexOf("."))));
+                final int dotIndex = path.indexOf(".");
+                return recursivelyGetObjectFromRecord(path.substring(dotIndex + 1), (GenericData.Record) record.get(path.substring(0, dotIndex)));
             } else {
                 if (record != null) {
                     Object result = record.get(path);
@@ -311,11 +311,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         public void close() {
             try {
                 if (this.reader != null) {
-                    LOGGER.debug("Closing ParquetReader", this.reader);
+                    LOGGER.debug("Closing ParquetReader");
                     this.reader.close();
+                    this.reader = null;
                 }
             } catch (IOException e) {
-                LOGGER.warn("Failed to close " + this.getClass().getCanonicalName());
+                LOGGER.warn("Failed to close {}", this.getClass().getCanonicalName());
             }
         }
     }

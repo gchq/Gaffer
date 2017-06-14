@@ -28,15 +28,11 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 
-/**
- *
- */
 public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
@@ -57,34 +53,33 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
             throws SerialisationException {
         LOGGER.debug("Generating a new AggregateGafferRowsFunction");
         this.gafferProperties = gafferProperties;
-        LOGGER.debug("gafferProperties:" + Arrays.toString(this.gafferProperties));
         this.columnToPaths = columnToPaths;
         this.objectConverter = gafferGroupObjectConverter;
         this.isEntity = isEntity;
         this.groupByColumns = groupByColumns;
-        LOGGER.debug("GroupByColumns:" + this.groupByColumns.toString());
+        LOGGER.debug("GroupByColumns: {}", this.groupByColumns);
         this.propertyToAggregatorMap = propertyToAggregatorMap;
-        LOGGER.debug("PropertyToAggregatorMap:" + this.propertyToAggregatorMap.toString());
+        LOGGER.debug("PropertyToAggregatorMap: {}", this.propertyToAggregatorMap);
     }
 
     @Override
     public GenericRowWithSchema call(final GenericRowWithSchema v1, final GenericRowWithSchema v2) throws OperationException, SerialisationException {
-        LOGGER.trace("First Row object to be aggregated: " + v1);
-        LOGGER.trace("Second Row object to be aggregated: " + v2);
+        LOGGER.trace("First Row object to be aggregated: {}", v1);
+        LOGGER.trace("Second Row object to be aggregated: {}", v2);
         ArrayList<Object> outputRow = new ArrayList<>(v1.size());
-        outputRow.add(v1.getAs(Constants.GROUP));
+        outputRow.add(v1.getAs(ParquetStoreConstants.GROUP));
         if (this.isEntity) {
-            for (final String col : columnToPaths.get(Constants.VERTEX)) {
+            for (final String col : columnToPaths.get(ParquetStoreConstants.VERTEX)) {
                 outputRow.add(v1.getAs(col));
             }
         } else {
-            for (final String col : columnToPaths.get(Constants.SOURCE)) {
+            for (final String col : columnToPaths.get(ParquetStoreConstants.SOURCE)) {
                 outputRow.add(v1.getAs(col));
             }
-            for (final String col : columnToPaths.get(Constants.DESTINATION)) {
+            for (final String col : columnToPaths.get(ParquetStoreConstants.DESTINATION)) {
                 outputRow.add(v1.getAs(col));
             }
-            outputRow.add(v1.getAs(Constants.DIRECTED));
+            outputRow.add(v1.getAs(ParquetStoreConstants.DIRECTED));
         }
 
         // build up Properties object for both rows containing just the objects that need merging
@@ -92,18 +87,18 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         Properties prop2 = new Properties();
         for (final String propName : this.gafferProperties) {
             if (!this.groupByColumns.contains(propName)) {
-                LOGGER.debug("Merging property: " + propName);
+                LOGGER.debug("Merging property: {}", propName);
                 prop1.put(propName, this.objectConverter.sparkRowToGafferObject(propName, v1));
                 prop2.put(propName, this.objectConverter.sparkRowToGafferObject(propName, v2));
             }
         }
 
-        LOGGER.trace("First properties object to be aggregated: " + prop1);
-        LOGGER.trace("Second properties object to be aggregated: " + prop2);
+        LOGGER.trace("First properties object to be aggregated: {}", prop1);
+        LOGGER.trace("Second properties object to be aggregated: {}", prop2);
         // merge properties
         ElementAggregator aggregateClass = getElementAggregator();
         Properties mergedProperties = aggregateClass.apply(prop1, prop2);
-        LOGGER.trace("Merged properties object after aggregation: " + mergedProperties);
+        LOGGER.trace("Merged properties object after aggregation: {}", mergedProperties);
 
         //add properties to the row maintaining the order
         for (final String propName : this.gafferProperties) {
@@ -116,7 +111,7 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
             }
         }
         GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());
-        LOGGER.trace("Merged row: " + mergedRow);
+        LOGGER.trace("Merged row: {}", mergedRow);
         return mergedRow;
     }
 

@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-/**
- *
- */
 public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
 
     private static final long serialVersionUID = -3905036281210562157L;
@@ -42,15 +39,12 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
 
     @Override
     public Object[] serialise(final Byte object) throws SerialisationException {
-        final Object[] parquetObjects = new Object[1];
         if (object != null) {
-            final byte[] bytes = new byte[1];
-            bytes[0] = object;
-            parquetObjects[0] = bytes;
+            final byte[] bytes = new byte[]{object};
+            return new Object[]{bytes};
         } else {
-            parquetObjects[0] = null;
+            return new Object[]{null};
         }
-        return parquetObjects;
     }
 
     @Override

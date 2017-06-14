@@ -16,8 +16,6 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
@@ -36,12 +34,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
 import java.util.Iterator;
 
-/**
- *
- */
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetElementsHandler.class);
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation, final Context context, final Store store) throws OperationException {

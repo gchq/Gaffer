@@ -41,6 +41,7 @@ import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,7 +55,7 @@ public abstract class AbstractOperationsTest {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractOperationsTest.class);
     static User USER = new User();
     Graph graph;
-    ArrayList<ElementSeed> seedsList;
+    List<ElementSeed> seedsList;
     View view;
 
     abstract void setupSeeds();
@@ -67,10 +68,11 @@ public abstract class AbstractOperationsTest {
     @AfterClass
     public static void cleanUpData() throws IOException {
         LOGGER.info("Cleaning up the data");
-        final FileSystem fs = FileSystem.get(new Configuration());
-        final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
-                StreamUtil.storeProps(AbstractOperationsTest.class));
-        deleteFolder(props.getDataDir(), fs);
+        try (final FileSystem fs = FileSystem.get(new Configuration())) {
+            final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+                    StreamUtil.storeProps(AbstractOperationsTest.class));
+            deleteFolder(props.getDataDir(), fs);
+        }
     }
 
     private static void deleteFolder(final String path, final FileSystem fs) throws IOException {

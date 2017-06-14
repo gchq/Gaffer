@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
@@ -101,7 +101,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                 new ViewElementDefinition.Builder()
                     .preAggregationFilter(
                         new ElementFilter.Builder()
-                            .select(Constants.SOURCE)
+                            .select(ParquetStoreConstants.SOURCE)
                             .execute(new Or(new IsLessThan("src12", true), new IsMoreThan("src4", true)))
                             .build())
                     .build())
@@ -109,7 +109,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                 new ViewElementDefinition.Builder()
                     .preAggregationFilter(
                         new ElementFilter.Builder()
-                            .select(Constants.VERTEX)
+                            .select(ParquetStoreConstants.VERTEX)
                             .execute(
                                 new Not(new IsMoreThan("vert12", false)))
                             .build())

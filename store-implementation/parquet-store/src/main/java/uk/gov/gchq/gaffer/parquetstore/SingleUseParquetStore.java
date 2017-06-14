@@ -26,9 +26,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.IOException;
 
-/**
- *
- */
 public class SingleUseParquetStore extends ParquetStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseParquetStore.class);
@@ -42,18 +39,18 @@ public class SingleUseParquetStore extends ParquetStore {
     private void cleanUp() throws StoreException {
         try {
             final FileSystem fs = FileSystem.get(new Configuration());
-            ParquetStoreProperties props = getProperties();
-            if (props == null) {
-                props = new ParquetStoreProperties();
-            }
-            deleteFolder(props.getDataDir(), fs);
+                ParquetStoreProperties props = getProperties();
+                if (props == null) {
+                    props = new ParquetStoreProperties();
+                }
+                deleteFolder(props.getDataDir(), fs);
         } catch (IOException e) {
             throw new StoreException(e.getMessage(), e);
         }
     }
 
     private void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        LOGGER.debug("path: " + path);
+        LOGGER.debug("path: {}", path);
         Path dataDir = new Path(path);
         if (fs.exists(dataDir)) {
             fs.delete(dataDir, true);

@@ -26,18 +26,17 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,8 +53,8 @@ public class AggregateGafferRowsFunctionTest {
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStore store = new ParquetStore(schema, new ParquetStoreProperties());
-        this.utils = store.getSchemaUtils();
+        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After

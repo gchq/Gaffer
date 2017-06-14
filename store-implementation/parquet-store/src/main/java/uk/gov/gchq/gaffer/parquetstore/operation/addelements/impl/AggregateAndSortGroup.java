@@ -35,11 +35,12 @@ import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
@@ -51,13 +52,11 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BinaryOperator;
 
-/**
- *
- */
 public class AggregateAndSortGroup implements Callable<OperationException>, Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateAndSortGroup.class);
     private static final long serialVersionUID = -7828247145178905841L;
+    private static final String SORTED = "/sorted";
     private final String group;
     private final String tempFileDir;
     private final boolean reverseEdge;
@@ -74,33 +73,32 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final String[] gafferProperties;
 
 
-    public AggregateAndSortGroup(final String group, final boolean reverseEdge, final ParquetStore store, final SparkSession spark) throws SerialisationException {
+    public AggregateAndSortGroup(final String group, final boolean reverseEdge, final ParquetStoreProperties parquetStoreProperties, final SchemaUtils schemaUtils, final SparkSession spark) throws SerialisationException {
         this.group = group;
         this.reverseEdge = reverseEdge;
-        this.tempFileDir = store.getProperties().getTempFilesDir();
-        final SchemaElementDefinition gafferSchema = store.getSchemaUtils().getGafferSchema().getElement(group);
+        this.tempFileDir = parquetStoreProperties.getTempFilesDir();
+        final SchemaElementDefinition gafferSchema = schemaUtils.getGafferSchema().getElement(group);
         this.isEntity = gafferSchema instanceof SchemaEntityDefinition;
-        this.propertyToAggregatorMap = buildcolumnToAggregatorMap(gafferSchema);
+        this.propertyToAggregatorMap = buildColumnToAggregatorMap(gafferSchema);
         this.groupByColumns = new HashSet<>(gafferSchema.getGroupBy());
         this.gafferProperties = new String[gafferSchema.getProperties().size()];
         gafferSchema.getProperties().toArray(this.gafferProperties);
         this.spark = spark;
-        this.columnToPaths = store.getSchemaUtils().getColumnToPaths(group);
-        this.sparkSchema = store.getSchemaUtils().getSparkSchema(group);
-        store.getSchemaUtils().getAvroSchema(group);
-        this.gafferGroupObjectConverter = store.getSchemaUtils().getConverter(group);
+        this.columnToPaths = schemaUtils.getColumnToPaths(group);
+        this.sparkSchema = schemaUtils.getSparkSchema(group);
+        schemaUtils.getAvroSchema(group);
+        this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
         if (reverseEdge) {
-            this.inputDir = store.getSchemaUtils().getGroupDirectory(group, Constants.SOURCE, this.tempFileDir);
-            this.outputDir = store.getSchemaUtils().getGroupDirectory(group, Constants.DESTINATION, this.tempFileDir + "/sorted");
+            this.inputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
+            this.outputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, this.tempFileDir + SORTED);
         } else {
-            this.inputDir = store.getSchemaUtils().getGroupDirectory(group, Constants.VERTEX, this.tempFileDir);
-            this.outputDir = store.getSchemaUtils().getGroupDirectory(group, Constants.VERTEX, this.tempFileDir + "/sorted");
+            this.inputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
+            this.outputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir + SORTED);
         }
-        this.filesPerGroup = store.getProperties().getAddElementsOutputFilesPerGroup();
-
+        this.filesPerGroup = parquetStoreProperties.getAddElementsOutputFilesPerGroup();
     }
 
-    private HashMap<String, String> buildcolumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
+    private HashMap<String, String> buildColumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
         HashMap<String, String> columnToAggregatorMap = new HashMap<>();
         for (final String column : gafferSchema.getProperties()) {
             final BinaryOperator aggregateFunction = gafferSchema.getPropertyTypeDef(column).getAggregateFunction();
@@ -114,109 +112,107 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     @Override
     public OperationException call() {
         try {
-            final FileSystem fs = FileSystem.get(new Configuration());
-            if (fs.exists(new Path(this.inputDir))) {
-                LOGGER.info("Aggregating and sorting the data for group " + group);
-                LOGGER.debug("Spark is reading the data stored in " + this.inputDir);
-                Dataset<Row> data = this.spark.read().parquet(this.inputDir);
-                LOGGER.debug("The raw Parquet data read by Spark looks like:");
-                if (LOGGER.isDebugEnabled()) {
-                    data.show();
-                }
-                final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(this.groupByColumns, this.columnToPaths, this.isEntity, this.propertyToAggregatorMap);
-
-                JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
-                        .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
-                LOGGER.debug("The data as a key/value pair ready to aggregate, looks like:");
-                if (LOGGER.isDebugEnabled()) {
-                    groupedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
-                }
-                final Tuple2<Seq<Object>, GenericRowWithSchema> kv = groupedData.take(1).get(0);
-                final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
-                if (kv._1().size() == kv._2().size()) {
-                    aggregatedDataKV = groupedData;
-                } else {
-                    final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(this.gafferProperties,
-                            this.isEntity, this.groupByColumns,
-                            this.columnToPaths, this.propertyToAggregatorMap, this.gafferGroupObjectConverter);
-                    aggregatedDataKV = groupedData.reduceByKey(aggregator::call);
-                }
-                JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
-                LOGGER.debug("The data after aggregation looks like:");
-                if (LOGGER.isDebugEnabled()) {
-                    aggregatedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
-                }
-                Dataset<Row> sortedData;
-                final String firstSortColumn;
-                final Builder<String, Seq<String>> groupBySeq = Seq$.MODULE$.newBuilder();
-                final HashMap<String, String[]> groupPaths = this.columnToPaths;
-                if (isEntity) {
-                    final String[] vertexPaths = groupPaths.get(Constants.VERTEX);
-                    firstSortColumn = vertexPaths[0];
-                    if (vertexPaths.length > 1) {
-                        for (int i = 1; i < vertexPaths.length; i++) {
-                            groupBySeq.$plus$eq(vertexPaths[i]);
-                        }
+            try (final FileSystem fs = FileSystem.get(new Configuration())) {
+                if (fs.exists(new Path(this.inputDir))) {
+                    LOGGER.info("Aggregating and sorting the data for group " + group);
+                    LOGGER.debug("Spark is reading the data stored in " + this.inputDir);
+                    Dataset<Row> data = this.spark.read().parquet(this.inputDir);
+                    LOGGER.debug("The raw Parquet data read by Spark looks like:");
+                    if (LOGGER.isDebugEnabled()) {
+                        data.show();
                     }
-                } else {
-                    final String[] srcPaths = groupPaths.get(Constants.SOURCE);
-                    final String[] destPaths = groupPaths.get(Constants.DESTINATION);
-                    if (reverseEdge) {
-                        firstSortColumn = destPaths[0];
-                        if (destPaths.length > 1) {
-                            for (int i = 1; i < destPaths.length; i++) {
-                                groupBySeq.$plus$eq(destPaths[i]);
+                    // Aggregate data
+                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(this.groupByColumns, this.columnToPaths, this.isEntity, this.propertyToAggregatorMap);
+                    JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
+                            .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
+                    LOGGER.debug("The data as a key/value pair ready to aggregate, looks like:");
+                    if (LOGGER.isDebugEnabled()) {
+                        groupedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
+                    }
+                    final Tuple2<Seq<Object>, GenericRowWithSchema> kv = groupedData.take(1).get(0);
+                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
+                    if (kv._1().size() == kv._2().size()) {
+                        aggregatedDataKV = groupedData;
+                    } else {
+                        final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(this.gafferProperties,
+                                this.isEntity, this.groupByColumns,
+                                this.columnToPaths, this.propertyToAggregatorMap, this.gafferGroupObjectConverter);
+                        aggregatedDataKV = groupedData.reduceByKey(aggregator);
+                    }
+                    JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
+                    LOGGER.debug("The data after aggregation looks like:");
+                    if (LOGGER.isDebugEnabled()) {
+                        aggregatedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
+                    }
+                    // Sort data
+                    Dataset<Row> sortedData;
+                    final String firstSortColumn;
+                    final Builder<String, Seq<String>> groupBySeq = Seq$.MODULE$.newBuilder();
+                    final HashMap<String, String[]> groupPaths = this.columnToPaths;
+                    if (isEntity) {
+                        final String[] vertexPaths = groupPaths.get(ParquetStoreConstants.VERTEX);
+                        firstSortColumn = vertexPaths[0];
+                        if (vertexPaths.length > 1) {
+                            for (int i = 1; i < vertexPaths.length; i++) {
+                                groupBySeq.$plus$eq(vertexPaths[i]);
                             }
                         }
-                        for (int i = 0; i < srcPaths.length; i++) {
-                            groupBySeq.$plus$eq(srcPaths[i]);
-                        }
-                        groupBySeq.$plus$eq(Constants.DIRECTED);
                     } else {
-                        firstSortColumn = srcPaths[0];
-                        if (srcPaths.length > 1) {
-                            for (int i = 1; i < srcPaths.length; i++) {
-                                groupBySeq.$plus$eq(srcPaths[i]);
+                        final String[] srcPaths = groupPaths.get(ParquetStoreConstants.SOURCE);
+                        final String[] destPaths = groupPaths.get(ParquetStoreConstants.DESTINATION);
+                        if (reverseEdge) {
+                            firstSortColumn = destPaths[0];
+                            if (destPaths.length > 1) {
+                                for (int i = 1; i < destPaths.length; i++) {
+                                    groupBySeq.$plus$eq(destPaths[i]);
+                                }
                             }
+                            for (final String srcPath : srcPaths) {
+                                groupBySeq.$plus$eq(srcPath);
+                            }
+                            groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
+                        } else {
+                            firstSortColumn = srcPaths[0];
+                            if (srcPaths.length > 1) {
+                                for (int i = 1; i < srcPaths.length; i++) {
+                                    groupBySeq.$plus$eq(srcPaths[i]);
+                                }
+                            }
+                            for (final String destPath : destPaths) {
+                                groupBySeq.$plus$eq(destPath);
+                            }
+                            groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
                         }
-                        for (int i = 0; i < destPaths.length; i++) {
-                            groupBySeq.$plus$eq(destPaths[i]);
-                        }
-                        groupBySeq.$plus$eq(Constants.DIRECTED);
                     }
-                }
-                for (final String propName : this.groupByColumns) {
-                    final String[] paths = groupPaths.get(propName);
-                    if (paths != null) {
-                        for (int i = 0; i < paths.length; i++) {
-                            groupBySeq.$plus$eq(paths[i]);
+                    for (final String propName : this.groupByColumns) {
+                        final String[] paths = groupPaths.get(propName);
+                        if (paths != null) {
+                            for (final String path : paths) {
+                                groupBySeq.$plus$eq(path);
+                            }
+                        } else {
+                            LOGGER.debug("Property " + propName + " does not have any paths");
                         }
-                    } else {
-                        LOGGER.debug("Property " + propName + " does not have any paths");
                     }
+
+                    sortedData = this.spark.createDataFrame(aggregatedData, this.sparkSchema)
+                            .sort(firstSortColumn, groupBySeq.result());
+
+                    LOGGER.debug("The data after sorting looks like:");
+                    if (LOGGER.isDebugEnabled()) {
+                        sortedData.show();
+                    }
+
+                    // Write out aggregated and sorted data
+                    sortedData
+                            .coalesce(this.filesPerGroup)
+                            .write()
+                            .option("compression", "gzip")
+                            .parquet(this.outputDir);
+                } else {
+                    LOGGER.debug("Skipping the sorting and aggregation of group:" + group +
+                            ", due to no data existing in the temporary files directory: " + this.tempFileDir);
                 }
-
-                sortedData = this.spark.createDataFrame(aggregatedData, this.sparkSchema)
-                        .sort(firstSortColumn, groupBySeq.result());
-
-                LOGGER.debug("The data after sorting looks like:");
-                if (LOGGER.isDebugEnabled()) {
-                    sortedData.show();
-                }
-
-                sortedData
-                        .coalesce(this.filesPerGroup)
-                        .write()
-                        .option("compression", "gzip")
-                        .parquet(this.outputDir);
-//                try {
-//                    aggregatedData.unpersist();
-//                } catch (final Exception ignored) {
-//                    LOGGER.warn("Error occurred trying to unpersist data");
-//                }
-            } else {
-                LOGGER.debug("Skipping the sorting and aggregation of group:" + group +
-                        ", due to no data existing in the temporary files directory: " + this.tempFileDir);
             }
         } catch (final IOException e) {
             return new OperationException("IOException occurred during aggregation and sorting of data", e);

@@ -29,10 +29,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
-import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
 
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class DataGen {
 
         final ArrayList<Object> list = new ArrayList<>();
         list.add(group);
-        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(Constants.VERTEX, vertex)));
+        list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(ParquetStoreConstants.VERTEX, vertex)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property1", p1)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property2", p2)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property3", p3)));
@@ -114,9 +113,9 @@ public class DataGen {
 
         final ArrayList<Object> list = new ArrayList<>();
         list.add(group);
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(Constants.SOURCE, src)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(Constants.DESTINATION, dst)));
-        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(Constants.DIRECTED, directed)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.SOURCE, src)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DESTINATION, dst)));
+        list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DIRECTED, directed)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property1", p1)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property2", p2)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property3", p3)));
@@ -133,7 +132,7 @@ public class DataGen {
         return new GenericRowWithSchema(objects, utils.getSparkSchema(group));
     }
 
-    private static ArrayList<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size) {
+    private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size) {
         final ArrayList<Element> entities = new ArrayList<>();
 
         for (int x = 0 ; x < size/2 ; x++){
@@ -145,7 +144,7 @@ public class DataGen {
         return entities;
     }
 
-    private static ArrayList<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size) {
+    private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size) {
         final ArrayList<Element> edges = new ArrayList<>();
 
         for (int x = 0 ; x < size/4 ; x++){
@@ -161,7 +160,7 @@ public class DataGen {
         return edges;
     }
 
-    private static ArrayList<Element> generateBasicLongEntitys(final String group, final int size) {
+    private static List<Element> generateBasicLongEntitys(final String group, final int size) {
         final ArrayList<Element> entities = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
@@ -182,7 +181,7 @@ public class DataGen {
         return entities;
     }
 
-    private static ArrayList<Element> generateBasicLongEdges(final String group, final int size) {
+    private static List<Element> generateBasicLongEdges(final String group, final int size) {
         final ArrayList<Element> edges = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
@@ -207,7 +206,7 @@ public class DataGen {
         return edges;
     }
 
-    private static ArrayList<Element> generateBasicTypeValueEntitys(final String group, final int size) {
+    private static List<Element> generateBasicTypeValueEntitys(final String group, final int size) {
         final ArrayList<Element> entities = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
@@ -230,7 +229,7 @@ public class DataGen {
         return entities;
     }
 
-    private static ArrayList<Element> generateBasicTypeValueEdges(final String group, final int size) {
+    private static List<Element> generateBasicTypeValueEdges(final String group, final int size) {
         final ArrayList<Element> edges = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");

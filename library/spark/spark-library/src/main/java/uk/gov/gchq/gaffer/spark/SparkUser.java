@@ -17,12 +17,11 @@
 package uk.gov.gchq.gaffer.spark;
 
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.user.User;
 
-/**
- *
- */
 public class SparkUser extends User {
 
     private SparkSession sparkSession;
@@ -42,14 +41,28 @@ public class SparkUser extends User {
 
     @Override
     public boolean equals(final Object user) {
-        return (user instanceof SparkUser &&
-                this.sparkSession.equals(((SparkUser) user).getSparkSession()) &&
-                super.equals(user));
+        if (this == user) {
+            return true;
+        }
+
+        if (user == null || getClass() != user.getClass()) {
+            return false;
+        }
+
+        final SparkUser sparkUser = (SparkUser) user;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(user))
+                .append(sparkSession, sparkUser.getSparkSession())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode() + this.sparkSession.hashCode();
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(sparkSession)
+                .toHashCode();
     }
 }
 

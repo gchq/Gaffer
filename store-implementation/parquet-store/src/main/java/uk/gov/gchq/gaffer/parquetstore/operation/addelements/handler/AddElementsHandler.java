@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
@@ -27,9 +26,11 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
+import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -43,6 +44,7 @@ import java.util.Iterator;
 public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
+    private static final String GRAPH = "/graph";
 
     @Override
     public Void doOperation(final AddElements operation,
@@ -56,95 +58,89 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         } else {
             throw new OperationException("This operation requires the user to be of type SparkUser.");
         }
-        configureSpark((ParquetStore) store, spark);
-        addElements(operation, (ParquetStore) store, spark);
+        final ParquetStore parquetStore = (ParquetStore) store;
+        SparkParquetUtils.configureSparkForAddElements(spark, parquetStore.getProperties());
+        addElements(operation, parquetStore, spark);
         return null;
-    }
-
-    private void configureSpark(final ParquetStore store, final SparkSession spark) {
-        final Integer numberOfOutputFiles = store.getProperties().getAddElementsOutputFilesPerGroup();
-        if (numberOfOutputFiles > Integer.parseInt(spark.conf().get("spark.sql.shuffle.partitions", "200"))) {
-            LOGGER.info("Setting the number of Spark shuffle partitions to " + numberOfOutputFiles);
-            spark.conf().set("spark.sql.shuffle.partitions", numberOfOutputFiles);
-        }
-
-        LOGGER.info("Setting the parquet file properties");
-        LOGGER.info("Row group size: " + store.getProperties().getRowGroupSize());
-        LOGGER.info("Page size: " + store.getProperties().getPageSize());
-        final Configuration hadoopConf = spark.sparkContext().hadoopConfiguration();
-        hadoopConf.setInt("parquet.block.size", store.getProperties().getRowGroupSize());
-        hadoopConf.setInt("parquet.page.size", store.getProperties().getPageSize());
-        hadoopConf.setInt("parquet.dictionary.page.size", store.getProperties().getPageSize());
-        hadoopConf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false");
-        hadoopConf.set("parquet.enable.summary-metadata", "false");
     }
 
     private void addElements(final AddElements addElementsOperation, final ParquetStore store, final SparkSession spark)
             throws OperationException {
         try {
             final FileSystem fs = store.getFS();
-            final String tempDirString = store.getProperties().getTempFilesDir();
+            final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+            final String rootDataDirString = parquetStoreProperties.getDataDir();
+            final String dataDirString = rootDataDirString + "/" + store.getCurrentSnapshot();
+            final String tempDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);
             if (fs.exists(tempDir)) {
-                LOGGER.warn("Temp data directory '" + store.getProperties().getTempFilesDir() + "' has been deleted.");
                 fs.delete(tempDir, true);
+                LOGGER.warn("Temp data directory '" + tempDirString + "' has been deleted.");
             }
             if (store.getCurrentSnapshot() != 0L) {
-                LOGGER.debug("Copying data directory '" + store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot() + "' has been copied to " + store.getProperties().getTempFilesDir());
-                FileUtil.copy(fs, new Path(store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot() + "/graph"), fs, new Path(tempDirString + "/graph"), false, false, fs.getConf());
+                FileUtil.copy(fs, new Path(dataDirString + GRAPH), fs, new Path(tempDirString + GRAPH), false, false, fs.getConf());
+                LOGGER.debug("Copying data directory '" + dataDirString + "' has been copied to " + tempDirString);
             }
             // Write the data out
-            LOGGER.info("Starting to write the unsorted Parquet data to " + store.getProperties().getTempFilesDir() + " split by group");
+            LOGGER.info("Starting to write the unsorted Parquet data to " + tempDirString + " split by group");
             final Iterable input = addElementsOperation.getInput();
             final Iterator inputIter = input.iterator();
-            new WriteUnsortedData(store.getProperties(), store.getSchemaUtils()).writeElements(inputIter);
+            new WriteUnsortedData(parquetStoreProperties, store.getSchemaUtils()).writeElements(inputIter);
             if (inputIter instanceof CloseableIterator) {
                 ((CloseableIterator) inputIter).close();
             }
             if (input instanceof CloseableIterable) {
                 ((CloseableIterable) input).close();
             }
-            LOGGER.info("Finished writing the unsorted Parquet data to " + store.getProperties().getTempFilesDir());
+            LOGGER.info("Finished writing the unsorted Parquet data to " + tempDirString);
             // Spark read in the data, aggregate and sort the data
-            LOGGER.info("Starting to write the sorted and aggregated Parquet data to " + store.getProperties().getTempFilesDir() + "/sorted split by group");
+            LOGGER.info("Starting to write the sorted and aggregated Parquet data to " + tempDirString + "/sorted split by group");
             new AggregateAndSortTempData(store, spark);
-            LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + store.getProperties().getTempFilesDir() + "/sorted");
+            LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDirString + "/sorted");
             // Generate the file based index
             LOGGER.info("Starting to write the indexes");
             new GenerateIndices(store);
             LOGGER.info("Finished writing the indexes");
+            try {
+                moveDataToDataDir(store, fs, rootDataDirString, tempDirString);
+                tidyUp(fs, tempDirString);
+            } catch (StoreException e) {
+                throw new OperationException("Failed to reload the indices", e);
+            } catch (IOException e) {
+                throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
+            }
         } catch (final IOException e) {
             throw new OperationException("IO Exception: Failed to connect to the file system", e);
         } catch (StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
-        try {
-            final FileSystem fs = store.getFS();
-            Path tempDir = new Path(store.getProperties().getTempFilesDir());
-            // move data from temp to data
-            final long snapshot = System.currentTimeMillis();
-            final String destPath = store.getProperties().getDataDir() + "/" + snapshot + "/";
-            fs.mkdirs(new Path(destPath));
-            fs.rename(new Path(store.getProperties().getTempFilesDir() + "/sorted/graph"), new Path(destPath + "graph"));
-            final Path tempReversePath = new Path(store.getProperties().getTempFilesDir() + "/sorted/reverseEdges");
-            if (fs.exists(tempReversePath)) {
-                fs.rename(tempReversePath, new Path(destPath + "reverseEdges"));
-            }
-            // set the data dir property
-            store.setCurrentSnapshot(snapshot);
-            // reload indices
-            store.loadIndices();
+
+    }
+
+    private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String dataDirString, final String tempDataDirString) throws StoreException, IOException {
+        // move data from temp to data
+        final long snapshot = System.currentTimeMillis();
+        final String destPath = dataDirString + "/" + snapshot;
+        fs.mkdirs(new Path(destPath));
+        fs.rename(new Path(tempDataDirString + "/sorted/graph"), new Path(destPath + "/graph"));
+        final Path tempReversePath = new Path(tempDataDirString + "/sorted/reverseEdges");
+        if (fs.exists(tempReversePath)) {
+            fs.rename(tempReversePath, new Path(destPath + "/reverseEdges"));
+        }
+        // set the data dir property
+        store.setCurrentSnapshot(snapshot);
+        // reload indices
+        store.loadIndices();
+    }
+
+    private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {
+        Path tempDir = new Path(tempDataDirString);
+        fs.delete(tempDir, true);
+        LOGGER.info("Temp data directory '" + tempDataDirString + "' has been deleted.");
+        while (fs.listStatus(tempDir.getParent()).length == 0) {
+            tempDir = tempDir.getParent();
+            LOGGER.info("Empty directory '" + tempDataDirString + "' has been deleted.");
             fs.delete(tempDir, true);
-            LOGGER.info("Temp data directory '" + tempDir.toString() + "' has been deleted.");
-            while (fs.listStatus(tempDir.getParent()).length == 0) {
-                tempDir = tempDir.getParent();
-                LOGGER.info("Empty directory '" + tempDir.toString() + "' has been deleted.");
-                fs.delete(tempDir, true);
-            }
-        } catch (StoreException e) {
-            throw new OperationException("Failed to reload the indices", e);
-        } catch (IOException e) {
-            throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
         }
     }
 }

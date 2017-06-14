@@ -35,9 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- *
- */
 public class GafferGroupObjectConverter implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferGroupObjectConverter.class);
@@ -64,13 +61,9 @@ public class GafferGroupObjectConverter implements Serializable {
         if (serialiser instanceof ParquetSerialiser) {
             return (Object[]) serialiser.serialise(value);
         } else if (serialiser != null) {
-            final Object[] objects = new Object[1];
-            objects[0] = serialiser.serialise(value);
-            return objects;
+            return new Object[]{serialiser.serialise(value)};
         } else {
-            final Object[] objects = new Object[1];
-            objects[0] = value;
-            return objects;
+            return new Object[]{value};
         }
     }
 
@@ -119,7 +112,8 @@ public class GafferGroupObjectConverter implements Serializable {
                                                            final HashMap<String, Object> recordBuilder, final String fieldName) throws SerialisationException {
         Iterator<Object> newParquetObjects = parquetObjects;
         LOGGER.debug(fieldSchema.toString(true));
-        if (fieldSchema.getType() == Schema.Type.UNION) {
+        final Schema.Type type = fieldSchema.getType();
+        if (type.equals(Schema.Type.UNION)) {
             LOGGER.debug("Found a Union type Schema");
             // loop through all types until data matches a schema
             final ArrayList<Object> parquetObjectsClone = new ArrayList<>();
@@ -137,7 +131,7 @@ public class GafferGroupObjectConverter implements Serializable {
                     newParquetObjects = parquetObjectsClone.iterator();
                 }
             }
-        } else if (fieldSchema.getType() == Schema.Type.RECORD) {
+        } else if (type.equals(Schema.Type.RECORD)) {
             LOGGER.debug("Found a Record type Schema");
             final HashMap<String, Object> nestedRecordBuilder = new HashMap<>();
             for (final Schema.Field field : fieldSchema.getFields()) {
@@ -148,34 +142,37 @@ public class GafferGroupObjectConverter implements Serializable {
                 nestedRecorder.set(entry.getKey(), entry.getValue());
             }
             recordBuilder.put(fieldSchema.getName(), nestedRecorder.build());
-        } else if (fieldSchema.getType() == Schema.Type.MAP) {
+        } else if (type.equals(Schema.Type.MAP)) {
             LOGGER.debug("Found a Map type Schema");
+            //TODO add native compatibility for maps
             throw new SerialisationException("Objects of type Map are not yet supported");
-        } else if (fieldSchema.getType() == Schema.Type.ARRAY) {
+        } else if (type.equals(Schema.Type.ARRAY)) {
             LOGGER.debug("Found an Array type Schema");
+            //TODO add native compatibility for arrays
+
             throw new SerialisationException("Objects of type List are not yet supported");
         } else {
-            LOGGER.debug("Found a Primitive type Schema: " + fieldSchema.getType());
+            LOGGER.debug("Found a Primitive type Schema: {}", fieldSchema.getType());
             // must be a primitive type
             final Object parquetObject = newParquetObjects.next();
-            if (fieldSchema.getType() == Schema.Type.NULL && parquetObject == null) {
+            if (type.equals(Schema.Type.NULL) && parquetObject == null) {
                 recordBuilder.put(fieldName, null);
-            } else if (fieldSchema.getType() == Schema.Type.BOOLEAN && parquetObject instanceof Boolean) {
+            } else if (type.equals(Schema.Type.BOOLEAN) && parquetObject instanceof Boolean) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.BYTES && parquetObject instanceof byte[]) {
+            } else if (type.equals(Schema.Type.BYTES) && parquetObject instanceof byte[]) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.DOUBLE && parquetObject instanceof Double) {
+            } else if (type.equals(Schema.Type.DOUBLE) && parquetObject instanceof Double) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.FLOAT && parquetObject instanceof Float) {
+            } else if (type.equals(Schema.Type.FLOAT) && parquetObject instanceof Float) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.INT && parquetObject instanceof Integer) {
+            } else if (type.equals(Schema.Type.INT) && parquetObject instanceof Integer) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.LONG && parquetObject instanceof Long) {
+            } else if (type.equals(Schema.Type.LONG) && parquetObject instanceof Long) {
                 recordBuilder.put(fieldName, parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.STRING && parquetObject instanceof String) {
+            } else if (type.equals(Schema.Type.STRING) && parquetObject instanceof String) {
                 recordBuilder.put(fieldName, parquetObject);
             } else {
-                throw new SerialisationException("Object of type " + parquetObject.getClass() + " does not match the expected type of " + fieldSchema.getType().getName());
+                throw new SerialisationException("Object of type " + parquetObject.getClass() + " does not match the expected type of " + type.getName());
             }
         }
         return newParquetObjects;
@@ -185,9 +182,9 @@ public class GafferGroupObjectConverter implements Serializable {
     // This will extract the requested Gaffer Object from the Spark row
     public Object sparkRowToGafferObject(final String gafferColumn, final GenericRowWithSchema row) throws SerialisationException {
         LOGGER.trace("Starting sparkRowToGafferObject");
-        LOGGER.trace("Gaffer Column: " + gafferColumn);
-        LOGGER.trace("Row: " + row);
-        LOGGER.trace("Row Schema: " + row.schema());
+        LOGGER.trace("Gaffer Column: {}", gafferColumn);
+        LOGGER.trace("Row: {}", row);
+        LOGGER.trace("Row Schema: {}", row.schema());
         final ArrayList<Object> objectsList = new ArrayList<>();
         final String[] paths = this.columnToPaths.get(gafferColumn);
         if (paths[0].contains(".")) {
@@ -206,16 +203,16 @@ public class GafferGroupObjectConverter implements Serializable {
         objectsList.toArray(objects);
         final Object gafferObject = parquetObjectsToGafferObject(gafferColumn, objects);
         if (gafferObject == null) {
-            LOGGER.debug("Failed to get the Gaffer Object from the Spark Row for the column: " + gafferColumn);
+            LOGGER.debug("Failed to get the Gaffer Object from the Spark Row for the column: {}", gafferColumn);
         } else {
-            LOGGER.trace("Gaffer object type: " + gafferObject.getClass().getCanonicalName());
-            LOGGER.trace("Gaffer Object: " + gafferObject.toString());
+            LOGGER.trace("Gaffer object type: {}", gafferObject.getClass().getCanonicalName());
+            LOGGER.trace("Gaffer Object: {}", gafferObject);
         }
         return gafferObject;
     }
 
     private void getObjectsFromNestedRow(final ArrayList<Object> objects, final GenericRowWithSchema row) {
-        LOGGER.debug(row.toString());
+        LOGGER.debug("{}", row);
         for (final StructField field : row.schema().fields()) {
             final Object fieldValue = row.getAs(field.name());
             LOGGER.debug("FieldValue: " + fieldValue + " class: " + fieldValue.getClass().getCanonicalName());
@@ -231,11 +228,11 @@ public class GafferGroupObjectConverter implements Serializable {
     // such that each element in the returned array is a column
     public void addGafferObjectToSparkRow(final String column, final Object object, final ArrayList<Object> recordBuilder, final StructType sparkSchema) throws SerialisationException {
         LOGGER.trace("Starting addGafferObjectToSparkRow");
-        LOGGER.trace("Gaffer column: " + column);
+        LOGGER.trace("Gaffer column: {}", column);
         final String[] paths = this.columnToPaths.get(column);
         if (object != null) {
-            LOGGER.trace("Gaffer Object: " + object.toString());
-            LOGGER.trace("Gaffer object type: " + object.getClass().getCanonicalName());
+            LOGGER.trace("Gaffer Object: {}", object);
+            LOGGER.trace("Gaffer object type: {}", object.getClass().getCanonicalName());
             Iterator<Object> parquetObjects = Arrays.asList(this.gafferObjectToParquetObjects(column, object)).iterator();
             final ArrayList<Object> records = new ArrayList<>();
             if (paths[0].contains(".")) {
@@ -257,7 +254,7 @@ public class GafferGroupObjectConverter implements Serializable {
                     }
                 }
             }
-            LOGGER.trace("Adding the following objects: " + records.toString());
+            LOGGER.trace("Adding the following objects: {}", records);
             recordBuilder.addAll(records);
         } else {
             LOGGER.trace("Gaffer Object: null");
@@ -272,7 +269,8 @@ public class GafferGroupObjectConverter implements Serializable {
     private Iterator<Object> recusivelyGenerateSparkObjects(final Iterator<Object> parquetObjects, final Schema fieldSchema, final ArrayList<Object> recordBuilder, final StructType sparkSchema) throws SerialisationException {
         Iterator<Object> newParquetObjects = parquetObjects;
         LOGGER.debug(fieldSchema.toString(true));
-        if (fieldSchema.getType() == Schema.Type.UNION) {
+        final Schema.Type type = fieldSchema.getType();
+        if (type.equals(Schema.Type.UNION)) {
             LOGGER.debug("Found a Union type Schema");
             // loop through all types until data matches a schema
             final ArrayList<Object> parquetObjectsClone = new ArrayList<>();
@@ -290,7 +288,7 @@ public class GafferGroupObjectConverter implements Serializable {
                     newParquetObjects = parquetObjectsClone.iterator();
                 }
             }
-        } else if (fieldSchema.getType() == Schema.Type.RECORD) {
+        } else if (type.equals(Schema.Type.RECORD)) {
             LOGGER.debug("Found a Record type Schema");
             final ArrayList<Object> nestedRecordBuilder = new ArrayList<>();
             for (final Schema.Field field : fieldSchema.getFields()) {
@@ -304,34 +302,36 @@ public class GafferGroupObjectConverter implements Serializable {
             final Object[] rowObjects = new Object[nestedRecordBuilder.size()];
             nestedRecordBuilder.toArray(rowObjects);
             recordBuilder.add(new GenericRowWithSchema(rowObjects, sparkSchema));
-        } else if (fieldSchema.getType() == Schema.Type.MAP) {
+        } else if (type.equals(Schema.Type.MAP)) {
+            //TODO add native compatibility for maps
             LOGGER.debug("Found a Map type Schema");
             throw new SerialisationException("Objects of type Map are not yet supported");
-        } else if (fieldSchema.getType() == Schema.Type.ARRAY) {
+        } else if (type.equals(Schema.Type.ARRAY)) {
+            //TODO add native compatibility for arrays
             LOGGER.debug("Found an Array type Schema");
             throw new SerialisationException("Objects of type List are not yet supported");
         } else {
-            LOGGER.debug("Found a Primitive type Schema: " + fieldSchema.getType());
+            LOGGER.debug("Found a Primitive type Schema: {}", fieldSchema.getType());
             // must be a primitive type
             final Object parquetObject = newParquetObjects.next();
-            if (fieldSchema.getType() == Schema.Type.NULL && parquetObject == null) {
+            if (type.equals(Schema.Type.NULL) && parquetObject == null) {
                 recordBuilder.add(null);
-            } else if (fieldSchema.getType() == Schema.Type.BOOLEAN && parquetObject instanceof Boolean) {
+            } else if (type.equals(Schema.Type.BOOLEAN) && parquetObject instanceof Boolean) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.BYTES && parquetObject instanceof byte[]) {
+            } else if (type.equals(Schema.Type.BYTES) && parquetObject instanceof byte[]) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.DOUBLE && parquetObject instanceof Double) {
+            } else if (type.equals(Schema.Type.DOUBLE) && parquetObject instanceof Double) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.FLOAT && parquetObject instanceof Float) {
+            } else if (type.equals(Schema.Type.FLOAT) && parquetObject instanceof Float) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.INT && parquetObject instanceof Integer) {
+            } else if (type.equals(Schema.Type.INT) && parquetObject instanceof Integer) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.LONG && parquetObject instanceof Long) {
+            } else if (type.equals(Schema.Type.LONG) && parquetObject instanceof Long) {
                 recordBuilder.add(parquetObject);
-            } else if (fieldSchema.getType() == Schema.Type.STRING && parquetObject instanceof String) {
+            } else if (type.equals(Schema.Type.STRING) && parquetObject instanceof String) {
                 recordBuilder.add(parquetObject);
             } else {
-                throw new SerialisationException("Object of type " + parquetObject.getClass() + " does not match the expected type of " + fieldSchema.getType().getName());
+                throw new SerialisationException("Object of type " + parquetObject.getClass() + " does not match the expected type of " + type.getName());
             }
         }
         return newParquetObjects;

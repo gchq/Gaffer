@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.parquetstore;
 
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -28,6 +29,7 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple3;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -35,18 +37,18 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsFromRDDHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler.AddElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.DummyGetAdjacentEntitySeedsHandler;
+import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAdjacentIdsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetDataframeOfElementsHandler;
 import uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler.GetElementsHandler;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialisationFactory;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.spark.operation.dataframe.GetDataFrameOfElements;
 import uk.gov.gchq.gaffer.spark.operation.scalardd.ImportRDDOfElements;
 import uk.gov.gchq.gaffer.store.Context;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -58,68 +60,54 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-/**
- *
- */
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+
 public class ParquetStore extends Store {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStore.class);
-    private static final Set<StoreTrait> TRAITS = new HashSet<>();
-    private HashMap<String, ArrayList<Tuple3<Object[], Object[], String>>> groupToIndex;
+    private static final Set<StoreTrait> TRAITS =
+            Collections.unmodifiableSet(Sets.newHashSet(
+                    ORDERED,
+                    INGEST_AGGREGATION,
+                    PRE_AGGREGATION_FILTERING
+            ));
+    private Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex;
     private SchemaUtils schemaUtils;
     private FileSystem fs;
     private long currentSnapshot;
 
-    static {
-        TRAITS.add(StoreTrait.INGEST_AGGREGATION);
-        TRAITS.add(StoreTrait.ORDERED);
-        TRAITS.add(StoreTrait.PRE_AGGREGATION_FILTERING);
-    }
-
-    public ParquetStore(final Schema schema, final StoreProperties properties) throws StoreException {
-        super();
-        initialise(schema, properties);
-    }
-
-    public ParquetStore() {
-        super();
-    }
-
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
-        return new SchemaOptimiser(new ParquetSerialisationFactory());
+        return new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
     }
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
+        try {
+            this.fs = FileSystem.get(new Configuration());
+        } catch (IOException e) {
+            throw new StoreException("Could not connect to the file system", e);
+        }
         this.schemaUtils = new SchemaUtils(this.getSchema());
         loadIndices();
     }
 
     public FileSystem getFS() throws StoreException {
-        if (this.fs == null) {
-            try {
-                this.fs = FileSystem.get(new Configuration());
-            } catch (IOException e) {
-                throw new StoreException("Could not connect to the file system", e);
-            }
-        }
         return this.fs;
     }
 
     public SchemaUtils getSchemaUtils() {
-        if (this.schemaUtils == null) {
-            this.schemaUtils = new SchemaUtils(getSchema());
-        }
         return this.schemaUtils;
     }
 
@@ -133,17 +121,19 @@ public class ParquetStore extends Store {
 
     @Override
     protected Context createContext(final User user) {
+        final SparkUser sparkUser;
         if (user instanceof SparkUser) {
-            final SparkConf conf = ((SparkUser) user).getSparkSession().sparkContext().getConf();
+            sparkUser = (SparkUser) user;
+            final SparkConf conf = sparkUser.getSparkSession().sparkContext().getConf();
             final String sparkSerialiser = conf.get("spark.serializer", null);
-            if (sparkSerialiser == null || !sparkSerialiser.equals("org.apache.spark.serializer.KryoSerializer")) {
+            if (sparkSerialiser == null || !"org.apache.spark.serializer.KryoSerializer".equals(sparkSerialiser)) {
                 LOGGER.warn("For the best performance you should set the spark config 'spark.serializer' = 'org.apache.spark.serializer.KryoSerializer'");
             }
             final String sparkKryoRegistrator = conf.get("spark.kryo.registrator", null);
-            if (sparkKryoRegistrator == null || !sparkKryoRegistrator.equals("uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")) {
+            if (sparkKryoRegistrator == null || !"uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator".equals(sparkKryoRegistrator)) {
                 LOGGER.warn("For the best performance you should set the spark config 'spark.kryo.registrator' = 'uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator'");
             }
-            return super.createContext(user);
+
         } else {
             LOGGER.info("Setting up the Spark session using " + this.getProperties().getSparkMaster() + " as the master URL");
             final SparkSession spark = SparkSession.builder()
@@ -152,8 +142,9 @@ public class ParquetStore extends Store {
                     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                     .config("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                     .getOrCreate();
-            return super.createContext(new SparkUser(user, spark));
+            sparkUser = new SparkUser(user, spark);
         }
+        return super.createContext(sparkUser);
     }
 
     protected void addAdditionalOperationHandlers() {
@@ -172,8 +163,8 @@ public class ParquetStore extends Store {
     }
 
     @Override
-    protected DummyGetAdjacentEntitySeedsHandler getAdjacentIdsHandler() {
-        return new DummyGetAdjacentEntitySeedsHandler();
+    protected GetAdjacentIdsHandler getAdjacentIdsHandler() {
+        return new GetAdjacentIdsHandler();
     }
 
     protected OperationHandler<? extends AddElements> getAddElementsHandler() {
@@ -198,11 +189,7 @@ public class ParquetStore extends Store {
 
     public void loadIndices() throws StoreException {
         try {
-            if (this.groupToIndex == null) {
-                this.groupToIndex = new HashMap<>();
-            } else {
-                this.groupToIndex.clear();
-            }
+            final Map<String, List<Tuple3<Object[], Object[], String>>> newGroupToIndex = new HashMap<>();
             final FileSystem fs = getFS();
             final String rootDirString = this.getProperties().getDataDir();
             final Path rootDir = new Path(rootDirString);
@@ -217,39 +204,50 @@ public class ParquetStore extends Store {
                     }
                 }
                 if (latestSnapshot != 0L) {
-                    setCurrentSnapshot(latestSnapshot);
                     for (final String group : this.schemaUtils.getEntityGroups()) {
-                        loadIndex(group, Constants.VERTEX);
+                        final List<Tuple3<Object[], Object[], String>> index = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
+                        if (!index.isEmpty()) {
+                            newGroupToIndex.put(group, index);
+                        }
                     }
                     for (final String group : this.schemaUtils.getEdgeGroups()) {
-                        loadIndex(group, Constants.SOURCE);
-                        loadIndex(group, Constants.DESTINATION);
+                        final List<Tuple3<Object[], Object[], String>> index = loadIndex(group, ParquetStoreConstants.SOURCE, latestSnapshot);
+                        if (!index.isEmpty()) {
+                            newGroupToIndex.put(group, index);
+                        }
+                        final List<Tuple3<Object[], Object[], String>> reverseIndex = loadIndex(group, ParquetStoreConstants.DESTINATION, latestSnapshot);
+                        if (!reverseIndex.isEmpty()) {
+                            newGroupToIndex.put(group + "_reversed", reverseIndex);
+                        }
                     }
                 }
+                setCurrentSnapshot(latestSnapshot);
             }
+            this.groupToIndex = newGroupToIndex;
         } catch (IOException e) {
             throw new StoreException("Failed to connect to the file system", e);
         }
     }
 
-    private void loadIndex(final String group, final String identifier) throws StoreException {
+    private List<Tuple3<Object[], Object[], String>> loadIndex(final String group, final String identifier, final long currentSnapshot) throws StoreException {
         try {
             final String indexDir;
             final Path path;
-            if (identifier.equals(Constants.VERTEX)) {
-                indexDir = getProperties().getDataDir() + "/" + getCurrentSnapshot() + "/graph/" + Constants.GROUP + "=" + group + "/";
+            if (ParquetStoreConstants.VERTEX.equals(identifier)) {
+                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/";
                 path = new Path(indexDir + "_index");
-            } else if (identifier.equals(Constants.SOURCE)) {
-                indexDir = getProperties().getDataDir() + "/" + getCurrentSnapshot() + "/graph/" + Constants.GROUP + "=" + group + "/";
+            } else if (ParquetStoreConstants.SOURCE.equals(identifier)) {
+                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/";
                 path = new Path(indexDir + "_index");
             } else {
-                indexDir = getProperties().getDataDir() + "/" + getCurrentSnapshot() + "/reverseEdges/" + Constants.GROUP + "=" + group + "/";
+                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group + "/";
                 path = new Path(indexDir + "_index");
             }
-            LOGGER.info("Loading the index from path " + path.toString());
+            LOGGER.info("Loading the index from path {}", path);
             final ArrayList<Tuple3<Object[], Object[], String>> index = new ArrayList<>();
-            if (getFS().exists(path)) {
-                final FSDataInputStream reader = getFS().open(path);
+            final FileSystem fs = getFS();
+            if (fs.exists(path)) {
+                final FSDataInputStream reader = fs.open(path);
                 while (reader.available() > 0) {
                     final int numOfCols = reader.readInt();
                     final Object[] minObjects = new Object[numOfCols];
@@ -266,27 +264,19 @@ public class ParquetStore extends Store {
                     }
                     final int filePathLength = reader.readInt();
                     final byte[] filePath = readBytes(filePathLength, reader);
-                    final String fileString = new String(filePath, Charset.forName("UTF-8"));
-                    LOGGER.debug("min: " + Arrays.toString(minObjects));
-                    LOGGER.debug("max: " + Arrays.toString(maxObjects));
-                    LOGGER.debug("filePath: " + indexDir + fileString);
+                    final String fileString = StringUtil.toString(filePath);
                     index.add(new Tuple3<>(minObjects, maxObjects, indexDir + fileString));
                 }
-                reader.close();
                 index.sort(Comparator.comparing(Tuple3::_3));
-                if (identifier.equals(Constants.DESTINATION)) {
-                    this.groupToIndex.put(group + "_reversed", index);
-                } else {
-                    this.groupToIndex.put(group, index);
-                }
             }
+            return index;
         } catch (IOException e) {
-            if (identifier.equals(Constants.DESTINATION)) {
+            if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
                 throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
-                        "/" + getCurrentSnapshot() + "/reverseEdges/" + Constants.GROUP + "=" + group + "/_index", e);
+                        "/" + getCurrentSnapshot() + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group + "/_index", e);
             } else {
                 throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
-                        "/" + getCurrentSnapshot() + "/graph/" + Constants.GROUP + "=" + group + "/_index", e);
+                        "/" + getCurrentSnapshot() + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/_index", e);
             }
         }
     }
@@ -301,14 +291,14 @@ public class ParquetStore extends Store {
     }
 
     private Object deserialiseColumn(final byte[] colType, final byte[] value) {
-        final String colTypeName = new String(colType, Charset.forName("UTF-8"));
-        if (colTypeName.equals("long")) {
+        final String colTypeName = StringUtil.toString(colType);
+        if ("long".equals(colTypeName)) {
             return BytesUtils.bytesToLong(value);
-        } else if (colTypeName.equals("int")) {
+        } else if ("int".equals(colTypeName)) {
             return BytesUtils.bytesToInt(value);
-        } else if (colTypeName.equals("boolean")) {
+        } else if ("boolean".equals(colTypeName)) {
             return BytesUtils.bytesToBool(value);
-        } else if (colTypeName.equals("float")) {
+        } else if ("float".equals(colTypeName)) {
             return Float.intBitsToFloat(BytesUtils.bytesToInt(value));
         } else if (colTypeName.endsWith(" (UTF8)")) {
             return Binary.fromReusedByteArray(value).toStringUsingUTF8();
@@ -317,11 +307,7 @@ public class ParquetStore extends Store {
         }
     }
 
-    public ArrayList<Tuple3<Object[], Object[], String>> getIndexForGroup(final String group) {
-        return this.groupToIndex.get(group);
-    }
-
-    public HashMap<String, ArrayList<Tuple3<Object[], Object[], String>>> getIndex() {
+    public Map<String, List<Tuple3<Object[], Object[], String>>> getIndex() {
         return this.groupToIndex;
     }
 

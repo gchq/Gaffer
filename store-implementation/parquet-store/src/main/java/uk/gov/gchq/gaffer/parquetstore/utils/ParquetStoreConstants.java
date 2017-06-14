@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ByteParquetSerialiser;
@@ -31,13 +32,14 @@ import uk.gov.gchq.gaffer.parquetstore.serialisation.TypeValueParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 
-public final class Constants {
+public final class ParquetStoreConstants {
     public static final String GROUP = "GROUP";
-    public static final String VERTEX = IdentifierType.VERTEX.toString();
-    public static final String SOURCE = IdentifierType.SOURCE.toString();
-    public static final String DESTINATION = IdentifierType.DESTINATION.toString();
-    public static final String DIRECTED = IdentifierType.DIRECTED.toString();
+    public static final String VERTEX = IdentifierType.VERTEX.name();
+    public static final String SOURCE = IdentifierType.SOURCE.name();
+    public static final String DESTINATION = IdentifierType.DESTINATION.name();
+    public static final String DIRECTED = IdentifierType.DIRECTED.name();
 
+    @SuppressFBWarnings("MS_MUTABLE_ARRAY")
     public static final Serialiser[] SERIALISERS = new Serialiser[] {
             new StringParquetSerialiser(),
             new ByteParquetSerialiser(),
@@ -52,6 +54,6 @@ public final class Constants {
             new TypeValueParquetSerialiser(),
             new JavaSerialiser()};
 
-    private Constants() {
+    private ParquetStoreConstants() {
     }
 }

@@ -41,9 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- */
 public class SchemaUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaUtils.class);
@@ -90,7 +87,7 @@ public class SchemaUtils {
             final HashMap<String, LinkedHashSet<String>> columnToPathSet = recursivelyGeneratePaths(null, null, getAvroSchema(group), null);
             final HashMap<String, String[]> columnToPaths = new HashMap<>();
             for (final Map.Entry<String, LinkedHashSet<String>> entry : columnToPathSet.entrySet()) {
-                LOGGER.debug("getColumnToPaths: group=" + group + " paths=" + entry.getValue().toString());
+                LOGGER.debug("getColumnToPaths: group=" + group + " paths={}", entry.getValue().toString());
                 final String[] paths = new String[entry.getValue().size()];
                 entry.getValue().toArray(paths);
                 columnToPaths.put(entry.getKey(), paths);
@@ -178,11 +175,11 @@ public class SchemaUtils {
     }
 
     private org.apache.avro.Schema buildAvroSchema(final String group) throws SerialisationException {
-        LOGGER.info("Building the Parquet Schema for group: " + group);
+        LOGGER.info("Building the Parquet Schema for group: {}", group);
         SchemaElementDefinition groupGafferSchema;
         final Boolean isEntity = this.entityGroups.contains(group);
         StringBuilder schemaString = new StringBuilder("message Entity {\n");
-        schemaString.append("required binary " + Constants.GROUP + " (UTF8);\n");
+        schemaString.append("required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n");
         Serialiser serialiser = this.gafferSchema.getVertexSerialiser();
         // check that the vertex does not get stored as nested data
         if (serialiser instanceof ParquetSerialiser &&
@@ -191,19 +188,19 @@ public class SchemaUtils {
         }
         if (isEntity) {
             groupGafferSchema = this.gafferSchema.getEntity(group);
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, Constants.VERTEX)).append("\n");
-            addGroupColumnToSerialiser(group, Constants.VERTEX, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.VERTEX)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStoreConstants.VERTEX, serialiser);
         } else {
             groupGafferSchema = this.gafferSchema.getEdge(group);
 
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, Constants.SOURCE)).append("\n");
-            addGroupColumnToSerialiser(group, Constants.SOURCE, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.SOURCE)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStoreConstants.SOURCE, serialiser);
 
-            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, Constants.DESTINATION)).append("\n");
-            addGroupColumnToSerialiser(group, Constants.DESTINATION, serialiser);
+            schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.DESTINATION)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStoreConstants.DESTINATION, serialiser);
 
-            addGroupColumnToSerialiser(group, Constants.DIRECTED, BooleanParquetSerialiser.class.getCanonicalName());
-            schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(BooleanParquetSerialiser.class.getCanonicalName()), Constants.DIRECTED)).append("\n");
+            addGroupColumnToSerialiser(group, ParquetStoreConstants.DIRECTED, BooleanParquetSerialiser.class.getCanonicalName());
+            schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(BooleanParquetSerialiser.class.getCanonicalName()), ParquetStoreConstants.DIRECTED)).append("\n");
         }
 
         Map<String, String> propertyMap = groupGafferSchema.getPropertyMap();
@@ -224,9 +221,9 @@ public class SchemaUtils {
 
         LOGGER.debug("Generated Avro schema:");
         LOGGER.debug(avroSchema.toString(true));
-        LOGGER.debug("Generated the columnToPaths: " + getColumnToPaths(group));
-        LOGGER.debug("Generated the columnToSerialiser: " + getColumnToSerialiser(group));
-        LOGGER.debug("Generated the SerialiserNameToSerialiser: " + this.serialiserNameToSerialiser);
+        LOGGER.debug("Generated the columnToPaths: {}", getColumnToPaths(group));
+        LOGGER.debug("Generated the columnToSerialiser: {}", getColumnToSerialiser(group));
+        LOGGER.debug("Generated the SerialiserNameToSerialiser: {}", this.serialiserNameToSerialiser);
 
         return avroSchema;
     }
@@ -321,10 +318,10 @@ public class SchemaUtils {
     }
 
     public String getGroupDirectory(final String group, final String identifier, final String rootDir) {
-        if (identifier.equals(Constants.DESTINATION)) {
-            return rootDir + "/reverseEdges/" + Constants.GROUP + "=" + group;
+        if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
+            return rootDir + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group;
         } else {
-            return rootDir + "/graph/" + Constants.GROUP + "=" + group;
+            return rootDir + "/graph/" + ParquetStoreConstants.GROUP + "=" + group;
         }
     }
 

@@ -26,6 +26,7 @@ import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.integration.impl.AggregationIT;
+import uk.gov.gchq.gaffer.integration.impl.ExportIT;
 import uk.gov.gchq.gaffer.integration.impl.FilteringIT;
 import uk.gov.gchq.gaffer.integration.impl.GeneratorsIT;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
@@ -58,17 +59,19 @@ public class ParquetStoreITs extends AbstractStoreITs {
     @AfterClass
     public static void cleanUp() throws IOException {
         final FileSystem fs = FileSystem.get(new Configuration());
-        final ParquetStoreProperties props = new ParquetStoreProperties();
-        Path dataDir = new Path(props.getDataDir());
-        fs.delete(dataDir, true);
-        while (fs.listStatus(dataDir.getParent()).length == 0) {
-            dataDir = dataDir.getParent();
+            final ParquetStoreProperties props = new ParquetStoreProperties();
+            Path dataDir = new Path(props.getDataDir());
             fs.delete(dataDir, true);
-        }
+            while (fs.listStatus(dataDir.getParent()).length == 0) {
+                dataDir = dataDir.getParent();
+                fs.delete(dataDir, true);
+            }
+
     }
 
     public ParquetStoreITs() {
         super(STORE_PROPERTIES);
+        singleTest(ExportIT.class);
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
     }
 }

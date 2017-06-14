@@ -19,9 +19,6 @@ package uk.gov.gchq.gaffer.parquetstore.serialisation;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
-/**
- *
- */
 public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**

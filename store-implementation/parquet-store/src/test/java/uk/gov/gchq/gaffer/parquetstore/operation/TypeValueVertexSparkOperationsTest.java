@@ -42,18 +42,12 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final ParquetStore store = getParquetStore();
-        getGraph(store).execute(new ImportRDDOfElements.Builder().input(getElements(spark)).build(), USER);
+        getGraph(getSchema(), getParquetStoreProperties()).execute(new ImportRDDOfElements.Builder().input(getElements(spark)).build(), USER);
     }
 
     @Before
     public void setup() throws StoreException {
-        final ParquetStore store = getParquetStore();
-        this.graph = getGraph(store);
-    }
-
-    private static ParquetStore getParquetStore() throws StoreException {
-        return new ParquetStore(getSchema(), getParquetStoreProperties());
+        this.graph = getGraph(getSchema(), getParquetStoreProperties());
     }
 
     protected static Schema getSchema() {

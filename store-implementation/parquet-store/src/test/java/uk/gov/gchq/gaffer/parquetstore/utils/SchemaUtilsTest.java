@@ -24,11 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
-import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.SerialisationFactory;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -50,8 +49,8 @@ public class SchemaUtilsTest {
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        final ParquetStore store = new ParquetStore(schema, new ParquetStoreProperties());
-        this.utils = store.getSchemaUtils();
+        final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
+        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After
@@ -63,10 +62,10 @@ public class SchemaUtilsTest {
     public void getAvroSchemaForEdgeTest() throws SerialisationException {
         final org.apache.avro.Schema schema = utils.getAvroSchema("BasicEdge");
         final String parquetSchema = "message Entity {\n" +
-                "required binary " + Constants.GROUP + " (UTF8);\n" +
-                "optional binary " + Constants.SOURCE + " (UTF8);\n" +
-                "optional binary " + Constants.DESTINATION + " (UTF8);\n" +
-                "optional boolean " + Constants.DIRECTED + " ;\n" +
+                "required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n" +
+                "optional binary " + ParquetStoreConstants.SOURCE + " (UTF8);\n" +
+                "optional binary " + ParquetStoreConstants.DESTINATION + " (UTF8);\n" +
+                "optional boolean " + ParquetStoreConstants.DIRECTED + " ;\n" +
                 "optional binary property1 ;\n" +
                 "optional double property2 ;\n" +
                 "optional binary property3 ;\n" +
@@ -89,8 +88,8 @@ public class SchemaUtilsTest {
     public void getAvroSchemaForEntityTest() throws SerialisationException {
         final org.apache.avro.Schema schema = utils.getAvroSchema("BasicEntity");
         final String parquetSchema = "message Entity {\n" +
-                "required binary " + Constants.GROUP + " (UTF8);\n" +
-                "optional binary " + Constants.VERTEX + " (UTF8);\n" +
+                "required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n" +
+                "optional binary " + ParquetStoreConstants.VERTEX + " (UTF8);\n" +
                 "optional binary property1 ;\n" +
                 "optional double property2 ;\n" +
                 "optional binary property3 ;\n" +
@@ -113,9 +112,9 @@ public class SchemaUtilsTest {
     @Test
     public void getColumnToSerialiserTest() throws SerialisationException {
         final HashMap<String, String> columnToSerialiser = this.utils.getColumnToSerialiser("BasicEdge");
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(Constants.SOURCE));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(Constants.DESTINATION));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser", columnToSerialiser.get(Constants.DIRECTED));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.SOURCE));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.DESTINATION));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.DIRECTED));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.ByteParquetSerialiser", columnToSerialiser.get("property1"));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.DoubleParquetSerialiser", columnToSerialiser.get("property2"));
         assertEquals("uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser", columnToSerialiser.get("property3"));

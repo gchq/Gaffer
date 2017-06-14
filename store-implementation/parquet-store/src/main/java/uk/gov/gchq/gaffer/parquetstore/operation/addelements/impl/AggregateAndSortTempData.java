@@ -20,6 +20,8 @@ import org.apache.spark.sql.SparkSession;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +31,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-/**
- *
- */
 public class AggregateAndSortTempData {
 
     public AggregateAndSortTempData(final ParquetStore store, final SparkSession spark) throws OperationException, SerialisationException {
-        final ArrayList<Callable<OperationException>> tasks = new ArrayList<>();
-        for (final String group : store.getSchemaUtils().getEdgeGroups()) {
-            tasks.add(new AggregateAndSortGroup(group, false, store, spark));
-            tasks.add(new AggregateAndSortGroup(group, true, store, spark));
+        final List<Callable<OperationException>> tasks = new ArrayList<>();
+        final SchemaUtils schemaUtils = store.getSchemaUtils();
+        final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+        for (final String group : schemaUtils.getEdgeGroups()) {
+            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, schemaUtils, spark));
+            tasks.add(new AggregateAndSortGroup(group, true, parquetStoreProperties, schemaUtils, spark));
         }
-        for (final String group : store.getSchemaUtils().getEntityGroups()) {
-            tasks.add(new AggregateAndSortGroup(group, false, store, spark));
+        for (final String group : schemaUtils.getEntityGroups()) {
+            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, schemaUtils, spark));
         }
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
         try {
@@ -52,10 +53,12 @@ public class AggregateAndSortTempData {
                     throw result;
                 }
             }
+            pool.shutdown();
         } catch (InterruptedException e) {
             throw new OperationException("AggregateAndSortData was interrupted", e);
         } catch (ExecutionException e) {
             throw new OperationException("AggregateAndSortData had an execution exception thrown", e);
         }
+        pool.shutdown();
     }
 }

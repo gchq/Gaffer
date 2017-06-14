@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.data.DataGen;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.types.TypeValue;
@@ -114,10 +114,10 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
                 new ViewElementDefinition.Builder()
                     .preAggregationFilter(
                         new ElementFilter.Builder()
-                            .select(Constants.VERTEX + "_type")
+                            .select(ParquetStoreConstants.VERTEX + "_type")
                             .execute(new IsEqual("type0"))
                             .build())
-                    .transientProperty(Constants.VERTEX + "_type", String.class)
+                    .transientProperty(ParquetStoreConstants.VERTEX + "_type", String.class)
                     .build())
             .build();
     }

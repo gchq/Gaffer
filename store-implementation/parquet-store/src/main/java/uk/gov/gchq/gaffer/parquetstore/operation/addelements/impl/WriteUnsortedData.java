@@ -31,8 +31,8 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.utils.Constants;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
 import java.io.IOException;
@@ -40,16 +40,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
-/**
- *
- */
 public class WriteUnsortedData {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private final ParquetStoreProperties props;
-    private final HashMap<String, ParquetWriter<GenericRecord>> groupToWriter;
-    private final HashMap<String, Integer> groupToFileNumber;
+    private final Map<String, ParquetWriter<GenericRecord>> groupToWriter;
+    private final Map<String, Integer> groupToFileNumber;
     private final SchemaUtils schemaUtils;
     private final long batchSize;
 
@@ -100,9 +96,9 @@ public class WriteUnsortedData {
             this.groupToFileNumber.put(group, 0);
             fileNumber = 0;
         }
-        LOGGER.debug("Creating a new writer for group: " + group + " with file number " + fileNumber);
+        LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
         Path filePath;
-        filePath = new Path(this.schemaUtils.getGroupDirectory(group, Constants.VERTEX, this.props.getTempFilesDir()) +
+        filePath = new Path(this.schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.props.getTempFilesDir()) +
                 "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
         return AvroParquetWriter
                 .<GenericRecord>builder(filePath)
@@ -119,13 +115,13 @@ public class WriteUnsortedData {
         final String group = e.getGroup();
         final GafferGroupObjectConverter converter = this.schemaUtils.getConverter(group);
         final GenericRecordBuilder recordBuilder = new GenericRecordBuilder(this.schemaUtils.getAvroSchema(group));
-        recordBuilder.set(Constants.GROUP, group);
+        recordBuilder.set(ParquetStoreConstants.GROUP, group);
         if (this.schemaUtils.getEntityGroups().contains(group)) {
-            converter.addGafferObjectToGenericRecord(Constants.VERTEX, ((Entity) e).getVertex(), recordBuilder);
+            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.VERTEX, ((Entity) e).getVertex(), recordBuilder);
         } else {
-            converter.addGafferObjectToGenericRecord(Constants.SOURCE, ((Edge) e).getSource(), recordBuilder);
-            converter.addGafferObjectToGenericRecord(Constants.DESTINATION, ((Edge) e).getDestination(), recordBuilder);
-            converter.addGafferObjectToGenericRecord(Constants.DIRECTED, ((Edge) e).isDirected(), recordBuilder);
+            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.SOURCE, ((Edge) e).getSource(), recordBuilder);
+            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.DESTINATION, ((Edge) e).getDestination(), recordBuilder);
+            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.DIRECTED, ((Edge) e).isDirected(), recordBuilder);
         }
         for (final Map.Entry<String, Object> property : e.getProperties().entrySet()) {
             converter.addGafferObjectToGenericRecord(property.getKey(), property.getValue(), recordBuilder);

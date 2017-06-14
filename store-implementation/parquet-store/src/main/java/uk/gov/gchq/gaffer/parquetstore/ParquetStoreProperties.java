@@ -24,9 +24,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.Serializable;
 import java.nio.file.Path;
 
-/**
- *
- */
 public class ParquetStoreProperties extends StoreProperties implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetStoreProperties.class);
@@ -120,8 +117,8 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     // getSparkMaster will first check the ParquetStoreProperties, then default to the spark default config
     // set on the local machine then to run locally
     public String getSparkMaster() {
-        LOGGER.debug("ParquetStoreProperties has spark master set as: " + this.get(SPARK_MASTER, "Is not set"));
-        LOGGER.debug("Spark config has spark master set as: " + new SparkConf().get("spark.master", "Is not set"));
+        LOGGER.debug("ParquetStoreProperties has spark master set as: {}", this.get(SPARK_MASTER, "Is not set"));
+        LOGGER.debug("Spark config has spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
         String sparkMaster = this.get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
         LOGGER.debug("Spark master is set to " + sparkMaster);
         return sparkMaster;

@@ -24,41 +24,39 @@ import scala.collection.mutable.Builder;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-/**
- *
- */
 public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializable {
 
     private static final long serialVersionUID = -5811180619204002981L;
-    private final HashSet<String> groupByColumns;
+    private final Set<String> groupByColumns;
 
-    public ExtractKeyFromRow(final Set<String> groupByColumns, final HashMap<String, String[]> columnToPaths, final boolean isEntity, final HashMap<String, String> propertyToAggregatorMap) {
+    public ExtractKeyFromRow(final Set<String> groupByColumns, final Map<String, String[]> columnToPaths, final boolean isEntity, final Map<String, String> propertyToAggregatorMap) {
         this.groupByColumns = new HashSet<>();
         if (isEntity) {
-            addGroupByColumns(columnToPaths, Constants.VERTEX);
+            addGroupByColumns(columnToPaths, ParquetStoreConstants.VERTEX);
         } else {
-            addGroupByColumns(columnToPaths, Constants.SOURCE);
-            addGroupByColumns(columnToPaths, Constants.DESTINATION);
-            this.groupByColumns.add(Constants.DIRECTED);
+            addGroupByColumns(columnToPaths, ParquetStoreConstants.SOURCE);
+            addGroupByColumns(columnToPaths, ParquetStoreConstants.DESTINATION);
+            this.groupByColumns.add(ParquetStoreConstants.DIRECTED);
         }
         final Set<String> propertiesWithAggregators = propertyToAggregatorMap.keySet();
         for (final String col : columnToPaths.keySet()) {
             if (groupByColumns.contains(col) || !propertiesWithAggregators.contains(col) &&
-                    !col.equals(Constants.VERTEX) && !col.equals(Constants.SOURCE) && !col.equals(Constants.DESTINATION)
-                            && !col.equals(Constants.DIRECTED)) {
+                    !ParquetStoreConstants.VERTEX.equals(col) && !ParquetStoreConstants.SOURCE.equals(col) && !ParquetStoreConstants.DESTINATION.equals(col)
+                            && !ParquetStoreConstants.DIRECTED.equals(col)) {
                 addGroupByColumns(columnToPaths, col);
             }
         }
     }
 
-    private void addGroupByColumns(final HashMap<String, String[]> columnToPaths, final String col) {
+    private void addGroupByColumns(final Map<String, String[]> columnToPaths, final String col) {
         final String[] paths = columnToPaths.get(col);
         if (paths != null) {
-            this.groupByColumns.addAll(Arrays.asList(paths));
+            Collections.addAll(this.groupByColumns, paths);
         }
     }
 

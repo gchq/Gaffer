@@ -25,14 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-/**
- *
- */
 public class ParquetFileIterator implements Iterator<Path> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetFileIterator.class);
-    private final ArrayList<Path> files;
+    private final List<Path> files;
     private final FileSystem fs;
     private int fileIndex;
 

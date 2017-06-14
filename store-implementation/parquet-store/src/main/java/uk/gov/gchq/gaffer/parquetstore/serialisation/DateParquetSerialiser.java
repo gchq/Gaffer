@@ -20,9 +20,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import java.util.Date;
 
-/**
- *
- */
 public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     private static final long serialVersionUID = 3798684785664364539L;
@@ -34,9 +31,7 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     @Override
     public Object[] serialise(final Date object) throws SerialisationException {
-        final Object[] parquetObjects = new Object[1];
-        parquetObjects[0] = object.getTime();
-        return parquetObjects;
+        return new Object[]{object.getTime()};
     }
 
     @Override

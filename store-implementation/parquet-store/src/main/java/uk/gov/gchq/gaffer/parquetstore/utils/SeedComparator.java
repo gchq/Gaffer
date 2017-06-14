@@ -23,9 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Comparator;
 
-/**
- *
- */
 public class SeedComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 8415485366776438127L;

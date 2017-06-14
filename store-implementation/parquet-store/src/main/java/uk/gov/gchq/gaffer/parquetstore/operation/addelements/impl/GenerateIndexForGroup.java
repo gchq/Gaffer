@@ -29,19 +29,16 @@ import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.apache.parquet.schema.OriginalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-/**
- *
- */
 public class GenerateIndexForGroup implements Callable<OperationException>, Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndexForGroup.class);
@@ -57,26 +54,27 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
     @Override
     public OperationException call() {
         try {
-            final FileSystem fs = FileSystem.get(new Configuration());
-            if (fs.exists(new Path(directoryPath))) {
-                final FSDataOutputStream outputFile = fs.create(new Path(directoryPath + "/_index"));
-                final FileStatus[] files = fs.listStatus(new Path(directoryPath), path1 -> path1.getName().endsWith(".parquet"));
-                int[] colIndex = null;
-                for (final FileStatus file : files) {
-                    final ParquetMetadata parquetMetadata = ParquetFileReader.readFooter(fs.getConf(), file, ParquetMetadataConverter.NO_FILTER);
-                    List<BlockMetaData> blocks = parquetMetadata.getBlocks();
-                    if (blocks.size() > 0) {
-                        if (colIndex == null) {
-                            colIndex = getColumnIndexes(paths, parquetMetadata);
+            try (final FileSystem fs = FileSystem.get(new Configuration())) {
+                if (fs.exists(new Path(directoryPath))) {
+                    try (final FSDataOutputStream outputFile = fs.create(new Path(directoryPath + "/_index"))) {
+                        final FileStatus[] files = fs.listStatus(new Path(directoryPath), path1 -> path1.getName().endsWith(".parquet"));
+                        int[] colIndex = null;
+                        for (final FileStatus file : files) {
+                            final ParquetMetadata parquetMetadata = ParquetFileReader.readFooter(fs.getConf(), file, ParquetMetadataConverter.NO_FILTER);
+                            List<BlockMetaData> blocks = parquetMetadata.getBlocks();
+                            if (blocks.size() > 0) {
+                                if (colIndex == null) {
+                                    colIndex = getColumnIndexes(paths, parquetMetadata);
+                                }
+                                generateGafferObjectsIndex(outputFile, colIndex, blocks);
+                                byte[] filePath = StringUtil.toBytes(file.getPath().getName());
+                                outputFile.writeInt(filePath.length);
+                                outputFile.write(filePath);
+                            }
                         }
-                        generateGafferObjectsIndex(outputFile, colIndex, blocks);
-                        byte[] filePath = file.getPath().getName().getBytes(Charset.forName("UTF-8"));
-                        outputFile.writeInt(filePath.length);
-                        outputFile.write(filePath);
+                        outputFile.hsync();
                     }
                 }
-                outputFile.hsync();
-                outputFile.close();
             }
         } catch (IOException e) {
             return new OperationException("IO Exception generating the index files", e);
@@ -89,11 +87,11 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
         final int[] columnindexes = new int[paths.length];
         for (int i = 0; i < paths.length; i++) {
             final String path = paths[i];
-            LOGGER.debug("path: " + path);
+            LOGGER.debug("path: {}", path);
             for (int n = 0; n < columnChunks.size(); n++) {
                 if (columnChunks.get(n).getPath().toDotString().equals(path)) {
                     final OriginalType type = parquetMetadata.getFileMetaData().getSchema().getFields().get(n).getOriginalType();
-                    if (type != null && type.name().equals("UTF8")) {
+                    if (type != null && "UTF8".equals(type.name())) {
                         columnindexes[i] = -n;
                     } else {
                         columnindexes[i] = n;
@@ -110,7 +108,7 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
                                             final List<BlockMetaData> blocks) throws IOException {
         outputFile.writeInt(colIndexes.length);
         for (final int colIndex : colIndexes) {
-            LOGGER.debug("colIndex: " + colIndex);
+            LOGGER.debug("colIndex: {}", colIndex);
             final boolean isString;
             final int updatedColIndex;
             if (colIndex < 0) {
@@ -125,7 +123,7 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
             if (isString) {
                 columnTypeString = columnTypeString + " (UTF8)";
             }
-            final byte[] columnType = columnTypeString.getBytes(Charset.forName("UTF-8"));
+            final byte[] columnType = StringUtil.toBytes(columnTypeString);
             outputFile.writeInt(columnType.length);
             outputFile.write(columnType);
             final byte[] minValue = minColumn.getStatistics().getMinBytes();

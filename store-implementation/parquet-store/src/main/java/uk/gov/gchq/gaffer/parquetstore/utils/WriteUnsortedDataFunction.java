@@ -29,9 +29,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import java.io.Serializable;
 import java.util.Properties;
-/**
- *
- */
+
 public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Element>, BoxedUnit> implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedDataFunction.class);
@@ -54,7 +52,7 @@ public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Elemen
         try {
             writer.writeElements(scala.collection.JavaConversions.asJavaIterator(elements));
         } catch (OperationException e) {
-            LOGGER.error("Failed to write partition", e);
+            LOGGER.error("Failed to write partition: {}", e);
         }
         return null;
     }
