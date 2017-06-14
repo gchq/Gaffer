@@ -15,10 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-
 import com.google.common.collect.Lists;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
@@ -28,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -35,7 +32,6 @@ import uk.gov.gchq.gaffer.graph.Graph.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -46,6 +42,10 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 public class AccumuloAggregationIT {
     private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil
@@ -464,130 +464,35 @@ public class AccumuloAggregationIT {
     }
 
     @Test
-    public void shouldHandleAggregatationWhenNoAggregatorsAreProvided() throws OperationException, UnsupportedEncodingException {
-        final Graph graph = createGraphNoAggregators();
-        final Entity entity1 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-        final Entity entity2 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, null)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-        final Entity entity3 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-        final Entity entity4 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-        final Entity entity5 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
-                .build();
-        final Entity entity6 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
-                .build();
-        final Entity entity7 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test2a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .build();
-
-        graph.execute(new AddElements.Builder().input(
-                entity1,
-                entity2,
-                entity3,
-                entity4,
-                entity5,
-                entity6,
-                entity7
-        ).build(), USER);
-
-        // Duplicate the entities to check they are not aggregated
-        graph.execute(new AddElements.Builder()
-                        .input(entity1,
-                                entity2,
-                                entity3,
-                                entity4,
-                                entity5,
-                                entity6,
-                                entity7)
-                        .build(),
-                USER);
-
-        // Given
-        final GetAllElements getAllEntities = new GetAllElements.Builder()
-                .view(new View.Builder()
-                        .entity(TestGroups.ENTITY)
-                        .build())
-                .build();
-
-        // When
-        final List<Element> results = Lists.newArrayList(graph.execute(getAllEntities, USER));
-
-        // Then
-        assertNotNull(results);
-        assertEquals(14, results.size());
-
-        final Entity expectedEntity1 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-
-        final Entity expectedEntity2 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-
-        final Entity expectedEntity3 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "test1b")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "test 4")
-                .build();
-
-        final Entity expectedEntity4 = new Entity.Builder()
-                .vertex(VERTEX)
-                .group(TestGroups.ENTITY)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "test2a")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "test 3")
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "")
-                .build();
-
-        assertThat(results, IsCollectionContaining.hasItems(
-                expectedEntity1,
-                expectedEntity2,
-                expectedEntity3,
-                expectedEntity4
-        ));
+    public void shouldHandleAggregatationWhenNoAggregatorsAreProvided() {
+        try {
+            new Builder()
+                    .storeProperties(STORE_PROPERTIES)
+                    .addSchema(new Schema.Builder()
+                            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                                    .clazz(String.class)
+                                    .build())
+                            .type("colQual", new TypeDefinition.Builder()
+                                    .clazz(String.class)
+                                    .serialiser(new StringSerialiser())
+                                    .build())
+                            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                                    .vertex(TestTypes.ID_STRING)
+                                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
+                                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
+                                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
+                                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
+                                    .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
+                                            AccumuloPropertyNames.COLUMN_QUALIFIER_2,
+                                            AccumuloPropertyNames.COLUMN_QUALIFIER_3,
+                                            AccumuloPropertyNames.COLUMN_QUALIFIER_4)
+                                    .aggregate(false)
+                                    .build())
+                            .build())
+                    .build();
+        } catch (SchemaException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     protected Graph createGraph() {
@@ -650,32 +555,4 @@ public class AccumuloAggregationIT {
                         .build())
                 .build();
     }
-
-    protected Graph createGraphNoAggregators() {
-        return new Builder()
-                .storeProperties(STORE_PROPERTIES)
-                .addSchema(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type("colQual", new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .serialiser(new StringSerialiser())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_2, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_3, "colQual")
-                                .property(AccumuloPropertyNames.COLUMN_QUALIFIER_4, "colQual")
-                                .groupBy(AccumuloPropertyNames.COLUMN_QUALIFIER,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_2,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_3,
-                                        AccumuloPropertyNames.COLUMN_QUALIFIER_4)
-                                .aggregate(false)
-                                .build())
-                        .build())
-                .build();
-    }
-
 }
