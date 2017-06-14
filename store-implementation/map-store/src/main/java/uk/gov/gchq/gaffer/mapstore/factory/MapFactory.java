@@ -35,6 +35,4 @@ public interface MapFactory {
     void clear();
 
     Element cloneElement(final Element element, final Schema schema);
-
-    boolean batchIngest();
 }

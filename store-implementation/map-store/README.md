@@ -45,6 +45,10 @@ To configure your choice of Map implementation you can either:
 or
 
 - For more complex Map implementation that require additional configuration and tuning you can use the "gaffer.store.mapstore.map.factory" map factory store property.
-This allows you to either use a provided map factory (e.g HazelcastMapFactory) or implement your own, see the library/map-store-library for details. 
+This allows you to implement your own map factory to use different Map implementations like Hazelcast and MapDB. 
+However due to the nature of having to query-update-put in order to add a new element other implementations may be slow. 
 In addition you can provide you map factory with configuration using the "gaffer.store.mapstore.map.factory.config" store property.
+
+This map store does not attempt to handle concurrent adding of elements. Elements should
+be added from a single thread.
 

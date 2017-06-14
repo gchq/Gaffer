@@ -82,11 +82,6 @@ public class SimpleMapFactory implements MapFactory {
         return cloner.cloneElement(element, schema);
     }
 
-    @Override
-    public boolean batchIngest() {
-        return false;
-    }
-
     protected Class<? extends Map> getMapClass() {
         return mapClass;
     }

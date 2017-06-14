@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -39,8 +37,6 @@ import java.util.Map;
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link MapStore}.
  */
 public class AddElementsHandler implements OperationHandler<AddElements> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
-
     @Override
     public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
         doOperation(addElements, (MapStore) store);
@@ -48,11 +44,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     }
 
     private void doOperation(final AddElements addElements, final MapStore mapStore) throws OperationException {
-        if (mapStore.getMapImpl().mapFactory.batchIngest()) {
-            batchAddElements(addElements.getInput(), mapStore);
-        } else {
-            addElements(addElements.getInput(), mapStore);
-        }
+        addElements(addElements.getInput(), mapStore);
     }
 
     private void addElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
@@ -66,45 +58,6 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                     updateIdIndexes(elementForIndexing, mapImpl);
                 }
             }
-        }
-    }
-
-    private void batchAddElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
-        final MapImpl mapImpl = mapStore.getMapImpl();
-        MapImpl batchMapImpl = null;
-
-        final int batchSize = mapStore.getProperties().getIngestBufferSize();
-        LOGGER.info("Batch adding elements with batch size " + batchSize);
-        int count = 0;
-        for (final Element element : elements) {
-            count++;
-            if (null == batchMapImpl) {
-                batchMapImpl = new MapImpl(mapStore.getSchema());
-            }
-
-            if (null != element) {
-                final Element elementForIndexing = updateElements(element, mapStore.getSchema(), batchMapImpl);
-
-                // Update entityIdToElements and edgeIdToElements if index required
-                if (mapImpl.maintainIndex) {
-                    updateIdIndexes(elementForIndexing, batchMapImpl);
-                }
-            }
-
-            if (count >= batchSize) {
-                LOGGER.debug("Adding batch of " + batchSize + " elements");
-                mapImpl.update(batchMapImpl);
-                batchMapImpl.clear();
-                count = 0;
-                LOGGER.debug("Finished adding batch of " + batchSize + " elements");
-            }
-        }
-
-        if (null != batchMapImpl) {
-            LOGGER.debug("Adding batch of " + count + " elements");
-            mapImpl.update(batchMapImpl);
-            batchMapImpl.clear();
-            LOGGER.debug("Finished adding batch of " + count + " elements");
         }
     }
 
@@ -147,13 +100,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
 
         final Map<Element, GroupedProperties> map = mapImpl.aggElements.get(elementWithGroupByProperties.getGroup());
-        final GroupedProperties existingProperties = map.get(elementWithGroupByProperties);
-        if (null == existingProperties) {
-            map.put(elementWithGroupByProperties, properties);
-        } else {
-            schema.getElement(group).getAggregator().apply(existingProperties, properties);
-            mapImpl.mapFactory.updateValue(map, elementWithGroupByProperties, existingProperties);
-        }
+        map.merge(elementWithGroupByProperties, properties, (a, b) -> {
+            schema.getElement(group).getAggregator().apply(a, b);
+            return a;
+        });
 
         return elementWithGroupByProperties;
     }
@@ -171,7 +121,9 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             }
         }
 
-        mapImpl.nonAggElements.get(elementClone.getGroup()).merge(elementClone, 1, (a, b) -> a + b);
+        final Map<Element, Integer> map = mapImpl.nonAggElements.get(elementClone.getGroup());
+        map.merge(elementClone, 1, (a, b) -> a + b);
+
         return elementClone;
     }
 }

@@ -154,42 +154,4 @@ public class MapImpl {
         nonGroupByProperties.removeAll(sed.getGroupBy());
         groupToNonGroupByProperties.put(group, nonGroupByProperties);
     }
-
-    public void update(final MapImpl mapImpl) {
-        for (final Map.Entry<String, Map<Element, GroupedProperties>> groupAndMap : mapImpl.aggElements.entrySet()) {
-            final String group = groupAndMap.getKey();
-            final Map<Element, GroupedProperties> existingMap = aggElements.get(group);
-            if (existingMap.isEmpty()) {
-                existingMap.putAll(groupAndMap.getValue());
-            } else {
-                for (final Map.Entry<Element, GroupedProperties> entry : groupAndMap.getValue().entrySet()) {
-                    final GroupedProperties existingProperties = existingMap.get(entry.getKey());
-                    if (null == existingProperties) {
-                        existingMap.put(entry.getKey(), entry.getValue());
-                    } else {
-                        final SchemaElementDefinition elementDef = schema.getElement(existingProperties.getGroup());
-                        elementDef.getAggregator().apply(existingProperties, entry.getValue());
-                        existingMap.put(entry.getKey(), existingProperties);
-                    }
-                }
-            }
-        }
-
-        for (final Map.Entry<String, Map<Element, Integer>> groupAndMap : mapImpl.nonAggElements.entrySet()) {
-            final String group = groupAndMap.getKey();
-            final Map<Element, Integer> existingMap = nonAggElements.get(group);
-            if (existingMap.isEmpty()) {
-                existingMap.putAll(groupAndMap.getValue());
-            } else {
-                for (final Map.Entry<Element, Integer> entry : groupAndMap.getValue().entrySet()) {
-                    existingMap.merge(entry.getKey(), entry.getValue(), (a, b) -> a + b);
-                }
-            }
-        }
-
-        if (maintainIndex) {
-            entityIdToElements.putAll(mapImpl.entityIdToElements);
-            edgeIdToElements.putAll(mapImpl.edgeIdToElements);
-        }
-    }
 }
