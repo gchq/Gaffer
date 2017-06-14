@@ -921,7 +921,7 @@ public class SchemaTest {
         Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
 
         // when
-        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
 
         List<Element> input = Arrays.asList(
             new Entity.Builder()
@@ -948,7 +948,7 @@ public class SchemaTest {
         Schema schema = createSchema();
 
         // when
-        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
         List<Element> input = Arrays.asList(
             new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -986,7 +986,7 @@ public class SchemaTest {
 
         // when
 
-        Function<Element, Set<Object>> fn = schema.getGroupByFunction();
+        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
         List<Element> input = Arrays.asList(
             new Entity.Builder()
                 .group(TestGroups.ENTITY_2)

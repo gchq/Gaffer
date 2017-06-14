@@ -436,7 +436,7 @@ public class ViewTest {
         view.expandGlobalDefinitions();
 
         // when
-        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+        Function<Element, Set<Object>> fn = view.createGroupByFunction();
 
         List<Element> input = Arrays.asList(
             new Entity.Builder()
@@ -464,7 +464,7 @@ public class ViewTest {
         // safe to assume global edges are expanded
         view.expandGlobalDefinitions();
         // when
-        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+        Function<Element, Set<Object>> fn = view.createGroupByFunction();
         List<Element> input = Arrays.asList(
             new Entity.Builder()
                 .group(TestGroups.ENTITY)
@@ -509,7 +509,7 @@ public class ViewTest {
 
         // when
 
-        Function<Element, Set<Object>> fn = view.getGroupByFunction();
+        Function<Element, Set<Object>> fn = view.createGroupByFunction();
         List<Element> input = Arrays.asList(
             new Entity.Builder()
                 .group(TestGroups.ENTITY_3)

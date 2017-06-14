@@ -127,7 +127,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     @JsonIgnore
-    public Function<Element, Set<Object>> getGroupByFunction() {
+    public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
             Set<Object> key = new HashSet<>();
             String group = element.getGroup();

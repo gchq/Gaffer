@@ -162,8 +162,7 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
     }
 
-    @JsonIgnore
-    public Function<Element, Set<Object>> getGroupByFunction() {
+    public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
             Set<Object> key = new HashSet<>();
             String group = element.getGroup();
