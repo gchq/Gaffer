@@ -21,8 +21,6 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -38,7 +36,6 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetElements operation, final Context context, final Store store) throws OperationException {
-        validateView(operation.getView());
         final CloseableIterable<? extends Element> result;
         final Iterable<? extends ElementId> input = operation.getInput();
         if (input != null) {
@@ -65,19 +62,6 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), operation.getIncludeIncomingOutGoing(), operation.getSeedMatching(), operation.getInput());
         } catch (StoreException e) {
             throw new OperationException(e.getMessage(), e);
-        }
-    }
-
-    private void validateView(final View view) throws OperationException {
-        for (final String group : view.getGroups()) {
-            final ViewElementDefinition groupView = view.getElement(group);
-            if (groupView.getPostAggregationFilter() != null) {
-                throw new OperationException("The ParquetStore does not currently support post aggregation filters.");
-            } else if (groupView.getPostTransformFilter() != null) {
-                throw new OperationException("The ParquetStore does not currently support post transformation filters.");
-            } else if (groupView.getTransformer() != null) {
-                throw new OperationException("The ParquetStore does not currently support transformations.");
-            }
         }
     }
 }

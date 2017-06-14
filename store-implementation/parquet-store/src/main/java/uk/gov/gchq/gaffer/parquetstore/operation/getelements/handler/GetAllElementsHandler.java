@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.operation.getelements.handler;
 
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -33,7 +31,6 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
 
     @Override
     public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store) throws OperationException {
-        validateView(operation.getView());
         return runQuery(operation, (ParquetStore) store);
     }
 
@@ -42,19 +39,6 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
             return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), null, null, null);
         } catch (StoreException e) {
             throw new OperationException(e.getMessage(), e);
-        }
-    }
-
-    private void validateView(final View view) throws OperationException {
-        for (final String group : view.getGroups()) {
-            final ViewElementDefinition groupView = view.getElement(group);
-            if (groupView.getPostAggregationFilter() != null) {
-                throw new OperationException("The ParquetStore does not currently support post aggregation filters.");
-            } else if (groupView.getPostTransformFilter() != null) {
-                throw new OperationException("The ParquetStore does not currently support post transformation filters.");
-            } else if (groupView.getTransformer() != null) {
-                throw new OperationException("The ParquetStore does not currently support transformations.");
-            }
         }
     }
 }

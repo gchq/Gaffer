@@ -45,7 +45,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
 
 /**
  *
@@ -145,11 +147,11 @@ public abstract class AbstractOperationsTest {
                 .build();
         try {
             this.graph.execute(new GetElements.Builder().view(view).build(), USER);
-            fail();
-        } catch (OperationException e) {
-            assertEquals("The ParquetStore does not currently support post aggregation filters.", e.getMessage());
-        } catch (Exception e) {
-            fail();
+            fail("IllegalArgumentException Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation chain"));
+        } catch (Exception ex) {
+            fail("IllegalArgumentException Exception expected");
         }
     }
 
@@ -168,11 +170,11 @@ public abstract class AbstractOperationsTest {
                 .build();
         try {
             this.graph.execute(new GetElements.Builder().view(view).build(), USER);
-            fail();
-        } catch (OperationException e) {
-            assertEquals("The ParquetStore does not currently support post transformation filters.", e.getMessage());
-        } catch (Exception e) {
-            fail();
+            fail("IllegalArgumentException Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Operation chain"));
+        } catch (Exception ex) {
+            fail("IllegalArgumentException Exception expected");
         }
     }
 }
