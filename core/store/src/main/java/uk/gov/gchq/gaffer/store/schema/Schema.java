@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -126,7 +129,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return isEnabled;
     }
 
-    @JsonIgnore
     public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
             Set<Object> key = new HashSet<>();
@@ -136,6 +138,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
             for (final String property: groupBy) {
                 key.add(element.getProperty(property));
+            }
+
+            if (element instanceof Entity) {
+                key.add(element.getIdentifier(IdentifierType.VERTEX));
+            } else if (element instanceof Edge) {
+                key.add(element.getIdentifier(IdentifierType.SOURCE));
+                key.add(element.getIdentifier(IdentifierType.DESTINATION));
+                key.add(element.getIdentifier(IdentifierType.DIRECTED));
             }
             return key;
         };

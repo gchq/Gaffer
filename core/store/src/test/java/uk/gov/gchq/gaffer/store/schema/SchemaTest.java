@@ -937,7 +937,8 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(new HashSet<>(), input);
+        expected.put(new HashSet<>(Lists.newArrayList("vertex1")), Lists.newArrayList(input.get(0)));
+        expected.put(new HashSet<>(Lists.newArrayList("vertex2")), Lists.newArrayList(input.get(1)));
 
         assertEquals(expected, results);
     }
@@ -972,8 +973,9 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1"), Collections.singletonList(input.get(0)));
-        expected.put(Sets.newHashSet("test2"), Lists.newArrayList(input.get(1), input.get(2)));
+        expected.put(Sets.newHashSet("test1", "vertex1"), Collections.singletonList(input.get(0)));
+        expected.put(Sets.newHashSet("test2", "vertex2"), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", "vertex1", "vertex2", false), Lists.newArrayList(input.get(2)));
 
         assertEquals(expected, results);
 
@@ -1018,9 +1020,10 @@ public class SchemaTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1", 1), Lists.newArrayList(input.get(0), input.get(2)));
-        expected.put(Sets.newHashSet("test1", 2), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", 2), Lists.newArrayList(input.get(3)));
+        expected.put(Sets.newHashSet("test1", 1, "vertex1"), Lists.newArrayList(input.get(0)));
+        expected.put(Sets.newHashSet("test1", 1, "vertex2"), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet("test1", 2, "vertex2"), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", 2, "vertex2"), Lists.newArrayList(input.get(3)));
 
 
         assertEquals(expected, results);
