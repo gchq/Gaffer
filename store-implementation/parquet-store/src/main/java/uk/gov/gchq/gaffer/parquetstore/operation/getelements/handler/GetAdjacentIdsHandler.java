@@ -24,9 +24,6 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-/**
- *
- */
 public class DummyGetAdjacentEntitySeedsHandler
         implements OutputOperationHandler<GetAdjacentIds, CloseableIterable<? extends EntityId>> {
 
