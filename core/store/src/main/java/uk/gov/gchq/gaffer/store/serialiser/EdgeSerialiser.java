@@ -32,8 +32,19 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
     private final BooleanSerialiser booleanSerialiser = new BooleanSerialiser();
     protected ToBytesSerialiser<Object> vertexSerialiser;
 
+    // Required for serialisation
+    EdgeSerialiser() {
+    }
+
     public EdgeSerialiser(final Schema schema) {
         super(schema);
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser is required");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
+        }
+        this.vertexSerialiser = (ToBytesSerialiser<Object>) schema.getVertexSerialiser();
     }
 
     @Override

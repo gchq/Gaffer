@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -28,8 +29,21 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
     private final EntityIdSerialiser entityIdSerialiser;
     private final EdgeIdSerialiser edgeIdSerialiser;
 
+    // Required for serialisation
+    ElementIdSerialiser() {
+        entityIdSerialiser = null;
+        edgeIdSerialiser = null;
+    }
+
     public ElementIdSerialiser(final Schema schema) {
-        this((ToBytesSerialiser) schema.getVertexSerialiser());
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser is required");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
+        }
+        entityIdSerialiser = new EntityIdSerialiser((ToBytesSerialiser) schema.getVertexSerialiser());
+        edgeIdSerialiser = new EdgeIdSerialiser((ToBytesSerialiser) schema.getVertexSerialiser());
     }
 
     public ElementIdSerialiser(final ToBytesSerialiser vertexSerialiser) {
@@ -42,6 +56,7 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
         return ElementId.class.isAssignableFrom(clazz);
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an ElementId is not an EntityId it must be an EdgeId")
     @Override
     public byte[] serialise(final ElementId elementId) throws SerialisationException {
         if (null == elementId) {

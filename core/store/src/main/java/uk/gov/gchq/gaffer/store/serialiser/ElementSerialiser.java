@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -30,6 +31,12 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
     private final EntitySerialiser entitySerialiser;
     private final EdgeSerialiser edgeSerialiser;
 
+    // Required for serialisation
+    ElementSerialiser() {
+        entitySerialiser = null;
+        edgeSerialiser = null;
+    }
+
     public ElementSerialiser(final Schema schema) {
         super(schema);
         entitySerialiser = new EntitySerialiser(schema);
@@ -41,6 +48,7 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
         return Element.class.isAssignableFrom(clazz);
     }
 
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
     @Override
     public byte[] serialise(final Element element) throws SerialisationException {
         if (element instanceof Entity) {

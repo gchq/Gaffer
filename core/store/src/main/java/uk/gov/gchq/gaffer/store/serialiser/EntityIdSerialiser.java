@@ -29,8 +29,19 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
     private static final long serialVersionUID = -8190219367679033911L;
     protected final ToBytesSerialiser<Object> vertexSerialiser;
 
+    // Required for serialisation
+    EntityIdSerialiser() {
+        this.vertexSerialiser = null;
+    }
+
     public EntityIdSerialiser(final Schema schema) {
-        this((ToBytesSerialiser) schema.getVertexSerialiser());
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser is required");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
+        }
+        this.vertexSerialiser = (ToBytesSerialiser<Object>) schema.getVertexSerialiser();
     }
 
     public EntityIdSerialiser(final ToBytesSerialiser vertexSerialiser) {

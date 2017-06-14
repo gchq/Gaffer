@@ -27,6 +27,10 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements ToBytesSerialiser<GroupedProperties> {
     private static final long serialVersionUID = 3307260143698122796L;
 
+    // Required for serialisation
+    GroupedPropertiesSerialiser() {
+    }
+
     public GroupedPropertiesSerialiser(final Schema schema) {
         super(schema);
     }

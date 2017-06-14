@@ -30,8 +30,19 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
     private static final long serialVersionUID = -2582396256747930962L;
     protected ToBytesSerialiser<Object> vertexSerialiser;
 
+    // Required for serialisation
+    EntitySerialiser() {
+    }
+
     public EntitySerialiser(final Schema schema) {
         super(schema);
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser is required");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
+        }
+        this.vertexSerialiser = (ToBytesSerialiser<Object>) schema.getVertexSerialiser();
     }
 
     @Override

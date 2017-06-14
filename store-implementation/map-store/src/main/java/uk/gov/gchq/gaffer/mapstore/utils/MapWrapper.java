@@ -56,7 +56,7 @@ public class MapWrapper<K, V> implements Map<K, V> {
         return map.get(key);
     }
 
-    public Map<K, V> getAll(Set<K> keys) {
+    public Map<K, V> getAll(final Set<K> keys) {
         final Map<K, V> submap = new HashMap<>(keys.size());
         for (final K key : keys) {
             final V value = get(key);

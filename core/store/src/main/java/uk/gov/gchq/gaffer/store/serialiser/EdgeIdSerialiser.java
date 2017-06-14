@@ -31,8 +31,19 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
     protected final BooleanSerialiser booleanSerialiser = new BooleanSerialiser();
     protected final ToBytesSerialiser<Object> vertexSerialiser;
 
+    // Required for serialisation
+    EdgeIdSerialiser() {
+        this.vertexSerialiser = null;
+    }
+
     public EdgeIdSerialiser(final Schema schema) {
-        this((ToBytesSerialiser) schema.getVertexSerialiser());
+        if (null == schema.getVertexSerialiser()) {
+            throw new IllegalArgumentException("Vertex serialiser is required");
+        }
+        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
+        }
+        this.vertexSerialiser = (ToBytesSerialiser<Object>) schema.getVertexSerialiser();
     }
 
     public EdgeIdSerialiser(final ToBytesSerialiser vertexSerialiser) {
@@ -46,7 +57,7 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
 
     @Override
     public byte[] serialise(final EdgeId edgeId) throws SerialisationException {
-        if(null == edgeId) {
+        if (null == edgeId) {
             return new byte[0];
         }
 

@@ -37,6 +37,10 @@ public abstract class PropertiesSerialiser {
     protected static final byte[] EMPTY_BYTES = new byte[0];
     protected Schema schema;
 
+    // Required for serialisation
+    PropertiesSerialiser() {
+    }
+
     protected PropertiesSerialiser(final Schema schema) {
         updateSchema(schema);
     }
