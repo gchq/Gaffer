@@ -134,7 +134,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      * Collector. This function is dependent on the hashcode of the key components so make sure the
      * Identifiers and Group-By objects all have a valid hashcode method.
      *
-     * @return a Set which makes up a unique Idenfifier. The set is composed of the input Element's
+     * @return a Set which makes up a unique Identifier. The set is composed of the input Element's
      * Group-By, Identifiers and Group.
      */
     public Function<Element, Set<Object>> createGroupByFunction() {
