@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
@@ -110,7 +109,7 @@ public class OperationChainValidator {
             opView = null;
         }
 
-        final ValidationResult viewValidationResult = viewValidator.validate(opView, store.getSchema(), store.hasTrait(StoreTrait.ORDERED));
+        final ValidationResult viewValidationResult = viewValidator.validate(opView, store.getSchema(), store.getTraits());
         if (!viewValidationResult.isValid()) {
             validationResult.addError("View for operation "
                     + op.getClass().getName()

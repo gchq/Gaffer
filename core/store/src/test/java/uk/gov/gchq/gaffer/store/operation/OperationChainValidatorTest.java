@@ -16,13 +16,6 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -42,6 +35,13 @@ import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class OperationChainValidatorTest {
     @Test
@@ -143,7 +143,7 @@ public class OperationChainValidatorTest {
         final User user = mock(User.class);
 
 
-        given(viewValidator.validate(any(View.class), any(Schema.class), anyBoolean())).willReturn(new ValidationResult());
+        given(viewValidator.validate(any(View.class), any(Schema.class), any(Set.class))).willReturn(new ValidationResult());
 
 
         // When
