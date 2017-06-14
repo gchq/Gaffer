@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
 
@@ -452,8 +453,8 @@ public class ViewTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("vertex1"), Lists.newArrayList(input.get(0)));
-        expected.put(Sets.newHashSet("vertex2"), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("vertex1", TestGroups.ENTITY), Lists.newArrayList(input.get(0)));
+        expected.put(Sets.newHashSet("vertex2", TestGroups.ENTITY), Lists.newArrayList(input.get(1)));
 
         assertEquals(expected, results);
     }
@@ -494,10 +495,10 @@ public class ViewTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet(false, "vertex1", "vertex2"), Collections.singletonList(input.get(3)));
-        expected.put(Sets.newHashSet("test1", "vertex1"), Collections.singletonList(input.get(0)));
-        expected.put(Sets.newHashSet("test2", "vertex2"), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", "vertex3"), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet(DirectedType.UNDIRECTED, "vertex1", "vertex2", TestGroups.EDGE), Collections.singletonList(input.get(3)));
+        expected.put(Sets.newHashSet("test1", "vertex1", TestGroups.ENTITY), Collections.singletonList(input.get(0)));
+        expected.put(Sets.newHashSet("test2", "vertex2", TestGroups.ENTITY), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test2", "vertex3", TestGroups.ENTITY_2), Lists.newArrayList(input.get(2)));
 
         assertEquals(expected, results);
 
@@ -542,10 +543,10 @@ public class ViewTest {
 
         Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("10-03-2017", "vertex1"), Lists.newArrayList(input.get(0)));
-        expected.put(Sets.newHashSet("10-03-2017", "vertex2"), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test1", "vertex2"), Lists.newArrayList(input.get(2)));
-        expected.put(Sets.newHashSet("21-06-2016", "vertex2"), Lists.newArrayList(input.get(3)));
+        expected.put(Sets.newHashSet("10-03-2017", "vertex1", TestGroups.ENTITY_3), Lists.newArrayList(input.get(0)));
+        expected.put(Sets.newHashSet("10-03-2017", "vertex2", TestGroups.ENTITY_3), Lists.newArrayList(input.get(1)));
+        expected.put(Sets.newHashSet("test1", "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(2)));
+        expected.put(Sets.newHashSet("21-06-2016", "vertex2",TestGroups.ENTITY_3), Lists.newArrayList(input.get(3)));
 
 
         assertEquals(expected, results);

@@ -27,9 +27,9 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
@@ -167,21 +167,30 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
 
     public Function<Element, Set<Object>> createGroupByFunction() {
         return element -> {
-            Set<Object> key = new HashSet<>();
+            Set<Object> key;
             String group = element.getGroup();
             Set<String> groupBy = getElementGroupBy(group);
-            if (groupBy != null) {
-                for (final String property: groupBy) {
-                    key.add(element.getProperty(property));
-                }
+
+            if (groupBy == null) {
+                groupBy = Collections.emptySet();
             }
 
+            int size = groupBy.size();
+
             if (element instanceof Entity) {
-                key.add(element.getIdentifier(IdentifierType.VERTEX));
-            } else if (element instanceof Edge) {
-                key.add(element.getIdentifier(IdentifierType.SOURCE));
-                key.add(element.getIdentifier(IdentifierType.DESTINATION));
-                key.add(element.getIdentifier(IdentifierType.DIRECTED));
+                key = new HashSet<>(size + 2);
+                key.add(((Entity) element).getVertex());
+            } else {
+                key = new HashSet<>(size + 4);
+                key.add(((Edge) element).getSource());
+                key.add(((Edge) element).getDestination());
+                key.add(((Edge) element).getDirectedType());
+            }
+
+            key.add(group);
+
+            for (final String property: groupBy) {
+                key.add(element.getProperty(property));
             }
             return key;
         };
