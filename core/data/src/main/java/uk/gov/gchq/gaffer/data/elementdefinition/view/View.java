@@ -24,7 +24,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
@@ -167,11 +170,18 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
             Set<Object> key = new HashSet<>();
             String group = element.getGroup();
             Set<String> groupBy = getElementGroupBy(group);
-            if (groupBy == null) {
-                return key;
+            if (groupBy != null) {
+                for (final String property: groupBy) {
+                    key.add(element.getProperty(property));
+                }
             }
-            for (final String property: groupBy) {
-                key.add(element.getProperty(property));
+
+            if (element instanceof Entity) {
+                key.add(element.getIdentifier(IdentifierType.VERTEX));
+            } else if (element instanceof Edge) {
+                key.add(element.getIdentifier(IdentifierType.SOURCE));
+                key.add(element.getIdentifier(IdentifierType.DESTINATION));
+                key.add(element.getIdentifier(IdentifierType.DIRECTED));
             }
             return key;
         };
