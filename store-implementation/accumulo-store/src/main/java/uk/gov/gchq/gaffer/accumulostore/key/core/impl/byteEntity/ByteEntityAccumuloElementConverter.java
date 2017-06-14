@@ -160,41 +160,35 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         } catch (final NumberFormatException e) {
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
-        if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new AccumuloElementConversionException(
-                    "Invalid direction flag in row key - flag was " + directionFlag);
+
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
+        boolean rtn;
+        sourceDestValues[0] = sourceBytes;
+        sourceDestValues[1] = destBytes;
+
+        switch (directionFlag) {
+            case ByteEntityPositions.UNDIRECTED_EDGE:
+                // Edge is undirected
+                rtn = false;
+                break;
+            case ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the first identifier is the source of the edge
+                rtn = true;
+                break;
+            case ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the second identifier is the source of the edge
+                if (!matchEdgeSource(options)) {
+                    sourceDestValues[0] = destBytes;
+                    sourceDestValues[1] = sourceBytes;
+                }
+                rtn = true;
+                break;
+            default:
+                throw new AccumuloElementConversionException(
+                        "Invalid direction flag in row key - flag was " + directionFlag);
         }
-    }
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        return rtn;
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {
