@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -396,7 +397,7 @@ public class ElementSerialisation {
         try {
             final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(columnQualifier[0]);
             int currentPropLength = (int) CompactRawSerialisationUtils.readLong(columnQualifier, 0);
-            return new String(columnQualifier, numBytesForLength, currentPropLength);
+            return new String(columnQualifier, numBytesForLength, currentPropLength, Charset.forName("UTF-8"));
         } catch (final SerialisationException e) {
             throw new SerialisationException("Exception reading length of property");
         }
