@@ -739,9 +739,9 @@ public class GraphTest {
                     .addSchemas(StreamUtil.openStreams(GraphTest.class, "directory_that_doesnt_exist"))
                     .storeProperties(storeProperties)
                     .build();
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-            assertEquals("Valid Schema is required to create a store", e.getMessage());
+        } catch (SchemaException e) {
+            assertEquals("Schema is not valid. Validation errors: \n" +
+                    "Schema is missing", e.getMessage());
         }
     }
 
@@ -757,9 +757,9 @@ public class GraphTest {
             new Graph.Builder()
                     .storeProperties(storeProperties)
                     .build();
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-            assertEquals("Valid Schema is required to create a store", e.getMessage());
+        } catch (SchemaException e) {
+            assertEquals("Schema is not valid. Validation errors: \n" +
+                    "Schema is missing", e.getMessage());
         }
     }
 
