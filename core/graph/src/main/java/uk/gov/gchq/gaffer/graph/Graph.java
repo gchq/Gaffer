@@ -519,6 +519,10 @@ public final class Graph {
                 throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
             }
 
+            if (null == schema) {
+                throw new IllegalArgumentException("Valid Schema is required to create a store");
+            }
+
             try {
                 newStore.initialise(schema, storeProperties);
             } catch (final StoreException e) {

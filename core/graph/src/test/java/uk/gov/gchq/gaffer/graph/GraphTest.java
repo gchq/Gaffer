@@ -16,21 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
@@ -91,6 +76,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
@@ -645,7 +645,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -724,6 +724,43 @@ public class GraphTest {
 
         // Then
         assertSame(expectedSupportedOperations, supportedOperations);
+    }
+
+    @Test
+    public void shouldThrowExceptionWithInvalidSchema() {
+
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(StoreImpl.class.getName());
+
+        //When / Then
+        try {
+            new Graph.Builder()
+                    .addSchemas(StreamUtil.openStreams(GraphTest.class, "directory_that_doesnt_exist"))
+                    .storeProperties(storeProperties)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+            assertEquals("Valid Schema is required to create a store", e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWithNullSchema() {
+
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(StoreImpl.class.getName());
+
+        //When / Then
+        try {
+            new Graph.Builder()
+                    .storeProperties(storeProperties)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+            assertEquals("Valid Schema is required to create a store", e.getMessage());
+        }
     }
 
     static class StoreImpl extends Store {
