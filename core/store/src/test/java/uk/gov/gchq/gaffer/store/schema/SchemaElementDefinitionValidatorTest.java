@@ -133,7 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-        assertEquals("Validation errors: \nElementFilter contains a null function.", result.getErrorString());
+        assertTrue(result.getErrorString().contains("null function"));
     }
 
     @Test
@@ -304,9 +304,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
-        assertEquals("Validation errors: \nNo aggregator found for properties '[property2]' in the supplied schema." +
-                " This framework requires that all of the defined properties have an aggregator function associated with them." +
-                " To disable aggregation for a group set the 'aggregate' field to false.", result.getErrorString());
+        assertTrue(result.getErrorString().contains("No aggregator found for properties"));
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
