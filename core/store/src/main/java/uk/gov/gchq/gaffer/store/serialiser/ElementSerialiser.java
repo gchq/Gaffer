@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSerialiser<Element> {
@@ -69,7 +69,7 @@ public class ElementSerialiser extends PropertiesSerialiser implements ToBytesSe
     }
 
     public String getGroup(final byte[] bytes) throws SerialisationException {
-        return StringUtil.toString(SerialiserUtil.getFieldBytes(bytes, 0));
+        return StringUtil.toString(LengthValueBytesSerialiserUtil.deserialise(bytes, 0));
     }
 
     @Override

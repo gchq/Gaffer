@@ -76,7 +76,7 @@ public class MapImpl {
     private final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     private final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     private final Set<String> groupsWithNoAggregation = new HashSet<>();
-    final List<String> aggregatedGroups;
+    private final List<String> aggregatedGroups;
     private final Schema schema;
 
     public MapImpl(final Schema schema) {
@@ -106,6 +106,15 @@ public class MapImpl {
         schema.getEdgeGroups().forEach(this::addToGroupByMap);
     }
 
+    public void clear() {
+        aggElements.clear();
+        nonAggElements.clear();
+        if (maintainIndex) {
+            entityIdToElements.clear();
+            edgeIdToElements.clear();
+        }
+    }
+
     protected Set<String> getGroupByProperties(final String group) {
         return groupToGroupByProperties.get(group);
     }
@@ -114,13 +123,12 @@ public class MapImpl {
         return groupToNonGroupByProperties.get(group);
     }
 
-    public void clear() {
-        aggElements.clear();
-        nonAggElements.clear();
-        if (maintainIndex) {
-            entityIdToElements.clear();
-            edgeIdToElements.clear();
-        }
+    protected Map<String, Set<String>> getGroupByPropertiesMap() {
+        return Collections.unmodifiableMap(groupToGroupByProperties);
+    }
+
+    protected Map<String, Set<String>> getNonGroupByPropertiesMap() {
+        return Collections.unmodifiableMap(groupToNonGroupByProperties);
     }
 
     protected boolean isAggregationEnabled(final Element element) {

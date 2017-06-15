@@ -20,9 +20,8 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
@@ -59,30 +58,24 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
             return new byte[0];
         }
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            SerialiserUtil.writeBytes(vertexSerialiser.serialise(entityId.getVertex()), out);
+            return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(entityId.getVertex()));
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
         }
-
-        return out.toByteArray();
     }
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            SerialiserUtil.writeBytes(vertexSerialiser.serialise(vertex), out);
-        } catch (IOException e) {
+            return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(vertex));
+        } catch (final IOException e) {
             throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
         }
-
-        return out.toByteArray();
     }
 
     @Override
     public EntityId deserialise(final byte[] bytes) throws SerialisationException {
-        final byte[] vertexBytes = SerialiserUtil.getFieldBytes(bytes, 0);
+        final byte[] vertexBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, 0);
         return new EntitySeed(vertexSerialiser.deserialise(vertexBytes));
     }
 

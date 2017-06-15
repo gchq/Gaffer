@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.io.ByteArrayOutputStream;
@@ -71,13 +71,13 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
         }
 
         try {
-            SerialiserUtil.writeBytes(StringUtil.toBytes(entity.getGroup()), out);
+            LengthValueBytesSerialiserUtil.serialise(StringUtil.toBytes(entity.getGroup()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
         }
 
         try {
-            SerialiserUtil.writeBytes(vertexSerialiser.serialise(entity.getVertex()), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(entity.getVertex()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
         }
@@ -91,13 +91,13 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
     public Entity deserialise(final byte[] bytes) throws SerialisationException {
         int lastDelimiter = 0;
 
-        final byte[] groupBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
 
-        final byte[] vertexBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] vertexBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final Object vertex = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(vertexBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, vertexBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, vertexBytes, lastDelimiter);
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {

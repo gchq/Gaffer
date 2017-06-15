@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.io.ByteArrayOutputStream;
@@ -73,25 +73,25 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
         }
 
         try {
-            SerialiserUtil.writeBytes(StringUtil.toBytes(edge.getGroup()), out);
+            LengthValueBytesSerialiserUtil.serialise(StringUtil.toBytes(edge.getGroup()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
         }
 
         try {
-            SerialiserUtil.writeBytes(vertexSerialiser.serialise(edge.getSource()), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edge.getSource()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
         }
 
         try {
-            SerialiserUtil.writeBytes(vertexSerialiser.serialise(edge.getDestination()), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edge.getDestination()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
         }
 
         try {
-            SerialiserUtil.writeBytes(booleanSerialiser.serialise(edge.isDirected()), out);
+            LengthValueBytesSerialiserUtil.serialise(booleanSerialiser.serialise(edge.isDirected()), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
         }
@@ -104,21 +104,21 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
     public Edge deserialise(final byte[] bytes) throws SerialisationException {
         int lastDelimiter = 0;
 
-        final byte[] groupBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
 
-        final byte[] sourceBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] sourceBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final Object source = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(sourceBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, sourceBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, sourceBytes, lastDelimiter);
 
-        final byte[] destBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] destBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final Object dest = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(destBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, destBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, destBytes, lastDelimiter);
 
-        final byte[] directedBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] directedBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final boolean directed = booleanSerialiser.deserialise(directedBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, directedBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, directedBytes, lastDelimiter);
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {

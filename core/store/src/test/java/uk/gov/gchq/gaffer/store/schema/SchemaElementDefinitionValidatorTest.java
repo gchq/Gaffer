@@ -222,7 +222,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
         given(elementDef.isAggregate()).willReturn(false);
@@ -255,7 +255,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
         given(elementDef.isAggregate()).willReturn(true);
@@ -287,7 +287,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
         given(elementDef.isAggregate()).willReturn(true);
@@ -310,7 +310,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
         given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(null);
+        given(elementDef.getFullAggregator()).willReturn(null);
         given(elementDef.isAggregate()).willReturn(true);
 
         // When

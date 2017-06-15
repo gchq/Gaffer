@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import java.util.Map;
 
 /**
@@ -49,9 +50,14 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
     private void addElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
-        for (final Element element : elements) {
+        final Schema schema = mapStore.getSchema();
+
+        // Aggregate the new elements before adding them to the map.
+        final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
+
+        for (final Element element : aggregatedElements) {
             if (null != element) {
-                final Element elementForIndexing = updateElements(element, mapStore.getSchema(), mapImpl);
+                final Element elementForIndexing = updateElements(element, schema, mapImpl);
 
                 // Update entityIdToElements and edgeIdToElements if index required
                 if (mapImpl.maintainIndex) {
@@ -100,10 +106,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
 
         final Map<Element, GroupedProperties> map = mapImpl.aggElements.get(elementWithGroupByProperties.getGroup());
-        map.merge(elementWithGroupByProperties, properties, (a, b) -> {
-            schema.getElement(group).getAggregator().apply(a, b);
-            return a;
-        });
+        map.merge(elementWithGroupByProperties, properties, new AggregatorUtil.PropertiesBinaryOperator(schema));
 
         return elementWithGroupByProperties;
     }

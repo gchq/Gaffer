@@ -190,7 +190,7 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
+        final ElementAggregator aggregator = elementDef.getFullAggregator();
 
         // Then
         assertEquals(1, aggregator.getComponents().size());

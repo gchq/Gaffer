@@ -18,6 +18,13 @@ package uk.gov.gchq.gaffer.data.element;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+/**
+ * GroupedProperties are just {@link Properties} with the Element group attached.
+ * This allows the property serialisers to be looked up in the schema according to the
+ * element group. So, this class can be used in place of the normal Properties
+ * class when serialising and deserialising is required.
+ * See GroupedPropertiesSerialiser in the store module.
+ */
 public class GroupedProperties extends Properties {
     private static final long serialVersionUID = -3424853199115841290L;
     private String group;

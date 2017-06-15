@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
@@ -56,9 +56,9 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
     public GroupedProperties deserialise(final byte[] bytes) throws SerialisationException {
         int lastDelimiter = 0;
 
-        final byte[] groupBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
 
         if (group.isEmpty()) {
             throw new IllegalArgumentException("Group is required for deserialising " + GroupedProperties.class.getSimpleName());
@@ -80,6 +80,6 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
     }
 
     public String getGroup(final byte[] bytes) throws SerialisationException {
-        return StringUtil.toString(SerialiserUtil.getFieldBytes(bytes, 0));
+        return StringUtil.toString(LengthValueBytesSerialiserUtil.deserialise(bytes, 0));
     }
 }

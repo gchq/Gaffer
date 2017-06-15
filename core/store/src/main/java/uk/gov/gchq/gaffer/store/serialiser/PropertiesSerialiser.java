@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
-import uk.gov.gchq.gaffer.serialisation.util.SerialiserUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -65,7 +65,7 @@ public abstract class PropertiesSerialiser {
         }
 
         try {
-            SerialiserUtil.writeBytes(StringUtil.toBytes(group), out);
+            LengthValueBytesSerialiserUtil.serialise(StringUtil.toBytes(group), out);
         } catch (IOException e) {
             throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
         }
@@ -86,13 +86,13 @@ public abstract class PropertiesSerialiser {
                     Object value = properties.get(propertyName);
                     if (null != value) {
                         final byte[] bytes = serialiser.serialise(value);
-                        SerialiserUtil.writeBytes(bytes, out);
+                        LengthValueBytesSerialiserUtil.serialise(bytes, out);
                     } else {
                         final byte[] bytes = serialiser.serialiseNull();
-                        SerialiserUtil.writeBytes(bytes, out);
+                        LengthValueBytesSerialiserUtil.serialise(bytes, out);
                     }
                 } else {
-                    SerialiserUtil.writeBytes(EMPTY_BYTES, out);
+                    LengthValueBytesSerialiserUtil.serialise(EMPTY_BYTES, out);
                 }
             } catch (final IOException e) {
                 throw new SerialisationException("Failed to write serialise property to ByteArrayOutputStream" + propertyName, e);
@@ -103,9 +103,9 @@ public abstract class PropertiesSerialiser {
     protected Properties deserialiseProperties(final byte[] bytes) throws SerialisationException {
         int lastDelimiter = 0;
 
-        final byte[] groupBytes = SerialiserUtil.getFieldBytes(bytes, lastDelimiter);
+        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
         final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = SerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
+        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
