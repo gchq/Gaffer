@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.roaringbitmap.IntIterator;
@@ -167,6 +168,14 @@ public class RBMBackedTimestampSet implements TimestampSet {
                 .append(bucket)
                 .append(rbm)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "RBMBackedTimestampSet{" +
+                "bucket=" + bucket +
+                ", timestamps=" + StringUtils.join(get(), ',') +
+                '}';
     }
 
     private int toInt(final long time) {
