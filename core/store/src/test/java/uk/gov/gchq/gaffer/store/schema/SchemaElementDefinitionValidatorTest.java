@@ -310,6 +310,35 @@ public class SchemaElementDefinitionValidatorTest {
     }
 
     @Test
+    public void shouldValidateAndReturnFalseWhenNoAggregatorByGroupBysSet() {
+        // Given
+        Set<String> groupBys = new HashSet<>();
+        groupBys.add("int");
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "int");
+        properties.put(TestPropertyNames.PROP_2, "string");
+
+        given(elementDef.getGroupBy()).willReturn(groupBys);
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+        given(elementDef.isAggregate()).willReturn(false);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals("Validation errors: \nGroups with aggregation disabled should not have groupBy properties.", result.getErrorString());
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
+    }
+
+    @Test
     public void shouldValidateAndReturnTrueWhenNoPropertiesSoAggregatorIsValid() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
