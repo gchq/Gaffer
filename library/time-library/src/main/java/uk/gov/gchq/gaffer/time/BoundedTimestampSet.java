@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.time;
 
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
@@ -114,6 +115,15 @@ public class BoundedTimestampSet implements TimestampSet {
             throw new IllegalStateException("BoundedTimestampSet was in sample mode, but no values were present");
         }
         return Instant.ofEpochMilli(latestLong.getAsLong());
+    }
+
+    @Override
+    public String toString() {
+        return "BoundedTimestampSet{" +
+                "bucket=" + bucket +
+                ", state=" + state +
+                ", timestamps=" + StringUtils.join(get(), ',') +
+                '}';
     }
 
     public TimeBucket getTimeBucket() {
