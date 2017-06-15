@@ -19,17 +19,17 @@ import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
-import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
+import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import uk.gov.gchq.gaffer.time.TimestampSet;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
-public class TimestampSetElementGenerator implements OneToManyElementGenerator<String> {
+public class BoundedTimestampSetElementGenerator implements OneToManyElementGenerator<String> {
     // Fix the seed so that the results are consistent
     private static final Random RANDOM = new Random(123456789L);
     private static final Instant START_OF_2017 = ZonedDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
@@ -37,15 +37,26 @@ public class TimestampSetElementGenerator implements OneToManyElementGenerator<S
 
     @Override
     public Iterable<Element> _apply(final String line) {
-        final Set<Element> elements = new HashSet<>();
-        for (int i = 0; i < 25; i++) {
-            final TimestampSet timestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE);
+        final List<Element> elements = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            final TimestampSet timestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE, 25);
             timestampSet.add(START_OF_2017.plusSeconds(RANDOM.nextInt(SECONDS_IN_YEAR)));
             final Edge edge = new Edge.Builder()
                     .group("red")
                     .source("A")
                     .dest("B")
-                    .property("timestampSet", timestampSet)
+                    .property("boundedTimestampSet", timestampSet)
+                    .build();
+            elements.add(edge);
+        }
+        for (int i = 0; i < 1000; i++) {
+            final TimestampSet timestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.MINUTE, 25);
+            timestampSet.add(START_OF_2017.plusSeconds(RANDOM.nextInt(SECONDS_IN_YEAR)));
+            final Edge edge = new Edge.Builder()
+                    .group("red")
+                    .source("A")
+                    .dest("C")
+                    .property("boundedTimestampSet", timestampSet)
                     .build();
             elements.add(edge);
         }
