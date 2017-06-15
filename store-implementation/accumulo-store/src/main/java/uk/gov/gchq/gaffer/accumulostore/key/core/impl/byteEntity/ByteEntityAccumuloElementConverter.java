@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
@@ -63,15 +62,14 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         super(schema);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected byte[] getRowKeyFromEntity(final Entity entity) {
-        byte[] value;
         try {
-            value = ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(entity.getVertex()));
-            final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
-            returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-            returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
-            return returnVal;
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(entity.getVertex()),
+                    ByteArrayEscapeUtils.DELIMITER,
+                    ByteEntityPositions.ENTITY);
+
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }

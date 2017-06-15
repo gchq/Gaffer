@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 
 /**
  * Removes the 0 byte from a byte array. Preserves ordering.
@@ -34,15 +35,28 @@ public final class ByteArrayEscapeUtils {
     }
 
     /**
-     * Escapes the provided string so that it no longer contains the
+     * Escapes the provided byte[] so that it no longer contains the
      * Constants.DELIMITER character.
+     * After escaping the byte[] the appendAfterEscaping[] is appended unescaped.
      *
-     * @param bytes the byte array to escape
+     * @param bytes               the byte array to escape
+     * @param appendAfterEscaping the bytes to append to the array after being escaped.
      * @return the escaped byte array
      */
-    public static byte[] escape(final byte[] bytes) {
-        final byte[] temp = new byte[2 * bytes.length];
+    public static byte[] escape(final byte[] bytes, final byte... appendAfterEscaping) {
+        final byte[] temp = new byte[2 * (bytes.length + ((appendAfterEscaping == null) ? 0 : appendAfterEscaping.length))];
         int currentPosition = 0;
+        currentPosition = escape(bytes, temp, currentPosition);
+        if (appendAfterEscaping != null) {
+            for (final byte b : appendAfterEscaping) {
+                temp[currentPosition++] = b;
+            }
+        }
+        return Arrays.copyOfRange(temp, 0, currentPosition);
+    }
+
+    private static int escape(final byte[] bytes, final byte[] temp, final int position) {
+        int currentPosition = position;
         for (final byte b : bytes) {
             if (b == ESCAPE_CHAR) {
                 temp[currentPosition++] = ESCAPE_CHAR;
@@ -54,9 +68,7 @@ public final class ByteArrayEscapeUtils {
                 temp[currentPosition++] = b;
             }
         }
-        final byte[] escaped = new byte[currentPosition];
-        System.arraycopy(temp, 0, escaped, 0, currentPosition);
-        return escaped;
+        return currentPosition;
     }
 
     /**
