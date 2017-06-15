@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -74,6 +75,7 @@ public class SchemaElementDefinitionValidatorTest {
 
             // Then
             assertFalse(result.isValid());
+            assertTrue(result.getErrorString().contains("reserved word"));
         }
     }
 
@@ -113,6 +115,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -130,6 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nElementFilter contains a null function.", result.getErrorString());
     }
 
     @Test
@@ -178,6 +182,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
@@ -297,6 +304,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nNo aggregator found for properties '[property2]' in the supplied schema." +
+                " This framework requires that all of the defined properties have an aggregator function associated with them." +
+                " To disable aggregation for a group set the 'aggregate' field to false.", result.getErrorString());
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
