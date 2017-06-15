@@ -100,8 +100,20 @@ public class HBaseStore extends Store {
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        generalInitialise(schema, properties);
         TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param schema     the gaffer Schema
+     * @param properties the hbase store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void generalInitialise(final Schema schema, final StoreProperties properties)
+            throws StoreException {
+        super.initialise(schema, properties);
     }
 
     public Configuration getConfiguration() {

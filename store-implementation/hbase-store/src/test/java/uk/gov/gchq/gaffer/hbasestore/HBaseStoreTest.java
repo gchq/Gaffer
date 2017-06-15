@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -69,6 +71,15 @@ public class HBaseStoreTest {
         store.initialise(schema, PROPERTIES);
     }
 
+    @Before
+    public void beforeMethod() throws StoreException, IOException {
+        try (final Admin admin = store.getConnection().getAdmin()) {
+            if (!admin.tableExists(store.getProperties().getTable())) {
+                store.initialise(schema, PROPERTIES);
+            }
+        }
+    }
+
     @AfterClass
     public static void tearDown() {
         store = null;
@@ -78,6 +89,29 @@ public class HBaseStoreTest {
     public void shouldCreateTableWhenInitialised() throws StoreException, IOException {
         final Connection connection = store.getConnection();
         final TableName tableName = store.getProperties().getTable();
+        try (final Admin admin = connection.getAdmin()) {
+            assertTrue(admin.tableExists(tableName));
+        }
+    }
+
+    @Test
+    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException {
+        final TableName tableName = store.getProperties().getTable();
+        Connection connection = store.getConnection();
+
+        TableUtils.dropTable(store);
+        try (final Admin admin = connection.getAdmin()) {
+            assertFalse(admin.tableExists(tableName));
+        }
+
+        store.generalInitialise(schema, PROPERTIES);
+        connection = store.getConnection();
+        try (final Admin admin = connection.getAdmin()) {
+            assertFalse(admin.tableExists(tableName));
+        }
+
+        store.initialise(schema, PROPERTIES);
+        connection = store.getConnection();
         try (final Admin admin = connection.getAdmin()) {
             assertTrue(admin.tableExists(tableName));
         }

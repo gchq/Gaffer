@@ -51,13 +51,12 @@ public class MockAccumuloStore extends AccumuloStore {
     }
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
-            throws StoreException {
+    public void generalInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
         if (!(properties instanceof AccumuloProperties)) {
             throw new StoreException("Store must be initialised with AccumuloProperties");
         }
         mockAccumulo = new MockInstance(((AccumuloProperties) properties).getInstance());
-        super.initialise(schema, properties);
+        super.generalInitialise(schema, properties);
     }
 
     @Override
