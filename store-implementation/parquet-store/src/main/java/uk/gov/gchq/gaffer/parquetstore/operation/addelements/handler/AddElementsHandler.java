@@ -50,7 +50,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     public Void doOperation(final AddElements operation,
                             final Context context, final Store store)
             throws OperationException {
-        store.optimiseSchema();
+//        store.optimiseSchema();
         final User user = context.getUser();
         final SparkSession spark;
         if (user instanceof SparkUser) {
