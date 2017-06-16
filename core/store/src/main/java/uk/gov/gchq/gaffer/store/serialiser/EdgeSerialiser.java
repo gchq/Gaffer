@@ -38,23 +38,16 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
 
     public EdgeSerialiser(final Schema schema) {
         super(schema);
-        if (null == schema.getVertexSerialiser()) {
-            throw new IllegalArgumentException("Vertex serialiser is required");
-        }
-        if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
-            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
-        }
-        this.vertexSerialiser = (ToBytesSerialiser<Object>) schema.getVertexSerialiser();
     }
 
     @Override
     public void updateSchema(final Schema schema) {
         super.updateSchema(schema);
         if (null == schema.getVertexSerialiser()) {
-            throw new IllegalArgumentException("Vertex serialiser must be defined in the schema");
+            throw new IllegalArgumentException("Vertex serialiser is required");
         }
         if (!(schema.getVertexSerialiser() instanceof ToBytesSerialiser)) {
-            throw new IllegalArgumentException("Vertex serialiser " + schema.getVertexSerialiser().getClass().getName() + " must be an instance of " + ToBytesSerialiser.class.getName());
+            throw new IllegalArgumentException("Vertex serialiser must be a " + ToBytesSerialiser.class.getSimpleName());
         }
         vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
     }
