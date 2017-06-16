@@ -63,7 +63,7 @@ public class RoaringBitmapAggregatorTest extends BinaryOperatorTest {
     }
 
     @Test
-    public void threeOverLappingInputBitmapsProducesSingleSortedBitmap() {
+    public void threeOverlappingInputBitmapsProducesSingleSortedBitmap() {
         int[] inputs = new int[6];
         RoaringBitmap inputBitmap1 = new RoaringBitmap();
         int input1 = 23615000;

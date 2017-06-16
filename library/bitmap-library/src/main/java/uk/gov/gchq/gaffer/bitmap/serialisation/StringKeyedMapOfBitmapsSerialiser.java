@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Crown Copyright
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
 import org.roaringbitmap.RoaringBitmap;
@@ -18,30 +33,35 @@ public class StringKeyedMapOfBitmapsSerialiser implements ToBytesSerialiser<MapO
     private static final StringSerialiser STRING_SERIALISER = new StringSerialiser();
 
     @Override
-    public boolean canHandle(Class clazz) {
+    public boolean canHandle(final Class clazz) {
         return MapOfBitmaps.class.equals(clazz);
     }
 
     @Override
-    public byte[] serialise(MapOfBitmaps object) throws SerialisationException {
+    public byte[] serialise(final MapOfBitmaps object) throws SerialisationException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         try {
-            for(Map.Entry<Object, RoaringBitmap> entry : object.entrySet()) {
-                byte[] k = STRING_SERIALISER.serialise((String) entry.getKey());
-                byte[] v = BITMAP_SERIALISER.serialise(entry.getValue());
+            for (final Map.Entry<Object, RoaringBitmap> entry : object.entrySet()) {
+                final Object key = entry.getKey();
+                if (!key.getClass().equals(String.class)) {
+                    throw new SerialisationException("" +
+                            "Key in MapOfBitmaps was not of expected type, expected: class java.lang.String but was " + key.getClass());
+                }
+                final byte[] k = STRING_SERIALISER.serialise((String) key);
+                final byte[] v = BITMAP_SERIALISER.serialise(entry.getValue());
                 CompactRawSerialisationUtils.write(k.length, byteOut);
                 byteOut.write(k);
                 CompactRawSerialisationUtils.write(v.length, byteOut);
                 byteOut.write(v);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
         return byteOut.toByteArray();
     }
 
     @Override
-    public MapOfBitmaps deserialise(byte[] bytes) throws SerialisationException {
+    public MapOfBitmaps deserialise(final byte[] bytes) throws SerialisationException {
         MapOfBitmaps mapOfBitmaps = new MapOfBitmaps();
         final int arrayLength = bytes.length;
         int carriage = 0;
