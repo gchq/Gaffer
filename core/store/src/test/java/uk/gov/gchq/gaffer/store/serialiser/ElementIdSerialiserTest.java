@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.store.serialiser;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
@@ -29,7 +28,6 @@ import uk.gov.gchq.gaffer.operation.data.generator.EdgeIdExtractor;
 import uk.gov.gchq.gaffer.operation.data.generator.EntityIdExtractor;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -37,17 +35,13 @@ import static org.junit.Assert.assertTrue;
 
 public class ElementIdSerialiserTest {
 
-    private ElementIdSerialiser elementIdSerialiser;
     private Schema schema;
+    private ElementIdSerialiser elementIdSerialiser;
+    private static final String TEST_VERTEX = "testVertex";
 
     @Before
     public void setUp() {
         schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                        .vertex("string")
-                        .property(TestPropertyNames.PROP_1, "string")
-                        .property(TestPropertyNames.PROP_2, "string")
-                        .build())
                 .vertexSerialiser(new StringSerialiser())
                 .build();
         elementIdSerialiser = new ElementIdSerialiser(schema);
@@ -66,22 +60,6 @@ public class ElementIdSerialiserTest {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
-
-/*    @Test
-    public void testInvalidSerialiser() {
-        // Given
-        schema = new Schema.Builder()
-                .vertexSerialiser()
-                .build();
-
-        // When / Then
-        try {
-            elementIdSerialiser = new ElementIdSerialiser(schema);
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Vertex serialiser must be a"));
-        }
-    }*/
-
 
     @Test
     public void testCanSeraliseEdgeId() throws SerialisationException {
@@ -148,17 +126,35 @@ public class ElementIdSerialiserTest {
     }
 
     @Test
-    public void testCanSerialiseVertex() {
+    public void testCanSerialiseVertex() throws SerialisationException {
+        //Given
+        final EntityIdSerialiser entityIdSerialiser = new EntityIdSerialiser(schema);
 
+        // When
+        final byte[] serialisedVertex = elementIdSerialiser.serialiseVertex(TEST_VERTEX);
+        final EntityId deserialisedEntityId = entityIdSerialiser.deserialise(serialisedVertex);
+
+        // Then
+        assertEquals(TEST_VERTEX, deserialisedEntityId.getVertex());
     }
 
     @Test
-    public void cantSerialiseIntegerClass() throws SerialisationException {
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
         assertFalse(elementIdSerialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void canSerialiseEdgeClass() throws SerialisationException {
-        assertTrue(elementIdSerialiser.canHandle(Edge.class));
+    public void testCanSerialiseElementIdClass() throws SerialisationException {
+        assertTrue(elementIdSerialiser.canHandle(ElementId.class));
+    }
+
+    @Test
+    public void testDeserialiseEmpty() throws SerialisationException {
+        assertEquals(null, elementIdSerialiser.deserialiseEmpty());
+    }
+
+    @Test
+    public void testPreserveObjectOrdering() throws SerialisationException {
+        assertEquals(false, elementIdSerialiser.preservesObjectOrdering());
     }
 }

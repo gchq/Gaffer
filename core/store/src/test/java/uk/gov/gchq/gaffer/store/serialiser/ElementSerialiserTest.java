@@ -19,14 +19,14 @@ package uk.gov.gchq.gaffer.store.serialiser;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,19 +34,21 @@ import static org.junit.Assert.assertTrue;
 
 public class ElementSerialiserTest {
 
-    private ElementSerialiser elementSerialiser;
     private Schema schema;
+    private ElementSerialiser elementSerialiser;
+    private static final String TEST_VERTEX = "testVertex";
 
     @Before
     public void setUp() {
-
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
-                .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                .build();
+        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
                 .build();
 
         schema = new Schema.Builder()
-                .vertexSerialiser(new StringSerialiser())
+                .entity(TestGroups.ENTITY, entityDef)
                 .edge(TestGroups.EDGE, edgeDef)
+                .vertexSerialiser(new StringSerialiser())
                 .build();
         elementSerialiser = new ElementSerialiser(schema);
     }
@@ -58,35 +60,54 @@ public class ElementSerialiserTest {
 
         // When
         final byte[] serialisedEdge = elementSerialiser.serialise(edge);
-        final Element deserialisedEdge = elementSerialiser.deserialise(serialisedEdge);
+        final Element deserialisedElement = elementSerialiser.deserialise(serialisedEdge);
 
         // Then
-        assertEquals(edge, deserialisedEdge);
+        assertEquals(edge, deserialisedElement);
     }
 
     @Test
     public void testCanSeraliseEntityElement() throws SerialisationException {
+        // Given
+        final Entity entity = new Entity(TestGroups.ENTITY, TEST_VERTEX);
+
+        // When
+        final byte[] serialisedEntity = elementSerialiser.serialise(entity);
+        final Element deserialisedEntity = elementSerialiser.deserialise(serialisedEntity);
+
+        // Then
+        assertEquals(entity, deserialisedEntity);
     }
 
     @Test
     public void testGetGroup() throws SerialisationException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
+        final Edge edge = new Edge(TestGroups.ENTITY, "source", "destination", true);
 
         // When
         final byte[] serialisedEdge = elementSerialiser.serialise(edge);
 
         // Then
-        assertEquals(TestGroups.EDGE, elementSerialiser.getGroup(serialisedEdge));
+        assertEquals(TestGroups.ENTITY, elementSerialiser.getGroup(serialisedEdge));
     }
 
     @Test
-    public void cantSerialiseIntegerClass() throws SerialisationException {
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
         assertFalse(elementSerialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void canSerialiseEdgeClass() throws SerialisationException {
-        assertTrue(elementSerialiser.canHandle(Edge.class));
+    public void testCanSerialiseElementClass() throws SerialisationException {
+        assertTrue(elementSerialiser.canHandle(Element.class));
+    }
+
+    @Test
+    public void testDeserialiseEmpty() throws SerialisationException {
+        assertEquals(null, elementSerialiser.deserialiseEmpty());
+    }
+
+    @Test
+    public void testPreserveObjectOrdering() throws SerialisationException {
+        assertEquals(false, elementSerialiser.preservesObjectOrdering());
     }
 }

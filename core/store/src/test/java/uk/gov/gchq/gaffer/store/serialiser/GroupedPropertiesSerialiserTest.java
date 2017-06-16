@@ -16,8 +16,79 @@
 
 package uk.gov.gchq.gaffer.store.serialiser;
 
-/**
- * Created on 16/06/2017.
- */
+import org.junit.Before;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.GroupedProperties;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class GroupedPropertiesSerialiserTest {
+
+    private Schema schema;
+    private GroupedPropertiesSerialiser groupedPropertiesSerialiser;
+
+    @Before
+    public void setUp() {
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
+                .build();
+
+        schema = new Schema.Builder()
+                .vertexSerialiser(new StringSerialiser())
+                .edge(TestGroups.EDGE, edgeDef)
+                .build();
+
+        groupedPropertiesSerialiser = new GroupedPropertiesSerialiser(schema);
+    }
+
+    @Test
+    public void testCanSeraliseGroupedProperties() throws SerialisationException {
+        // Given
+        final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
+
+        // When
+        final byte[] serialisedGroupedProperties = groupedPropertiesSerialiser.serialise(groupedProperties);
+        final GroupedProperties deserialisedGroupProperties = groupedPropertiesSerialiser.deserialise(serialisedGroupedProperties);
+
+        // Then
+        assertEquals(groupedProperties, deserialisedGroupProperties);
+    }
+
+    @Test
+    public void testGetGroup() throws SerialisationException {
+        // Given
+        final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
+
+        // When
+        final byte[] serialisedEdge = groupedPropertiesSerialiser.serialise(groupedProperties);
+
+        // Then
+        assertEquals(TestGroups.EDGE, groupedPropertiesSerialiser.getGroup(serialisedEdge));
+    }
+
+    @Test
+    public void testCantSerialiseIntegerClass() throws SerialisationException {
+        assertFalse(groupedPropertiesSerialiser.canHandle(Integer.class));
+    }
+
+    @Test
+    public void testCanSerialiseGroupedPropertiesClass() throws SerialisationException {
+        assertTrue(groupedPropertiesSerialiser.canHandle(GroupedProperties.class));
+    }
+
+    @Test
+    public void testDeserialiseEmpty() throws SerialisationException {
+        assertEquals(null, groupedPropertiesSerialiser.deserialiseEmpty());
+    }
+
+    @Test
+    public void testPreserveObjectOrdering() throws SerialisationException {
+        assertEquals(false, groupedPropertiesSerialiser.preservesObjectOrdering());
+    }
 }

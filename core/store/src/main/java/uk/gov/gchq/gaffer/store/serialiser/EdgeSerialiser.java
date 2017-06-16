@@ -34,6 +34,7 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
 
     // Required for serialisation
     EdgeSerialiser() {
+        this.vertexSerialiser = null;
     }
 
     public EdgeSerialiser(final Schema schema) {
