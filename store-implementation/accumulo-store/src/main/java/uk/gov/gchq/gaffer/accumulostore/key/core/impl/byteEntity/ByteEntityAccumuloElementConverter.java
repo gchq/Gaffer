@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementC
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.ByteCopyingUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -29,7 +28,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
@@ -80,25 +78,32 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         byte[] source = getSerialisedSource(edge);
         byte[] destination = getSerialisedDestination(edge);
 
-        int length = source.length + destination.length + 5;
-        final byte[] rowKey1 = new byte[length];
         byte directionFlag = edge.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
-        copyToRowKey(source, destination, rowKey1, directionFlag);
+        final byte[] rowKey1 = getRowKey(source, destination, directionFlag);
 
         byte[] rowKey2 = null;
         if (!selfEdge(edge)) {
-            rowKey2 = new byte[length];
             byte invertDirectedFlag = (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) ? ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
-            copyToRowKey(destination, source, rowKey2, invertDirectedFlag);
+            rowKey2 = getRowKey(destination, source, invertDirectedFlag);
         }
 
         return new Pair<>(rowKey1, rowKey2);
     }
 
-    private void copyToRowKey(final byte[] first, final byte[] second, final byte[] rowKey, final byte directionFlag) {
-        int carriage = ByteCopyingUtil.copyFirstAndSecondByteArrayOptionallyDelimitedWithFlag(first, second, rowKey, Optional.of(directionFlag));
+    private byte[] getRowKey(final byte[] first, final byte[] second, final byte directionFlag) {
+        int carriage = first.length;
+        int secondLen = second.length;
+        byte[] rowKey = new byte[carriage + secondLen + 5];
+        System.arraycopy(first, 0, rowKey, 0, carriage);
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage++] = directionFlag;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(second, 0, rowKey, carriage, secondLen);
+        carriage += secondLen;
         rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
         rowKey[carriage] = directionFlag;
+        //carriage++;
+        return rowKey;
     }
 
     @Override

@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementC
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.commonutil.ByteCopyingUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -61,37 +60,39 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         final byte[] source = getSerialisedSource(edge);
         final byte[] destination = getSerialisedDestination(edge);
 
-        // Length of row key is the length of the source plus the length of the destination
-        // plus one for the delimiter in between the source and destination
-        // plus one for the delimiter in between the destination and the direction flag
-        // plus one for the direction flag at the end.
-        final int length = source.length + destination.length + 3;
-        final byte[] rowKey1 = new byte[length];
-
         // Create first key: source DELIMITER destination
         // DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        copyToRowKey(destination, source, rowKey1, directionFlag);
+        final byte[] rowKey1 = getRowKey(source, destination, directionFlag);
 
 
         // Is this a self-edge? If so then return null for the second rowKey as
         // we don't want the same edge to go into Accumulo twice.
-        final byte[] rowKey2;
-        if (selfEdge(edge)) {
-            rowKey2 = null;
-        } else {
+        byte[] rowKey2 = null;
+        if (!selfEdge(edge)) {
             final byte invertDirectedFlag = (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
-            rowKey2 = new byte[length];
             // Create second key: destination DELIMITER source
             // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-            copyToRowKey(source, destination, rowKey2, invertDirectedFlag);
+            rowKey2 = getRowKey(destination, source, invertDirectedFlag);
         }
         return new Pair<>(rowKey1, rowKey2);
     }
 
-    private void copyToRowKey(final byte[] source, final byte[] destination, final byte[] rowKey2, final byte invertDirectedFlag) {
-        ByteCopyingUtil.copyFirstAndSecondByteArray(destination, source, rowKey2);
-        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[rowKey2.length - 1] = invertDirectedFlag;
+    private byte[] getRowKey(final byte[] first, final byte[] second, final byte invertDirectedFlag) {
+        // Length of row key is the length of the first plus the length of the second
+        // plus one for the delimiter in between the first and second
+        // plus one for the delimiter in between the second and the direction flag
+        // plus one for the direction flag at the end.
+        int carriage = first.length;
+        int secondLen = second.length;
+        final byte[] rowKey = new byte[carriage + secondLen + 3];
+        System.arraycopy(first, 0, rowKey, 0, carriage);
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(second, 0, rowKey, carriage, secondLen);
+        carriage += second.length;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage] = invertDirectedFlag;
+        //carriage++;
+        return rowKey;
     }
 
     @Override
