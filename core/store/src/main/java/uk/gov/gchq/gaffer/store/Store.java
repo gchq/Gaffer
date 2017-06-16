@@ -395,12 +395,12 @@ public abstract class Store {
                     validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                 }
             }));
+
+            validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+            getSchema().getTypes().entrySet().forEach(entrySet ->
+                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
         }
-
-        validateSchema(validationResult, getSchema().getVertexSerialiser());
-
-        getSchema().getTypes().entrySet().forEach(entrySet ->
-                validateSchema(validationResult, entrySet.getValue().getSerialiser()));
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "
