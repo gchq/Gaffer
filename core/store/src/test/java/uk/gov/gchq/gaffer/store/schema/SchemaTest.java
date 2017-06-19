@@ -288,17 +288,17 @@ public class SchemaTest {
                                 .build())
                         .build())
                 .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                    .vertex(TestTypes.ID_STRING)
-                    .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
-                    .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
-                    .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
-                    .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                    .description(ENTITY_DESCRIPTION)
-                    .validator(new ElementFilter.Builder()
-                            .select(TestPropertyNames.PROP_1)
-                            .execute(new ExampleFilterFunction())
-                            .build())
-                    .build())
+                        .vertex(TestTypes.ID_STRING)
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
+                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                        .description(ENTITY_DESCRIPTION)
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .build())
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -353,7 +353,7 @@ public class SchemaTest {
                 "      \"groupBy\": [ \"property1\", \"property2\"],%n" +
                 "      \"description\": \"Entity description\",%n" +
                 "      \"vertex\": \"id.string\",%n" +
-                "      \"validateFunctions\": [ {%n "+
+                "      \"validateFunctions\": [ {%n " +
                 "        \"predicate\": {%n" +
                 "          \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
                 "        },%n" +
@@ -413,10 +413,10 @@ public class SchemaTest {
                 .build();
 
         assertEquals(JavaSerialiser.class,
-            store.getElement(TestGroups.EDGE)
-                .getPropertyTypeDef(TestPropertyNames.PROP_1)
-                .getSerialiser()
-                .getClass());
+                store.getElement(TestGroups.EDGE)
+                        .getPropertyTypeDef(TestPropertyNames.PROP_1)
+                        .getSerialiser()
+                        .getClass());
     }
 
     @Test
@@ -669,8 +669,8 @@ public class SchemaTest {
         // When
         final Schema schema = new Schema.Builder()
                 .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
-                    .parents(TestGroups.EDGE)
-                    .build())
+                        .parents(TestGroups.EDGE)
+                        .build())
                 .build();
 
         // Then
@@ -747,20 +747,20 @@ public class SchemaTest {
 
         // Check entities
         assertArrayEquals(new String[]{
-                TestPropertyNames.PROP_1,
-                TestPropertyNames.PROP_2,
-                TestPropertyNames.PROP_3,
-                TestPropertyNames.PROP_4},
-            schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4},
+                schema.getEntity(TestGroups.ENTITY_4).getProperties().toArray());
 
         // Check order of properties and overrides is from order of parents
         assertArrayEquals(new String[]{
-                TestPropertyNames.PROP_1,
-                TestPropertyNames.PROP_2,
-                TestPropertyNames.PROP_3,
-                TestPropertyNames.PROP_4,
-                TestPropertyNames.PROP_5},
-            schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
+                        TestPropertyNames.PROP_1,
+                        TestPropertyNames.PROP_2,
+                        TestPropertyNames.PROP_3,
+                        TestPropertyNames.PROP_4,
+                        TestPropertyNames.PROP_5},
+                schema.getEntity(TestGroups.ENTITY_5).getProperties().toArray());
 
         assertEquals("A parent entity with a single property", schema.getEntity(TestGroups.ENTITY).getDescription());
         assertEquals("An entity that should have properties: 1, 2, 3, 4 and 5", schema.getEntity(TestGroups.ENTITY_5).getDescription());
@@ -925,14 +925,14 @@ public class SchemaTest {
         Function<Element, Set<Object>> fn = schema.createGroupByFunction();
 
         List<Element> input = Arrays.asList(
-            new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex1")
-                .build(),
-            new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex2")
-                .build()
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex2")
+                        .build()
         );
         // then
 
@@ -952,22 +952,22 @@ public class SchemaTest {
         // when
         Function<Element, Set<Object>> fn = schema.createGroupByFunction();
         List<Element> input = Arrays.asList(
-            new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex1")
-                .property(TestPropertyNames.PROP_1, "test1")
-                .build(),
-            new Entity.Builder()
-                .group(TestGroups.ENTITY)
-                .vertex("vertex2")
-                .property(TestPropertyNames.PROP_1, "test2")
-                .build(),
-            new Edge.Builder()
-                .group(TestGroups.EDGE)
-                .source("vertex1")
-                .dest("vertex2")
-                .property(TestPropertyNames.PROP_1, "test2")
-                .build()
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property(TestPropertyNames.PROP_1, "test1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex2")
+                        .property(TestPropertyNames.PROP_1, "test2")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex1")
+                        .dest("vertex2")
+                        .property(TestPropertyNames.PROP_1, "test2")
+                        .build()
         );
 
         // then
@@ -991,30 +991,30 @@ public class SchemaTest {
 
         Function<Element, Set<Object>> fn = schema.createGroupByFunction();
         List<Element> input = Arrays.asList(
-            new Entity.Builder()
-                .group(TestGroups.ENTITY_2)
-                .vertex("vertex1")
-                .property(TestPropertyNames.PROP_1, "test1")
-                .property(TestPropertyNames.PROP_2, 1)
-                .build(),
-            new Entity.Builder()
-                .group(TestGroups.ENTITY_2)
-                .vertex("vertex2")
-                .property(TestPropertyNames.PROP_1, "test1")
-                .property(TestPropertyNames.PROP_2, 2)
-                .build(),
-            new Entity.Builder()
-                .group(TestGroups.ENTITY_2)
-                .vertex("vertex2")
-                .property(TestPropertyNames.PROP_1, "test1")
-                .property(TestPropertyNames.PROP_2, 1)
-                .build(),
-            new Entity.Builder()
-                .group(TestGroups.ENTITY_2)
-                .vertex("vertex2")
-                .property(TestPropertyNames.PROP_1, "test2")
-                .property(TestPropertyNames.PROP_2, 2)
-                .build()
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex1")
+                        .property(TestPropertyNames.PROP_1, "test1")
+                        .property(TestPropertyNames.PROP_2, 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex2")
+                        .property(TestPropertyNames.PROP_1, "test1")
+                        .property(TestPropertyNames.PROP_2, 2)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex2")
+                        .property(TestPropertyNames.PROP_1, "test1")
+                        .property(TestPropertyNames.PROP_2, 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex2")
+                        .property(TestPropertyNames.PROP_1, "test2")
+                        .property(TestPropertyNames.PROP_2, 2)
+                        .build()
         );
 
         // then
@@ -1038,11 +1038,11 @@ public class SchemaTest {
 
         // when
         List<Element> elements = Lists.newArrayList(
-            new Entity.Builder()
-                .group("Unknown group")
-                .vertex("vertex1")
-                .property("Meaning of life", 42)
-                .build()
+                new Entity.Builder()
+                        .group("Unknown group")
+                        .vertex("vertex1")
+                        .property("Meaning of life", 42)
+                        .build()
         );
 
         Function<Element, Set<Object>> fn = schema.createGroupByFunction();
