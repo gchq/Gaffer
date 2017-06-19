@@ -75,6 +75,7 @@ public class SchemaElementDefinitionValidatorTest {
 
             // Then
             assertFalse(result.isValid());
+            assertTrue(result.getErrorString().contains("reserved word"));
         }
     }
 
@@ -114,6 +115,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -131,6 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("null function"));
     }
 
     @Test
@@ -179,6 +182,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
@@ -298,6 +304,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("No aggregator found for properties"));
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
