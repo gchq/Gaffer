@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.store;
+package uk.gov.gchq.gaffer.store.util;
 
 
 import com.google.common.collect.Lists;
@@ -17,7 +17,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaTest;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,12 +32,12 @@ public class AggregatorUtilTest {
     @Test
     public void shouldUseVertexAsPartOfGroupBy() {
         // given
-        Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
+        final Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
 
         // when
-        Function<Element, Element> fn = AggregatorUtil.createGroupByFunction(schema);
+        final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
-        List<Element> input = Arrays.asList(
+        final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
@@ -53,24 +52,23 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .build()
         );
-        // then
 
-        Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
-        Map<Element, List<Element>> expected = new HashMap<>();
+        // then
+        final Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        final Map<Element, List<Element>> expected = new HashMap<>();
         expected.put(input.get(0), Lists.newArrayList(input.get(0)));
         expected.put(input.get(1), Lists.newArrayList(input.get(1)));
         expected.put(input.get(2), Lists.newArrayList(input.get(2)));
-
         assertEquals(expected, results);
     }
 
     @Test
     public void shouldUseGroupAsPartOfTheGroupByFunction() {
         // given
-        Schema schema = createSchema();
+        final Schema schema = createSchema();
 
         // when
-        List<Element> input = Arrays.asList(
+        final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
@@ -81,8 +79,8 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        Map<Element, List<Element>> results = input.stream()
-                .collect(Collectors.groupingBy(AggregatorUtil.createGroupByFunction(schema)));
+        final Map<Element, List<Element>> results = input.stream()
+                .collect(Collectors.groupingBy(new AggregatorUtil.ToIngestElementKey(schema)));
 
         assertEquals(2, results.size());
         assertEquals(input.get(0), results.get(input.get(0)).get(0));
@@ -92,11 +90,10 @@ public class AggregatorUtilTest {
     @Test
     public void shouldUseGroupByPropertiesInFunction() {
         // given
-        Schema schema = createSchema();
+        final Schema schema = createSchema();
 
         // when
-
-        Function<Element, Element> fn = AggregatorUtil.createGroupByFunction(schema);
+        final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
         List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY_2)
@@ -113,24 +110,20 @@ public class AggregatorUtilTest {
         );
 
         // then
-
-        Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
-        Map<Element, List<Element>> expected = new HashMap<>();
+        final Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        final Map<Element, List<Element>> expected = new HashMap<>();
         expected.put(input.get(0), Lists.newArrayList(input.get(0)));
         expected.put(input.get(1), Lists.newArrayList(input.get(1)));
-
-
         assertEquals(expected, results);
-
     }
 
     @Test
     public void shouldThrowExceptionIfElementBelongsToGroupThatDoesntExistInSchema() {
         // given
-        Schema schema = createSchema();
+        final Schema schema = createSchema();
 
         // when
-        List<Element> elements = Lists.newArrayList(
+        final List<Element> elements = Lists.newArrayList(
                 new Entity.Builder()
                         .group("Unknown group")
                         .vertex("vertex1")
@@ -138,25 +131,23 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        Function<Element, Element> fn = AggregatorUtil.createGroupByFunction(schema);
+        final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
+
         // then
         try {
-            Map<Element, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
+            final Map<Element, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
         } catch (RuntimeException e) {
             assertNotNull(e.getMessage());
         }
-
     }
 
     @Test
     public void shouldGroupElementsWithSameKey() {
         // given
-        Schema schema = createSchema();
-
+        final Schema schema = createSchema();
 
         // when
-
-        List<Element> input = Arrays.asList(
+        final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY_2)
                         .vertex("vertex1")
@@ -171,12 +162,14 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        Map<Element, List<Element>> results = input.stream()
-                .collect(Collectors.groupingBy(AggregatorUtil.createGroupByFunction(schema)));
-
+        final Map<Element, List<Element>> results =
+                input.stream().collect(
+                        Collectors.groupingBy(
+                                new AggregatorUtil.ToIngestElementKey(schema)
+                        )
+                );
 
         // then
-
         assertEquals(1, results.size());
         assertEquals(input, results.get(new Entity.Builder()
                 .group(TestGroups.ENTITY_2)
