@@ -206,6 +206,16 @@ public class BoundedTimestampSet implements TimestampSet {
         rbmBackedTimestampSet = null;
     }
 
+    /**
+     * Important - this equals method requires the underlying timestamps to be
+     * exactly the same. If it's in the state where it's sampling then it's
+     * randomly generated samples must be the same.
+     * So two BoundedTimestampSets which have had exactly the same data added
+     * might not be equal if the random samples are different.
+     *
+     * @param obj the object to compare
+     * @return true if the obj is equal to this.
+     */
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -226,6 +236,15 @@ public class BoundedTimestampSet implements TimestampSet {
                 .isEquals();
     }
 
+    /**
+     * Important - this hash code method will produce different values if the
+     * underlying timestamps are different.
+     * This may cause issues when using the randomly sampled data.
+     * So two BoundedTimestampSets which have had exactly the same data added
+     * might have different hash codes if the random samples are different.
+     *
+     * @return the hash code
+     */
     @Override
     public int hashCode() {
         return new HashCodeBuilder(13, 37)
