@@ -57,7 +57,8 @@ public class OperationChainLimiterTest {
     public void shouldAcceptOperationChainWhenUserHasAuthScoreEqualToChainScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GetElements())
+                .first(new GetAdjacentIds())
+                .then(new GetElements())
                 .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
@@ -118,6 +119,7 @@ public class OperationChainLimiterTest {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
+                .then(new GetElements())
                 .then(new GenerateObjects<>())
                 .build();
         final User user = new User.Builder()
@@ -137,7 +139,7 @@ public class OperationChainLimiterTest {
     public void shouldRejectOperationChainWhenUserHasNoAuthWithAConfiguredScore() {
         // Given
         final OperationChain opChain = new OperationChain.Builder()
-                .first(new GenerateObjects())
+                .first(new GetElements())
                 .build();
         final User user = new User.Builder()
                 .opAuths("NoScore")
