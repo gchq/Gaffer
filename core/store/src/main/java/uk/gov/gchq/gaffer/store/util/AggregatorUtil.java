@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.store.util;
 
 import com.google.common.collect.Iterables;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -35,6 +36,7 @@ public final class AggregatorUtil {
     private AggregatorUtil() {
     }
 
+    @SuppressFBWarnings("BC_UNCONFIRMED_CAST")
     public static CloseableIterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
@@ -53,6 +55,7 @@ public final class AggregatorUtil {
         return queryAggregate(Streams.toStream((Iterable<Element>) elements), schema, view);
     }
 
+    @SuppressFBWarnings("BC_UNCONFIRMED_CAST")
     public static CloseableIterable<Element> queryAggregate(final Stream<Element> elements, final Schema schema, final View view) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");

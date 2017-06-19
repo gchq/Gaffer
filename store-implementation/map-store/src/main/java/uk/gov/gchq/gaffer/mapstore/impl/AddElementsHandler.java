@@ -106,7 +106,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         }
 
         final Map<Element, GroupedProperties> map = mapImpl.aggElements.get(elementWithGroupByProperties.getGroup());
-        map.merge(elementWithGroupByProperties, properties, new AggregatorUtil.PropertiesBinaryOperator(schema));
+        map.merge(elementWithGroupByProperties, properties, new AggregatorUtil.IngestPropertiesBinaryOperator(schema));
 
         return elementWithGroupByProperties;
     }
