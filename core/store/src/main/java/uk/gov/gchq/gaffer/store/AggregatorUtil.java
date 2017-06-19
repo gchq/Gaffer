@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.Set;
 import java.util.function.Function;
 
-public class AggregatorUtil {
+public final class AggregatorUtil {
 
     private AggregatorUtil() {
         // do not instantiate
@@ -34,10 +34,11 @@ public class AggregatorUtil {
      * the Group-by values, the Identifiers and the Group. These act as a key and can be used in a
      * Collector.
      *
+     * @param schema the schema which is used to get the element definition from the group
      * @return an Element which makes up a unique Identifier. The set is composed of the input Element's
      * Group-By, Identifiers and the Group name.
      */
-    public static Function<Element, Element> createGroupByFunction(Schema schema) {
+    public static Function<Element, Element> createGroupByFunction(final Schema schema) {
         return element -> {
             Element key =  element.emptyClone();
 
