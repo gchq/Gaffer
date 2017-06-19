@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -129,44 +127,31 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     }
 
     /**
-     * Creates a Function that takes and element as input and outputs a set of objects including the
-     * Group-by values, the Identifiers and the group. These act as a key and can be used in a
-     * Collector. This function is dependent on the hashcode of the key components so make sure the
-     * Identifiers and Group-By objects all have a valid hashcode method.
+     * Creates a Function that takes and element as input and outputs an element that consists of
+     * the Group-by values, the Identifiers and the Group. These act as a key and can be used in a
+     * Collector.
      *
-     * @return a Set which makes up a unique Identifier. The set is composed of the input Element's
-     * Group-By, Identifiers and Group.
+     * @return an Element which makes up a unique Identifier. The set is composed of the input Element's
+     * Group-By, Identifiers and the Group name.
      */
-    public Function<Element, Set<Object>> createGroupByFunction() {
+    public Function<Element, Element> createGroupByFunction() {
         return element -> {
-            Set<Object> key;
+            Element key =  element.emptyClone();
 
             final String group = element.getGroup();
             final SchemaElementDefinition elDef = this.getElement(group);
 
-            if (elDef == null)  {
+            if (elDef == null) {
                 throw new RuntimeException("received element " + element + " which belongs to a " +
-                    "group not found in the schema");
+                        "group not found in the schema");
             }
 
             Set<String> groupBy = elDef.getGroupBy();
 
-
-            if (element instanceof Entity) {
-                key = new HashSet<>(groupBy.size() + 2);
-                key.add(((Entity) element).getVertex());
-            } else {
-                key = new HashSet<>(groupBy.size() + 4);
-                key.add(((Edge) element).getSource());
-                key.add(((Edge) element).getDestination());
-                key.add(((Edge) element).getDirectedType());
+            for (final String property : groupBy) {
+                key.putProperty(property, element.getProperty(property));
             }
 
-            key.add(group);
-
-            for (final String property: groupBy) {
-                key.add(element.getProperty(property));
-            }
             return key;
         };
     }

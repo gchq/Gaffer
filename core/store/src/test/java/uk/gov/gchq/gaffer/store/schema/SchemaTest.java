@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
@@ -917,12 +916,12 @@ public class SchemaTest {
     }
 
     @Test
-    public void shouldCollectAllElementsTogetherIfNoGroupByIsStated() {
+    public void shouldUseVertexAsPartOfGroupBy() {
         // given
         Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
 
         // when
-        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
+        Function<Element, Element> fn = schema.createGroupByFunction();
 
         List<Element> input = Arrays.asList(
                 new Entity.Builder()
@@ -932,64 +931,57 @@ public class SchemaTest {
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
-                        .build()
-        );
-        // then
-
-        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
-        Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(new HashSet<>(Lists.newArrayList("vertex1", TestGroups.ENTITY)), Lists.newArrayList(input.get(0)));
-        expected.put(new HashSet<>(Lists.newArrayList("vertex2", TestGroups.ENTITY)), Lists.newArrayList(input.get(1)));
-
-        assertEquals(expected, results);
-    }
-
-    @Test
-    public void shouldCollectElementsTogetherIfOneGroupByValueSpecified() {
-        // given
-        Schema schema = createSchema();
-
-        // when
-        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
-        List<Element> input = Arrays.asList(
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex1")
-                        .property(TestPropertyNames.PROP_1, "test1")
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("vertex2")
-                        .property(TestPropertyNames.PROP_1, "test2")
                         .build(),
                 new Edge.Builder()
-                        .group(TestGroups.EDGE)
-                        .source("vertex1")
-                        .dest("vertex2")
-                        .property(TestPropertyNames.PROP_1, "test2")
+                        .group(TestGroups.ENTITY)
+                        .source("vertex2")
+                        .dest("vertex1")
                         .build()
         );
-
         // then
 
-        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
-        Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1", "vertex1", TestGroups.ENTITY), Collections.singletonList(input.get(0)));
-        expected.put(Sets.newHashSet("test2", "vertex2", TestGroups.ENTITY), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", "vertex1", "vertex2", DirectedType.UNDIRECTED, TestGroups.EDGE), Lists.newArrayList(input.get(2)));
+        Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Element, List<Element>> expected = new HashMap<>();
+        expected.put(input.get(0), Lists.newArrayList(input.get(0)));
+        expected.put(input.get(1), Lists.newArrayList(input.get(1)));
+        expected.put(input.get(2), Lists.newArrayList(input.get(2)));
 
         assertEquals(expected, results);
-
     }
 
     @Test
-    public void shouldCollectElementsTogetherWhenMoreThanOneGroupByPropertyIsSpecified() {
+    public void shouldUseGroupAsPartOfTheGroupByFunction() {
+        // given
+        Schema schema = createSchema();
+
+        // when
+        List<Element> input = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex1")
+                        .build()
+        );
+
+        Map<Element, List<Element>> results = input.stream()
+                .collect(Collectors.groupingBy(schema.createGroupByFunction()));
+
+        assertEquals(2, results.size());
+        assertEquals(input.get(0), results.get(input.get(0)).get(0));
+        assertEquals(input.get(1), results.get(input.get(1)).get(0));
+    }
+
+    @Test
+    public void shouldUseGroupByPropertiesInFunction() {
         // given
         Schema schema = createSchema();
 
         // when
 
-        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
+        Function<Element, Element> fn = schema.createGroupByFunction();
         List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY_2)
@@ -1002,29 +994,15 @@ public class SchemaTest {
                         .vertex("vertex2")
                         .property(TestPropertyNames.PROP_1, "test1")
                         .property(TestPropertyNames.PROP_2, 2)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY_2)
-                        .vertex("vertex2")
-                        .property(TestPropertyNames.PROP_1, "test1")
-                        .property(TestPropertyNames.PROP_2, 1)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY_2)
-                        .vertex("vertex2")
-                        .property(TestPropertyNames.PROP_1, "test2")
-                        .property(TestPropertyNames.PROP_2, 2)
                         .build()
         );
 
         // then
 
-        Map<Set<Object>, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
-        Map<Set<Object>, List<Element>> expected = new HashMap<>();
-        expected.put(Sets.newHashSet("test1", 1, "vertex1", TestGroups.ENTITY_2), Lists.newArrayList(input.get(0)));
-        expected.put(Sets.newHashSet("test1", 1, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(2)));
-        expected.put(Sets.newHashSet("test1", 2, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(1)));
-        expected.put(Sets.newHashSet("test2", 2, "vertex2", TestGroups.ENTITY_2), Lists.newArrayList(input.get(3)));
+        Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
+        Map<Element, List<Element>> expected = new HashMap<>();
+        expected.put(input.get(0), Lists.newArrayList(input.get(0)));
+        expected.put(input.get(1), Lists.newArrayList(input.get(1)));
 
 
         assertEquals(expected, results);
@@ -1045,14 +1023,51 @@ public class SchemaTest {
                         .build()
         );
 
-        Function<Element, Set<Object>> fn = schema.createGroupByFunction();
+        Function<Element, Element> fn = schema.createGroupByFunction();
         // then
         try {
-            Map<Set<Object>, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
+            Map<Element, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
         } catch (RuntimeException e) {
             assertNotNull(e.getMessage());
         }
 
+    }
+
+    @Test
+    public void shouldGroupElementsWithSameKey() {
+        // given
+        Schema schema = createSchema();
+
+
+        // when
+
+        List<Element> input = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex1")
+                        .property(TestPropertyNames.PROP_1, "control value")
+                        .property(TestPropertyNames.PROP_3, "unused")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex1")
+                        .property(TestPropertyNames.PROP_1, "control value")
+                        .property(TestPropertyNames.PROP_3, "also unused in function")
+                        .build()
+        );
+
+        Map<Element, List<Element>> results = input.stream()
+                .collect(Collectors.groupingBy(schema.createGroupByFunction()));
+
+
+        // then
+
+        assertEquals(1, results.size());
+        assertEquals(input, results.get(new Entity.Builder()
+                .group(TestGroups.ENTITY_2)
+                .vertex("vertex1")
+                .property(TestPropertyNames.PROP_1, "control value")
+                .build()));
     }
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {
