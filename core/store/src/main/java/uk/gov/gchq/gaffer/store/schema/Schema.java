@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
-import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Contains the full list of {@link uk.gov.gchq.gaffer.data.element.Element} types to be stored in the graph.
@@ -124,36 +122,6 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         }
 
         return isEnabled;
-    }
-
-    /**
-     * Creates a Function that takes and element as input and outputs an element that consists of
-     * the Group-by values, the Identifiers and the Group. These act as a key and can be used in a
-     * Collector.
-     *
-     * @return an Element which makes up a unique Identifier. The set is composed of the input Element's
-     * Group-By, Identifiers and the Group name.
-     */
-    public Function<Element, Element> createGroupByFunction() {
-        return element -> {
-            Element key =  element.emptyClone();
-
-            final String group = element.getGroup();
-            final SchemaElementDefinition elDef = this.getElement(group);
-
-            if (elDef == null) {
-                throw new RuntimeException("received element " + element + " which belongs to a " +
-                        "group not found in the schema");
-            }
-
-            Set<String> groupBy = elDef.getGroupBy();
-
-            for (final String property : groupBy) {
-                key.putProperty(property, element.getProperty(property));
-            }
-
-            return key;
-        };
     }
 
     @JsonIgnore
