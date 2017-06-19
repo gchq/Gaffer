@@ -17,10 +17,15 @@ package uk.gov.gchq.gaffer.time;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +34,31 @@ import static org.junit.Assert.assertTrue;
 public class BoundedTimestampSetTest {
 
     @Test
-    public void testStateTransitionsCorrectly() {
+    public void shouldSerialiseAndDeserialise() throws SerialisationException {
+        // Given
+        final JSONSerialiser serialiser = new JSONSerialiser();
+        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        IntStream.range(0, 20)
+                .forEach(i -> {
+                    boundedTimestampSet.add(Instant.ofEpochMilli(i * 1000L));
+                    if (i <= 9) {
+                        assertEquals(BoundedTimestampSet.State.NOT_FULL, boundedTimestampSet.getState());
+                    } else {
+                        assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
+                    }
+                });
+
+
+        // When
+        final byte[] json = serialiser.serialise(boundedTimestampSet, true);
+        final BoundedTimestampSet deserialisedObj = serialiser.deserialise(json, BoundedTimestampSet.class);
+
+        // Then
+        assertEquals(boundedTimestampSet, deserialisedObj);
+    }
+
+    @Test
+    public void testStateTransitionsCorrectly() throws SerialisationException {
         // Given
         final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
 
@@ -43,6 +72,8 @@ public class BoundedTimestampSetTest {
                         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());
                     }
                 });
+
+        System.out.println(new String(new JSONSerialiser().serialise(boundedTimestampSet)));
     }
 
     @Test
@@ -58,7 +89,7 @@ public class BoundedTimestampSetTest {
         boundedTimestampSet.add(instant2);
 
         // When
-        final SortedSet<Instant> returnedInstants = boundedTimestampSet.get();
+        final SortedSet<Instant> returnedInstants = boundedTimestampSet.getTimestamps();
         final SortedSet<Long> instantsTruncatedToBucket = new TreeSet<>();
         instants.forEach(i -> instantsTruncatedToBucket.add(CommonTimeUtil.timeToBucket(i.toEpochMilli(),
                 CommonTimeUtil.TimeBucket.SECOND)));
@@ -81,7 +112,7 @@ public class BoundedTimestampSetTest {
         instants.forEach(boundedTimestampSet::add);
 
         // When
-        final SortedSet<Instant> returnedInstants = boundedTimestampSet.get();
+        final SortedSet<Instant> returnedInstants = boundedTimestampSet.getTimestamps();
 
         // Then
         assertEquals(BoundedTimestampSet.State.SAMPLE, boundedTimestampSet.getState());

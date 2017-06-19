@@ -39,16 +39,16 @@ public class BoundedTimestampSetAggregator extends KorypheBinaryOperator<Bounded
         // If both are in NOT_FULL state then all the timestamps for b can just be added to a.
         if (a.getState().equals(BoundedTimestampSet.State.NOT_FULL)
                 && b.getState().equals(BoundedTimestampSet.State.NOT_FULL)) {
-            a.add(b.get());
+            a.add(b.getTimestamps());
             return a;
         }
         // If either a or b or both are in SAMPLE state, then the aggregated version must also be in SAMPLE state.
         if (a.getState().equals(BoundedTimestampSet.State.NOT_FULL)) {
             // Need to switch the state of a to SAMPLE and add in b's samples.
             a.switchToSampleState();
-            a.add(b.get());
+            a.add(b.getTimestamps());
         } else {
-            a.add(b.get());
+            a.add(b.getTimestamps());
         }
         return a;
     }

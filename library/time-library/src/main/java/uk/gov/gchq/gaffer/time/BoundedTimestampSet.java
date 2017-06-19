@@ -15,11 +15,17 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,31 +37,33 @@ import java.util.TreeSet;
  * A <code>BoundedTimestampSet</code> is an implementation of {@link TimestampSet} that can contain a maximum number
  * N of timestamps. If more than N timestamps are added then a uniform random sample of size approximately N of the
  * timestamps is retained.
- *
- * <p>This is useful in avoiding the in-memory or serialised size of the set of timestamps becoming too
+ * <p>
+ * This is useful in avoiding the in-memory or serialised size of the set of timestamps becoming too
  * large. If less than N timestamps are added then the timestamps are stored in a {@link RBMBackedTimestampSet}. If
  * more than N timestamps are added then a uniform random sample of size N of the timestamps is retained.
+ * </p>
  */
+@JsonDeserialize(builder = BoundedTimestampSet.Builder.class)
 public class BoundedTimestampSet implements TimestampSet {
     public enum State {
         NOT_FULL,
         SAMPLE
     }
 
-    private final TimeBucket bucket;
-    private final int maxSize;
+    private TimeBucket timeBucket;
+    private int maxSize;
     private State state;
     private RBMBackedTimestampSet rbmBackedTimestampSet;
     private ReservoirLongsUnion reservoirLongsUnion;
 
-    public BoundedTimestampSet(final TimeBucket bucket, final int maxSize) {
-        this.bucket = bucket;
+    public BoundedTimestampSet(final TimeBucket timeBucket, final int maxSize) {
+        this.timeBucket = timeBucket;
         if (maxSize <= 0) {
             throw new IllegalArgumentException("Maximum size must be strictly positive");
         }
         this.maxSize = maxSize;
         this.state = State.NOT_FULL;
-        this.rbmBackedTimestampSet = new RBMBackedTimestampSet(bucket);
+        this.rbmBackedTimestampSet = new RBMBackedTimestampSet(timeBucket);
     }
 
     @Override
@@ -64,7 +72,7 @@ public class BoundedTimestampSet implements TimestampSet {
             rbmBackedTimestampSet.add(instant);
             checkSize();
         } else {
-            reservoirLongsUnion.update(CommonTimeUtil.timeToBucket(instant.toEpochMilli(), bucket));
+            reservoirLongsUnion.update(CommonTimeUtil.timeToBucket(instant.toEpochMilli(), timeBucket));
         }
     }
 
@@ -74,9 +82,9 @@ public class BoundedTimestampSet implements TimestampSet {
     }
 
     @Override
-    public SortedSet<Instant> get() {
+    public SortedSet<Instant> getTimestamps() {
         if (state.equals(State.NOT_FULL)) {
-            return rbmBackedTimestampSet.get();
+            return rbmBackedTimestampSet.getTimestamps();
         }
         final SortedSet<Instant> instants = new TreeSet<>();
         for (final long l : reservoirLongsUnion.getResult().getSamples()) {
@@ -117,17 +125,8 @@ public class BoundedTimestampSet implements TimestampSet {
         return Instant.ofEpochMilli(latestLong.getAsLong());
     }
 
-    @Override
-    public String toString() {
-        return "BoundedTimestampSet{" +
-                "bucket=" + bucket +
-                ", state=" + state +
-                ", timestamps=" + StringUtils.join(get(), ',') +
-                '}';
-    }
-
     public TimeBucket getTimeBucket() {
-        return bucket;
+        return timeBucket;
     }
 
     public int getMaxSize() {
@@ -151,7 +150,8 @@ public class BoundedTimestampSet implements TimestampSet {
      * @return the {@link RBMBackedTimestampSet} used by this class to store the timestamps if it is in state
      * <code>NOT_FULL</code>
      */
-    public RBMBackedTimestampSet getRBMBackedTimestampSet() {
+    @JsonIgnore
+    public RBMBackedTimestampSet getRbmBackedTimestampSet() {
         if (!state.equals(State.NOT_FULL)) {
             throw new RuntimeException("Cannot access the RoaringBitmap if the state of the object is SAMPLE");
         }
@@ -163,7 +163,7 @@ public class BoundedTimestampSet implements TimestampSet {
      *
      * @param rbmBackedTimestampSet the {@link RBMBackedTimestampSet} to set the {@link RBMBackedTimestampSet} of this class to.
      */
-    public void setRBMBackedTimestampSet(final RBMBackedTimestampSet rbmBackedTimestampSet) {
+    public void setRbmBackedTimestampSet(final RBMBackedTimestampSet rbmBackedTimestampSet) {
         state = State.NOT_FULL;
         this.rbmBackedTimestampSet = rbmBackedTimestampSet;
     }
@@ -174,6 +174,7 @@ public class BoundedTimestampSet implements TimestampSet {
      *
      * @return the {@link ReservoirLongsUnion} used by this class to store the timestamps if it is in state <code>SAMPLE</code>
      */
+    @JsonIgnore
     public ReservoirLongsUnion getReservoirLongsUnion() {
         if (!state.equals(State.SAMPLE)) {
             throw new RuntimeException("Cannot access the ReservoirLongsUnion if the state of the object is NOT_FULL");
@@ -191,12 +192,6 @@ public class BoundedTimestampSet implements TimestampSet {
         this.reservoirLongsUnion = reservoirLongsUnion;
     }
 
-    private void checkSize() {
-        if (null != rbmBackedTimestampSet && rbmBackedTimestampSet.getNumberOfTimestamps() > maxSize) {
-            switchToSampleState();
-        }
-    }
-
     public void switchToSampleState() {
         if (getState().equals(State.SAMPLE)) {
             return;
@@ -205,9 +200,94 @@ public class BoundedTimestampSet implements TimestampSet {
         // RBM to null.
         state = State.SAMPLE;
         reservoirLongsUnion = ReservoirLongsUnion.getInstance(maxSize);
-        for (final Instant instant : rbmBackedTimestampSet.get()) {
+        for (final Instant instant : rbmBackedTimestampSet.getTimestamps()) {
             reservoirLongsUnion.update(instant.toEpochMilli());
         }
         rbmBackedTimestampSet = null;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final BoundedTimestampSet set = (BoundedTimestampSet) obj;
+
+        return new EqualsBuilder()
+                .append(timeBucket, set.timeBucket)
+                .append(state, set.state)
+                .append(maxSize, set.maxSize)
+                .append(getTimestamps(), set.getTimestamps())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 37)
+                .append(timeBucket)
+                .append(state)
+                .append(maxSize)
+                .append(getTimestamps())
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("timeBucket", timeBucket)
+                .append("state", state)
+                .append("maxSize", maxSize)
+                .append("timestamps", StringUtils.join(getTimestamps(), ','))
+                .toString();
+    }
+
+    private void checkSize() {
+        if (null != rbmBackedTimestampSet && rbmBackedTimestampSet.getNumberOfTimestamps() > maxSize) {
+            switchToSampleState();
+        }
+    }
+
+    @JsonIgnoreProperties(value = {"numberOfTimestamps", "earliest", "latest"})
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder {
+        private TimeBucket timeBucket;
+        private int maxSize;
+        private State state;
+        private Collection<Instant> timestamps;
+
+        public Builder timeBucket(final TimeBucket timeBucket) {
+            this.timeBucket = timeBucket;
+            return this;
+        }
+
+        public Builder maxSize(final int maxSize) {
+            this.maxSize = maxSize;
+            return this;
+        }
+
+        public void timestamps(final Collection<Instant> timestamps) {
+            this.timestamps = timestamps;
+        }
+
+        public Builder state(final State state) {
+            this.state = state;
+            return this;
+        }
+
+        public BoundedTimestampSet build() {
+            final BoundedTimestampSet set = new BoundedTimestampSet(timeBucket, maxSize);
+            if (null != timestamps) {
+                set.add(timestamps);
+            }
+            if (State.SAMPLE == state) {
+                set.switchToSampleState();
+            }
+            return set;
+        }
     }
 }

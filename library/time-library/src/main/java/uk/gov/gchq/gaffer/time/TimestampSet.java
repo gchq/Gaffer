@@ -43,7 +43,7 @@ public interface TimestampSet {
      *
      * @return All the timestamps in the set, sorted in their natural order.
      */
-    SortedSet<Instant> get();
+    SortedSet<Instant> getTimestamps();
 
     /**
      * Returns the number of distinct timestamps in the set.

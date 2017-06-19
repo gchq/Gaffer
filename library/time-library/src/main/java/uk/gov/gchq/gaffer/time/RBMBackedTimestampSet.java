@@ -15,15 +15,17 @@
  */
 package uk.gov.gchq.gaffer.time;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-
-import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,20 +35,25 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+
 /**
  * An <code>RBMBackedTimestampSet</code> is an implementation of {@link TimestampSet} that stores timestamps
  * truncated to a certain {@link TimeBucket}, e.g. if a {@link TimeBucket} of a minute is specified then a timestamp
  * of 12:34:56 on January 1st 2015 would be truncated to the previous minute, namely 12:34:00 on January 1st 2015.
  * Timebuckets of second, minute, hour, day, week, month and year are supported.
- *
- * <p>Internally this class stores the timestamps in a {@link RoaringBitmap}.
- *
- * <p>NB: This class does not accept {@link Instant}s that are before the Unix epoch or after the {@link Instant}
+ * <p>
+ * Internally this class stores the timestamps in a {@link RoaringBitmap}.
+ * </p>
+ * <p>
+ * NB: This class does not accept {@link Instant}s that are before the Unix epoch or after the {@link Instant}
  * which is <code>Integer.MAX_VALUE * 1000L</code> milliseconds after the epoch (approximately 3:14 on January 19th
  * 2038). This is due to {@link RoaringBitmap} only accepting integers. As the smallest {@link TimeBucket} is
  * a second then the maximum supported {@link Instant} is the maximum integer multiplied by 1000L milliseconds after
  * the epoch.
+ * </p>
  */
+@JsonDeserialize(builder = RBMBackedTimestampSet.Builder.class)
 public class RBMBackedTimestampSet implements TimestampSet {
     private static final long MILLISECONDS_IN_SECOND = 1000L;
     private static final long MILLISECONDS_IN_MINUTE = 60 * MILLISECONDS_IN_SECOND;
@@ -64,18 +71,18 @@ public class RBMBackedTimestampSet implements TimestampSet {
             TimeBucket.YEAR
     ));
 
-    private final TimeBucket bucket;
+    private final TimeBucket timeBucket;
     private RoaringBitmap rbm = new RoaringBitmap();
 
-    public RBMBackedTimestampSet(final TimeBucket bucket) {
-        if (!VALID_TIMEBUCKETS.contains(bucket)) {
-            throw new IllegalArgumentException("A TimeBucket of " + bucket + " is not supported");
+    public RBMBackedTimestampSet(final TimeBucket timeBucket) {
+        if (!VALID_TIMEBUCKETS.contains(timeBucket)) {
+            throw new IllegalArgumentException("A TimeBucket of " + timeBucket + " is not supported");
         }
-        this.bucket = bucket;
+        this.timeBucket = timeBucket;
     }
 
-    public RBMBackedTimestampSet(final TimeBucket bucket, final Instant... instants) {
-        this(bucket);
+    public RBMBackedTimestampSet(final TimeBucket timeBucket, final Instant... instants) {
+        this(timeBucket);
         Stream.of(instants).forEach(this::add);
     }
 
@@ -93,7 +100,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
     }
 
     @Override
-    public SortedSet<Instant> get() {
+    public SortedSet<Instant> getTimestamps() {
         final SortedSet<Instant> instants = new TreeSet<>();
         rbm.forEach(i -> instants.add(getInstantFromInt(i)));
         return instants;
@@ -123,7 +130,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
     }
 
     public TimeBucket getTimeBucket() {
-        return bucket;
+        return timeBucket;
     }
 
     /**
@@ -131,6 +138,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
      *
      * @return the {@link RoaringBitmap} used by this class to store the timestamps.
      */
+    @JsonIgnore
     public RoaringBitmap getRbm() {
         return rbm;
     }
@@ -157,7 +165,7 @@ public class RBMBackedTimestampSet implements TimestampSet {
 
     private boolean equals(final RBMBackedTimestampSet other) {
         return new EqualsBuilder()
-                .append(bucket, other.bucket)
+                .append(timeBucket, other.timeBucket)
                 .append(rbm, other.rbm)
                 .isEquals();
     }
@@ -165,47 +173,87 @@ public class RBMBackedTimestampSet implements TimestampSet {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(21, 3)
-                .append(bucket)
+                .append(timeBucket)
                 .append(rbm)
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "RBMBackedTimestampSet{" +
-                "bucket=" + bucket +
-                ", timestamps=" + StringUtils.join(get(), ',') +
-                '}';
+        return new ToStringBuilder(this)
+                .append("timeBucket", timeBucket)
+                .append("timestamps", StringUtils.join(getTimestamps(), ','))
+                .toString();
     }
 
     private int toInt(final long time) {
-        final long timeTruncatedToBucket = CommonTimeUtil.timeToBucket(time, bucket);
-        switch (bucket) {
-            case SECOND: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_SECOND);
-            case MINUTE: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_MINUTE);
-            case HOUR: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_HOUR);
-            case DAY: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
-            case WEEK: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
-            case MONTH: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
-            case YEAR: return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
-            default: throw new IllegalStateException("Unknown time bucket of " + bucket);
+        final long timeTruncatedToBucket = CommonTimeUtil.timeToBucket(time, timeBucket);
+        switch (timeBucket) {
+            case SECOND:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_SECOND);
+            case MINUTE:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_MINUTE);
+            case HOUR:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_HOUR);
+            case DAY:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case WEEK:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case MONTH:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            case YEAR:
+                return (int) (timeTruncatedToBucket / MILLISECONDS_IN_DAY);
+            default:
+                throw new IllegalStateException("Unknown time bucket of " + timeBucket);
         }
     }
 
     private long fromInt(final int i) {
-        switch (bucket) {
-            case SECOND: return i * MILLISECONDS_IN_SECOND;
-            case MINUTE: return i * MILLISECONDS_IN_MINUTE;
-            case HOUR: return i * MILLISECONDS_IN_HOUR;
-            case DAY: return i * MILLISECONDS_IN_DAY;
-            case WEEK: return i * MILLISECONDS_IN_DAY;
-            case MONTH: return i * MILLISECONDS_IN_DAY;
-            case YEAR: return i * MILLISECONDS_IN_DAY;
-            default: throw new IllegalStateException("Unknown time bucket of " + bucket);
+        switch (timeBucket) {
+            case SECOND:
+                return i * MILLISECONDS_IN_SECOND;
+            case MINUTE:
+                return i * MILLISECONDS_IN_MINUTE;
+            case HOUR:
+                return i * MILLISECONDS_IN_HOUR;
+            case DAY:
+                return i * MILLISECONDS_IN_DAY;
+            case WEEK:
+                return i * MILLISECONDS_IN_DAY;
+            case MONTH:
+                return i * MILLISECONDS_IN_DAY;
+            case YEAR:
+                return i * MILLISECONDS_IN_DAY;
+            default:
+                throw new IllegalStateException("Unknown time bucket of " + timeBucket);
         }
     }
 
     private Instant getInstantFromInt(final int i) {
         return Instant.ofEpochMilli(fromInt(i));
+    }
+
+    @JsonIgnoreProperties(value = {"numberOfTimestamps", "earliest", "latest"})
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class Builder {
+        private TimeBucket timeBucket;
+        private Collection<Instant> timestamps;
+
+        public Builder timeBucket(final TimeBucket timeBucket) {
+            this.timeBucket = timeBucket;
+            return this;
+        }
+
+        public void timestamps(final Collection<Instant> timestamps) {
+            this.timestamps = timestamps;
+        }
+
+        public RBMBackedTimestampSet build() {
+            final RBMBackedTimestampSet set = new RBMBackedTimestampSet(timeBucket);
+            if (null != timestamps) {
+                set.add(timestamps);
+            }
+            return set;
+        }
     }
 }

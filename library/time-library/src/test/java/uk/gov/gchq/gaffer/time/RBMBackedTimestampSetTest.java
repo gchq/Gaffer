@@ -18,13 +18,20 @@ package uk.gov.gchq.gaffer.time;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
-
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 import static uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
 
 public class RBMBackedTimestampSetTest {
@@ -38,6 +45,24 @@ public class RBMBackedTimestampSetTest {
         instant2 = instant1.plus(Duration.ofDays(100L));
         instants.add(instant1);
         instants.add(instant2);
+    }
+
+    @Test
+    public void shouldSerialiseAndDeserialise() throws SerialisationException {
+        // Given
+        final JSONSerialiser serialiser = new JSONSerialiser();
+        final RBMBackedTimestampSet boundedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        IntStream.range(0, 20)
+                .forEach(i -> {
+                    boundedTimestampSet.add(Instant.ofEpochMilli(i * 1000L));
+                });
+
+        // When
+        final byte[] json = serialiser.serialise(boundedTimestampSet, true);
+        final RBMBackedTimestampSet deserialisedObj = serialiser.deserialise(json, RBMBackedTimestampSet.class);
+
+        // Then
+        assertEquals(boundedTimestampSet, deserialisedObj);
     }
 
     @Test
@@ -130,7 +155,7 @@ public class RBMBackedTimestampSetTest {
         dates.forEach(d -> timestampSet.add(d));
 
         // When
-        final Set<Instant> instants = timestampSet.get();
+        final Set<Instant> instants = timestampSet.getTimestamps();
         final SortedSet<Long> datesTruncatedToBucket = new TreeSet<>();
         dates.forEach(d -> datesTruncatedToBucket.add(CommonTimeUtil.timeToBucket(d.toEpochMilli(), bucket)));
 

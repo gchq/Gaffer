@@ -57,7 +57,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
             CompactRawSerialisationUtils.write(boundedTimestampSet.getMaxSize(), dos);
             if (BoundedTimestampSet.State.NOT_FULL.equals(boundedTimestampSet.getState())) {
                 dos.write(NOT_FULL);
-                boundedTimestampSet.getRBMBackedTimestampSet().getRbm().serialize(dos);
+                boundedTimestampSet.getRbmBackedTimestampSet().getRbm().serialize(dos);
             } else {
                 dos.write(SAMPLE);
                 final byte[] serialisedRLU = boundedTimestampSet.getReservoirLongsUnion().toByteArray();
@@ -95,7 +95,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
                 final DataInputStream disConvertedBytes = new DataInputStream(baisConvertedBytes);
                 rbm.deserialize(disConvertedBytes);
                 rbmBackedTimestampSet.setRbm(rbm);
-                boundedTimestampSet.setRBMBackedTimestampSet(rbmBackedTimestampSet);
+                boundedTimestampSet.setRbmBackedTimestampSet(rbmBackedTimestampSet);
             } else if (SAMPLE == state) {
                 final byte[] serialisedRLU = new byte[dis.available()];
                 if (-1 == dis.read(serialisedRLU)) {

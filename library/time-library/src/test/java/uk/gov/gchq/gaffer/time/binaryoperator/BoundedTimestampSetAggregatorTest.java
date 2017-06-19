@@ -52,7 +52,7 @@ public class BoundedTimestampSetAggregatorTest {
         // Then
         assertEquals(3, aggregated.getNumberOfTimestamps());
         assertEquals(BoundedTimestampSet.State.NOT_FULL, aggregated.getState());
-        assertEquals(expected.get(), aggregated.get());
+        assertEquals(expected.getTimestamps(), aggregated.getTimestamps());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class BoundedTimestampSetAggregatorTest {
         // Then
         assertEquals(10, aggregated.getNumberOfTimestamps());
         assertEquals(BoundedTimestampSet.State.SAMPLE, aggregated.getState());
-        assertTrue(allInstants.containsAll(aggregated.get()));
+        assertTrue(allInstants.containsAll(aggregated.getTimestamps()));
     }
 
     @Test
@@ -104,7 +104,7 @@ public class BoundedTimestampSetAggregatorTest {
         // Then
         assertEquals(10, aggregated.getNumberOfTimestamps());
         assertEquals(BoundedTimestampSet.State.SAMPLE, aggregated.getState());
-        assertTrue(allInstants.containsAll(aggregated.get()));
+        assertTrue(allInstants.containsAll(aggregated.getTimestamps()));
     }
 
     @Test
@@ -130,7 +130,7 @@ public class BoundedTimestampSetAggregatorTest {
         // Then
         assertEquals(10, aggregated.getNumberOfTimestamps());
         assertEquals(BoundedTimestampSet.State.SAMPLE, aggregated.getState());
-        assertTrue(allInstants.containsAll(aggregated.get()));
+        assertTrue(allInstants.containsAll(aggregated.getTimestamps()));
     }
 
     @Test

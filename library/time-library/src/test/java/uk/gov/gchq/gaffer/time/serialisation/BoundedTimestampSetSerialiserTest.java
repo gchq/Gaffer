@@ -47,7 +47,7 @@ public class BoundedTimestampSetSerialiserTest {
         assertEquals(boundedTimestampSet.getTimeBucket(), deserialised.getTimeBucket());
         assertEquals(boundedTimestampSet.getMaxSize(), deserialised.getMaxSize());
         assertEquals(boundedTimestampSet.getNumberOfTimestamps(), deserialised.getNumberOfTimestamps());
-        assertEquals(boundedTimestampSet.get(), deserialised.get());
+        assertEquals(boundedTimestampSet.getTimestamps(), deserialised.getTimestamps());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class BoundedTimestampSetSerialiserTest {
         assertEquals(boundedTimestampSet.getTimeBucket(), deserialised.getTimeBucket());
         assertEquals(boundedTimestampSet.getMaxSize(), deserialised.getMaxSize());
         assertEquals(boundedTimestampSet.getNumberOfTimestamps(), deserialised.getNumberOfTimestamps());
-        assertEquals(boundedTimestampSet.get(), deserialised.get());
+        assertEquals(boundedTimestampSet.getTimestamps(), deserialised.getTimestamps());
     }
 
     @Test
