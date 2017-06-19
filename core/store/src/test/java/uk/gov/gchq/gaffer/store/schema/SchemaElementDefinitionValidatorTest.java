@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -74,6 +75,7 @@ public class SchemaElementDefinitionValidatorTest {
 
             // Then
             assertFalse(result.isValid());
+            assertTrue(result.getErrorString().contains("reserved word"));
         }
     }
 
@@ -113,6 +115,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -130,6 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("null function"));
     }
 
     @Test
@@ -178,6 +182,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
@@ -297,6 +304,36 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("No aggregator found for properties"));
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenNoAggregatorByGroupBysSet() {
+        // Given
+        Set<String> groupBys = new HashSet<>();
+        groupBys.add("int");
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "int");
+        properties.put(TestPropertyNames.PROP_2, "string");
+
+        given(elementDef.getGroupBy()).willReturn(groupBys);
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+        given(elementDef.isAggregate()).willReturn(false);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals("Validation errors: \nGroups with aggregation disabled should not have groupBy properties.", result.getErrorString());
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
