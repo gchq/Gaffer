@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -212,7 +211,43 @@ public class ViewTest {
     @Test
     public void shouldCreateViewWithGlobalDefinitions() {
         // Given
-        final View view = createViewWithGroupByFields();
+        final View view = new View.Builder()
+                .globalElements(new GlobalViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy(TestPropertyNames.PROP_1)
+                        .transientProperty(TestPropertyNames.PROP_2, String.class)
+                        .build())
+                .globalEntities(new GlobalViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groups(TestGroups.ENTITY, TestGroups.ENTITY_2)
+                        .build())
+                .globalEdges(new GlobalViewElementDefinition.Builder()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(IdentifierType.SOURCE.name())
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy()
+                        .groups(TestGroups.EDGE, TestGroups.EDGE_2)
+                        .build())
+                .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.DATE)
+                                .execute(new ExampleFilterFunction())
+                                .build())
+                        .groupBy(TestPropertyNames.DATE)
+                        .build())
+                .entity(TestGroups.ENTITY)
+                .entity(TestGroups.ENTITY_2)
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2)
+                .edge(TestGroups.EDGE_3)
+                .build();
 
         // When
         view.expandGlobalDefinitions();
@@ -416,46 +451,6 @@ public class ViewTest {
         allGroups.addAll(view.getEdgeGroups());
 
         assertEquals(allGroups, groups);
-    }
-
-    private View createViewWithGroupByFields() {
-        return new View.Builder()
-                .globalElements(new GlobalViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy(TestPropertyNames.PROP_1)
-                        .transientProperty(TestPropertyNames.PROP_2, String.class)
-                        .build())
-                .globalEntities(new GlobalViewElementDefinition.Builder()
-                        .postAggregationFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.VERTEX.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groups(TestGroups.ENTITY, TestGroups.ENTITY_2)
-                        .build())
-                .globalEdges(new GlobalViewElementDefinition.Builder()
-                        .postTransformFilter(new ElementFilter.Builder()
-                                .select(IdentifierType.SOURCE.name())
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy()
-                        .groups(TestGroups.EDGE, TestGroups.EDGE_2)
-                        .build())
-                .entity(TestGroups.ENTITY_3, new ViewElementDefinition.Builder()
-                        .preAggregationFilter(new ElementFilter.Builder()
-                                .select(TestPropertyNames.DATE)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .groupBy(TestPropertyNames.DATE)
-                        .build())
-                .entity(TestGroups.ENTITY)
-                .entity(TestGroups.ENTITY_2)
-                .edge(TestGroups.EDGE)
-                .edge(TestGroups.EDGE_2)
-                .edge(TestGroups.EDGE_3)
-                .build();
     }
 
     private View createView() {

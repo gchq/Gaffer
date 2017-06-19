@@ -37,7 +37,6 @@ import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
 import uk.gov.gchq.koryphe.tuple.predicate.TupleAdaptedPredicate;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
@@ -278,18 +277,6 @@ public class SchemaTest {
                                 .execute(new ExampleFilterFunction())
                                 .build())
                         .build())
-                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
-                        .vertex(TestTypes.ID_STRING)
-                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
-                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
-                        .property(TestPropertyNames.TIMESTAMP, TestTypes.TIMESTAMP)
-                        .groupBy(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
-                        .description(ENTITY_DESCRIPTION)
-                        .validator(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new ExampleFilterFunction())
-                                .build())
-                        .build())
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -335,22 +322,6 @@ public class SchemaTest {
                 "    }%n" +
                 "  },%n" +
                 "  \"entities\" : {%n" +
-                "    \"BasicEntity2\": {%n" +
-                "      \"properties\": {%n" +
-                "        \"property1\": \"prop.string\",%n" +
-                "        \"property2\": \"prop.integer\",%n" +
-                "        \"timestamp\": \"timestamp\"%n" +
-                "      },%n" +
-                "      \"groupBy\": [ \"property1\", \"property2\"],%n" +
-                "      \"description\": \"Entity description\",%n" +
-                "      \"vertex\": \"id.string\",%n" +
-                "      \"validateFunctions\": [ {%n " +
-                "        \"predicate\": {%n" +
-                "          \"class\": \"uk.gov.gchq.gaffer.function.ExampleFilterFunction\"%n" +
-                "        },%n" +
-                "        \"selection\": [ \"property1\" ]%n" +
-                "      } ]%n" +
-                "    },%n" +
                 "    \"BasicEntity\" : {%n" +
                 "      \"properties\" : {%n" +
                 "        \"property1\" : \"prop.string\",%n" +
