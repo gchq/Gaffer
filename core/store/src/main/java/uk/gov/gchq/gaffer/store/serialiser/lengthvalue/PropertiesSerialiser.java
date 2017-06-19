@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.serialiser;
+package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

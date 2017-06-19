@@ -14,37 +14,38 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.serialiser;
+package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import uk.gov.gchq.gaffer.store.serialiser.lengthvalue.EdgeSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class EntitySerialiserTest {
+public class EdgeSerialiserTest {
 
     private Schema schema;
-    private EntitySerialiser entitySerialiser;
+    private EdgeSerialiser edgeSerialiser;
 
     @Before
     public void setUp() {
-        final SchemaEntityDefinition entityDef = new SchemaEntityDefinition.Builder()
+
+        final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
 
         schema = new Schema.Builder()
                 .vertexSerialiser(new StringSerialiser())
-                .entity(TestGroups.ENTITY, entityDef)
+                .edge(TestGroups.EDGE, edgeDef)
                 .build();
-
-        entitySerialiser = new EntitySerialiser(schema);
+        edgeSerialiser = new EdgeSerialiser(schema);
     }
 
     @Test
@@ -55,42 +56,42 @@ public class EntitySerialiserTest {
 
         // When / Then
         try {
-            entitySerialiser = new EntitySerialiser(schema);
+            edgeSerialiser = new EdgeSerialiser(schema);
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
 
     @Test
-    public void testCanSeraliseEntity() throws SerialisationException {
+    public void testCanSeraliseEdge() throws SerialisationException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY, "testVertex");
+        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
 
         // When
-        final byte[] serialisedEntity = entitySerialiser.serialise(entity);
-        final Entity deserialisedEntity = entitySerialiser.deserialise(serialisedEntity);
+        final byte[] serialisedEdge = edgeSerialiser.serialise(edge);
+        final Edge deserialisedEdge = edgeSerialiser.deserialise(serialisedEdge);
 
         // Then
-        assertEquals(entity, deserialisedEntity);
+        assertEquals(edge, deserialisedEdge);
     }
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(entitySerialiser.canHandle(Integer.class));
+        assertFalse(edgeSerialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseElementClass() throws SerialisationException {
-        assertTrue(entitySerialiser.canHandle(Entity.class));
+    public void testCanSerialiseEdgeClass() throws SerialisationException {
+        assertTrue(edgeSerialiser.canHandle(Edge.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, entitySerialiser.deserialiseEmpty());
+        assertEquals(null, edgeSerialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, entitySerialiser.preservesObjectOrdering());
+        assertEquals(false, edgeSerialiser.preservesObjectOrdering());
     }
 }

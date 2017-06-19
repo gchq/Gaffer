@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.serialiser;
+package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.store.serialiser;
+package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -29,14 +29,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class EdgeSerialiserTest {
+public class GroupedPropertiesSerialiserTest {
 
     private Schema schema;
-    private EdgeSerialiser edgeSerialiser;
+    private GroupedPropertiesSerialiser groupedPropertiesSerialiser;
 
     @Before
     public void setUp() {
-
         final SchemaEdgeDefinition edgeDef = new SchemaEdgeDefinition.Builder()
                 .build();
 
@@ -44,53 +43,52 @@ public class EdgeSerialiserTest {
                 .vertexSerialiser(new StringSerialiser())
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
-        edgeSerialiser = new EdgeSerialiser(schema);
+
+        groupedPropertiesSerialiser = new GroupedPropertiesSerialiser(schema);
     }
 
     @Test
-    public void testNullSerialiser() {
+    public void testCanSeraliseGroupedProperties() throws SerialisationException {
         // Given
-        schema = new Schema.Builder()
-                .build();
-
-        // When / Then
-        try {
-            edgeSerialiser = new EdgeSerialiser(schema);
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Vertex serialiser is required"));
-        }
-    }
-
-    @Test
-    public void testCanSeraliseEdge() throws SerialisationException {
-        // Given
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
+        final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
 
         // When
-        final byte[] serialisedEdge = edgeSerialiser.serialise(edge);
-        final Edge deserialisedEdge = edgeSerialiser.deserialise(serialisedEdge);
+        final byte[] serialisedGroupedProperties = groupedPropertiesSerialiser.serialise(groupedProperties);
+        final GroupedProperties deserialisedGroupProperties = groupedPropertiesSerialiser.deserialise(serialisedGroupedProperties);
 
         // Then
-        assertEquals(edge, deserialisedEdge);
+        assertEquals(groupedProperties, deserialisedGroupProperties);
+    }
+
+    @Test
+    public void testGetGroup() throws SerialisationException {
+        // Given
+        final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
+
+        // When
+        final byte[] serialisedEdge = groupedPropertiesSerialiser.serialise(groupedProperties);
+
+        // Then
+        assertEquals(TestGroups.EDGE, groupedPropertiesSerialiser.getGroup(serialisedEdge));
     }
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(edgeSerialiser.canHandle(Integer.class));
+        assertFalse(groupedPropertiesSerialiser.canHandle(Integer.class));
     }
 
     @Test
-    public void testCanSerialiseEdgeClass() throws SerialisationException {
-        assertTrue(edgeSerialiser.canHandle(Edge.class));
+    public void testCanSerialiseGroupedPropertiesClass() throws SerialisationException {
+        assertTrue(groupedPropertiesSerialiser.canHandle(GroupedProperties.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, edgeSerialiser.deserialiseEmpty());
+        assertEquals(null, groupedPropertiesSerialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, edgeSerialiser.preservesObjectOrdering());
+        assertEquals(false, groupedPropertiesSerialiser.preservesObjectOrdering());
     }
 }
