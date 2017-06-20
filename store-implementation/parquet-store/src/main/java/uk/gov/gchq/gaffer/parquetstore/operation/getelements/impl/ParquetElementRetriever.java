@@ -59,7 +59,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ParquetElementRetriever implements CloseableIterable<Element> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ParquetElementRetriever.class);
 
     private final SchemaUtils schemaUtils;
@@ -69,19 +68,19 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final SeedMatching.SeedMatchingType seedMachingType;
     private final Iterable<? extends ElementId> seeds;
     private final String dataDir;
-    private final Map<String, List<Tuple3<Object[], Object[], String>>> indices;
+    private final Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex;
     private FileSystem fs;
 
     public ParquetElementRetriever(final View view, final ParquetStore store, final DirectedType directedType,
                                    final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                   final SeedMatching.SeedMatchingType seedMachingType, final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
+                                   final SeedMatching.SeedMatchingType seedMatchingType, final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
         this.view = view;
         this.schemaUtils = store.getSchemaUtils();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
-        this.seedMachingType = seedMachingType;
+        this.seedMachingType = seedMatchingType;
         this.seeds = seeds;
-        this.indices = store.getIndex();
+        this.groupToIndex = store.getGroupToIndex();
         this.dataDir = store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot();
         this.fs = store.getFS();
     }
@@ -93,7 +92,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(this.schemaUtils, this.view, this.directedType, this.includeIncomingOutgoingType,
-                this.seedMachingType, this.seeds, this.dataDir, this.indices, this.fs);
+                this.seedMachingType, this.seeds, this.dataDir, this.groupToIndex, this.fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -109,16 +108,19 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         private Boolean needsValidation;
         private View view;
 
-
-        protected ParquetIterator(final SchemaUtils schemaUtils, final View view,
+        protected ParquetIterator(final SchemaUtils schemaUtils,
+                                  final View view,
                                   final DirectedType directedType,
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
                                   final SeedMatching.SeedMatchingType seedMachingType,
                                   final Iterable<? extends ElementId> seeds,
-                                  final String dataDir, final Map<String, List<Tuple3<Object[], Object[], String>>> indices,
+                                  final String dataDir,
+                                  final Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex,
                                   final FileSystem fs) {
             try {
-                Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils.buildPathToFilterMap(schemaUtils, view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, indices);
+                Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
+                        .buildPathToFilterMap(schemaUtils,
+                                view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, groupToIndex);
                 this.pathToFilterMap = results.get0();
                 this.needsValidation = results.get1();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
@@ -126,22 +128,20 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     this.fs = fs;
                     this.view = view;
                     this.paths = pathToFilterMap.keySet().stream().sorted().iterator();
-                    LOGGER.debug("Created new ParquetElementRetriever for paths: {}", this.paths);
                     this.schemaUtils = schemaUtils;
                     this.groupToObjectConverter = new HashMap<>();
-                    //find all the parquet files
                     this.currentPath = this.paths.next();
                     try {
                         this.fileIterator = new ParquetFileIterator(this.currentPath, this.fs);
                         this.reader = openParquetReader();
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         LOGGER.error("Path does not exist");
                     }
                 } else {
                     LOGGER.info("There are no results for this query");
                 }
-            } catch (OperationException | SerialisationException e) {
-                LOGGER.error("Error while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
+            } catch (final OperationException | SerialisationException e) {
+                LOGGER.error("Exception while creating the mapping of file paths to Parquet filters: {}", e.getMessage());
             }
         }
 
@@ -170,7 +170,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             if (this.currentElement == null) {
                 try {
                     this.currentElement = next();
-                } catch (NoSuchElementException e) {
+                } catch (final NoSuchElementException e) {
                     return false;
                 }
             }
@@ -198,17 +198,16 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
 
         private Element getNextElement() {
-            Element e;
+            Element element;
             try {
                 if (this.currentElement != null) {
-                    LOGGER.debug("Current element: {}", this.currentElement);
-                    e = this.currentElement;
+                    element = this.currentElement;
                     this.currentElement = null;
                 } else {
                     if (this.reader != null) {
                         GenericRecord record = this.reader.read();
                         if (record != null) {
-                            e = convertGenericRecordToElement(record);
+                            element = convertGenericRecordToElement(record);
                         } else {
                             LOGGER.debug("Closing Parquet reader");
                             this.reader.close();
@@ -216,10 +215,10 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                             if (this.reader != null) {
                                 record = this.reader.read();
                                 if (record != null) {
-                                    e = convertGenericRecordToElement(record);
+                                    element = convertGenericRecordToElement(record);
                                 } else {
                                     LOGGER.debug("This file has no data");
-                                    e = next();
+                                    element = next();
                                 }
                             } else {
                                 LOGGER.debug("Reached the end of all the files of data");
@@ -230,15 +229,15 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                         throw new NoSuchElementException();
                     }
                 }
-            } catch (IOException | OperationException ex) {
+            } catch (final IOException | OperationException e) {
                 throw new NoSuchElementException();
             }
-            if (e instanceof Edge && this.currentPath.toString().contains("reverseEdges")) {
-                while (((Edge) e).getSource().equals(((Edge) e).getDestination())) {
-                    e = next();
+            if (element instanceof Edge && this.currentPath.toString().contains("reverseEdges")) {
+                while (((Edge) element).getSource().equals(((Edge) element).getDestination())) {
+                    element = next();
                 }
             }
-            return e;
+            return element;
         }
 
         private Element convertGenericRecordToElement(final GenericRecord record) throws OperationException, SerialisationException {
@@ -315,7 +314,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     this.reader.close();
                     this.reader = null;
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 LOGGER.warn("Failed to close {}", this.getClass().getCanonicalName());
             }
         }

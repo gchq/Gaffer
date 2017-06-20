@@ -35,13 +35,15 @@ import java.util.Iterator;
 public class GetElementsHandler implements OutputOperationHandler<GetElements, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetElements operation, final Context context, final Store store) throws OperationException {
+    public CloseableIterable<? extends Element> doOperation(final GetElements operation,
+                                                            final Context context,
+                                                            final Store store) throws OperationException {
         final CloseableIterable<? extends Element> result;
         final Iterable<? extends ElementId> input = operation.getInput();
         if (input != null) {
             final Iterator<? extends ElementId> inputIter = input.iterator();
             if (inputIter.hasNext()) {
-                result = runQuery(operation, (ParquetStore) store);
+                result = doOperation(operation, (ParquetStore) store);
             } else {
                 result = new EmptyClosableIterable<>();
             }
@@ -57,11 +59,17 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return result;
     }
 
-    private CloseableIterable<Element> runQuery(final GetElements operation, final ParquetStore store) throws OperationException {
+    private CloseableIterable<Element> doOperation(final GetElements operation, final ParquetStore store)
+            throws OperationException {
         try {
-            return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), operation.getIncludeIncomingOutGoing(), operation.getSeedMatching(), operation.getInput());
-        } catch (StoreException e) {
-            throw new OperationException(e.getMessage(), e);
+            return new ParquetElementRetriever(operation.getView(),
+                    store,
+                    operation.getDirectedType(),
+                    operation.getIncludeIncomingOutGoing(),
+                    operation.getSeedMatching(),
+                    operation.getInput());
+        } catch (final StoreException e) {
+            throw new OperationException("Failed to get elements", e);
         }
     }
 }

@@ -311,7 +311,7 @@ public class ParquetStore extends Store {
         }
     }
 
-    public Map<String, List<Tuple3<Object[], Object[], String>>> getIndex() {
+    public Map<String, List<Tuple3<Object[], Object[], String>>> getGroupToIndex() {
         return this.groupToIndex;
     }
 

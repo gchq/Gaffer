@@ -30,15 +30,17 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 public class GetAllElementsHandler implements OutputOperationHandler<GetAllElements, CloseableIterable<? extends Element>> {
 
     @Override
-    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation, final Context context, final Store store) throws OperationException {
-        return runQuery(operation, (ParquetStore) store);
+    public CloseableIterable<? extends Element> doOperation(final GetAllElements operation,
+                                                            final Context context,
+                                                            final Store store) throws OperationException {
+        return doOperation(operation, (ParquetStore) store);
     }
 
-    private CloseableIterable<Element> runQuery(final GetAllElements operation, final ParquetStore store) throws OperationException {
+    private CloseableIterable<Element> doOperation(final GetAllElements operation, final ParquetStore store) throws OperationException {
         try {
             return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), null, null, null);
-        } catch (StoreException e) {
-            throw new OperationException(e.getMessage(), e);
+        } catch (final StoreException e) {
+            throw new OperationException("Failed to get elements", e);
         }
     }
 }
