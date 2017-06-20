@@ -55,7 +55,7 @@ public class ElementSerialiserTest {
     }
 
     @Test
-    public void testCanSeraliseEdgeElement() throws SerialisationException {
+    public void testCanSerialiseEdgeElement() throws SerialisationException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
 
@@ -68,7 +68,7 @@ public class ElementSerialiserTest {
     }
 
     @Test
-    public void testCanSeraliseEntityElement() throws SerialisationException {
+    public void testCanSerialiseEntityElement() throws SerialisationException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY, TEST_VERTEX);
 

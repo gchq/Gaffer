@@ -24,16 +24,16 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.serialiser.lengthvalue.EntitySerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class EntitySerialiserTest {
 
     private Schema schema;
-    private EntitySerialiser entitySerialiser;
+    private EntitySerialiser serialiser;
 
     @Before
     public void setUp() {
@@ -45,31 +45,31 @@ public class EntitySerialiserTest {
                 .entity(TestGroups.ENTITY, entityDef)
                 .build();
 
-        entitySerialiser = new EntitySerialiser(schema);
+        serialiser = new EntitySerialiser(schema);
     }
 
     @Test
     public void testNullSerialiser() {
         // Given
-        schema = new Schema.Builder()
-                .build();
+        schema = new Schema.Builder().build();
 
         // When / Then
         try {
-            entitySerialiser = new EntitySerialiser(schema);
+            serialiser = new EntitySerialiser(schema);
+            fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
 
     @Test
-    public void testCanSeraliseEntity() throws SerialisationException {
+    public void testCanSerialiseEntity() throws SerialisationException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY, "testVertex");
 
         // When
-        final byte[] serialisedEntity = entitySerialiser.serialise(entity);
-        final Entity deserialisedEntity = entitySerialiser.deserialise(serialisedEntity);
+        final byte[] serialisedEntity = serialiser.serialise(entity);
+        final Entity deserialisedEntity = serialiser.deserialise(serialisedEntity);
 
         // Then
         assertEquals(entity, deserialisedEntity);
@@ -77,21 +77,21 @@ public class EntitySerialiserTest {
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(entitySerialiser.canHandle(Integer.class));
+        assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
     public void testCanSerialiseElementClass() throws SerialisationException {
-        assertTrue(entitySerialiser.canHandle(Entity.class));
+        assertTrue(serialiser.canHandle(Entity.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, entitySerialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, entitySerialiser.preservesObjectOrdering());
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

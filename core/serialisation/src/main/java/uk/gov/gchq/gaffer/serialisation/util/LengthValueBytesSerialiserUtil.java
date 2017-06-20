@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.util;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,45 +28,141 @@ import java.util.Arrays;
  * Utility methods for serialising objects to length-value byte arrays.
  */
 public abstract class LengthValueBytesSerialiserUtil {
-    public static byte[] serialise(final byte[] bytes) throws IOException {
+    private static final byte[] EMPTY_BYTES = new byte[0];
+
+    public static <T> byte[] serialise(final ToBytesSerialiser<T> serialiser, final T value)
+            throws SerialisationException {
+        final byte[] valueBytes = getValueBytes(serialiser, value);
+        return serialise(valueBytes);
+    }
+
+    public static <T> void serialise(final ToBytesSerialiser<T> serialiser, final T value, final ByteArrayOutputStream out)
+            throws SerialisationException {
+        final byte[] valueBytes = getValueBytes(serialiser, value);
+        serialise(valueBytes, out);
+    }
+
+    public static byte[] serialise(final byte[] valueBytes) throws SerialisationException {
         try (final ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-            serialise(bytes, byteStream);
+            serialise(valueBytes, byteStream);
             return byteStream.toByteArray();
+        } catch (final IOException e) {
+            throw new SerialisationException("Unable to write bytes to output stream", e);
         }
     }
 
-    public static void serialise(final byte[] bytes, final ByteArrayOutputStream out)
-            throws IOException {
-        if (null == bytes || 0 == bytes.length) {
+    public static void serialise(final byte[] valueBytes, final ByteArrayOutputStream out)
+            throws SerialisationException {
+        if (null == valueBytes || 0 == valueBytes.length) {
             CompactRawSerialisationUtils.write(0, out);
         } else {
-            CompactRawSerialisationUtils.write(bytes.length, out);
-            out.write(bytes);
+            CompactRawSerialisationUtils.write(valueBytes.length, out);
+            try {
+                out.write(valueBytes);
+            } catch (final IOException e) {
+                throw new SerialisationException("Unable to write bytes to output stream", e);
+            }
         }
     }
 
-    public static byte[] deserialise(final byte[] bytes) throws SerialisationException {
-        return deserialise(bytes, 0);
+    public static <T> T deserialise(final ToBytesSerialiser<T> serialiser, final byte[] allBytes) throws SerialisationException {
+        return deserialise(serialiser, allBytes, 0);
     }
 
-    public static byte[] deserialise(final byte[] bytes, final int startPos) throws SerialisationException {
-        if (null == bytes || 0 == bytes.length) {
+    public static <T> T deserialise(final ToBytesSerialiser<T> serialiser, final byte[] allBytes, final int delimiter) throws SerialisationException {
+        return getValue(serialiser, deserialise(allBytes, delimiter));
+    }
+
+    public static <T> T deserialise(final ToBytesSerialiser<T> serialiser, final byte[] allBytes, final int[] delimiterWrapper) throws SerialisationException {
+        return getValue(serialiser, deserialise(allBytes, delimiterWrapper));
+    }
+
+    public static byte[] deserialise(final byte[] allBytes, final int[] delimiterWrapper) throws SerialisationException {
+        if (1 != delimiterWrapper.length) {
+            throw new IllegalArgumentException("Delimiter wrapper must always be a int array of length 1 containing the delimiter");
+        }
+
+        final int lengthSize = getLengthSize(allBytes, delimiterWrapper[0]);
+        int valueSize = getValueSize(allBytes, lengthSize, delimiterWrapper[0]);
+        final byte[] valueBytes = deserialise(allBytes, lengthSize, valueSize, delimiterWrapper[0]);
+        delimiterWrapper[0] = getNextDelimiter(lengthSize, valueSize, delimiterWrapper[0]);
+
+        return valueBytes;
+    }
+
+    public static byte[] deserialise(final byte[] allBytes) throws SerialisationException {
+        return deserialise(allBytes, 0);
+    }
+
+    public static byte[] deserialise(final byte[] allBytes, final int delimiter) throws SerialisationException {
+        if (null == allBytes || 0 == allBytes.length) {
             return new byte[0];
         }
 
-        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[startPos]);
-        int currentPropLength;
-        try (final ByteArrayInputStream input = new ByteArrayInputStream(bytes, startPos, numBytesForLength)) {
-            currentPropLength = (int) CompactRawSerialisationUtils.read(input);
+        final int lengthSize = getLengthSize(allBytes, delimiter);
+        int valueSize = getValueSize(allBytes, lengthSize, delimiter);
+        return deserialise(allBytes, lengthSize, valueSize, delimiter);
+    }
+
+    public static byte[] deserialise(final byte[] allBytes, final int lengthSize, final int valueSize, final int delimiter) throws SerialisationException {
+        if (null == allBytes || 0 == allBytes.length) {
+            return new byte[0];
+        }
+
+        return Arrays.copyOfRange(allBytes, delimiter + lengthSize, delimiter + lengthSize + valueSize);
+    }
+
+    public static int getLengthSize(final byte[] allBytes, final int delimiter) throws SerialisationException {
+        return CompactRawSerialisationUtils.decodeVIntSize(allBytes[delimiter]);
+    }
+
+    public static int getValueSize(final byte[] allBytes, final int delimiter) throws SerialisationException {
+        return getValueSize(allBytes, getLengthSize(allBytes, delimiter), delimiter);
+    }
+
+    public static int getValueSize(final byte[] allBytes, final int lengthSize, final int delimiter) throws SerialisationException {
+        try (final ByteArrayInputStream input = new ByteArrayInputStream(allBytes, delimiter, lengthSize)) {
+            return (int) CompactRawSerialisationUtils.read(input);
         } catch (final IOException e) {
             throw new SerialisationException("Exception reading length of property", e);
         }
-
-        return Arrays.copyOfRange(bytes, startPos + numBytesForLength, startPos + numBytesForLength + currentPropLength);
     }
 
-    public static int getLastDelimiter(final byte[] allBytes, final byte[] fieldBytes, final int lastDelimiter) {
-        return lastDelimiter + CompactRawSerialisationUtils.decodeVIntSize(allBytes[lastDelimiter]) + fieldBytes.length;
+    public static int getNextDelimiter(final byte[] allBytes, final int delimiter) throws SerialisationException {
+        final int lengthSize = getLengthSize(allBytes, delimiter);
+        final int valueSize = getValueSize(allBytes, lengthSize, delimiter);
+        return getNextDelimiter(lengthSize, valueSize, delimiter);
+    }
+
+    public static int getNextDelimiter(final byte[] allBytes, final byte[] valueBytes, final int lastDelimiter) {
+        return getNextDelimiter(allBytes, valueBytes.length, lastDelimiter);
+    }
+
+    public static int getNextDelimiter(final byte[] allBytes, final int valueSize, final int lastDelimiter) {
+        return getNextDelimiter(CompactRawSerialisationUtils.decodeVIntSize(allBytes[lastDelimiter]), valueSize, lastDelimiter);
+    }
+
+    public static int getNextDelimiter(final int lengthSize, final int valueSize, final int lastDelimiter) {
+        return lastDelimiter + lengthSize + valueSize;
+    }
+
+    public static <T> byte[] getValueBytes(final ToBytesSerialiser<T> serialiser, final T value) throws SerialisationException {
+        final byte[] valueBytes;
+        if (null == serialiser) {
+            valueBytes = EMPTY_BYTES;
+        } else if (null == value) {
+            valueBytes = serialiser.serialiseNull();
+        } else {
+            valueBytes = serialiser.serialise(value);
+        }
+        return valueBytes;
+    }
+
+    private static <T> T getValue(final ToBytesSerialiser<T> serialiser, final byte[] valueBytes) throws SerialisationException {
+        if (0 == valueBytes.length) {
+            return serialiser.deserialiseEmpty();
+        }
+        return serialiser.deserialise(valueBytes);
     }
 }
 
