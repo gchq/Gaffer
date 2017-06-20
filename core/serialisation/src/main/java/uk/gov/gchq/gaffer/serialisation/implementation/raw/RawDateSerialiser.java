@@ -21,6 +21,7 @@ import java.util.Date;
 
 /**
  * @deprecated this is unable to preserve object ordering.
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawDateSerialiser}.
  * Serialises {@link Date}s to an array of bytes of length 8 by directly converting the underlying long to a
  * byte array. This serialiser preserves ordering, i.e. if date1 is less than date2
  * then serialise(date1) is less than serialise(date2)

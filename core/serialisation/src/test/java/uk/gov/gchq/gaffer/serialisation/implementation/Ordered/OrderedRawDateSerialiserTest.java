@@ -58,9 +58,21 @@ public class OrderedRawDateSerialiserTest {
 
     @Test
     public void checkOrderPreserved() {
-        Date now = new Date(1L);
-        Date aDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000L);
-        assertTrue(compare(SERIALISER.serialise(now), SERIALISER.serialise(aDayLater)) < 0);
+        Date testDate = new Date(1L);
+        Date aDayLater = new Date(86400000L);
+        assertTrue(compare(SERIALISER.serialise(testDate), SERIALISER.serialise(aDayLater)) < 0);
+    }
+
+    @Test
+    public void checkMultipleDatesOrderPreserved() {
+        Date startTestDate = new Date(1L);
+        Date newTestDate;
+        for (Long time = 2L; time > 10L; time++) {
+            newTestDate = new Date(time);
+            assertTrue(compare(SERIALISER.serialise(startTestDate), SERIALISER.serialise(newTestDate)) < 0);
+            startTestDate = new Date(time);
+        }
+
     }
 
     private static int compare(final byte[] first, final byte[] second) {
