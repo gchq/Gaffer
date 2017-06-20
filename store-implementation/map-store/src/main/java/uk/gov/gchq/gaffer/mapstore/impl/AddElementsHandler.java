@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -32,69 +34,77 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link MapStore}.
  */
 public class AddElementsHandler implements OperationHandler<AddElements> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
+
     @Override
     public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        doOperation(addElements, (MapStore) store);
+        addElements(addElements.getInput(), (MapStore) store);
         return null;
-    }
-
-    private void doOperation(final AddElements addElements, final MapStore mapStore) throws OperationException {
-        addElements(addElements.getInput(), mapStore);
     }
 
     private void addElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
         final Schema schema = mapStore.getSchema();
 
-        // Aggregate the new elements before adding them to the map.
-        final Iterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(elements, schema);
+        final int bufferSize = mapStore.getProperties().getIngestBufferSize();
 
-        for (final Element element : aggregatedElements) {
+        if (bufferSize < 1) {
+            // Add all elements directly
+            addBatch(mapImpl, schema, elements);
+        } else {
+            LOGGER.info("Adding elements in batches, batch size = " + bufferSize);
+            int count = 0;
+            final List<Element> batch = new ArrayList<>(bufferSize);
+            for (final Element element : elements) {
+                if (null != element) {
+                    batch.add(element);
+                    count++;
+                    if (count >= bufferSize) {
+                        addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));
+                        batch.clear();
+                        count = 0;
+                    }
+                }
+            }
+
+            if (count > 0) {
+                addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));
+            }
+        }
+    }
+
+    private void addBatch(final MapImpl mapImpl, final Schema schema, final Iterable<? extends Element> elements) {
+        for (final Element element : elements) {
             if (null != element) {
-                final Element elementForIndexing = updateElements(element, schema, mapImpl);
+                final Element elementForIndexing = addElement(element, schema, mapImpl);
 
                 // Update entityIdToElements and edgeIdToElements if index required
                 if (mapImpl.maintainIndex) {
-                    updateIdIndexes(elementForIndexing, mapImpl);
+                    updateElementIndex(elementForIndexing, mapImpl);
                 }
             }
         }
     }
 
-    private Element updateElements(final Element element, final Schema schema, final MapImpl mapImpl) {
+    private Element addElement(final Element element, final Schema schema, final MapImpl mapImpl) {
         final Element elementForIndexing;
         if (!mapImpl.isAggregationEnabled(element)) {
-            elementForIndexing = updateNonAggElements(element, schema, mapImpl);
+            elementForIndexing = addNonAggElement(element, schema, mapImpl);
         } else {
-            elementForIndexing = updateAggElements(element, schema, mapImpl);
+            elementForIndexing = addAggElement(element, schema, mapImpl);
         }
         return elementForIndexing;
     }
 
-    private void updateIdIndexes(final Element element, final MapImpl mapImpl) {
-        if (element instanceof Entity) {
-            final Entity entity = (Entity) element;
-            final EntityId entityId = new EntitySeed(entity.getVertex());
-            mapImpl.entityIdToElements.put(entityId, element);
-        } else {
-            final Edge edge = (Edge) element;
-            final EntityId sourceEntityId = new EntitySeed(edge.getSource());
-            final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
-            mapImpl.entityIdToElements.put(sourceEntityId, element);
-            mapImpl.entityIdToElements.put(destinationEntityId, element);
-
-            final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-            mapImpl.edgeIdToElements.put(edgeId, edge);
-        }
-    }
-
-    private Element updateAggElements(final Element element, final Schema schema, final MapImpl mapImpl) {
+    private Element addAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
         final GroupedProperties properties = new GroupedProperties(element.getGroup());
@@ -111,7 +121,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         return elementWithGroupByProperties;
     }
 
-    private Element updateNonAggElements(final Element element, final Schema schema, final MapImpl mapImpl) {
+    private Element addNonAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
         final Element elementClone = element.emptyClone();
 
         // Copy properties that exist in the schema
@@ -128,5 +138,22 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         map.merge(elementClone, 1, (a, b) -> a + b);
 
         return elementClone;
+    }
+
+    private void updateElementIndex(final Element element, final MapImpl mapImpl) {
+        if (element instanceof Entity) {
+            final Entity entity = (Entity) element;
+            final EntityId entityId = new EntitySeed(entity.getVertex());
+            mapImpl.entityIdToElements.put(entityId, element);
+        } else {
+            final Edge edge = (Edge) element;
+            final EntityId sourceEntityId = new EntitySeed(edge.getSource());
+            final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
+            mapImpl.entityIdToElements.put(sourceEntityId, element);
+            mapImpl.entityIdToElements.put(destinationEntityId, element);
+
+            final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
+            mapImpl.edgeIdToElements.put(edgeId, edge);
+        }
     }
 }

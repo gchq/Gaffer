@@ -61,12 +61,12 @@ public class MapImpl {
     final Map<String, Map<Element, Integer>> nonAggElements = new HashMap<>();
 
     /**
-     * entityIdToElements is a map from an EntityId to the element key from aggElements
+     * entityIdToElements is a map from an EntityId to the element key from aggElements or nonAggElements
      */
     final MultiMap<EntityId, Element> entityIdToElements;
 
     /**
-     * edgeIdToElements is a map from an EdgeId to the element key from aggElements
+     * edgeIdToElements is a map from an EdgeId to the element key from aggElements or nonAggElements
      */
     final MultiMap<EdgeId, Element> edgeIdToElements;
 
@@ -121,14 +121,6 @@ public class MapImpl {
 
     protected Set<String> getNonGroupByProperties(final String group) {
         return groupToNonGroupByProperties.get(group);
-    }
-
-    protected Map<String, Set<String>> getGroupByPropertiesMap() {
-        return Collections.unmodifiableMap(groupToGroupByProperties);
-    }
-
-    protected Map<String, Set<String>> getNonGroupByPropertiesMap() {
-        return Collections.unmodifiableMap(groupToNonGroupByProperties);
     }
 
     protected boolean isAggregationEnabled(final Element element) {
