@@ -210,7 +210,7 @@ public class SchemaTest {
         assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
 
 
-        final ElementAggregator aggregator = edgeDefinition.getAggregator();
+        final ElementAggregator aggregator = edgeDefinition.getFullAggregator();
         final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
         assertEquals(3, aggContexts.size());
 

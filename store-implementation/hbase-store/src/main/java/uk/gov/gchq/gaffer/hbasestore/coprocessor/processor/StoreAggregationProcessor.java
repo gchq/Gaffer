@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.hbasestore.utils.HBaseUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class StoreAggregationProcessor implements GafferScannerProcessor {
     private final ElementSerialisation serialisation;
@@ -68,16 +67,12 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
                 aggregator = null;
             } else {
                 final String group = firstElementCell.getGroup();
-                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
                 if (null == aggregator) {
-                    aggregator = schema.getElement(group).getAggregator();
-                    final Properties properties = firstElementCell.getElement().getProperties();
-                    properties.remove(schemaGroupBy);
-                    aggregatedProperties = properties;
+                    aggregator = schema.getElement(group).getIngestAggregator();
+                    aggregatedProperties = firstElementCell.getElement().getProperties();
                 }
 
                 final Properties properties = elementCell.getElement().getProperties();
-                properties.remove(schemaGroupBy);
                 aggregatedProperties = aggregator.apply(properties, aggregatedProperties);
             }
         }
