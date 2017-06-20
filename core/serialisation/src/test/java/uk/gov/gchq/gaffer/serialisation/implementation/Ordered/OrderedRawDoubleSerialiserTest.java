@@ -54,6 +54,16 @@ public class OrderedRawDoubleSerialiserTest {
     }
 
     @Test
+    public void checkOrderPreserved() throws SerialisationException {
+        byte[] startBytes = SERIALISER.serialise(0d);
+        for (Double test = 1d; test >= 10d; test++) {
+            byte[] newTestBytes = SERIALISER.serialise(test);
+            assertTrue(compare(newTestBytes, startBytes) < 0);
+            startBytes = newTestBytes;
+        }
+    }
+
+    @Test
     public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
@@ -63,4 +73,14 @@ public class OrderedRawDoubleSerialiserTest {
         assertTrue(SERIALISER.canHandle(Double.class));
     }
 
+    private static int compare(final byte[] first, final byte[] second) {
+        for (int i = 0; i < first.length; i++) {
+            if (first[i] < second[i]) {
+                return -1;
+            } else if (first[i] > second[i]) {
+                return 1;
+            }
+        }
+        return 0;
+    }
 }

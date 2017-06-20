@@ -54,6 +54,16 @@ public class OrderedRawLongSerialiserTest {
     }
 
     @Test
+    public void checkOrderPreserved() throws SerialisationException {
+        byte[] startBytes = SERIALISER.serialise(0L);
+        for (Long test = 1L; test >= 10L; test++) {
+            byte[] newTestBytes = SERIALISER.serialise(test);
+            assertTrue(compare(newTestBytes, startBytes) < 0);
+            startBytes = newTestBytes;
+        }
+    }
+
+    @Test
     public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
@@ -61,5 +71,16 @@ public class OrderedRawLongSerialiserTest {
     @Test
     public void canSerialiseLongClass() {
         assertTrue(SERIALISER.canHandle(Long.class));
+    }
+
+    private static int compare(final byte[] first, final byte[] second) {
+        for (int i = 0; i < first.length; i++) {
+            if (first[i] < second[i]) {
+                return -1;
+            } else if (first[i] > second[i]) {
+                return 1;
+            }
+        }
+        return 0;
     }
 }

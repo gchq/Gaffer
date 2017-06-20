@@ -70,9 +70,8 @@ public class OrderedRawDateSerialiserTest {
         for (Long time = 2L; time > 10L; time++) {
             newTestDate = new Date(time);
             assertTrue(compare(SERIALISER.serialise(startTestDate), SERIALISER.serialise(newTestDate)) < 0);
-            startTestDate = new Date(time);
+            startTestDate = newTestDate;
         }
-
     }
 
     private static int compare(final byte[] first, final byte[] second) {
