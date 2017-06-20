@@ -18,17 +18,17 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.ByteParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.DateParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.DoubleParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.FloatParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.InLineHyperLogLogPlusParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.IntegerParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.LongParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.ShortParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.TypeValueParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DateParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.FloatParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.InLineHyperLogLogPlusParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ShortParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.TypeValueParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 

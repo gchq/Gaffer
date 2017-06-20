@@ -14,35 +14,35 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
-public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
-
-    private static final long serialVersionUID = -5787565190377540201L;
+public class LongParquetSerialiser implements ParquetSerialiser<Long> {
+    private static final long serialVersionUID = 1336116011156359680L;
 
     @Override
     public String getParquetSchema(final String colName) {
-        return "optional float " + colName + ";";
+        return "optional int64 " + colName + ";";
     }
 
     @Override
-    public Object[] serialise(final Float object) throws SerialisationException {
+    public Object[] serialise(final Long object) throws SerialisationException {
         return new Object[]{object};
     }
 
     @Override
-    public Float deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Float) {
-            return (Float) objects[0];
+    public Long deserialise(final Object[] objects) throws SerialisationException {
+        if (objects.length == 1 && objects[0] instanceof Long) {
+            return (Long) objects[0];
         }
         return null;
     }
 
     @Override
-    public Float deserialiseEmpty() throws SerialisationException {
-        return null;
+    public Long deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Cannot deserialise the empty bytes to a Long");
     }
 
     @Override
@@ -57,6 +57,6 @@ public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Float.class.equals(clazz);
+        return Long.class.equals(clazz);
     }
 }

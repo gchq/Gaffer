@@ -88,18 +88,20 @@ public final class ParquetFilterUtils {
         } else {
             final Set<String> viewEdgeGroups = view.getEdgeGroups();
             final Set<String> viewEntityGroups = view.getEntityGroups();
-            Boolean needsValidation = false;
+            boolean needsValidation = false;
             if (viewEdgeGroups != null || viewEntityGroups != null) {
                 HashMap<Path, FilterPredicate> pathToFilter = new HashMap<>();
                 if (viewEdgeGroups != null) {
-                    Tuple2<Map<Path, FilterPredicate>, Boolean> results = edgeViewPathToFilter(includeIncomingOutgoingType, seedMachingType, directedType, seeds, schemaUtils, groupToIndex, view, dataDir);
+                    Tuple2<Map<Path, FilterPredicate>, Boolean> results = edgeViewPathToFilter(
+                            includeIncomingOutgoingType, seedMachingType, directedType, seeds, schemaUtils, groupToIndex, view, dataDir);
                     if (results.get1()) {
                         needsValidation = true;
                     }
                     pathToFilter.putAll(results.get0());
                 }
                 if (viewEntityGroups != null) {
-                    Tuple2<Map<Path, FilterPredicate>, Boolean> results = entityViewPathToFilter(includeIncomingOutgoingType, seedMachingType, directedType, seeds, schemaUtils, groupToIndex, view, dataDir);
+                    Tuple2<Map<Path, FilterPredicate>, Boolean> results = entityViewPathToFilter(
+                            includeIncomingOutgoingType, seedMachingType, directedType, seeds, schemaUtils, groupToIndex, view, dataDir);
                     if (results.get1()) {
                         needsValidation = true;
                     }
@@ -142,7 +144,7 @@ public final class ParquetFilterUtils {
 
     private static Tuple2<Map<Path, FilterPredicate>, Boolean> edgeViewPathToFilter(
             final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-            final SeedMatching.SeedMatchingType seedMachingType,
+            final SeedMatching.SeedMatchingType seedMatchingType,
             final DirectedType directedType,
             final Iterable<? extends ElementId> seeds,
             final SchemaUtils schemaUtils,
@@ -151,20 +153,21 @@ public final class ParquetFilterUtils {
             final String dataDir) throws SerialisationException, OperationException {
         final Map<Path, FilterPredicate> pathToFilter = new HashMap<>();
         final Set<String> indexKeys = groupToIndex.keySet();
-        Boolean needValidation = false;
+        boolean needValidation = false;
         for (final String edgeGroup : view.getEdgeGroups()) {
             if (indexKeys.contains(edgeGroup)) {
-                // build up group filter
+                // Build group filter
                 final Tuple2<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, edgeGroup, directedType, false);
                 if (groupFilter != null && groupFilter.get1()) {
                     needValidation = true;
                 }
-                // build up seed filter
-                final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(includeIncomingOutgoingType, seedMachingType, seeds, schemaUtils, edgeGroup, false, groupToIndex);
+                // Build seed filter
+                final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(
+                        includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, edgeGroup, false, groupToIndex);
                 if (seeds != null && tempPathToFilter.isEmpty()) {
                     return new Tuple2<>(new HashMap<>(), false);
                 }
-                // add filter to map
+                // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
                         pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + edgeGroup), groupFilter.get0());
@@ -199,17 +202,17 @@ public final class ParquetFilterUtils {
         Boolean needValidation = false;
         for (final String entityGroup : view.getEntityGroups()) {
             if (indexKeys.contains(entityGroup)) {
-                // build up group filter
+                // Build group filter
                 final Tuple2<FilterPredicate, Boolean> groupFilter = buildGroupFilter(view, schemaUtils, entityGroup, directedType, true);
                 if (groupFilter != null && groupFilter.get1()) {
                     needValidation = true;
                 }
-                // build up seed filter
+                // Build seed filter
                 final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(includeIncomingOutgoingType, seedMachingType, seeds, schemaUtils, entityGroup, true, groupToIndex);
                 if (seeds != null && tempPathToFilter.isEmpty()) {
                     return new Tuple2<>(new HashMap<>(), false);
                 }
-                // add filter to map
+                // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
                         pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + entityGroup), groupFilter.get0());
@@ -254,17 +257,16 @@ public final class ParquetFilterUtils {
                         prepSeeds(seeds, identifier, schemaUtils, group, comparator);
                 final ArrayList<Object[]> sortedSeeds = prepSeedsResult.get0();
                 final HashMap<Object[], Tuple2<Object, DirectedType>> seed2Parts = prepSeedsResult.get1();
-                LOGGER.debug("Sorted seeds: {}", sortedSeeds);
-                // build graph path to filter
+                // Build graph path to filter
                 pathToFilter.putAll(buildSeedFilterForIndex(includeIncomingOutgoingType,
                         seedMachingType, sortedSeeds, identifier, groupToIndex.get(group), schemaUtils, group,
                         isEntityGroup, seed2Parts, comparator));
                 if (!isEntityGroup) {
-                    // build reverseEdges path to filter
+                    // Build reverseEdges path to filter
                     final Map<Path, FilterPredicate> reverseEdgePathToFilter = buildSeedFilterForIndex(includeIncomingOutgoingType,
                             seedMachingType, sortedSeeds, ParquetStoreConstants.DESTINATION, groupToIndex.get(group + "_reversed"), schemaUtils, group,
                             false, seed2Parts, comparator);
-                    // merge results
+                    // Merge results
                     pathToFilter.putAll(reverseEdgePathToFilter);
                 }
 
@@ -273,12 +275,17 @@ public final class ParquetFilterUtils {
         return pathToFilter;
     }
 
-    private static Map<Path, FilterPredicate> buildSeedFilterForIndex(final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                             final SeedMatching.SeedMatchingType seedMachingType,
-                                             final List<Object[]> sortedSeeds, final String identifier,
-                                            final List<Tuple3<Object[], Object[], String>> currentIndex,
-                                            final SchemaUtils schemaUtils, final String group,
-                                            final boolean isEntityGroup, final Map<Object[], Tuple2<Object, DirectedType>> seed2Parts, final SeedComparator comparator) throws OperationException, SerialisationException {
+    private static Map<Path, FilterPredicate> buildSeedFilterForIndex(
+            final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
+            final SeedMatching.SeedMatchingType seedMachingType,
+            final List<Object[]> sortedSeeds,
+            final String identifier,
+            final List<Tuple3<Object[], Object[], String>> currentIndex,
+            final SchemaUtils schemaUtils,
+            final String group,
+            final boolean isEntityGroup,
+            final Map<Object[], Tuple2<Object, DirectedType>> seed2Parts,
+            final SeedComparator comparator) throws OperationException, SerialisationException {
         Map<Path, FilterPredicate> newPathToFilter = new HashMap<>();
         final Iterator<Object[]> sortedSeedsIter = sortedSeeds.iterator();
         final Iterator<Tuple3<Object[], Object[], String>> indexIter = currentIndex.iterator();
@@ -572,14 +579,14 @@ public final class ParquetFilterUtils {
         return seedFilter;
     }
 
-    protected static Tuple2<FilterPredicate, Boolean> buildGroupFilter(final View view, final SchemaUtils schemaUtils, final String group,
-                                                    final DirectedType directedType, final boolean isEntity) throws SerialisationException {
+    protected static Tuple2<FilterPredicate, Boolean> buildGroupFilter(final View view,
+                                                                       final SchemaUtils schemaUtils,
+                                                                       final String group,
+                                                                       final DirectedType directedType,
+                                                                       final boolean isEntity) throws SerialisationException {
         Tuple2<FilterPredicate, Boolean> groupFilter = null;
-        LOGGER.debug("Group {}", group);
-        LOGGER.debug("View {}", view);
         final ViewElementDefinition groupView = view.getElement(group);
         if (groupView != null) {
-            LOGGER.debug("View Def: {}", groupView);
             List<TupleAdaptedPredicate<String, ?>> preAggFilterFunctions = groupView.getPreAggregationFilterFunctions();
             if (preAggFilterFunctions != null) {
                 for (final TupleAdaptedPredicate<String, ?> filterFunctionContext : preAggFilterFunctions) {
@@ -903,7 +910,8 @@ public final class ParquetFilterUtils {
             } else if ("byte[]".equals(type)) {
                 tempFilter = gt(binaryColumn(path), Binary.fromReusedByteArray((byte[]) parquetObjects[i]));
             } else {
-                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName() + " is not a natively supported type for the IsLessThan filter, therefore execution will take longer to perform this filter.");
+                LOGGER.warn(parquetObjects[i].getClass().getCanonicalName()
+                        + " is not a natively supported type for the IsLessThan filter, therefore execution will take longer to perform this filter.");
                 return null;
             }
             if (filter == null) {

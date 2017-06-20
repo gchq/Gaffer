@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
-
     private static final long serialVersionUID = -3905036281210562157L;
-
-    @Override
-    public Object[] serialiseNull() {
-        return new Object[0];
-    }
-
-    @Override
-    public boolean canHandle(final Class clazz) {
-        return Byte.class.equals(clazz);
-    }
 
     @Override
     public String getParquetSchema(final String colName) {
@@ -64,11 +54,22 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
 
     @Override
     public Byte deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Cannot deserialise the empty bytes to a Byte");
     }
 
     @Override
     public boolean preservesObjectOrdering() {
         return true;
     }
+
+    @Override
+    public Object[] serialiseNull() {
+        return new Object[0];
+    }
+
+    @Override
+    public boolean canHandle(final Class clazz) {
+        return Byte.class.equals(clazz);
+    }
+
 }

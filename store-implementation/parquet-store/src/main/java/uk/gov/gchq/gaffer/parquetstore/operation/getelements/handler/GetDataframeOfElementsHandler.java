@@ -35,7 +35,9 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataframeOfElementsHandler.class);
     @Override
-    public Dataset<Row> doOperation(final GetDataFrameOfElements operation, final Context context, final Store store) throws OperationException {
+    public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
+                                    final Context context,
+                                    final Store store) throws OperationException {
         final User user = context.getUser();
         final SparkSession spark;
         if (user instanceof SparkUser) {
@@ -43,17 +45,20 @@ public class GetDataframeOfElementsHandler implements OutputOperationHandler<Get
         } else {
             throw new OperationException("This operation requires the user to be of type SparkUser.");
         }
-        return getElements(operation, (ParquetStore) store, spark);
+        return doOperation(operation, (ParquetStore) store, spark);
 
     }
 
-    private Dataset<Row> getElements(final GetDataFrameOfElements operation, final ParquetStore store, final SparkSession spark)
-            throws OperationException {
+    private Dataset<Row> doOperation(final GetDataFrameOfElements operation,
+                                     final ParquetStore store,
+                                     final SparkSession spark) throws OperationException {
         if (operation.getView().equals(store.getSchemaUtils().getEmptyView())) {
             LOGGER.info("Retrieving elements as a dataframe");
             final ParquetStoreProperties props = store.getProperties();
-            Dataset<Row> dataset = spark.read().option("mergeSchema", true).parquet(props.getDataDir() + "/" + store.getCurrentSnapshot() + "/graph");
-            //TODO apply views to the returned dataset
+            final Dataset<Row> dataset = spark
+                    .read()
+                    .option("mergeSchema", true)
+                    .parquet(props.getDataDir() + "/" + store.getCurrentSnapshot() + "/graph");
             LOGGER.info("The merged schema that the data is being loaded using is: {}", dataset.schema().treeString());
             return dataset;
         } else {

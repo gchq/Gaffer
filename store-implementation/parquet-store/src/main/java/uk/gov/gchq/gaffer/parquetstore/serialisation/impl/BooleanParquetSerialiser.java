@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
-
     private static final long serialVersionUID = -940386367544733514L;
 
     @Override
@@ -37,12 +37,12 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
         if (objects.length == 1 && objects[0] instanceof Boolean) {
             return (Boolean) objects[0];
         }
-        throw new SerialisationException("Could not getPOJOFromParquetObjects");
+        throw new SerialisationException("Could not deserialise objects to a Boolean");
     }
 
     @Override
     public Boolean deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Trying to de-serialise null to a boolean");
+        throw new SerialisationException("Cannot deserialise the empty bytes to a Boolean");
     }
 
     @Override

@@ -14,35 +14,36 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
-public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
-
-    private static final long serialVersionUID = -9154489454156891490L;
+public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
+    private static final long serialVersionUID = 2058053964286187588L;
 
     @Override
     public String getParquetSchema(final String colName) {
+        // AvroParquetWriter does not support Short
         return "optional int32 " + colName + ";";
     }
 
     @Override
-    public Object[] serialise(final Integer object) throws SerialisationException {
-        return new Object[]{object};
+    public Object[] serialise(final Short object) throws SerialisationException {
+        return new Object[]{object.intValue()};
     }
 
     @Override
-    public Integer deserialise(final Object[] objects) throws SerialisationException {
+    public Short deserialise(final Object[] objects) throws SerialisationException {
         if (objects.length == 1 && objects[0] instanceof Integer) {
-            return (Integer) objects[0];
+            return ((Integer) objects[0]).shortValue();
         }
         return null;
     }
 
     @Override
-    public Integer deserialiseEmpty() throws SerialisationException {
-        return null;
+    public Short deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Cannot deserialise the empty bytes to a Short");
     }
 
     @Override
@@ -57,6 +58,7 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Integer.class.equals(clazz);
+        return Short.class.equals(clazz);
     }
+
 }

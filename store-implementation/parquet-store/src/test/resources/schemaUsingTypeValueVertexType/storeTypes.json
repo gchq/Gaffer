@@ -25,7 +25,7 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.NestedHyperLogLogPlusParquetSerialiser"
+      "serialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.impl.NestedHyperLogLogPlusParquetSerialiser"
     },
     "HyperLogLogPlus.inline": {
       "aggregateFunction": {

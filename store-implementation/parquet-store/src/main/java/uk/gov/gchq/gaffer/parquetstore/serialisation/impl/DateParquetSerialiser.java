@@ -14,40 +14,37 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.TypeValue;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
-public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> {
+import java.util.Date;
 
-    private static final long serialVersionUID = 237193138266936512L;
+public class DateParquetSerialiser implements ParquetSerialiser<Date> {
+    private static final long serialVersionUID = 3798684785664364539L;
 
     @Override
     public String getParquetSchema(final String colName) {
-        return "optional binary " + colName + "_type (UTF8);\n" +
-                "optional binary " + colName + "_value (UTF8);";
+        return "optional int64 " + colName + ";";
     }
 
     @Override
-    public Object[] serialise(final TypeValue object) throws SerialisationException {
-        if (object != null) {
-            return new Object[]{object.getType(), object.getValue()};
-        }
-        return new Object[0];
+    public Object[] serialise(final Date object) throws SerialisationException {
+        return new Object[]{object.getTime()};
     }
 
     @Override
-    public TypeValue deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String) {
-            return new TypeValue((String) objects[0], (String) objects[1]);
+    public Date deserialise(final Object[] objects) throws SerialisationException {
+        if (objects.length == 1 && objects[0] instanceof Long) {
+            return new Date((long) objects[0]);
         }
         return null;
     }
 
     @Override
-    public TypeValue deserialiseEmpty() throws SerialisationException {
-        return null;
+    public Date deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Cannot deserialise the empty bytes to a Date");
     }
 
     @Override
@@ -57,11 +54,11 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
 
     @Override
     public Object[] serialiseNull() {
-        return new Object[0];
+        return new Comparable[0];
     }
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return TypeValue.class.equals(clazz);
+        return Date.class.equals(clazz);
     }
 }

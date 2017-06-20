@@ -112,18 +112,30 @@ public class SchemaUtilsTest {
     @Test
     public void getColumnToSerialiserTest() throws SerialisationException {
         final HashMap<String, String> columnToSerialiser = this.utils.getColumnToSerialiser("BasicEdge");
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.SOURCE));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.StringParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.DESTINATION));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.BooleanParquetSerialiser", columnToSerialiser.get(ParquetStoreConstants.DIRECTED));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.ByteParquetSerialiser", columnToSerialiser.get("property1"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.DoubleParquetSerialiser", columnToSerialiser.get("property2"));
-        assertEquals("uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser", columnToSerialiser.get("property3"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.InLineHyperLogLogPlusParquetSerialiser", columnToSerialiser.get("property4"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.LongParquetSerialiser", columnToSerialiser.get("property5"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.ShortParquetSerialiser", columnToSerialiser.get("property6"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.DateParquetSerialiser", columnToSerialiser.get("property7"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.NestedHyperLogLogPlusParquetSerialiser", columnToSerialiser.get("property8"));
-        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.IntegerParquetSerialiser", columnToSerialiser.get("count"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
+                columnToSerialiser.get(ParquetStoreConstants.SOURCE));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
+                columnToSerialiser.get(ParquetStoreConstants.DESTINATION));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser",
+                columnToSerialiser.get(ParquetStoreConstants.DIRECTED));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ByteParquetSerialiser",
+                columnToSerialiser.get("property1"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DoubleParquetSerialiser",
+                columnToSerialiser.get("property2"));
+        assertEquals("uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser",
+                columnToSerialiser.get("property3"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.InLineHyperLogLogPlusParquetSerialiser",
+                columnToSerialiser.get("property4"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser",
+                columnToSerialiser.get("property5"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.ShortParquetSerialiser",
+                columnToSerialiser.get("property6"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.DateParquetSerialiser",
+                columnToSerialiser.get("property7"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.NestedHyperLogLogPlusParquetSerialiser",
+                columnToSerialiser.get("property8"));
+        assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.IntegerParquetSerialiser",
+                columnToSerialiser.get("count"));
     }
 
     @Test

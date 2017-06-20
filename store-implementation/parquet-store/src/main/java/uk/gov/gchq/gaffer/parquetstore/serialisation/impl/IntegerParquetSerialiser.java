@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
-import java.util.Date;
-
-public class DateParquetSerialiser implements ParquetSerialiser<Date> {
-
-    private static final long serialVersionUID = 3798684785664364539L;
+public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
+    private static final long serialVersionUID = -9154489454156891490L;
 
     @Override
     public String getParquetSchema(final String colName) {
-        return "optional int64 " + colName + ";";
+        return "optional int32 " + colName + ";";
     }
 
     @Override
-    public Object[] serialise(final Date object) throws SerialisationException {
-        return new Object[]{object.getTime()};
+    public Object[] serialise(final Integer object) throws SerialisationException {
+        return new Object[]{object};
     }
 
     @Override
-    public Date deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Long) {
-            return new Date((long) objects[0]);
+    public Integer deserialise(final Object[] objects) throws SerialisationException {
+        if (objects.length == 1 && objects[0] instanceof Integer) {
+            return (Integer) objects[0];
         }
         return null;
     }
 
     @Override
-    public Date deserialiseEmpty() throws SerialisationException {
-        return null;
+    public Integer deserialiseEmpty() throws SerialisationException {
+        throw new SerialisationException("Cannot deserialise the empty bytes to an Integer");
     }
 
     @Override
@@ -54,11 +52,11 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     @Override
     public Object[] serialiseNull() {
-        return new Comparable[0];
+        return new Object[0];
     }
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Date.class.equals(clazz);
+        return Integer.class.equals(clazz);
     }
 }

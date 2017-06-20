@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.parquetstore.serialisation;
+package uk.gov.gchq.gaffer.parquetstore.serialisation.impl;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
 
 import java.io.IOException;
 
 public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
-
     private static final long serialVersionUID = -898356489062346070L;
 
     @Override
@@ -57,12 +57,12 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
 
     @Override
     public HyperLogLogPlus deserialiseEmpty() throws SerialisationException {
-        return null;
+        throw new SerialisationException("Cannot deserialise the empty bytes to a HyperLogLogPlus");
     }
 
     @Override
     public boolean preservesObjectOrdering() {
-        return true;
+        return false;
     }
 
     @Override
