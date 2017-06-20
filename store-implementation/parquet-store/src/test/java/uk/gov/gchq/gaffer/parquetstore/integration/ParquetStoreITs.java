@@ -45,11 +45,9 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
 
-/**
- *
- */
 public class ParquetStoreITs extends AbstractStoreITs {
-    private static final StoreProperties STORE_PROPERTIES = StoreProperties.loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
+    private static final StoreProperties STORE_PROPERTIES = StoreProperties
+            .loadStoreProperties(StreamUtil.storeProps(ParquetStoreITs.class));
 
     @BeforeClass
     public static void setup() {
@@ -59,14 +57,13 @@ public class ParquetStoreITs extends AbstractStoreITs {
     @AfterClass
     public static void cleanUp() throws IOException {
         final FileSystem fs = FileSystem.get(new Configuration());
-            final ParquetStoreProperties props = new ParquetStoreProperties();
-            Path dataDir = new Path(props.getDataDir());
+        final ParquetStoreProperties props = new ParquetStoreProperties();
+        Path dataDir = new Path(props.getDataDir());
+        fs.delete(dataDir, true);
+        while (fs.listStatus(dataDir.getParent()).length == 0) {
+            dataDir = dataDir.getParent();
             fs.delete(dataDir, true);
-            while (fs.listStatus(dataDir.getParent()).length == 0) {
-                dataDir = dataDir.getParent();
-                fs.delete(dataDir, true);
-            }
-
+        }
     }
 
     public ParquetStoreITs() {

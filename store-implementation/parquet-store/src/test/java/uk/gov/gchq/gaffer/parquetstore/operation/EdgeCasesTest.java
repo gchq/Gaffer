@@ -56,9 +56,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-/**
- *
- */
 public class EdgeCasesTest {
 
     private static Logger LOGGER = LoggerFactory.getLogger(EdgeCasesTest.class);

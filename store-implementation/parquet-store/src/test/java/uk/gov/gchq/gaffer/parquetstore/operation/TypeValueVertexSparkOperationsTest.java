@@ -34,9 +34,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
 public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @BeforeClass

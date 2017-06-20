@@ -39,9 +39,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- *
- */
 public class DataGen {
 
     private static final String EntityGroup1 = "BasicEntity";

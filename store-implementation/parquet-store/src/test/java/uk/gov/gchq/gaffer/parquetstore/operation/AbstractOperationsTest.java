@@ -49,11 +49,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
-/**
- *
- */
 public abstract class AbstractOperationsTest {
-
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractOperationsTest.class);
     static User USER = new User();
     Graph graph;
@@ -69,7 +65,6 @@ public abstract class AbstractOperationsTest {
 
     @AfterClass
     public static void cleanUpData() throws IOException {
-        LOGGER.info("Cleaning up the data");
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
             final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                     StreamUtil.storeProps(AbstractOperationsTest.class));
