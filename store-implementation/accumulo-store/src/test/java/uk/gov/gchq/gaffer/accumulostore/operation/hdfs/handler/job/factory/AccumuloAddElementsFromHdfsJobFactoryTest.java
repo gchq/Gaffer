@@ -19,7 +19,6 @@ import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -30,6 +29,7 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -141,7 +141,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write(i + "\n");
         }
         writer.close();
-        final SplitTable splitTable = new SplitTable.Builder()
+        final SplitStore splitTable = new SplitStore.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new User());
@@ -205,7 +205,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write(i + "\n");
         }
         writer.close();
-        final SplitTable splitTable = new SplitTable.Builder()
+        final SplitStore splitTable = new SplitStore.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new User());
@@ -269,7 +269,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
             writer.write(i + "\n");
         }
         writer.close();
-        final SplitTable splitTable = new SplitTable.Builder()
+        final SplitStore splitTable = new SplitStore.Builder()
                 .inputPath(splitsFile)
                 .build();
         store.execute(splitTable, new User());

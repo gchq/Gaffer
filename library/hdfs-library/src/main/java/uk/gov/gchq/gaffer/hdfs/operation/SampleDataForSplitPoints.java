@@ -13,23 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
+package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
-import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
+import uk.gov.gchq.gaffer.commonutil.FieldUtil;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
+import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
+import uk.gov.gchq.koryphe.tuple.n.Tuple3;
 import java.util.List;
 import java.util.Map;
 
 
 /**
- * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link SplitTable} operation or an
+ * The <code>SampleDataForSplitPoints</code> operation is for creating a splits file, either for use in a {@link uk.gov.gchq.gaffer.operation.impl.SplitStore} operation or an
  * {@link uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs} operation.
  * This operation requires an input and output path as well as a path to a file to use as the resultingSplitsFile.
  * It order to be generic and deal with any type of input file you also need to provide a
@@ -44,22 +48,42 @@ public class SampleDataForSplitPoints implements
         MapReduce,
         Options {
 
+    @Required
     private String resultingSplitsFilePath;
+
     private boolean validate = true;
-    private float proportionToSample;
+    private float proportionToSample = 0.01f;
 
     /**
      * Used to generate elements from the Hdfs files.
      * For Avro data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.AvroMapperGenerator}.
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
+    @Required
     private String mapperGeneratorClassName;
+
+    @Required
     private List<String> inputPaths;
+
+    @Required
     private String outputPath;
+
+    @Required
     private JobInitialiser jobInitialiser;
+
     private Integer numMapTasks;
     private Map<String, String> options;
     private Class<? extends CompressionCodec> compressionCodec = GzipCodec.class;
+
+    @Override
+    public ValidationResult validate() {
+        final ValidationResult result = Operation.super.validate();
+        result.add(FieldUtil.validateRequiredFields(
+                new Tuple3<>("proportionToSample must be greater than 0", proportionToSample, new IsMoreThan(0f))
+        ));
+
+        return result;
+    }
 
     public SampleDataForSplitPoints() {
         setNumReduceTasks(1);
@@ -181,6 +205,7 @@ public class SampleDataForSplitPoints implements
     public void setOptions(final Map<String, String> options) {
         this.options = options;
     }
+
 
     public static class Builder extends Operation.BaseBuilder<SampleDataForSplitPoints, Builder>
             implements MapReduce.Builder<SampleDataForSplitPoints, Builder>,

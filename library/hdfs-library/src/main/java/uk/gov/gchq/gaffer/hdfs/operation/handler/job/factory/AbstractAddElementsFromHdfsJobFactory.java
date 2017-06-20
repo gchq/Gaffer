@@ -26,7 +26,10 @@ import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
 
 
-public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
+public abstract class AbstractAddElementsFromHdfsJobFactory {
+    public static final String SCHEMA = "schema";
+    public static final String MAPPER_GENERATOR = "mapperGenerator";
+    public static final String VALIDATE = "validate";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAddElementsFromHdfsJobFactory.class);
 
@@ -39,7 +42,6 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
      * @return the created job
      * @throws IOException for IO issues
      */
-    @Override
     public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
         final JobConf jobConf = createJobConf(operation, store);
         setupJobConf(jobConf, operation, store);
@@ -87,5 +89,4 @@ public abstract class AbstractAddElementsFromHdfsJobFactory implements AddElemen
     protected String getJobName(final String mapperGenerator, final String outputPath) {
         return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
-
 }

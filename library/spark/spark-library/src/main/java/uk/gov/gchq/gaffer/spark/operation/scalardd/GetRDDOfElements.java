@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
 import uk.gov.gchq.gaffer.commonutil.FieldUtil;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
@@ -42,6 +43,7 @@ public class GetRDDOfElements implements
         Options {
 
     private Map<String, String> options;
+    @Required
     private SparkContext sparkContext;
     private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;

@@ -20,12 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory.MAPPER_GENERATOR;
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory.VALIDATE;
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractSampleDataForSplitPointsJobFactory.SCHEMA;
 
 
 /**
@@ -50,15 +53,15 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
 
     @Override
     protected void setup(final Context context) {
-        doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
+        doValidation = Boolean.parseBoolean(context.getConfiguration().get(VALIDATE));
         try {
-            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+            schema = Schema.fromJson(context.getConfiguration().get(SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         elementValidator = new ElementValidator(schema);
 
-        final String generatorClass = context.getConfiguration().get(AddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
+        final String generatorClass = context.getConfiguration().get(MAPPER_GENERATOR);
         try {
             mapperGenerator = Class.forName(generatorClass).asSubclass(MapperGenerator.class).newInstance();
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {

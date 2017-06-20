@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -206,7 +207,7 @@ public class AddElementsFromHdfsIT {
         properties.setKeyPackageClass(keyPackageClass.getName());
         properties.setInstance("instance_" + keyPackageClass.getName());
 
-        final AccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
         store.initialise(schema, properties);
 
         return new Graph.Builder()
@@ -225,6 +226,13 @@ public class AddElementsFromHdfsIT {
         public Element _apply(final String domainObject) {
             final String[] parts = domainObject.split(",");
             return new Entity(parts[0], parts[1]);
+        }
+    }
+
+    private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
+        @Override
+        public List<String> getTabletServers() throws StoreException {
+            return Arrays.asList("1", "2", "3");
         }
     }
 }

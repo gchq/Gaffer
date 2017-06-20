@@ -150,7 +150,7 @@ where:
 To apply these split points to the table, run:
 
 ```java
-SplitTable splitTable = new SplitTable.Builder()
+SplitStore splitTable = new SplitStore.Builder()
         .inputPath(splitsFilePath)
         .build();
 graph.execute(splitTable, new User());
@@ -280,7 +280,6 @@ The following properties can also be specified in the properties file. If they a
 - `accumulo.maxBufferSizeForBatchWriterInBytes`: The size of the buffer in bytes used in Accumulo `BatchWriter`s when data is being ingested. The default value is 1000000.
 - `accumulo.maxTimeOutForBatchWriterInMilliseconds`: The maximum latency used in Accumulo `BatchWriter`s when data is being ingested. Th default value is 1000, i.e. 1 second.
 - `accumulo.numThreadsForBatchWriter`: The number of threads used in Accumulo `BatchWriter`s when data is being ingested. The default value is 10.
-- `accumulo.splits.file.path`: The path in HDFS where a splits file will be created when performing a `AddElementsFromHdfs` bulk import operation. The default value is `/data/splits.txt`.
 - `accumulo.file.replication`: The number of replicas of each file in tables created by Gaffer. If this is not set then your general Accumulo setting will apply, which is normally the same as the default on your HDFS instance.
 - `gaffer.store.accumulo.enable.validator.iterator`: This specifies whether the validation iterator is applied. The default value is true.
 

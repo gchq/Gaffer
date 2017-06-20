@@ -19,8 +19,9 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.SampleDataAndCreateSplitsFileTool;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.SampleDataForSplitPointsJobFactory;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.SampleDataAndCreateSplitsFileTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -49,11 +50,13 @@ public class SampleDataForSplitPointsHandler implements OperationHandler<SampleD
             throw new OperationException(e.getMessage(), e);
         }
 
-        final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(operation, store);
+        final SampleDataAndCreateSplitsFileTool sampleTool = new SampleDataAndCreateSplitsFileTool(new SampleDataForSplitPointsJobFactory(), operation, store);
         try {
             ToolRunner.run(sampleTool, new String[0]);
         } catch (final Exception e) {
             throw new OperationException(e.getMessage(), e);
         }
+
+        LOGGER.info("Finished calculating splits");
     }
 }

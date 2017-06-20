@@ -2,8 +2,8 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class SampleDataForSplitPointsTest implements OperationTest {
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
         try {
             op.setNumReduceTasks(10);
-        } catch(final IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             return;
         }
         fail();

@@ -46,7 +46,7 @@ public class ToSetExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public Set<? extends Element> withToSetOperation() {
@@ -59,6 +59,6 @@ public class ToSetExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }
