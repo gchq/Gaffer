@@ -82,7 +82,7 @@ public class TypeDefinition {
     /**
      * @return the {@link Serialiser} for the property.
      */
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Serialiser getSerialiser() {
         return serialiser;
     }
@@ -94,6 +94,7 @@ public class TypeDefinition {
         this.serialiser = serialiser;
     }
 
+    @JsonIgnore
     public String getSerialiserClass() {
         if (null == serialiser) {
             return null;
@@ -102,6 +103,7 @@ public class TypeDefinition {
         return serialiser.getClass().getName();
     }
 
+    @JsonIgnore
     public void setSerialiserClass(final String clazz) {
         if (null == clazz) {
             this.serialiser = null;
