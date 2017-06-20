@@ -1,3 +1,3 @@
 {
-  "vertexSerialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.LongParquetSerialiser"
+  "vertexSerialiserClass": "uk.gov.gchq.gaffer.parquetstore.serialisation.impl.LongParquetSerialiser"
 }
