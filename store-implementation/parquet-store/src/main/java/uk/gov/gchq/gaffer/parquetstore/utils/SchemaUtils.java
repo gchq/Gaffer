@@ -35,6 +35,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,6 +48,7 @@ public class SchemaUtils {
     private final Schema gafferSchema;
     private final Set<String> entityGroups;
     private final Set<String> edgeGroups;
+    private final Set<String> allGroups;
     private final HashMap<String, org.apache.avro.Schema> groupToAvroSchema;
     private final HashMap<String, StructType> groupToSparkSchema;
     private final HashMap<String, HashMap<String, String>> groupColumnToSerialiserName;
@@ -61,6 +63,9 @@ public class SchemaUtils {
         this.gafferSchema = gafferSchema;
         this.entityGroups = gafferSchema.getEntityGroups();
         this.edgeGroups = gafferSchema.getEdgeGroups();
+        this.allGroups = new HashSet<>();
+        this.allGroups.addAll(this.entityGroups);
+        this.allGroups.addAll(this.edgeGroups);
         this.groupToAvroSchema = new HashMap<>();
         this.groupToSparkSchema = new HashMap<>();
         this.groupToObjectConverter = new HashMap<>();
@@ -301,6 +306,10 @@ public class SchemaUtils {
 
     public Set<String> getEdgeGroups() {
         return edgeGroups;
+    }
+
+    public Set<String> getGroups() {
+        return allGroups;
     }
 
     public Schema getGafferSchema() {

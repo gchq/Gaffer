@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
@@ -42,14 +43,13 @@ import java.io.IOException;
 import java.util.Iterator;
 
 public class AddElementsHandler implements OperationHandler<AddElements> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
     private static final String GRAPH = "/graph";
 
     @Override
     public Void doOperation(final AddElements operation,
-                            final Context context, final Store store)
-            throws OperationException {
+                            final Context context,
+                            final Store store) throws OperationException {
         final User user = context.getUser();
         final SparkSession spark;
         if (user instanceof SparkUser) {
@@ -82,8 +82,8 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             }
             // Write the data out
             LOGGER.info("Starting to write the unsorted Parquet data to " + tempDirString + " split by group");
-            final Iterable input = addElementsOperation.getInput();
-            final Iterator inputIter = input.iterator();
+            final Iterable<? extends Element> input = addElementsOperation.getInput();
+            final Iterator<? extends Element> inputIter = input.iterator();
             new WriteUnsortedData(parquetStoreProperties, store.getSchemaUtils()).writeElements(inputIter);
             if (inputIter instanceof CloseableIterator) {
                 ((CloseableIterator) inputIter).close();
@@ -103,14 +103,12 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             try {
                 moveDataToDataDir(store, fs, rootDataDirString, tempDirString);
                 tidyUp(fs, tempDirString);
-            } catch (StoreException e) {
+            } catch (final IOException | StoreException e) {
                 throw new OperationException("Failed to reload the indices", e);
-            } catch (IOException e) {
-                throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
             }
         } catch (final IOException e) {
             throw new OperationException("IO Exception: Failed to connect to the file system", e);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
 

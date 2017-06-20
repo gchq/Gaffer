@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class WriteUnsortedData {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private final ParquetStoreProperties props;
     private final Map<String, ParquetWriter<GenericRecord>> groupToWriter;
@@ -58,11 +57,14 @@ public class WriteUnsortedData {
     }
 
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
-        //loop over all the elements
         try {
-            while (elements.hasNext()) {
-                writeElement(elements.next());
+            // Create a writer for each group
+            for (final String group : this.schemaUtils.getGroups()) {
+                this.groupToWriter.put(group, buildWriter(group));
             }
+            // Write elements
+            _writeElements(elements);
+            // Close the writers
             for (final ParquetWriter<GenericRecord> writer : this.groupToWriter.values()) {
                 writer.close();
             }
@@ -71,23 +73,19 @@ public class WriteUnsortedData {
         }
     }
 
-    private void writeElement(final Element e) throws OperationException, IOException {
-        String group = e.getGroup();
-        LOGGER.trace("Writing element to unsorted Parquet file");
-        ParquetWriter<GenericRecord> writer;
-        if (!this.groupToWriter.containsKey(group)) {
-            writer = buildWriter(group);
-            this.groupToWriter.put(group, writer);
-        } else {
-            writer = this.groupToWriter.get(group);
+    private void _writeElements(final Iterator<? extends Element> elements) throws OperationException, IOException {
+        while (elements.hasNext()) {
+            final Element element = elements.next();
+            final String group = element.getGroup();
+            ParquetWriter<GenericRecord> writer = this.groupToWriter.get(group);
             if (writer.getDataSize() >= this.batchSize) {
                 this.groupToFileNumber.put(group, this.groupToFileNumber.getOrDefault(group, 0) + 1);
                 writer.close();
                 writer = buildWriter(group);
                 this.groupToWriter.put(group, writer);
             }
+            writer.write(convertElementToGenericRecord(element));
         }
-        writer.write(convertElementToGenericRecord(e));
     }
 
     private ParquetWriter<GenericRecord> buildWriter(final String group) throws IOException {
