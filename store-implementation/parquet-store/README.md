@@ -27,50 +27,45 @@ limitations under the License.
 
 ## Introduction
 
-Gaffer contains a store implemented using Apache Parquet version 1.8.1. This offers the following functionality:
-- A scalable data store of edges and entities;
+Gaffer contains a store implemented using [Apache Parquet](https://parquet.apache.org/) version 1.8.1. Graph elements are stored in Parquet files (typically in HDFS). This offers the following functionality:
+- A scalable data store of entities and edges;
 - A very compact data store using a columnar file format;
-- Fast full scan and random access queries from the same data source even at TB scales assuming that files get stored in HDFS;
+- Fast full scan and random access queries on the same store;
 - Flexible query time filtering of data;
 - Integration with Apache Spark to allow Gaffer data stored in Parquet to be analysed as a `Dataframe`;
-- User-configured persistent aggregation of properties for the same vertices and edges;
-- The ability to split vertices into multiple columns of data (using classes that implement `ParquetSerialisation` if 
-default serialiser's are not suitable);
-- The ability to store properties as nested columns or multiple columns (again using classes that implement 
-`ParquetSerialisation` if default serialiser's are not suitable).
+- User-configured persistent aggregation of properties for the same entities and edges;
+- The ability to customise how vertices and properties are converted into columns in the Parquet files (using classes that implement `ParquetSerialisation` if the default serialisers are not suitable) - both nested columns and multiple columns are supported.
+
+## Design overview
+
+Elements are stored in Parquet files. There is a top-level directory which contains one subdirectory per group in the schema. Within each subdirectory, the elements are stored sorted by the vertex, in the case of an entity, or by the source vertex, in the case of an edge. There is another top-level directory that contains the edges sorted by the destination vertex. Together these directories allow queries for elements involving particular vertices to quickly find the right data (only the relevant files need to be read, and within those files only blocks containing relevant data need to be read).
+
+Each property is stored in one or more columns. Properties that are simple primitives that are natively supported by Parquet are stored as primitives (rather than serialised objects). Properties such as `HyperLogLogPlus` are stored both as a serialised byte array and as a primitive column which gives the current state of the `HyperLogLogPlus`; in this case the current estimate of the sketch is stored. The serialised form allows it to be updated with new data. The primitive column allows high-performance scans over the current value of the sketch.
+
+When new data is added to the store, [Apache Spark](https://spark.apache.org/) is used to read, sort and aggregate both the existing data and the new data to form a new directory containing the new data. Concurrent updates are not supported. Thus this store is suited for occasional bulk updates, rather than continual updates.
 
 ## Use cases
-Gaffer's `ParquetStore` is particularly well suited to graphs with lots of properties on the vertices and 
-edges where you want to perform both, full table scans and random access queries on the data. While the graph is mutable
-it is not recommend as a store for regularly adding elements to as Parquet files are immutable which means each time you 
-add new elements, all the data has to be read and reprocessed to generate the new files.
 
-An example use case would be applying a Page Rank algorithm against yesterday's data. Or another use of the `ParquetStore` 
-would be as part of a hybrid system where you use a Gaffer store that can handle the streaming of data 
-and then overnight you take a snapshot of that data and write it into a `ParquetStore` to benefit from the 
-smaller storage requirements and fast full scan capabilities while maintaining fast random access.
+Gaffer's `ParquetStore` is particularly well suited to graphs with lots of properties on the entities and edges where you want to perform both full table scans and random access queries. The columnar format allows excellent performance for queries such as what is the average value of the count property over all edges? In this case only the count column needs to be read - all the other properties are not read from disk.
+
+This store can be used as a source of data for frameworks such as GraphX, e.g. the graph of all edges where the count is greater than 10 is loaded from the `ParquetStore` into memory, and then the PageRank algorithm is run using GraphX.
+
+The `ParquetStore` could be used as part of a hybrid system where you use a Gaffer store that continually ingests new data. Overnight a snapshot of that data is written into a `ParquetStore` to benefit from the smaller storage requirements and fast full scan capabilities while maintaining fast random access.
 
 ## Properties file
-While the `ParquetStoreProperties` has sensible defaults for all the exposed parameters for data sets of the order of 
-10GB - 500GB, users may want to tune these properties to suit their data.
-- `spark.master`: The string that sets what mode to run spark in. By default, if Spark is installed on the machine it 
-will use Spark's defaults, otherwise it will run in local mode using all available threads;
-- `parquet.data.dir`: The file path to save the graph files under, by default this will be a relative path 
-\<current path\>/parquet_data;
-- `parquet.temp_data.dir`: The file path to save the temporary graph files under, by default this will be a relative path 
-  \<current path\>/.gaffer/temp_parquet_data. Warning this directory will automatically be deleted at the start and end 
-  of any `AddElements` operation;
-- `parquet.add_elements.threadsAvailable`: The number of threads to make available to the `AddElements` operations to 
-increase the parallelism, by default this is set to 3 which will provide maximum parallelism when adding a single Gaffer group;
-- `parquet.add_elements.row_group.size`: This just exposes the Parquet file format parameter controlling the maximum row 
-group size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more 
-information. By default this is set to 4MB;
+
+The `ParquetStoreProperties` class contains all properties relating to the configuration of the `ParquetStore`. It can be created from a properties file. It has sensible defaults for all parameters but users may want to tune these properties to suit their data. The following properties can be set:
+
+- `spark.master`: The string that sets what mode to run Spark in. By default, if Spark is installed on the machine it will use Spark's defaults, otherwise it will run in local mode using all available threads;
+- `parquet.data.dir`: The file path to save the graph files under, by default this will be a relative path \<current path\>/parquet_data;
+- `parquet.temp_data.dir`: The file path to save the temporary graph files under, by default this will be a relative path \<current path\>/.gaffer/temp_parquet_data. Warning: this directory will automatically be deleted at the start and end of any `AddElements` operation;
+- `parquet.add_elements.threadsAvailable`: The number of threads to make available to the `AddElements` operations to increase the parallelism, by default this is set to 3 which will provide maximum parallelism when adding a single Gaffer group;
+- `parquet.add_elements.row_group.size`: This parameter sets the maximum row group size in bytes before compression for the Parquet files, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) for more information. By default this is set to 4MB;
 - `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and 
 dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) 
 for more information. By default this is set to 1MB;
 - `parquet.add_elements.batch.size`: This is the maximum file size in bytes of the temporary files. By default this is set to 1GB;
-- `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group.
-By default this is set to 100 files.
+- `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 100.
 
 A complete Gaffer properties file using a `ParquetStore` will look like:
 
@@ -91,6 +86,7 @@ Note that apart from the first two lines which are required by Gaffer so it know
 lines are optional.
 
 ## Schema
+
 See [Getting Started](https://github.com/gchq/Gaffer/wiki/Getting-Started.md) for details of how to write a schema that 
 tells Gaffer what data will be stored, and how to aggregate it. Once the schema has been created, a `Graph` object can 
 be created using:
@@ -107,9 +103,7 @@ best performance you should allow Gaffer to detect the best serialiser or provid
 
 ## Inserting data
 
-The `ParquetStore` has two ways in which you can insert data into the graph. The first method is via the standard Gaffer 
-`AddElements` operation which allows data to be inserted from a Java `Iterable` which is not infinitely long, as the data 
-is not queryable until the iterable has been completely consumed. 
+The `ParquetStore` has two ways in which you can insert data into the graph. The first method is via the standard Gaffer `AddElements` operation which allows data to be inserted from a Java `Iterable`. For the `ParquetStore` this iterable must be of finite size as it is fully consumed before being sorted and merged with the existing data.
 
 ```
 AddElements addElements = new AddElements.Builder()
@@ -118,19 +112,21 @@ AddElements addElements = new AddElements.Builder()
 graph.execute(addElements, new User());
 ```
 
-The other allows users to import data directly from an `RDD<Element>` using the `ImportRDDOfElements` operation.
+The other way to import data is to from an `RDD<Element>` using the `ImportRDDOfElements` operation.
 
 ```
-RDD<Element> elements = getElements();
-AddElementsFromRDD addElements = new ImportRDDOfElements.Builder().input(elements).build();
+RDD<Element> elements = ..// Create an RDD<Element> from your data
+AddElementsFromRDD addElements = new ImportRDDOfElements.Builder()
+        .input(elements)
+        .build();
 graph.execute(addElements, new User());
 ```
 
-Inserting the data via the `ImportRDDOfElements` operation will be the faster of the two methods.
+Inserting the data via the `ImportRDDOfElements` operation will generally be the faster of the two methods.
 
 ## Queries
 
-The `ParquetStore` currently supports most of the [standard Gaffer queries](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Operation-examples) 
+The `ParquetStore` currently supports most of the [standard Gaffer queries](https://github.com/gchq/Gaffer/wiki/Operation-examples) 
 as well as the [standard Spark queries](https://github.com/GovernmentCommunicationsHeadquarters/Gaffer/wiki/Spark-operation-examples). 
 
 The operations that are not currently supported are:
@@ -159,9 +155,7 @@ pushed down to the file readers. Other filters can be used but will take longer 
 ## Writing a custom serialiser
 
 For the `ParquetStore` to be able to make the most out of the Parquet file format, it needs to know how to convert a Java 
-object into primitive Java types that Parquet knows how to make the most of. Rather than using Gaffer's serialisers 
-which will convert everything to bytes, which Parquet can use, however you can get better performance by using other 
-primitives where possible.
+object into primitive Java types that Parquet knows how to serialise efficiently.
 
 A simple example which is already part of the default serialisers, is a serialiser for `Long` objects. The 
 `ParquetSerialiser` interface has three methods that need to be implemented.
@@ -171,7 +165,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying the Parquet schema for this object. Note that the
-     * root of this schema must be have the same name as the input colName
+     * root of this schema must have the same name as the input colName.
      *
      * @param colName The column name as a String as seen in the Gaffer schema that this object is from
      * @return A String representation of the part of the Parquet schema that this object will be stored as
@@ -180,7 +174,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying how to convert a Plain Old Java Object (POJO)
-     * into the Parquet primitive types
+     * into the Parquet primitive types.
      *
      * @param object The POJO that you will convert to Parquet primitives
      * @return An object array of Parquet primitives, if this serialiser is used as the vertex serialiser
@@ -192,7 +186,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying how to recreate the Plain Old Java Object (POJO)
-     * from the Parquet primitive types
+     * from the Parquet primitive types.
      *
      * @param objects An object array of Parquet primitives
      * @return The POJO that you have recreated from the Parquet primitives
@@ -256,7 +250,7 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
 An example of a more complex serialiser where it is preferable to store the Java object in multiple columns is with a 
 `HyperLogLogPlus` sketch. The reason for this is because having to deserialise the object from bytes will take longer 
 than reading a long that represents the cardinality, however you still need to be able to get back the `HyperLogLogPlus` 
-object to be able to aggregate the property. Therefore the `HyperLogLogPlus` sketch serialiser which would look like:
+object to be able to aggregate the property. Therefore the `HyperLogLogPlus` sketch serialiser would look like:
 
 ```
 public class HyperLogLogPlusParquetSerialiser implements ParquetSerialiser<HyperLogLogPlus> {
@@ -339,7 +333,7 @@ raw_bytes is first and the cardinality is second.
 
 When trying to filter a column you get `store.schema.ViewValidator ERROR  - No class type found for transient property 
 property8.cardinality. Please ensure it is defined in the view.` If the column you are filtering on is actually a Gaffer 
-column split ito many columns or nested columns then your `View` will need to specify the column as a transient property.
+column split into many columns or nested columns then your `View` will need to specify the column as a transient property.
 
 For example to filter the "HLLP" property of type `HyperLogLogPlus` which has been serialised using the 
 `InLineHyperLogLogPlusParquetSerialiser`:
@@ -356,7 +350,7 @@ View view = new View.Builder()
                         .build())
                 .build();
 ```
-If you had used the `NestedHyperLogLogPlusParquetSerialiser` then you can replace the "HLLP_cardinality" with "HLLP.cardinality"
+If you had used the `NestedHyperLogLogPlusParquetSerialiser` then you can replace the "HLLP_cardinality" with "HLLP.cardinality".
 
 ## Implementation details
 
@@ -370,7 +364,7 @@ would look like:
 
 ```
 parquet_data
-`-- <A long representing the number of milliseconds since epoch at which the data was written>
+`-- <A long representing the time at which the data was written (as the number of milliseconds since epoch)>
     |-- graph
     |   |-- GROUP=BasicEdge
     |   |   |-- _index
@@ -395,9 +389,8 @@ The main two operations are the `AddElements` and the `GetElements`.
 
 The `AddElements` operation can be thought of as a 4 stage process. 
 1. Copy the previous latest store files into the temporary files directory;
-2. Write the unsorted data split by group and `Element` type into Parquet files using the `AvroParquetWriter` into the 
-temporary files directory;
-3. Using Spark, sort and aggregate the data in the temporary files directory on a per group, per `Element` type basis;
+2. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `AvroParquetWriter`;
+3. Using Spark, sort and aggregate the data in the temporary files directory on a per group basis;
 4. Generate an index containing the range of vertices in each file and load that into memory.
 
 
@@ -408,4 +401,3 @@ will contain which seeds;
 3. If the query has seeds then for each filter in the path to filter map add in the group filter built in the first stage;
 4. Using the path to filter map build an `Iterable` that will iterate through the required files applying only the 
 relevant filters for that file.
-

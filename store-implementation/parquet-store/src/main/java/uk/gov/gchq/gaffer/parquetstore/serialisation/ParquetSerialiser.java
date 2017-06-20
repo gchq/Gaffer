@@ -23,7 +23,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying the Parquet schema for this object. Note that the
-     * root of this schema must be have the same name as the input colName
+     * root of this schema must have the same name as the input colName.
      *
      * @param colName The column name as a String as seen in the Gaffer schema that this object is from
      * @return A String representation of the part of the Parquet schema that this object will be stored as
@@ -32,7 +32,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying how to convert a Plain Old Java Object (POJO)
-     * into the Parquet primitive types
+     * into the Parquet primitive types.
      *
      * @param object The POJO that you will convert to Parquet primitives
      * @return An object array of Parquet primitives, if this serialiser is used as the vertex serialiser
@@ -44,7 +44,7 @@ public interface ParquetSerialiser<INPUT> extends Serialiser<INPUT, Object[]> {
 
     /**
      * This method provides the user a way of specifying how to recreate the Plain Old Java Object (POJO)
-     * from the Parquet primitive types
+     * from the Parquet primitive types.
      *
      * @param objects An object array of Parquet primitives
      * @return The POJO that you have recreated from the Parquet primitives
