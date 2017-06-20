@@ -37,20 +37,22 @@ public class SingleUseParquetStore extends ParquetStore {
     }
 
     private void cleanUp() throws StoreException {
+        String dataDir = "";
         try {
             final FileSystem fs = FileSystem.get(new Configuration());
-                ParquetStoreProperties props = getProperties();
-                if (props == null) {
-                    props = new ParquetStoreProperties();
-                }
-                deleteFolder(props.getDataDir(), fs);
-        } catch (IOException e) {
-            throw new StoreException(e.getMessage(), e);
+            ParquetStoreProperties props = getProperties();
+            if (props == null) {
+                props = new ParquetStoreProperties();
+            }
+            dataDir = props.getDataDir();
+            deleteFolder(dataDir, fs);
+        } catch (final IOException e) {
+            throw new StoreException("Exception deleting folder" + dataDir, e);
         }
     }
 
     private void deleteFolder(final String path, final FileSystem fs) throws IOException {
-        LOGGER.debug("path: {}", path);
+        LOGGER.info("Deleting folder {}", path);
         Path dataDir = new Path(path);
         if (fs.exists(dataDir)) {
             fs.delete(dataDir, true);

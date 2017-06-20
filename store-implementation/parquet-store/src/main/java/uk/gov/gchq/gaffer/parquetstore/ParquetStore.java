@@ -93,10 +93,11 @@ public class ParquetStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        LOGGER.info("Initialising ParquetStore");
         super.initialise(schema, properties);
         try {
             this.fs = FileSystem.get(new Configuration());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Could not connect to the file system", e);
         }
         this.schemaUtils = new SchemaUtils(this.getSchema());
@@ -188,11 +189,11 @@ public class ParquetStore extends Store {
     }
 
     public void loadIndices() throws StoreException {
+        LOGGER.info("Loading indices");
         try {
             final Map<String, List<Tuple3<Object[], Object[], String>>> newGroupToIndex = new HashMap<>();
             final FileSystem fs = getFS();
-            final String rootDirString = this.getProperties().getDataDir();
-            final Path rootDir = new Path(rootDirString);
+            final Path rootDir = new Path(this.getProperties().getDataDir());
             if (fs.exists(rootDir)) {
                 final FileStatus[] snapshots = fs.listStatus(rootDir);
                 long latestSnapshot = getCurrentSnapshot();
@@ -203,6 +204,7 @@ public class ParquetStore extends Store {
                         latestSnapshot = currentSnapshot;
                     }
                 }
+                LOGGER.info("Latest snapshot is {}", latestSnapshot);
                 if (latestSnapshot != 0L) {
                     for (final String group : this.schemaUtils.getEntityGroups()) {
                         final List<Tuple3<Object[], Object[], String>> index = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
@@ -224,12 +226,14 @@ public class ParquetStore extends Store {
                 setCurrentSnapshot(latestSnapshot);
             }
             this.groupToIndex = newGroupToIndex;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new StoreException("Failed to connect to the file system", e);
         }
     }
 
-    private List<Tuple3<Object[], Object[], String>> loadIndex(final String group, final String identifier, final long currentSnapshot) throws StoreException {
+    private List<Tuple3<Object[], Object[], String>> loadIndex(final String group,
+                                                               final String identifier,
+                                                               final long currentSnapshot) throws StoreException {
         try {
             final String indexDir;
             final Path path;
@@ -244,7 +248,7 @@ public class ParquetStore extends Store {
                 path = new Path(indexDir + "_index");
             }
             LOGGER.info("Loading the index from path {}", path);
-            final ArrayList<Tuple3<Object[], Object[], String>> index = new ArrayList<>();
+            final List<Tuple3<Object[], Object[], String>> index = new ArrayList<>();
             final FileSystem fs = getFS();
             if (fs.exists(path)) {
                 final FSDataInputStream reader = fs.open(path);
@@ -270,7 +274,7 @@ public class ParquetStore extends Store {
                 index.sort(Comparator.comparing(Tuple3::_3));
             }
             return index;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
                 throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
                         "/" + getCurrentSnapshot() + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group + "/_index", e);

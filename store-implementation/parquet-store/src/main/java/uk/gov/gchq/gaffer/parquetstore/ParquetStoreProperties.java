@@ -50,7 +50,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
 
     public ParquetStoreProperties() {
         super();
-        this.setStoreClass(ParquetStore.class.getCanonicalName());
+        this.setStoreClass(ParquetStore.class);
         this.setStorePropertiesClass(this.getClass());
     }
 
@@ -114,13 +114,17 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
         this.set(PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP, String.valueOf(outputFilesPerGroup));
     }
 
-    // getSparkMaster will first check the ParquetStoreProperties, then default to the spark default config
-    // set on the local machine then to run locally
+    /**
+     * If the Spark master is set in this class then that will be used. Otherwise the Spark default config set on the
+     * local machine will be used. Otherwise a local Spark master will be used.
+     *
+     * @return The Spark master to be used.
+     */
     public String getSparkMaster() {
-        LOGGER.debug("ParquetStoreProperties has spark master set as: {}", this.get(SPARK_MASTER, "Is not set"));
-        LOGGER.debug("Spark config has spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
-        String sparkMaster = this.get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
-        LOGGER.debug("Spark master is set to " + sparkMaster);
+        LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", this.get(SPARK_MASTER, "Is not set"));
+        LOGGER.debug("Spark config has Spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
+        final String sparkMaster = this.get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
+        LOGGER.info("Spark master is set to " + sparkMaster);
         return sparkMaster;
     }
 
