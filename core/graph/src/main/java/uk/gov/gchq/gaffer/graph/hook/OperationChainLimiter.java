@@ -30,7 +30,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -101,28 +100,28 @@ public class OperationChainLimiter implements GraphHook {
      * @param operationScoreEntries                   operation scores entries
      * @param operationAuthorisationScoreLimitEntries authorisation scores entries
      */
-    public OperationChainLimiter(final List<Map.Entry<String, String>> operationScoreEntries,
-                                 final List<Map.Entry<String, String>> operationAuthorisationScoreLimitEntries) {
+    public OperationChainLimiter(final LinkedHashMap<String, String> operationScoreEntries,
+                                 final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
         loadMapsFromEntryLists(operationScoreEntries, operationAuthorisationScoreLimitEntries);
     }
 
-    private static List<Map.Entry<String, String>> readEntries(final Path propFileLocation) {
-        List<Map.Entry<String, String>> listEntries;
+    private static LinkedHashMap<String, String> readEntries(final Path propFileLocation) {
+        final LinkedHashMap<String, String> map;
         if (null != propFileLocation) {
             try {
-                listEntries = readEntries(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
+                map = readEntries(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
         } else {
-            listEntries = new ArrayList<>();
+            map = new LinkedHashMap<>(0);
         }
 
-        return listEntries;
+        return map;
     }
 
-    private static List<Map.Entry<String, String>> readEntries(final InputStream stream) {
-        final List<Map.Entry<String, String>> listEntries = new ArrayList<>();
+    private static LinkedHashMap<String, String> readEntries(final InputStream stream) {
+        final LinkedHashMap<String, String> map = new LinkedHashMap<>();
 
         if (null != stream) {
             try {
@@ -135,7 +134,7 @@ public class OperationChainLimiter implements GraphHook {
                     if (!line.startsWith("#")) {
                         String[] bits = line.split("=");
                         if (bits.length == 2) {
-                            listEntries.add(new AbstractMap.SimpleEntry<>(bits[0], bits[1]));
+                            map.put(bits[0], bits[1]);
                         } else if (bits.length != 0) {
                             throw new IllegalArgumentException("Failed to load opScores file : invalid line:%n" + line);
                         }
@@ -148,7 +147,7 @@ public class OperationChainLimiter implements GraphHook {
                 CloseableUtil.close(stream);
             }
         }
-        return listEntries;
+        return map;
     }
 
     /**
@@ -164,8 +163,8 @@ public class OperationChainLimiter implements GraphHook {
     @Override
     public void preExecute(final OperationChain<?> opChain, final User user) {
         if (null != opChain) {
-            Integer chainScore = getChainScore(opChain, user);
-            Integer maxAuthScore = getMaxUserAuthScore(user.getOpAuths());
+            int chainScore = getChainScore(opChain, user);
+            int maxAuthScore = getMaxUserAuthScore(user.getOpAuths());
             if (chainScore > maxAuthScore) {
                 throw new UnauthorisedException("The maximum score limit for this user is " + maxAuthScore + ".\n" +
                         "The requested operation chain exceeded this score limit.");
@@ -173,8 +172,8 @@ public class OperationChainLimiter implements GraphHook {
         }
     }
 
-    public Integer getChainScore(final OperationChain<?> opChain, final User user) {
-        Integer chainScore = 0;
+    public int getChainScore(final OperationChain<?> opChain, final User user) {
+        int chainScore = 0;
 
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
@@ -193,8 +192,8 @@ public class OperationChainLimiter implements GraphHook {
      * @param opAuths a set of operation authorisations
      * @return maxUserScore the highest score associated with any of the supplied user auths
      */
-    private Integer getMaxUserAuthScore(final Set<String> opAuths) {
-        Integer maxUserScore = 0;
+    private int getMaxUserAuthScore(final Set<String> opAuths) {
+        int maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
             if (null != authScore) {
@@ -213,13 +212,12 @@ public class OperationChainLimiter implements GraphHook {
         return result;
     }
 
-    protected Integer authorise(final Operation operation) {
+    protected int authorise(final Operation operation) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
-            ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores
-                    .keySet());
+            final List<Class<? extends Operation>> keys = new ArrayList<>(operationScores.keySet());
             for (int i = keys.size() - 1; i >= 0; i--) {
-                Class<? extends Operation> key = keys.get(i);
+                final Class<? extends Operation> key = keys.get(i);
                 if (key.isAssignableFrom(opClass)) {
                     return operationScores.get(key);
                 }
@@ -231,13 +229,12 @@ public class OperationChainLimiter implements GraphHook {
         return DEFAULT_OPERATION_SCORE;
     }
 
-    private void loadMapsFromEntryLists(final List<Map.Entry<String, String>> operationScoreEntries,
-                                        final List<Map.Entry<String, String>> operationAuthorisationScoreLimitEntries) {
-        Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
-
-        for (final Map.Entry<String, String> opScoreEntry : operationScoreEntries) {
+    private void loadMapsFromEntryLists(final LinkedHashMap<String, String> operationScoreEntries,
+                                        final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        for (final Map.Entry<String, String> opScoreEntry : operationScoreEntries.entrySet()) {
             final Class<? extends Operation> opClass;
-            String opClassName = opScoreEntry.getKey();
+            final String opClassName = opScoreEntry.getKey();
             try {
                 opClass = Class.forName(opClassName)
                         .asSubclass(Operation.class);
@@ -245,17 +242,13 @@ public class OperationChainLimiter implements GraphHook {
                 LOGGER.error("An operation class could not be found for operation score property {}", opClassName, e);
                 throw new IllegalArgumentException(e);
             }
-            final Integer score = Integer.parseInt(opScoreEntry.getValue());
-            opScores.put(opClass, score);
+            opScores.put(opClass, Integer.parseInt(opScoreEntry.getValue()));
         }
         setOpScores(opScores);
 
         Map<String, Integer> authScores = new HashMap<>();
-        for (final Map.Entry<String, String> authScoreEntry : operationAuthorisationScoreLimitEntries) {
-            final String authName = authScoreEntry.getKey();
-            final Integer score = Integer.parseInt(authScoreEntry.getValue());
-
-            authScores.put(authName, score);
+        for (final Map.Entry<String, String> authScoreEntry : operationAuthorisationScoreLimitEntries.entrySet()) {
+            authScores.put(authScoreEntry.getKey(), Integer.parseInt(authScoreEntry.getValue()));
         }
         setAuthScores(authScores);
     }
@@ -275,7 +268,7 @@ public class OperationChainLimiter implements GraphHook {
      * @param opClass the operation class
      * @param score   the score for the operation class
      */
-    public void addOpScore(final Class<? extends Operation> opClass, final Integer score) {
+    public void addOpScore(final Class<? extends Operation> opClass, final int score) {
         operationScores.put(opClass, score);
     }
 
@@ -294,7 +287,7 @@ public class OperationChainLimiter implements GraphHook {
      * @param auth  the authorisation
      * @param score the score for the operation class
      */
-    public void addAuthScore(final String auth, final Integer score) {
+    public void addAuthScore(final String auth, final int score) {
         authScores.put(auth, score);
     }
 }
