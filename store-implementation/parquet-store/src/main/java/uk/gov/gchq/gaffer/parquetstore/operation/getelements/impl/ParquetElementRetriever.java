@@ -64,7 +64,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final View view;
     private final DirectedType directedType;
     private final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType;
-    private final SeedMatching.SeedMatchingType seedMachingType;
+    private final SeedMatching.SeedMatchingType seedMatchingType;
     private final Iterable<? extends ElementId> seeds;
     private final String dataDir;
     private Index index;
@@ -80,7 +80,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.schemaUtils = store.getSchemaUtils();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
-        this.seedMachingType = seedMatchingType;
+        this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.index = store.getIndex();
         this.dataDir = store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot();
@@ -94,7 +94,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(this.schemaUtils, this.view, this.directedType, this.includeIncomingOutgoingType,
-                this.seedMachingType, this.seeds, this.dataDir, this.index, this.fs);
+                this.seedMatchingType, this.seeds, this.dataDir, this.index, this.fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -114,7 +114,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final View view,
                                   final DirectedType directedType,
                                   final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                  final SeedMatching.SeedMatchingType seedMachingType,
+                                  final SeedMatching.SeedMatchingType seedMatchingType,
                                   final Iterable<? extends ElementId> seeds,
                                   final String dataDir,
                                   final Index index,
@@ -122,7 +122,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             try {
                 Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
                         .buildPathToFilterMap(schemaUtils,
-                                view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, index);
+                                view, directedType, includeIncomingOutgoingType, seedMatchingType, seeds, dataDir, index);
                 this.pathToFilterMap = results.get0();
                 this.needsValidation = results.get1();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);
