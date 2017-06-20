@@ -92,7 +92,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 ((CloseableIterable) input).close();
             }
             LOGGER.info("Finished writing the unsorted Parquet data to " + tempDirString);
-            // Spark read in the data, aggregate and sort the data
+            // Use to Spark read in all the data, aggregate and sort it
             LOGGER.info("Starting to write the sorted and aggregated Parquet data to " + tempDirString + "/sorted split by group");
             new AggregateAndSortTempData(store, spark);
             LOGGER.info("Finished writing the sorted and aggregated Parquet data to " + tempDirString + "/sorted");
@@ -115,18 +115,23 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
     }
 
     private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String dataDirString, final String tempDataDirString) throws StoreException, IOException {
-        // move data from temp to data
+        // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = dataDirString + "/" + snapshot;
+        LOGGER.info("Creating directory {}", destPath);
         fs.mkdirs(new Path(destPath));
+        LOGGER.info("Renaming {} to {}",
+                new Path(tempDataDirString + "/sorted/graph"),
+                new Path(destPath + "/graph"));
         fs.rename(new Path(tempDataDirString + "/sorted/graph"), new Path(destPath + "/graph"));
         final Path tempReversePath = new Path(tempDataDirString + "/sorted/reverseEdges");
         if (fs.exists(tempReversePath)) {
             fs.rename(tempReversePath, new Path(destPath + "/reverseEdges"));
         }
-        // set the data dir property
+        // Set the data dir property
+        LOGGER.info("Setting current snapshot to {}", snapshot);
         store.setCurrentSnapshot(snapshot);
-        // reload indices
+        // Reload indices
         store.loadIndices();
     }
 

@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class GenerateIndexForGroup implements Callable<OperationException>, Serializable {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateIndexForGroup.class);
     private static final long serialVersionUID = 2287226248631201061L;
     private final String directoryPath;
@@ -76,8 +75,8 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
                     }
                 }
             }
-        } catch (IOException e) {
-            return new OperationException("IO Exception generating the index files", e);
+        } catch (final IOException e) {
+            return new OperationException("IOException generating the index files", e);
         }
         return null;
     }

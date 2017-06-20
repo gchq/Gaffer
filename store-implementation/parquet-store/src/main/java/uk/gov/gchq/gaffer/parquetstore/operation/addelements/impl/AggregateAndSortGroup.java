@@ -73,7 +73,11 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final String[] gafferProperties;
 
 
-    public AggregateAndSortGroup(final String group, final boolean reverseEdge, final ParquetStoreProperties parquetStoreProperties, final SchemaUtils schemaUtils, final SparkSession spark) throws SerialisationException {
+    public AggregateAndSortGroup(final String group,
+                                 final boolean reverseEdge,
+                                 final ParquetStoreProperties parquetStoreProperties,
+                                 final SchemaUtils schemaUtils,
+                                 final SparkSession spark) throws SerialisationException {
         this.group = group;
         this.reverseEdge = reverseEdge;
         this.tempFileDir = parquetStoreProperties.getTempFilesDir();
@@ -99,7 +103,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     }
 
     private HashMap<String, String> buildColumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
-        HashMap<String, String> columnToAggregatorMap = new HashMap<>();
+        final HashMap<String, String> columnToAggregatorMap = new HashMap<>();
         for (final String column : gafferSchema.getProperties()) {
             final BinaryOperator aggregateFunction = gafferSchema.getPropertyTypeDef(column).getAggregateFunction();
             if (aggregateFunction != null) {
@@ -114,16 +118,13 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         try {
             try (final FileSystem fs = FileSystem.get(new Configuration())) {
                 if (fs.exists(new Path(this.inputDir))) {
-                    LOGGER.info("Aggregating and sorting the data for group " + group);
-                    LOGGER.debug("Spark is reading the data stored in " + this.inputDir);
-                    Dataset<Row> data = this.spark.read().parquet(this.inputDir);
-                    LOGGER.debug("The raw Parquet data read by Spark looks like:");
-                    if (LOGGER.isDebugEnabled()) {
-                        data.show();
-                    }
+                    LOGGER.info("Aggregating and sorting the data for group {} stored in directory {}", this.group, this.inputDir);
+                    final Dataset<Row> data = this.spark.read().parquet(this.inputDir);
+
                     // Aggregate data
-                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(this.groupByColumns, this.columnToPaths, this.isEntity, this.propertyToAggregatorMap);
-                    JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
+                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(this.groupByColumns,
+                            this.columnToPaths, this.isEntity, this.propertyToAggregatorMap);
+                    final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
                             .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
                     LOGGER.debug("The data as a key/value pair ready to aggregate, looks like:");
                     if (LOGGER.isDebugEnabled()) {
@@ -139,11 +140,8 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                                 this.columnToPaths, this.propertyToAggregatorMap, this.gafferGroupObjectConverter);
                         aggregatedDataKV = groupedData.reduceByKey(aggregator);
                     }
-                    JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
-                    LOGGER.debug("The data after aggregation looks like:");
-                    if (LOGGER.isDebugEnabled()) {
-                        aggregatedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
-                    }
+                    final JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
+
                     // Sort data
                     Dataset<Row> sortedData;
                     final String firstSortColumn;
@@ -197,11 +195,6 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
 
                     sortedData = this.spark.createDataFrame(aggregatedData, this.sparkSchema)
                             .sort(firstSortColumn, groupBySeq.result());
-
-                    LOGGER.debug("The data after sorting looks like:");
-                    if (LOGGER.isDebugEnabled()) {
-                        sortedData.show();
-                    }
 
                     // Write out aggregated and sorted data
                     sortedData

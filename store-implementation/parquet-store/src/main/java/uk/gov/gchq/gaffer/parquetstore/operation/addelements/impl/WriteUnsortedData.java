@@ -114,7 +114,7 @@ public class WriteUnsortedData {
         final GafferGroupObjectConverter converter = this.schemaUtils.getConverter(group);
         final GenericRecordBuilder recordBuilder = new GenericRecordBuilder(this.schemaUtils.getAvroSchema(group));
         recordBuilder.set(ParquetStoreConstants.GROUP, group);
-        if (this.schemaUtils.getEntityGroups().contains(group)) {
+        if (e instanceof Entity) {
             converter.addGafferObjectToGenericRecord(ParquetStoreConstants.VERTEX, ((Entity) e).getVertex(), recordBuilder);
         } else {
             converter.addGafferObjectToGenericRecord(ParquetStoreConstants.SOURCE, ((Edge) e).getSource(), recordBuilder);
