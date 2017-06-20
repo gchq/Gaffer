@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
+ * @deprecated this is unable to preserve object ordering.
  * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
  */
 public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
