@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class GroupedPropertiesSerialiserTest {
 
     private Schema schema;
-    private GroupedPropertiesSerialiser groupedPropertiesSerialiser;
+    private GroupedPropertiesSerialiser serialiser;
 
     @Before
     public void setUp() {
@@ -44,17 +44,17 @@ public class GroupedPropertiesSerialiserTest {
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
 
-        groupedPropertiesSerialiser = new GroupedPropertiesSerialiser(schema);
+        serialiser = new GroupedPropertiesSerialiser(schema);
     }
 
     @Test
-    public void testCanSeraliseGroupedProperties() throws SerialisationException {
+    public void testCanSerialiseGroupedProperties() throws SerialisationException {
         // Given
         final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
 
         // When
-        final byte[] serialisedGroupedProperties = groupedPropertiesSerialiser.serialise(groupedProperties);
-        final GroupedProperties deserialisedGroupProperties = groupedPropertiesSerialiser.deserialise(serialisedGroupedProperties);
+        final byte[] serialisedGroupedProperties = serialiser.serialise(groupedProperties);
+        final GroupedProperties deserialisedGroupProperties = serialiser.deserialise(serialisedGroupedProperties);
 
         // Then
         assertEquals(groupedProperties, deserialisedGroupProperties);
@@ -66,29 +66,29 @@ public class GroupedPropertiesSerialiserTest {
         final GroupedProperties groupedProperties = new GroupedProperties(TestGroups.EDGE);
 
         // When
-        final byte[] serialisedEdge = groupedPropertiesSerialiser.serialise(groupedProperties);
+        final byte[] serialisedEdge = serialiser.serialise(groupedProperties);
 
         // Then
-        assertEquals(TestGroups.EDGE, groupedPropertiesSerialiser.getGroup(serialisedEdge));
+        assertEquals(TestGroups.EDGE, serialiser.getGroup(serialisedEdge));
     }
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(groupedPropertiesSerialiser.canHandle(Integer.class));
+        assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
     public void testCanSerialiseGroupedPropertiesClass() throws SerialisationException {
-        assertTrue(groupedPropertiesSerialiser.canHandle(GroupedProperties.class));
+        assertTrue(serialiser.canHandle(GroupedProperties.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, groupedPropertiesSerialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, groupedPropertiesSerialiser.preservesObjectOrdering());
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }

@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.io.IOException;
 
 public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
     private static final long serialVersionUID = -8190219367679033911L;
@@ -57,26 +56,17 @@ public class EntityIdSerialiser implements ToBytesSerialiser<EntityId> {
         if (null == entityId) {
             return new byte[0];
         }
-
-        try {
-            return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(entityId.getVertex()));
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
-        }
+        return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, entityId.getVertex());
     }
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
-        try {
-            return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(vertex));
-        } catch (final IOException e) {
-            throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
-        }
+        return LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(vertex));
     }
 
     @Override
     public EntityId deserialise(final byte[] bytes) throws SerialisationException {
-        final byte[] vertexBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, 0);
-        return new EntitySeed(vertexSerialiser.deserialise(vertexBytes));
+        final Object vertex = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, 0);
+        return new EntitySeed(vertex);
     }
 
     @Override

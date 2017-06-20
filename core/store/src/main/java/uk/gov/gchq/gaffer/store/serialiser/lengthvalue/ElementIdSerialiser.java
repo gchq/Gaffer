@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
@@ -84,7 +85,13 @@ public class ElementIdSerialiser implements ToBytesSerialiser<ElementId> {
 
     @Override
     public ElementId deserialise(final byte[] bytes) throws SerialisationException {
-        throw new UnsupportedOperationException();
+        // Check how many delimiters there are. 1 = entityId. 3 = edgeId.
+        final int nextDelimiter = LengthValueBytesSerialiserUtil.getNextDelimiter(bytes, 0);
+        if (nextDelimiter < bytes.length) {
+            return edgeIdSerialiser.deserialise(bytes);
+        }
+
+        return entityIdSerialiser.deserialise(bytes);
     }
 
     @Override
