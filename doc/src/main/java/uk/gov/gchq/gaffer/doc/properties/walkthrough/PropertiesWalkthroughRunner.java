@@ -25,7 +25,9 @@ public class PropertiesWalkthroughRunner extends AbstractWalkthroughRunner {
             DoublesUnion.class,
             LongsSketch.class,
             UnionSketch.class,
-            ReservoirItemsUnion.class
+            ReservoirItemsUnion.class,
+            TimestampSet.class,
+            BoundedTimestampSet.class
     );
 
     public PropertiesWalkthroughRunner() {
