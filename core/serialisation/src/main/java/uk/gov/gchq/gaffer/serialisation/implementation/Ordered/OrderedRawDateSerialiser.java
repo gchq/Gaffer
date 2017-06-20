@@ -16,32 +16,36 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
-import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.util.Date;
 
-/**
- * OrderedRawDateSerialiser encodes/decodes a Date to/from a byte array.
- */
-public class OrderedRawDateSerialiser extends AbstractOrderedSerialiser<Date> {
+public class OrderedRawDateSerialiser implements ToBytesSerialiser<Date> {
 
-    private static final long serialVersionUID = -639298107482091043L;
-    private OrderedRawLongSerialiser uLongEncoder = new OrderedRawLongSerialiser();
+    private static final long serialVersionUID = 6636121009320739764L;
+    private static final OrderedRawLongSerialiser LONG_SERIALISER = new OrderedRawLongSerialiser();
 
     @Override
-    public byte[] serialise(final Date data) {
-        return uLongEncoder.serialise(data.getTime());
+    public byte[] serialise(final Date object) throws SerialisationException {
+        return LONG_SERIALISER.serialise(object.getTime());
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) {
-        return super.deserialise(bytes);
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
+        return new Date(LONG_SERIALISER.deserialise(bytes));
     }
 
     @Override
-    protected Date deserialiseUnchecked(final byte[] data, final int offset, final int len) {
-        return new Date(uLongEncoder.deserialiseUnchecked(data, offset, len));
+    public Date deserialiseEmpty() throws SerialisationException {
+        return null;
     }
 
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Date.class.equals(clazz);
     }

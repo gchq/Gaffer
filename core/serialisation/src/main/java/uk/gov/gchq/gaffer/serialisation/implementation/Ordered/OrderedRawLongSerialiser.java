@@ -16,19 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
-import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-/**
- * OrderedRawLongSerialiser encodes/decodes an signed Long to/from a byte array.
- * This will order Long.MIN_VALUE first and Long.MAX_VALUE last.
- */
-public class OrderedRawLongSerialiser extends AbstractOrderedSerialiser<Long> {
+public class OrderedRawLongSerialiser implements ToBytesSerialiser<Long> {
 
-    private static final long serialVersionUID = 4023688768692449245L;
+    private static final long serialVersionUID = -8948380879926929233L;
 
     @Override
-    public byte[] serialise(final Long l) {
-        final Long signedL = l ^ 0x8000000000000000L;
+    public byte[] serialise(final Long object) throws SerialisationException {
+        final Long signedL = object ^ 0x8000000000000000L;
         int shift = 56;
         int index;
         int prefix = signedL < 0 ? 0xff : 0x00;
@@ -56,33 +53,39 @@ public class OrderedRawLongSerialiser extends AbstractOrderedSerialiser<Long> {
     }
 
     @Override
-    protected Long deserialiseUnchecked(final byte[] data, final int offset, final int len) {
+    public Long deserialise(final byte[] bytes) throws SerialisationException {
 
         long l = 0;
         int shift = 0;
 
-        if (data[offset] < 0 || data[offset] > 16) {
-            throw new IllegalArgumentException("Unexpected length " + (0xff & data[offset]));
+        if (bytes[0] < 0 || bytes[0] > 16) {
+            throw new IllegalArgumentException("Unexpected length " + (0xff & bytes[0]));
         }
 
-        for (int i = (offset + len) - 1; i >= offset + 1; i--) {
-            l += (data[i] & 0xffL) << shift;
+        for (int i = bytes.length - 1; i >= 0 + 1; i--) {
+            l += (bytes[i] & 0xffL) << shift;
             shift += 8;
         }
 
-        if (data[offset] > 8) {
-            l |= -1L << ((16 - data[offset]) << 3);
+        if (bytes[0] > 8) {
+            l |= -1L << ((16 - bytes[0]) << 3);
         }
 
         return l ^ 0x8000000000000000L;
     }
 
     @Override
-    public Long deserialise(final byte[] b) {
-        return super.deserialise(b);
-    }
-
     public boolean canHandle(final Class clazz) {
         return Long.class.equals(clazz);
+    }
+
+    @Override
+    public Long deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
     }
 }

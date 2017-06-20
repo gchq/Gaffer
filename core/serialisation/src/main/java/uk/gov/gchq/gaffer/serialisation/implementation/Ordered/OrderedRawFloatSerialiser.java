@@ -16,36 +16,29 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
-import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-/**
- * OrderedRawFloatSerialiser encodes/decodes a Float to/from a byte array.
- */
-public class OrderedRawFloatSerialiser extends AbstractOrderedSerialiser<Float> {
+public class OrderedRawFloatSerialiser implements ToBytesSerialiser<Float> {
 
-    private static final long serialVersionUID = -5876936326255922732L;
-    OrderedRawIntegerSerialiser uIntSerialiser = new OrderedRawIntegerSerialiser();
+    private static final long serialVersionUID = 6829577492677279853L;
+    private static final OrderedRawIntegerSerialiser INTEGER_SERIALISER = new OrderedRawIntegerSerialiser();
 
     @Override
-    public byte[] serialise(final Float f) {
-        int i = Float.floatToRawIntBits(f);
+    public byte[] serialise(final Float object) throws SerialisationException {
+        int i = Float.floatToRawIntBits(object);
         if (i < 0) {
             i = ~i;
         } else {
             i = i ^ 0x80000000;
         }
 
-        return uIntSerialiser.serialise(i);
+        return INTEGER_SERIALISER.serialise(i);
     }
 
     @Override
-    public Float deserialise(final byte[] b) {
-        return super.deserialise(b);
-    }
-
-    @Override
-    protected Float deserialiseUnchecked(final byte[] data, final int offset, final int len) {
-        int i = uIntSerialiser.deserialiseUnchecked(data, offset, len);
+    public Float deserialise(final byte[] bytes) throws SerialisationException {
+        int i = INTEGER_SERIALISER.deserialise(bytes);
         if (i < 0) {
             i = i ^ 0x80000000;
         } else {
@@ -55,6 +48,17 @@ public class OrderedRawFloatSerialiser extends AbstractOrderedSerialiser<Float> 
         return Float.intBitsToFloat(i);
     }
 
+    @Override
+    public Float deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Float.class.equals(clazz);
     }

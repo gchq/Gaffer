@@ -16,36 +16,29 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
-import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-/**
- * OrderedRawDoubleSerialiser encodes/decodes a Double to/from a byte array.
- */
-public class OrderedRawDoubleSerialiser extends AbstractOrderedSerialiser<Double> {
+public class OrderedRawDoubleSerialiser implements ToBytesSerialiser<Double> {
 
-    private static final long serialVersionUID = -3107286768426662668L;
-    OrderedRawLongSerialiser uLongSerialiser = new OrderedRawLongSerialiser();
+    private static final long serialVersionUID = -4750738170126596560L;
+    private static final OrderedRawLongSerialiser LONG_SERIALISER = new OrderedRawLongSerialiser();
 
     @Override
-    public byte[] serialise(final Double d) {
-        long l = Double.doubleToRawLongBits(d);
+    public byte[] serialise(final Double object) throws SerialisationException {
+        long l = Double.doubleToRawLongBits(object);
         if (l < 0) {
             l = ~l;
         } else {
             l = l ^ 0x8000000000000000L;
         }
 
-        return uLongSerialiser.serialise(l);
+        return LONG_SERIALISER.serialise(l);
     }
 
     @Override
-    public Double deserialise(final byte[] b) {
-        return super.deserialise(b);
-    }
-
-    @Override
-    protected Double deserialiseUnchecked(final byte[] data, final int offset, final int len) {
-        long l = uLongSerialiser.deserialiseUnchecked(data, offset, len);
+    public Double deserialise(final byte[] bytes) throws SerialisationException {
+        long l = LONG_SERIALISER.deserialise(bytes);
         if (l < 0) {
             l = l ^ 0x8000000000000000L;
         } else {
@@ -54,6 +47,17 @@ public class OrderedRawDoubleSerialiser extends AbstractOrderedSerialiser<Double
         return Double.longBitsToDouble(l);
     }
 
+    @Override
+    public Double deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
         return Double.class.equals(clazz);
     }

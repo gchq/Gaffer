@@ -16,19 +16,16 @@
 
 package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
-import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-/**
- * OrderedRawIntegerSerialiser encodes/decodes a signed Integer to/from a byte array.
- * This sorts Integer.MIN_VALUE first and INTEGER.MAX_VALUE last.
- */
-public class OrderedRawIntegerSerialiser extends AbstractOrderedSerialiser<Integer> {
+public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
 
-    private static final long serialVersionUID = 1950758281685062043L;
+    private static final long serialVersionUID = 5671653945533196758L;
 
     @Override
-    public byte[] serialise(final Integer i) {
-        final Integer signedI = i ^ 0x80000000;
+    public byte[] serialise(final Integer object) throws SerialisationException {
+        final Integer signedI = object ^ 0x80000000;
         int shift = 56;
         int prefix = (signedI.intValue()) < 0 ? 255 : 0;
 
@@ -53,33 +50,38 @@ public class OrderedRawIntegerSerialiser extends AbstractOrderedSerialiser<Integ
     }
 
     @Override
-    public Integer deserialise(final byte[] b) {
-        return super.deserialise(b);
-    }
-
-    @Override
-    protected Integer deserialiseUnchecked(final byte[] data, final int offset, final int len) {
-        if (data[offset] >= 0 && data[offset] <= 8) {
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
+        if (bytes[0] >= 0 && bytes[0] <= 8) {
             int i = 0;
             int shift = 0;
 
-            for (int idx = offset + len - 1; idx >= offset + 1; --idx) {
-                i = (int) ((long) i + (((long) data[idx] & 255L) << shift));
+            for (int idx = bytes.length - 1; idx >= 0 + 1; --idx) {
+                i = (int) ((long) i + (((long) bytes[idx] & 255L) << shift));
                 shift += 8;
             }
 
-            if (data[offset] > 4) {
-                i |= -1 << (8 - data[offset] << 3);
+            if (bytes[0] > 4) {
+                i |= -1 << (8 - bytes[0] << 3);
             }
 
             return Integer.valueOf(i) ^ 0x80000000;
         } else {
-            throw new IllegalArgumentException("Unexpected length " + (255 & data[offset]));
+            throw new SerialisationException("Unexpected length " + (255 & bytes[0]));
         }
     }
 
     @Override
+    public Integer deserialiseEmpty() throws SerialisationException {
+        return null;
+    }
+
+    @Override
+    public boolean preservesObjectOrdering() {
+        return true;
+    }
+
+    @Override
     public boolean canHandle(final Class clazz) {
-        return Long.class.equals(clazz);
+        return Integer.class.equals(clazz);
     }
 }
