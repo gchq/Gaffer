@@ -27,7 +27,6 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple3;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -41,6 +40,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.parquetstore.Index;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFileIterator;
@@ -54,7 +54,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -68,19 +67,22 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     private final SeedMatching.SeedMatchingType seedMachingType;
     private final Iterable<? extends ElementId> seeds;
     private final String dataDir;
-    private final Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex;
+    private Index index;
     private FileSystem fs;
 
-    public ParquetElementRetriever(final View view, final ParquetStore store, final DirectedType directedType,
+    public ParquetElementRetriever(final View view,
+                                   final ParquetStore store,
+                                   final DirectedType directedType,
                                    final SeededGraphFilters.IncludeIncomingOutgoingType includeIncomingOutgoingType,
-                                   final SeedMatching.SeedMatchingType seedMatchingType, final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
+                                   final SeedMatching.SeedMatchingType seedMatchingType,
+                                   final Iterable<? extends ElementId> seeds) throws OperationException, StoreException {
         this.view = view;
         this.schemaUtils = store.getSchemaUtils();
         this.directedType = directedType;
         this.includeIncomingOutgoingType = includeIncomingOutgoingType;
         this.seedMachingType = seedMatchingType;
         this.seeds = seeds;
-        this.groupToIndex = store.getGroupToIndex();
+        this.index = store.getIndex();
         this.dataDir = store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot();
         this.fs = store.getFS();
     }
@@ -92,7 +94,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
     @Override
     public CloseableIterator<Element> iterator() {
         return new ParquetIterator(this.schemaUtils, this.view, this.directedType, this.includeIncomingOutgoingType,
-                this.seedMachingType, this.seeds, this.dataDir, this.groupToIndex, this.fs);
+                this.seedMachingType, this.seeds, this.dataDir, this.index, this.fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -115,12 +117,12 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                                   final SeedMatching.SeedMatchingType seedMachingType,
                                   final Iterable<? extends ElementId> seeds,
                                   final String dataDir,
-                                  final Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex,
+                                  final Index index,
                                   final FileSystem fs) {
             try {
                 Tuple2<Map<Path, FilterPredicate>, Boolean> results = ParquetFilterUtils
                         .buildPathToFilterMap(schemaUtils,
-                                view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, groupToIndex);
+                                view, directedType, includeIncomingOutgoingType, seedMachingType, seeds, dataDir, index);
                 this.pathToFilterMap = results.get0();
                 this.needsValidation = results.get1();
                 LOGGER.debug("pathToFilterMap: {}", pathToFilterMap);

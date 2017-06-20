@@ -28,7 +28,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple3;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -60,12 +59,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -81,7 +75,7 @@ public class ParquetStore extends Store {
                     INGEST_AGGREGATION,
                     PRE_AGGREGATION_FILTERING
             ));
-    private Map<String, List<Tuple3<Object[], Object[], String>>> groupToIndex;
+    private Index index;
     private SchemaUtils schemaUtils;
     private FileSystem fs;
     private long currentSnapshot;
@@ -191,7 +185,7 @@ public class ParquetStore extends Store {
     public void loadIndices() throws StoreException {
         LOGGER.info("Loading indices");
         try {
-            final Map<String, List<Tuple3<Object[], Object[], String>>> newGroupToIndex = new HashMap<>();
+            final Index newIndex = new Index();
             final FileSystem fs = getFS();
             final Path rootDir = new Path(this.getProperties().getDataDir());
             if (fs.exists(rootDir)) {
@@ -207,33 +201,33 @@ public class ParquetStore extends Store {
                 LOGGER.info("Latest snapshot is {}", latestSnapshot);
                 if (latestSnapshot != 0L) {
                     for (final String group : this.schemaUtils.getEntityGroups()) {
-                        final List<Tuple3<Object[], Object[], String>> index = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
-                        if (!index.isEmpty()) {
-                            newGroupToIndex.put(group, index);
+                        final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
+                        if (!subIndex.isEmpty()) {
+                            newIndex.add(group, subIndex);
                         }
                     }
                     for (final String group : this.schemaUtils.getEdgeGroups()) {
-                        final List<Tuple3<Object[], Object[], String>> index = loadIndex(group, ParquetStoreConstants.SOURCE, latestSnapshot);
-                        if (!index.isEmpty()) {
-                            newGroupToIndex.put(group, index);
+                        final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.SOURCE, latestSnapshot);
+                        if (!subIndex.isEmpty()) {
+                            newIndex.add(group, subIndex);
                         }
-                        final List<Tuple3<Object[], Object[], String>> reverseIndex = loadIndex(group, ParquetStoreConstants.DESTINATION, latestSnapshot);
-                        if (!reverseIndex.isEmpty()) {
-                            newGroupToIndex.put(group + "_reversed", reverseIndex);
+                        final Index.SubIndex reverseSubIndex = loadIndex(group, ParquetStoreConstants.DESTINATION, latestSnapshot);
+                        if (!reverseSubIndex.isEmpty()) {
+                            newIndex.add(group + "_reversed", reverseSubIndex);
                         }
                     }
                 }
                 setCurrentSnapshot(latestSnapshot);
             }
-            this.groupToIndex = newGroupToIndex;
+            this.index = newIndex;
         } catch (final IOException e) {
             throw new StoreException("Failed to connect to the file system", e);
         }
     }
 
-    private List<Tuple3<Object[], Object[], String>> loadIndex(final String group,
-                                                               final String identifier,
-                                                               final long currentSnapshot) throws StoreException {
+    private Index.SubIndex loadIndex(final String group,
+                                     final String identifier,
+                                     final long currentSnapshot) throws StoreException {
         try {
             final String indexDir;
             final Path path;
@@ -248,7 +242,7 @@ public class ParquetStore extends Store {
                 path = new Path(indexDir + "_index");
             }
             LOGGER.info("Loading the index from path {}", path);
-            final List<Tuple3<Object[], Object[], String>> index = new ArrayList<>();
+            final Index.SubIndex subIndex = new Index.SubIndex();
             final FileSystem fs = getFS();
             if (fs.exists(path)) {
                 final FSDataInputStream reader = fs.open(path);
@@ -269,11 +263,10 @@ public class ParquetStore extends Store {
                     final int filePathLength = reader.readInt();
                     final byte[] filePath = readBytes(filePathLength, reader);
                     final String fileString = StringUtil.toString(filePath);
-                    index.add(new Tuple3<>(minObjects, maxObjects, indexDir + fileString));
+                    subIndex.add(new Index.MinMaxPath(minObjects, maxObjects, indexDir + fileString));
                 }
-                index.sort(Comparator.comparing(Tuple3::_3));
             }
-            return index;
+            return subIndex;
         } catch (final IOException e) {
             if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
                 throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
@@ -311,8 +304,8 @@ public class ParquetStore extends Store {
         }
     }
 
-    public Map<String, List<Tuple3<Object[], Object[], String>>> getGroupToIndex() {
-        return this.groupToIndex;
+    public Index getIndex() {
+        return this.index;
     }
 
     public void setCurrentSnapshot(final long timestamp) {
