@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
 
 /**
  * OrderedRawIntegerSerialiser encodes/decodes a signed Integer to/from a byte array.
+ * This sorts Integer.MIN_VALUE first and INTEGER.MAX_VALUE last.
  */
 public class OrderedRawIntegerSerialiser extends AbstractOrderedSerialiser<Integer> {
 

@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.serialisation.AbstractOrderedSerialiser;
 
 /**
  * OrderedRawLongSerialiser encodes/decodes an signed Long to/from a byte array.
+ * This will order Long.MIN_VALUE first and Long.MAX_VALUE last.
  */
 public class OrderedRawLongSerialiser extends AbstractOrderedSerialiser<Long> {
 
