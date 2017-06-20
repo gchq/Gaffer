@@ -171,13 +171,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         try {
             loadMapsFromProperties(readProperties(operationScores), readProperties(authScores));
         } finally {
-            CloseableUtil.close(operationScores);
-            CloseableUtil.close(authScores);
+            CloseableUtil.close(operationScores, authScores);
         }
     }
 
     private void loadMapsFromProperties(final Properties operationScoreProperties, final Properties operationAuthScoreLimitProperties) {
-        Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
+        final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
         for (final String opClassName : operationScoreProperties.stringPropertyNames()) {
             final Class<? extends Operation> opClass;
             try {
@@ -190,6 +189,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
             final Integer score = Integer.parseInt(operationScoreProperties.getProperty(opClassName));
             opScores.put(opClass, score);
         }
+        operationScores.clear();
         operationScores.putAll(sortByValue(opScores));
         Map<String, Integer> authScores = new HashMap<>();
         for (final String authName : operationAuthScoreLimitProperties
@@ -198,12 +198,13 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
                     .getProperty(authName));
             authScores.put(authName, score);
         }
+        this.authScores.clear();
         this.authScores.putAll(authScores);
     }
 
 
     private static Properties readProperties(final Path propFileLocation) {
-        Properties props;
+        final Properties props;
         if (null != propFileLocation) {
             try {
                 props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
