@@ -104,7 +104,7 @@ public class HBaseStoreTest {
             assertFalse(admin.tableExists(tableName));
         }
 
-        store.generalInitialise(schema, PROPERTIES);
+        store.preInitialise(schema, PROPERTIES);
         connection = store.getConnection();
         try (final Admin admin = connection.getAdmin()) {
             assertFalse(admin.tableExists(tableName));

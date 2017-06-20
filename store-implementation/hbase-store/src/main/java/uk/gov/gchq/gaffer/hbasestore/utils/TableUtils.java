@@ -82,7 +82,7 @@ public final class TableUtils {
         }
 
         final HBaseStore store = new HBaseStore();
-        store.generalInitialise(Schema.fromJson(Paths.get(args[0])),
+        store.preInitialise(Schema.fromJson(Paths.get(args[0])),
                 HBaseProperties.loadStoreProperties(args[1]));
 
         try (final Admin admin = store.getConnection().getAdmin()) {

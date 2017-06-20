@@ -31,14 +31,14 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  */
 public class SingleUseMockAccumuloStore extends MockAccumuloStore {
     @Override
-    public void generalInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         // Initialise is deliberately called both before and after the deletion of the table: the first creates
         // the MockInstance and then creates the table. This ensures the getConnection() method works. The table is
         // then deleted, and recreated in the following initialise call.
 
         try {
-            super.generalInitialise(schema, properties);
+            super.preInitialise(schema, properties);
         } catch (final StoreException e) {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }
@@ -48,7 +48,7 @@ public class SingleUseMockAccumuloStore extends MockAccumuloStore {
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }
-        super.generalInitialise(schema, properties);
+        super.preInitialise(schema, properties);
     }
 
 }

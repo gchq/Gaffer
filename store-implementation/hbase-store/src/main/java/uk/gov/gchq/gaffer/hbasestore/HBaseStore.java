@@ -100,7 +100,7 @@ public class HBaseStore extends Store {
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        generalInitialise(schema, properties);
+        preInitialise(schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
@@ -111,7 +111,7 @@ public class HBaseStore extends Store {
      * @param properties the hbase store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void generalInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         super.initialise(schema, properties);
     }

@@ -173,7 +173,7 @@ public final class AddUpdateTableIterator {
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.generalInitialise(Schema.fromJson(getSchemaPaths(args)),
+        store.preInitialise(Schema.fromJson(getSchemaPaths(args)),
                 AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
         final String modifyKey = getModifyKey(args);

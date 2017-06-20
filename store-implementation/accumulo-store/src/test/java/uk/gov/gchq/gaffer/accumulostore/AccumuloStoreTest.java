@@ -130,7 +130,7 @@ public class AccumuloStoreTest {
         connector.tableOperations().delete(PROPERTIES.getTable());
         assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
 
-        byteEntityStore.generalInitialise(schema, PROPERTIES);
+        byteEntityStore.preInitialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
         assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
 

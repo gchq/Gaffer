@@ -128,7 +128,7 @@ public class AccumuloStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        generalInitialise(schema, properties);
+        preInitialise(schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
@@ -139,7 +139,7 @@ public class AccumuloStore extends Store {
      * @param properties the accumulo store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void generalInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
+    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
