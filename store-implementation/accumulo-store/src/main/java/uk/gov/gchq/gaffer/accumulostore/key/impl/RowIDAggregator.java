@@ -98,7 +98,7 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
                     + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
         group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
-        aggregator = schema.getElement(group).getAggregator();
+        aggregator = schema.getElement(group).getFullAggregator();
         return true;
     }
 

@@ -88,7 +88,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                         ElementAggregator aggregator = aggregators.get(existingElement.getGroup());
                         final SchemaElementDefinition elementDef = store.getSchema().getElement(existingElement.getGroup());
                         if (null == aggregator) {
-                            aggregator = elementDef.getAggregator();
+                            aggregator = elementDef.getIngestAggregator();
                             aggregators.put(existingElement.getGroup(), aggregator);
                         }
                         Properties properties = element.getProperties();
