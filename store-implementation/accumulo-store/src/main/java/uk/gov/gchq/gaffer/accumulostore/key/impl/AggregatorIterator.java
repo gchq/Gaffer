@@ -63,7 +63,7 @@ public class AggregatorIterator extends Combiner {
         }
 
         Properties properties;
-        final ElementAggregator aggregator = schema.getElement(group).getAggregator();
+        final ElementAggregator aggregator = schema.getElement(group).getIngestAggregator();
         try {
             properties = elementConverter.getPropertiesFromValue(group, value);
         } catch (final AccumuloElementConversionException e) {
