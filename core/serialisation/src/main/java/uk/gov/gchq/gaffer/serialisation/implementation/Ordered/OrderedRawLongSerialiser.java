@@ -24,7 +24,7 @@ public class OrderedRawLongSerialiser implements ToBytesSerialiser<Long> {
     private static final long serialVersionUID = -8948380879926929233L;
 
     @Override
-    public byte[] serialise(final Long object) throws SerialisationException {
+    public byte[] serialise(final Long object) {
         final Long signedL = object ^ 0x8000000000000000L;
         int shift = 56;
         int index;
@@ -59,7 +59,7 @@ public class OrderedRawLongSerialiser implements ToBytesSerialiser<Long> {
         int shift = 0;
 
         if (bytes[0] < 0 || bytes[0] > 16) {
-            throw new IllegalArgumentException("Unexpected length " + (0xff & bytes[0]));
+            throw new SerialisationException("Unexpected length " + (0xff & bytes[0]));
         }
 
         for (int i = bytes.length - 1; i >= 0 + 1; i--) {
@@ -80,7 +80,7 @@ public class OrderedRawLongSerialiser implements ToBytesSerialiser<Long> {
     }
 
     @Override
-    public Long deserialiseEmpty() throws SerialisationException {
+    public Long deserialiseEmpty() {
         return null;
     }
 

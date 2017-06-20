@@ -54,12 +54,12 @@ public class OrderedRawLongSerialiserTest {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
+    public void canSerialiseLongClass() {
         assertTrue(SERIALISER.canHandle(Long.class));
     }
 }

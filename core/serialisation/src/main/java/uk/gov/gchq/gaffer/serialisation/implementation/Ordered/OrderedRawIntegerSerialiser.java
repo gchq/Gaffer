@@ -24,7 +24,7 @@ public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     private static final long serialVersionUID = 5671653945533196758L;
 
     @Override
-    public byte[] serialise(final Integer object) throws SerialisationException {
+    public byte[] serialise(final Integer object) {
         final Integer signedI = object ^ 0x80000000;
         int shift = 56;
         int prefix = (signedI.intValue()) < 0 ? 255 : 0;
@@ -45,7 +45,6 @@ public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
         if (signedI.intValue() < 0) {
             ret[0] = (byte) (8 - ret[0]);
         }
-
         return ret;
     }
 
@@ -63,7 +62,6 @@ public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
             if (bytes[0] > 4) {
                 i |= -1 << (8 - bytes[0] << 3);
             }
-
             return Integer.valueOf(i) ^ 0x80000000;
         } else {
             throw new SerialisationException("Unexpected length " + (255 & bytes[0]));
@@ -71,7 +69,7 @@ public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     }
 
     @Override
-    public Integer deserialiseEmpty() throws SerialisationException {
+    public Integer deserialiseEmpty() {
         return null;
     }
 

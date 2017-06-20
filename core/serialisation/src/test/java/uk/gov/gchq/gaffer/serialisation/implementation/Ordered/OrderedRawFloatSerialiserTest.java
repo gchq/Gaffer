@@ -54,12 +54,12 @@ public class OrderedRawFloatSerialiserTest {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseFloatClass() throws SerialisationException {
+    public void canSerialiseFloatClass() {
         assertTrue(SERIALISER.canHandle(Float.class));
     }
 }

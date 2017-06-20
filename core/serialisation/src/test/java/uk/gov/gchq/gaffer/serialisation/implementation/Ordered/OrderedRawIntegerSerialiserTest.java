@@ -54,12 +54,12 @@ public class OrderedRawIntegerSerialiserTest {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseIntegerClass() throws SerialisationException {
+    public void canSerialiseIntegerClass() {
         assertTrue(SERIALISER.canHandle(Integer.class));
     }
 }

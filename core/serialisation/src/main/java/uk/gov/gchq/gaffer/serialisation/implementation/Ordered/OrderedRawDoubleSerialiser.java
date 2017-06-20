@@ -25,14 +25,13 @@ public class OrderedRawDoubleSerialiser implements ToBytesSerialiser<Double> {
     private static final OrderedRawLongSerialiser LONG_SERIALISER = new OrderedRawLongSerialiser();
 
     @Override
-    public byte[] serialise(final Double object) throws SerialisationException {
+    public byte[] serialise(final Double object) {
         long l = Double.doubleToRawLongBits(object);
         if (l < 0) {
             l = ~l;
         } else {
             l = l ^ 0x8000000000000000L;
         }
-
         return LONG_SERIALISER.serialise(l);
     }
 
@@ -48,7 +47,7 @@ public class OrderedRawDoubleSerialiser implements ToBytesSerialiser<Double> {
     }
 
     @Override
-    public Double deserialiseEmpty() throws SerialisationException {
+    public Double deserialiseEmpty() {
         return null;
     }
 

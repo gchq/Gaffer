@@ -47,17 +47,17 @@ public class OrderedRawDateSerialiserTest {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDateClass() throws SerialisationException {
+    public void canSerialiseDateClass() {
         assertTrue(SERIALISER.canHandle(Date.class));
     }
 
     @Test
-    public void checkOrderPreserved() throws SerialisationException {
+    public void checkOrderPreserved() {
         Date now = new Date(1L);
         Date aDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000L);
         assertTrue(compare(SERIALISER.serialise(now), SERIALISER.serialise(aDayLater)) < 0);

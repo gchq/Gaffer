@@ -25,14 +25,13 @@ public class OrderedRawFloatSerialiser implements ToBytesSerialiser<Float> {
     private static final OrderedRawIntegerSerialiser INTEGER_SERIALISER = new OrderedRawIntegerSerialiser();
 
     @Override
-    public byte[] serialise(final Float object) throws SerialisationException {
+    public byte[] serialise(final Float object) {
         int i = Float.floatToRawIntBits(object);
         if (i < 0) {
             i = ~i;
         } else {
             i = i ^ 0x80000000;
         }
-
         return INTEGER_SERIALISER.serialise(i);
     }
 
@@ -44,12 +43,11 @@ public class OrderedRawFloatSerialiser implements ToBytesSerialiser<Float> {
         } else {
             i = ~i;
         }
-
         return Float.intBitsToFloat(i);
     }
 
     @Override
-    public Float deserialiseEmpty() throws SerialisationException {
+    public Float deserialiseEmpty() {
         return null;
     }
 

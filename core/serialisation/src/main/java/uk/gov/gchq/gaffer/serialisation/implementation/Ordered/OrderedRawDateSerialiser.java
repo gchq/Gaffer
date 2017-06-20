@@ -26,7 +26,7 @@ public class OrderedRawDateSerialiser implements ToBytesSerialiser<Date> {
     private static final OrderedRawLongSerialiser LONG_SERIALISER = new OrderedRawLongSerialiser();
 
     @Override
-    public byte[] serialise(final Date object) throws SerialisationException {
+    public byte[] serialise(final Date object) {
         return LONG_SERIALISER.serialise(object.getTime());
     }
 
@@ -36,7 +36,7 @@ public class OrderedRawDateSerialiser implements ToBytesSerialiser<Date> {
     }
 
     @Override
-    public Date deserialiseEmpty() throws SerialisationException {
+    public Date deserialiseEmpty() {
         return null;
     }
 

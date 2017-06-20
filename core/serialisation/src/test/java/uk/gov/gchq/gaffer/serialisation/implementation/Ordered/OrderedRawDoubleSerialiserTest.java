@@ -54,12 +54,12 @@ public class OrderedRawDoubleSerialiserTest {
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(SERIALISER.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseDoubleClass() throws SerialisationException {
+    public void canSerialiseDoubleClass() {
         assertTrue(SERIALISER.canHandle(Double.class));
     }
 
