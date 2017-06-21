@@ -34,8 +34,11 @@ import static org.mockito.Mockito.mock;
 
 public class OperationChainLimiterTest {
 
-    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = new OperationChainLimiter(StreamUtil.opScores(OperationChainLimiterTest.class), StreamUtil
-            .authScores(OperationChainLimiterTest.class));
+    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER =
+            new OperationChainLimiter(
+                    StreamUtil.opScores(OperationChainLimiterTest.class),
+                    StreamUtil.authScores(OperationChainLimiterTest.class)
+            );
 
     @Test
     public void shouldAcceptOperationChainWhenUserHasAuthScoreGreaterThanChainScore() {
