@@ -268,6 +268,9 @@ public abstract class Store {
                 try {
                     _execute(operationChain, context);
                     addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Error e) {
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                    throw e;
                 } catch (final Exception e) {
                     LOGGER.warn("Operation chain job failed to execute", e);
                     addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
