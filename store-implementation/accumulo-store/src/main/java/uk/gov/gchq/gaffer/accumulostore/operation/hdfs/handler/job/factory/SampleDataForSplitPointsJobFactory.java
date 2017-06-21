@@ -36,20 +36,6 @@ import java.io.IOException;
 public class SampleDataForSplitPointsJobFactory extends AbstractSampleDataForSplitPointsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataForSplitPointsJobFactory.class);
 
-    @Override
-    public long getOutputEveryNthRecord(final Store store, final long totalNumber) {
-        int numberTabletServers;
-        try {
-            numberTabletServers = ((AccumuloStore) store).getTabletServers().size();
-            LOGGER.info("Number of tablet servers is {}", numberTabletServers);
-        } catch (final StoreException e) {
-            LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-        return totalNumber / (numberTabletServers - 1);
-    }
-
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "key should always be an instance of Key")
     @Override
     public byte[] createSplit(final Writable key, final Writable value) {
@@ -68,16 +54,18 @@ public class SampleDataForSplitPointsJobFactory extends AbstractSampleDataForSpl
 
     @Override
     public int getExpectedNumberOfSplits(final Store store) {
+        final AccumuloStore accumuloStore = (AccumuloStore) store;
+
         int numberTabletServers;
         try {
-            numberTabletServers = ((AccumuloStore) store).getTabletServers().size();
+            numberTabletServers = accumuloStore.getTabletServers().size();
             LOGGER.info("Number of tablet servers is {}", numberTabletServers);
         } catch (final StoreException e) {
             LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        return numberTabletServers;
+        return numberTabletServers - 1;
     }
 
     @Override
@@ -90,17 +78,17 @@ public class SampleDataForSplitPointsJobFactory extends AbstractSampleDataForSpl
     @Override
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         super.setupJob(job, operation, store);
-        setupMapper(job, operation, store);
-        setupReducer(job, operation, store);
+        setupMapper(job);
+        setupReducer(job);
     }
 
-    private void setupMapper(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    private void setupMapper(final Job job) throws IOException {
         job.setMapperClass(SampleDataForSplitPointsMapper.class);
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupReducer(final Job job, final SampleDataForSplitPoints operation, final Store store)
+    private void setupReducer(final Job job)
             throws IOException {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);

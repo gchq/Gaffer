@@ -128,7 +128,7 @@ To run this operation, use:
 ```java
 SampleDataForSplitPoints sample = new SampleDataForSplitPoints.Builder()
         .addInputPath(inputPath)
-        .resultingSplitsFilePath(splitsFilePath)
+        .splitsFile(splitsFilePath)
         .outputPath(outputPath)
         .jobInitialiser(jobInitialiser)
         .validate(true)

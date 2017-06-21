@@ -57,15 +57,15 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     public void doOperation(final AddElementsFromHdfs operation,
                             final Context context, final AccumuloStore store)
             throws OperationException {
+        validateOperation(operation);
 
-        if (null == operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH)) {
+        if (null == operation.getSplitsFile()) {
             final String splitsFilePath = "/tmp/" + context.getJobId() + "/splits";
             LOGGER.info("Using temporary directory for splits files: " + splitsFilePath);
-            operation.addOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFilePath);
+            operation.setSplitsFile(splitsFilePath);
         }
 
-        final boolean useUserSplits = Boolean.parseBoolean(operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE));
-        if (!useUserSplits) {
+        if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
             sampleAndSplit(operation, context, store);
         }
 
@@ -79,65 +79,83 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
-    private void sampleAndSplit(final AddElementsFromHdfs operation, final Context context, final AccumuloStore store) throws OperationException {
+    private void validateOperation(final AddElementsFromHdfs operation) {
+        if (null != operation.getMinMapTasks()) {
+            LOGGER.warn("minMapTasks field will be ignored");
+        }
+
+        if (null != operation.getMaxMapTasks()) {
+            LOGGER.warn("minMaxTasks field will be ignored");
+        }
+    }
+
+    private boolean needsSplitting(final AccumuloStore store) throws OperationException {
+        boolean needsSplitting = false;
+
         final int numSplits;
         try {
             numSplits = store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), Integer.MAX_VALUE).size();
         } catch (TableNotFoundException | AccumuloSecurityException | StoreException | AccumuloException e) {
             throw new OperationException("Unable to get accumulo's split points", e);
         }
-
-
-        final int numberTabletServers;
-        try {
-            numberTabletServers = store.getTabletServers().size();
-        } catch (final StoreException e) {
-            throw new OperationException("Unable to get accumulo's tablet servers", e);
-        }
-
-        if (numSplits < numberTabletServers) {
-            LOGGER.info("Starting to sample input data to create splits points to set on the table");
-
-            // Sample data for split points and split the table
-            final Class<? extends MapperGenerator> mapperGeneratorClass;
+        if (numSplits < 2) {
+            final int numberTabletServers;
             try {
-                mapperGeneratorClass = Class.forName(operation.getMapperGeneratorClassName()).asSubclass(MapperGenerator.class);
-            } catch (final ClassNotFoundException e) {
-                throw new IllegalArgumentException("Mapper generator class name was invalid: " + operation.getMapperGeneratorClassName(), e);
+                numberTabletServers = store.getTabletServers().size();
+            } catch (final StoreException e) {
+                throw new OperationException("Unable to get accumulo's tablet servers", e);
             }
 
-            final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-            final String outputPath = "/tmp/" + context.getJobId() + "/output";
-            LOGGER.debug("Using temporary directory for split calculations: /tmp/" + context.getJobId());
+            if (numberTabletServers > 1) {
+                needsSplitting = true;
+            }
+        }
 
+        return needsSplitting;
+    }
+
+    private void sampleAndSplit(final AddElementsFromHdfs operation, final Context context, final AccumuloStore store) throws OperationException {
+
+        LOGGER.info("Starting to sample input data to create splits points to set on the table");
+
+        // Sample data for split points and split the table
+        final Class<? extends MapperGenerator> mapperGeneratorClass;
+        try {
+            mapperGeneratorClass = Class.forName(operation.getMapperGeneratorClassName()).asSubclass(MapperGenerator.class);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Mapper generator class name was invalid: " + operation.getMapperGeneratorClassName(), e);
+        }
+
+        final String outputPath = "/tmp/" + context.getJobId() + "/output";
+        LOGGER.debug("Using temporary directory for split calculations: /tmp/" + context.getJobId());
+
+        try {
+            store._execute(new OperationChain.Builder()
+                    .first(new SampleDataForSplitPoints.Builder()
+                            .addInputPaths(operation.getInputPaths())
+                            .jobInitialiser(operation.getJobInitialiser())
+                            .mapperGenerator(mapperGeneratorClass)
+                            .mappers(operation.getNumMapTasks())
+                            .validate(operation.isValidate())
+                            .outputPath(outputPath)
+                            .resultingSplitsFilePath(operation.getSplitsFile())
+                            .options(operation.getOptions())
+                            .build())
+                    .then(new SplitStore.Builder()
+                            .inputPath(operation.getSplitsFile())
+                            .options(operation.getOptions())
+                            .build())
+                    .build(), context);
+        } finally {
+            final FileSystem fs;
             try {
-                store._execute(new OperationChain.Builder()
-                        .first(new SampleDataForSplitPoints.Builder()
-                                .addInputPaths(operation.getInputPaths())
-                                .jobInitialiser(operation.getJobInitialiser())
-                                .mapperGenerator(mapperGeneratorClass)
-                                .mappers(operation.getNumMapTasks())
-                                .validate(operation.isValidate())
-                                .outputPath(outputPath)
-                                .resultingSplitsFilePath(splitsFilePath)
-                                .options(operation.getOptions())
-                                .build())
-                        .then(new SplitStore.Builder()
-                                .inputPath(splitsFilePath)
-                                .options(operation.getOptions())
-                                .build())
-                        .build(), context);
-            } finally {
-                final FileSystem fs;
-                try {
-                    fs = FileSystem.get(new JobConf(new Configuration()));
-                    final Path pathToDelete = new Path("/tmp/" + context.getJobId());
-                    if (fs.exists(pathToDelete)) {
-                        fs.delete(pathToDelete, true);
-                    }
-                } catch (final IOException e) {
-                    LOGGER.warn("Unable to delete temporary files used to calculate splits", e);
+                fs = FileSystem.get(new JobConf(new Configuration()));
+                final Path pathToDelete = new Path("/tmp/" + context.getJobId());
+                if (fs.exists(pathToDelete)) {
+                    fs.delete(pathToDelete, true);
                 }
+            } catch (final IOException e) {
+                LOGGER.warn("Unable to delete temporary files used to calculate splits", e);
             }
         }
     }

@@ -16,9 +16,10 @@
 
 package uk.gov.gchq.gaffer.accumulostore.integration;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,7 +31,6 @@ import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.byteEntity.ByteEntityKeyPackage;
 import uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic.ClassicKeyPackage;
-import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -52,23 +52,26 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
-    public static final int NUM_ENTITIES = 10;
+    public static final int NUM_ENTITIES = 1000;
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     private String inputDir;
-    public String outputDir;
-    public String failureDir;
-    public String splitsDir;
-    public String splitsFile;
+    private String outputDir;
+    private String failureDir;
+    private String splitsDir;
+    private String splitsFile;
 
     @Before
     public void setup() {
@@ -165,18 +168,23 @@ public class AddElementsFromHdfsIT {
                 .failurePath(failureDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
-                .option(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE, "false")
-                .option(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, splitsFile)
+                .useProvidedSplits(false)
+                .splitsFile(splitsFile)
                 .build(), new User());
 
         // Then
         final CloseableIterable<? extends Element> elements = graph.execute(new GetAllElements(), new User());
-        final List<Element> elementList = Lists.newArrayList(elements);
-        assertEquals(NUM_ENTITIES, elementList.size());
+        final Set<Element> elementSet = Sets.newHashSet(elements);
+        assertEquals(NUM_ENTITIES, elementSet.size());
+
+        final Set<Element> expectedElements = new HashSet<>(NUM_ENTITIES);
         for (int i = 0; i < NUM_ENTITIES; i++) {
-            assertEquals(TestGroups.ENTITY, elementList.get(i).getGroup());
-            assertEquals(VERTEX_ID_PREFIX + i, ((Entity) elementList.get(i)).getVertex());
+            expectedElements.add(new Entity.Builder()
+                    .vertex(VERTEX_ID_PREFIX + i)
+                    .group(TestGroups.ENTITY)
+                    .build());
         }
+        assertEquals(expectedElements, elementSet);
     }
 
     private void createInputFile() throws IOException, StoreException {
@@ -233,6 +241,11 @@ public class AddElementsFromHdfsIT {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");
+        }
+
+        @Override
+        public void addSplits(final SortedSet<Text> splits) throws StoreException {
+            // Splits will not be added to this mock accumulo store
         }
     }
 }

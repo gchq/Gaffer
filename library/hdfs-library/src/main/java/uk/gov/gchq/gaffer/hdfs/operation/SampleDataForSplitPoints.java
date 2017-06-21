@@ -49,7 +49,8 @@ public class SampleDataForSplitPoints implements
         Options {
 
     @Required
-    private String resultingSplitsFilePath;
+    private String splitsFile;
+    private boolean useProvidedSplits;
 
     private boolean validate = true;
     private float proportionToSample = 0.01f;
@@ -69,6 +70,9 @@ public class SampleDataForSplitPoints implements
     private JobInitialiser jobInitialiser;
 
     private Integer numMapTasks;
+    private Integer minMapTasks;
+    private Integer maxMapTasks;
+
     private Map<String, String> options;
     private Class<? extends CompressionCodec> compressionCodec = GzipCodec.class;
 
@@ -107,12 +111,12 @@ public class SampleDataForSplitPoints implements
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public String getResultingSplitsFilePath() {
-        return resultingSplitsFilePath;
+    public String getSplitsFile() {
+        return splitsFile;
     }
 
-    public void setResultingSplitsFilePath(final String resultingSplitsFilePath) {
-        this.resultingSplitsFilePath = resultingSplitsFilePath;
+    public void setSplitsFile(final String splitsFile) {
+        this.splitsFile = splitsFile;
     }
 
     public float getProportionToSample() {
@@ -164,15 +168,69 @@ public class SampleDataForSplitPoints implements
     }
 
     @Override
+    public Integer getMinMapTasks() {
+        return minMapTasks;
+    }
+
+    @Override
+    public void setMinMapTasks(final Integer minMapTasks) {
+        this.minMapTasks = minMapTasks;
+    }
+
+    @Override
+    public Integer getMaxMapTasks() {
+        return maxMapTasks;
+    }
+
+    @Override
+    public void setMaxMapTasks(final Integer maxMapTasks) {
+        this.maxMapTasks = maxMapTasks;
+    }
+
+    @Override
     public Integer getNumReduceTasks() {
         return 1;
     }
 
     @Override
     public void setNumReduceTasks(final Integer numReduceTasks) {
-        if (1 != numReduceTasks) {
+        if (null != numReduceTasks && 1 != numReduceTasks) {
             throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
         }
+    }
+
+    @Override
+    public Integer getMinReduceTasks() {
+        return 1;
+    }
+
+    @Override
+    public void setMinReduceTasks(final Integer minReduceTasks) {
+        if (null != minReduceTasks && 1 != minReduceTasks) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
+        }
+    }
+
+    @Override
+    public Integer getMaxReduceTasks() {
+        return 1;
+    }
+
+    @Override
+    public void setMaxReduceTasks(final Integer maxReduceTasks) {
+        if (null != maxReduceTasks && 1 != maxReduceTasks) {
+            throw new IllegalArgumentException(getClass().getSimpleName() + " requires the number of reducers to be 1");
+        }
+    }
+
+    @Override
+    public boolean isUseProvidedSplits() {
+        return useProvidedSplits;
+    }
+
+    @Override
+    public void setUseProvidedSplits(final boolean useProvidedSplits) {
+        this.useProvidedSplits = useProvidedSplits;
     }
 
     @Override
@@ -212,7 +270,7 @@ public class SampleDataForSplitPoints implements
         }
 
         public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
-            _getOp().setResultingSplitsFilePath(resultingSplitsFilePath);
+            _getOp().setSplitsFile(resultingSplitsFilePath);
             return _self();
         }
 

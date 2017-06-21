@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -29,6 +30,9 @@ import java.util.List;
  * {@link JobInitialiser}.
  * <p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
+ * <p>
+ * If you want to specify the number of mappers and/or the number of reducers
+ * then either set the exact number or set a min and/or max value.
  *
  * @see Builder
  */
@@ -80,6 +84,31 @@ public interface MapReduce {
 
     void setNumReduceTasks(final Integer numReduceTasks);
 
+    Integer getMinMapTasks();
+
+    void setMinMapTasks(final Integer minMapTasks);
+
+    Integer getMaxMapTasks();
+
+    void setMaxMapTasks(final Integer maxMapTasks);
+
+    Integer getMinReduceTasks();
+
+    void setMinReduceTasks(final Integer minReduceTasks);
+
+    Integer getMaxReduceTasks();
+
+    void setMaxReduceTasks(final Integer maxReduceTasks);
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    boolean isUseProvidedSplits();
+
+    void setUseProvidedSplits(boolean useProvidedSplits);
+
+    String getSplitsFile();
+
+    void setSplitsFile(String splitsFile);
+
     Class<? extends Partitioner> getPartitioner();
 
     void setPartitioner(final Class<? extends Partitioner> partitioner);
@@ -111,12 +140,66 @@ public interface MapReduce {
         }
 
         default B reducers(final Integer numReduceTasks) {
+            if (null != _getOp().getMinReduceTasks() || null != _getOp().getMaxReduceTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of reducers to use or provide a min and max value.");
+            }
             _getOp().setNumReduceTasks(numReduceTasks);
             return _self();
         }
 
+        default B minReducers(final Integer minReduceTasks) {
+            if (null != _getOp().getNumReduceTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of reducers to use or provide a min and max value.");
+            }
+            _getOp().setMinReduceTasks(minReduceTasks);
+            return _self();
+        }
+
+        default B maxReducers(final Integer maxReduceTasks) {
+            if (null != _getOp().getNumReduceTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of reducers to use or provide a min and max value.");
+            }
+            _getOp().setMaxReduceTasks(maxReduceTasks);
+            return _self();
+        }
+
         default B mappers(final Integer numMapTasks) {
+            if (null != _getOp().getMinMapTasks() || null != _getOp().getMaxMapTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of mappers to use or provide a min and max value.");
+            }
             _getOp().setNumMapTasks(numMapTasks);
+            return _self();
+        }
+
+        default B minMappers(final Integer minMapTasks) {
+            if (null != _getOp().getNumMapTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of mappers to use or provide a min and max value.");
+            }
+            _getOp().setMinMapTasks(minMapTasks);
+            return _self();
+        }
+
+        default B maxMappers(final Integer maxMapTasks) {
+            if (null != _getOp().getNumMapTasks()) {
+                throw new IllegalArgumentException("Invalid combination of fields. " +
+                        "Either provide the number of mappers to use or provide a min and max value.");
+            }
+            _getOp().setMaxMapTasks(maxMapTasks);
+            return _self();
+        }
+
+        default B useProvidedSplits(final boolean useProvidedSplits) {
+            _getOp().setUseProvidedSplits(useProvidedSplits);
+            return _self();
+        }
+
+        default B splitsFile(final String splitsFile) {
+            _getOp().setSplitsFile(splitsFile);
             return _self();
         }
 

@@ -29,7 +29,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet(
-                "resultingSplitsFilePath",
+                "splitsFile",
                 "mapperGeneratorClassName",
                 "inputPaths",
                 "outputPath",
@@ -47,7 +47,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
         op.setMapperGeneratorClassName("Test");
         op.setValidate(true);
         op.setProportionToSample(0.1f);
-        op.setResultingSplitsFilePath(resultPath);
+        op.setSplitsFile(resultPath);
         op.setNumMapTasks(5);
 
         // When
@@ -57,7 +57,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPaths().get(0));
-        assertEquals(resultPath, deserialisedOp.getResultingSplitsFilePath());
+        assertEquals(resultPath, deserialisedOp.getSplitsFile());
         assertEquals("Test", deserialisedOp.getMapperGeneratorClassName());
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
@@ -72,7 +72,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
         final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
         assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputPaths().get(0));
         assertEquals("true", sampleDataForSplitPoints.getOption(TEST_OPTION_KEY));
-        assertEquals("/test", sampleDataForSplitPoints.getResultingSplitsFilePath());
+        assertEquals("/test", sampleDataForSplitPoints.getSplitsFile());
         assertTrue(sampleDataForSplitPoints.isValidate());
         assertEquals(0.1f, sampleDataForSplitPoints.getProportionToSample(), 1);
         assertEquals(new Integer(5), sampleDataForSplitPoints.getNumMapTasks());

@@ -95,7 +95,12 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
         }
 
-        final long outputEveryNthRecord = jobFactory.getOutputEveryNthRecord(store, counter.getValue());
+        final long outputEveryNthRecord;
+        if (counter.getValue() < 2 || expectedNumberOfSplits < 1) {
+            outputEveryNthRecord = 1;
+        } else {
+            outputEveryNthRecord = counter.getValue() / expectedNumberOfSplits;
+        }
 
         final Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");
         LOGGER.info("Will output every {}-th record from {}", outputEveryNthRecord, resultsFile);
@@ -125,14 +130,14 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
     }
 
     private void writeSplits(final FileSystem fs, final Path resultsFile, final long outputEveryNthRecord, final int numberSplitsExpected) throws OperationException {
-        LOGGER.info("Writing splits to {}", operation.getResultingSplitsFilePath());
+        LOGGER.info("Writing splits to {}", operation.getSplitsFile());
         final Writable key = jobFactory.createKey();
         final Writable value = jobFactory.createValue();
         long count = 0;
         int numberSplitPointsOutput = 0;
         try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, fs.getConf());
              final PrintStream splitsWriter = new PrintStream(
-                     new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)),
+                     new BufferedOutputStream(fs.create(new Path(operation.getSplitsFile()), true)),
                      false, CommonConstants.UTF_8)
         ) {
             while (numberSplitPointsOutput < numberSplitsExpected) {

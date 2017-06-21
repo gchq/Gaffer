@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -69,9 +70,11 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
                 .outputPath("outputPath")
                 .jobInitialiser(new TextJobInitialiser())
                 .partitioner(Partitioner.class)
-                .reducers(10)
                 .mappers(5)
-                .validate(true)
+                .reducers(10)
+                .splitsFile("/path/to/splits/file")
+                .useProvidedSplits(false)
+                .mapperGenerator(MapperGenerator.class)
                 .build();
 
         // When
@@ -89,7 +92,9 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
                 "  },%n" +
                 "  \"numMapTasks\" : 5,%n" +
                 "  \"numReduceTasks\" : 10,%n" +
-                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
+                "  \"splitsFile\" : \"/path/to/splits/file\",%n" +
+                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\",%n" +
+                "  \"mapperGeneratorClassName\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n" +
                 "}"), json);
     }
 

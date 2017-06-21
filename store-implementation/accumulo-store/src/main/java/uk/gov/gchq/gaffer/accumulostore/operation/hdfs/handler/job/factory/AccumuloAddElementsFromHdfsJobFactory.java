@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory;
+import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
@@ -58,8 +59,7 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         setupReducer(job);
         setupOutput(job, operation);
 
-        final String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
-        if (null == useAccumuloPartitioner || "true".equalsIgnoreCase(useAccumuloPartitioner)) {
+        if (!NoPartitioner.class.equals(operation.getPartitioner())) {
             setupPartitioner(job, operation, (AccumuloStore) store);
         }
     }
@@ -87,23 +87,13 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
 
     private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-
-        boolean userSplitsFile = false;
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-
-        final String userSplitsFileStr = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE);
-
-        if (userSplitsFileStr != null) {
-            userSplitsFile = Boolean.parseBoolean(userSplitsFileStr);
-        }
-
-        if (splitsFilePath == null) {
+        if (operation.getSplitsFile() == null) {
             // Provide a default path if the splits file path is missing
-            operation.addOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "");
+            operation.setSplitsFile("");
             LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");
         }
 
-        if (userSplitsFile) {
+        if (operation.isUseProvidedSplits()) {
             // Use provided splits file
             setUpPartitionerFromUserProvidedSplitsFile(job, operation);
         } else {
@@ -114,10 +104,10 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
 
     private void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
                                                     final AccumuloStore store) throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
+        final String splitsFilePath = operation.getSplitsFile();
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
-        final int maxReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
-        final int minReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+        final int maxReducers = validateValue(operation.getMaxReduceTasks());
+        final int minReducers = validateValue(operation.getMinReduceTasks());
         if ((maxReducers != -1 && minReducers != -1)
                 && (minReducers > maxReducers)) {
             LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
@@ -158,12 +148,10 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
 
     private void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
             throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-        if (intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS) != -1
-                || intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS) != -1) {
-            LOGGER.info("Using splits file provided by user {}, ignoring options {} and {}", splitsFilePath,
-                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS,
-                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+        final String splitsFilePath = operation.getSplitsFile();
+        if (validateValue(operation.getMaxReduceTasks()) != -1
+                || validateValue(operation.getMinReduceTasks()) != -1) {
+            LOGGER.info("Using splits file provided by user {}, ignoring minReduceTasks and maxReduceTasks", splitsFilePath);
         } else {
             LOGGER.info("Using splits file provided by user {}", splitsFilePath);
         }
@@ -173,21 +161,14 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         KeyRangePartitioner.setSplitFile(job, splitsFilePath);
     }
 
-    private static int intOptionIsValid(final AddElementsFromHdfs operation, final String optionKey) throws IOException {
-        final String option = operation.getOption(optionKey);
+    private static int validateValue(final Integer value) throws IOException {
         int result = -1;
-        if (option != null && !option.isEmpty()) {
-            try {
-                result = Integer.parseInt(option);
-            } catch (final NumberFormatException e) {
-                LOGGER.error("Error parsing {}, got {}", optionKey, option);
-                throw new IOException("Can't parse " + optionKey + " option, got " + option, e);
-            }
+        if (null != value) {
+            result = value;
             if (result < 1) {
-                LOGGER.error("Invalid {} option - must be >=1, got {}", optionKey, result);
-                throw new IOException("Invalid " + optionKey + " option - must be >=1, got " + result);
+                LOGGER.error("Invalid field - must be >=1, got {}", result);
+                throw new IOException("Invalid field - must be >=1, got " + result);
             }
-            LOGGER.info("{} option is {}", optionKey, result);
         }
         return result;
     }

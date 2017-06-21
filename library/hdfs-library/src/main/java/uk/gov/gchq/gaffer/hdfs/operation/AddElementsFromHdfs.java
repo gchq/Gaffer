@@ -36,6 +36,7 @@ import java.util.Map;
  * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
+ * @see MapReduce
  * @see Builder
  */
 public class AddElementsFromHdfs implements
@@ -65,7 +66,16 @@ public class AddElementsFromHdfs implements
     private JobInitialiser jobInitialiser;
 
     private Integer numMapTasks;
+    private Integer minMapTasks;
+    private Integer maxMapTasks;
+
     private Integer numReduceTasks;
+    private Integer minReduceTasks;
+    private Integer maxReduceTasks;
+
+    private boolean useProvidedSplits;
+    private String splitsFile;
+
     private Class<? extends Partitioner> partitioner;
     private Map<String, String> options;
 
@@ -146,6 +156,66 @@ public class AddElementsFromHdfs implements
     @Override
     public void setNumReduceTasks(final Integer numReduceTasks) {
         this.numReduceTasks = numReduceTasks;
+    }
+
+    @Override
+    public Integer getMinMapTasks() {
+        return minMapTasks;
+    }
+
+    @Override
+    public void setMinMapTasks(final Integer minMapTasks) {
+        this.minMapTasks = minMapTasks;
+    }
+
+    @Override
+    public Integer getMaxMapTasks() {
+        return maxMapTasks;
+    }
+
+    @Override
+    public void setMaxMapTasks(final Integer maxMapTasks) {
+        this.maxMapTasks = maxMapTasks;
+    }
+
+    @Override
+    public Integer getMinReduceTasks() {
+        return minReduceTasks;
+    }
+
+    @Override
+    public void setMinReduceTasks(final Integer minReduceTasks) {
+        this.minReduceTasks = minReduceTasks;
+    }
+
+    @Override
+    public Integer getMaxReduceTasks() {
+        return maxReduceTasks;
+    }
+
+    @Override
+    public void setMaxReduceTasks(final Integer maxReduceTasks) {
+        this.maxReduceTasks = maxReduceTasks;
+    }
+
+    @Override
+    public boolean isUseProvidedSplits() {
+        return useProvidedSplits;
+    }
+
+    @Override
+    public void setUseProvidedSplits(final boolean useProvidedSplits) {
+        this.useProvidedSplits = useProvidedSplits;
+    }
+
+    @Override
+    public String getSplitsFile() {
+        return splitsFile;
+    }
+
+    @Override
+    public void setSplitsFile(final String splitsFile) {
+        this.splitsFile = splitsFile;
     }
 
     @Override

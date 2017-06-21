@@ -15,9 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler;
 
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -65,9 +62,9 @@ public class SplitStoreHandler implements OperationHandler<SplitStore> {
         @Override
         public void accept(final SortedSet<Text> splits) {
             try {
-                store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
+                store.addSplits(splits);
                 LOGGER.info("Added {} splits to table {}", splits.size(), store.getProperties().getTable());
-            } catch (final TableNotFoundException | AccumuloException | AccumuloSecurityException | StoreException e) {
+            } catch (final StoreException e) {
                 LOGGER.error("Failed to add {} split points to table {}", splits.size(), store.getProperties().getTable());
                 throw new RuntimeException("Failed to add split points to the table specified: " + e.getMessage(), e);
             }

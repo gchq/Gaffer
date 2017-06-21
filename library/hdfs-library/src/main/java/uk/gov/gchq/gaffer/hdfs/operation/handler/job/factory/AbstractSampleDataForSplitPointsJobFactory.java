@@ -40,8 +40,6 @@ public abstract class AbstractSampleDataForSplitPointsJobFactory {
     public static final String MAPPER_GENERATOR = "mapperGenerator";
     public static final String VALIDATE = "validate";
 
-    public abstract long getOutputEveryNthRecord(final Store store, final long totalNumber);
-
     public abstract byte[] createSplit(final Writable key, final Writable value);
 
     public abstract Writable createKey();
@@ -83,7 +81,7 @@ public abstract class AbstractSampleDataForSplitPointsJobFactory {
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
-        Integer numTasks = operation.getNumMapTasks();
+        final Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
         }
@@ -95,7 +93,6 @@ public abstract class AbstractSampleDataForSplitPointsJobFactory {
         job.setJobName(getJobName(operation.getMapperGeneratorClassName(), new Path(operation.getOutputPath())));
         setupOutput(job, operation, store);
     }
-
 
     protected String getJobName(final String mapperGenerator, final Path outputPath) {
         return "Sample Data: Generator=" + mapperGenerator + ", output=" + outputPath;

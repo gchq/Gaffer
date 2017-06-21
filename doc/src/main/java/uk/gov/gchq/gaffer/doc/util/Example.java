@@ -74,7 +74,7 @@ public abstract class Example {
 
     protected void printDescription() {
         if (StringUtils.isNotEmpty(description)) {
-            log(description);
+            log(description + "\n");
         }
     }
 

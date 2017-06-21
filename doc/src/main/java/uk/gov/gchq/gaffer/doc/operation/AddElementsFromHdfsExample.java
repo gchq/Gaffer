@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.AccumuloAddElementsFromHdfs;
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
@@ -35,55 +34,36 @@ public class AddElementsFromHdfsExample extends OperationExample {
                 "It can then be run with: \n\n"
                 + "```bash\n"
                 + "hadoop jar custom-shaded-jar.jar\n"
-                + "```\n");
+                + "```\n\n"
+                + "When running an " + AddElementsFromHdfs.class.getSimpleName()
+                + " on Accumulo, if you do not specify useProvidedSplits " +
+                "and the Accumulo table does not have a full set of split points " +
+                "then this operation will first sample the input data, generate " +
+                "split points and set them on the Accumulo table. " +
+                "It does this by delegating to " + SampleDataForSplitPoints.class.getSimpleName()
+                + " and " + SplitStore.class + ".");
     }
 
     @Override
     public void runExamples() {
         addElementsFromHdfs();
-        accumuloAddElementsFromHdfs();
     }
 
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
-                .addInputPath("/path/to/input/file")
-                .outputPath("/path/to/output/folder")
-                .failurePath("/path/to/failure/folder")
-                .mapperGenerator(TextMapperGeneratorImpl.class)
-                .jobInitialiser(new TextJobInitialiser())
-                .build();
-        // ---------------------------------------------------------
-
-        showJavaExample(operation, null);
-    }
-
-    public void accumuloAddElementsFromHdfs() {
-        // ---------------------------------------------------------
-        final AddElementsFromHdfs operation = new AccumuloAddElementsFromHdfs.Builder()
-                .addInputPath("/path/to/input/file")
-                .addInputPath("/path/to/another/input/file")
-                .addInputPath("/path/to/input/folder")
+                .addInputPath("/path/to/input/fileOrFolder")
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
-                .splitsFilePath("/path/to/splits/file")
-                .maxReducers(100)
+                .splitsFile("/path/to/splits/file")
                 .minReducers(10)
-                .skipImport(true)
-                .useAccumuloPartitioner(true)
+                .maxReducers(100)
                 .build();
         // ---------------------------------------------------------
 
-        showJavaExample(operation,
-                "When running an " + AddElementsFromHdfs.class.getSimpleName()
-                        + " on Accumulo, there are  additional options. "
-                        + "There is a special Builder to help with these: AccumuloAddElementsFromHdfs.Builder().\n\n" +
-                        "If you do not provide split points and the Accumulo table does not have a full set of split points then this operation will first sample the input data, generate split points and set them on the Accumulo table. " +
-                        "It does this by delegating to " + SampleDataForSplitPoints.class.getSimpleName()
-                        + " and " + SplitStore.class + "."
-        );
+        showJavaExample(operation, null);
     }
 }
