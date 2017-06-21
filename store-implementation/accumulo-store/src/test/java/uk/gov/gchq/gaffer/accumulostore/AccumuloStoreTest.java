@@ -19,7 +19,10 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
@@ -100,13 +103,40 @@ public class AccumuloStoreTest {
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
-
     }
+
+    @Before
+    public void beforeMethod() throws StoreException, IOException {
+        if (!byteEntityStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+            byteEntityStore.initialise(schema, PROPERTIES);
+        }
+
+        if (!gaffer1KeyStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+            gaffer1KeyStore.initialise(schema, PROPERTIES);
+        }
+    }
+
 
     @AfterClass
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
+    }
+
+    @Test
+    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        Connector connector = byteEntityStore.getConnection();
+
+        connector.tableOperations().delete(PROPERTIES.getTable());
+        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+
+        byteEntityStore.preInitialise(schema, PROPERTIES);
+        connector = byteEntityStore.getConnection();
+        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+
+        byteEntityStore.initialise(schema, PROPERTIES);
+        connector = byteEntityStore.getConnection();
+        assertTrue(connector.tableOperations().exists(PROPERTIES.getTable()));
     }
 
     @Test

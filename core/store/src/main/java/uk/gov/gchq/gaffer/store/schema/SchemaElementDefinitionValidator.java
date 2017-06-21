@@ -52,7 +52,7 @@ public class SchemaElementDefinitionValidator {
         final ValidationResult result = new ValidationResult();
 
         final ElementFilter validator = elementDef.getValidator();
-        final ElementAggregator aggregator = elementDef.getAggregator();
+        final ElementAggregator aggregator = elementDef.getFullAggregator();
         result.add(validateAggregator(aggregator, elementDef));
         result.add(validateComponentTypes(elementDef));
         result.add(validateFunctionArgumentTypes(validator, elementDef));
