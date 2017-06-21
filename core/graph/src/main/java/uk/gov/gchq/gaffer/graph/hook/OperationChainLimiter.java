@@ -21,7 +21,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Properties;
+import java.util.LinkedHashMap;
 
 /*
  * An <code>OperationChainLimiter</code> is a {@link GraphHook} that checks a
@@ -82,11 +82,12 @@ public class OperationChainLimiter implements GraphHook {
      * Constructs an {@link OperationAuthoriser} with the authorisations
      * defined in the provided authorisations property file.
      *
-     * @param operationScorePropertiesFile                   authorisation scores property file
-     * @param operationAuthorisationScoreLimitPropertiesFile authorisation scores property file
+     * @param operationScoreEntries                   operation scores entries
+     * @param operationAuthorisationScoreLimitEntries authorisation scores entries
      */
-    public OperationChainLimiter(final Properties operationScorePropertiesFile, final Properties operationAuthorisationScoreLimitPropertiesFile) {
-        scorer = new ScoreOperationChainHandler(operationScorePropertiesFile, operationAuthorisationScoreLimitPropertiesFile);
+    public OperationChainLimiter(final LinkedHashMap<String, String> operationScoreEntries,
+                                 final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
+        scorer = new ScoreOperationChainHandler(operationScoreEntries, operationAuthorisationScoreLimitEntries);
     }
 
     /**
