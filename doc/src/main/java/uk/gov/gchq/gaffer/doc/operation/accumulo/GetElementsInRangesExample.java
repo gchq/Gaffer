@@ -48,7 +48,7 @@ public class GetElementsInRangesExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<? extends Element> getAllElementsInTheRangeFromEntity4ToEdge4_5() {
@@ -58,6 +58,6 @@ public class GetElementsInRangesExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 }

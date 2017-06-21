@@ -59,7 +59,7 @@ public class SortExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Iterable<? extends Element> sortOnCountAndTransientProperty() {
@@ -104,6 +104,6 @@ public class SortExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

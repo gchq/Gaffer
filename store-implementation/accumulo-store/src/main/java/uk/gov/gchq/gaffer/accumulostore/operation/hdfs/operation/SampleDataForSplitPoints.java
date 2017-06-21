@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.hadoop.mapreduce.Partitioner;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.MapReduce;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
@@ -44,18 +45,23 @@ public class SampleDataForSplitPoints implements
         MapReduce,
         Options {
 
+    @Required
     private String resultingSplitsFilePath;
     private boolean validate = true;
-    private float proportionToSample;
+    private float proportionToSample = 0.01f;
 
     /**
      * Used to generate elements from the Hdfs files.
      * For Avro data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.AvroMapperGenerator}.
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
+    @Required
     private String mapperGeneratorClassName;
+    @Required
     private List<String> inputPaths;
+    @Required
     private String outputPath;
+    @Required
     private JobInitialiser jobInitialiser;
     private Integer numMapTasks;
     private Map<String, String> options;

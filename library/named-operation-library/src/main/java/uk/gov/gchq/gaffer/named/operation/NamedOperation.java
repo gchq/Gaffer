@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
@@ -31,6 +32,8 @@ public class NamedOperation<I_ITEM, O> implements
         OperationView {
     private View view;
     private Iterable<? extends I_ITEM> input;
+
+    @Required
     private String operationName;
 
     @Override
