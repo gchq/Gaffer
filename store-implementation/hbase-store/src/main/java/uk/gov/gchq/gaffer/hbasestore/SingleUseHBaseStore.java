@@ -27,7 +27,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  */
 public class SingleUseHBaseStore extends HBaseStore {
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
         // Initialise is deliberately called both before and after the deletion of the table.
         // The first call sets up a connection to the HBase instance
@@ -40,6 +40,6 @@ public class SingleUseHBaseStore extends HBaseStore {
         }
 
         TableUtils.dropTable(this);
-        super.initialise(schema, properties);
+        super.preInitialise(schema, properties);
     }
 }
