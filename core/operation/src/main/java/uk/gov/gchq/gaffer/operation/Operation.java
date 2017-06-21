@@ -35,6 +35,9 @@ import java.security.PrivilegedAction;
  * Operations must be JSON serialisable in order to make REST API calls.
  * </p>
  * <p>
+ * Any fields that are required should be annotated with the {@link Required} annotation.
+ * </p>
+ * <p>
  * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to make use of:
  * {@link uk.gov.gchq.gaffer.operation.io.Input}
  * {@link uk.gov.gchq.gaffer.operation.io.Output}
