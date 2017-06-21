@@ -81,14 +81,11 @@ public class QueryAggregationProcessor implements GafferScannerProcessor {
                     aggregator = null;
                 } else {
                     if (null == aggregator) {
-                        aggregator = schema.getElement(group).getAggregator();
-                        final Properties properties = firstElementCell.getElement().getProperties();
-                        properties.remove(groupBy);
-                        aggregatedProperties = properties;
+                        aggregator = schema.getElement(group).getQueryAggregator(groupBy);
+                        aggregatedProperties = firstElementCell.getElement().getProperties();
                     }
 
                     final Properties properties = elementCell.getElement().getProperties();
-                    properties.remove(groupBy);
                     aggregatedProperties = aggregator.apply(properties, aggregatedProperties);
                 }
             }
