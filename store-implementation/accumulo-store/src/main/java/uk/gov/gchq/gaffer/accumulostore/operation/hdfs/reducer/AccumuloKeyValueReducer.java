@@ -92,7 +92,7 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
         }
         Properties state;
         try {
-            final ElementAggregator aggregator = schema.getElement(group).getAggregator();
+            final ElementAggregator aggregator = schema.getElement(group).getIngestAggregator();
             state = elementConverter.getPropertiesFromValue(group, firstValue);
             while (iter.hasNext()) {
                 state = aggregator.apply(state, elementConverter.getPropertiesFromValue(group, iter.next()));

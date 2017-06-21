@@ -128,6 +128,18 @@ public class AccumuloStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        preInitialise(schema, properties);
+        TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param schema     the gaffer Schema
+     * @param properties the accumulo store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -136,7 +148,6 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
-        TableUtils.ensureTableExists(this);
     }
 
     /**
