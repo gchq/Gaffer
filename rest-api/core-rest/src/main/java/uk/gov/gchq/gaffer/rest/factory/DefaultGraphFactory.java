@@ -18,12 +18,15 @@ package uk.gov.gchq.gaffer.rest.factory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
+import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class DefaultGraphFactory implements GraphFactory {
     private static Graph graph;
+
+    private static final OperationChainLimiter OPERATION_CHAIN_LIMITER = createStaticChainLimiter();
 
     /**
      * Set to true by default - so the same instance of {@link Graph} will be
@@ -42,11 +45,32 @@ public class DefaultGraphFactory implements GraphFactory {
 
         try {
             return Class.forName(graphFactoryClass)
-                        .asSubclass(GraphFactory.class)
-                        .newInstance();
+                    .asSubclass(GraphFactory.class)
+                    .newInstance();
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new IllegalArgumentException("Unable to create graph factory from class: " + graphFactoryClass, e);
         }
+    }
+
+
+    private static OperationChainLimiter createStaticChainLimiter() {
+        if (isChainLimiterEnabled()) {
+            if (null == System.getProperty(SystemProperty.OPERATION_SCORES_FILE, null)) {
+                throw new IllegalArgumentException("Required property has not been set: " + SystemProperty.OPERATION_SCORES_FILE);
+            }
+
+            if (null == System.getProperty(SystemProperty.AUTH_SCORES_FILE, null)) {
+                throw new IllegalArgumentException("Required property has not been set: " + SystemProperty.AUTH_SCORES_FILE);
+            }
+
+            return new OperationChainLimiter(Paths.get(System.getProperty(SystemProperty.OPERATION_SCORES_FILE)), Paths.get(System.getProperty(SystemProperty.AUTH_SCORES_FILE)));
+        }
+
+        return null;
+    }
+
+    private static boolean isChainLimiterEnabled() {
+        return Boolean.parseBoolean(System.getProperty(SystemProperty.ENABLE_CHAIN_LIMITER, "false"));
     }
 
     protected static Path[] getSchemaPaths() {
@@ -105,6 +129,11 @@ public class DefaultGraphFactory implements GraphFactory {
         if (null != opAuthoriser) {
             builder.addHook(opAuthoriser);
         }
+
+        if (null != OPERATION_CHAIN_LIMITER) {
+            builder.addHook(OPERATION_CHAIN_LIMITER);
+        }
+
         return builder;
     }
 

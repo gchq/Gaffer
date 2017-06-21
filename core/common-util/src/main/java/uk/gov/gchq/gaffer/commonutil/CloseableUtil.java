@@ -20,9 +20,21 @@ public final class CloseableUtil {
     private CloseableUtil() {
     }
 
+    public static void close(final Object... objs) {
+        for (final Object obj : objs) {
+            close(obj);
+        }
+    }
+
     public static void close(final Object obj) {
         if (obj instanceof AutoCloseable) {
             close((AutoCloseable) obj);
+        }
+    }
+
+    public static void close(final AutoCloseable... closeable) {
+        for (final AutoCloseable autoCloseable : closeable) {
+            close(autoCloseable);
         }
     }
 
