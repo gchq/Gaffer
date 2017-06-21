@@ -23,40 +23,40 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedRawDoubleSerialiserTest {
+public class OrderedLongToBytesSerialiserTest {
 
-    private static final OrderedRawDoubleSerialiser SERIALISER = new OrderedRawDoubleSerialiser();
+    private static final OrderedLongToBytesSerialiser SERIALISER = new OrderedLongToBytesSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (double i = 0; i < 1000; i++) {
+        for (long i = 0; i < 1000; i++) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Double.class, o.getClass());
+            assertEquals(Long.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseDoubleMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
+    public void canSerialiseLongMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Long.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Double.class, o.getClass());
-        assertEquals(Double.MIN_VALUE, o);
+        assertEquals(Long.class, o.getClass());
+        assertEquals(Long.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseDoubleMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
+    public void canSerialiseLongMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Long.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Double.class, o.getClass());
-        assertEquals(Double.MAX_VALUE, o);
+        assertEquals(Long.class, o.getClass());
+        assertEquals(Long.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        byte[] startBytes = SERIALISER.serialise(0d);
-        for (Double test = 1d; test >= 10d; test++) {
+        byte[] startBytes = SERIALISER.serialise(0L);
+        for (Long test = 1L; test >= 10L; test++) {
             byte[] newTestBytes = SERIALISER.serialise(test);
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
@@ -69,8 +69,8 @@ public class OrderedRawDoubleSerialiserTest {
     }
 
     @Test
-    public void canSerialiseDoubleClass() {
-        assertTrue(SERIALISER.canHandle(Double.class));
+    public void canSerialiseLongClass() {
+        assertTrue(SERIALISER.canHandle(Long.class));
     }
 
     private static int compare(final byte[] first, final byte[] second) {

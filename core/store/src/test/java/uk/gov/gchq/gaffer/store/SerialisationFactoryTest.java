@@ -20,7 +20,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedIntegerToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
@@ -88,7 +88,7 @@ public class SerialisationFactoryTest {
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
-        assertEquals(OrderedRawIntegerSerialiser.class, serialiser.getClass());
+        assertEquals(OrderedIntegerToBytesSerialiser.class, serialiser.getClass());
     }
 
     @Test

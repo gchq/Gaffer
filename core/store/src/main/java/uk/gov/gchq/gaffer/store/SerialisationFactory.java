@@ -23,11 +23,11 @@ import uk.gov.gchq.gaffer.serialisation.TypeValueSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawDateSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawDoubleSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawFloatSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedDateToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedDoubleToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedFloatToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedIntegerToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedLongToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
@@ -48,11 +48,11 @@ public class SerialisationFactory {
             new CompactRawIntegerSerialiser(),
             new CompactRawLongSerialiser(),
             new BooleanSerialiser(),
-            new OrderedRawLongSerialiser(),
-            new OrderedRawIntegerSerialiser(),
-            new OrderedRawDateSerialiser(),
-            new OrderedRawDoubleSerialiser(),
-            new OrderedRawFloatSerialiser(),
+            new OrderedLongToBytesSerialiser(),
+            new OrderedIntegerToBytesSerialiser(),
+            new OrderedDateToBytesSerialiser(),
+            new OrderedDoubleToBytesSerialiser(),
+            new OrderedFloatToBytesSerialiser(),
             new TreeSetStringSerialiser(),
             new TypeValueSerialiser(),
             new TypeSubTypeValueSerialiser(),

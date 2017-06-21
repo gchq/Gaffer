@@ -18,10 +18,11 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedIntegerToBytesSerialiser;
 
 /**
  * @deprecated this is unable to preserve object ordering.
- * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawIntegerSerialiser}.
+ * For new properties use {@link OrderedIntegerToBytesSerialiser}.
  * RawIntegerSerialiser serialises Integers into a little-endian byte array.
  */
 public class RawIntegerSerialiser implements ToBytesSerialiser<Integer> {

@@ -24,9 +24,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedRawDateSerialiserTest {
+public class OrderedDateToBytesSerialiserTest {
 
-    private static final OrderedRawDateSerialiser SERIALISER = new OrderedRawDateSerialiser();
+    private static final OrderedDateToBytesSerialiser SERIALISER = new OrderedDateToBytesSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {

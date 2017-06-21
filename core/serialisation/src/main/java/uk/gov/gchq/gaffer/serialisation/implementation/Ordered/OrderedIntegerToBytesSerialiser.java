@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-public class OrderedRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
+public class OrderedIntegerToBytesSerialiser implements ToBytesSerialiser<Integer> {
 
     private static final long serialVersionUID = 5671653945533196758L;
 

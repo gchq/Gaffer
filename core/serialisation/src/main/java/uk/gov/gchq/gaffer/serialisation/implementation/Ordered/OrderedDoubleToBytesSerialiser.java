@@ -18,25 +18,36 @@ package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import java.util.Date;
 
-public class OrderedRawDateSerialiser implements ToBytesSerialiser<Date> {
+public class OrderedDoubleToBytesSerialiser implements ToBytesSerialiser<Double> {
 
-    private static final long serialVersionUID = 6636121009320739764L;
-    private static final OrderedRawLongSerialiser LONG_SERIALISER = new OrderedRawLongSerialiser();
+    private static final long serialVersionUID = -4750738170126596560L;
+    private static final OrderedLongToBytesSerialiser LONG_SERIALISER = new OrderedLongToBytesSerialiser();
 
     @Override
-    public byte[] serialise(final Date object) {
-        return LONG_SERIALISER.serialise(object.getTime());
+    public byte[] serialise(final Double object) {
+        long l = Double.doubleToRawLongBits(object);
+        if (l < 0) {
+            l = ~l;
+        } else {
+            l = l ^ 0x8000000000000000L;
+        }
+        return LONG_SERIALISER.serialise(l);
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) throws SerialisationException {
-        return new Date(LONG_SERIALISER.deserialise(bytes));
+    public Double deserialise(final byte[] bytes) throws SerialisationException {
+        long l = LONG_SERIALISER.deserialise(bytes);
+        if (l < 0) {
+            l = l ^ 0x8000000000000000L;
+        } else {
+            l = ~l;
+        }
+        return Double.longBitsToDouble(l);
     }
 
     @Override
-    public Date deserialiseEmpty() {
+    public Double deserialiseEmpty() {
         return null;
     }
 
@@ -47,6 +58,6 @@ public class OrderedRawDateSerialiser implements ToBytesSerialiser<Date> {
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Date.class.equals(clazz);
+        return Double.class.equals(clazz);
     }
 }

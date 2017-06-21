@@ -18,10 +18,11 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedDoubleToBytesSerialiser;
 
 /**
  * @deprecated this is unable to preserve object ordering.
- * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.Ordered.OrderedRawDoubleSerialiser}.
+ * For new properties use {@link OrderedDoubleToBytesSerialiser}.
  * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
  */
 public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
