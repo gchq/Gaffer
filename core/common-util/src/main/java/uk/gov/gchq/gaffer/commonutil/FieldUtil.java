@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.commonutil;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
-import uk.gov.gchq.koryphe.tuple.n.Tuple3;
-import java.util.function.Predicate;
 
 /**
  * Utility methods for a field
@@ -35,23 +33,11 @@ public final class FieldUtil {
      * @param fields the fields to validate
      * @return a validationResult
      */
-    @SafeVarargs
-    public static ValidationResult validateRequiredFields(final Pair<String, Object>... fields) {
+    public static ValidationResult validateRequiredFields(final Pair... fields) {
         final ValidationResult validationResult = new ValidationResult();
         for (final Pair field : fields) {
             if (field.getSecond() == null) {
                 validationResult.addError(field.getFirst() + " is required.");
-            }
-        }
-        return validationResult;
-    }
-
-    @SafeVarargs
-    public static ValidationResult validateRequiredFields(final Tuple3<String, Object, Predicate>... fields) {
-        final ValidationResult validationResult = new ValidationResult();
-        for (final Tuple3<String, Object, Predicate> field : fields) {
-            if (!field.get2().test(field.get1())) {
-                validationResult.addError(field.get0());
             }
         }
         return validationResult;
