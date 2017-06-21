@@ -61,13 +61,10 @@ public class SampleDataForSplitPoints implements
      */
     @Required
     private String mapperGeneratorClassName;
-
     @Required
     private List<String> inputPaths;
-
     @Required
     private String outputPath;
-
     @Required
     private JobInitialiser jobInitialiser;
 

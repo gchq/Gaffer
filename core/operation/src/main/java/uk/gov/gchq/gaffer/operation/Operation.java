@@ -22,6 +22,8 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
@@ -92,22 +94,34 @@ public interface Operation extends Closeable {
         for (final Field field : getClass().getDeclaredFields()) {
             final Required[] annotations = field.getAnnotationsByType(Required.class);
             if (null != annotations && annotations.length > 0) {
-                final boolean isAccessable = field.isAccessible();
-                if (!isAccessable) {
-                    field.setAccessible(true);
-                }
-                final String name = field.getName();
-                final Object value;
-                try {
-                    value = field.get(this);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-                if (!isAccessable) {
-                    field.setAccessible(false);
-                }
-                if (null == value) {
-                    result.addError(name + " is required");
+                if (field.isAccessible()) {
+                    final String name = field.getName();
+                    final Object value;
+                    try {
+                        value = field.get(this);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if (null == value) {
+                        result.addError(name + " is required");
+                    }
+                } else {
+                    AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
+                        field.setAccessible(true);
+                        final String name = field.getName();
+                        final Object value;
+                        try {
+                            value = field.get(this);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (null == value) {
+                            result.addError(name + " is required");
+                        }
+                        return null;
+                    });
                 }
             }
         }

@@ -1,22 +1,41 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Arrays;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class SampleDataForSplitPointsTest implements OperationTest {
+public class SampleDataForSplitPointsTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return SampleDataForSplitPoints.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet(
+                "resultingSplitsFilePath",
+                "mapperGeneratorClassName",
+                "inputPaths",
+                "outputPath",
+                "jobInitialiser"
+        );
+    }
 
     @Test
     @Override
