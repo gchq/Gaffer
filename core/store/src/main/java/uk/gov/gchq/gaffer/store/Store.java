@@ -268,9 +268,9 @@ public abstract class Store {
                 try {
                     _execute(operationChain, context);
                     addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
-                } catch (final Throwable t) {
-                    LOGGER.warn("Operation chain job failed to execute", t);
-                    addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+                } catch (final Exception e) {
+                    LOGGER.warn("Operation chain job failed to execute", e);
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
                 }
             }
         };
