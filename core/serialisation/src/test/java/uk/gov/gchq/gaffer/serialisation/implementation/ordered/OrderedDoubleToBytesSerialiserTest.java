@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
+package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 public class OrderedDoubleToBytesSerialiserTest {
 
-    private static final OrderedDoubleToBytesSerialiser SERIALISER = new OrderedDoubleToBytesSerialiser();
+    private static final OrderedDoubleSerialiser SERIALISER = new OrderedDoubleSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {

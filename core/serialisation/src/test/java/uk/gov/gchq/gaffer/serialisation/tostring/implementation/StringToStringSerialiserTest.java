@@ -1,10 +1,11 @@
-package uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation;
+package uk.gov.gchq.gaffer.serialisation.tostring.implementation;
 
 import org.junit.Assert;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -39,6 +40,6 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
 
     @Override
     public Serialiser<String, String> getSerialisation() {
-        return new StringToStringSerialiser();
+        return new StringSerialiser();
     }
 }

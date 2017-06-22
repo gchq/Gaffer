@@ -66,7 +66,7 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
             LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, edgeId.getDestination(), out);
             LengthValueBytesSerialiserUtil.serialise(booleanSerialiser, edgeId.isDirected(), out);
             return out.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise edge id into bytes", e);
         }
     }

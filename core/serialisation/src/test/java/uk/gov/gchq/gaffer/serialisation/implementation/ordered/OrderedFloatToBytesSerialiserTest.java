@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
+package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -23,40 +23,40 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedIntegerToBytesSerialiserTest {
+public class OrderedFloatToBytesSerialiserTest {
 
-    private static final OrderedIntegerToBytesSerialiser SERIALISER = new OrderedIntegerToBytesSerialiser();
+    private static final OrderedFloatSerialiser SERIALISER = new OrderedFloatSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (int i = 0; i < 1000; i++) {
+        for (float i = 0; i < 1000; i += 1.1) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Integer.class, o.getClass());
+            assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
+    public void canSerialiseFloatMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MIN_VALUE, o);
+        assertEquals(Float.class, o.getClass());
+        assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
+    public void canSerialiseFloatMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(Integer.MAX_VALUE, o);
+        assertEquals(Float.class, o.getClass());
+        assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        byte[] startBytes = SERIALISER.serialise(0);
-        for (Integer test = 1; test >= 10; test++) {
+        byte[] startBytes = SERIALISER.serialise(0.0f);
+        for (Float test = 1.0f; test >= 5; test += 0.1f) {
             byte[] newTestBytes = SERIALISER.serialise(test);
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
@@ -69,8 +69,8 @@ public class OrderedIntegerToBytesSerialiserTest {
     }
 
     @Test
-    public void canSerialiseIntegerClass() {
-        assertTrue(SERIALISER.canHandle(Integer.class));
+    public void canSerialiseFloatClass() {
+        assertTrue(SERIALISER.canHandle(Float.class));
     }
 
     private static int compare(final byte[] first, final byte[] second) {

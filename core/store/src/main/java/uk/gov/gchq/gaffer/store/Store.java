@@ -135,7 +135,7 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private SchemaOptimiser schemaOptimiser;
+    private final SchemaOptimiser schemaOptimiser;
 
     private JobTracker jobTracker;
     private ExecutorService executorService;

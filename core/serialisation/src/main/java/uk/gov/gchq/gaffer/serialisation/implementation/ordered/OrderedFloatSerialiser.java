@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
+package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
-public class OrderedDoubleToBytesSerialiser implements ToBytesSerialiser<Double> {
+public class OrderedFloatSerialiser implements ToBytesSerialiser<Float> {
 
-    private static final long serialVersionUID = -4750738170126596560L;
-    private static final OrderedLongToBytesSerialiser LONG_SERIALISER = new OrderedLongToBytesSerialiser();
+    private static final long serialVersionUID = 6829577492677279853L;
+    private static final OrderedIntegerSerialiser INTEGER_SERIALISER = new OrderedIntegerSerialiser();
 
     @Override
-    public byte[] serialise(final Double object) {
-        long l = Double.doubleToRawLongBits(object);
-        if (l < 0) {
-            l = ~l;
+    public byte[] serialise(final Float object) {
+        int i = Float.floatToRawIntBits(object);
+        if (i < 0) {
+            i = ~i;
         } else {
-            l = l ^ 0x8000000000000000L;
+            i = i ^ 0x80000000;
         }
-        return LONG_SERIALISER.serialise(l);
+        return INTEGER_SERIALISER.serialise(i);
     }
 
     @Override
-    public Double deserialise(final byte[] bytes) throws SerialisationException {
-        long l = LONG_SERIALISER.deserialise(bytes);
-        if (l < 0) {
-            l = l ^ 0x8000000000000000L;
+    public Float deserialise(final byte[] bytes) throws SerialisationException {
+        int i = INTEGER_SERIALISER.deserialise(bytes);
+        if (i < 0) {
+            i = i ^ 0x80000000;
         } else {
-            l = ~l;
+            i = ~i;
         }
-        return Double.longBitsToDouble(l);
+        return Float.intBitsToFloat(i);
     }
 
     @Override
-    public Double deserialiseEmpty() {
+    public Float deserialiseEmpty() {
         return null;
     }
 
@@ -58,6 +58,6 @@ public class OrderedDoubleToBytesSerialiser implements ToBytesSerialiser<Double>
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Double.class.equals(clazz);
+        return Float.class.equals(clazz);
     }
 }

@@ -14,40 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.serialisation.implementation.Ordered;
+package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import java.util.Date;
 
-public class OrderedFloatToBytesSerialiser implements ToBytesSerialiser<Float> {
+public class OrderedDateSerialiser implements ToBytesSerialiser<Date> {
 
-    private static final long serialVersionUID = 6829577492677279853L;
-    private static final OrderedIntegerToBytesSerialiser INTEGER_SERIALISER = new OrderedIntegerToBytesSerialiser();
+    private static final long serialVersionUID = 6636121009320739764L;
+    private static final OrderedLongSerialiser LONG_SERIALISER = new OrderedLongSerialiser();
 
     @Override
-    public byte[] serialise(final Float object) {
-        int i = Float.floatToRawIntBits(object);
-        if (i < 0) {
-            i = ~i;
-        } else {
-            i = i ^ 0x80000000;
-        }
-        return INTEGER_SERIALISER.serialise(i);
+    public byte[] serialise(final Date object) {
+        return LONG_SERIALISER.serialise(object.getTime());
     }
 
     @Override
-    public Float deserialise(final byte[] bytes) throws SerialisationException {
-        int i = INTEGER_SERIALISER.deserialise(bytes);
-        if (i < 0) {
-            i = i ^ 0x80000000;
-        } else {
-            i = ~i;
-        }
-        return Float.intBitsToFloat(i);
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
+        return new Date(LONG_SERIALISER.deserialise(bytes));
     }
 
     @Override
-    public Float deserialiseEmpty() {
+    public Date deserialiseEmpty() {
         return null;
     }
 
@@ -58,6 +47,6 @@ public class OrderedFloatToBytesSerialiser implements ToBytesSerialiser<Float> {
 
     @Override
     public boolean canHandle(final Class clazz) {
-        return Float.class.equals(clazz);
+        return Date.class.equals(clazz);
     }
 }
