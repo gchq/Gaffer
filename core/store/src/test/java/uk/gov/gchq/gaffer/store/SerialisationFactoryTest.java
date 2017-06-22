@@ -73,7 +73,7 @@ public class SerialisationFactoryTest {
 
         // Then
         assertTrue(serialiser.canHandle(clazz));
-        assertEquals(CompactRawIntegerSerialiser.class, serialiser.getClass());
+        assertEquals(OrderedIntegerSerialiser.class, serialiser.getClass());
     }
 
     @Test
