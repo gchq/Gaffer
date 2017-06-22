@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.mapreduce.Partitioner;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -41,7 +42,9 @@ public class AddElementsFromHdfs implements
         Operation,
         MapReduce,
         Options {
+    @Required
     private String failurePath;
+
     private boolean validate = true;
 
     /**
@@ -49,10 +52,18 @@ public class AddElementsFromHdfs implements
      * For Avro data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.AvroMapperGenerator}.
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
+    @Required
     private String mapperGeneratorClassName;
+
+    @Required
     private List<String> inputPaths;
+
+    @Required
     private String outputPath;
+
+    @Required
     private JobInitialiser jobInitialiser;
+
     private Integer numMapTasks;
     private Integer numReduceTasks;
     private Class<? extends Partitioner> partitioner;
@@ -157,26 +168,29 @@ public class AddElementsFromHdfs implements
         this.options = options;
     }
 
-    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
-        public Builder() {
-            super(new AddElementsFromHdfs());
-        }
-
-        public Builder validate(final boolean validate) {
+    public interface IBuilder<OP extends AddElementsFromHdfs, B extends AddElementsFromHdfs.IBuilder<OP, ?>> extends Operation.Builder<OP, B> {
+        default B validate(final boolean validate) {
             _getOp().setValidate(validate);
             return _self();
         }
 
-        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        default B mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
             return _self();
         }
 
-        public Builder failurePath(final String failurePath) {
+        default B failurePath(final String failurePath) {
             _getOp().setFailurePath(failurePath);
             return _self();
+        }
+    }
+
+    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
+            implements IBuilder<AddElementsFromHdfs, Builder>,
+            MapReduce.Builder<AddElementsFromHdfs, Builder>,
+            Options.Builder<AddElementsFromHdfs, Builder> {
+        public Builder() {
+            super(new AddElementsFromHdfs());
         }
     }
 }

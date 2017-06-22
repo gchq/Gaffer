@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.compare;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -48,6 +49,7 @@ public class Min implements
         ElementComparison {
 
     private Iterable<? extends Element> input;
+    @Required
     private List<Comparator<Element>> comparators;
 
     @Override
