@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,7 +54,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -241,11 +239,6 @@ public class AddElementsFromHdfsIT {
         @Override
         public List<String> getTabletServers() throws StoreException {
             return Arrays.asList("1", "2", "3");
-        }
-
-        @Override
-        public void addSplits(final SortedSet<Text> splits) throws StoreException {
-            // Splits will not be added to this mock accumulo store
         }
     }
 }

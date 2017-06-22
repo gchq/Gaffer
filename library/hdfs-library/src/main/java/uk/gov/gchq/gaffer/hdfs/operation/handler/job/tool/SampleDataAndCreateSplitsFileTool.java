@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.hdfs.operation.handler.job;
+package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractSampleDataForSplitPointsJobFactory;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Store;
 import java.io.BufferedOutputStream;
@@ -44,10 +44,10 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
 
     private final SampleDataForSplitPoints operation;
     private final Store store;
-    private final AbstractSampleDataForSplitPointsJobFactory jobFactory;
+    private final SampleDataForSplitPointsJobFactory jobFactory;
     private final int expectedNumberOfSplits;
 
-    public SampleDataAndCreateSplitsFileTool(final AbstractSampleDataForSplitPointsJobFactory jobFactory, final SampleDataForSplitPoints operation, final Store store) {
+    public SampleDataAndCreateSplitsFileTool(final SampleDataForSplitPointsJobFactory jobFactory, final SampleDataForSplitPoints operation, final Store store) {
         this.operation = operation;
         this.store = store;
         this.jobFactory = jobFactory;

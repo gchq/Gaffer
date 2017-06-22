@@ -15,12 +15,15 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.SplitStoreTool;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.SplitStoreTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.store.Context;
@@ -62,9 +65,9 @@ public class SplitStoreHandler implements OperationHandler<SplitStore> {
         @Override
         public void accept(final SortedSet<Text> splits) {
             try {
-                store.addSplits(splits);
+                store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
                 LOGGER.info("Added {} splits to table {}", splits.size(), store.getProperties().getTable());
-            } catch (final StoreException e) {
+            } catch (final TableNotFoundException | AccumuloException | AccumuloSecurityException | StoreException e) {
                 LOGGER.error("Failed to add {} split points to table {}", splits.size(), store.getProperties().getTable());
                 throw new RuntimeException("Failed to add split points to the table specified: " + e.getMessage(), e);
             }

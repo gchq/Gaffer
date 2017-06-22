@@ -23,7 +23,6 @@ import org.apache.hadoop.mapreduce.Partitioner;
  * This class cannot be instantiated.
  */
 public final class NoPartitioner extends Partitioner<Void, Void> {
-
     private NoPartitioner() {
         throw new UnsupportedOperationException("This partitioner should never be instantiated and used");
     }

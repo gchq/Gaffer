@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
-import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractSampleDataForSplitPointsJobFactory.SCHEMA;
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory.SCHEMA;
 
 /**
  * Reducer for use in bulk import of data into Accumulo. It merges all values

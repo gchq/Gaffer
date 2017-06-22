@@ -27,11 +27,12 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.FetchElementsFromHdfsTool;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool.ImportElementsToAccumuloTool;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -43,7 +44,6 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import java.io.IOException;
 
 public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsFromHdfs> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsHandler.class);
 
     @Override
@@ -162,7 +162,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)
             throws OperationException {
-        final FetchElementsFromHdfsTool fetchTool = new FetchElementsFromHdfsTool(operation, store);
+        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new AccumuloAddElementsFromHdfsJobFactory(), operation, store);
         final int response;
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
@@ -173,7 +173,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new OperationException("Failed to fetch elements from HDFS", e);
         }
 
-        if (FetchElementsFromHdfsTool.SUCCESS_RESPONSE != response) {
+        if (AddElementsFromHdfsTool.SUCCESS_RESPONSE != response) {
             LOGGER.error("Failed to fetch elements from HDFS. Response code was {}", response);
             throw new OperationException("Failed to fetch elements from HDFS. Response code was: " + response);
         }

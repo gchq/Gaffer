@@ -24,10 +24,11 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.tool.FetchElementsFromHdfsTool;
+import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory.HBaseAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -74,10 +75,9 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
-
     private void fetchElements(final AddElementsFromHdfs operation, final HBaseStore store)
             throws OperationException {
-        final FetchElementsFromHdfsTool fetchTool = new FetchElementsFromHdfsTool(operation, store);
+        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(), operation, store);
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
             ToolRunner.run(fetchTool, new String[0]);

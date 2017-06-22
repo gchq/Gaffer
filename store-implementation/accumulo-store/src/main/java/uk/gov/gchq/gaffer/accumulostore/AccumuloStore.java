@@ -18,14 +18,12 @@ package uk.gov.gchq.gaffer.accumulostore;
 
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.ClientConfiguration;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
@@ -35,7 +33,6 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
@@ -91,7 +88,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -388,13 +384,5 @@ public class AccumuloStore extends Store {
 
     public List<String> getTabletServers() throws StoreException {
         return getConnection().instanceOperations().getTabletServers();
-    }
-
-    public void addSplits(final SortedSet<Text> splits) throws StoreException {
-        try {
-            getConnection().tableOperations().addSplits(getProperties().getTable(), splits);
-        } catch (TableNotFoundException | AccumuloException | AccumuloSecurityException e) {
-            throw new StoreException("Unable to add splits to table " + getProperties().getTable(), e);
-        }
     }
 }

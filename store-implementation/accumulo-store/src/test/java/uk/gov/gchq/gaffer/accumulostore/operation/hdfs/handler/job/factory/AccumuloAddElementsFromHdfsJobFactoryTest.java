@@ -2,8 +2,6 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.partition.KeyRangePartitioner;
-import org.apache.accumulo.core.client.mapreduce.lib.partition.RangePartitioner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,6 +17,8 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -106,13 +106,13 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         assertEquals(fs.makeQualified(new Path(outputDir)).toString(), job.getConfiguration().get("mapreduce.output.fileoutputformat.outputdir"));
 
         verify(job).setNumReduceTasks(2);
-        verify(job).setPartitionerClass(KeyRangePartitioner.class);
-        assertEquals(splitsFile, job.getConfiguration().get(RangePartitioner.class.getName() + ".cutFile"));
+        verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
+        assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
     }
 
     @Test
     public void shouldSetupAccumuloPartitionerWhenSetupJobAndPartitionerFlagIsTrue() throws IOException {
-        shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(KeyRangePartitioner.class);
+        shouldSetupAccumuloPartitionerWhenSetupJobForGivenPartitioner(GafferKeyRangePartitioner.class);
     }
 
     @Test
@@ -156,7 +156,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(10)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -169,7 +168,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(100)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -182,7 +180,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(1000)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -220,7 +217,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(10)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -233,7 +229,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(100)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -246,7 +241,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .minReducers(1000)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -285,7 +279,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(20)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -300,7 +293,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(200)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -315,7 +307,6 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .maxReducers(2000)
                 .splitsFile("target/data/splits.txt")
                 .build();
-        factory.setupJobConf(localConf, operation, store);
         factory.setupJob(job, operation, store);
 
         // Then
@@ -351,11 +342,11 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
         if (NoPartitioner.class.equals(partitioner)) {
             verify(job, never()).setNumReduceTasks(Mockito.anyInt());
             verify(job, never()).setPartitionerClass(Mockito.any(Class.class));
-            assertNull(job.getConfiguration().get(RangePartitioner.class.getName() + ".cutFile"));
+            assertNull(job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
         } else {
             verify(job).setNumReduceTasks(2);
-            verify(job).setPartitionerClass(KeyRangePartitioner.class);
-            assertEquals(splitsFile, job.getConfiguration().get(RangePartitioner.class.getName() + ".cutFile"));
+            verify(job).setPartitionerClass(GafferKeyRangePartitioner.class);
+            assertEquals(splitsFile, job.getConfiguration().get(GafferRangePartitioner.class.getName() + ".cutFile"));
         }
     }
 
