@@ -43,16 +43,16 @@ public class SerialisationFactory {
     private final List<Serialiser> serialisers;
     private static final Serialiser LAST_RESORT_FINALISER = new JavaSerialiser();
     private static final Serialiser[] CORE_SERIALISERS = new Serialiser[]{
+            new OrderedLongSerialiser(),
+            new OrderedDateSerialiser(),
+            new OrderedIntegerSerialiser(),
+            new OrderedDoubleSerialiser(),
+            new OrderedFloatSerialiser(),
             new StringSerialiser(),
             new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),
             new CompactRawLongSerialiser(),
             new BooleanSerialiser(),
-            new OrderedLongSerialiser(),
-            new OrderedIntegerSerialiser(),
-            new OrderedDateSerialiser(),
-            new OrderedDoubleSerialiser(),
-            new OrderedFloatSerialiser(),
             new TreeSetStringSerialiser(),
             new TypeValueSerialiser(),
             new TypeSubTypeValueSerialiser(),
