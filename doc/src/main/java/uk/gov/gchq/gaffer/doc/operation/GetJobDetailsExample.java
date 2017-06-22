@@ -41,12 +41,12 @@ public class GetJobDetailsExample extends OperationExample {
 
     public JobDetail getJobDetails() {
         // ---------------------------------------------------------
-        final GetJobDetails getJobDetails = new GetJobDetails.Builder()
+        final GetJobDetails operation = new GetJobDetails.Builder()
                 .jobId(jobId)
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(getJobDetails);
+        return runExample(operation, null);
     }
 
     public JobDetail getJobDetailsInOperationChain() {
@@ -58,7 +58,7 @@ public class GetJobDetailsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        final JobDetail jobDetail = runExample(opChain);
+        final JobDetail jobDetail = runExample(opChain, null);
         jobId = jobDetail.getJobId();
         return jobDetail;
     }

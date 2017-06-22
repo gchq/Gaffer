@@ -1,12 +1,12 @@
 package uk.gov.gchq.gaffer.commonutil;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
 
 public class FieldUtilTest {
 

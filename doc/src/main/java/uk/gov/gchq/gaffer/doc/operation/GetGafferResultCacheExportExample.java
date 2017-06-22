@@ -58,12 +58,12 @@ public class GetGafferResultCacheExportExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public JobDetail exportAndGetJobDetails() {
         // ---------------------------------------------------------
-        final OperationChain<JobDetail> exportOpChain = new OperationChain.Builder()
+        final OperationChain<JobDetail> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToGafferResultCache<>())
                 .then(new DiscardOutput())
@@ -71,7 +71,7 @@ public class GetGafferResultCacheExportExample extends OperationExample {
                 .build();
         // ---------------------------------------------- -----------
 
-        jobDetail = runExample(exportOpChain);
+        jobDetail = runExample(opChain, null);
         return jobDetail;
     }
 
@@ -84,7 +84,7 @@ public class GetGafferResultCacheExportExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Map<String, CloseableIterable<?>> exportMultipleResultsToGafferResultCacheAndGetAllResults() {
@@ -111,6 +111,6 @@ public class GetGafferResultCacheExportExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }
