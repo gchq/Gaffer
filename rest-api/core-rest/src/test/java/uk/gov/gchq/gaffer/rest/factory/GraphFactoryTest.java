@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.rest.factory;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
-import uk.gov.gchq.gaffer.rest.GraphFactoryForTest;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 
 import static org.junit.Assert.assertEquals;

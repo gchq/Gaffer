@@ -15,8 +15,8 @@
  */
 package uk.gov.gchq.gaffer.rest.mapper;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import uk.gov.gchq.gaffer.core.exception.Error;
-import uk.gov.gchq.gaffer.core.exception.ErrorFactory;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -31,7 +31,12 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
 
     @Override
     public Response toResponse(final WebApplicationException ex) {
-        final Error error = ErrorFactory.from(ex);
+
+        final Error error = new Error.ErrorBuilder()
+                .statusCode(ex.getResponse().getStatus())
+                .simpleMessage(ex.getMessage())
+                .detailMessage(ExceptionUtils.getStackTrace(ex))
+                .build();
 
         return Response.status(ex.getResponse().getStatus())
                        .entity(error)

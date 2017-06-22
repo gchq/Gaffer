@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -26,7 +27,6 @@ import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.ElementSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import java.util.Iterator;
 
