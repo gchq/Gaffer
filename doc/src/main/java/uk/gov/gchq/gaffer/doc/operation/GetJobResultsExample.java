@@ -57,11 +57,11 @@ public class GetJobResultsExample extends OperationExample {
 
     public CloseableIterable<?> getJobResults() {
         // ---------------------------------------------------------
-        final GetJobResults getJobResults = new GetJobResults.Builder()
+        final GetJobResults operation = new GetJobResults.Builder()
                 .jobId(jobId)
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(getJobResults);
+        return runExample(operation, null);
     }
 }
