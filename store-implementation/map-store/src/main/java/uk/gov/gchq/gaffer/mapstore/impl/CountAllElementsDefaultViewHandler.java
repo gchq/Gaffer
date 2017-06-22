@@ -15,21 +15,14 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
 import uk.gov.gchq.gaffer.mapstore.operation.CountAllElementsDefaultView;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
-import java.util.Map;
 
-/**
- *
- */
 public class CountAllElementsDefaultViewHandler implements OutputOperationHandler<CountAllElementsDefaultView, Long> {
-
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
             throws OperationException {
@@ -37,17 +30,6 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
     }
 
     private Long doOperation(final MapStore mapStore) {
-        long totalCount = 0;
-        for (final Map<Element, GroupedProperties> map : mapStore.getMapImpl().aggElements.values()) {
-            totalCount += map.size();
-        }
-
-        for (final Map<Element, Integer> map : mapStore.getMapImpl().nonAggElements.values()) {
-            for (final Integer count : map.values()) {
-                totalCount += count;
-            }
-        }
-
-        return totalCount;
+        return mapStore.getMapImpl().countAggElements() + mapStore.getMapImpl().countNonAggElements();
     }
 }

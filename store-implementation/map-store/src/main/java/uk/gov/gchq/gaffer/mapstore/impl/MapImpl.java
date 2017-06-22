@@ -26,12 +26,15 @@ import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.mapstore.multimap.MultiMap;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * The internal variables of this class are package-private. This allows operation handlers for the
@@ -52,38 +55,36 @@ public class MapImpl {
      * aggElements maps from an Element containing the group-by properties
      * to a Properties object without the group-by properties
      */
-    final Map<String, Map<Element, GroupedProperties>> aggElements = new HashMap<>();
+    private final Map<String, Map<Element, GroupedProperties>> aggElements = new HashMap<>();
 
     /**
      * nonAggElements maps from a non aggregated Element to the count of the
      * number of times that element has been seen.
      */
-    final Map<String, Map<Element, Integer>> nonAggElements = new HashMap<>();
+    private final Map<String, Map<Element, Integer>> nonAggElements = new HashMap<>();
 
     /**
      * entityIdToElements is a map from an EntityId to the element key from aggElements or nonAggElements
      */
-    final MultiMap<EntityId, Element> entityIdToElements;
+    private final MultiMap<EntityId, Element> entityIdToElements;
 
     /**
      * edgeIdToElements is a map from an EdgeId to the element key from aggElements or nonAggElements
      */
-    final MultiMap<EdgeId, Element> edgeIdToElements;
+    private final MultiMap<EdgeId, Element> edgeIdToElements;
 
-    final MapFactory mapFactory;
-    final boolean maintainIndex;
-
+    private final MapFactory mapFactory;
     private final Map<String, Set<String>> groupToGroupByProperties = new HashMap<>();
     private final Map<String, Set<String>> groupToNonGroupByProperties = new HashMap<>();
     private final Set<String> groupsWithNoAggregation = new HashSet<>();
     private final List<String> aggregatedGroups;
     private final Schema schema;
-
-    public MapImpl(final Schema schema) {
-        this(schema, new MapStoreProperties());
-    }
+    private final boolean maintainIndex;
+    private final AggregatorUtil.IngestPropertiesBinaryOperator propertyAggregator;
 
     public MapImpl(final Schema schema, final MapStoreProperties mapStoreProperties) {
+        this.schema = schema;
+        propertyAggregator = new AggregatorUtil.IngestPropertiesBinaryOperator(schema);
         mapFactory = createMapFactory(schema, mapStoreProperties);
         maintainIndex = mapStoreProperties.getCreateIndex();
 
@@ -99,7 +100,6 @@ public class MapImpl {
             entityIdToElements = null;
             edgeIdToElements = null;
         }
-        this.schema = schema;
 
         this.aggregatedGroups = schema.getAggregatedGroups();
         schema.getEntityGroups().forEach(this::addToGroupByMap);
@@ -115,19 +115,131 @@ public class MapImpl {
         }
     }
 
-    protected Set<String> getGroupByProperties(final String group) {
+    void addNonAggElement(final Element element) {
+        nonAggElements.get(element.getGroup()).merge(element, 1, (a, b) -> a + b);
+    }
+
+    void addAggElement(final Element elementWithGroupByProperties, final GroupedProperties properties) {
+        aggElements.get(elementWithGroupByProperties.getGroup())
+                .merge(elementWithGroupByProperties, properties, propertyAggregator);
+    }
+
+    Collection<Element> lookup(final EntityId entitId) {
+        Collection<Element> results = entityIdToElements.get(entitId);
+        if (null == results) {
+            results = Collections.emptySet();
+        }
+
+        return results;
+    }
+
+    Collection<Element> lookup(final EdgeId edgeId) {
+        Collection<Element> results = edgeIdToElements.get(edgeId);
+        if (null == results) {
+            results = Collections.emptySet();
+        }
+
+        return results;
+    }
+
+    List<Element> getNonAggElements(final Element element) {
+        final Integer count = nonAggElements.get(element.getGroup()).get(element);
+        if (null == count) {
+            return Collections.emptyList();
+        }
+        return Collections.nCopies(count, element);
+    }
+
+    Element getAggElement(final Element element) {
+        final Element clone = element.emptyClone();
+        clone.copyProperties(element.getProperties());
+        clone.copyProperties(aggElements.get(element.getGroup()).get(element));
+        return clone;
+    }
+
+    List<Element> getElements(final Element element) {
+        if (!isAggregationEnabled(element)) {
+            return getNonAggElements(element);
+        } else {
+            return Collections.singletonList(getAggElement(element));
+        }
+    }
+
+    Stream<Element> getAllAggElements(final Set<String> groups) {
+        return aggElements.entrySet().stream()
+                .filter(entry -> groups.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .flatMap(map -> map.entrySet().stream())
+                .map(x -> {
+                    final Element element = x.getKey().emptyClone();
+                    element.copyProperties(x.getKey().getProperties());
+                    element.copyProperties(x.getValue());
+                    return cloneElement(element, schema);
+                });
+    }
+
+    Stream<Element> getAllNonAggElements(final Set<String> groups) {
+        return nonAggElements.entrySet().stream()
+                .filter(entry -> groups.contains(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .flatMap(map -> map.entrySet().stream())
+                .map(x -> Collections.nCopies(x.getValue(), cloneElement(x.getKey(), schema)))
+                .flatMap(Collection::stream);
+    }
+
+    Stream<Element> getAllElements(final Set<String> groups) {
+        return Stream.concat(getAllAggElements(groups), getAllNonAggElements(groups));
+    }
+
+    void addIndex(final EntityId entityId, final Element element) {
+        entityIdToElements.put(entityId, element);
+    }
+
+    void addIndex(final EdgeId edgeId, final Element element) {
+        edgeIdToElements.put(edgeId, element);
+    }
+
+    boolean isMaintainIndex() {
+        return maintainIndex;
+    }
+
+    Element cloneElement(final Element element, final Schema schema) {
+        return mapFactory.cloneElement(element, schema);
+    }
+
+    Set<String> getGroupByProperties(final String group) {
         return groupToGroupByProperties.get(group);
     }
 
-    protected Set<String> getNonGroupByProperties(final String group) {
+    Set<String> getNonGroupByProperties(final String group) {
         return groupToNonGroupByProperties.get(group);
     }
 
-    protected boolean isAggregationEnabled(final Element element) {
+    boolean isAggregationEnabled(final Element element) {
         return !groupsWithNoAggregation.contains(element.getGroup());
     }
 
-    protected MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
+    long countAggElements() {
+        long totalCount = 0;
+        for (final Map<Element, GroupedProperties> map : aggElements.values()) {
+            totalCount += map.size();
+        }
+
+        return totalCount;
+    }
+
+    long countNonAggElements() {
+        long totalCount = 0;
+        for (final Map<Element, Integer> map : nonAggElements.values()) {
+            for (final Integer count : map.values()) {
+                totalCount += count;
+            }
+        }
+
+        return totalCount;
+    }
+
+    private MapFactory createMapFactory(final Schema schema, final MapStoreProperties mapStoreProperties) {
         final MapFactory mapFactory;
         final String factoryClass = mapStoreProperties.getMapFactory();
         if (null == factoryClass) {

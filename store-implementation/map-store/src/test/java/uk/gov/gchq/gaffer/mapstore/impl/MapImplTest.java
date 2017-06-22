@@ -31,9 +31,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -71,19 +68,13 @@ public class MapImplTest {
         given(mockMapFactory.getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS, EdgeId.class, Element.class)).willReturn(edgeIdToElements);
 
         // When
-        final MapImpl mapImpl = new MapImpl(schema, properties);
+        new MapImpl(schema, properties);
 
         // Then
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class);
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class);
         verify(mockMapFactory).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS, EntityId.class, Element.class);
         verify(mockMapFactory).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS, EdgeId.class, Element.class);
-        assertEquals(1, mapImpl.aggElements.size());
-        assertSame(aggElements, mapImpl.aggElements.get(TestGroups.EDGE));
-        assertEquals(1, mapImpl.nonAggElements.size());
-        assertSame(nonAggElements, mapImpl.nonAggElements.get(TestGroups.EDGE));
-        assertSame(entityIdToElements, mapImpl.entityIdToElements);
-        assertSame(edgeIdToElements, mapImpl.edgeIdToElements);
     }
 
     @Test
@@ -101,19 +92,13 @@ public class MapImplTest {
         given(mockMapFactory.getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class)).willReturn(nonAggElements);
 
         // When
-        final MapImpl mapImpl = new MapImpl(schema, properties);
+        new MapImpl(schema, properties);
 
         // Then
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class);
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS, EntityId.class, Element.class);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS, EdgeId.class, Element.class);
-        assertEquals(1, mapImpl.aggElements.size());
-        assertSame(aggElements, mapImpl.aggElements.get(TestGroups.EDGE));
-        assertEquals(1, mapImpl.nonAggElements.size());
-        assertSame(nonAggElements, mapImpl.nonAggElements.get(TestGroups.EDGE));
-        assertNull(mapImpl.entityIdToElements);
-        assertNull(mapImpl.edgeIdToElements);
     }
 
     public static final class TestMapFactory implements MapFactory {

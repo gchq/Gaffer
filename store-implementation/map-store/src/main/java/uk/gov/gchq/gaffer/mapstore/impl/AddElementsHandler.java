@@ -36,7 +36,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link MapStore}.
@@ -87,7 +86,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 final Element elementForIndexing = addElement(element, schema, mapImpl);
 
                 // Update entityIdToElements and edgeIdToElements if index required
-                if (mapImpl.maintainIndex) {
+                if (mapImpl.isMaintainIndex()) {
                     updateElementIndex(elementForIndexing, mapImpl);
                 }
             }
@@ -115,9 +114,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             properties.put(propertyName, element.getProperty(propertyName));
         }
 
-        final Map<Element, GroupedProperties> map = mapImpl.aggElements.get(elementWithGroupByProperties.getGroup());
-        map.merge(elementWithGroupByProperties, properties, new AggregatorUtil.IngestPropertiesBinaryOperator(schema));
-
+        mapImpl.addAggElement(elementWithGroupByProperties, properties);
         return elementWithGroupByProperties;
     }
 
@@ -134,9 +131,7 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             }
         }
 
-        final Map<Element, Integer> map = mapImpl.nonAggElements.get(elementClone.getGroup());
-        map.merge(elementClone, 1, (a, b) -> a + b);
-
+        mapImpl.addNonAggElement(elementClone);
         return elementClone;
     }
 
@@ -144,16 +139,16 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         if (element instanceof Entity) {
             final Entity entity = (Entity) element;
             final EntityId entityId = new EntitySeed(entity.getVertex());
-            mapImpl.entityIdToElements.put(entityId, element);
+            mapImpl.addIndex(entityId, element);
         } else {
             final Edge edge = (Edge) element;
             final EntityId sourceEntityId = new EntitySeed(edge.getSource());
             final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
-            mapImpl.entityIdToElements.put(sourceEntityId, element);
-            mapImpl.entityIdToElements.put(destinationEntityId, element);
+            mapImpl.addIndex(sourceEntityId, element);
+            mapImpl.addIndex(destinationEntityId, element);
 
             final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-            mapImpl.edgeIdToElements.put(edgeId, edge);
+            mapImpl.addIndex(edgeId, edge);
         }
     }
 }
