@@ -36,9 +36,9 @@ public class GetAllJobDetailsExample extends OperationExample {
 
     public CloseableIterable<JobDetail> getAllJobDetails() {
         // ---------------------------------------------------------
-        final GetAllJobDetails getAllJobDetails = new GetAllJobDetails();
+        final GetAllJobDetails operation = new GetAllJobDetails();
         // ---------------------------------------------------------
 
-        return runExample(getAllJobDetails);
+        return runExample(operation, null);
     }
 }

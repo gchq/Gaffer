@@ -77,7 +77,7 @@ public class NamedOperationExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        runExampleNoResult(operation);
+        runExampleNoResult(operation, null);
     }
 
     public void addNamedOperationWithParameter() {
@@ -123,7 +123,7 @@ public class NamedOperationExample extends OperationExample {
         final GetAllNamedOperations operation = new GetAllNamedOperations();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<EntityId> runNamedOperation() {
@@ -151,7 +151,7 @@ public class NamedOperationExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public void deleteNamedOperation() {
@@ -161,6 +161,6 @@ public class NamedOperationExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        runExampleNoResult(operation);
+        runExampleNoResult(operation, null);
     }
 }
