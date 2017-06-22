@@ -115,7 +115,7 @@ public class NamedOperationExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        runExampleNoResult(operation);
+        runExampleNoResult(operation, null);
     }
 
     public CloseableIterable<NamedOperationDetail> getAllNamedOperations() {
@@ -135,7 +135,7 @@ public class NamedOperationExample extends OperationExample {
                         .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<EntityId> runNamedOperationWithParameter() {
