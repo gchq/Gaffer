@@ -143,9 +143,9 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
     protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-        if (operation.getSplitsFile() == null) {
+        if (operation.getSplitsFilePath() == null) {
             // Provide a default path if the splits file path is missing
-            operation.setSplitsFile("");
+            operation.setSplitsFilePath("");
             LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");
         }
 
@@ -160,7 +160,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
     protected void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
                                                       final AccumuloStore store) throws IOException {
-        final String splitsFilePath = operation.getSplitsFile();
+        final String splitsFilePath = operation.getSplitsFilePath();
         LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
         final int maxReducers = validateValue(operation.getMaxReduceTasks());
         final int minReducers = validateValue(operation.getMinReduceTasks());
@@ -204,7 +204,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
 
     protected void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
             throws IOException {
-        final String splitsFilePath = operation.getSplitsFile();
+        final String splitsFilePath = operation.getSplitsFilePath();
         if (validateValue(operation.getMaxReduceTasks()) != -1
                 || validateValue(operation.getMinReduceTasks()) != -1) {
             LOGGER.info("Using splits file provided by user {}, ignoring minReduceTasks and maxReduceTasks", splitsFilePath);

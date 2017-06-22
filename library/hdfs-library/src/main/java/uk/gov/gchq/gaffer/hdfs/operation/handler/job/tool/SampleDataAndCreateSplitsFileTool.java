@@ -130,14 +130,14 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
     }
 
     private void writeSplits(final FileSystem fs, final Path resultsFile, final long outputEveryNthRecord, final int numberSplitsExpected) throws OperationException {
-        LOGGER.info("Writing splits to {}", operation.getSplitsFile());
+        LOGGER.info("Writing splits to {}", operation.getSplitsFilePath());
         final Writable key = jobFactory.createKey();
         final Writable value = jobFactory.createValue();
         long count = 0;
         int numberSplitPointsOutput = 0;
         try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, fs.getConf());
              final PrintStream splitsWriter = new PrintStream(
-                     new BufferedOutputStream(fs.create(new Path(operation.getSplitsFile()), true)),
+                     new BufferedOutputStream(fs.create(new Path(operation.getSplitsFilePath()), true)),
                      false, CommonConstants.UTF_8)
         ) {
             while (numberSplitPointsOutput < numberSplitsExpected) {

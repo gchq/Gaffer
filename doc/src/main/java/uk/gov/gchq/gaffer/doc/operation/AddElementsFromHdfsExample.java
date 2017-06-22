@@ -58,7 +58,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
-                .splitsFile("/path/to/splits/file")
+                .splitsFilePath("/path/to/splits/file")
                 .minReducers(10)
                 .maxReducers(100)
                 .build();

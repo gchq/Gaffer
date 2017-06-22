@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class SplitTableTest extends OperationTest {
+public class SplitStoreTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     private static final String INPUT_DIRECTORY = "/input";

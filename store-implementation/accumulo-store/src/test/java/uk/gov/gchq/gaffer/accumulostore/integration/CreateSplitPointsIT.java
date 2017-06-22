@@ -99,7 +99,7 @@ public class CreateSplitPointsIT {
                         .proportionToSample(1f)
                         .validate(true)
                         .mappers(5)
-                        .resultingSplitsFilePath(splitsFile)
+                        .splitsFilePath(splitsFile)
                         .compressionCodec(null)
                         .build())
                 .then(new SplitStore.Builder()

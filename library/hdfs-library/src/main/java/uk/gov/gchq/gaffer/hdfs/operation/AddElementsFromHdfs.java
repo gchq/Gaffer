@@ -74,7 +74,7 @@ public class AddElementsFromHdfs implements
     private Integer maxReduceTasks;
 
     private boolean useProvidedSplits;
-    private String splitsFile;
+    private String splitsFilePath;
 
     private Class<? extends Partitioner> partitioner;
     private Map<String, String> options;
@@ -209,13 +209,13 @@ public class AddElementsFromHdfs implements
     }
 
     @Override
-    public String getSplitsFile() {
-        return splitsFile;
+    public String getSplitsFilePath() {
+        return splitsFilePath;
     }
 
     @Override
-    public void setSplitsFile(final String splitsFile) {
-        this.splitsFile = splitsFile;
+    public void setSplitsFilePath(final String splitsFilePath) {
+        this.splitsFilePath = splitsFilePath;
     }
 
     @Override
@@ -238,29 +238,26 @@ public class AddElementsFromHdfs implements
         this.options = options;
     }
 
-    public interface IBuilder<OP extends AddElementsFromHdfs, B extends AddElementsFromHdfs.IBuilder<OP, ?>> extends Operation.Builder<OP, B> {
-        default B validate(final boolean validate) {
+    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
+            Options.Builder<AddElementsFromHdfs, Builder> {
+        public Builder() {
+            super(new AddElementsFromHdfs());
+        }
+
+        public Builder validate(final boolean validate) {
             _getOp().setValidate(validate);
             return _self();
         }
 
-        default B mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
             return _self();
         }
 
-        default B failurePath(final String failurePath) {
+        public Builder failurePath(final String failurePath) {
             _getOp().setFailurePath(failurePath);
             return _self();
-        }
-    }
-
-    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements IBuilder<AddElementsFromHdfs, Builder>,
-            MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
-        public Builder() {
-            super(new AddElementsFromHdfs());
         }
     }
 }

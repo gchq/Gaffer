@@ -59,10 +59,10 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throws OperationException {
         validateOperation(operation);
 
-        if (null == operation.getSplitsFile()) {
+        if (null == operation.getSplitsFilePath()) {
             final String splitsFilePath = "/tmp/" + context.getJobId() + "/splits";
             LOGGER.info("Using temporary directory for splits files: " + splitsFilePath);
-            operation.setSplitsFile(splitsFilePath);
+            operation.setSplitsFilePath(splitsFilePath);
         }
 
         if (!operation.isUseProvidedSplits() && needsSplitting(store)) {
@@ -115,7 +115,6 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     }
 
     private void sampleAndSplit(final AddElementsFromHdfs operation, final Context context, final AccumuloStore store) throws OperationException {
-
         LOGGER.info("Starting to sample input data to create splits points to set on the table");
 
         // Sample data for split points and split the table
@@ -138,11 +137,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
                             .mappers(operation.getNumMapTasks())
                             .validate(operation.isValidate())
                             .outputPath(outputPath)
-                            .resultingSplitsFilePath(operation.getSplitsFile())
+                            .splitsFilePath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
                     .then(new SplitStore.Builder()
-                            .inputPath(operation.getSplitsFile())
+                            .inputPath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
                     .build(), context);

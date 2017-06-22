@@ -79,7 +79,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .useProvidedSplits(true)
-                .splitsFile(splitsFile)
+                .splitsFilePath(splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
 
@@ -154,7 +154,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .maxReducers(10)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -166,7 +166,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .maxReducers(100)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -178,7 +178,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .maxReducers(1000)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -215,7 +215,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(10)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -227,7 +227,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(100)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -239,7 +239,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(1000)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -277,7 +277,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(10)
                 .maxReducers(20)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -291,7 +291,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(100)
                 .maxReducers(200)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -305,7 +305,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .minReducers(1000)
                 .maxReducers(2000)
-                .splitsFile("target/data/splits.txt")
+                .splitsFilePath("target/data/splits.txt")
                 .build();
         factory.setupJob(job, operation, store);
 
@@ -330,7 +330,7 @@ public class AccumuloAddElementsFromHdfsJobFactoryTest {
                 .outputPath(outputDir)
                 .partitioner(partitioner)
                 .useProvidedSplits(true)
-                .splitsFile(splitsFile)
+                .splitsFilePath(splitsFile)
                 .build();
         final AccumuloStore store = mock(AccumuloStore.class);
         given(job.getConfiguration()).willReturn(localConf);

@@ -105,9 +105,9 @@ public interface MapReduce {
 
     void setUseProvidedSplits(boolean useProvidedSplits);
 
-    String getSplitsFile();
+    String getSplitsFilePath();
 
-    void setSplitsFile(String splitsFile);
+    void setSplitsFilePath(String splitsFile);
 
     Class<? extends Partitioner> getPartitioner();
 
@@ -131,6 +131,16 @@ public interface MapReduce {
 
         default B outputPath(final String outputPath) {
             _getOp().setOutputPath(outputPath);
+            return _self();
+        }
+
+        default B splitsFilePath(final String splitsFile) {
+            _getOp().setSplitsFilePath(splitsFile);
+            return _self();
+        }
+
+        default B useProvidedSplits(final boolean useProvidedSplits) {
+            _getOp().setUseProvidedSplits(useProvidedSplits);
             return _self();
         }
 
@@ -190,16 +200,6 @@ public interface MapReduce {
                         "Either provide the number of mappers to use or provide a min and max value.");
             }
             _getOp().setMaxMapTasks(maxMapTasks);
-            return _self();
-        }
-
-        default B useProvidedSplits(final boolean useProvidedSplits) {
-            _getOp().setUseProvidedSplits(useProvidedSplits);
-            return _self();
-        }
-
-        default B splitsFile(final String splitsFile) {
-            _getOp().setSplitsFile(splitsFile);
             return _self();
         }
 

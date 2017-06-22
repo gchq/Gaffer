@@ -49,7 +49,7 @@ public class SampleDataForSplitPoints implements
         Options {
 
     @Required
-    private String splitsFile;
+    private String splitsFilePath;
     private boolean useProvidedSplits;
 
     private boolean validate = true;
@@ -111,12 +111,12 @@ public class SampleDataForSplitPoints implements
         this.mapperGeneratorClassName = mapperGeneratorClass.getName();
     }
 
-    public String getSplitsFile() {
-        return splitsFile;
+    public String getSplitsFilePath() {
+        return splitsFilePath;
     }
 
-    public void setSplitsFile(final String splitsFile) {
-        this.splitsFile = splitsFile;
+    public void setSplitsFilePath(final String splitsFilePath) {
+        this.splitsFilePath = splitsFilePath;
     }
 
     public float getProportionToSample() {
@@ -267,11 +267,6 @@ public class SampleDataForSplitPoints implements
             Options.Builder<SampleDataForSplitPoints, Builder> {
         public Builder() {
             super(new SampleDataForSplitPoints());
-        }
-
-        public Builder resultingSplitsFilePath(final String resultingSplitsFilePath) {
-            _getOp().setSplitsFile(resultingSplitsFilePath);
-            return _self();
         }
 
         public Builder validate(final boolean validate) {

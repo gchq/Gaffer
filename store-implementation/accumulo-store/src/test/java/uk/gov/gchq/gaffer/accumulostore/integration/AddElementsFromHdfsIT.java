@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,13 +55,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class AddElementsFromHdfsIT {
     private static final String VERTEX_ID_PREFIX = "vertexId";
-    public static final int NUM_ENTITIES = 1000;
+    private static final int NUM_ENTITIES = 1000;
+    private static final List<String> TABLET_SERVERS = Arrays.asList("1", "2", "3", "4");
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -153,11 +156,34 @@ public class AddElementsFromHdfsIT {
         }
     }
 
+    @Test
+    public void shouldNotSampleAndSplitBeforeAddingElements() throws Exception {
+        shouldNotSampleAndSplitBeforeAddingElements(ByteEntityKeyPackage.class);
+        shouldNotSampleAndSplitBeforeAddingElements(ClassicKeyPackage.class);
+    }
+
+    private void shouldNotSampleAndSplitBeforeAddingElements(final Class<? extends AccumuloKeyPackage> keyPackage) throws Exception {
+        final AccumuloStore store = createStore(keyPackage);
+
+        // Add some splits so that the sample and split operations do not get invoked.
+        final SortedSet<Text> splits = Sets.newTreeSet(Arrays.asList(new Text("1"), new Text("2")));
+        store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
+        assertEquals(splits.size(), store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
+
+        addElementsFromHdfs(store, splits.size());
+    }
+
     private void addElementsFromHdfs(final Class<? extends AccumuloKeyPackage> keyPackageClass)
             throws Exception {
+        addElementsFromHdfs(createStore(keyPackageClass), TABLET_SERVERS.size() - 1);
+    }
+
+    private void addElementsFromHdfs(final AccumuloStore store, final int expectedSplits) throws Exception {
         // Given
         createInputFile();
-        final Graph graph = createGraph(keyPackageClass);
+        final Graph graph = new Graph.Builder()
+                .store(store)
+                .build();
 
         // When
         graph.execute(new AddElementsFromHdfs.Builder()
@@ -167,7 +193,7 @@ public class AddElementsFromHdfsIT {
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
-                .splitsFile(splitsFile)
+                .splitsFilePath(splitsFile)
                 .build(), new User());
 
         // Then
@@ -183,6 +209,7 @@ public class AddElementsFromHdfsIT {
                     .build());
         }
         assertEquals(expectedElements, elementSet);
+        assertEquals(expectedSplits, store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
     }
 
     private void createInputFile() throws IOException, StoreException {
@@ -207,7 +234,7 @@ public class AddElementsFromHdfsIT {
         return conf;
     }
 
-    private Graph createGraph(final Class<? extends AccumuloKeyPackage> keyPackageClass) throws StoreException {
+    private AccumuloStore createStore(final Class<? extends AccumuloKeyPackage> keyPackageClass) throws Exception {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
         properties.setKeyPackageClass(keyPackageClass.getName());
@@ -215,10 +242,8 @@ public class AddElementsFromHdfsIT {
 
         final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
         store.initialise(schema, properties);
-
-        return new Graph.Builder()
-                .store(store)
-                .build();
+        assertEquals(0, store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
+        return store;
     }
 
     public static final class TextMapperGeneratorImpl extends TextMapperGenerator {
@@ -238,7 +263,7 @@ public class AddElementsFromHdfsIT {
     private static final class SingleUseMockAccumuloStoreWithTabletServers extends SingleUseMockAccumuloStore {
         @Override
         public List<String> getTabletServers() throws StoreException {
-            return Arrays.asList("1", "2", "3");
+            return TABLET_SERVERS;
         }
     }
 }
