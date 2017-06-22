@@ -80,7 +80,7 @@ public abstract class Example {
 
     protected void printJava(final String java) {
         log("As Java:");
-        log("\n\n```java");
+        log("\n```java");
         log(java);
         log("```\n");
     }

@@ -16,13 +16,18 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
+import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
+import uk.gov.gchq.gaffer.user.User;
+import java.nio.file.Paths;
 
 public class AddElementsFromHdfsExample extends OperationExample {
+    private final String[] args = new String[5];
+
     public static void main(final String[] args) throws OperationException {
         new AddElementsFromHdfsExample().run();
     }
@@ -47,6 +52,47 @@ public class AddElementsFromHdfsExample extends OperationExample {
     @Override
     public void runExamples() {
         addElementsFromHdfs();
+        addElementsFromHdfsMainMethod();
+    }
+
+    private void addElementsFromHdfsMainMethod() {
+        try {
+            // ---------------------------------------------------------
+            if (5 != args.length) {
+                System.err.println("Usage: hadoop jar custom-hdfs-import-<version>-shaded.jar <inputPath> <outputPath> <failurePath> <schemaPath> <storePropertiesPath>");
+                System.exit(1);
+            }
+
+            final String inputPath = args[0];
+            final String outputPath = args[1];
+            final String failurePath = args[2];
+            final String schemaPath = args[3];
+            final String storePropertiesPath = args[4];
+
+            final Graph graph = new Graph.Builder()
+                    .storeProperties(storePropertiesPath)
+                    .addSchemas(Paths.get(schemaPath))
+                    .build();
+
+            final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
+                    .addInputPath(inputPath)
+                    .outputPath(outputPath)
+                    .failurePath(failurePath)
+                    .splitsFilePath("/tmp/splits")
+                    .useProvidedSplits(false)
+                    .mapperGenerator(TextMapperGeneratorImpl.class)
+                    .jobInitialiser(new TextJobInitialiser())
+                    .minReducers(10)
+                    .maxReducers(100)
+                    .build();
+
+            graph.execute(operation, new User());
+            // ---------------------------------------------------------
+        } catch (final Exception e) {
+            // ignore error
+        }
+
+        showJavaExample("Example content for a main method that takes 5 arguments and runs an " + AddElementsFromHdfs.class.getSimpleName());
     }
 
     public void addElementsFromHdfs() {
@@ -55,15 +101,15 @@ public class AddElementsFromHdfsExample extends OperationExample {
                 .addInputPath("/path/to/input/fileOrFolder")
                 .outputPath("/path/to/output/folder")
                 .failurePath("/path/to/failure/folder")
+                .splitsFilePath("/path/to/splits/file")
+                .useProvidedSplits(false)
                 .mapperGenerator(TextMapperGeneratorImpl.class)
                 .jobInitialiser(new TextJobInitialiser())
-                .useProvidedSplits(false)
-                .splitsFilePath("/path/to/splits/file")
                 .minReducers(10)
                 .maxReducers(100)
                 .build();
         // ---------------------------------------------------------
 
-        showJavaExample(operation, null);
+        showJavaExample(null);
     }
 }
