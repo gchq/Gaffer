@@ -19,7 +19,8 @@ package uk.gov.gchq.gaffer.proxystore;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
-import uk.gov.gchq.gaffer.rest.RestApiTestUtil;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v1.RestApiV1TestClient;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -38,6 +39,7 @@ import java.io.IOException;
  */
 public class SingleUseMockAccumuloProxyStore extends ProxyStore {
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private static final RestApiTestClient client = new RestApiV1TestClient();
 
     @Override
     public void initialise(final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
@@ -56,7 +58,7 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
         final StoreProperties accumuloStoreProperties = StoreProperties.loadStoreProperties(
                 StreamUtil.openStream(getClass(), "accumulo-store.properties"));
         try {
-            RestApiTestUtil.reinitialiseGraph(testFolder, accumuloSchema, accumuloStoreProperties);
+            client.reinitialiseGraph(testFolder, accumuloSchema, accumuloStoreProperties);
         } catch (final IOException e) {
             throw new StoreException("Unable to reinitialise delegate graph", e);
         }
@@ -64,6 +66,6 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
 
     public static void cleanUp() {
         testFolder.delete();
-        RestApiTestUtil.stopServer();
+        client.stopServer();
     }
 }

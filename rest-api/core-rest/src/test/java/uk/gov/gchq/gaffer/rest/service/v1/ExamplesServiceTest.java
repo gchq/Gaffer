@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;

@@ -26,8 +26,8 @@ public abstract class SystemProperty {
     // KEYS
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
-    public static final String BASE_URL = "gaffer.rest-api.basePath";
-    public static final String VERSION = "gaffer.rest-api.version";
+    public static final String BASE_PATH = "gaffer.rest-api.basePath";
+    public static final String REST_API_VERSION = "gaffer.rest-api.version";
     public static final String GRAPH_FACTORY_CLASS = "gaffer.graph.factory.class";
     public static final String USER_FACTORY_CLASS = "gaffer.user.factory.class";
     public static final String SERVICES_PACKAGE_PREFIX = "gaffer.rest-api.resourcePackage";
@@ -41,8 +41,10 @@ public abstract class SystemProperty {
      */
     public static final String PACKAGE_PREFIXES_DEFAULT = "uk.gov.gchq";
     public static final String SERVICES_PACKAGE_PREFIX_DEFAULT = "uk.gov.gchq.gaffer.rest";
-    public static final String BASE_URL_DEFAULT = "rest/v1";
-    public static final String CORE_VERSION = "1.0.0";
+    public static final String BASE_PATH_DEFAULT = "rest/latest";
+    public static final String CORE_VERSION = "2.0.0";
+    public static final String GAFFER_MEDIA_TYPE_V1 = "application/vnd.gaffer.v1+json";
+    public static final String GAFFER_MEDIA_TYPE_V2 = "application/vnd.gaffer.v2+json";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
     public static final String REST_DEBUG_DEFAULT =  uk.gov.gchq.gaffer.core.exception.Error.DEBUG_DEFAULT;

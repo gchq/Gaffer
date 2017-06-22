@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
@@ -45,7 +45,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * An implementation of {@link uk.gov.gchq.gaffer.rest.service.IGraphConfigurationService}. By default it will use a singleton
+ * An implementation of {@link IGraphConfigurationService}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * <p>
  * Currently the {@link uk.gov.gchq.gaffer.operation.Operation}s, {@link java.util.function.Predicate}s,
