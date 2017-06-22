@@ -57,7 +57,7 @@ public class MinExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Element minCountAndTransientProperty() {
@@ -101,6 +101,6 @@ public class MinExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

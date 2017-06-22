@@ -57,7 +57,7 @@ public class MaxExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Element maxCountAndTransientProperty() {
@@ -101,6 +101,6 @@ public class MaxExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

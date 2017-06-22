@@ -22,6 +22,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,8 +33,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class ValidateTest implements OperationTest {
+public class ValidateTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return Validate.class;
+    }
 
     @Test
     @Override

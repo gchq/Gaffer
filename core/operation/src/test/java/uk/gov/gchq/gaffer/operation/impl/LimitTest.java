@@ -16,10 +16,13 @@
 
 package uk.gov.gchq.gaffer.operation.impl;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -29,8 +32,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class LimitTest implements OperationTest {
+public class LimitTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return Limit.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("resultLimit");
+    }
 
     @Test
     @Override

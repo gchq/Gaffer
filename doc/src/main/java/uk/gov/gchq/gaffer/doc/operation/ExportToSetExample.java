@@ -51,7 +51,7 @@ public class ExportToSetExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Iterable<?> simpleExportAndGetWithPagination() {
@@ -67,7 +67,7 @@ public class ExportToSetExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
 
@@ -95,6 +95,6 @@ public class ExportToSetExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

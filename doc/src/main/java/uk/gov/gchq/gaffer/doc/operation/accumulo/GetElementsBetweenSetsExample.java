@@ -48,7 +48,7 @@ public class GetElementsBetweenSetsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<? extends Element> getElementsWithinSetOfVertices1And2And4WithCountGreaterThan2() {
@@ -73,6 +73,6 @@ public class GetElementsBetweenSetsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 }
