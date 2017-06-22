@@ -23,40 +23,40 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedFloatToBytesSerialiserTest {
+public class OrderedIntegerSerialiserTest {
 
-    private static final OrderedFloatSerialiser SERIALISER = new OrderedFloatSerialiser();
+    private static final OrderedIntegerSerialiser SERIALISER = new OrderedIntegerSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (float i = 0; i < 1000; i += 1.1) {
+        for (int i = 0; i < 1000; i++) {
             byte[] b = SERIALISER.serialise(i);
             Object o = SERIALISER.deserialise(b);
-            assertEquals(Float.class, o.getClass());
+            assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
     }
 
     @Test
-    public void canSerialiseFloatMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
+    public void canSerialiseIntegerMinValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Float.class, o.getClass());
-        assertEquals(Float.MIN_VALUE, o);
+        assertEquals(Integer.class, o.getClass());
+        assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
-    public void canSerialiseFloatMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
+    public void canSerialiseIntegerMaxValue() throws SerialisationException {
+        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
         Object o = SERIALISER.deserialise(b);
-        assertEquals(Float.class, o.getClass());
-        assertEquals(Float.MAX_VALUE, o);
+        assertEquals(Integer.class, o.getClass());
+        assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        byte[] startBytes = SERIALISER.serialise(0.0f);
-        for (Float test = 1.0f; test >= 5; test += 0.1f) {
+        byte[] startBytes = SERIALISER.serialise(0);
+        for (Integer test = 1; test >= 10; test++) {
             byte[] newTestBytes = SERIALISER.serialise(test);
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
@@ -69,8 +69,8 @@ public class OrderedFloatToBytesSerialiserTest {
     }
 
     @Test
-    public void canSerialiseFloatClass() {
-        assertTrue(SERIALISER.canHandle(Float.class));
+    public void canSerialiseIntegerClass() {
+        assertTrue(SERIALISER.canHandle(Integer.class));
     }
 
     private static int compare(final byte[] first, final byte[] second) {

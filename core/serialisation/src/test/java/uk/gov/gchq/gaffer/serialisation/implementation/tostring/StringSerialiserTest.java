@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.serialisation.tostring.implementation;
+package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created on 22/05/2017.
  */
-public class StringToStringSerialiserTest extends SerialisationTest<String, String> {
+public class StringSerialiserTest extends SerialisationTest<String, String> {
 
 
     public static final String STRING_VALUE_1 = "StringValue1";

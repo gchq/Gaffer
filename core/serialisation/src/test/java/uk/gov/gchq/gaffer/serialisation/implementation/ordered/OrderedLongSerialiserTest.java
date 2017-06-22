@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedLongToBytesSerialiserTest {
+public class OrderedLongSerialiserTest {
 
     private static final OrderedLongSerialiser SERIALISER = new OrderedLongSerialiser();
 
