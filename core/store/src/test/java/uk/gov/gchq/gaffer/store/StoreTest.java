@@ -50,8 +50,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation.StringToStringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -152,7 +151,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
@@ -168,7 +167,7 @@ public class StoreTest {
                         .build())
                 .type("invalidType", new TypeDefinition.Builder()
                         .clazz(Object.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -522,7 +521,7 @@ public class StoreTest {
 
     @Test(expected = SchemaException.class)
     public void shouldFindInvalidSerialiser() throws Exception {
-        final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
+        final Class<StringSerialiser> invalidSerialiserClass = StringSerialiser.class;
         Schema invalidSchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
@@ -533,7 +532,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .build())
                 .type("invalidString", new TypeDefinition.Builder()
                         .clazz(String.class)

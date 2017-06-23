@@ -73,7 +73,7 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
             LengthValueBytesSerialiserUtil.serialise(booleanSerialiser, edge.isDirected(), out);
             serialiseProperties(edge.getProperties(), elementDefinition, out);
             return out.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise edge into bytes", e);
         }
     }

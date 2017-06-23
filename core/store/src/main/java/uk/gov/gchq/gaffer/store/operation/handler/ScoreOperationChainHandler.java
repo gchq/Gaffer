@@ -59,7 +59,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
     private final LinkedHashMap<Class<? extends Operation>, Integer> operationScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
 
-    public ScoreOperationChainHandler() throws OperationException {
+    public ScoreOperationChainHandler() {
         this((String) null, null);
     }
 
