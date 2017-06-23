@@ -48,7 +48,9 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -76,12 +78,14 @@ public abstract class WalkthroughStrSubstitutor {
         return new StrSubstitutor(paramMap).replace(walkthrough);
     }
 
-    public static void validateSubstitution(final String walkthrough) {
+    public static void validateSubstitution(final String walkthrough, final String... allowed) {
         final int startIndex = walkthrough.indexOf("${");
+        final List<String> allowedList = Arrays.asList(allowed);
+
         if (startIndex > -1) {
             final String tmp = walkthrough.substring(startIndex + 2);
             final int endIndex = tmp.indexOf("}");
-            if (endIndex > -1) {
+            if (endIndex > -1 && !allowedList.contains(tmp.substring(0, endIndex))) {
                 throw new RuntimeException("Parameter was not substituted: " + tmp.substring(0, endIndex));
             }
         }
