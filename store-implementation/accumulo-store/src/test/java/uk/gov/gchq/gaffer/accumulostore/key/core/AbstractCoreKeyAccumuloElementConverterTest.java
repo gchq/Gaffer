@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import com.google.common.primitives.Bytes;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Test;
@@ -24,12 +22,15 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created on 25/05/2017.
@@ -81,6 +82,11 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
+        protected EntityId getEntityId(final byte[] row) {
+            return null;
+        }
+
+        @Override
         protected byte[] getRowKeyFromEntity(Entity entity) {
             return new byte[0];
         }
@@ -96,7 +102,7 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
-        protected Entity getEntityFromKey(Key key) {
+        protected Entity getEntityFromKey(Key key, byte[] row) {
             return null;
         }
 

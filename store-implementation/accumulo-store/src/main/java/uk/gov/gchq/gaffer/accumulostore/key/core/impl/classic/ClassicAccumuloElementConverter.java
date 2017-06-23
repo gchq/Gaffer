@@ -24,7 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
@@ -33,6 +35,16 @@ import java.util.Map;
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
     public ClassicAccumuloElementConverter(final Schema schema) {
         super(schema);
+    }
+
+    @Override
+    protected EntityId getEntityId(final byte[] row) {
+        try {
+            return new EntitySeed(((ToBytesSerialiser) schema.getVertexSerialiser())
+                    .deserialise(ByteArrayEscapeUtils.unEscape(row)));
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException("Failed to create EntityId from Accumulo row key", e);
+        }
     }
 
     @Override
@@ -119,10 +131,10 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected Entity getEntityFromKey(final Key key) {
+    protected Entity getEntityFromKey(final Key key, final byte[] row) {
         try {
             final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
-                    .deserialise(ByteArrayEscapeUtils.unEscape(key.getRowData().getBackingArray())));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(row)));
             addPropertiesToElement(entity, key);
             return entity;
         } catch (final SerialisationException e) {

@@ -28,7 +28,11 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -47,6 +51,15 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     public AbstractCoreKeyAccumuloElementConverter(final Schema schema) {
         this.schema = schema;
+    }
+
+    @Override
+    public ElementId getElementId(final Key key, final Map<String, String> options) {
+        final byte[] row = key.getRowData().getBackingArray();
+        if (doesKeyRepresentEntity(row)) {
+            return getEntityId(row);
+        }
+        return getEdgeId(row, options);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -144,11 +157,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     @Override
     public Element getElementFromKey(final Key key, final Map<String, String> options) {
-        final boolean keyRepresentsEntity = doesKeyRepresentEntity(key.getRowData().getBackingArray());
+        final byte[] row = key.getRowData().getBackingArray();
+        final boolean keyRepresentsEntity = doesKeyRepresentEntity(row);
         if (keyRepresentsEntity) {
-            return getEntityFromKey(key);
+            return getEntityFromKey(key, row);
         }
-        return getEdgeFromKey(key, options);
+        return getEdgeFromKey(key, row, options);
     }
 
     @Override
@@ -384,10 +398,23 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
 
     protected abstract boolean doesKeyRepresentEntity(final byte[] row);
 
-    protected abstract Entity getEntityFromKey(final Key key);
+    protected abstract Entity getEntityFromKey(final Key key, final byte[] row);
 
     protected abstract boolean getSourceAndDestinationFromRowKey(final byte[] rowKey,
                                                                  final byte[][] sourceValueDestinationValue, final Map<String, String> options);
+
+    protected abstract EntityId getEntityId(final byte[] row);
+
+    protected EdgeId getEdgeId(final byte[] row, final Map<String, String> options) {
+        final byte[][] result = new byte[2][];
+        final boolean directed = getSourceAndDestinationFromRowKey(row, result, options);
+        try {
+            return new EdgeSeed(((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException("Failed to create EdgeId from Accumulo row key", e);
+        }
+    }
 
     protected boolean selfEdge(final Edge edge) {
         return edge.getSource().equals(edge.getDestination());
@@ -403,9 +430,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected Edge getEdgeFromKey(final Key key, final Map<String, String> options) {
-        final byte[][] result = new byte[3][];
-        final boolean directed = getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), result, options);
+    protected Edge getEdgeFromKey(final Key key, final byte[] row, final Map<String, String> options) {
+        final byte[][] result = new byte[2][];
+        final boolean directed = getSourceAndDestinationFromRowKey(row, result, options);
         String group;
         try {
             group = new String(key.getColumnFamilyData().getBackingArray(), CommonConstants.UTF_8);

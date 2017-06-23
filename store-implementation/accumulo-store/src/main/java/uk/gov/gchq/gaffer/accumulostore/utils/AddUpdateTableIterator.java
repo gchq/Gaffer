@@ -137,8 +137,8 @@ public final class AddUpdateTableIterator {
                 && (store.getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
-                                        .getIteratorFactory()
-                                        .getIteratorSetting(store, iteratorName));
+                        .getIteratorFactory()
+                        .getIteratorSetting(store, iteratorName));
             } catch (final IteratorSettingException e) {
                 throw new StoreException(e.getMessage(), e);
             }
@@ -155,10 +155,12 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final IteratorSetting iteratorSetting)
             throws StoreException {
-        try {
-            store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
-        } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
-            throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
+        if (null != iteratorSetting) {
+            try {
+                store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
+            } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+                throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
+            }
         }
         TableUtils.setLocalityGroups(store);
     }

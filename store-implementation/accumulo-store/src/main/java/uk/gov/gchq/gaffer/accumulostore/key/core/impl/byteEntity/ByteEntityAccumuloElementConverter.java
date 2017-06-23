@@ -24,7 +24,9 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
@@ -59,6 +61,17 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
 
     public ByteEntityAccumuloElementConverter(final Schema schema) {
         super(schema);
+    }
+
+    @Override
+    protected EntityId getEntityId(final byte[] row) {
+        try {
+            return new EntitySeed(((ToBytesSerialiser) schema.getVertexSerialiser())
+                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0,
+                            row.length - 2))));
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException("Failed to create EntityId from Accumulo row key", e);
+        }
     }
 
     @Override
@@ -118,11 +131,11 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected Entity getEntityFromKey(final Key key) {
+    protected Entity getEntityFromKey(final Key key, final byte[] row) {
         try {
             final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0,
-                            key.getRowData().getBackingArray().length - 2))));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0,
+                            row.length - 2))));
             addPropertiesToElement(entity, key);
             return entity;
         } catch (final SerialisationException e) {

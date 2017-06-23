@@ -56,13 +56,15 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
         }
 
         try {
-            final Class<?> elementConverterClass = Class
-                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+            elementConverter = Class
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
                     .newInstance(schema);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
+            throw new IllegalArgumentException("Failed to create accumulo element converter from class "
+                    + context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
     }
 

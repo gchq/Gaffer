@@ -228,6 +228,25 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         return validator;
     }
 
+    public boolean hasValidation() {
+        if (null != validator && !validator.getComponents().isEmpty()) {
+            return true;
+        }
+
+        for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
+            if (null != getTypeDef(entry.getValue()).getValidateFunctions()) {
+                return true;
+            }
+        }
+        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+            if (null != getTypeDef(entry.getValue()).getValidateFunctions()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public ElementFilter getValidator(final boolean includeIsA) {
         final ElementFilter fullValidator = new ElementFilter();
         if (null != validator) {

@@ -56,7 +56,7 @@ public abstract class AbstractGetRDDHandler<OP extends Output<O> & GraphFilters 
                              final OP operation) throws OperationException {
         try {
             // Update configuration with instance name, table name, zookeepers, and with view
-            accumuloStore.updateConfiguration(conf, operation.getView(), user);
+            accumuloStore.updateConfiguration(conf, operation, user);
             // Add iterators based on operation-specific (i.e. not view related) options
             final IteratorSetting edgeEntityDirectionFilter = accumuloStore.getKeyPackage()
                     .getIteratorFactory()

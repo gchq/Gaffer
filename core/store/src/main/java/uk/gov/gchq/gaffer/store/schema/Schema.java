@@ -180,6 +180,17 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return result;
     }
 
+    public boolean hasValidation() {
+        for (final Map.Entry<String, SchemaElementDefinition> entry : new ChainedIterable<Map.Entry<String, SchemaElementDefinition>>(getEntities().entrySet(), getEdges().entrySet())) {
+            if (null != entry.getValue()) {
+                if (entry.getValue().hasValidation()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Map<String, TypeDefinition> getTypes() {
         return types;
     }
