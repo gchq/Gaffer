@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collection;

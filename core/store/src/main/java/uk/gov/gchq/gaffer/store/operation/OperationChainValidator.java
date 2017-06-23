@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 public class OperationChainValidator {
-    private ViewValidator viewValidator;
+    private final ViewValidator viewValidator;
 
     public OperationChainValidator(final ViewValidator viewValidator) {
         this.viewValidator = viewValidator;
