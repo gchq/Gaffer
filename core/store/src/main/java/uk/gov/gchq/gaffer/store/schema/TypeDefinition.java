@@ -219,7 +219,7 @@ public class TypeDefinition {
     }
 
     public static class Builder {
-        private TypeDefinition type = new TypeDefinition();
+        private final TypeDefinition type = new TypeDefinition();
 
         public Builder() {
         }

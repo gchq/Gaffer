@@ -25,13 +25,13 @@ import uk.gov.gchq.gaffer.serialisation.implementation.BytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.TreeSetStringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedFloatSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedIntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDateSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawDoubleSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawFloatSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
 import java.util.List;
 
 /**
@@ -43,16 +43,16 @@ public class SerialisationFactory {
     private final List<Serialiser> serialisers;
     private static final Serialiser LAST_RESORT_FINALISER = new JavaSerialiser();
     private static final Serialiser[] CORE_SERIALISERS = new Serialiser[]{
+            new OrderedLongSerialiser(),
+            new OrderedDateSerialiser(),
+            new OrderedIntegerSerialiser(),
+            new OrderedDoubleSerialiser(),
+            new OrderedFloatSerialiser(),
             new StringSerialiser(),
             new BytesSerialiser(),
             new CompactRawIntegerSerialiser(),
-            new RawIntegerSerialiser(),
             new CompactRawLongSerialiser(),
-            new RawLongSerialiser(),
             new BooleanSerialiser(),
-            new RawDateSerialiser(),
-            new RawDoubleSerialiser(),
-            new RawFloatSerialiser(),
             new TreeSetStringSerialiser(),
             new TypeValueSerialiser(),
             new TypeSubTypeValueSerialiser(),
