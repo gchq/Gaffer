@@ -29,33 +29,30 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 
-import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
 public class SchemaUtilsTest {
-
     private SchemaUtils utils;
 
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        final Schema schema = Schema.fromJson(
+                getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
+        utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After
     public void cleanUp() {
-        this.utils = null;
+        utils = null;
     }
 
     @Test
@@ -80,7 +77,8 @@ public class SchemaUtilsTest {
                 "}\n" +
                 "optional int32 count ;\n" +
                 "}";
-        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter().convert(MessageTypeParser.parseMessageType(parquetSchema));
+        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter()
+                .convert(MessageTypeParser.parseMessageType(parquetSchema));
         assertEquals(expectedSchema, schema);
     }
 
@@ -104,14 +102,15 @@ public class SchemaUtilsTest {
                 "}\n" +
                 "optional int32 count ;\n" +
                 "}";
-        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter().convert(MessageTypeParser.parseMessageType(parquetSchema));
+        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter()
+                .convert(MessageTypeParser.parseMessageType(parquetSchema));
         assertEquals(expectedSchema, schema);
     }
 
 
     @Test
     public void getColumnToSerialiserTest() throws SerialisationException {
-        final HashMap<String, String> columnToSerialiser = this.utils.getColumnToSerialiser("BasicEdge");
+        final Map<String, String> columnToSerialiser = utils.getColumnToSerialiser("BasicEdge");
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
                 columnToSerialiser.get(ParquetStoreConstants.SOURCE));
         assertEquals("uk.gov.gchq.gaffer.parquetstore.serialisation.impl.StringParquetSerialiser",
@@ -140,7 +139,7 @@ public class SchemaUtilsTest {
 
     @Test
     public void getEntityGroupsTest() {
-        final Set<String> entityGroups = this.utils.getEntityGroups();
+        final Set<String> entityGroups = utils.getEntityGroups();
         final LinkedHashSet<String> expected = new LinkedHashSet<>(2);
         expected.add("BasicEntity");
         expected.add("BasicEntity2");
@@ -149,7 +148,7 @@ public class SchemaUtilsTest {
 
     @Test
     public void getEdgeGroupsTest() {
-        final Set<String> edgeGroups = this.utils.getEdgeGroups();
+        final Set<String> edgeGroups = utils.getEdgeGroups();
         final LinkedHashSet<String> expected = new LinkedHashSet<>(2);
         expected.add("BasicEdge");
         expected.add("BasicEdge2");

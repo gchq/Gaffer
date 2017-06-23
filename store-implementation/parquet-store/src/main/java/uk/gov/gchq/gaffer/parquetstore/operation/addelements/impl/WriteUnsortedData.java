@@ -30,6 +30,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
@@ -69,7 +70,7 @@ public class WriteUnsortedData {
                 writer.close();
             }
         } catch (final IOException | OperationException e) {
-            throw new OperationException("Exception writing elements to " + this.props.getTempFilesDir(), e);
+            throw new OperationException("Exception writing elements to " + props.getTempFilesDir(), e);
         }
     }
 
@@ -96,15 +97,15 @@ public class WriteUnsortedData {
         }
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
         Path filePath;
-        filePath = new Path(this.schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.props.getTempFilesDir()) +
+        filePath = new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, props.getTempFilesDir()) +
                 "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
         return AvroParquetWriter
                 .<GenericRecord>builder(filePath)
                 .withSchema(this.schemaUtils.getAvroSchema(group))
                 .withCompressionCodec(CompressionCodecName.GZIP)
-                .withRowGroupSize(this.props.getRowGroupSize())
-                .withPageSize(this.props.getPageSize())
-                .withDictionaryPageSize(this.props.getPageSize())
+                .withRowGroupSize(props.getRowGroupSize())
+                .withPageSize(props.getPageSize())
+                .withDictionaryPageSize(props.getPageSize())
                 .enableDictionaryEncoding()
                 .build();
     }

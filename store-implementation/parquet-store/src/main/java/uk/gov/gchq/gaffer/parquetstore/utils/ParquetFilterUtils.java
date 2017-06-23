@@ -546,7 +546,7 @@ public final class ParquetFilterUtils {
     }
 
     private static FilterPredicate createSeedFilter(final Object[] seed, final String colName,
-                                             final HashMap<String, String[]> colToPaths) throws OperationException {
+                                             final Map<String, String[]> colToPaths) throws OperationException {
         String[] columns = colToPaths.get(colName);
         if (columns == null) {
             columns = new String[1];

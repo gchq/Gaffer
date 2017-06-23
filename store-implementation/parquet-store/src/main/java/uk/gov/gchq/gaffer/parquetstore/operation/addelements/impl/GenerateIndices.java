@@ -28,8 +28,8 @@ import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -46,18 +46,18 @@ public class GenerateIndices {
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final String tempFileDir = parquetStoreProperties.getTempFilesDir();
         for (final String group : store.getSchemaUtils().getEdgeGroups()) {
-            final HashMap<String, String[]> columnToPaths = schemaUtils.getColumnToPaths(group);
-            final String directorySource = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir + SORTED);
+            final Map<String, String[]> columnToPaths = schemaUtils.getColumnToPaths(group);
+            final String directorySource = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, tempFileDir + SORTED);
             LOGGER.info("Creating a task to create the index for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.SOURCE)));
             tasks.add(new GenerateIndexForGroup(directorySource, columnToPaths.get(ParquetStoreConstants.SOURCE)));
-            final String directoryDestination = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, tempFileDir + SORTED);
+            final String directoryDestination = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, tempFileDir + SORTED);
             LOGGER.info("Creating a task to create the index for group {} from directory {} and paths {}",
                     group, directorySource, StringUtils.join(columnToPaths.get(ParquetStoreConstants.DESTINATION)));
             tasks.add(new GenerateIndexForGroup(directoryDestination, columnToPaths.get(ParquetStoreConstants.DESTINATION)));
         }
         for (final String group : schemaUtils.getEntityGroups()) {
-            final String directory = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir + SORTED);
+            final String directory = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, tempFileDir + SORTED);
             tasks.add(new GenerateIndexForGroup(directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX)));
             LOGGER.info("Created a task to create the index for group {} from directory {} and paths {}",
                     group, directory, schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX));
@@ -66,7 +66,7 @@ public class GenerateIndices {
         try {
             final List<Future<OperationException>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
-                OperationException result = results.get(i).get();
+                final OperationException result = results.get(i).get();
                 if (result != null) {
                     throw result;
                 }

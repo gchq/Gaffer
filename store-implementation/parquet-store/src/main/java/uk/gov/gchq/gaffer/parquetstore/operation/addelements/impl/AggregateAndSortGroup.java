@@ -35,6 +35,7 @@ import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
 import uk.gov.gchq.gaffer.parquetstore.utils.ExtractKeyFromRow;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.function.BinaryOperator;
@@ -61,7 +63,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final String tempFileDir;
     private final boolean reverseEdge;
     private final SparkSession spark;
-    private final HashMap<String, String[]> columnToPaths;
+    private final Map<String, String[]> columnToPaths;
     private final StructType sparkSchema;
     private final GafferGroupObjectConverter gafferGroupObjectConverter;
     private final String inputDir;
@@ -93,11 +95,11 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         schemaUtils.getAvroSchema(group);
         this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
         if (reverseEdge) {
-            this.inputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
-            this.outputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, this.tempFileDir + SORTED);
+            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
+            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, this.tempFileDir + SORTED);
         } else {
-            this.inputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
-            this.outputDir = schemaUtils.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir + SORTED);
+            this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir);
+            this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, this.tempFileDir + SORTED);
         }
         this.filesPerGroup = parquetStoreProperties.getAddElementsOutputFilesPerGroup();
     }
@@ -146,7 +148,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                     Dataset<Row> sortedData;
                     final String firstSortColumn;
                     final Builder<String, Seq<String>> groupBySeq = Seq$.MODULE$.newBuilder();
-                    final HashMap<String, String[]> groupPaths = this.columnToPaths;
+                    final Map<String, String[]> groupPaths = this.columnToPaths;
                     if (isEntity) {
                         final String[] vertexPaths = groupPaths.get(ParquetStoreConstants.VERTEX);
                         firstSortColumn = vertexPaths[0];

@@ -38,17 +38,17 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;
-    private final HashMap<String, String> propertyToAggregatorMap;
+    private final Map<String, String> propertyToAggregatorMap;
     private final Set<String> groupByColumns;
     private final GafferGroupObjectConverter objectConverter;
-    private final HashMap<String, String[]> columnToPaths;
+    private final Map<String, String[]> columnToPaths;
     private final String[] gafferProperties;
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public AggregateGafferRowsFunction(final String[] gafferProperties, final boolean isEntity,
                                        final Set<String> groupByColumns,
-                                       final HashMap<String, String[]> columnToPaths,
-                                       final HashMap<String, String> propertyToAggregatorMap,
+                                       final Map<String, String[]> columnToPaths,
+                                       final Map<String, String> propertyToAggregatorMap,
                                        final GafferGroupObjectConverter gafferGroupObjectConverter)
             throws SerialisationException {
         LOGGER.debug("Generating a new AggregateGafferRowsFunction");

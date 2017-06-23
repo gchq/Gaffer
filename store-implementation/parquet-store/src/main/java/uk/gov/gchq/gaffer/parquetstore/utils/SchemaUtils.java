@@ -35,71 +35,72 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class is responsible for converting a Gaffer {@link Schema} to an Avro {@link org.apache.avro.Schema} per group
+ * and to a Spark schema (a {@link StructType} per group).
+ */
 public class SchemaUtils {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SchemaUtils.class);
     private final Schema gafferSchema;
-    private final Set<String> entityGroups;
-    private final Set<String> edgeGroups;
-    private final Set<String> allGroups;
-    private final HashMap<String, org.apache.avro.Schema> groupToAvroSchema;
-    private final HashMap<String, StructType> groupToSparkSchema;
-    private final HashMap<String, HashMap<String, String>> groupColumnToSerialiserName;
-    private final HashMap<String, HashMap<String, String[]>> groupColumnToPaths;
-    private final HashMap<String, Serialiser> serialiserNameToSerialiser;
-    private final HashMap<String, GafferGroupObjectConverter> groupToObjectConverter;
-    private final SeedComparator seedComparator;
+    private final Map<String, org.apache.avro.Schema> groupToAvroSchema = new HashMap<>();
+    private final Map<String, StructType> groupToSparkSchema = new HashMap<>();
+    private final Map<String, Map<String, String>> groupColumnToSerialiserName = new HashMap<>();
+    private final Map<String, Map<String, String[]>> groupColumnToPaths = new HashMap<>();
+    private final Map<String, Serialiser> serialiserNameToSerialiser = new HashMap<>();
+    private final Map<String, GafferGroupObjectConverter> groupToObjectConverter = new HashMap<>();
 
     public SchemaUtils(final Schema gafferSchema) {
-        LOGGER.debug("Instantiating the SchemaUtils class");
-        LOGGER.debug("Using the Gaffer schema " + gafferSchema);
+        LOGGER.info("Instantiating the SchemaUtils class");
+        LOGGER.info("The Gaffer schema is:" + gafferSchema);
         this.gafferSchema = gafferSchema;
-        this.entityGroups = gafferSchema.getEntityGroups();
-        this.edgeGroups = gafferSchema.getEdgeGroups();
-        this.allGroups = new HashSet<>();
-        this.allGroups.addAll(this.entityGroups);
-        this.allGroups.addAll(this.edgeGroups);
-        this.groupToAvroSchema = new HashMap<>();
-        this.groupToSparkSchema = new HashMap<>();
-        this.groupToObjectConverter = new HashMap<>();
-        this.groupColumnToSerialiserName = new HashMap<>();
-        this.groupColumnToPaths = new HashMap<>();
-        this.serialiserNameToSerialiser = new HashMap<>();
-        this.seedComparator = new SeedComparator();
-    }
-
-    public SeedComparator getSeedComparator() {
-        return this.seedComparator;
+        try {
+            buildAvroSchema();
+            buildSparkSchema();
+            buildGroupColumnToPaths();
+            buildConverters();
+        } catch (final SerialisationException e) {
+            throw new RuntimeException("SerialisationException building Avro and Spark schemas", e);
+        }
     }
 
     public org.apache.avro.Schema getAvroSchema(final String group) throws SerialisationException {
-        if (this.groupToAvroSchema.containsKey(group)) {
-            return this.groupToAvroSchema.get(group);
-        } else {
-            return buildAvroSchema(group);
+        return groupToAvroSchema.get(group);
+    }
+
+    private void buildGroupColumnToPaths() throws SerialisationException {
+        for (final String group : getGroups()) {
+            groupColumnToPaths.put(group, _getColumnToPaths(group));
         }
     }
 
-    public HashMap<String, String[]> getColumnToPaths(final String group) throws SerialisationException {
-        if (!this.groupColumnToPaths.containsKey(group)) {
-            final HashMap<String, LinkedHashSet<String>> columnToPathSet = recursivelyGeneratePaths(null, null, getAvroSchema(group), null);
-            final HashMap<String, String[]> columnToPaths = new HashMap<>();
-            for (final Map.Entry<String, LinkedHashSet<String>> entry : columnToPathSet.entrySet()) {
-                LOGGER.debug("getColumnToPaths: group=" + group + " paths={}", entry.getValue().toString());
-                final String[] paths = new String[entry.getValue().size()];
-                entry.getValue().toArray(paths);
-                columnToPaths.put(entry.getKey(), paths);
-            }
-            this.groupColumnToPaths.put(group, columnToPaths);
+    /**
+     * This method returns, for the provided <code>group</code>, an array of {@link String}s giving the path to the
+     * column or columns associated to that group
+     *
+     * @param group
+     * @return
+     * @throws SerialisationException
+     */
+    public Map<String, String[]> getColumnToPaths(final String group) throws SerialisationException {
+        return groupColumnToPaths.get(group);
+    }
+
+    private Map<String, String[]> _getColumnToPaths(final String group) throws SerialisationException {
+        final Map<String, LinkedHashSet<String>> columnToPathSet = recursivelyGeneratePaths(null, null, getAvroSchema(group), null);
+        final Map<String, String[]> columnToPaths = new HashMap<>();
+        for (final Map.Entry<String, LinkedHashSet<String>> entry : columnToPathSet.entrySet()) {
+            LOGGER.debug("getColumnToPaths: group=" + group + " paths={}", entry.getValue().toString());
+            final String[] paths = new String[entry.getValue().size()];
+            entry.getValue().toArray(paths);
+            columnToPaths.put(entry.getKey(), paths);
         }
-        return this.groupColumnToPaths.get(group);
+        return columnToPaths;
     }
 
     private HashMap<String, LinkedHashSet<String>> recursivelyGeneratePaths(final String column, final String path, final org.apache.avro.Schema avroSchema, final HashMap<String, LinkedHashSet<String>> columnToPaths) throws SerialisationException {
@@ -138,7 +139,7 @@ public class SchemaUtils {
     }
 
     public String[] getPaths(final String group, final String column) throws SerialisationException {
-        return this.getColumnToPaths(group).get(column);
+        return getColumnToPaths(group).get(column);
     }
 
     private HashMap<String, LinkedHashSet<String>> addPathToGroupColumnToPaths(final String column, final String path, final HashMap<String, LinkedHashSet<String>> columnToPaths) {
@@ -160,43 +161,54 @@ public class SchemaUtils {
         return newColumnToPaths;
     }
 
-    public StructType getSparkSchema(final String group) throws SerialisationException {
-        if (this.groupToSparkSchema.containsKey(group)) {
-            return this.groupToSparkSchema.get(group);
-        } else {
-            final List<org.apache.avro.Schema.Field> schemaFields = getAvroSchema(group).getFields();
-            final StructField[] arr = new StructField[schemaFields.size()];
-            for (int i = 0; i < schemaFields.size(); i++) {
-                org.apache.avro.Schema.Field field = schemaFields.get(i);
-                StructField sField = new StructField(field.name(), SchemaConverters.toSqlType(field.schema()).dataType(),
-                        true, new Metadata(new scala.collection.immutable.HashMap<>()));
-                arr[i] = sField;
-            }
-            StructType sType = new StructType(arr);
-            LOGGER.debug("The Spark schema for " + group + " is " + sType.prettyJson());
-            this.groupToSparkSchema.put(group, sType);
-            return sType;
+    private void buildSparkSchema() throws SerialisationException {
+        for (final String group : gafferSchema.getGroups()) {
+            groupToSparkSchema.put(group, getSparkSchema(group));
         }
+        LOGGER.info("Created Spark schema from Gaffer schema");
+        LOGGER.info("Spark schema is: {}", groupToSparkSchema);
+    }
+
+    public StructType getSparkSchema(final String group) throws SerialisationException {
+        final List<org.apache.avro.Schema.Field> schemaFields = getAvroSchema(group).getFields();
+        final StructField[] arr = new StructField[schemaFields.size()];
+        for (int i = 0; i < schemaFields.size(); i++) {
+            org.apache.avro.Schema.Field field = schemaFields.get(i);
+            StructField sField = new StructField(field.name(), SchemaConverters.toSqlType(field.schema()).dataType(),
+                    true, new Metadata(new scala.collection.immutable.HashMap<>()));
+            arr[i] = sField;
+        }
+        StructType sType = new StructType(arr);
+        groupToSparkSchema.put(group, sType);
+        return sType;
+    }
+
+    private void buildAvroSchema() throws SerialisationException {
+        for (final String group : gafferSchema.getGroups()) {
+            groupToAvroSchema.put(group, buildAvroSchema(group));
+        }
+        LOGGER.info("Created Avro schema from Gaffer schema.");
+        LOGGER.info("Avro schema is: {}", groupToAvroSchema);
     }
 
     private org.apache.avro.Schema buildAvroSchema(final String group) throws SerialisationException {
-        LOGGER.info("Building the Parquet Schema for group: {}", group);
+        LOGGER.debug("Building the Avro Schema for group {}", group);
         SchemaElementDefinition groupGafferSchema;
-        final Boolean isEntity = this.entityGroups.contains(group);
-        StringBuilder schemaString = new StringBuilder("message Entity {\n");
+        final boolean isEntity = gafferSchema.getEntityGroups().contains(group);
+        final StringBuilder schemaString = new StringBuilder("message Entity {\n");
         schemaString.append("required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n");
-        Serialiser serialiser = this.gafferSchema.getVertexSerialiser();
-        // check that the vertex does not get stored as nested data
+        Serialiser serialiser = gafferSchema.getVertexSerialiser();
+        // Check that the vertex does not get stored as nested data
         if (serialiser instanceof ParquetSerialiser &&
                 ((ParquetSerialiser) serialiser).getParquetSchema("test").contains(" group ")) {
             throw new SerialisationException("Can not have a vertex that is serialised as nested data as it can not be indexed");
         }
         if (isEntity) {
-            groupGafferSchema = this.gafferSchema.getEntity(group);
+            groupGafferSchema = gafferSchema.getEntity(group);
             schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.VERTEX)).append("\n");
             addGroupColumnToSerialiser(group, ParquetStoreConstants.VERTEX, serialiser);
         } else {
-            groupGafferSchema = this.gafferSchema.getEdge(group);
+            groupGafferSchema = gafferSchema.getEdge(group);
 
             schemaString.append(convertColumnSerialiserToParquetColumns(serialiser, ParquetStoreConstants.SOURCE)).append("\n");
             addGroupColumnToSerialiser(group, ParquetStoreConstants.SOURCE, serialiser);
@@ -213,7 +225,7 @@ public class SchemaUtils {
             if (entry.getKey().contains("_")) {
                 throw new SchemaException("The ParquetStore does not support properties which contain the character '_'");
             }
-            TypeDefinition type = this.gafferSchema.getType(entry.getValue());
+            TypeDefinition type = gafferSchema.getType(entry.getValue());
             addGroupColumnToSerialiser(group, entry.getKey(), type.getSerialiserClass());
             schemaString.append(convertColumnSerialiserToParquetColumns(getSerialiser(type.getSerialiserClass()), entry.getKey())).append("\n");
         }
@@ -222,7 +234,7 @@ public class SchemaUtils {
         LOGGER.info("Generated Parquet schema:");
         LOGGER.info(parquetSchema);
         org.apache.avro.Schema avroSchema = new AvroSchemaConverter().convert(MessageTypeParser.parseMessageType(parquetSchema));
-        this.groupToAvroSchema.put(group, avroSchema);
+        groupToAvroSchema.put(group, avroSchema);
 
         LOGGER.debug("Generated Avro schema:");
         LOGGER.debug(avroSchema.toString(true));
@@ -235,31 +247,31 @@ public class SchemaUtils {
 
     private void addGroupColumnToSerialiser(final String group, final String column, final Serialiser serialiser) {
         final String serialiserClassName = serialiser.getClass().getCanonicalName();
-        if (this.groupColumnToSerialiserName.containsKey(group)) {
-            this.groupColumnToSerialiserName.get(group).put(column, serialiserClassName);
+        if (groupColumnToSerialiserName.containsKey(group)) {
+            groupColumnToSerialiserName.get(group).put(column, serialiserClassName);
         } else {
             final LinkedHashMap<String, String> columnToSerialiser = new LinkedHashMap<>();
             columnToSerialiser.put(column, serialiserClassName);
-            this.groupColumnToSerialiserName.put(group, columnToSerialiser);
+            groupColumnToSerialiserName.put(group, columnToSerialiser);
         }
-        if (this.serialiserNameToSerialiser.containsKey(group)) {
-            if (!this.serialiserNameToSerialiser.containsKey(serialiserClassName)) {
-                this.serialiserNameToSerialiser.put(serialiserClassName, serialiser);
+        if (serialiserNameToSerialiser.containsKey(group)) {
+            if (!serialiserNameToSerialiser.containsKey(serialiserClassName)) {
+                serialiserNameToSerialiser.put(serialiserClassName, serialiser);
             }
         } else {
-            this.serialiserNameToSerialiser.put(serialiserClassName, serialiser);
+            serialiserNameToSerialiser.put(serialiserClassName, serialiser);
         }
         LOGGER.debug("Added group:" + group + ",column:" + column + ",serialiserClassName:" + serialiserClassName + " to groupColumnToSerialiserName and serialiserNameToSerialiser");
     }
 
     private void addGroupColumnToSerialiser(final String group, final String column, final String serialiserClassName) throws SerialisationException {
         getSerialiser(serialiserClassName);
-        if (this.groupColumnToSerialiserName.containsKey(group)) {
-            this.groupColumnToSerialiserName.get(group).put(column, serialiserClassName);
+        if (groupColumnToSerialiserName.containsKey(group)) {
+            groupColumnToSerialiserName.get(group).put(column, serialiserClassName);
         } else {
             final LinkedHashMap<String, String> columnToSerialiser = new LinkedHashMap<>();
             columnToSerialiser.put(column, serialiserClassName);
-            this.groupColumnToSerialiserName.put(group, columnToSerialiser);
+            groupColumnToSerialiserName.put(group, columnToSerialiser);
         }
         LOGGER.debug("Added group:" + group + ",column:" + column + ",serialiserClassName:" + serialiserClassName + " to groupColumnToSerialiserName and serialiserNameToSerialiser");
     }
@@ -275,41 +287,41 @@ public class SchemaUtils {
     }
 
     public Serialiser getSerialiser(final String serialiserClassName) throws SerialisationException {
-        if (this.serialiserNameToSerialiser.containsKey(serialiserClassName)) {
-            return this.serialiserNameToSerialiser.get(serialiserClassName);
+        if (serialiserNameToSerialiser.containsKey(serialiserClassName)) {
+            return serialiserNameToSerialiser.get(serialiserClassName);
         } else {
             final Serialiser serialiser;
             try {
                 serialiser = (Serialiser) Class.forName(serialiserClassName).newInstance();
-            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            } catch (final IllegalAccessException | InstantiationException | ClassNotFoundException e) {
                 throw new SerialisationException("Failed to instantiate the serialiser: " + serialiserClassName, e);
             }
-            this.serialiserNameToSerialiser.put(serialiserClassName, serialiser);
+            serialiserNameToSerialiser.put(serialiserClassName, serialiser);
             return serialiser;
         }
     }
 
-    public HashMap<String, Serialiser> getSerialisers() {
-        return this.serialiserNameToSerialiser;
+    public Map<String, Serialiser> getSerialisers() {
+        return serialiserNameToSerialiser;
     }
 
-    public HashMap<String, String> getColumnToSerialiser(final String group) throws SerialisationException {
+    public Map<String, String> getColumnToSerialiser(final String group) throws SerialisationException {
         if (getAvroSchema(group) == null) {
             buildAvroSchema(group);
         }
-        return this.groupColumnToSerialiserName.get(group);
+        return groupColumnToSerialiserName.get(group);
     }
 
     public Set<String> getEntityGroups() {
-        return entityGroups;
+        return gafferSchema.getEntityGroups();
     }
 
     public Set<String> getEdgeGroups() {
-        return edgeGroups;
+        return gafferSchema.getEdgeGroups();
     }
 
     public Set<String> getGroups() {
-        return allGroups;
+        return gafferSchema.getGroups();
     }
 
     public Schema getGafferSchema() {
@@ -317,20 +329,14 @@ public class SchemaUtils {
     }
 
     public GafferGroupObjectConverter getConverter(final String group) throws SerialisationException {
-        if (this.groupToObjectConverter.containsKey(group)) {
-            return this.groupToObjectConverter.get(group);
-        } else {
-            GafferGroupObjectConverter converter = new GafferGroupObjectConverter(getColumnToSerialiser(group), getSerialisers(), getColumnToPaths(group), getAvroSchema(group).toString());
-            this.groupToObjectConverter.put(group, converter);
-            return converter;
-        }
+        return groupToObjectConverter.get(group);
     }
 
-    public String getGroupDirectory(final String group, final String identifier, final String rootDir) {
-        if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-            return rootDir + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group;
-        } else {
-            return rootDir + "/graph/" + ParquetStoreConstants.GROUP + "=" + group;
+    private void buildConverters() throws SerialisationException {
+        for (final String group : gafferSchema.getGroups()) {
+            final GafferGroupObjectConverter converter = new GafferGroupObjectConverter(getColumnToSerialiser(group),
+                    getSerialisers(), getColumnToPaths(group), getAvroSchema(group).toString());
+            groupToObjectConverter.put(group, converter);
         }
     }
 

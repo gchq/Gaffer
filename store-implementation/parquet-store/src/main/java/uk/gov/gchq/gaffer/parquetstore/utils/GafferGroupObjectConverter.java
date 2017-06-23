@@ -39,15 +39,15 @@ public class GafferGroupObjectConverter implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GafferGroupObjectConverter.class);
     private static final long serialVersionUID = -8098393761925808135L;
-    private final HashMap<String, Serialiser> serialiserNameToSerialiser;
+    private final Map<String, Serialiser> serialiserNameToSerialiser;
     private final Map<String, Serialiser> columnToSerialiser;
-    private final HashMap<String, String[]> columnToPaths;
+    private final Map<String, String[]> columnToPaths;
     private final String avroSchema;
 
 
-    public GafferGroupObjectConverter(final HashMap<String, String> columnToSerialiserName,
-                                      final HashMap<String, Serialiser> serialiserNameToSerialiser,
-                                      final HashMap<String, String[]> columnToPaths,
+    public GafferGroupObjectConverter(final Map<String, String> columnToSerialiserName,
+                                      final Map<String, Serialiser> serialiserNameToSerialiser,
+                                      final Map<String, String[]> columnToPaths,
                                       final String avroSchema) throws SerialisationException {
         this.serialiserNameToSerialiser = serialiserNameToSerialiser;
         this.columnToSerialiser = new HashMap<>();
