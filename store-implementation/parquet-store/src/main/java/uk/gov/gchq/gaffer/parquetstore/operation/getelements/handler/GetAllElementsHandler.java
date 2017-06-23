@@ -36,7 +36,8 @@ public class GetAllElementsHandler implements OutputOperationHandler<GetAllEleme
         return doOperation(operation, (ParquetStore) store);
     }
 
-    private CloseableIterable<Element> doOperation(final GetAllElements operation, final ParquetStore store) throws OperationException {
+    private CloseableIterable<Element> doOperation(final GetAllElements operation,
+                                                   final ParquetStore store) throws OperationException {
         try {
             return new ParquetElementRetriever(operation.getView(), store, operation.getDirectedType(), null, null, null);
         } catch (final StoreException e) {

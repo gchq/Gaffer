@@ -40,15 +40,16 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 
 public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfElements> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromRDDHandler.class);
 
     @Override
-    public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store) throws OperationException {
+    public Void doOperation(final ImportRDDOfElements operation, final Context context, final Store store)
+            throws OperationException {
         return addElementsFromRDD(operation, context, (ParquetStore) store);
     }
 
-    private Void addElementsFromRDD(final ImportRDDOfElements operation, final Context context, final ParquetStore store) throws OperationException {
+    private Void addElementsFromRDD(final ImportRDDOfElements operation, final Context context, final ParquetStore store)
+            throws OperationException {
         try {
             final FileSystem fs = store.getFS();
             final ParquetStoreProperties parquetStoreProperties = store.getProperties();
@@ -70,7 +71,8 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
                 SparkParquetUtils.configureSparkForAddElements(spark, parquetStoreProperties);
                 // Write the data out
                 LOGGER.info("Starting to write the unsorted Parquet data to " + tempDataDirString + " split by group");
-                final WriteUnsortedDataFunction writeUnsortedDataFunction = new WriteUnsortedDataFunction(store.getSchemaUtils(), parquetStoreProperties);
+                final WriteUnsortedDataFunction writeUnsortedDataFunction =
+                        new WriteUnsortedDataFunction(store.getSchemaUtils(), parquetStoreProperties);
                 operation.getInput().foreachPartition(writeUnsortedDataFunction);
                 LOGGER.info("Finished writing the unsorted Parquet data to " + tempDataDirString);
                 // Spark read in the data, aggregate and sort the data
@@ -87,21 +89,24 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
             try {
                 moveDataToDataDir(store, fs, rootDataDirString, tempDataDirString);
                 tidyUp(fs, tempDataDirString);
-            } catch (StoreException e) {
+            } catch (final StoreException e) {
                 throw new OperationException("Failed to reload the indices", e);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new OperationException("IO Exception: Failed to connect to the file system", e);
-        } catch (StoreException e) {
+        } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
     }
 
-    private void moveDataToDataDir(final ParquetStore store, final FileSystem fs, final String rootDataDirString, final String tempDataDirString) throws StoreException, IOException {
-        // move data from temp to data
+    private void moveDataToDataDir(final ParquetStore store,
+                                   final FileSystem fs,
+                                   final String rootDataDirString,
+                                   final String tempDataDirString) throws StoreException, IOException {
+        // Move data from temp to data
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
         fs.mkdirs(new Path(destPath));
@@ -110,9 +115,9 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
         if (fs.exists(tempReversePath)) {
             fs.rename(tempReversePath, new Path(destPath + "/reverseEdges"));
         }
-        // set the data dir property
+        // Set the data dir property
         store.setCurrentSnapshot(snapshot);
-        // reload indices
+        // Reload indices
         store.loadIndices();
     }
 

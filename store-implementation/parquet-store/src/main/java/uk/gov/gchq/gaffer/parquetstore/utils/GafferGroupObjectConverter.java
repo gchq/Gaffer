@@ -59,7 +59,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     public Object[] gafferObjectToParquetObjects(final String gafferColumn, final Object value) throws SerialisationException {
-        final Serialiser serialiser = this.columnToSerialiser.get(gafferColumn);
+        final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
         if (serialiser instanceof ParquetSerialiser) {
             return (Object[]) serialiser.serialise(value);
         } else if (serialiser != null) {
@@ -70,7 +70,7 @@ public class GafferGroupObjectConverter implements Serializable {
     }
 
     public Object parquetObjectsToGafferObject(final String gafferColumn, final Object[] value) throws SerialisationException {
-        final Serialiser serialiser = this.columnToSerialiser.get(gafferColumn);
+        final Serialiser serialiser = columnToSerialiser.get(gafferColumn);
         if (serialiser instanceof ParquetSerialiser) {
             return ((ParquetSerialiser) serialiser).deserialise(value);
         } else {
@@ -96,20 +96,20 @@ public class GafferGroupObjectConverter implements Serializable {
     public void addGafferObjectToGenericRecord(final String column,
                                                final Object object,
                                                final GenericRecordBuilder recordBuilder) throws SerialisationException {
-        Iterator<Object> parquetObjects = Arrays.asList(this.gafferObjectToParquetObjects(column, object)).iterator();
+        Iterator<Object> parquetObjects = Arrays.asList(gafferObjectToParquetObjects(column, object)).iterator();
         final HashMap<String, Object> records = new HashMap<>();
-        final String[] paths = this.columnToPaths.get(column);
+        final String[] paths = columnToPaths.get(column);
         if (paths != null) {
             if (paths[0].contains(".")) {
                 final String path = paths[0].substring(0, paths[0].indexOf("."));
-                final Schema fieldSchema = new Schema.Parser().parse(this.avroSchema).getField(path).schema();
+                final Schema fieldSchema = new Schema.Parser().parse(avroSchema).getField(path).schema();
                 recursivelyGenerateAvroObjects(parquetObjects, fieldSchema, records, path);
                 for (final Map.Entry<String, Object> entry : records.entrySet()) {
                     recordBuilder.set(entry.getKey(), entry.getValue());
                 }
             } else {
                 for (final String path : paths) {
-                    final Schema fieldSchema = new Schema.Parser().parse(this.avroSchema).getField(path).schema();
+                    final Schema fieldSchema = new Schema.Parser().parse(avroSchema).getField(path).schema();
                     parquetObjects = recursivelyGenerateAvroObjects(parquetObjects, fieldSchema, records, path);
                     for (final Map.Entry<String, Object> entry : records.entrySet()) {
                         recordBuilder.set(entry.getKey(), entry.getValue());
@@ -136,10 +136,11 @@ public class GafferGroupObjectConverter implements Serializable {
                 try {
                     final HashMap<String, Object> recordBuilderAttempt = new HashMap<>();
                     final Iterator<Object> parquetObjectsCloneIter = parquetObjectsClone.iterator();
-                    newParquetObjects = recursivelyGenerateAvroObjects(parquetObjectsCloneIter, innerSchema, recordBuilderAttempt, fieldName);
+                    newParquetObjects = recursivelyGenerateAvroObjects(parquetObjectsCloneIter, innerSchema,
+                            recordBuilderAttempt, fieldName);
                     recordBuilder.putAll(recordBuilderAttempt);
                     break;
-                } catch (SerialisationException ignored) {
+                } catch (final SerialisationException ignored) {
                     newParquetObjects = parquetObjectsClone.iterator();
                 }
             }
@@ -200,7 +201,7 @@ public class GafferGroupObjectConverter implements Serializable {
      */
     public Object sparkRowToGafferObject(final String gafferColumn, final GenericRowWithSchema row) throws SerialisationException {
         final ArrayList<Object> objectsList = new ArrayList<>();
-        final String[] paths = this.columnToPaths.get(gafferColumn);
+        final String[] paths = columnToPaths.get(gafferColumn);
         if (paths[0].contains(".")) {
             final GenericRowWithSchema nestedRow = row.getAs(gafferColumn);
             if (nestedRow != null) {
@@ -246,12 +247,12 @@ public class GafferGroupObjectConverter implements Serializable {
                                           final Object object,
                                           final ArrayList<Object> recordBuilder,
                                           final StructType sparkSchema) throws SerialisationException {
-        final String[] paths = this.columnToPaths.get(column);
+        final String[] paths = columnToPaths.get(column);
         if (object != null) {
-            Iterator<Object> parquetObjects = Arrays.asList(this.gafferObjectToParquetObjects(column, object)).iterator();
+            Iterator<Object> parquetObjects = Arrays.asList(gafferObjectToParquetObjects(column, object)).iterator();
             final ArrayList<Object> records = new ArrayList<>();
             if (paths[0].contains(".")) {
-                final Schema fieldSchema = new Schema.Parser().parse(this.avroSchema).getField(column).schema();
+                final Schema fieldSchema = new Schema.Parser().parse(avroSchema).getField(column).schema();
                 final DataType sparkDataType = sparkSchema.apply(column).dataType();
                 if (sparkDataType instanceof StructType) {
                     recusivelyGenerateSparkObjects(parquetObjects, fieldSchema, records, (StructType) sparkDataType);
@@ -260,7 +261,7 @@ public class GafferGroupObjectConverter implements Serializable {
                 }
             } else {
                 for (final String path : paths) {
-                    final Schema fieldSchema = new Schema.Parser().parse(this.avroSchema).getField(path).schema();
+                    final Schema fieldSchema = new Schema.Parser().parse(avroSchema).getField(path).schema();
                     final DataType sparkDataType = sparkSchema.apply(path).dataType();
                     if (sparkDataType instanceof StructType) {
                         parquetObjects = recusivelyGenerateSparkObjects(parquetObjects, fieldSchema, records, (StructType) sparkDataType);
@@ -280,13 +281,16 @@ public class GafferGroupObjectConverter implements Serializable {
         }
     }
 
-    private Iterator<Object> recusivelyGenerateSparkObjects(final Iterator<Object> parquetObjects, final Schema fieldSchema, final ArrayList<Object> recordBuilder, final StructType sparkSchema) throws SerialisationException {
+    private Iterator<Object> recusivelyGenerateSparkObjects(final Iterator<Object> parquetObjects,
+                                                            final Schema fieldSchema,
+                                                            final ArrayList<Object> recordBuilder,
+                                                            final StructType sparkSchema) throws SerialisationException {
         Iterator<Object> newParquetObjects = parquetObjects;
         LOGGER.debug(fieldSchema.toString(true));
         final Schema.Type type = fieldSchema.getType();
         if (type.equals(Schema.Type.UNION)) {
             LOGGER.debug("Found a Union type Schema");
-            // loop through all types until data matches a schema
+            // Loop through all types until data matches a schema
             final ArrayList<Object> parquetObjectsClone = new ArrayList<>();
             while (newParquetObjects.hasNext()) {
                 parquetObjectsClone.add(newParquetObjects.next());

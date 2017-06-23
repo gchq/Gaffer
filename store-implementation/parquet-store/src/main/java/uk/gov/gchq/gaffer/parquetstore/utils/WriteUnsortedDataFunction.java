@@ -45,13 +45,13 @@ public class WriteUnsortedDataFunction extends AbstractFunction1<Iterator<Elemen
 
     @Override
     public BoxedUnit apply(final Iterator<Element> elements) {
-        SchemaUtils utils = new SchemaUtils(Schema.fromJson(this.gafferSchema));
+        SchemaUtils utils = new SchemaUtils(Schema.fromJson(gafferSchema));
         ParquetStoreProperties pp = new ParquetStoreProperties();
-        pp.setProperties(this.props);
+        pp.setProperties(props);
         final WriteUnsortedData writer = new WriteUnsortedData(pp, utils);
         try {
             writer.writeElements(scala.collection.JavaConversions.asJavaIterator(elements));
-        } catch (OperationException e) {
+        } catch (final OperationException e) {
             LOGGER.error("Failed to write partition: {}", e);
         }
         return null;

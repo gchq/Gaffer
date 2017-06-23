@@ -91,20 +91,20 @@ public class ParquetStore extends Store {
         LOGGER.info("Initialising ParquetStore");
         super.initialise(schema, properties);
         try {
-            this.fs = FileSystem.get(new Configuration());
+            fs = FileSystem.get(new Configuration());
         } catch (final IOException e) {
             throw new StoreException("Could not connect to the file system", e);
         }
-        this.schemaUtils = new SchemaUtils(this.getSchema());
+        schemaUtils = new SchemaUtils(getSchema());
         loadIndices();
     }
 
     public FileSystem getFS() throws StoreException {
-        return this.fs;
+        return fs;
     }
 
     public SchemaUtils getSchemaUtils() {
-        return this.schemaUtils;
+        return schemaUtils;
     }
 
     public Set<StoreTrait> getTraits() {
@@ -131,10 +131,10 @@ public class ParquetStore extends Store {
             }
 
         } else {
-            LOGGER.info("Setting up the Spark session using " + this.getProperties().getSparkMaster() + " as the master URL");
+            LOGGER.info("Setting up the Spark session using " + getProperties().getSparkMaster() + " as the master URL");
             final SparkSession spark = SparkSession.builder()
                     .appName("Gaffer Parquet Store")
-                    .master(this.getProperties().getSparkMaster())
+                    .master(getProperties().getSparkMaster())
                     .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                     .config("spark.kryo.registrator", "uk.gov.gchq.gaffer.spark.serialisation.kryo.Registrator")
                     .getOrCreate();
@@ -188,7 +188,7 @@ public class ParquetStore extends Store {
         try {
             final Index newIndex = new Index();
             final FileSystem fs = getFS();
-            final Path rootDir = new Path(this.getProperties().getDataDir());
+            final Path rootDir = new Path(getProperties().getDataDir());
             if (fs.exists(rootDir)) {
                 final FileStatus[] snapshots = fs.listStatus(rootDir);
                 long latestSnapshot = getCurrentSnapshot();
@@ -201,13 +201,13 @@ public class ParquetStore extends Store {
                 }
                 LOGGER.info("Latest snapshot is {}", latestSnapshot);
                 if (latestSnapshot != 0L) {
-                    for (final String group : this.schemaUtils.getEntityGroups()) {
+                    for (final String group : schemaUtils.getEntityGroups()) {
                         final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
                         if (!subIndex.isEmpty()) {
                             newIndex.add(group, subIndex);
                         }
                     }
-                    for (final String group : this.schemaUtils.getEdgeGroups()) {
+                    for (final String group : schemaUtils.getEdgeGroups()) {
                         final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.SOURCE, latestSnapshot);
                         if (!subIndex.isEmpty()) {
                             newIndex.add(group, subIndex);
@@ -220,7 +220,7 @@ public class ParquetStore extends Store {
                 }
                 setCurrentSnapshot(latestSnapshot);
             }
-            this.index = newIndex;
+            index = newIndex;
         } catch (final IOException e) {
             throw new StoreException("Failed to connect to the file system", e);
         }
@@ -306,15 +306,15 @@ public class ParquetStore extends Store {
     }
 
     public Index getIndex() {
-        return this.index;
+        return index;
     }
 
     public void setCurrentSnapshot(final long timestamp) {
-        this.currentSnapshot = timestamp;
+        currentSnapshot = timestamp;
     }
 
     public long getCurrentSnapshot() {
-        return this.currentSnapshot;
+        return currentSnapshot;
     }
 
     public static String getGroupDirectory(final String group, final String identifier, final String rootDir) {

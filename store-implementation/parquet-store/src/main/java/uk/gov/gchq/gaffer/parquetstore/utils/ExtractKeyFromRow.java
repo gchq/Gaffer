@@ -45,9 +45,12 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
         }
         final Set<String> propertiesWithAggregators = propertyToAggregatorMap.keySet();
         for (final String col : columnToPaths.keySet()) {
-            if (groupByColumns.contains(col) || !propertiesWithAggregators.contains(col) &&
-                    !ParquetStoreConstants.VERTEX.equals(col) && !ParquetStoreConstants.SOURCE.equals(col) && !ParquetStoreConstants.DESTINATION.equals(col)
-                            && !ParquetStoreConstants.DIRECTED.equals(col)) {
+            if (groupByColumns.contains(col)
+                    || !propertiesWithAggregators.contains(col)
+                    && !ParquetStoreConstants.VERTEX.equals(col)
+                    && !ParquetStoreConstants.SOURCE.equals(col)
+                    && !ParquetStoreConstants.DESTINATION.equals(col)
+                    && !ParquetStoreConstants.DIRECTED.equals(col)) {
                 addGroupByColumns(columnToPaths, col);
             }
         }
@@ -56,7 +59,7 @@ public class ExtractKeyFromRow implements Function<Row, Seq<Object>>, Serializab
     private void addGroupByColumns(final Map<String, String[]> columnToPaths, final String col) {
         final String[] paths = columnToPaths.get(col);
         if (paths != null) {
-            Collections.addAll(this.groupByColumns, paths);
+            Collections.addAll(groupByColumns, paths);
         }
     }
 

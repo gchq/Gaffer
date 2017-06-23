@@ -52,7 +52,7 @@ public class AggregateAndSortTempData {
         try {
             final List<Future<OperationException>> results = pool.invokeAll(tasks);
             for (int i = 0; i < tasks.size(); i++) {
-                OperationException result = results.get(i).get();
+                final OperationException result = results.get(i).get();
                 if (result != null) {
                     throw result;
                 }

@@ -240,7 +240,7 @@ public class SchemaUtils {
         LOGGER.debug(avroSchema.toString(true));
         LOGGER.debug("Generated the columnToPaths: {}", getColumnToPaths(group));
         LOGGER.debug("Generated the columnToSerialiser: {}", getColumnToSerialiser(group));
-        LOGGER.debug("Generated the SerialiserNameToSerialiser: {}", this.serialiserNameToSerialiser);
+        LOGGER.debug("Generated the SerialiserNameToSerialiser: {}", serialiserNameToSerialiser);
 
         return avroSchema;
     }

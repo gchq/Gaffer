@@ -43,12 +43,12 @@ public class ParquetFileIterator implements Iterator<Path> {
     }
 
     private void getFiles(final Path path) throws IOException {
-        if (this.fs.isFile(path)) {
+        if (fs.isFile(path)) {
             if (path.getName().endsWith(".parquet")) {
-                this.files.add(path);
+                files.add(path);
             }
         } else {
-            for (final FileStatus file: this.fs.listStatus(path)) {
+            for (final FileStatus file: fs.listStatus(path)) {
                 getFiles(file.getPath());
             }
         }
@@ -56,14 +56,14 @@ public class ParquetFileIterator implements Iterator<Path> {
 
     @Override
     public boolean hasNext() {
-        return this.fileIndex < this.files.size() - 1;
+        return fileIndex < files.size() - 1;
     }
 
     @Override
     public Path next() {
         if (hasNext()) {
-            this.fileIndex = this.fileIndex + 1;
-            return this.files.get(this.fileIndex);
+            fileIndex = fileIndex + 1;
+            return files.get(fileIndex);
         }
         return null;
     }

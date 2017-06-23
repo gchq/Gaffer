@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 
 public class AggregateGafferRowsFunction implements Function2<GenericRowWithSchema, GenericRowWithSchema, GenericRowWithSchema>, Serializable {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregateGafferRowsFunction.class);
     private static final long serialVersionUID = -8353767193380574516L;
     private final Boolean isEntity;
@@ -63,12 +62,13 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     }
 
     @Override
-    public GenericRowWithSchema call(final GenericRowWithSchema v1, final GenericRowWithSchema v2) throws OperationException, SerialisationException {
+    public GenericRowWithSchema call(final GenericRowWithSchema v1, final GenericRowWithSchema v2)
+            throws OperationException, SerialisationException {
         LOGGER.trace("First Row object to be aggregated: {}", v1);
         LOGGER.trace("Second Row object to be aggregated: {}", v2);
         ArrayList<Object> outputRow = new ArrayList<>(v1.size());
         outputRow.add(v1.getAs(ParquetStoreConstants.GROUP));
-        if (this.isEntity) {
+        if (isEntity) {
             for (final String col : columnToPaths.get(ParquetStoreConstants.VERTEX)) {
                 outputRow.add(v1.getAs(col));
             }
@@ -82,14 +82,14 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
             outputRow.add(v1.getAs(ParquetStoreConstants.DIRECTED));
         }
 
-        // build up Properties object for both rows containing just the objects that need merging
-        Properties prop1 = new Properties();
-        Properties prop2 = new Properties();
-        for (final String propName : this.gafferProperties) {
-            if (!this.groupByColumns.contains(propName)) {
+        // Build up Properties object for both rows containing just the objects that need merging
+        final Properties prop1 = new Properties();
+        final Properties prop2 = new Properties();
+        for (final String propName : gafferProperties) {
+            if (!groupByColumns.contains(propName)) {
                 LOGGER.debug("Merging property: {}", propName);
-                prop1.put(propName, this.objectConverter.sparkRowToGafferObject(propName, v1));
-                prop2.put(propName, this.objectConverter.sparkRowToGafferObject(propName, v2));
+                prop1.put(propName, objectConverter.sparkRowToGafferObject(propName, v1));
+                prop2.put(propName, objectConverter.sparkRowToGafferObject(propName, v2));
             }
         }
 
@@ -101,16 +101,16 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
         LOGGER.trace("Merged properties object after aggregation: {}", mergedProperties);
 
         //add properties to the row maintaining the order
-        for (final String propName : this.gafferProperties) {
-            if (this.groupByColumns.contains(propName)) {
+        for (final String propName : gafferProperties) {
+            if (groupByColumns.contains(propName)) {
                 for (final String column : columnToPaths.get(propName)) {
                     outputRow.add(v1.getAs(column));
                 }
             } else {
-                this.objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema());
+                objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema());
             }
         }
-        GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());
+        final GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());
         LOGGER.trace("Merged row: {}", mergedRow);
         return mergedRow;
     }
@@ -118,10 +118,10 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     private ElementAggregator getElementAggregator() throws OperationException {
 
         final ElementAggregator.Builder aggregator = new ElementAggregator.Builder();
-        for (final Map.Entry<String, String> entry : this.propertyToAggregatorMap.entrySet()) {
+        for (final Map.Entry<String, String> entry : propertyToAggregatorMap.entrySet()) {
             try {
                 aggregator.select(entry.getKey()).execute((BinaryOperator) Class.forName(entry.getValue()).newInstance());
-            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            } catch (final IllegalAccessException | InstantiationException | ClassNotFoundException e) {
                 throw new OperationException(e.getMessage(), e);
             }
         }

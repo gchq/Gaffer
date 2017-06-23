@@ -93,8 +93,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
     @Override
     public CloseableIterator<Element> iterator() {
-        return new ParquetIterator(this.schemaUtils, this.view, this.directedType, this.includeIncomingOutgoingType,
-                this.seedMatchingType, this.seeds, this.dataDir, this.index, this.fs);
+        return new ParquetIterator(schemaUtils, view, directedType, includeIncomingOutgoingType,
+                seedMatchingType, seeds, dataDir, index, fs);
     }
 
     protected static class ParquetIterator implements CloseableIterator<Element> {
@@ -148,19 +148,20 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         }
 
         private ParquetReader<GenericRecord> openParquetReader() throws IOException {
-            if (this.fileIterator.hasNext()) {
-                Path file = this.fileIterator.next();
+            if (fileIterator.hasNext()) {
+                Path file = fileIterator.next();
                 LOGGER.debug("Opening a new Parquet reader for file: {}", file);
-                FilterPredicate filter = this.pathToFilterMap.get(this.currentPath);
+                FilterPredicate filter = pathToFilterMap.get(currentPath);
                 if (filter != null) {
-                    return AvroParquetReader.builder(new AvroReadSupport<GenericRecord>(), file).withFilter(FilterCompat.get(filter)).build();
+                    return AvroParquetReader.builder(new AvroReadSupport<GenericRecord>(), file)
+                            .withFilter(FilterCompat.get(filter)).build();
                 } else {
                     return AvroParquetReader.builder(new AvroReadSupport<GenericRecord>(), file).build();
                 }
             } else {
-                if (this.paths.hasNext()) {
-                    this.currentPath = this.paths.next();
-                    this.fileIterator = new ParquetFileIterator(this.currentPath, this.fs);
+                if (paths.hasNext()) {
+                    currentPath = paths.next();
+                    fileIterator = new ParquetFileIterator(currentPath, fs);
                     return openParquetReader();
                 }
             }
@@ -169,9 +170,9 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
         @Override
         public boolean hasNext() {
-            if (this.currentElement == null) {
+            if (currentElement == null) {
                 try {
-                    this.currentElement = next();
+                    currentElement = next();
                 } catch (final NoSuchElementException e) {
                     return false;
                 }
@@ -183,7 +184,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         @Override
         public Element next() throws NoSuchElementException {
             Element e = getNextElement();
-            if (this.needsValidation) {
+            if (needsValidation) {
                 String group = e.getGroup();
                 ElementFilter preAggFilter = view.getElement(group).getPreAggregationFilter();
                 if (preAggFilter != null) {
@@ -202,20 +203,20 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         private Element getNextElement() {
             Element element;
             try {
-                if (this.currentElement != null) {
-                    element = this.currentElement;
-                    this.currentElement = null;
+                if (currentElement != null) {
+                    element = currentElement;
+                    currentElement = null;
                 } else {
-                    if (this.reader != null) {
-                        GenericRecord record = this.reader.read();
+                    if (reader != null) {
+                        GenericRecord record = reader.read();
                         if (record != null) {
                             element = convertGenericRecordToElement(record);
                         } else {
                             LOGGER.debug("Closing Parquet reader");
-                            this.reader.close();
-                            this.reader = openParquetReader();
-                            if (this.reader != null) {
-                                record = this.reader.read();
+                            reader.close();
+                            reader = openParquetReader();
+                            if (reader != null) {
+                                record = reader.read();
                                 if (record != null) {
                                     element = convertGenericRecordToElement(record);
                                 } else {
@@ -234,7 +235,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             } catch (final IOException | OperationException e) {
                 throw new NoSuchElementException();
             }
-            if (element instanceof Edge && this.currentPath.toString().contains("reverseEdges")) {
+            if (element instanceof Edge && currentPath.toString().contains("reverseEdges")) {
                 while (((Edge) element).getSource().equals(((Edge) element).getDestination())) {
                     element = next();
                 }
@@ -246,20 +247,20 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             String group = (String) record.get(ParquetStoreConstants.GROUP);
             GafferGroupObjectConverter converter = getConverter(group);
             Element e;
-            if (this.schemaUtils.getEntityGroups().contains(group)) {
-                final String[] paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX);
+            if (schemaUtils.getEntityGroups().contains(group)) {
+                final String[] paths = schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX);
                 final Object[] parquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
                     parquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
                 e = new Entity(group, converter.parquetObjectsToGafferObject(ParquetStoreConstants.VERTEX, parquetObjects));
             } else {
-                String[] paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.SOURCE);
+                String[] paths = schemaUtils.getPaths(group, ParquetStoreConstants.SOURCE);
                 final Object[] srcParquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
                     srcParquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
-                paths = this.schemaUtils.getPaths(group, ParquetStoreConstants.DESTINATION);
+                paths = schemaUtils.getPaths(group, ParquetStoreConstants.DESTINATION);
                 final Object[] dstParquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
                     dstParquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
@@ -269,14 +270,14 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                         (boolean) record.get(ParquetStoreConstants.DIRECTED));
             }
 
-            for (final String column : this.schemaUtils.getGafferSchema().getElement(group).getProperties()) {
-                final String[] paths = this.schemaUtils.getPaths(group, column);
+            for (final String column : schemaUtils.getGafferSchema().getElement(group).getProperties()) {
+                final String[] paths = schemaUtils.getPaths(group, column);
                 final Object[] parquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
                     final String path = paths[i];
                     parquetObjects[i] = recursivelyGetObjectFromRecord(path, (GenericData.Record) record);
                 }
-                e.putProperty(column, this.getConverter(group).parquetObjectsToGafferObject(column, parquetObjects));
+                e.putProperty(column, getConverter(group).parquetObjectsToGafferObject(column, parquetObjects));
             }
             return e;
         }
@@ -298,12 +299,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             }
         }
 
+        // TODO -  seems no benefit in doing this over just getting from schemaUtils?
         private GafferGroupObjectConverter getConverter(final String group) throws SerialisationException {
-            if (this.groupToObjectConverter.containsKey(group)) {
-                return this.groupToObjectConverter.get(group);
+            if (groupToObjectConverter.containsKey(group)) {
+                return groupToObjectConverter.get(group);
             } else {
-                GafferGroupObjectConverter converter = this.schemaUtils.getConverter(group);
-                this.groupToObjectConverter.put(group, converter);
+                GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
+                groupToObjectConverter.put(group, converter);
                 return converter;
             }
         }
@@ -311,13 +313,13 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         @Override
         public void close() {
             try {
-                if (this.reader != null) {
+                if (reader != null) {
                     LOGGER.debug("Closing ParquetReader");
-                    this.reader.close();
-                    this.reader = null;
+                    reader.close();
+                    reader = null;
                 }
             } catch (final IOException e) {
-                LOGGER.warn("Failed to close {}", this.getClass().getCanonicalName());
+                LOGGER.warn("Failed to close {}", getClass().getCanonicalName());
             }
         }
     }

@@ -60,13 +60,13 @@ public class WriteUnsortedData {
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
         try {
             // Create a writer for each group
-            for (final String group : this.schemaUtils.getGroups()) {
-                this.groupToWriter.put(group, buildWriter(group));
+            for (final String group : schemaUtils.getGroups()) {
+                groupToWriter.put(group, buildWriter(group));
             }
             // Write elements
             _writeElements(elements);
             // Close the writers
-            for (final ParquetWriter<GenericRecord> writer : this.groupToWriter.values()) {
+            for (final ParquetWriter<GenericRecord> writer : groupToWriter.values()) {
                 writer.close();
             }
         } catch (final IOException | OperationException e) {
@@ -78,21 +78,21 @@ public class WriteUnsortedData {
         while (elements.hasNext()) {
             final Element element = elements.next();
             final String group = element.getGroup();
-            ParquetWriter<GenericRecord> writer = this.groupToWriter.get(group);
-            if (writer.getDataSize() >= this.batchSize) {
-                this.groupToFileNumber.put(group, this.groupToFileNumber.getOrDefault(group, 0) + 1);
+            ParquetWriter<GenericRecord> writer = groupToWriter.get(group);
+            if (writer.getDataSize() >= batchSize) {
+                groupToFileNumber.put(group, groupToFileNumber.getOrDefault(group, 0) + 1);
                 writer.close();
                 writer = buildWriter(group);
-                this.groupToWriter.put(group, writer);
+                groupToWriter.put(group, writer);
             }
             writer.write(convertElementToGenericRecord(element));
         }
     }
 
     private ParquetWriter<GenericRecord> buildWriter(final String group) throws IOException {
-        Integer fileNumber = this.groupToFileNumber.get(group);
+        Integer fileNumber = groupToFileNumber.get(group);
         if (fileNumber == null) {
-            this.groupToFileNumber.put(group, 0);
+            groupToFileNumber.put(group, 0);
             fileNumber = 0;
         }
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
@@ -101,7 +101,7 @@ public class WriteUnsortedData {
                 "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
         return AvroParquetWriter
                 .<GenericRecord>builder(filePath)
-                .withSchema(this.schemaUtils.getAvroSchema(group))
+                .withSchema(schemaUtils.getAvroSchema(group))
                 .withCompressionCodec(CompressionCodecName.GZIP)
                 .withRowGroupSize(props.getRowGroupSize())
                 .withPageSize(props.getPageSize())
@@ -112,8 +112,8 @@ public class WriteUnsortedData {
 
     private GenericRecord convertElementToGenericRecord(final Element e) throws OperationException, SerialisationException {
         final String group = e.getGroup();
-        final GafferGroupObjectConverter converter = this.schemaUtils.getConverter(group);
-        final GenericRecordBuilder recordBuilder = new GenericRecordBuilder(this.schemaUtils.getAvroSchema(group));
+        final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
+        final GenericRecordBuilder recordBuilder = new GenericRecordBuilder(schemaUtils.getAvroSchema(group));
         recordBuilder.set(ParquetStoreConstants.GROUP, group);
         if (e instanceof Entity) {
             converter.addGafferObjectToGenericRecord(ParquetStoreConstants.VERTEX, ((Entity) e).getVertex(), recordBuilder);

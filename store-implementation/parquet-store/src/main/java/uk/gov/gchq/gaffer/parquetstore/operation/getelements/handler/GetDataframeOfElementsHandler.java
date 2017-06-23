@@ -32,8 +32,8 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 
 public class GetDataframeOfElementsHandler implements OutputOperationHandler<GetDataFrameOfElements, Dataset<Row>> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(GetDataframeOfElementsHandler.class);
+
     @Override
     public Dataset<Row> doOperation(final GetDataFrameOfElements operation,
                                     final Context context,

@@ -59,8 +59,8 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         return result;
     }
 
-    private CloseableIterable<Element> doOperation(final GetElements operation, final ParquetStore store)
-            throws OperationException {
+    private CloseableIterable<Element> doOperation(final GetElements operation,
+                                                   final ParquetStore store) throws OperationException {
         try {
             return new ParquetElementRetriever(operation.getView(),
                     store,

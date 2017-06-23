@@ -45,7 +45,8 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
     private final String directoryPath;
     private final String[] paths;
 
-    public GenerateIndexForGroup(final String directoryPath, final String[] paths) throws OperationException, SerialisationException, StoreException {
+    public GenerateIndexForGroup(final String directoryPath, final String[] paths) throws OperationException,
+            SerialisationException, StoreException {
         this.directoryPath = directoryPath;
         this.paths = paths.clone();
     }
@@ -56,10 +57,12 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
             try (final FileSystem fs = FileSystem.get(new Configuration())) {
                 if (fs.exists(new Path(directoryPath))) {
                     try (final FSDataOutputStream outputFile = fs.create(new Path(directoryPath + "/_index"))) {
-                        final FileStatus[] files = fs.listStatus(new Path(directoryPath), path1 -> path1.getName().endsWith(".parquet"));
+                        final FileStatus[] files = fs.listStatus(new Path(directoryPath),
+                                path1 -> path1.getName().endsWith(".parquet"));
                         int[] colIndex = null;
                         for (final FileStatus file : files) {
-                            final ParquetMetadata parquetMetadata = ParquetFileReader.readFooter(fs.getConf(), file, ParquetMetadataConverter.NO_FILTER);
+                            final ParquetMetadata parquetMetadata = ParquetFileReader
+                                    .readFooter(fs.getConf(), file, ParquetMetadataConverter.NO_FILTER);
                             List<BlockMetaData> blocks = parquetMetadata.getBlocks();
                             if (blocks.size() > 0) {
                                 if (colIndex == null) {
