@@ -35,8 +35,7 @@ import java.util.Map;
 /**
  * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
- * There are various flags to filter out the elements returned
- * See extensions of {@link GetElements} for further details.
+ * There are various flags to filter out the elements returned.
  */
 public class GetElements implements
         Operation,
