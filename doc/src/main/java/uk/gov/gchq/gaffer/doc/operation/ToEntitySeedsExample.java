@@ -45,6 +45,6 @@ public class ToEntitySeedsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

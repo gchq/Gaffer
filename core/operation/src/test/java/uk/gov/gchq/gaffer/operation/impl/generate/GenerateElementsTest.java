@@ -16,20 +16,33 @@
 
 package uk.gov.gchq.gaffer.operation.impl.generate;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.data.generator.ElementGeneratorImpl;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Iterator;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-public class GenerateElementsTest implements OperationTest {
+public class GenerateElementsTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return GenerateElements.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("elementGenerator");
+    }
 
     @Test
     @Override
