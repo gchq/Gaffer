@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.doc.operation.generator.TextMapperGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
@@ -55,6 +56,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
         addElementsFromHdfsMainMethod();
     }
 
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void addElementsFromHdfsMainMethod() {
         try {
             // ---------------------------------------------------------
@@ -95,6 +97,7 @@ public class AddElementsFromHdfsExample extends OperationExample {
         showJavaExample("Example content for a main method that takes 5 arguments and runs an " + AddElementsFromHdfs.class.getSimpleName());
     }
 
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public void addElementsFromHdfs() {
         // ---------------------------------------------------------
         final AddElementsFromHdfs operation = new AddElementsFromHdfs.Builder()
