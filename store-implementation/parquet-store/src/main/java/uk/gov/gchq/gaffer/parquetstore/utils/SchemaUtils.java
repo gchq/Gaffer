@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
 import uk.gov.gchq.gaffer.parquetstore.serialisation.ParquetSerialiser;
+import uk.gov.gchq.gaffer.parquetstore.serialisation.impl.BooleanParquetSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -81,11 +81,11 @@ public class SchemaUtils {
 
     /**
      * This method returns, for the provided <code>group</code>, an array of {@link String}s giving the path to the
-     * column or columns associated to that group
+     * column or columns associated to that group.
      *
-     * @param group
-     * @return
-     * @throws SerialisationException
+     * @param group the group
+     * @return a map from column to full paths for the given group
+     * @throws SerialisationException if an exception occurs
      */
     public Map<String, String[]> getColumnToPaths(final String group) throws SerialisationException {
         return groupColumnToPaths.get(group);

@@ -21,7 +21,6 @@ import org.apache.parquet.filter2.predicate.FilterPredicate;
 import org.apache.parquet.io.api.Binary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Tuple3;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
@@ -208,8 +207,8 @@ public final class ParquetFilterUtils {
                     needValidation = true;
                 }
                 // Build seed filter
-                final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter
-                        (includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, entityGroup, true, index);
+                final Map<Path, FilterPredicate> tempPathToFilter = buildSeedFilter(
+                        includeIncomingOutgoingType, seedMatchingType, seeds, schemaUtils, entityGroup, true, index);
                 if (seeds != null && tempPathToFilter.isEmpty()) {
                     return new Tuple2<>(new HashMap<>(), false);
                 }

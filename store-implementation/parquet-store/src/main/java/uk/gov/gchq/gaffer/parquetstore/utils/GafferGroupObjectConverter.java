@@ -241,7 +241,7 @@ public class GafferGroupObjectConverter implements Serializable {
      * @param object the object to be converted
      * @param recordBuilder the {@link ArrayList} to add the objects resulting from the conversion to
      * @param sparkSchema the {@link StructType} that defines the Spark schema
-     * @throws SerialisationException
+     * @throws SerialisationException if the object cannot be serialised
      */
     public void addGafferObjectToSparkRow(final String column,
                                           final Object object,

@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -92,7 +93,6 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         this.spark = spark;
         this.columnToPaths = schemaUtils.getColumnToPaths(group);
         this.sparkSchema = schemaUtils.getSparkSchema(group);
-        schemaUtils.getAvroSchema(group);
         this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
         if (reverseEdge) {
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
@@ -132,7 +132,12 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                     if (LOGGER.isDebugEnabled()) {
                         groupedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
                     }
-                    final Tuple2<Seq<Object>, GenericRowWithSchema> kv = groupedData.take(1).get(0);
+                    final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
+                    if (0 == kvList.size()) {
+                        LOGGER.warn("No data was returned in AggregateAndSortGroup");
+                        return null;
+                    }
+                    final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
                     final JavaPairRDD<Seq<Object>, GenericRowWithSchema> aggregatedDataKV;
                     if (kv._1().size() == kv._2().size()) {
                         aggregatedDataKV = groupedData;

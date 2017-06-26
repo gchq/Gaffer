@@ -15,8 +15,10 @@
  */
 package uk.gov.gchq.gaffer.parquetstore;
 
-import java.util.Comparator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,7 +50,7 @@ public class Index {
         return Collections.unmodifiableSet(index.keySet());
     }
 
-    public SubIndex get(String group) {
+    public SubIndex get(final String group) {
         return index.get(group);
     }
 
@@ -65,7 +67,7 @@ public class Index {
             return minMaxPaths.isEmpty();
         }
 
-        public void add(MinMaxPath minMaxPath) {
+        public void add(final MinMaxPath minMaxPath) {
             minMaxPaths.add(minMaxPath);
         }
 
@@ -79,16 +81,22 @@ public class Index {
         private final Object[] max;
         private final String path;
 
-        public MinMaxPath(Object[] min, Object[] max, String path) {
+        @SuppressFBWarnings(value = "EI_EXPOSE_REP2",
+                justification = "This method is only used in this package and users will not mutate the values returned.")
+        public MinMaxPath(final Object[] min, final Object[] max, final String path) {
             this.min = min;
             this.max = max;
             this.path = path;
         }
 
+        @SuppressFBWarnings(value = "EI_EXPOSE_REP",
+                justification = "This method is only used in this package and users will not mutate the values returned.")
         public Object[] getMin() {
             return min;
         }
 
+        @SuppressFBWarnings(value = "EI_EXPOSE_REP",
+                justification = "This method is only used in this package and users will not mutate the values returned.")
         public Object[] getMax() {
             return max;
         }
