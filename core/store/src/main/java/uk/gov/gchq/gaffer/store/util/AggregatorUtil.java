@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.store.util;
 
 import com.google.common.collect.Iterables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -32,37 +31,25 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class AggregatorUtil {
     private AggregatorUtil() {
     }
 
     public static CloseableIterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
-        return ingestAggregate(Streams.toStream(elements), schema);
-    }
-
-    @SuppressFBWarnings("BC_UNCONFIRMED_CAST")
-    public static CloseableIterable<Element> ingestAggregate(final Stream<? extends Element> elements, final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
-
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
-        final Iterable<Element> aggregatedElements = elements
-                .filter(new IsElementAggregated(aggregatedGroups))
+        final Iterable<? extends Element> nonAggregatedElements = Iterables.filter(elements, new IsElementNotAggregatedGPredicate(aggregatedGroups));
+        final Iterable<? extends Element> aggregatableElements = Iterables.filter(elements, new IsElementAggregatedGPredicate(aggregatedGroups));
+        final Iterable<Element> aggregatedElements = Streams.toStream(aggregatableElements)
                 .collect(Collectors.groupingBy(new ToIngestElementKey(schema), Collectors.reducing(null, new IngestElementBinaryOperator(schema))))
                 .values();
-        final Iterable<Element> nonAggregatedElements = Iterables.filter((Iterable<Element>) elements, new IsElementNotAggregatedGooglePredicate(aggregatedGroups));
         return new ChainedIterable<>(aggregatedElements, nonAggregatedElements);
     }
 
     public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view) {
-        return queryAggregate(Streams.toStream(elements), schema, view);
-    }
-
-    @SuppressFBWarnings("BC_UNCONFIRMED_CAST")
-    public static CloseableIterable<Element> queryAggregate(final Stream<? extends Element> elements, final Schema schema, final View view) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
@@ -70,11 +57,11 @@ public final class AggregatorUtil {
             throw new IllegalArgumentException("View is required");
         }
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
-        final Iterable<Element> aggregatedElements = elements
-                .filter(new IsElementAggregated(aggregatedGroups))
+        final Iterable<? extends Element> nonAggregatedElements = Iterables.filter(elements, new IsElementNotAggregatedGPredicate(aggregatedGroups));
+        final Iterable<? extends Element> aggregatableElements = Iterables.filter(elements, new IsElementAggregatedGPredicate(aggregatedGroups));
+        final Iterable<Element> aggregatedElements = Streams.toStream(aggregatableElements)
                 .collect(Collectors.groupingBy(new ToQueryElementKey(schema, view), Collectors.reducing(null, new QueryElementBinaryOperator(schema, view))))
                 .values();
-        final Iterable<Element> nonAggregatedElements = Iterables.filter((Iterable<Element>) elements, new IsElementNotAggregatedGooglePredicate(aggregatedGroups));
         return new ChainedIterable<>(aggregatedElements, nonAggregatedElements);
     }
 
@@ -146,8 +133,7 @@ public final class AggregatorUtil {
             if (null == b) {
                 return a;
             }
-            schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
-            return a;
+            return schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
         }
     }
 
@@ -175,8 +161,7 @@ public final class AggregatorUtil {
                 return a;
             }
             final String group = a.getGroup();
-            schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
-            return a;
+            return schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
         }
     }
 
@@ -199,6 +184,7 @@ public final class AggregatorUtil {
                 return a;
             }
             schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
+            // The aggregator will always return a so this is safe
             return a;
         }
     }
@@ -228,6 +214,7 @@ public final class AggregatorUtil {
             }
             final String group = a.getGroup();
             schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+            // The aggregator will always return a so this is safe
             return a;
         }
     }
@@ -255,10 +242,26 @@ public final class AggregatorUtil {
         }
     }
 
-    private static final class IsElementNotAggregatedGooglePredicate implements com.google.common.base.Predicate<Element> {
+    private static final class IsElementAggregatedGPredicate implements com.google.common.base.Predicate<Element> {
         final Collection<String> aggregatedGroups;
 
-        private IsElementNotAggregatedGooglePredicate(final Collection<String> aggregatedGroups) {
+        private IsElementAggregatedGPredicate(final Collection<String> aggregatedGroups) {
+            if (null == aggregatedGroups) {
+                throw new IllegalArgumentException("Aggregated groups is required");
+            }
+            this.aggregatedGroups = aggregatedGroups;
+        }
+
+        @Override
+        public boolean apply(final Element element) {
+            return null != element && aggregatedGroups.contains(element.getGroup());
+        }
+    }
+
+    private static final class IsElementNotAggregatedGPredicate implements com.google.common.base.Predicate<Element> {
+        final Collection<String> aggregatedGroups;
+
+        private IsElementNotAggregatedGPredicate(final Collection<String> aggregatedGroups) {
             if (null == aggregatedGroups) {
                 throw new IllegalArgumentException("Aggregated groups is required");
             }
