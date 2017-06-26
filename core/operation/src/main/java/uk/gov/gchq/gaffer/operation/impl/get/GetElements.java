@@ -35,7 +35,32 @@ import java.util.Map;
 /**
  * Gets elements from Gaffer based on {@link ElementId}s as
  * seeds and returns {@link uk.gov.gchq.gaffer.data.element.Element}s
- * There are various flags to filter out the elements returned.
+ * There are various flags to filter out the elements returned:
+ *
+ * seedMatching - can either be {@code SeedMatchingType.RELATED} or {@code SeedMatchingType.EQUAL}.
+ * Equal will only return Elements with identifiers that match the seed exactly.
+ * Related will return:
+ * <ul>
+ *     <li>Entities when their vertex matches vertex of a EntityId</li>
+ *     <li>Entities when their vertex matches the source or destination of a EdgeId</li>
+ *     <li>Edges when their source, destination and directed type matches the EdgeId</li>
+ *     <li>Edges when their source, destination matches the EdgeId where the DirectedType of the EdgeId is {@code DirectedType.EITHER}</li>
+ *     <li>Edges when their source or destination match the EntityId's vertex</li>
+ * </ul>
+ *
+ * inOutType - what type of edges to include
+ * <ul>
+ *     <li>{@code IncludeIncomingOutgoingType.INCOMING} - only returns edges where the destination matches the vertex of EntityId</li>
+ *     <li>{@code IncludeIncomingOutgoingType.OUTGOING} - only returns edges where the source matches the vertex of EntityId</li>
+ *     <li>{@code IncludeIncomingOutgoingType.EITHER} - returns all edges regardless of their direction</li>
+ * </ul>
+ *
+ * directedType - whether to return directed, undirected or either edges
+ * <ul>
+ *     <li>{@code DirectedType.DIRECTED} - only return directed edges</li>
+ *     <li>{@code DirectedType.UNDIRECTED} - only return undirected edges</li>
+ *     <li>{@code DirectedType.EITHER} - return both directed or undirected edges</li>
+ * </ul>
  */
 public class GetElements implements
         Operation,
@@ -52,7 +77,7 @@ public class GetElements implements
     private Map<String, String> options;
 
     /**
-     * Sets the seedMatchingType which determines how to match seeds to identifiers in the Graph
+     * Sets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      *
      * @param seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
@@ -64,7 +89,7 @@ public class GetElements implements
     }
 
     /**
-     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph
+     * Gets the seedMatchingType which determines how to match seeds to identifiers in the Graph.
      *
      * @return seedMatching a {@link SeedMatchingType} describing how the seeds should be
      *                     matched to the identifiers in the graph.
@@ -76,7 +101,7 @@ public class GetElements implements
     }
 
     /**
-     * Gets the inOutType for this operation which is used for filtering Edges
+     * Gets the incomingOutGoingType for this operation which is used for filtering Edges.
      *
      * @return inOutType an {@link IncludeIncomingOutgoingType}
      *                  that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
@@ -89,7 +114,7 @@ public class GetElements implements
     }
 
     /**
-     * Sets the inOutType for this operation which is used for filtering Edges
+     * Sets the incomingOutGoingType for this operation which is used for filtering Edges.
      *
      * @param inOutType an {@link IncludeIncomingOutgoingType}
      *                  that controls the incoming/outgoing direction of {@link uk.gov.gchq.gaffer.data.element.Edge}s that are
