@@ -18,12 +18,13 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.graph.OperationView;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import java.util.Map;
 
 public class NamedOperation<I_ITEM, O> implements
         InputOutput<Iterable<? extends I_ITEM>, O>,
@@ -31,7 +32,10 @@ public class NamedOperation<I_ITEM, O> implements
         OperationView {
     private View view;
     private Iterable<? extends I_ITEM> input;
+
+    @Required
     private String operationName;
+    private Map<String, Object> parameters;
 
     @Override
     public View getView() {
@@ -53,6 +57,14 @@ public class NamedOperation<I_ITEM, O> implements
         this.input = input;
     }
 
+    public void setParameters(final Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
     public String getOperationName() {
         return operationName;
     }
@@ -66,7 +78,7 @@ public class NamedOperation<I_ITEM, O> implements
         return (TypeReference) new TypeReferenceImpl.Object();
     }
 
-    public static class Builder<I_ITEM, O> extends Operation.BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
+    public static class Builder<I_ITEM, O> extends BaseBuilder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>>
             implements InputOutput.Builder<NamedOperation<I_ITEM, O>, Iterable<? extends I_ITEM>, O, Builder<I_ITEM, O>>,
             MultiInput.Builder<NamedOperation<I_ITEM, O>, I_ITEM, Builder<I_ITEM, O>>,
             OperationView.Builder<NamedOperation<I_ITEM, O>, Builder<I_ITEM, O>> {
@@ -76,6 +88,11 @@ public class NamedOperation<I_ITEM, O> implements
 
         public Builder<I_ITEM, O> name(final String name) {
             _getOp().setOperationName(name);
+            return _self();
+        }
+
+        public Builder<I_ITEM, O> parameters(final Map<String, Object> params) {
+            _getOp().setParameters(params);
             return _self();
         }
     }
