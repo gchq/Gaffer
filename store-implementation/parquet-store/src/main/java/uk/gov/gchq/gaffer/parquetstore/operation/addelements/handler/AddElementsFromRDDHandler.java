@@ -96,7 +96,7 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
                 throw new OperationException("Failed to move data from temporary files directory to the data directory.", e);
             }
         } catch (final IOException e) {
-            throw new OperationException("IO Exception: Failed to connect to the file system", e);
+            throw new OperationException("IOException: Failed to connect to the file system", e);
         } catch (final StoreException e) {
             throw new OperationException(e.getMessage(), e);
         }

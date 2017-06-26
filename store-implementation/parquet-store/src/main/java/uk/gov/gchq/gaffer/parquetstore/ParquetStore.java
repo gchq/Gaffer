@@ -277,19 +277,12 @@ public class ParquetStore extends Store {
             }
             return subIndex;
         } catch (final IOException e) {
-            if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-                throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
-                        + "/" + getCurrentSnapshot()
-                        + "/" + ParquetStoreConstants.REVERSE_EDGES
-                        + "/" + ParquetStoreConstants.GROUP + "=" + group
-                        + "/" + ParquetStoreConstants.INDEX, e);
-            } else {
-                throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
-                        + "/" + getCurrentSnapshot()
-                        + "/" + ParquetStoreConstants.GRAPH
-                        + "/" + ParquetStoreConstants.GROUP + "=" + group
-                        + "/" + ParquetStoreConstants.INDEX, e);
-            }
+            throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
+                    + "/" + getCurrentSnapshot()
+                    + "/" + (ParquetStoreConstants.DESTINATION.equals(identifier) ?
+                    ParquetStoreConstants.REVERSE_EDGES : ParquetStoreConstants.GRAPH)
+                    + "/" + ParquetStoreConstants.GROUP + "=" + group
+                    + "/" + ParquetStoreConstants.INDEX, e);
         }
     }
 
