@@ -82,7 +82,7 @@ public class LazyProperties extends Properties {
         if (loadedProperties.contains(name)) {
             value = properties.get(name);
         } else {
-            value = valueLoader.getProperty(name);
+            value = valueLoader.getProperty(name, this);
             put(name, value);
         }
         return value;

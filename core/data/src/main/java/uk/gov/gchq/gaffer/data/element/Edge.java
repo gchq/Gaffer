@@ -83,7 +83,7 @@ public class Edge extends Element implements EdgeId {
     @JsonIgnore
     @Override
     public DirectedType getDirectedType() {
-        if (directed) {
+        if (isDirected()) {
             return DirectedType.DIRECTED;
         }
 
@@ -105,7 +105,7 @@ public class Edge extends Element implements EdgeId {
 
     @Override
     public void setDirectedType(final DirectedType directed) {
-        this.directed = DirectedType.UNDIRECTED != directed;
+        setDirected(DirectedType.UNDIRECTED != directed);
     }
 
     @Override

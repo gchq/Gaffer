@@ -43,7 +43,7 @@ public class LazyEdgeTest {
         final String propertyName = "property name";
         final String exceptedPropertyValue = "property value";
 
-        given(edgeLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
+        given(edgeLoader.getProperty(propertyName, lazyEdge.getProperties())).willReturn(exceptedPropertyValue);
 
         // When
         Object propertyValue = lazyEdge.getProperty(propertyName);
@@ -61,7 +61,7 @@ public class LazyEdgeTest {
         final IdentifierType identifierType = IdentifierType.DESTINATION;
         final String exceptedIdentifierValue = "identifier value";
 
-        given(edgeLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(edgeLoader.getIdentifier(identifierType, lazyEdge)).willReturn(exceptedIdentifierValue);
 
         // When
         Object identifierValue = lazyEdge.getIdentifier(identifierType);
@@ -80,7 +80,7 @@ public class LazyEdgeTest {
         final IdentifierType identifierType = IdentifierType.SOURCE;
         final String exceptedIdentifierValue = "identifier value";
 
-        given(edgeLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(edgeLoader.getIdentifier(identifierType, lazyEdge)).willReturn(exceptedIdentifierValue);
         lazyEdge.getIdentifier(identifierType); // call it to load the value.
 
         // When
@@ -88,7 +88,7 @@ public class LazyEdgeTest {
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
-        verify(edgeLoader, times(1)).getIdentifier(identifierType);
+        verify(edgeLoader, times(1)).getIdentifier(identifierType, lazyEdge);
         assertEquals(identifierValue, edge.getSource());
     }
 
@@ -98,7 +98,7 @@ public class LazyEdgeTest {
         final Edge edge = new Edge();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        given(edgeLoader.getIdentifier(IdentifierType.DIRECTED)).willReturn(true);
+        given(edgeLoader.getIdentifier(IdentifierType.DIRECTED, lazyEdge)).willReturn(true);
         lazyEdge.setDirected(true); // call it to load the value.
 
         // When
@@ -106,7 +106,7 @@ public class LazyEdgeTest {
 
         // Then
         assertTrue(isDirected);
-        verify(edgeLoader, times(1)).getIdentifier(IdentifierType.DIRECTED);
+        verify(edgeLoader, times(1)).getIdentifier(IdentifierType.DIRECTED, lazyEdge);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class LazyEdgeTest {
         lazyEdge.setDestination(destVertex);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(destVertex, edge.getDestination());
     }
 
@@ -156,7 +156,7 @@ public class LazyEdgeTest {
         lazyEdge.setSource(sourceVertex);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(sourceVertex, edge.getSource());
     }
 
@@ -173,7 +173,7 @@ public class LazyEdgeTest {
         lazyEdge.setDirected(isDirected);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(isDirected, edge.isDirected());
     }
 

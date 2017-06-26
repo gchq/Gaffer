@@ -22,12 +22,17 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeLoader;
+import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityLoader;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.ElementFilterException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
+import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.LazyEdge;
+import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.ElementValidator;
@@ -71,11 +76,10 @@ public abstract class AbstractElementFilter extends Filter {
         }
 
         final Element element;
-        try {
-            element = elementConverter.getFullElement(key, value);
-        } catch (final AccumuloElementConversionException e) {
-            throw new ElementFilterException(
-                    "Element filter iterator failed to create an element from an accumulo key value pair", e);
+        if (schema.isEntity(group)) {
+            element = new LazyEntity(new Entity(group), new AccumuloEntityLoader(group, key, value, elementConverter, schema));
+        } else {
+            element = new LazyEdge(new Edge(group), new AccumuloEdgeLoader(group, key, value, elementConverter, schema));
         }
         return elementPredicate.test(element);
     }

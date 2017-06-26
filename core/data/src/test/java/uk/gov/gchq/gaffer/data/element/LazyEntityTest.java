@@ -41,7 +41,7 @@ public class LazyEntityTest {
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
         final String propertyName = "property name";
         final String exceptedPropertyValue = "property value";
-        given(entityLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
+        given(entityLoader.getProperty(propertyName, lazyEntity.getProperties())).willReturn(exceptedPropertyValue);
 
         // When
         Object propertyValue = lazyEntity.getProperty(propertyName);
@@ -60,7 +60,7 @@ public class LazyEntityTest {
         final IdentifierType identifierType = IdentifierType.VERTEX;
         final String exceptedIdentifierValue = "identifier value";
 
-        given(entityLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(entityLoader.getIdentifier(identifierType, lazyEntity)).willReturn(exceptedIdentifierValue);
 
         // When
         Object identifierValue = lazyEntity.getIdentifier(identifierType);
@@ -79,7 +79,7 @@ public class LazyEntityTest {
         final IdentifierType identifierType = IdentifierType.VERTEX;
         final String exceptedIdentifierValue = "identifier value";
 
-        given(entityLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(entityLoader.getIdentifier(identifierType, lazyEntity)).willReturn(exceptedIdentifierValue);
         lazyEntity.getIdentifier(identifierType); // call it to load the value.
 
         // When
@@ -87,7 +87,7 @@ public class LazyEntityTest {
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
-        verify(entityLoader, times(1)).getIdentifier(identifierType);
+        verify(entityLoader, times(1)).getIdentifier(identifierType, lazyEntity);
         assertEquals(identifierValue, entity.getVertex());
     }
 
@@ -104,7 +104,7 @@ public class LazyEntityTest {
         lazyEntity.putProperty(propertyName, propertyValue);
 
         // Then
-        verify(entityLoader, never()).getProperty(propertyName);
+        verify(entityLoader, never()).getProperty(propertyName, lazyEntity.getProperties());
         assertEquals(propertyValue, entity.getProperty(propertyName));
         assertEquals(propertyValue, lazyEntity.getProperty(propertyName));
     }
@@ -123,7 +123,7 @@ public class LazyEntityTest {
         lazyEntity.setVertex(vertex);
 
         // Then
-        verify(entityLoader, never()).getIdentifier(identifierType);
+        verify(entityLoader, never()).getIdentifier(identifierType, lazyEntity);
         assertEquals(vertex, entity.getVertex());
     }
 
