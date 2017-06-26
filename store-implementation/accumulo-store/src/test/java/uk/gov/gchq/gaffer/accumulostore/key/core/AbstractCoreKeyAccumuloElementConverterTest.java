@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import com.google.common.primitives.Bytes;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Test;
@@ -30,6 +28,8 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Created on 25/05/2017.

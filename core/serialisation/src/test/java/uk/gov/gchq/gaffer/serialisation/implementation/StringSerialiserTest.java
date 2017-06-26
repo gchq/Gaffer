@@ -17,8 +17,8 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

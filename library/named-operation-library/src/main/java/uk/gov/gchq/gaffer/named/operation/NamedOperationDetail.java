@@ -17,31 +17,39 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.user.User;
-import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NamedOperationDetail implements Serializable {
     private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final long serialVersionUID = -8831783492657131469L;
-    private static final String CHARSET_NAME = "UTF-8";
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
     private String operationName;
     private String description;
     private String creatorId;
     private String operations;
     private List<String> readAccessRoles;
     private List<String> writeAccessRoles;
+    private Map<String, ParameterDetail> parameters = Maps.newHashMap();
 
-    public NamedOperationDetail(final String operationName, final String description, final String userId, final OperationChain<?> operations, final List<String> readers, final List<String> writers) {
-        if (operations == null || null == operations.getOperations() || operations.getOperations().isEmpty()) {
+    public NamedOperationDetail(final String operationName, final String description, final String userId,
+                                final String operations, final List<String> readers,
+                                final List<String> writers, final Map<String, ParameterDetail> parameters) {
+        if (operations == null) {
             throw new IllegalArgumentException("Operation Chain must not be empty");
         }
         if (operationName == null || operationName.isEmpty()) {
@@ -51,21 +59,11 @@ public class NamedOperationDetail implements Serializable {
         this.operationName = operationName;
         this.description = description;
         this.creatorId = userId;
-        try {
-            this.operations = new String(SERIALISER.serialise(operations), Charset.forName(CHARSET_NAME));
-        } catch (final SerialisationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        this.operations = operations;
+
         this.readAccessRoles = readers;
         this.writeAccessRoles = writers;
-    }
-
-    public OperationChain<?> getOperationChain() {
-        try {
-            return SERIALISER.deserialise(operations.getBytes(Charset.forName(CHARSET_NAME)), OperationChain.class);
-        } catch (final IOException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
-        }
+        this.parameters = parameters;
     }
 
     public String getOperationName() {
@@ -92,6 +90,100 @@ public class NamedOperationDetail implements Serializable {
         return creatorId;
     }
 
+    public Map<String, ParameterDetail> getParameters() {
+        return parameters;
+    }
+
+    private String buildParamNameString(final String paramKey) {
+        return "\"${" + paramKey + "}\"";
+    }
+
+    /**
+     * Gets the OperationChain after adding in default values for any parameters. If a parameter
+     * does not have a default, null is inserted.
+     *
+     * @return The {@link OperationChain}
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
+    @JsonIgnore
+    public OperationChain getOperationChainWithDefaultParams() {
+        String opStringWithDefaults = operations;
+
+        if (parameters != null) {
+            for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+
+                try {
+                    opStringWithDefaults = opStringWithDefaults.replace(buildParamNameString(paramKey),
+                            new String(SERIALISER.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                } catch (SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        OperationChain opChain;
+        try {
+            opChain = SERIALISER.deserialise(opStringWithDefaults.getBytes(CHARSET_NAME), OperationChain.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return opChain;
+    }
+
+    /**
+     * Gets the OperationChain after adding in any provided parameters.
+     *
+     * @param executionParams the parameters for the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
+     * @return The {@link OperationChain}
+     * @throws IllegalArgumentException if substituting the parameters fails
+     */
+    public OperationChain getOperationChain(final Map<String, Object> executionParams) {
+        String opStringWithParams = operations;
+
+        // First check all the parameters supplied are expected parameter names
+        if (parameters != null) {
+            if (executionParams != null) {
+                Set<String> paramDetailKeys = parameters.keySet();
+                Set<String> paramKeys = executionParams.keySet();
+
+                if (!paramDetailKeys.containsAll(paramKeys)) {
+                    throw new IllegalArgumentException("Unexpected parameter name in NamedOperation");
+                }
+            }
+
+            for (final Map.Entry<String, ParameterDetail> parameterDetailPair : parameters.entrySet()) {
+                String paramKey = parameterDetailPair.getKey();
+                try {
+                    if (executionParams != null && executionParams.containsKey(paramKey)) {
+                        Object paramObj = SERIALISER.deserialise(SERIALISER.serialise(executionParams.get(paramKey)), parameterDetailPair.getValue().getValueClass());
+
+                        opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
+                                new String(SERIALISER.serialise(paramObj, CHARSET_NAME), CHARSET_NAME));
+                    } else if (!parameterDetailPair.getValue().isRequired()) {
+                        opStringWithParams = opStringWithParams.replace(buildParamNameString(paramKey),
+                                new String(SERIALISER.serialise(parameterDetailPair.getValue().getDefaultValue(), CHARSET_NAME), CHARSET_NAME));
+                    } else {
+                        throw new IllegalArgumentException("Missing parameter " + paramKey + " with no default");
+                    }
+                } catch (SerialisationException | UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e.getMessage());
+                }
+            }
+        }
+
+        OperationChain opChain;
+
+        try {
+            opChain = SERIALISER.deserialise(opStringWithParams.getBytes(CHARSET_NAME), OperationChain.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
+        return opChain;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -110,6 +202,7 @@ public class NamedOperationDetail implements Serializable {
                 .append(operations, op.operations)
                 .append(readAccessRoles, op.readAccessRoles)
                 .append(writeAccessRoles, op.writeAccessRoles)
+                .append(parameters, op.parameters)
                 .isEquals();
     }
 
@@ -121,6 +214,7 @@ public class NamedOperationDetail implements Serializable {
                 .append(operations)
                 .append(readAccessRoles)
                 .append(writeAccessRoles)
+                .append(parameters)
                 .hashCode();
     }
 
@@ -129,9 +223,10 @@ public class NamedOperationDetail implements Serializable {
         return new ToStringBuilder(this)
                 .appendSuper(super.toString())
                 .append("creatorId", creatorId)
-                .append("creatorId", operations)
+                .append("operations", operations)
                 .append("readAccessRoles", readAccessRoles)
                 .append("writeAccessRoles", writeAccessRoles)
+                .append("parameters", parameters)
                 .toString();
     }
 
@@ -158,9 +253,10 @@ public class NamedOperationDetail implements Serializable {
         private String operationName;
         private String description;
         private String creatorId;
-        private OperationChain<?> opChain;
+        private String opChain;
         private List<String> readers;
         private List<String> writers;
+        private Map<String, ParameterDetail> parameters;
 
         public Builder creatorId(final String creatorId) {
             this.creatorId = creatorId;
@@ -177,8 +273,25 @@ public class NamedOperationDetail implements Serializable {
             return this;
         }
 
-        public Builder operationChain(final OperationChain<?> opChain) {
+        public Builder operationChain(final String opChain) {
+
             this.opChain = opChain;
+            return this;
+        }
+
+        public Builder operationChain(final OperationChain opChain) {
+            try {
+                this.opChain = new String(SERIALISER.serialise(opChain), Charset.forName(CHARSET_NAME));
+            } catch (SerialisationException se) {
+                throw new IllegalArgumentException(se.getMessage());
+            }
+
+            return this;
+        }
+
+
+        public Builder parameters(final Map<String, ParameterDetail> parameters) {
+            this.parameters = parameters;
             return this;
         }
 
@@ -193,8 +306,7 @@ public class NamedOperationDetail implements Serializable {
         }
 
         public NamedOperationDetail build() {
-            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers);
+            return new NamedOperationDetail(operationName, description, creatorId, opChain, readers, writers, parameters);
         }
     }
-
 }
