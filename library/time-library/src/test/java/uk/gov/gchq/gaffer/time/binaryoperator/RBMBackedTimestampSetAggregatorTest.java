@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.time.binaryoperator;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
-
 import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
