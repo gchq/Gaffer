@@ -56,7 +56,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Before
     public void setup() {
-        this.graph = getGraph();
+        graph = getGraph();
     }
 
     private static Graph getGraph() {
@@ -74,15 +74,14 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
                 StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
     }
-
-
+    
     private static Iterable<? extends Element> getElements() {
         return DataGen.generate300StringElementsWithNullProperties();
     }
 
     @Override
     public void setupSeeds() {
-        this.seedsList = new ArrayList<>(6);
+        seedsList = new ArrayList<>(6);
         seedsList.add(new EntitySeed("src5"));
         seedsList.add(new EntitySeed("dst15"));
         seedsList.add(new EntitySeed("vert10"));
@@ -93,7 +92,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     public void setupView() {
-        this.view = new View.Builder()
+        view = new View.Builder()
             .edge("BasicEdge",
                 new ViewElementDefinition.Builder()
                     .preAggregationFilter(

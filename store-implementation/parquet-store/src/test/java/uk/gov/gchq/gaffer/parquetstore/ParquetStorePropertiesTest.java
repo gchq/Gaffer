@@ -24,13 +24,12 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class ParquetStorePropertiesTest {
-
     private ParquetStoreProperties props;
 
     @Before
     public void setUp() throws Exception {
         Logger.getRootLogger().setLevel(Level.WARN);
-        this.props = new ParquetStoreProperties();
+        props = new ParquetStoreProperties();
     }
 
     @Test

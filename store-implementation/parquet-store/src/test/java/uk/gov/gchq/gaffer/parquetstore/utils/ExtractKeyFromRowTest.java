@@ -40,9 +40,6 @@ import java.util.function.BinaryOperator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-/**
- *
- */
 public class ExtractKeyFromRowTest {
 
     private LinkedHashSet<String> groupByColumns;
@@ -51,10 +48,10 @@ public class ExtractKeyFromRowTest {
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        this.groupByColumns = new LinkedHashSet<>();
+        groupByColumns = new LinkedHashSet<>();
         groupByColumns.add("property2");
         groupByColumns.add("property7");
-        this.columnsToPaths = new HashMap<>();
+        columnsToPaths = new HashMap<>();
         String[] prop2Paths = new String[1];
         prop2Paths[0] = "property2";
         String[] prop7Paths = new String[1];
@@ -65,22 +62,22 @@ public class ExtractKeyFromRowTest {
         srcPaths[0] = ParquetStoreConstants.SOURCE;
         String[] dstPaths = new String[1];
         dstPaths[0] = ParquetStoreConstants.DESTINATION;
-        this.columnsToPaths.put("property2", prop2Paths);
-        this.columnsToPaths.put("property7", prop7Paths);
-        this.columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
-        this.columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
-        this.columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
+        columnsToPaths.put("property2", prop2Paths);
+        columnsToPaths.put("property7", prop7Paths);
+        columnsToPaths.put(ParquetStoreConstants.VERTEX, vertPaths);
+        columnsToPaths.put(ParquetStoreConstants.SOURCE, srcPaths);
+        columnsToPaths.put(ParquetStoreConstants.DESTINATION, dstPaths);
         final Schema schema = Schema.fromJson(getClass().getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
+        utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After
     public void cleanUp() {
-        this.groupByColumns = null;
+        groupByColumns = null;
     }
 
     private HashMap<String, String> buildcolumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
@@ -96,12 +93,12 @@ public class ExtractKeyFromRowTest {
 
     @Test
     public void testExtractKeyFromRowForEntity() throws Exception {
-        final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(this.groupByColumns, this.columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
+        final ExtractKeyFromRow entityConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, true, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
         final Date date = new Date();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
-        final Row row = DataGen.generateEntityRow(this.utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = entityConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("vertex", results.apply(1));
@@ -111,12 +108,12 @@ public class ExtractKeyFromRowTest {
 
     @Test
     public void testExtractKeyFromRowForEdge() throws Exception {
-        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(this.groupByColumns, this.columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
+        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEdge")));
         final Date date = new Date();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
-        final Row row = DataGen.generateEdgeRow(this.utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = edgeConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
         assertEquals("dst", results.apply(1));
@@ -128,7 +125,7 @@ public class ExtractKeyFromRowTest {
 
     @Test
     public void testExtractKeyFromEmptyRow() {
-        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(this.groupByColumns, this.columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
+        final ExtractKeyFromRow edgeConverter = new ExtractKeyFromRow(groupByColumns, columnsToPaths, false, buildcolumnToAggregatorMap(utils.getGafferSchema().getElement("BasicEntity")));
         try {
             edgeConverter.call(Row$.MODULE$.empty());
             fail();

@@ -57,7 +57,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
     @Before
     public void setup() {
-        this.graph = getGraph();
+        graph = getGraph();
     }
 
     private static Graph getGraph() {
@@ -82,7 +82,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     public void setupSeeds() {
-        this.seedsList = new ArrayList<>(4);
+        seedsList = new ArrayList<>(4);
         seedsList.add(new EntitySeed(new TypeValue("type0", "vrt10")));
         seedsList.add(new EntitySeed(new TypeValue("type2", "src17")));
         seedsList.add(new EdgeSeed(new TypeValue("type1", "src11"), new TypeValue("type1", "dst12"), true));
@@ -91,7 +91,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     public void setupView() {
-        this.view = new View.Builder()
+        view = new View.Builder()
             .edge("BasicEdge",
                 new ViewElementDefinition.Builder()
                     .preAggregationFilter(

@@ -44,7 +44,7 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
 
     @Before
     public void setup() throws StoreException {
-        this.graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), getParquetStoreProperties());
     }
 
     protected static Schema getSchema() {

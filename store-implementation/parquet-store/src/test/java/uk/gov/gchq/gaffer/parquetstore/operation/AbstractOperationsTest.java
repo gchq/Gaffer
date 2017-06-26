@@ -86,7 +86,7 @@ public abstract class AbstractOperationsTest {
     @Test
     public void getAllElementsTest() throws OperationException {
         LOGGER.info("Starting getAllElementsTest");
-        final CloseableIterable<? extends Element> data = this.graph.execute(new GetAllElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data);
         data.close();
     }
@@ -94,7 +94,7 @@ public abstract class AbstractOperationsTest {
     @Test
     public void getElementsTest() throws OperationException {
         LOGGER.info("Starting getElementsTest");
-        final CloseableIterable<? extends Element> data = this.graph.execute(new GetElements.Builder().build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().build(), USER);
         assertFalse(data.iterator().hasNext());
         data.close();
     }
@@ -103,7 +103,7 @@ public abstract class AbstractOperationsTest {
     public void getSeededElementsTest() throws OperationException {
         LOGGER.info("Starting getSeededElementsTest");
         setupSeeds();
-        final CloseableIterable<? extends Element> data = this.graph.execute(new GetElements.Builder().input(this.seedsList).build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).build(), USER);
         checkGetSeededElementsData(data);
         data.close();
     }
@@ -112,7 +112,7 @@ public abstract class AbstractOperationsTest {
     public void getFilteredElementsTest() throws OperationException {
         LOGGER.info("Starting getFilteredElementsTest");
         setupView();
-        final CloseableIterable<? extends Element> data = this.graph.execute(new GetAllElements.Builder().view(this.view).build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().view(view).build(), USER);
         checkGetFilteredElementsData(data);
         data.close();
     }
@@ -122,7 +122,7 @@ public abstract class AbstractOperationsTest {
         LOGGER.info("Starting getSeededAndFilteredElementsTest");
         setupSeeds();
         setupView();
-        final CloseableIterable<? extends Element> data = this.graph.execute(new GetElements.Builder().input(this.seedsList).view(this.view).build(), USER);
+        final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).view(view).build(), USER);
         checkGetSeededAndFilteredElementsData(data);
         data.close();
     }
@@ -141,7 +141,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            this.graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
@@ -164,7 +164,7 @@ public abstract class AbstractOperationsTest {
                         .build())
                 .build();
         try {
-            this.graph.execute(new GetElements.Builder().view(view).build(), USER);
+            graph.execute(new GetElements.Builder().view(view).build(), USER);
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));

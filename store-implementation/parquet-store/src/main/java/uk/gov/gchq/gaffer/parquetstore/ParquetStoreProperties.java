@@ -51,7 +51,7 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     public ParquetStoreProperties() {
         super();
         this.setStoreClass(ParquetStore.class);
-        this.setStorePropertiesClass(this.getClass());
+        this.setStorePropertiesClass(getClass());
     }
 
     public ParquetStoreProperties(final Path propFileLocation) {
@@ -59,59 +59,59 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
     }
 
     public String getDataDir() {
-        return this.get(DATA_DIR, DATA_DIR_DEFAULT);
+        return get(DATA_DIR, DATA_DIR_DEFAULT);
     }
 
     public void setDataDir(final String dir) {
-        this.set(DATA_DIR, dir);
+        set(DATA_DIR, dir);
     }
 
     public String getTempFilesDir() {
-        return this.get(TEMP_FILES_DIR, TEMP_FILES_DIR_DEFAULT);
+        return get(TEMP_FILES_DIR, TEMP_FILES_DIR_DEFAULT);
     }
 
     public void setTempFilesDir(final String dir) {
-        this.set(TEMP_FILES_DIR, dir);
+        set(TEMP_FILES_DIR, dir);
     }
 
     public Integer getThreadsAvailable() {
-        return Integer.parseInt(this.get(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT));
+        return Integer.parseInt(get(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE_DEFAULT));
     }
 
     public void setThreadsAvailable(final Integer threadsAvailable) {
-        this.set(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, threadsAvailable.toString());
+        set(PARQUET_ADD_ELEMENTS_THREADS_AVAILABLE, threadsAvailable.toString());
     }
 
     public Integer getRowGroupSize() {
-        return Integer.parseInt(this.get(PARQUET_ROW_GROUP_SIZE_IN_BYTES, PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT));
+        return Integer.parseInt(get(PARQUET_ROW_GROUP_SIZE_IN_BYTES, PARQUET_ROW_GROUP_SIZE_IN_BYTES_DEFAULT));
     }
 
     public void setRowGroupSize(final Integer rowGroupSizeInBytes) {
-        this.set(PARQUET_ROW_GROUP_SIZE_IN_BYTES, rowGroupSizeInBytes.toString());
+        set(PARQUET_ROW_GROUP_SIZE_IN_BYTES, rowGroupSizeInBytes.toString());
     }
 
     public Integer getPageSize() {
-        return Integer.parseInt(this.get(PARQUET_PAGE_SIZE_IN_BYTES, PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT));
+        return Integer.parseInt(get(PARQUET_PAGE_SIZE_IN_BYTES, PARQUET_PAGE_SIZE_IN_BYTES_DEFAULT));
     }
 
     public void setPageSize(final int pageSizeInBytes) {
-        this.set(PARQUET_PAGE_SIZE_IN_BYTES, String.valueOf(pageSizeInBytes));
+        set(PARQUET_PAGE_SIZE_IN_BYTES, String.valueOf(pageSizeInBytes));
     }
 
     public long getAddElementsBatchSize() {
-        return Long.parseLong(this.get(PARQUET_ADD_ELEMENTS_BATCH_SIZE, PARQUET_ADD_ELEMENTS_BATCH_SIZE_DEFAULT));
+        return Long.parseLong(get(PARQUET_ADD_ELEMENTS_BATCH_SIZE, PARQUET_ADD_ELEMENTS_BATCH_SIZE_DEFAULT));
     }
 
     public void setAddElementsBatchSize(final long addElementsBatchSize) {
-        this.set(PARQUET_ADD_ELEMENTS_BATCH_SIZE, String.valueOf(addElementsBatchSize));
+        set(PARQUET_ADD_ELEMENTS_BATCH_SIZE, String.valueOf(addElementsBatchSize));
     }
 
     public int getAddElementsOutputFilesPerGroup() {
-        return Integer.parseInt(this.get(PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP, PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT));
+        return Integer.parseInt(get(PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP, PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP_DEFAULT));
     }
 
     public void setAddElementsOutputFilesPerGroup(final int outputFilesPerGroup) {
-        this.set(PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP, String.valueOf(outputFilesPerGroup));
+        set(PARQUET_ADD_ELEMENTS_OUTPUT_FILES_PER_GROUP, String.valueOf(outputFilesPerGroup));
     }
 
     /**
@@ -121,14 +121,14 @@ public class ParquetStoreProperties extends StoreProperties implements Serializa
      * @return The Spark master to be used.
      */
     public String getSparkMaster() {
-        LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", this.get(SPARK_MASTER, "Is not set"));
+        LOGGER.debug("ParquetStoreProperties has Spark master set as: {}", get(SPARK_MASTER, "Is not set"));
         LOGGER.debug("Spark config has Spark master set as: {}", new SparkConf().get("spark.master", "Is not set"));
-        final String sparkMaster = this.get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
+        final String sparkMaster = get(SPARK_MASTER, new SparkConf().get("spark.master", SPARK_MASTER_DEFAULT));
         LOGGER.info("Spark master is set to " + sparkMaster);
         return sparkMaster;
     }
 
     public void setSparkMaster(final String sparkMaster) {
-        this.set(SPARK_MASTER, sparkMaster);
+        set(SPARK_MASTER, sparkMaster);
     }
 }

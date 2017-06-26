@@ -44,11 +44,12 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
 
     @Before
     public void setup() throws StoreException {
-        this.graph = getGraph(getSchema(), getParquetStoreProperties());
+        graph = getGraph(getSchema(), getParquetStoreProperties());
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/dataSchema.json"),
+        return Schema.fromJson(
+                LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/dataSchema.json"),
                 LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/dataTypes.json"),
                 LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/storeSchema.json"),
                 LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/storeTypes.json"));

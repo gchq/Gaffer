@@ -54,12 +54,12 @@ public class AggregateGafferRowsFunctionTest {
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        this.utils = new SchemaUtils(optimiser.optimise(schema, true));
+        utils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After
     public void cleanUp() {
-        this.utils = null;
+        utils = null;
     }
 
     private HashMap<String, String> buildcolumnToAggregatorMap(final SchemaElementDefinition gafferSchema) {
@@ -73,13 +73,13 @@ public class AggregateGafferRowsFunctionTest {
     @Test
     public void mergeEntityRowsTest() throws OperationException, IOException {
         final String group = "BasicEntity";
-        final SchemaElementDefinition elementSchema = this.utils.getGafferSchema().getElement(group);
+        final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final HashMap<String, String> columnToAggregator = buildcolumnToAggregatorMap(elementSchema);
-        final GafferGroupObjectConverter converter = this.utils.getConverter(group);
+        final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                true, elementSchema.getGroupBy(), this.utils.getColumnToPaths(group), columnToAggregator, converter);
+                true, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
         final Date date = new Date();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
@@ -87,8 +87,8 @@ public class AggregateGafferRowsFunctionTest {
         final HyperLogLogPlus h1 = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("C");
-        final GenericRowWithSchema row1 = DataGen.generateEntityRow(this.utils, group, "vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
-        final GenericRowWithSchema row2 = DataGen.generateEntityRow(this.utils, group, "vertex", (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
+        final GenericRowWithSchema row1 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final GenericRowWithSchema row2 = DataGen.generateEntityRow(utils, group, "vertex", (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
         final RawFloatSerialiser floatSerialiser = new RawFloatSerialiser();
         assertEquals(12, merged.size());
@@ -108,13 +108,13 @@ public class AggregateGafferRowsFunctionTest {
     @Test
     public void mergeEdgeRowsTest() throws OperationException, SerialisationException {
         final String group = "BasicEdge";
-        final SchemaElementDefinition elementSchema = this.utils.getGafferSchema().getElement(group);
+        final SchemaElementDefinition elementSchema = utils.getGafferSchema().getElement(group);
         final HashMap<String, String> columnToAggregator = buildcolumnToAggregatorMap(elementSchema);
-        final GafferGroupObjectConverter converter = this.utils.getConverter(group);
+        final GafferGroupObjectConverter converter = utils.getConverter(group);
         final String[] gafferProperties = new String[elementSchema.getProperties().size()];
         elementSchema.getProperties().toArray(gafferProperties);
         final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
-                false, elementSchema.getGroupBy(), this.utils.getColumnToPaths(group), columnToAggregator, converter);
+                false, elementSchema.getGroupBy(), utils.getColumnToPaths(group), columnToAggregator, converter);
         final Date date = new Date();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
@@ -122,8 +122,8 @@ public class AggregateGafferRowsFunctionTest {
         final HyperLogLogPlus h1 = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("C");
-        final GenericRowWithSchema row1 = DataGen.generateEdgeRow(this.utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
-        final GenericRowWithSchema row2 = DataGen.generateEdgeRow(this.utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
+        final GenericRowWithSchema row1 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
+        final GenericRowWithSchema row2 = DataGen.generateEdgeRow(utils, group, "src", "dst", true, (byte) 'c', 0.7, 4f, h1, 7L, (short) 4, date);
         final GenericRowWithSchema merged = aggregator.call(row1, row2);
         final RawFloatSerialiser floatSerialiser = new RawFloatSerialiser();
         assertEquals(14, merged.size());

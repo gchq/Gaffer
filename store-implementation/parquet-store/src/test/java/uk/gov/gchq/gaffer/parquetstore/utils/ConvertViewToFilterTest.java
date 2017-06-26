@@ -44,12 +44,12 @@ public class ConvertViewToFilterTest {
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 getClass().getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
-        this.schemaUtils = new SchemaUtils(optimiser.optimise(schema, true));
+        schemaUtils = new SchemaUtils(optimiser.optimise(schema, true));
     }
 
     @After
     public void cleanUp() {
-        this.schemaUtils = null;
+        schemaUtils = null;
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, this.schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
         final FilterPredicate expected = eq(doubleColumn("property2"), 2.0);
         assertEquals(expected, filter);
     }
@@ -83,7 +83,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, this.schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
         final FilterPredicate expected = and(eq(binaryColumn("property4_raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("property4_cardinality"), 2L));
         assertEquals(expected, filter);
     }
@@ -103,7 +103,7 @@ public class ConvertViewToFilterTest {
                                 .build())
                         .build())
                 .build();
-        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, this.schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
+        final FilterPredicate filter = ParquetFilterUtils.buildGroupFilter(view, schemaUtils, "BasicEntity", DirectedType.EITHER, true).get0();
         final FilterPredicate expected = and(eq(binaryColumn("property8.raw_bytes"), Binary.fromReusedByteArray(hllp.getBytes())), eq(longColumn("property8.cardinality"), 2L));
         assertEquals(expected, filter);
     }

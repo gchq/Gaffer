@@ -55,7 +55,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Before
     public void setup() {
-        this.graph = getGraph();
+        graph = getGraph();
     }
 
     private static Graph getGraph() {
@@ -80,7 +80,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     public void setupSeeds() {
-        this.seedsList = new ArrayList<>(5);
+        seedsList = new ArrayList<>(5);
         seedsList.add(new EntitySeed(5L));
         seedsList.add(new EntitySeed(15L));
         seedsList.add(new EntitySeed(10L));
@@ -90,7 +90,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
 
     @Override
     public void setupView() {
-        this.view = new View.Builder()
+        view = new View.Builder()
                 .edge("BasicEdge",
                     new ViewElementDefinition.Builder()
                         .preAggregationFilter(

@@ -124,7 +124,7 @@ public abstract class AbstractSparkOperationsTest {
 
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
-        Dataset<Row> data = this.graph.execute(new GetDataFrameOfElements.Builder().build(), USER);
+        Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), USER);
         checkGetDataFrameOfElements(data);
     }
 
@@ -137,11 +137,11 @@ public abstract class AbstractSparkOperationsTest {
                         ).build())
                 .build();
         try {
-            this.graph.execute(new GetDataFrameOfElements.Builder().view(view).build(), USER);
+            graph.execute(new GetDataFrameOfElements.Builder().view(view).build(), USER);
             fail();
-        } catch (OperationException e){
+        } catch (final OperationException e) {
             assertEquals("Views are not supported by this operation yet", e.getMessage());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             fail();
         }
     }

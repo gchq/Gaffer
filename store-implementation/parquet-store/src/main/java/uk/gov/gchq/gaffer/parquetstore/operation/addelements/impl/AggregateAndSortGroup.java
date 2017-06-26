@@ -119,13 +119,13 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     public OperationException call() {
         try {
             try (final FileSystem fs = FileSystem.get(new Configuration())) {
-                if (fs.exists(new Path(this.inputDir))) {
-                    LOGGER.info("Aggregating and sorting the data for group {} stored in directory {}", this.group, this.inputDir);
-                    final Dataset<Row> data = this.spark.read().parquet(this.inputDir);
+                if (fs.exists(new Path(inputDir))) {
+                    LOGGER.info("Aggregating and sorting the data for group {} stored in directory {}", group, inputDir);
+                    final Dataset<Row> data = spark.read().parquet(inputDir);
 
                     // Aggregate data
-                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(this.groupByColumns,
-                            this.columnToPaths, this.isEntity, this.propertyToAggregatorMap);
+                    final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths,
+                            isEntity, propertyToAggregatorMap);
                     final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
                             .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
                     LOGGER.debug("The data as a key/value pair ready to aggregate, looks like:");
@@ -142,9 +142,8 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                     if (kv._1().size() == kv._2().size()) {
                         aggregatedDataKV = groupedData;
                     } else {
-                        final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(this.gafferProperties,
-                                this.isEntity, this.groupByColumns,
-                                this.columnToPaths, this.propertyToAggregatorMap, this.gafferGroupObjectConverter);
+                        final AggregateGafferRowsFunction aggregator = new AggregateGafferRowsFunction(gafferProperties,
+                                isEntity, groupByColumns, columnToPaths, propertyToAggregatorMap, gafferGroupObjectConverter);
                         aggregatedDataKV = groupedData.reduceByKey(aggregator);
                     }
                     final JavaRDD<Row> aggregatedData = aggregatedDataKV.values().map(genericRow -> (Row) genericRow).cache();
@@ -153,7 +152,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                     Dataset<Row> sortedData;
                     final String firstSortColumn;
                     final Builder<String, Seq<String>> groupBySeq = Seq$.MODULE$.newBuilder();
-                    final Map<String, String[]> groupPaths = this.columnToPaths;
+                    final Map<String, String[]> groupPaths = columnToPaths;
                     if (isEntity) {
                         final String[] vertexPaths = groupPaths.get(ParquetStoreConstants.VERTEX);
                         firstSortColumn = vertexPaths[0];
@@ -189,7 +188,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                             groupBySeq.$plus$eq(ParquetStoreConstants.DIRECTED);
                         }
                     }
-                    for (final String propName : this.groupByColumns) {
+                    for (final String propName : groupByColumns) {
                         final String[] paths = groupPaths.get(propName);
                         if (paths != null) {
                             for (final String path : paths) {
@@ -200,18 +199,19 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         }
                     }
 
-                    sortedData = this.spark.createDataFrame(aggregatedData, this.sparkSchema)
+                    sortedData = spark
+                            .createDataFrame(aggregatedData, sparkSchema)
                             .sort(firstSortColumn, groupBySeq.result());
 
                     // Write out aggregated and sorted data
                     sortedData
-                            .coalesce(this.filesPerGroup)
+                            .coalesce(filesPerGroup)
                             .write()
                             .option("compression", "gzip")
-                            .parquet(this.outputDir);
+                            .parquet(outputDir);
                 } else {
                     LOGGER.debug("Skipping the sorting and aggregation of group:" + group +
-                            ", due to no data existing in the temporary files directory: " + this.tempFileDir);
+                            ", due to no data existing in the temporary files directory: " + tempFileDir);
                 }
             }
         } catch (final IOException e) {
