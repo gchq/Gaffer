@@ -46,11 +46,19 @@ public class GroupedProperties extends Properties {
 
     @Override
     public boolean equals(final Object obj) {
-        return null != obj
-                && (obj instanceof GroupedProperties)
-                && new EqualsBuilder()
-                .append(group, ((GroupedProperties) obj).getGroup())
-                .appendSuper(super.equals(obj))
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final GroupedProperties properties = (GroupedProperties) obj;
+
+        return new EqualsBuilder()
+                .append(group, properties.getGroup())
+                .appendSuper(super.equals(properties))
                 .isEquals();
     }
 

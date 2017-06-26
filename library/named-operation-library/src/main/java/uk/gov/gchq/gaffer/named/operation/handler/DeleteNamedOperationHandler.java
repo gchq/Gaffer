@@ -27,7 +27,15 @@ import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
  * Operation Handler for DeleteNamedOperation.
  */
 public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamedOperation> {
-    private NamedOperationCache cache = new NamedOperationCache();
+    private final NamedOperationCache cache;
+
+    public DeleteNamedOperationHandler() {
+        this(new NamedOperationCache());
+    }
+
+    public DeleteNamedOperationHandler(final NamedOperationCache cache) {
+        this.cache = cache;
+    }
 
     /**
      * Deletes a NamedOperation from the cache specified in the Operations Declarations file (assuming the user has
@@ -43,21 +51,10 @@ public class DeleteNamedOperationHandler implements OperationHandler<DeleteNamed
     @Override
     public Void doOperation(final DeleteNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
-            if (cache == null) {
-                throw new OperationException("Cache must not be null");
-            }
             cache.deleteNamedOperation(operation.getOperationName(), context.getUser());
         } catch (final CacheOperationFailedException e) {
             throw new OperationException(e.getMessage(), e);
         }
         return null;
-    }
-
-    public NamedOperationCache getCache() {
-        return cache;
-    }
-
-    public void setCache(final NamedOperationCache cache) {
-        this.cache = cache;
     }
 }

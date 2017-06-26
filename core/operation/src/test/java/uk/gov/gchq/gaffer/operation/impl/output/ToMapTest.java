@@ -16,14 +16,17 @@
 
 package uk.gov.gchq.gaffer.operation.impl.output;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
@@ -32,8 +35,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 
-public class ToMapTest implements OperationTest {
+public class ToMapTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return ToMap.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("elementGenerator");
+    }
 
     @Test
     @Override

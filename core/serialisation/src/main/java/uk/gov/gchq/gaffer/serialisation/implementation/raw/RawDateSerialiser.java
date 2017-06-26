@@ -20,11 +20,16 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.util.Date;
 
 /**
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser}.
  * Serialises {@link Date}s to an array of bytes of length 8 by directly converting the underlying long to a
  * byte array. This serialiser preserves ordering, i.e. if date1 is less than date2
  * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
+ *
+ * @deprecated this is unable to preserve object ordering.
+ * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser
  */
+@Deprecated
 public class RawDateSerialiser implements ToBytesSerialiser<Date> {
     private static final long serialVersionUID = -1470994471883677977L;
 

@@ -26,9 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 public class RawIntegerSerialiserTest extends ToByteSerialisationTest<Integer> {
 
-    private RawIntegerSerialiser serialiser
-            = new RawIntegerSerialiser();
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (int i = 0; i < 1000; i++) {
@@ -64,7 +61,6 @@ public class RawIntegerSerialiserTest extends ToByteSerialisationTest<Integer> {
     public void canSerialiseIntegerClass() throws SerialisationException {
         assertTrue(serialiser.canHandle(Integer.class));
     }
-
 
     @Override
     public Serialiser<Integer, byte[]> getSerialisation() {

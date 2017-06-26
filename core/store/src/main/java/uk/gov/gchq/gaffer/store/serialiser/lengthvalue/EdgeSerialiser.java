@@ -16,11 +16,11 @@
 
 package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.BooleanSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -30,6 +30,7 @@ import java.io.IOException;
 public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSerialiser<Edge> {
     private static final long serialVersionUID = 2205438497836765935L;
     private final BooleanSerialiser booleanSerialiser = new BooleanSerialiser();
+    private final StringSerialiser stringSerialiser = new StringSerialiser();
     protected ToBytesSerialiser<Object> vertexSerialiser;
 
     // Required for serialisation
@@ -60,63 +61,34 @@ public class EdgeSerialiser extends PropertiesSerialiser implements ToBytesSeria
 
     @Override
     public byte[] serialise(final Edge edge) throws SerialisationException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = schema.getElement(edge.getGroup());
         if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + edge.getGroup() + ", is this group in your schema or do your table iterators need updating?");
+            throw new SerialisationException("No SchemaElementDefinition found for group " + edge.getGroup() + ", is this group in your schema?");
         }
 
-        try {
-            LengthValueBytesSerialiserUtil.serialise(StringUtil.toBytes(edge.getGroup()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            LengthValueBytesSerialiserUtil.serialise(stringSerialiser, edge.getGroup(), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, edge.getSource(), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, edge.getDestination(), out);
+            LengthValueBytesSerialiserUtil.serialise(booleanSerialiser, edge.isDirected(), out);
+            serialiseProperties(edge.getProperties(), elementDefinition, out);
+            return out.toByteArray();
+        } catch (final IOException e) {
+            throw new SerialisationException("Unable to serialise edge into bytes", e);
         }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edge.getSource()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
-        }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edge.getDestination()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
-        }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(booleanSerialiser.serialise(edge.isDirected()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
-        }
-
-        serialiseProperties(edge.getProperties(), elementDefinition, out);
-        return out.toByteArray();
     }
 
     @Override
     public Edge deserialise(final byte[] bytes) throws SerialisationException {
-        int lastDelimiter = 0;
-
-        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
-
-        final byte[] sourceBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final Object source = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(sourceBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, sourceBytes, lastDelimiter);
-
-        final byte[] destBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final Object dest = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(destBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, destBytes, lastDelimiter);
-
-        final byte[] directedBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final boolean directed = booleanSerialiser.deserialise(directedBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, directedBytes, lastDelimiter);
+        final int[] lastDelimiter = {0};
+        final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
+        final Object source = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
+        final Object dest = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
+        final boolean directed = LengthValueBytesSerialiserUtil.deserialise(booleanSerialiser, bytes, lastDelimiter);
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema?");
         }
 
         final Edge edge = new Edge(group, source, dest, directed);

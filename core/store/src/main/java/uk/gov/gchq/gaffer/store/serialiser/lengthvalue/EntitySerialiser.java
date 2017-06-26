@@ -16,10 +16,10 @@
 
 package uk.gov.gchq.gaffer.store.serialiser.lengthvalue;
 
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -28,6 +28,7 @@ import java.io.IOException;
 
 public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSerialiser<Entity> {
     private static final long serialVersionUID = -2582396256747930962L;
+    private final StringSerialiser stringSerialiser = new StringSerialiser();
     protected ToBytesSerialiser<Object> vertexSerialiser;
 
     // Required for serialisation
@@ -58,44 +59,30 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
 
     @Override
     public byte[] serialise(final Entity entity) throws SerialisationException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final SchemaElementDefinition elementDefinition = schema.getElement(entity.getGroup());
         if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + entity.getGroup() + ", is this group in your schema or do your table iterators need updating?");
+            throw new SerialisationException("No SchemaElementDefinition found for group " + entity.getGroup() + ", is this group in your schema?");
         }
 
-        try {
-            LengthValueBytesSerialiserUtil.serialise(StringUtil.toBytes(entity.getGroup()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            LengthValueBytesSerialiserUtil.serialise(stringSerialiser, entity.getGroup(), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, entity.getVertex(), out);
+            serialiseProperties(entity.getProperties(), elementDefinition, out);
+            return out.toByteArray();
+        } catch (final IOException e) {
+            throw new SerialisationException("Unable to serialise entity into bytes", e);
         }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(entity.getVertex()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise entity vertex to ByteArrayOutputStream", e);
-        }
-
-        serialiseProperties(entity.getProperties(), elementDefinition, out);
-
-        return out.toByteArray();
     }
 
     @Override
     public Entity deserialise(final byte[] bytes) throws SerialisationException {
-        int lastDelimiter = 0;
-
-        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
-
-        final byte[] vertexBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final Object vertex = ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(vertexBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, vertexBytes, lastDelimiter);
+        final int[] lastDelimiter = {0};
+        final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
+        final Object vertex = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema?");
         }
 
         final Entity entity = new Entity(group, vertex);

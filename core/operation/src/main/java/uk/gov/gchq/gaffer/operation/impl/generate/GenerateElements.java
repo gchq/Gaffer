@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.operation.impl.generate;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
@@ -36,6 +37,7 @@ public class GenerateElements<OBJ> implements
         Operation,
         InputOutput<Iterable<? extends OBJ>, Iterable<? extends Element>>,
         MultiInput<OBJ> {
+    @Required
     private Function<Iterable<? extends OBJ>, Iterable<? extends Element>> elementGenerator;
     private Iterable<? extends OBJ> input;
 

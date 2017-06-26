@@ -20,12 +20,16 @@ import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements ToBytesSerialiser<GroupedProperties> {
     private static final long serialVersionUID = 3307260143698122796L;
+    private final StringSerialiser stringSerialiser = new StringSerialiser();
 
     // Required for serialisation
     GroupedPropertiesSerialiser() {
@@ -49,24 +53,33 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
             throw new IllegalArgumentException("Group is required for serialising " + GroupedProperties.class.getSimpleName());
         }
 
-        return serialiseProperties(properties, properties.getGroup());
+        final SchemaElementDefinition elementDefinition = schema.getElement(properties.getGroup());
+        if (null == elementDefinition) {
+            throw new SerialisationException("No SchemaElementDefinition found for group " + properties.getGroup() + ", is this group in your schema?");
+        }
+
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            LengthValueBytesSerialiserUtil.serialise(stringSerialiser, properties.getGroup(), out);
+            serialiseProperties(properties, elementDefinition, out);
+            return out.toByteArray();
+        } catch (final IOException e) {
+            throw new SerialisationException("Unable to serialise entity into bytes", e);
+        }
     }
 
     @Override
     public GroupedProperties deserialise(final byte[] bytes) throws SerialisationException {
-        int lastDelimiter = 0;
+        final int[] lastDelimiter = {0};
 
-        final byte[] groupBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final String group = StringUtil.toString(groupBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, groupBytes, lastDelimiter);
 
+        final String group = LengthValueBytesSerialiserUtil.deserialise(stringSerialiser, bytes, lastDelimiter);
         if (group.isEmpty()) {
             throw new IllegalArgumentException("Group is required for deserialising " + GroupedProperties.class.getSimpleName());
         }
 
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
-            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
+            throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema?");
         }
 
         final GroupedProperties properties = new GroupedProperties(group);

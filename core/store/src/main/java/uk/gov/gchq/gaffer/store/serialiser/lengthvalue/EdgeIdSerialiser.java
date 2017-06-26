@@ -61,44 +61,22 @@ public class EdgeIdSerialiser implements ToBytesSerialiser<EdgeId> {
             return new byte[0];
         }
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edgeId.getSource()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, edgeId.getSource(), out);
+            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, edgeId.getDestination(), out);
+            LengthValueBytesSerialiserUtil.serialise(booleanSerialiser, edgeId.isDirected(), out);
+            return out.toByteArray();
+        } catch (final IOException e) {
+            throw new SerialisationException("Unable to serialise edge id into bytes", e);
         }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(vertexSerialiser.serialise(edgeId.getDestination()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
-        }
-
-        try {
-            LengthValueBytesSerialiserUtil.serialise(booleanSerialiser.serialise(edgeId.isDirected()), out);
-        } catch (IOException e) {
-            throw new SerialisationException("Failed to write serialise edge vertex to ByteArrayOutputStream", e);
-        }
-
-        return out.toByteArray();
     }
 
     @Override
     public EdgeId deserialise(final byte[] bytes) throws SerialisationException {
-        int lastDelimiter = 0;
-
-        final byte[] sourceBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final Object source = (vertexSerialiser).deserialise(sourceBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, sourceBytes, lastDelimiter);
-
-        final byte[] destBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final Object dest = (vertexSerialiser).deserialise(destBytes);
-        lastDelimiter = LengthValueBytesSerialiserUtil.getLastDelimiter(bytes, destBytes, lastDelimiter);
-
-        final byte[] directedBytes = LengthValueBytesSerialiserUtil.deserialise(bytes, lastDelimiter);
-        final boolean directed = booleanSerialiser.deserialise(directedBytes);
-
+        final int[] lastDelimiter = {0};
+        final Object source = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
+        final Object dest = LengthValueBytesSerialiserUtil.deserialise(vertexSerialiser, bytes, lastDelimiter);
+        final boolean directed = LengthValueBytesSerialiserUtil.deserialise(booleanSerialiser, bytes, lastDelimiter);
         return new EdgeSeed(source, dest, directed);
     }
 

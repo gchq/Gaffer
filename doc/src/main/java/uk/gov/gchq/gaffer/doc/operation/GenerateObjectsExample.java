@@ -56,7 +56,7 @@ public class GenerateObjectsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public Iterable<?> generateDomainObjectsFromElements() {
@@ -76,7 +76,7 @@ public class GenerateObjectsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public static class DomainObject1 {

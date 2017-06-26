@@ -43,6 +43,6 @@ public class LimitExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

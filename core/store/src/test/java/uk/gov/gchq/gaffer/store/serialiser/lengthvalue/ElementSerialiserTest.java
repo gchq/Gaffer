@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
-import uk.gov.gchq.gaffer.store.serialiser.lengthvalue.ElementSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -55,7 +54,7 @@ public class ElementSerialiserTest {
     }
 
     @Test
-    public void testCanSeraliseEdgeElement() throws SerialisationException {
+    public void testCanSerialiseEdgeElement() throws SerialisationException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
 
@@ -68,7 +67,7 @@ public class ElementSerialiserTest {
     }
 
     @Test
-    public void testCanSeraliseEntityElement() throws SerialisationException {
+    public void testCanSerialiseEntityElement() throws SerialisationException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY, TEST_VERTEX);
 

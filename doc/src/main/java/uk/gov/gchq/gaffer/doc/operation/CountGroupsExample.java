@@ -44,7 +44,7 @@ public class CountGroupsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public GroupCounts countAllElementGroupsWithLimit() {
@@ -55,6 +55,6 @@ public class CountGroupsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

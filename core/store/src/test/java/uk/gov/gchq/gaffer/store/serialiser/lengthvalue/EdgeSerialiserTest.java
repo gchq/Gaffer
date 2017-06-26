@@ -24,16 +24,16 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import uk.gov.gchq.gaffer.store.serialiser.lengthvalue.EdgeSerialiser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class EdgeSerialiserTest {
 
     private Schema schema;
-    private EdgeSerialiser edgeSerialiser;
+    private EdgeSerialiser serialiser;
 
     @Before
     public void setUp() {
@@ -45,31 +45,31 @@ public class EdgeSerialiserTest {
                 .vertexSerialiser(new StringSerialiser())
                 .edge(TestGroups.EDGE, edgeDef)
                 .build();
-        edgeSerialiser = new EdgeSerialiser(schema);
+        serialiser = new EdgeSerialiser(schema);
     }
 
     @Test
     public void testNullSerialiser() {
         // Given
-        schema = new Schema.Builder()
-                .build();
+        schema = new Schema.Builder().build();
 
         // When / Then
         try {
-            edgeSerialiser = new EdgeSerialiser(schema);
+            serialiser = new EdgeSerialiser(schema);
+            fail("Exception expected");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Vertex serialiser is required"));
         }
     }
 
     @Test
-    public void testCanSeraliseEdge() throws SerialisationException {
+    public void testCanSerialiseEdge() throws SerialisationException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
 
         // When
-        final byte[] serialisedEdge = edgeSerialiser.serialise(edge);
-        final Edge deserialisedEdge = edgeSerialiser.deserialise(serialisedEdge);
+        final byte[] serialisedEdge = serialiser.serialise(edge);
+        final Edge deserialisedEdge = serialiser.deserialise(serialisedEdge);
 
         // Then
         assertEquals(edge, deserialisedEdge);
@@ -77,21 +77,21 @@ public class EdgeSerialiserTest {
 
     @Test
     public void testCantSerialiseIntegerClass() throws SerialisationException {
-        assertFalse(edgeSerialiser.canHandle(Integer.class));
+        assertFalse(serialiser.canHandle(Integer.class));
     }
 
     @Test
     public void testCanSerialiseEdgeClass() throws SerialisationException {
-        assertTrue(edgeSerialiser.canHandle(Edge.class));
+        assertTrue(serialiser.canHandle(Edge.class));
     }
 
     @Test
     public void testDeserialiseEmpty() throws SerialisationException {
-        assertEquals(null, edgeSerialiser.deserialiseEmpty());
+        assertEquals(null, serialiser.deserialiseEmpty());
     }
 
     @Test
     public void testPreserveObjectOrdering() throws SerialisationException {
-        assertEquals(false, edgeSerialiser.preservesObjectOrdering());
+        assertEquals(false, serialiser.preservesObjectOrdering());
     }
 }
