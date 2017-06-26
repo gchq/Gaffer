@@ -78,7 +78,17 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
 
     @Override
     public Set<? extends Object> deserialiseEmpty() throws SerialisationException {
-        return new HashSet();
+        Set set;
+        if (getSetClass() == null) {
+            set = new HashSet<>();
+        } else {
+            try {
+                set = getSetClass().newInstance();
+            } catch (final IllegalAccessException | IllegalArgumentException | SecurityException | InstantiationException e) {
+                throw new SerialisationException("Failed to create map instance" + e.getMessage(), e);
+            }
+        }
+        return set;
     }
 
     @Override

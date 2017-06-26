@@ -103,7 +103,8 @@ public class TypeDefinition {
         return serialiser.getClass().getName();
     }
 
-    @JsonIgnore
+    @Deprecated
+    @JsonSetter("serialiserClass")
     public void setSerialiserClass(final String clazz) {
         if (null == clazz) {
             this.serialiser = null;

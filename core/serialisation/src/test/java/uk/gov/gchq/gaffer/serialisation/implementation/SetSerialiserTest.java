@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Object>> {
@@ -81,7 +82,7 @@ public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Obj
         Set o = s.deserialise(b);
 
         assertEquals(LinkedHashSet.class, o.getClass());
-        assertEquals(6, o.size());
+        assertEquals(5, o.size());
         assertTrue(o.contains(1));
         assertTrue(o.contains(3));
         assertTrue(o.contains(2));
@@ -92,5 +93,11 @@ public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Obj
     @Override
     public Serialiser<Set<? extends Object>, byte[]> getSerialisation() {
         return new SetSerialiser();
+    }
+
+    @Test
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        assertEquals(new HashSet(), serialiser.deserialiseEmpty());
     }
 }
