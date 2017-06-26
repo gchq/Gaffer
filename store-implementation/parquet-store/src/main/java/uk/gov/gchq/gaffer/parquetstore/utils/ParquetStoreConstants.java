@@ -33,7 +33,11 @@ import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
 
 public final class ParquetStoreConstants {
+    public static final String GRAPH = "graph";
     public static final String GROUP = "GROUP";
+    public static final String REVERSE_EDGES = "reverseEdges";
+    public static final String SORTED = "sorted";
+    public static final String INDEX = "_index";
     public static final String VERTEX = IdentifierType.VERTEX.name();
     public static final String SOURCE = IdentifierType.SOURCE.name();
     public static final String DESTINATION = IdentifierType.DESTINATION.name();

@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.parquetstore.utils.WriteUnsortedDataFunction;
 import uk.gov.gchq.gaffer.spark.SparkUser;
@@ -110,10 +111,13 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
         final long snapshot = System.currentTimeMillis();
         final String destPath = rootDataDirString + "/" + snapshot;
         fs.mkdirs(new Path(destPath));
-        fs.rename(new Path(tempDataDirString + "/sorted/graph"), new Path(destPath + "/graph"));
-        final Path tempReversePath = new Path(tempDataDirString + "/sorted/reverseEdges");
+        fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
+                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
+        final Path tempReversePath = new Path(tempDataDirString
+                + "/" + ParquetStoreConstants.SORTED
+                + "/" + ParquetStoreConstants.REVERSE_EDGES);
         if (fs.exists(tempReversePath)) {
-            fs.rename(tempReversePath, new Path(destPath + "/reverseEdges"));
+            fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
         }
         // Set the data dir property
         store.setCurrentSnapshot(snapshot);

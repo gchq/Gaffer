@@ -43,7 +43,8 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
     private final String[] gafferProperties;
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
-    public AggregateGafferRowsFunction(final String[] gafferProperties, final boolean isEntity,
+    public AggregateGafferRowsFunction(final String[] gafferProperties,
+                                       final boolean isEntity,
                                        final Set<String> groupByColumns,
                                        final Map<String, String[]> columnToPaths,
                                        final Map<String, String> propertyToAggregatorMap,

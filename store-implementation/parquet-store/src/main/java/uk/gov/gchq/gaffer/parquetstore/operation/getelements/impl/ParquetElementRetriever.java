@@ -235,7 +235,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
             } catch (final IOException | OperationException e) {
                 throw new NoSuchElementException();
             }
-            if (element instanceof Edge && currentPath.toString().contains("reverseEdges")) {
+            if (element instanceof Edge && currentPath.toString().contains(ParquetStoreConstants.REVERSE_EDGES)) {
                 while (((Edge) element).getSource().equals(((Edge) element).getDestination())) {
                     element = next();
                 }

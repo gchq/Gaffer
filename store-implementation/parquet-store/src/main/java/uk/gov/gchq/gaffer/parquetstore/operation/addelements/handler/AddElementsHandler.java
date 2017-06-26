@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.GenerateIndices;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.WriteUnsortedData;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils;
 import uk.gov.gchq.gaffer.spark.SparkUser;
 import uk.gov.gchq.gaffer.store.Context;
@@ -44,7 +45,6 @@ import java.util.Iterator;
 
 public class AddElementsHandler implements OperationHandler<AddElements> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
-    private static final String GRAPH = "/graph";
 
     @Override
     public Void doOperation(final AddElements operation,
@@ -77,7 +77,13 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
                 LOGGER.warn("Temp data directory '" + tempDirString + "' has been deleted.");
             }
             if (store.getCurrentSnapshot() != 0L) {
-                FileUtil.copy(fs, new Path(dataDirString + GRAPH), fs, new Path(tempDirString + GRAPH), false, false, fs.getConf());
+                FileUtil.copy(fs,
+                        new Path(dataDirString + "/" + ParquetStoreConstants.GRAPH),
+                        fs,
+                        new Path(tempDirString + "/" + ParquetStoreConstants.GRAPH),
+                        false,
+                        false,
+                        fs.getConf());
                 LOGGER.debug("Copying data directory '" + dataDirString + "' has been copied to " + tempDirString);
             }
             // Write the data out
@@ -121,12 +127,15 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         LOGGER.info("Creating directory {}", destPath);
         fs.mkdirs(new Path(destPath));
         LOGGER.info("Renaming {} to {}",
-                new Path(tempDataDirString + "/sorted/graph"),
-                new Path(destPath + "/graph"));
-        fs.rename(new Path(tempDataDirString + "/sorted/graph"), new Path(destPath + "/graph"));
-        final Path tempReversePath = new Path(tempDataDirString + "/sorted/reverseEdges");
+                new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
+                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
+        fs.rename(new Path(tempDataDirString + "/" + ParquetStoreConstants.SORTED + "/" + ParquetStoreConstants.GRAPH),
+                new Path(destPath + "/" + ParquetStoreConstants.GRAPH));
+        final Path tempReversePath = new Path(tempDataDirString
+                + "/" + ParquetStoreConstants.SORTED
+                + "/" + ParquetStoreConstants.REVERSE_EDGES);
         if (fs.exists(tempReversePath)) {
-            fs.rename(tempReversePath, new Path(destPath + "/reverseEdges"));
+            fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
         }
         // Set the data dir property
         LOGGER.info("Setting current snapshot to {}", snapshot);

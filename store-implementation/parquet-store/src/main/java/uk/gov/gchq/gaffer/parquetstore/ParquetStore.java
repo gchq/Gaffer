@@ -232,14 +232,23 @@ public class ParquetStore extends Store {
             final String indexDir;
             final Path path;
             if (ParquetStoreConstants.VERTEX.equals(identifier)) {
-                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + "_index");
+                indexDir = getProperties().getDataDir()
+                        + "/" + currentSnapshot
+                        + "/" + ParquetStoreConstants.GRAPH
+                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
+                path = new Path(indexDir + ParquetStoreConstants.INDEX);
             } else if (ParquetStoreConstants.SOURCE.equals(identifier)) {
-                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + "_index");
+                indexDir = getProperties().getDataDir()
+                        + "/" + currentSnapshot
+                        + "/" + ParquetStoreConstants.GRAPH
+                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
+                path = new Path(indexDir + ParquetStoreConstants.INDEX);
             } else {
-                indexDir = getProperties().getDataDir() + "/" + currentSnapshot + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + "_index");
+                indexDir = getProperties().getDataDir()
+                        + "/" + currentSnapshot
+                        + "/" + ParquetStoreConstants.REVERSE_EDGES
+                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
+                path = new Path(indexDir + ParquetStoreConstants.INDEX);
             }
             LOGGER.info("Loading the index from path {}", path);
             final Index.SubIndex subIndex = new Index.SubIndex();
@@ -269,11 +278,17 @@ public class ParquetStore extends Store {
             return subIndex;
         } catch (final IOException e) {
             if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-                throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
-                        "/" + getCurrentSnapshot() + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group + "/_index", e);
+                throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
+                        + "/" + getCurrentSnapshot()
+                        + "/" + ParquetStoreConstants.REVERSE_EDGES
+                        + "/" + ParquetStoreConstants.GROUP + "=" + group
+                        + "/" + ParquetStoreConstants.INDEX, e);
             } else {
-                throw new StoreException("IO Exception while loading the index from " + getProperties().getDataDir() +
-                        "/" + getCurrentSnapshot() + "/graph/" + ParquetStoreConstants.GROUP + "=" + group + "/_index", e);
+                throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
+                        + "/" + getCurrentSnapshot()
+                        + "/" + ParquetStoreConstants.GRAPH
+                        + "/" + ParquetStoreConstants.GROUP + "=" + group
+                        + "/" + ParquetStoreConstants.INDEX, e);
             }
         }
     }
@@ -318,9 +333,9 @@ public class ParquetStore extends Store {
 
     public static String getGroupDirectory(final String group, final String identifier, final String rootDir) {
         if (ParquetStoreConstants.DESTINATION.equals(identifier)) {
-            return rootDir + "/reverseEdges/" + ParquetStoreConstants.GROUP + "=" + group;
+            return rootDir + "/" + ParquetStoreConstants.REVERSE_EDGES + "/" + ParquetStoreConstants.GROUP + "=" + group;
         } else {
-            return rootDir + "/graph/" + ParquetStoreConstants.GROUP + "=" + group;
+            return rootDir + "/" + ParquetStoreConstants.GRAPH + "/" + ParquetStoreConstants.GROUP + "=" + group;
         }
     }
 }

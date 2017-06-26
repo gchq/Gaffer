@@ -136,7 +136,7 @@ public final class ParquetFilterUtils {
             return new Tuple2<>(new HashMap<>(), false);
         }
         if (pathToFilter.isEmpty()) {
-            pathToFilter.put(new Path(dataDir + "/graph"), null);
+            pathToFilter.put(new Path(dataDir + "/" + ParquetStoreConstants.GRAPH), null);
         }
         return new Tuple2<>(pathToFilter, false);
     }
@@ -169,9 +169,14 @@ public final class ParquetFilterUtils {
                 // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
-                        pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + edgeGroup), groupFilter.get0());
+                        pathToFilter.put(new Path(dataDir
+                                        + "/" + ParquetStoreConstants.GRAPH
+                                        + "/" + ParquetStoreConstants.GROUP + "=" + edgeGroup),
+                                groupFilter.get0());
                     } else {
-                        pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + edgeGroup), null);
+                        pathToFilter.put(new Path(dataDir
+                                + "/" + ParquetStoreConstants.GRAPH
+                                + "/" + ParquetStoreConstants.GROUP + "=" + edgeGroup), null);
                     }
                 } else {
                     if (groupFilter != null && groupFilter.get0() != null) {
@@ -215,9 +220,14 @@ public final class ParquetFilterUtils {
                 // Add filter to map
                 if (tempPathToFilter.isEmpty()) {
                     if (groupFilter != null) {
-                        pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + entityGroup), groupFilter.get0());
+                        pathToFilter.put(new Path(dataDir
+                                        + "/" + ParquetStoreConstants.GRAPH
+                                        + "/" + ParquetStoreConstants.GROUP + "=" + entityGroup),
+                                groupFilter.get0());
                     } else {
-                        pathToFilter.put(new Path(dataDir + "/graph/GROUP=" + entityGroup), null);
+                        pathToFilter.put(new Path(dataDir
+                                + "/" + ParquetStoreConstants.GRAPH
+                                + "/" + ParquetStoreConstants.GROUP + "=" + entityGroup), null);
                     }
                 } else {
                     if (groupFilter != null && groupFilter.get0() != null) {

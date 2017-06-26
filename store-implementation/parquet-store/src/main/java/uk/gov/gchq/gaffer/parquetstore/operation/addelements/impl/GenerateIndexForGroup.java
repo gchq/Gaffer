@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.store.StoreException;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
         try {
             try (final FileSystem fs = FileSystem.get(new Configuration())) {
                 if (fs.exists(new Path(directoryPath))) {
-                    try (final FSDataOutputStream outputFile = fs.create(new Path(directoryPath + "/_index"))) {
+                    try (final FSDataOutputStream outputFile = fs.create(new Path(directoryPath + "/" + ParquetStoreConstants.INDEX))) {
                         final FileStatus[] files = fs.listStatus(new Path(directoryPath),
                                 path1 -> path1.getName().endsWith(".parquet"));
                         int[] colIndex = null;
