@@ -32,10 +32,27 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Utility methods to help with doing aggregation of elements. Aggregation differs
+ * depending on if it ingest or query time aggregation. Ingest aggregation uses
+ * the groupBy properties in a {@link Schema}, whereas query time aggregation first
+ * checks the {@link View} to see if the groupBy properties have been overridden.
+ */
 public final class AggregatorUtil {
     private AggregatorUtil() {
     }
 
+    /**
+     * Applies ingest aggregation to the provided iterable of {@link Element}s.
+     * This uses the groupBy properties in the provided {@link Schema} to group
+     * the elements prior to aggregating them.
+     * <p>
+     * NOTE - this is done in memory so the size of the iterable should be limited.
+     *
+     * @param elements the elements to be aggregated
+     * @param schema   the schema containing the aggregators and groupBy properties to use
+     * @return the aggregated elements.
+     */
     public static CloseableIterable<Element> ingestAggregate(final Iterable<? extends Element> elements, final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
@@ -49,6 +66,18 @@ public final class AggregatorUtil {
         return new ChainedIterable<>(aggregatedElements, nonAggregatedElements);
     }
 
+    /**
+     * Applies query time aggregation to the provided iterable of {@link Element}s.
+     * This uses the groupBy properties in the provided {@link View} or {@link Schema} to group
+     * the elements prior to aggregating them.
+     * <p>
+     * NOTE - this is done in memory so the size of the iterable should be limited.
+     *
+     * @param elements the elements to be aggregated
+     * @param schema   the schema containing the aggregators and groupBy properties to use
+     * @param view     the view containing the aggregators and groupBy properties to use
+     * @return the aggregated elements.
+     */
     public static CloseableIterable<Element> queryAggregate(final Iterable<? extends Element> elements, final Schema schema, final View view) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
@@ -67,8 +96,8 @@ public final class AggregatorUtil {
 
     /**
      * A Function that takes and element as input and outputs an element key that consists of
-     * the Group-by values, the Identifiers and the Group. These act as a key and can be used in a
-     * Collector.
+     * the Group-by values in the {@link Schema}, the Identifiers and the Group. These act as a key and can be used in a
+     * Collector to do ingest aggregation.
      */
     public static class ToIngestElementKey implements Function<Element, Element> {
         private final Schema schema;
@@ -90,6 +119,11 @@ public final class AggregatorUtil {
         }
     }
 
+    /**
+     * A Function that takes and element as input and outputs an element key that consists of
+     * the Group-by values in the {@link View}, the Identifiers and the Group. These act as a key and can be used in a
+     * Collector to do query aggregation.
+     */
     public static class ToQueryElementKey implements Function<Element, Element> {
         private final Schema schema;
         private final View view;
