@@ -22,8 +22,8 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.Filter;
 import org.apache.accumulo.core.iterators.IteratorEnvironment;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
-import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeLoader;
-import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityLoader;
+import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEdgeValueLoader;
+import uk.gov.gchq.gaffer.accumulostore.data.element.AccumuloEntityValueLoader;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.ElementFilterException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -77,9 +77,9 @@ public abstract class AbstractElementFilter extends Filter {
 
         final Element element;
         if (schema.isEntity(group)) {
-            element = new LazyEntity(new Entity(group), new AccumuloEntityLoader(group, key, value, elementConverter, schema));
+            element = new LazyEntity(new Entity(group), new AccumuloEntityValueLoader(group, key, value, elementConverter, schema));
         } else {
-            element = new LazyEdge(new Edge(group), new AccumuloEdgeLoader(group, key, value, elementConverter, schema));
+            element = new LazyEdge(new Edge(group), new AccumuloEdgeValueLoader(group, key, value, elementConverter, schema));
         }
         return elementPredicate.test(element);
     }

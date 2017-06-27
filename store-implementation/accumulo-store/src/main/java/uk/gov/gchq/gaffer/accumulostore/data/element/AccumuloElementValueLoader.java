@@ -23,7 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-public abstract class AccumuloElementLoader implements ElementValueLoader {
+public abstract class AccumuloElementValueLoader implements ElementValueLoader {
     private static final long serialVersionUID = 3874766099103158427L;
 
     protected final AccumuloElementConverter elementConverter;
@@ -35,11 +35,11 @@ public abstract class AccumuloElementLoader implements ElementValueLoader {
 
     private SchemaElementDefinition eDef;
 
-    protected AccumuloElementLoader(final String group,
-                                    final Key key,
-                                    final Value value,
-                                    final AccumuloElementConverter elementConverter,
-                                    final Schema schema) {
+    protected AccumuloElementValueLoader(final String group,
+                                         final Key key,
+                                         final Value value,
+                                         final AccumuloElementConverter elementConverter,
+                                         final Schema schema) {
         this.group = group;
         this.key = key;
         this.value = value;

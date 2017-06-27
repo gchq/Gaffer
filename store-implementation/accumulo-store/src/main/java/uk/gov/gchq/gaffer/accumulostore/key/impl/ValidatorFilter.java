@@ -39,6 +39,6 @@ public class ValidatorFilter extends AbstractElementFilter {
         final Map<String, String> namedOptions = new HashMap<>();
         namedOptions.put(AccumuloStoreConstants.SCHEMA, "A serialised schema");
         return new IteratorOptions(AccumuloStoreConstants.SCHEMA,
-                "Only returns elements that are valid", namedOptions, null);
+                "Only returns elements that are valid against the schema", namedOptions, null);
     }
 }

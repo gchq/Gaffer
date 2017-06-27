@@ -26,14 +26,14 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Collections;
 
-public class AccumuloEdgeLoader extends AccumuloElementLoader {
+public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     private static final long serialVersionUID = 6857884477152298375L;
 
-    public AccumuloEdgeLoader(final String group,
-                              final Key key,
-                              final Value value,
-                              final AccumuloElementConverter elementConverter,
-                              final Schema schema) {
+    public AccumuloEdgeValueLoader(final String group,
+                                   final Key key,
+                                   final Value value,
+                                   final AccumuloElementConverter elementConverter,
+                                   final Schema schema) {
         super(group, key, value, elementConverter, schema);
     }
 

@@ -30,6 +30,6 @@ public class ElementPreAggregationFilter extends AbstractElementFilter {
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
                 .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
+                .setIteratorDescription("Only returns elements that pass pre aggregation validation against the given view").build();
     }
 }

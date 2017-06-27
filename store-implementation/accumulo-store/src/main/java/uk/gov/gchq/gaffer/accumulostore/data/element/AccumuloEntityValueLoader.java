@@ -25,14 +25,14 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Collections;
 
-public class AccumuloEntityLoader extends AccumuloElementLoader {
+public class AccumuloEntityValueLoader extends AccumuloElementValueLoader {
     private static final long serialVersionUID = -2926043462653982497L;
 
-    public AccumuloEntityLoader(final String group,
-                                final Key key,
-                                final Value value,
-                                final AccumuloElementConverter elementConverter,
-                                final Schema schema) {
+    public AccumuloEntityValueLoader(final String group,
+                                     final Key key,
+                                     final Value value,
+                                     final AccumuloElementConverter elementConverter,
+                                     final Schema schema) {
         super(group, key, value, elementConverter, schema);
     }
 
