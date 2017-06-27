@@ -22,10 +22,12 @@ public class TestGroups {
     public static final String ENTITY_3 = "BasicEntity3";
     public static final String ENTITY_4 = "BasicEntity4";
     public static final String ENTITY_5 = "BasicEntity5";
+    public static final String NON_AGG_ENTITY = "NonAggEntity";
 
     public static final String EDGE = "BasicEdge";
     public static final String EDGE_2 = "BasicEdge2";
     public static final String EDGE_3 = "BasicEdge3";
     public static final String EDGE_4 = "BasicEdge4";
     public static final String EDGE_5 = "BasicEdge5";
+    public static final String NON_AGG_EDGE = "NonAggEdge";
 }

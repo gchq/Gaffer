@@ -649,6 +649,7 @@
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
+                    <onlyAnalyze>uk.gov.gchq.gaffer.*</onlyAnalyze>
                 </configuration>
                 <executions>
                     <execution>
@@ -749,23 +750,6 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.plugin.version}</version>
-            </plugin>
         </plugins>
     </reporting>
 
@@ -821,6 +805,7 @@
             <properties>
                 <skip.surefire.tests>true</skip.surefire.tests>
                 <skip.failsafe.tests>true</skip.failsafe.tests>
+                <jacoco.skip>true</jacoco.skip>
             </properties>
         </profile>
         <profile>
