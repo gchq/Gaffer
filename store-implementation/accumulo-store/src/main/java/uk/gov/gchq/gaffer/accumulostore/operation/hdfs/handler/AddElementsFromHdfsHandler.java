@@ -60,8 +60,11 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         validateOperation(operation);
 
         if (null == operation.getSplitsFilePath()) {
-            final String splitsFilePath = "/tmp/" + context.getJobId() + "/splits";
-            LOGGER.info("Using temporary directory for splits files: " + splitsFilePath);
+            if (null == operation.getWorkingPath()) {
+                throw new IllegalArgumentException("splitsFilePath is required");
+            }
+            final String splitsFilePath = getPathWithSlashSuffix(operation.getWorkingPath()) + context.getJobId() + "/splits";
+            LOGGER.info("Using working directory for splits files: " + splitsFilePath);
             operation.setSplitsFilePath(splitsFilePath);
         }
 
@@ -134,9 +137,15 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             throw new IllegalArgumentException("Mapper generator class name was invalid: " + operation.getMapperGeneratorClassName(), e);
         }
 
-        final String outputPath = "/tmp/" + context.getJobId() + "/output";
-        LOGGER.debug("Using temporary directory for split calculations: /tmp/" + context.getJobId());
+        final String workingPath = operation.getWorkingPath();
+        if (null == workingPath) {
+            throw new IllegalArgumentException("Prior to adding the data, the table needs to be split. To do this the workingPath must be set to a temporary directory");
+        }
 
+        String tmpJobWorkingPath = getPathWithSlashSuffix(workingPath);
+        tmpJobWorkingPath = tmpJobWorkingPath + context.getJobId();
+
+        final String tmpSplitsOutputPath = tmpJobWorkingPath + "/sampleSplitsOutput";
         try {
             store._execute(new OperationChain.Builder()
                     .first(new SampleDataForSplitPoints.Builder()
@@ -145,7 +154,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
                             .mapperGenerator(mapperGeneratorClass)
                             .mappers(operation.getNumMapTasks())
                             .validate(operation.isValidate())
-                            .outputPath(outputPath)
+                            .outputPath(tmpSplitsOutputPath)
                             .splitsFilePath(operation.getSplitsFilePath())
                             .options(operation.getOptions())
                             .build())
@@ -158,7 +167,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
             final FileSystem fs;
             try {
                 fs = FileSystem.get(new JobConf(new Configuration()));
-                final Path pathToDelete = new Path("/tmp/" + context.getJobId());
+                final Path pathToDelete = new Path(tmpJobWorkingPath);
                 if (fs.exists(pathToDelete)) {
                     fs.delete(pathToDelete, true);
                 }
@@ -166,6 +175,13 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
                 LOGGER.warn("Unable to delete temporary files used to calculate splits", e);
             }
         }
+    }
+
+    private String getPathWithSlashSuffix(final String path) {
+        if (path.endsWith("/")) {
+            return path;
+        }
+        return path + "/";
     }
 
     private void fetchElements(final AddElementsFromHdfs operation, final AccumuloStore store)

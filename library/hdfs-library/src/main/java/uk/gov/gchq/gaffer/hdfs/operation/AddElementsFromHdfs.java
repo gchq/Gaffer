@@ -46,6 +46,11 @@ public class AddElementsFromHdfs implements
     @Required
     private String failurePath;
 
+    /**
+     * Path to a folder to store temporary files during the add elements operation.
+     */
+    private String workingPath;
+
     private boolean validate = true;
 
     /**
@@ -228,6 +233,14 @@ public class AddElementsFromHdfs implements
         this.partitioner = partitioner;
     }
 
+    public String getWorkingPath() {
+        return workingPath;
+    }
+
+    public void setWorkingPath(final String workingPath) {
+        this.workingPath = workingPath;
+    }
+
     @Override
     public Map<String, String> getOptions() {
         return options;
@@ -257,6 +270,11 @@ public class AddElementsFromHdfs implements
 
         public Builder failurePath(final String failurePath) {
             _getOp().setFailurePath(failurePath);
+            return _self();
+        }
+
+        public Builder workingPath(final String workingPath) {
+            _getOp().setWorkingPath(workingPath);
             return _self();
         }
     }

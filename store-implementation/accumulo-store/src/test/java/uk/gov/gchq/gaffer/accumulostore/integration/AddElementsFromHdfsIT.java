@@ -73,6 +73,7 @@ public class AddElementsFromHdfsIT {
     private String failureDir;
     private String splitsDir;
     private String splitsFile;
+    private String workingDir;
 
     @Before
     public void setup() {
@@ -81,6 +82,7 @@ public class AddElementsFromHdfsIT {
         failureDir = testFolder.getRoot().getAbsolutePath() + "/failureDir";
         splitsDir = testFolder.getRoot().getAbsolutePath() + "/splitsDir";
         splitsFile = splitsDir + "/splits";
+        workingDir = testFolder.getRoot().getAbsolutePath() + "/workingDir";
     }
 
     @Test
@@ -194,6 +196,7 @@ public class AddElementsFromHdfsIT {
                 .jobInitialiser(new TextJobInitialiser())
                 .useProvidedSplits(false)
                 .splitsFilePath(splitsFile)
+                .workingPath(workingDir)
                 .build(), new User());
 
         // Then
