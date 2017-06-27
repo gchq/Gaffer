@@ -377,10 +377,6 @@ public class AggregatorUtilTest {
     public void shouldCreateIngestElementKeyUsingVertex() {
         // given
         final Schema schema = Schema.fromJson(StreamUtil.openStream(getClass(), "/schema/dataSchema.json"));
-
-        // when
-        final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
-
         final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
@@ -391,13 +387,33 @@ public class AggregatorUtilTest {
                         .vertex("vertex2")
                         .build(),
                 new Edge.Builder()
-                        .group(TestGroups.ENTITY)
+                        .group(TestGroups.EDGE)
                         .source("vertex2")
                         .dest("vertex1")
                         .build()
         );
 
+        // when
+        final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
+
         // then
+        assertEquals(new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .build(),
+                fn.apply(input.get(0)));
+        assertEquals(new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex2")
+                        .build(),
+                fn.apply(input.get(1)));
+        assertEquals(new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .build(),
+                fn.apply(input.get(2)));
+
         final Map<Element, List<Element>> results = input.stream().collect(Collectors.groupingBy(fn));
         final Map<Element, List<Element>> expected = new HashMap<>();
         expected.put(input.get(0), Lists.newArrayList(input.get(0)));
@@ -410,8 +426,6 @@ public class AggregatorUtilTest {
     public void shouldCreateIngestElementKeyUsingGroup() {
         // given
         final Schema schema = createSchema();
-
-        // when
         final List<Element> input = Arrays.asList(
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
@@ -423,9 +437,22 @@ public class AggregatorUtilTest {
                         .build()
         );
 
-        final Map<Element, List<Element>> results = input.stream()
-                .collect(Collectors.groupingBy(new AggregatorUtil.ToIngestElementKey(schema)));
+        // when
+        final AggregatorUtil.ToIngestElementKey fn = new AggregatorUtil.ToIngestElementKey(schema);
 
+        // then
+        assertEquals(new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .build(),
+                fn.apply(input.get(0)));
+        assertEquals(new Entity.Builder()
+                        .group(TestGroups.ENTITY_2)
+                        .vertex("vertex1")
+                        .build(),
+                fn.apply(input.get(1)));
+        final Map<Element, List<Element>> results = input.stream()
+                .collect(Collectors.groupingBy(fn));
         assertEquals(2, results.size());
         assertEquals(input.get(0), results.get(input.get(0)).get(0));
         assertEquals(input.get(1), results.get(input.get(1)).get(0));
@@ -527,21 +554,18 @@ public class AggregatorUtilTest {
     public void shouldThrowExceptionWhenCreateIngestElementKeyIfElementBelongsToGroupThatDoesntExistInSchema() {
         // given
         final Schema schema = createSchema();
+        final Element element = new Entity.Builder()
+                .group("Unknown group")
+                .vertex("vertex1")
+                .property("Meaning of life", 42)
+                .build();
 
         // when
-        final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Unknown group")
-                        .vertex("vertex1")
-                        .property("Meaning of life", 42)
-                        .build()
-        );
-
         final Function<Element, Element> fn = new AggregatorUtil.ToIngestElementKey(schema);
 
         // then
         try {
-            final Map<Element, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
+            fn.apply(element);
             fail("Exception expected");
         } catch (RuntimeException e) {
             assertNotNull(e.getMessage());
@@ -552,21 +576,18 @@ public class AggregatorUtilTest {
     public void shouldThrowExceptionWhenCreateQueryElementKeyIfElementBelongsToGroupThatDoesntExistInSchema() {
         // given
         final Schema schema = createSchema();
+        final Element element = new Entity.Builder()
+                .group("Unknown group")
+                .vertex("vertex1")
+                .property("Meaning of life", 42)
+                .build();
 
         // when
-        final List<Element> elements = Lists.newArrayList(
-                new Entity.Builder()
-                        .group("Unknown group")
-                        .vertex("vertex1")
-                        .property("Meaning of life", 42)
-                        .build()
-        );
-
         final Function<Element, Element> fn = new AggregatorUtil.ToQueryElementKey(schema, new View());
 
         // then
         try {
-            final Map<Element, List<Element>> results = elements.stream().collect(Collectors.groupingBy(fn));
+            fn.apply(element);
             fail("Exception expected");
         } catch (RuntimeException e) {
             assertNotNull(e.getMessage());
