@@ -85,20 +85,29 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
 
         if (null != operation.getMaxMapTasks()) {
-            LOGGER.warn("minMaxTasks field will be ignored");
+            LOGGER.warn("maxMapTasks field will be ignored");
         }
     }
 
+    /**
+     * If there are less then 2 split points and more than 1 tablet server
+     * we should calculate new splits.
+     *
+     * @param store the accumulo store
+     * @return true if the table needs splitting
+     * @throws OperationException if calculating the number of splits or the number of tablet servers fails.
+     */
     private boolean needsSplitting(final AccumuloStore store) throws OperationException {
         boolean needsSplitting = false;
 
-        final int numSplits;
+        final boolean lessThan2Splits;
         try {
-            numSplits = store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), Integer.MAX_VALUE).size();
+            lessThan2Splits = store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), 2).size() < 2;
         } catch (TableNotFoundException | AccumuloSecurityException | StoreException | AccumuloException e) {
             throw new OperationException("Unable to get accumulo's split points", e);
         }
-        if (numSplits < 2) {
+
+        if (lessThan2Splits) {
             final int numberTabletServers;
             try {
                 numberTabletServers = store.getTabletServers().size();
