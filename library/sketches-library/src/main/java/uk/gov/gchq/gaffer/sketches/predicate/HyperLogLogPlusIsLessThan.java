@@ -65,7 +65,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
         if (input == null) {
             return false;
         }
-        long cardinality = input.cardinality();
+        final long cardinality = input.cardinality();
         if (orEqualTo) {
             if (cardinality <= controlValue) {
                 return true;

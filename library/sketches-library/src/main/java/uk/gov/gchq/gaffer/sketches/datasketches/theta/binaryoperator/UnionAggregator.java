@@ -24,6 +24,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * and merges that using {@link Union#update(com.yahoo.sketches.theta.Sketch)}.
  */
 public class UnionAggregator extends KorypheBinaryOperator<Union> {
+
     @Override
     protected Union _apply(final Union a, final Union b) {
         a.update(b.getResult());
