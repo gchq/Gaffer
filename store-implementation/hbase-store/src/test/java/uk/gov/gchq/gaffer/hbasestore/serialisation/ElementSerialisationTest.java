@@ -15,6 +15,12 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
@@ -35,14 +41,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Copied and adapted from the AcummuloStore ElementConverterTests
@@ -487,10 +488,10 @@ public class ElementSerialisationTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(HBasePropertyNames.PROP_1, "map")
-                                .property(HBasePropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(HBasePropertyNames.PROP_1, "map")
+                        .property(HBasePropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
@@ -520,5 +521,56 @@ public class ElementSerialisationTest {
 
         // Then 2
         assertEquals(entity.getProperties(), properties);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        // Given
+        Properties properties = new Properties();
+        properties.put(HBasePropertyNames.PROP_1, 60);
+        properties.put(HBasePropertyNames.PROP_2, Integer.MAX_VALUE);
+        properties.put(HBasePropertyNames.PROP_3, 299);
+        properties.put(HBasePropertyNames.PROP_4, Integer.MIN_VALUE);
+        properties.put(HBasePropertyNames.COUNT, 8);
+
+        // When
+        final byte[] value = serialisation.getValue(TestGroups.EDGE, properties);
+
+        // Then
+        assertArrayEquals(String.format("\nFound: \n%s\n", Arrays.toString(value)), new byte[]{1, 60, 5, -116, 127, -1, -1, -1, 3, -114, 1, 43, 5, -124, 127, -1, -1, -1, 1, 8, 0}, value);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricRowKey() throws Exception {
+        // Given
+        final Entity entityMax = new Entity(TestGroups.ENTITY);
+        entityMax.setVertex("3");
+
+        // When
+        final byte[] keyMax = serialisation.getRowKey(entityMax);
+
+        // Then
+        assertArrayEquals(String.format("\nFound: \n%s\n", Arrays.toString(keyMax)), new byte[]{51, 0, 1}, keyMax);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricColumnQualifier() throws Exception {
+        // Given
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
+        final Entity entityMax = new Entity(TestGroups.ENTITY);
+        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, Integer.MAX_VALUE);
+        final Entity entityMin = new Entity(TestGroups.ENTITY);
+        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, Integer.MIN_VALUE);
+
+        // When
+        final byte[] columnQualifier = serialisation.getColumnQualifier(entity);
+        final byte[] columnQualifierMax = serialisation.getColumnQualifier(entityMax);
+        final byte[] columnQualifierMin = serialisation.getColumnQualifier(entityMin);
+
+        // Then
+        assertArrayEquals(String.format("\nFound: \n%s\n", Arrays.toString(columnQualifier)), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 0, 0, 0, -128, 0, 0, 0}, columnQualifier);
+        assertArrayEquals(String.format("\nFound: \n%s\n", Arrays.toString(columnQualifierMax)), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 0, 0, 0, 0}, columnQualifierMax);
+        assertArrayEquals(String.format("\nFound: \n%s\n", Arrays.toString(columnQualifierMin)), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 0, 0, 0, 0}, columnQualifierMin);
     }
 }
