@@ -62,7 +62,7 @@ public class GroupedPropertiesSerialiser extends PropertiesSerialiser implements
             LengthValueBytesSerialiserUtil.serialise(stringSerialiser, properties.getGroup(), out);
             serialiseProperties(properties, elementDefinition, out);
             return out.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise entity into bytes", e);
         }
     }

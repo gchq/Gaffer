@@ -439,7 +439,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
             CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
-        protected ELEMENT_DEF elDef;
+        protected final ELEMENT_DEF elDef;
 
         protected BaseBuilder(final ELEMENT_DEF elementDef) {
             this.elDef = elementDef;

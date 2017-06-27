@@ -58,7 +58,7 @@ public class ExportToGafferResultCacheExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public JobDetail exportAndGetJobDetails() {
@@ -71,7 +71,7 @@ public class ExportToGafferResultCacheExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        jobDetail = runExample(exportOpChain);
+        jobDetail = runExample(exportOpChain, null);
         return jobDetail;
     }
 
@@ -84,7 +84,7 @@ public class ExportToGafferResultCacheExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 
     public Map<String, CloseableIterable<?>> exportMultipleResultsToGafferResultCacheAndGetAllResults() {
@@ -111,6 +111,6 @@ public class ExportToGafferResultCacheExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

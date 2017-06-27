@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation;
+
+package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.ToStringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser;
 
-/**
- * Created on 22/05/2017.
- */
-public class StringToStringSerialiser implements ToStringSerialiser<String> {
+public class StringSerialiser implements ToStringSerialiser<String> {
 
 
     private static final long serialVersionUID = -3000859022586008228L;

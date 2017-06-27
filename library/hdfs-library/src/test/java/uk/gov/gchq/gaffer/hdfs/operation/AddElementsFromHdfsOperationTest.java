@@ -15,22 +15,25 @@
  */
 package uk.gov.gchq.gaffer.hdfs.operation;
 
+import com.google.common.collect.Sets;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-public class AddElementsFromHdfsOperationTest implements OperationTest {
+public class AddElementsFromHdfsOperationTest extends OperationTest {
 
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
@@ -39,6 +42,22 @@ public class AddElementsFromHdfsOperationTest implements OperationTest {
             "  \"outputPath\" : \"TestOutput\",%n" +
             "  \"validate\" : true%n" +
             "}");
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return AddElementsFromHdfs.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet(
+                "failurePath",
+                "mapperGeneratorClassName",
+                "inputPaths",
+                "outputPath",
+                "jobInitialiser"
+        );
+    }
 
     @Test
     @Override

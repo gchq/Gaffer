@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -28,20 +29,19 @@ import uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -56,27 +56,28 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreOperationChainHandler.class);
 
-    private final Map<Class<? extends Operation>, Integer> operationScores = new LinkedHashMap<>();
+    private final LinkedHashMap<Class<? extends Operation>, Integer> operationScores = new LinkedHashMap<>();
     private final Map<String, Integer> authScores = new HashMap<>();
 
-    public ScoreOperationChainHandler() throws OperationException {
+    public ScoreOperationChainHandler() {
         this((String) null, null);
     }
 
     public ScoreOperationChainHandler(final String operationScores, final String authScores) {
-        loadMapsFromProperties(operationScores, authScores);
+        loadMaps(operationScores, authScores);
     }
 
     public ScoreOperationChainHandler(final Path operationScores, final Path authScores) {
-        loadMapsFromProperties(operationScores, authScores);
+        loadMaps(operationScores, authScores);
     }
 
     public ScoreOperationChainHandler(final InputStream operationScorePropertiesStream, final InputStream operationAuthorisationScoreLimitStream) {
-        loadMapsFromProperties(operationScorePropertiesStream, operationAuthorisationScoreLimitStream);
+        loadMaps(operationScorePropertiesStream, operationAuthorisationScoreLimitStream);
     }
 
-    public ScoreOperationChainHandler(final Properties operationScores, final Properties authScores) {
-        loadMapsFromProperties(operationScores, authScores);
+    public ScoreOperationChainHandler(final LinkedHashMap<String, String> operationScoreEntries,
+                                      final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
+        loadMaps(operationScoreEntries, operationAuthorisationScoreLimitEntries);
     }
 
     /**
@@ -93,8 +94,8 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return getChainScore(operation.getOperationChain(), context.getUser());
     }
 
-    public Integer getChainScore(final OperationChain<?> opChain, final User user) {
-        Integer chainScore = 0;
+    public int getChainScore(final OperationChain<?> opChain, final User user) {
+        int chainScore = 0;
 
         if (null != opChain) {
             for (final Operation operation : opChain.getOperations()) {
@@ -113,7 +114,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
      * @param opAuths a set of operation authorisations
      * @return maxUserScore the highest score associated with any of the supplied user auths
      */
-    public Integer getMaxUserAuthScore(final Set<String> opAuths) {
+    public int getMaxUserAuthScore(final Set<String> opAuths) {
         Integer maxUserScore = 0;
         for (final String opAuth : opAuths) {
             Integer authScore = authScores.get(opAuth);
@@ -127,13 +128,12 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return maxUserScore;
     }
 
-    protected Integer authorise(final Operation operation) {
+    protected int authorise(final Operation operation) {
         if (null != operation) {
             final Class<? extends Operation> opClass = operation.getClass();
-            ArrayList<Class<? extends Operation>> keys = new ArrayList<>(operationScores
-                    .keySet());
+            final List<Class<? extends Operation>> keys = new ArrayList<>(operationScores.keySet());
             for (int i = keys.size() - 1; i >= 0; i--) {
-                Class<? extends Operation> key = keys.get(i);
+                final Class<? extends Operation> key = keys.get(i);
                 if (key.isAssignableFrom(opClass)) {
                     return operationScores.get(key);
                 }
@@ -145,7 +145,7 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         return DEFAULT_OPERATION_SCORE;
     }
 
-    private void loadMapsFromProperties(final String operationScores, final String authScores) {
+    private void loadMaps(final String operationScores, final String authScores) {
         String operationScoresFileName = operationScores;
         String authScoresFileName = authScores;
 
@@ -160,25 +160,27 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
         if (authScoresFileName == null || operationScoresFileName == null) {
             throw new IllegalArgumentException("Auth or operation scores file names not found in system properties");
         }
-        loadMapsFromProperties(Paths.get(operationScoresFileName), Paths.get(authScoresFileName));
+        loadMaps(Paths.get(operationScoresFileName), Paths.get(authScoresFileName));
     }
 
-    private void loadMapsFromProperties(final Path operationScores, final Path authScores) {
-        loadMapsFromProperties(readProperties(operationScores), readProperties(authScores));
+    private void loadMaps(final Path operationScores, final Path authScores) {
+        loadMaps(readEntries(operationScores), readEntries(authScores));
     }
 
-    private void loadMapsFromProperties(final InputStream operationScores, final InputStream authScores) {
+    private void loadMaps(final InputStream operationScores, final InputStream authScores) {
         try {
-            loadMapsFromProperties(readProperties(operationScores), readProperties(authScores));
+            loadMaps(readEntries(operationScores), readEntries(authScores));
         } finally {
             CloseableUtil.close(operationScores, authScores);
         }
     }
 
-    private void loadMapsFromProperties(final Properties operationScoreProperties, final Properties operationAuthScoreLimitProperties) {
+    private void loadMaps(final LinkedHashMap<String, String> operationScoreEntries,
+                          final LinkedHashMap<String, String> operationAuthorisationScoreLimitEntries) {
         final Map<Class<? extends Operation>, Integer> opScores = new LinkedHashMap<>();
-        for (final String opClassName : operationScoreProperties.stringPropertyNames()) {
+        for (final Map.Entry<String, String> opScoreEntry : operationScoreEntries.entrySet()) {
             final Class<? extends Operation> opClass;
+            final String opClassName = opScoreEntry.getKey();
             try {
                 opClass = Class.forName(opClassName)
                         .asSubclass(Operation.class);
@@ -186,62 +188,62 @@ public class ScoreOperationChainHandler implements OutputOperationHandler<ScoreO
                 LOGGER.error("An operation class could not be found for operation score property {}", opClassName, e);
                 throw new IllegalArgumentException(e);
             }
-            final Integer score = Integer.parseInt(operationScoreProperties.getProperty(opClassName));
-            opScores.put(opClass, score);
+            opScores.put(opClass, Integer.parseInt(opScoreEntry.getValue()));
         }
         operationScores.clear();
-        operationScores.putAll(sortByValue(opScores));
+        operationScores.putAll(opScores);
+
         Map<String, Integer> authScores = new HashMap<>();
-        for (final String authName : operationAuthScoreLimitProperties
-                .stringPropertyNames()) {
-            final Integer score = Integer.parseInt(operationAuthScoreLimitProperties
-                    .getProperty(authName));
-            authScores.put(authName, score);
+        for (final Map.Entry<String, String> authScoreEntry : operationAuthorisationScoreLimitEntries.entrySet()) {
+            authScores.put(authScoreEntry.getKey(), Integer.parseInt(authScoreEntry.getValue()));
         }
         this.authScores.clear();
         this.authScores.putAll(authScores);
     }
 
-
-    private static Properties readProperties(final Path propFileLocation) {
-        final Properties props;
+    private static LinkedHashMap<String, String> readEntries(final Path propFileLocation) {
+        final LinkedHashMap<String, String> map;
         if (null != propFileLocation) {
             try {
-                props = readProperties(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
+                map = readEntries(Files.newInputStream(propFileLocation, StandardOpenOption.READ));
             } catch (final IOException e) {
                 throw new IllegalArgumentException(e);
             }
         } else {
-            props = new Properties();
+            map = new LinkedHashMap<>(0);
         }
 
-        return props;
+        return map;
     }
 
-    private static Properties readProperties(final InputStream stream) {
-        final Properties props = new Properties();
+    private static LinkedHashMap<String, String> readEntries(final InputStream stream) {
+        final LinkedHashMap<String, String> map = new LinkedHashMap<>();
+
         if (null != stream) {
             try {
-                props.load(stream);
+                BufferedReader in = new BufferedReader(new InputStreamReader(stream, CommonConstants.UTF_8));
+
+                String line;
+                while ((line = in.readLine()) != null) {
+                    line = line.trim();
+
+                    if (!line.startsWith("#")) {
+                        String[] bits = line.split("=");
+                        if (bits.length == 2) {
+                            map.put(bits[0], bits[1]);
+                        } else if (bits.length != 0) {
+                            throw new IllegalArgumentException("Failed to load opScores file : invalid line:%n" + line);
+                        }
+                    }
+                }
             } catch (final IOException e) {
-                throw new IllegalArgumentException("Failed to load store properties file : " + e
+                throw new IllegalArgumentException("Failed to load opScores file : " + e
                         .getMessage(), e);
             } finally {
                 CloseableUtil.close(stream);
             }
         }
-        return props;
-    }
-
-    private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(final Map<K, V> map) {
-        final List<Map.Entry<K, V>> list = new LinkedList<>(map.entrySet());
-        list.sort(Comparator.comparing(Map.Entry::getValue));
-
-        final Map<K, V> result = new LinkedHashMap<>();
-        for (final Map.Entry<K, V> entry : list) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
+        return map;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
