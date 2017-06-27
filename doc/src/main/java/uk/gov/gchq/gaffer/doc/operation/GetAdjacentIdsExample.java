@@ -48,7 +48,7 @@ public class GetAdjacentIdsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<? extends EntityId> getAdjacentIdsAlongOutboundEdgesFromVertex2() {
@@ -59,7 +59,7 @@ public class GetAdjacentIdsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<? extends EntityId> getAdjacentIdsAlongOutboundEdgesFromVertex2WithCountGreaterThan1() {
@@ -84,6 +84,6 @@ public class GetAdjacentIdsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 }

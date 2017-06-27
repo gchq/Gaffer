@@ -88,12 +88,12 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
          * @param group            the element group
          * @param elementConverter the elementConverter to use
          * @param schema           the schema
-         * @param view             the view
+         * @param groupBy          the groupBy properties
          */
         public KeyValueIterator(final SortedKeyValueIterator<Key, Value> source,
                                 final String group, final AccumuloElementConverter elementConverter,
                                 final Schema schema,
-                                final View view) {
+                                final Set<String> groupBy) {
             this.source = source;
             this.group = group;
             this.elementConverter = elementConverter;
@@ -107,7 +107,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                     unsafeRef.isDeleted(), true);
 
             schemaGroupBy = schema.getElement(this.group).getGroupBy();
-            groupBy = view.getElementGroupBy(this.group);
+            this.groupBy = groupBy;
             hasNext = _hasNext();
         }
 
@@ -263,21 +263,14 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 throw new RuntimeException(e);
             }
 
-            final Iterator<Properties> iter = new KeyValueIterator(
-                    getSource(), group, elementConverter, schema, view);
-            final Properties aggregatedProperties = reduce(group, workKey, iter);
-
-            // Remove any group by properties from the aggregated properties
-            // as they should be held constant.
-            final Set<String> groupBy = view.getElementGroupBy(group);
+            Set<String> groupBy = view.getElementGroupBy(group);
             if (null == groupBy) {
-                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
-                if (null != schemaGroupBy) {
-                    aggregatedProperties.remove(schemaGroupBy);
-                }
-            } else {
-                aggregatedProperties.remove(groupBy);
+                groupBy = schema.getElement(group).getGroupBy();
             }
+
+            final Iterator<Properties> iter = new KeyValueIterator(
+                    getSource(), group, elementConverter, schema, groupBy);
+            final Properties aggregatedProperties = reduce(group, workKey, iter, groupBy);
 
             try {
                 final Properties properties = elementConverter.getPropertiesFromColumnQualifier(group, workKey.getColumnQualifierData().getBackingArray());
@@ -325,12 +318,13 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
     /**
      * Reduces an iterator of {@link Properties} into a single Properties object.
      *
-     * @param group the schema group taken from the key
-     * @param key   The most recent version of the Key being reduced.
-     * @param iter  An iterator over all {@link Properties} for different versions of the key.
+     * @param group   the schema group taken from the key
+     * @param key     The most recent version of the Key being reduced.
+     * @param iter    An iterator over all {@link Properties} for different versions of the key.
+     * @param groupBy the groupBy properties
      * @return The combined {@link Properties}.
      */
-    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter);
+    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy);
 
     @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {

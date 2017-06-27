@@ -15,42 +15,36 @@
  */
 package uk.gov.gchq.gaffer.sketches.serialisation;
 
-import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class HyperLogLogPlusSerialiserTest {
-    private static final HyperLogLogPlusSerialiser HYPER_LOG_LOG_PLUS_SERIALISER = new HyperLogLogPlusSerialiser();
+import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+public class HyperLogLogPlusSerialiserTest extends ViaCalculatedValueSerialiserTest<HyperLogLogPlus, Long> {
+
+    @Override
+    protected HyperLogLogPlus getEmptyExampleOutput() {
+        return new HyperLogLogPlus.Builder(5, 5).build();
+    }
+
+    @Override
+    protected HyperLogLogPlus getExampleOutput() {
         final HyperLogLogPlus hyperLogLogPlus1 = new HyperLogLogPlus(5, 5);
         hyperLogLogPlus1.offer("A");
         hyperLogLogPlus1.offer("B");
+        return hyperLogLogPlus1;
+    }
 
-        long hyperLogLogPlus1PreSerialisationCardinality = hyperLogLogPlus1.cardinality();
-        final byte[] hyperLogLogPlus1Serialised;
-        try {
-            hyperLogLogPlus1Serialised = HYPER_LOG_LOG_PLUS_SERIALISER.serialise(hyperLogLogPlus1);
-        } catch (final SerialisationException exception) {
-            fail("A Serialisation Exception Occurred");
-            return;
-        }
-
-        final HyperLogLogPlus hyperLogLogPlus1Deserialised;
-        try {
-            hyperLogLogPlus1Deserialised = HYPER_LOG_LOG_PLUS_SERIALISER.deserialise(hyperLogLogPlus1Serialised);
-        } catch (final SerialisationException exception) {
-            fail("A Serialisation Exception Occurred");
-            return;
-        }
-        assertEquals(hyperLogLogPlus1PreSerialisationCardinality, hyperLogLogPlus1Deserialised.cardinality());
+    @Override
+    protected Long getTestValue(final HyperLogLogPlus object) {
+        return object.cardinality();
     }
 
     @Test
@@ -59,14 +53,14 @@ public class HyperLogLogPlusSerialiserTest {
         long preSerialisationCardinality = hyperLogLogPlus.cardinality();
         byte[] hyperLogLogPlusSerialised;
         try {
-            hyperLogLogPlusSerialised = HYPER_LOG_LOG_PLUS_SERIALISER.serialise(hyperLogLogPlus);
+            hyperLogLogPlusSerialised = serialiser.serialise(hyperLogLogPlus);
         } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
         }
         HyperLogLogPlus hyperLogLogPlusDeserialised;
         try {
-            hyperLogLogPlusDeserialised = HYPER_LOG_LOG_PLUS_SERIALISER.deserialise(hyperLogLogPlusSerialised);
+            hyperLogLogPlusDeserialised = serialiser.deserialise(hyperLogLogPlusSerialised);
         } catch (final SerialisationException exception) {
             fail("A Serialisation Exception Occurred");
             return;
@@ -77,7 +71,7 @@ public class HyperLogLogPlusSerialiserTest {
     @Test
     public void testSerialiseNullReturnsEmptyBytes() {
         // Given
-        final byte[] hyperLogLogPlusSerialised = HYPER_LOG_LOG_PLUS_SERIALISER.serialiseNull();
+        final byte[] hyperLogLogPlusSerialised = serialiser.serialiseNull();
 
         // Then
         assertArrayEquals(new byte[0], hyperLogLogPlusSerialised);
@@ -86,7 +80,7 @@ public class HyperLogLogPlusSerialiserTest {
     @Test
     public void testDeserialiseEmptyBytesReturnsNull() throws SerialisationException {
         // Given
-        final HyperLogLogPlus hllp = HYPER_LOG_LOG_PLUS_SERIALISER.deserialiseEmpty();
+        final HyperLogLogPlus hllp = serialiser.deserialiseEmpty();
 
         // Then
         assertNull(hllp);
@@ -94,6 +88,18 @@ public class HyperLogLogPlusSerialiserTest {
 
     @Test
     public void testCanHandleHyperLogLogPlus() {
-        assertTrue(HYPER_LOG_LOG_PLUS_SERIALISER.canHandle(HyperLogLogPlus.class));
+        assertTrue(serialiser.canHandle(HyperLogLogPlus.class));
+    }
+
+    @Override
+    public Serialiser<HyperLogLogPlus, byte[]> getSerialisation() {
+        return new HyperLogLogPlusSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<HyperLogLogPlus, byte[]>[] getHistoricSerialisationPairs() {
+        HyperLogLogPlus hyperLogLogPlus = getExampleOutput();
+        return new Pair[]{new Pair(hyperLogLogPlus, new byte[]{-1, -1, -1, -2, 5, 5, 1, 2, -3, 6, -128, 11})};
+
     }
 }

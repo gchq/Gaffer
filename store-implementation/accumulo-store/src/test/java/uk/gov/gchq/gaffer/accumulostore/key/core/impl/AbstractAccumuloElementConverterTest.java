@@ -51,7 +51,7 @@ import java.util.Map;
 
 public abstract class AbstractAccumuloElementConverterTest {
 
-    private AccumuloElementConverter converter;
+    protected AccumuloElementConverter converter;
 
     @Before
     public void setUp() throws SchemaException, IOException {
@@ -507,10 +507,10 @@ public abstract class AbstractAccumuloElementConverterTest {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(TestPropertyNames.PROP_1, "map")
-                                .property(TestPropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "map")
+                        .property(TestPropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()

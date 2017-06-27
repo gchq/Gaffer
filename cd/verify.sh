@@ -4,6 +4,10 @@ if [ "$MODULES" == '' ]; then
     if [ "$PROFILE" == '' ]; then
         echo "Running verify script: mvn -q verify -P travis -B"
         mvn -q verify -P travis -B
+    elif [ "$PROFILE" == 'analyze' ]; then
+        # Don't run in quiet mode
+        echo "Running verify script: mvn verify -P travis -B -P analyze"
+        mvn verify -P travis -B -P analyze
     else
         echo "Running verify script: mvn -q verify -P travis -B -P $PROFILE"
         mvn -q verify -P travis -B -P $PROFILE
