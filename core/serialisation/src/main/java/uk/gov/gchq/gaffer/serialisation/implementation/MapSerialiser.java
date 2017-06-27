@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.LengthValueUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
 
     @Override
     public byte[] serialise(final Map<? extends Object, ? extends Object> object) throws SerialisationException {
-        LengthValueUtil.LengthValueBuilder builder = new LengthValueUtil.LengthValueBuilder();
+        LengthValueBytesSerialiserUtil.LengthValueBuilder builder = new LengthValueBytesSerialiserUtil.LengthValueBuilder();
         try {
             for (final Map.Entry entry : object.entrySet()) {
                 builder.appendLengthValueFromObjectToByteStream(getKeySerialiser(), entry.getKey());
@@ -67,8 +67,8 @@ public class MapSerialiser implements ToBytesSerialiser<Map<? extends Object, ? 
         final int arrayLength = bytes.length;
         int carriage = 0;
         while (carriage < arrayLength) {
-            LengthValueUtil.ObjectCarriage c = LengthValueUtil.deserialiseNextObject(getKeySerialiser(), carriage, bytes);
-            LengthValueUtil.ObjectCarriage c2 = LengthValueUtil.deserialiseNextObject(getValueSerialiser(), c.getCarriage(), bytes);
+            LengthValueBytesSerialiserUtil.ObjectCarriage c = LengthValueBytesSerialiserUtil.deserialiseNextObject(getKeySerialiser(), carriage, bytes);
+            LengthValueBytesSerialiserUtil.ObjectCarriage c2 = LengthValueBytesSerialiserUtil.deserialiseNextObject(getValueSerialiser(), c.getCarriage(), bytes);
             map.put(c.getObject(), c2.getObject());
             carriage = c2.getCarriage();
         }

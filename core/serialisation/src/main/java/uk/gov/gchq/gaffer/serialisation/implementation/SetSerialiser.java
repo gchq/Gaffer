@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.util.LengthValueUtil;
+import uk.gov.gchq.gaffer.serialisation.util.LengthValueBytesSerialiserUtil;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
 
     @Override
     public byte[] serialise(final Set<? extends Object> object) throws SerialisationException {
-        LengthValueUtil.LengthValueBuilder builder = new LengthValueUtil.LengthValueBuilder();
+        LengthValueBytesSerialiserUtil.LengthValueBuilder builder = new LengthValueBytesSerialiserUtil.LengthValueBuilder();
         try {
             for (final Object entry : object) {
                 builder.appendLengthValueFromObjectToByteStream(getObjectSerialiser(), entry);
@@ -68,7 +68,7 @@ public class SetSerialiser implements ToBytesSerialiser<Set<? extends Object>> {
         final int arrayLength = bytes.length;
         int carriage = 0;
         while (carriage < arrayLength) {
-            LengthValueUtil.ObjectCarriage c = LengthValueUtil.deserialiseNextObject(getObjectSerialiser(), carriage, bytes);
+            LengthValueBytesSerialiserUtil.ObjectCarriage c = LengthValueBytesSerialiserUtil.deserialiseNextObject(getObjectSerialiser(), carriage, bytes);
             set.add(c.getObject());
             carriage = c.getCarriage();
         }
