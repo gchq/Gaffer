@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class HllUnionAggregatorTest extends BinaryOperatorTest {
-    private static final double DELTA = 0.0000001;
+    private static final double DELTA = 0.0000001D;
     private Union sketch1;
     private Union sketch2;
 
