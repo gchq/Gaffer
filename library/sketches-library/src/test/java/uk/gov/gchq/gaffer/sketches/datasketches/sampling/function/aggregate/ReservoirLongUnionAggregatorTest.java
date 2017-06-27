@@ -39,12 +39,12 @@ public class ReservoirLongUnionAggregatorTest extends BinaryOperatorTest {
 
     @Before
     public void setup() {
-        union1 = ReservoirLongsUnion.getInstance(20);
+        union1 = ReservoirLongsUnion.newInstance(20);
         union1.update(1L);
         union1.update(2L);
         union1.update(3L);
 
-        union2 = ReservoirLongsUnion.getInstance(20);
+        union2 = ReservoirLongsUnion.newInstance(20);
         for (long l = 4L; l < 100; l++) {
             union2.update(l);
         }

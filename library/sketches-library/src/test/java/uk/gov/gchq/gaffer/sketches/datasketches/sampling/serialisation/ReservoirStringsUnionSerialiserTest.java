@@ -30,13 +30,13 @@ public class ReservoirStringsUnionSerialiserTest {
 
     @Test
     public void testSerialiseAndDeserialise() {
-        final ReservoirItemsUnion<String> union = ReservoirItemsUnion.getInstance(20);
+        final ReservoirItemsUnion<String> union = ReservoirItemsUnion.newInstance(20);
         union.update("1");
         union.update("2");
         union.update("3");
         testSerialiser(union);
 
-        final ReservoirItemsUnion<String> emptyUnion = ReservoirItemsUnion.getInstance(20);
+        final ReservoirItemsUnion<String> emptyUnion = ReservoirItemsUnion.newInstance(20);
         testSerialiser(emptyUnion);
     }
 

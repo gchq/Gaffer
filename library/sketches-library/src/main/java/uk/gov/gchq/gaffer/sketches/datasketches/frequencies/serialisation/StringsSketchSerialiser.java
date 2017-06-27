@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -41,7 +41,7 @@ public class StringsSketchSerialiser implements ToBytesSerialiser<ItemsSketch<St
 
     @Override
     public ItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-        return ItemsSketch.getInstance(new NativeMemory(bytes), SERIALISER);
+        return ItemsSketch.getInstance(WritableMemory.wrap(bytes), SERIALISER);
     }
 
     @Override
