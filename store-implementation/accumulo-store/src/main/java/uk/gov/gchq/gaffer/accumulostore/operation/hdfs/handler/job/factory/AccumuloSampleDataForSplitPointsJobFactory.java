@@ -15,29 +15,34 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.compress.GzipCodec;
+import org.apache.hadoop.io.compress.zlib.ZlibFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
+import org.apache.hadoop.util.NativeCodeLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.SampleDataForSplitPointsMapper;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
 
-public class SampleDataForSplitPointsJobFactory {
-
-    public static final String PROPORTION_TO_SAMPLE = "proportion_to_sample";
-    public static final String SCHEMA = "schema";
-    public static final String MAPPER_GENERATOR = "mapperGenerator";
-    public static final String VALIDATE = "validate";
+public class AccumuloSampleDataForSplitPointsJobFactory implements SampleDataForSplitPointsJobFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSampleDataForSplitPointsJobFactory.class);
 
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
@@ -48,9 +53,9 @@ public class SampleDataForSplitPointsJobFactory {
      * @return the created job
      * @throws IOException for IO issues
      */
+    @Override
     public Job createJob(final SampleDataForSplitPoints operation, final Store store) throws IOException {
         final JobConf jobConf = createJobConf(operation, store);
-        setupJobConf(jobConf, operation, store);
 
         final Job job = Job.getInstance(jobConf);
         setupJob(job, operation, store);
@@ -63,56 +68,94 @@ public class SampleDataForSplitPointsJobFactory {
         return job;
     }
 
-    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final Store store) throws IOException {
-        return new JobConf(new Configuration());
+    @Override
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "key should always be an instance of Key")
+    public byte[] createSplit(final Writable key, final Writable value) {
+        return ((Key) key).getRow().getBytes();
     }
 
-    protected void setupJobConf(final JobConf jobConf, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    @Override
+    public Writable createKey() {
+        return new Key();
+    }
+
+    @Override
+    public Writable createValue() {
+        return new Value();
+    }
+
+    @Override
+    public int getExpectedNumberOfSplits(final Store store) {
+        final AccumuloStore accumuloStore = (AccumuloStore) store;
+
+        int numberTabletServers;
+        try {
+            numberTabletServers = accumuloStore.getTabletServers().size();
+            LOGGER.info("Number of tablet servers is {}", numberTabletServers);
+        } catch (final StoreException e) {
+            LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        return numberTabletServers - 1;
+    }
+
+    protected JobConf createJobConf(final SampleDataForSplitPoints operation, final Store store) throws IOException {
+        final JobConf jobConf = new JobConf(new Configuration());
         jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
         jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
         jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
         jobConf.set(PROPORTION_TO_SAMPLE, String.valueOf(operation.getProportionToSample()));
-        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
-                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
-        Integer numTasks = operation.getNumMapTasks();
+        final Integer numTasks = operation.getNumMapTasks();
         if (null != numTasks) {
             jobConf.setNumMapTasks(numTasks);
         }
         jobConf.setNumReduceTasks(1);
+
+        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+
+        return jobConf;
     }
 
     protected void setupJob(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setJarByClass(getClass());
         job.setJobName(getJobName(operation.getMapperGeneratorClassName(), new Path(operation.getOutputPath())));
-        setupMapper(job, operation, store);
-        setupReducer(job, operation, store);
+
+        setupMapper(job);
+        setupReducer(job);
+
         setupOutput(job, operation, store);
     }
 
     protected String getJobName(final String mapperGenerator, final Path outputPath) {
-        return "Split Table: Generator=" + mapperGenerator + ", output=" + outputPath;
+        return "Sample Data: Generator=" + mapperGenerator + ", output=" + outputPath;
     }
 
-    private void setupMapper(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    protected void setupMapper(final Job job) throws IOException {
         job.setMapperClass(SampleDataForSplitPointsMapper.class);
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupReducer(final Job job, final SampleDataForSplitPoints operation, final Store store)
+    protected void setupReducer(final Job job)
             throws IOException {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
     }
 
-    private void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
+    protected void setupOutput(final Job job, final SampleDataForSplitPoints operation, final Store store) throws IOException {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
         if (null != operation.getCompressionCodec()) {
-            SequenceFileOutputFormat.setCompressOutput(job, true);
-            SequenceFileOutputFormat.setOutputCompressorClass(job, operation.getCompressionCodec());
-            SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+            if (GzipCodec.class.isAssignableFrom(operation.getCompressionCodec()) && !NativeCodeLoader.isNativeCodeLoaded() && !ZlibFactory.isNativeZlibLoaded(job.getConfiguration())) {
+                LOGGER.warn("SequenceFile doesn't work with GzipCodec without native-hadoop code!");
+            } else {
+                SequenceFileOutputFormat.setCompressOutput(job, true);
+                SequenceFileOutputFormat.setOutputCompressorClass(job, operation.getCompressionCodec());
+                SequenceFileOutputFormat.setOutputCompressionType(job, SequenceFile.CompressionType.BLOCK);
+            }
         }
     }
 }

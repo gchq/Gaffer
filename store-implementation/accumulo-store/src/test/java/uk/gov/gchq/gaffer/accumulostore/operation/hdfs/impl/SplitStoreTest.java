@@ -3,16 +3,16 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class SplitTableTest extends OperationTest {
+public class SplitStoreTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     private static final String INPUT_DIRECTORY = "/input";
@@ -20,7 +20,7 @@ public class SplitTableTest extends OperationTest {
 
     @Override
     protected Class<? extends Operation> getOperationClass() {
-        return SplitTable.class;
+        return SplitStore.class;
     }
 
     @Override
@@ -32,13 +32,13 @@ public class SplitTableTest extends OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final SplitTable op = new SplitTable();
+        final SplitStore op = new SplitStore();
         op.setInputPath(INPUT_DIRECTORY);
 
         // When
         byte[] json = serialiser.serialise(op, true);
 
-        final SplitTable deserialisedOp = serialiser.deserialise(json, SplitTable.class);
+        final SplitStore deserialisedOp = serialiser.deserialise(json, SplitStore.class);
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPath());
@@ -48,7 +48,7 @@ public class SplitTableTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final SplitTable splitTable = new SplitTable.Builder().inputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
+        final SplitStore splitTable = new SplitStore.Builder().inputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").build();
         assertEquals(INPUT_DIRECTORY, splitTable.getInputPath());
         assertEquals("true", splitTable.getOption(TEST_OPTION_KEY));
     }

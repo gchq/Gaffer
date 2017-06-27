@@ -20,16 +20,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.store.ElementValidator;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.MAPPER_GENERATOR;
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.SCHEMA;
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory.VALIDATE;
 
 /**
- * An <code>AbstractAddElementsFromHdfsMapper</code> is a {@link Mapper} that uses a
+ * An <code>GafferMapper</code> is a {@link Mapper} that uses a
  * {@link MapperGenerator} to map the input data into
  * {@link Element}s and then delegates the elements to an abstract map method to serialise them
  * and add them to the job map context.
@@ -39,26 +41,24 @@ import java.io.UnsupportedEncodingException;
  * @param <KEY_OUT>   type of output key
  * @param <VALUE_OUT> type of output value
  */
-public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends Mapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAddElementsFromHdfsMapper.class);
+public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends Mapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GafferMapper.class);
     private MapperGenerator<KEY_IN, VALUE_IN> mapperGenerator;
-
     private boolean doValidation;
-
     private ElementValidator elementValidator;
     protected Schema schema;
 
     @Override
     protected void setup(final Context context) {
-        doValidation = Boolean.parseBoolean(context.getConfiguration().get(AddElementsFromHdfsJobFactory.VALIDATE));
+        doValidation = Boolean.parseBoolean(context.getConfiguration().get(VALIDATE));
         try {
-            schema = Schema.fromJson(context.getConfiguration().get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+            schema = Schema.fromJson(context.getConfiguration().get(SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         elementValidator = new ElementValidator(schema);
 
-        final String generatorClass = context.getConfiguration().get(AddElementsFromHdfsJobFactory.MAPPER_GENERATOR);
+        final String generatorClass = context.getConfiguration().get(MAPPER_GENERATOR);
         try {
             mapperGenerator = Class.forName(generatorClass).asSubclass(MapperGenerator.class).newInstance();
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -81,7 +81,6 @@ public abstract class AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, KEY_OU
     protected boolean isValid(final Element element) {
         return elementValidator.validateWithSchema(element);
     }
-
 
     protected abstract void map(final Element element, final Context context) throws IOException, InterruptedException;
 }
