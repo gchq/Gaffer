@@ -124,10 +124,11 @@ uk.gov.gchq.gaffer.rest.mapper
 uk.gov.gchq.gaffer.rest.serialisation
 uk.gov.gchq.gaffer.rest.service
 uk.gov.gchq.gaffer.serialisation
-uk.gov.gchq.gaffer.serialisation.ToStringSerialiser
-uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation
 uk.gov.gchq.gaffer.serialisation.implementation
+uk.gov.gchq.gaffer.serialisation.implementation.ordered
 uk.gov.gchq.gaffer.serialisation.implementation.raw
+uk.gov.gchq.gaffer.serialisation.implementation.tostring
+uk.gov.gchq.gaffer.serialisation.util
 uk.gov.gchq.gaffer.sketches.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation
@@ -173,6 +174,11 @@ uk.gov.gchq.gaffer.store.operation.handler.output
 uk.gov.gchq.gaffer.store.operationdeclaration
 uk.gov.gchq.gaffer.store.optimiser
 uk.gov.gchq.gaffer.store.schema
+uk.gov.gchq.gaffer.store.serialiser.lengthvalue
+uk.gov.gchq.gaffer.store.util
+uk.gov.gchq.gaffer.time
+uk.gov.gchq.gaffer.time.binaryoperator
+uk.gov.gchq.gaffer.time.serialisation
 uk.gov.gchq.gaffer.traffic
 uk.gov.gchq.gaffer.traffic.generator
 uk.gov.gchq.gaffer.traffic.listeners
