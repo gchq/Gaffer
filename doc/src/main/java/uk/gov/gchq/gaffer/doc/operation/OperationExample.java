@@ -62,10 +62,10 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
-    protected void showJavaExample(final Operation operation, final String description) {
+    protected void showJavaExample(final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         if (StringUtils.isNotBlank(description)) {
-            log(description);
+            log(description + "\n");
         }
         printMethodJavaSnippet();
 

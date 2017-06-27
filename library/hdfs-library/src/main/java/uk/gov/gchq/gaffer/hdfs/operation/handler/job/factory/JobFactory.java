@@ -16,13 +16,16 @@
 package uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory;
 
 import org.apache.hadoop.mapreduce.Job;
-import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.Store;
-import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
 
 
-public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFromHdfs> {
+public interface JobFactory<O extends Operation> {
+    String SCHEMA = "schema";
+    String MAPPER_GENERATOR = "mapperGenerator";
+    String VALIDATE = "validate";
+
     /**
      * Creates a job with the store specific job initialisation and then applies the operation specific
      * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
@@ -32,15 +35,5 @@ public interface AddElementsFromHdfsJobFactory extends JobFactory<AddElementsFro
      * @return the created job
      * @throws IOException for IO issues
      */
-    @Override
-    Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException;
-
-    /**
-     * Prepares the store for the add from hdfs.
-     * For example this could create a table to store the elements in.
-     *
-     * @param store the store
-     * @throws StoreException if an error occurs
-     */
-    void prepareStore(final Store store) throws StoreException;
+    Job createJob(final O operation, final Store store) throws IOException;
 }
