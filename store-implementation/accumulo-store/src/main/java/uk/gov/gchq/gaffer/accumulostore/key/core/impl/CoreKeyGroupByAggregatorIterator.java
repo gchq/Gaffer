@@ -30,11 +30,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
 
     @Override
-    public Properties reduce(final String group, final Key key, final Iterator<Properties> iter) {
+    public Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy) {
         if (!iter.hasNext()) {
             return new Properties();
         }
@@ -44,7 +45,7 @@ public class CoreKeyGroupByAggregatorIterator extends CoreKeyGroupByCombiner {
             return properties;
         }
 
-        final ElementAggregator aggregator = schema.getElement(group).getAggregator();
+        final ElementAggregator aggregator = schema.getElement(group).getQueryAggregator(groupBy);
         Properties aggregatedProps = properties;
         while (iter.hasNext()) {
             aggregatedProps = aggregator.apply(aggregatedProps, iter.next());

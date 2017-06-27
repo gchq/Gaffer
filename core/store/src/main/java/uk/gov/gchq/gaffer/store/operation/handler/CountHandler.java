@@ -29,6 +29,6 @@ public class CountHandler<T> implements OutputOperationHandler<Count<T>, Long> {
         if (null == operation.getInput()) {
             throw new OperationException("Count operation has null iterable of items");
         }
-        return Streams.toParallelStream(operation.getInput()).count();
+        return Streams.toStream(operation.getInput()).count();
     }
 }

@@ -170,11 +170,40 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
      * {@link TypeDefinition}s.
      */
     @JsonIgnore
-    public ElementAggregator getAggregator() {
+    public ElementAggregator getFullAggregator() {
         final ElementAggregator aggregator = new ElementAggregator();
         if (aggregate) {
             for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
                 addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+            }
+        }
+
+        return aggregator;
+    }
+
+    @JsonIgnore
+    public ElementAggregator getIngestAggregator() {
+        final ElementAggregator aggregator = new ElementAggregator();
+        if (aggregate) {
+            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                if (!groupBy.contains(entry.getKey())) {
+                    addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+                }
+            }
+        }
+
+        return aggregator;
+    }
+
+    @JsonIgnore
+    public ElementAggregator getQueryAggregator(final Set<String> viewGroupBy) {
+        final ElementAggregator aggregator = new ElementAggregator();
+        if (aggregate) {
+            final Set<String> mergedGroupBy = null == viewGroupBy ? groupBy : viewGroupBy;
+            for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
+                if (!mergedGroupBy.contains(entry.getKey())) {
+                    addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
+                }
             }
         }
 
@@ -391,7 +420,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
             CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
-        protected ELEMENT_DEF elDef;
+        protected final ELEMENT_DEF elDef;
 
         protected BaseBuilder(final ELEMENT_DEF elementDef) {
             this.elDef = elementDef;

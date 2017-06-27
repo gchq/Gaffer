@@ -43,7 +43,7 @@ public class JcsCache <K, V> implements ICache<K, V> {
 
     @Override
     public V get(final K key) {
-        return (V) cache.getFromGroup(key, groupName);
+        return cache.getFromGroup(key, groupName);
     }
 
     @Override

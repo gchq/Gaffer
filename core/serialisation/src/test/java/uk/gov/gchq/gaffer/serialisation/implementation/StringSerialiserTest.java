@@ -63,6 +63,8 @@ public class StringSerialiserTest extends ToBytesSerialisationTest<String> {
         return new StringSerialiser();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public Pair<String, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
                 new Pair("This is a test String ", new byte[]{84, 104, 105, 115, 32, 105, 115, 32, 97, 32, 116, 101, 115, 116, 32, 83, 116, 114, 105, 110, 103, 32}),

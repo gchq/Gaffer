@@ -1,4 +1,4 @@
-package uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation;
+package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

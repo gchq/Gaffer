@@ -135,7 +135,7 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private SchemaOptimiser schemaOptimiser;
+    private final SchemaOptimiser schemaOptimiser;
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
@@ -224,9 +224,9 @@ public abstract class Store {
             final O result = _execute(operationChain, context);
             addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
-        } catch (final Exception e) {
-            addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-            throw e;
+        } catch (final Throwable t) {
+            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            throw t;
         }
     }
 
@@ -268,6 +268,9 @@ public abstract class Store {
                 try {
                     _execute(operationChain, context);
                     addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Error e) {
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                    throw e;
                 } catch (final Exception e) {
                     LOGGER.warn("Operation chain job failed to execute", e);
                     addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
@@ -395,12 +398,12 @@ public abstract class Store {
                     validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                 }
             }));
+
+            validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+            getSchema().getTypes().entrySet().forEach(entrySet ->
+                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
         }
-
-        validateSchema(validationResult, getSchema().getVertexSerialiser());
-
-        getSchema().getTypes().entrySet().forEach(entrySet ->
-                validateSchema(validationResult, entrySet.getValue().getSerialiser()));
 
         if (!validationResult.isValid()) {
             throw new SchemaException("Schema is not valid. "

@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.doc.walkthrough;
 
 import org.apache.commons.io.IOUtils;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import java.io.IOException;
@@ -43,6 +45,16 @@ public class AbstractWalkthroughRunner {
         printIntro();
         printWalkthroughTitle();
         for (final Class<? extends AbstractWalkthrough> aClass : examples) {
+            // Clear the caches so the output is not dependent on what's been run before
+            try {
+                if (CacheServiceLoader.getService() != null) {
+                    CacheServiceLoader.getService().clearCache("NamedOperation");
+                    CacheServiceLoader.getService().clearCache("JobTracker");
+                }
+            } catch (CacheOperationException e) {
+                throw new RuntimeException(e);
+            }
+
             System.out.println(aClass.newInstance().walkthrough());
             System.out.println(EXAMPLE_DIVIDER);
         }
