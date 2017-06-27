@@ -4,7 +4,9 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.time.binaryoperator.BoundedTimestampSetAggregator"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.time.serialisation.BoundedTimestampSetSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.time.serialisation.BoundedTimestampSetSerialiser"
+      }
     }
   }
 }
