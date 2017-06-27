@@ -1,0 +1,24 @@
+{
+  "types": {
+    "count.long": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
+      }
+    },
+    "prop.string": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    },
+    "prop.date": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    },
+    "timestamp": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.function.ExampleAggregateFunction"
+      }
+    }
+  }
+}
