@@ -51,7 +51,11 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         this.operation = operation;
         this.store = store;
         this.jobFactory = jobFactory;
-        expectedNumberOfSplits = jobFactory.getExpectedNumberOfSplits(store);
+        if (null == operation.getNumSplits() || operation.getNumSplits() < 1) {
+            expectedNumberOfSplits = jobFactory.getExpectedNumberOfSplits(store);
+        } else {
+            expectedNumberOfSplits = operation.getNumSplits();
+        }
     }
 
     @Override

@@ -50,6 +50,8 @@ public class SampleDataForSplitPoints implements
 
     @Required
     private String splitsFilePath;
+
+    private Integer numSplits;
     private boolean useProvidedSplits;
 
     private boolean validate = true;
@@ -117,6 +119,14 @@ public class SampleDataForSplitPoints implements
 
     public void setSplitsFilePath(final String splitsFilePath) {
         this.splitsFilePath = splitsFilePath;
+    }
+
+    public Integer getNumSplits() {
+        return numSplits;
+    }
+
+    public void setNumSplits(final Integer numSplits) {
+        this.numSplits = numSplits;
     }
 
     public float getProportionToSample() {
@@ -286,6 +296,11 @@ public class SampleDataForSplitPoints implements
 
         public Builder compressionCodec(final Class<? extends CompressionCodec> compressionCodec) {
             _getOp().setCompressionCodec(compressionCodec);
+            return _self();
+        }
+
+        public Builder numSplits(final Integer numSplits) {
+            _getOp().setNumSplits(numSplits);
             return _self();
         }
     }
