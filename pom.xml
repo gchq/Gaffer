@@ -649,6 +649,7 @@
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
+                    <onlyAnalyze>uk.gov.gchq.gaffer.*</onlyAnalyze>
                 </configuration>
                 <executions>
                     <execution>
@@ -821,6 +822,7 @@
             <properties>
                 <skip.surefire.tests>true</skip.surefire.tests>
                 <skip.failsafe.tests>true</skip.failsafe.tests>
+                <jacoco.skip>true</jacoco.skip>
             </properties>
         </profile>
         <profile>
