@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import scala.Tuple2$;
+import scala.collection.JavaConversions;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
@@ -47,6 +49,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +70,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     private final Map<String, String[]> columnToPaths;
     private final StructType sparkSchema;
     private final GafferGroupObjectConverter gafferGroupObjectConverter;
+    private final String currentGraphDir;
     private final String inputDir;
     private final String outputDir;
     private final int filesPerGroup;
@@ -79,6 +83,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
     public AggregateAndSortGroup(final String group,
                                  final boolean reverseEdge,
                                  final ParquetStoreProperties parquetStoreProperties,
+                                 final String currentGraphDir,
                                  final SchemaUtils schemaUtils,
                                  final SparkSession spark) throws SerialisationException {
         this.group = group;
@@ -94,6 +99,7 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         this.columnToPaths = schemaUtils.getColumnToPaths(group);
         this.sparkSchema = schemaUtils.getSparkSchema(group);
         this.gafferGroupObjectConverter = schemaUtils.getConverter(group);
+        this.currentGraphDir = currentGraphDir;
         if (reverseEdge) {
             this.inputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.SOURCE, this.tempFileDir);
             this.outputDir = ParquetStore.getGroupDirectory(group, ParquetStoreConstants.DESTINATION, this.tempFileDir + SORTED);
@@ -120,8 +126,14 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
         try {
             try (final FileSystem fs = FileSystem.get(new Configuration())) {
                 if (fs.exists(new Path(inputDir))) {
-                    LOGGER.info("Aggregating and sorting the data for group {} stored in directory {}", group, inputDir);
-                    final Dataset<Row> data = spark.read().parquet(inputDir);
+                    final List<String> paths = new ArrayList<>();
+                    paths.add(inputDir);
+                    if (fs.exists(new Path(currentGraphDir))) {
+                        paths.add(currentGraphDir);
+                    }
+                    LOGGER.info("Aggregating and sorting the data for group {} stored in directories {}",
+                            group, StringUtils.join(paths, ','));
+                    final Dataset<Row> data = spark.read().parquet(JavaConversions.asScalaBuffer(paths));
 
                     // Aggregate data
                     final ExtractKeyFromRow keyExtractor = new ExtractKeyFromRow(groupByColumns, columnToPaths,
@@ -189,9 +201,9 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         }
                     }
                     for (final String propName : groupByColumns) {
-                        final String[] paths = groupPaths.get(propName);
-                        if (paths != null) {
-                            for (final String path : paths) {
+                        final String[] pathsForPropName = groupPaths.get(propName);
+                        if (pathsForPropName != null) {
+                            for (final String path : pathsForPropName) {
                                 groupBySeq.$plus$eq(path);
                             }
                         } else {

@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
+import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
 import java.util.ArrayList;
@@ -40,12 +41,17 @@ public class AggregateAndSortTempData {
         final List<Callable<OperationException>> tasks = new ArrayList<>();
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
+        final String currentDataDir = parquetStoreProperties.getDataDir()
+                + "/" + store.getCurrentSnapshot()
+                + "/" + ParquetStoreConstants.GRAPH;
         for (final String group : schemaUtils.getEdgeGroups()) {
-            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, schemaUtils, spark));
-            tasks.add(new AggregateAndSortGroup(group, true, parquetStoreProperties, schemaUtils, spark));
+            final String currentDataInThisGroupDir = currentDataDir + "/" + ParquetStoreConstants.GROUP + "=" + group;
+            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
+            tasks.add(new AggregateAndSortGroup(group, true, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
         }
         for (final String group : schemaUtils.getEntityGroups()) {
-            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, schemaUtils, spark));
+            final String currentDataInThisGroupDir = currentDataDir + "/" + ParquetStoreConstants.GROUP + "=" + group;
+            tasks.add(new AggregateAndSortGroup(group, false, parquetStoreProperties, currentDataInThisGroupDir, schemaUtils, spark));
         }
         final ExecutorService pool = Executors.newFixedThreadPool(store.getProperties().getThreadsAvailable());
         LOGGER.info("Created thread pool of size {} to aggregate and sort data", store.getProperties().getThreadsAvailable());

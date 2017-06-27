@@ -96,9 +96,8 @@ public class WriteUnsortedData {
             fileNumber = 0;
         }
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
-        Path filePath;
-        filePath = new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX, props.getTempFilesDir()) +
-                "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
+        final Path filePath = new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX,
+                props.getTempFilesDir()) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
         return AvroParquetWriter
                 .<GenericRecord>builder(filePath)
                 .withSchema(schemaUtils.getAvroSchema(group))

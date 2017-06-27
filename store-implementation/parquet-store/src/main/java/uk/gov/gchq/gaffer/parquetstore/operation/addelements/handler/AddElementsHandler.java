@@ -69,22 +69,11 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
             final FileSystem fs = store.getFS();
             final ParquetStoreProperties parquetStoreProperties = store.getProperties();
             final String rootDataDirString = parquetStoreProperties.getDataDir();
-            final String dataDirString = rootDataDirString + "/" + store.getCurrentSnapshot();
             final String tempDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDirString);
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
                 LOGGER.warn("Temp data directory '" + tempDirString + "' has been deleted.");
-            }
-            if (store.getCurrentSnapshot() != 0L) {
-                FileUtil.copy(fs,
-                        new Path(dataDirString + "/" + ParquetStoreConstants.GRAPH),
-                        fs,
-                        new Path(tempDirString + "/" + ParquetStoreConstants.GRAPH),
-                        false,
-                        false,
-                        fs.getConf());
-                LOGGER.debug("Copying data directory '" + dataDirString + "' has been copied to " + tempDirString);
             }
             // Write the data out
             LOGGER.info("Starting to write the unsorted Parquet data to " + tempDirString + " split by group");
