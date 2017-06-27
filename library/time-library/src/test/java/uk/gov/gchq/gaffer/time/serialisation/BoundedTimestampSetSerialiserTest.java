@@ -19,13 +19,14 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class BoundedTimestampSetSerialiserTest {
     private static final BoundedTimestampSetSerialiser BOUNDED_TIMESTAMP_SET_SERIALISER

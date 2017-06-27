@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class AddElementsTest implements OperationTest {
+public class AddElementsTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
     public static final String ADD_ELEMENTS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
@@ -57,6 +58,11 @@ public class AddElementsTest implements OperationTest {
             "    \"directed\" : true%n" +
             "  } ]%n" +
             "}");
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return AddElements.class;
+    }
 
     @Test
     @Override

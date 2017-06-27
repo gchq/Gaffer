@@ -3,13 +3,10 @@ cache:
   timeout: 1000
   directories:
   - $HOME/.m2
+dist: trusty
 jdk:
   - oraclejdk8
 sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
 matrix:
   fast_finish: true
 

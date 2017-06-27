@@ -50,8 +50,7 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new GetElements(),
                 new ToVertices(),
-                new GetAdjacentIds(),
-                new Max()
+                new GetAdjacentIds()
         )), true);
     }
 
@@ -61,9 +60,10 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new GetElements(),
                 new ToVertices(),
-                new GenerateObjects(),
-                new GetAdjacentIds(),
-                new Max()
+                new GenerateObjects.Builder<>()
+                        .generator(e -> e)
+                        .build(),
+                new GetAdjacentIds()
         )), true);
     }
 

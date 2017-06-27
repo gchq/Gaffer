@@ -21,7 +21,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import uk.gov.gchq.gaffer.time.TimestampSet;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

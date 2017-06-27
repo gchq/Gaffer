@@ -44,6 +44,8 @@
         <skip.failsafe.tests>false</skip.failsafe.tests>
 
         <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <scala.version>2.11</scala.version>
         <scala.minor.version>2.11.8</scala.minor.version>
 
@@ -647,6 +649,7 @@
                     <excludeFilterFile>
                         findbugs-exclude.xml
                     </excludeFilterFile>
+                    <onlyAnalyze>uk.gov.gchq.gaffer.*</onlyAnalyze>
                 </configuration>
                 <executions>
                     <execution>
@@ -747,23 +750,6 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${checkstyle.plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>checkstyle</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs.plugin.version}</version>
-            </plugin>
         </plugins>
     </reporting>
 
@@ -819,6 +805,7 @@
             <properties>
                 <skip.surefire.tests>true</skip.surefire.tests>
                 <skip.failsafe.tests>true</skip.failsafe.tests>
+                <jacoco.skip>true</jacoco.skip>
             </properties>
         </profile>
         <profile>

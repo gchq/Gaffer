@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -50,6 +51,7 @@ public class GetDataFrameOfElements implements
         GraphFilters,
         Options {
 
+    @Required
     private SQLContext sqlContext;
     private List<Converter> converters;
     private Map<String, String> options;

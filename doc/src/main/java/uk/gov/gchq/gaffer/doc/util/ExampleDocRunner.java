@@ -18,6 +18,9 @@ package uk.gov.gchq.gaffer.doc.util;
 import com.google.common.collect.Sets;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
+import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
+
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,6 +45,16 @@ public abstract class ExampleDocRunner {
 
         final Set<? extends Class<?>> classes = Sets.newHashSet((Iterable) getSubClasses(classForExample));
         for (final Class<? extends Example> aClass : getSubClasses(exampleParentClass, getClass().getPackage().getName())) {
+            // Clear the caches so the output is not dependent on what's been run before
+            try {
+                if (CacheServiceLoader.getService() != null) {
+                    CacheServiceLoader.getService().clearCache("NamedOperation");
+                    CacheServiceLoader.getService().clearCache("JobTracker");
+                }
+            } catch (CacheOperationException e) {
+                throw new RuntimeException(e);
+            }
+
             final Example example = aClass.newInstance();
             classes.remove(example.getClassForExample());
             example.run();
