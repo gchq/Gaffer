@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
@@ -100,7 +100,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
                 if (-1 == dis.read(serialisedRLU)) {
                     throw new SerialisationException("Unexpected end of stream when reading serialised ReservoirLongsUnion");
                 }
-                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.getInstance(new NativeMemory(serialisedRLU));
+                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.heapify(WritableMemory.wrap(bytes));
                 boundedTimestampSet.setReservoirLongsUnion(reservoirLongsUnion);
             } else {
                 throw new SerialisationException("Unexpected byte indicating the state: expected " + NOT_FULL + " or "
