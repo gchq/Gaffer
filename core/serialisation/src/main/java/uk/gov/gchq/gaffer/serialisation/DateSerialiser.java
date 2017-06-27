@@ -26,7 +26,7 @@ import java.util.Date;
  * instead.
  */
 @Deprecated
-public class DateSerialiser implements ToBytesSerialiser<Date> {
+public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -37,21 +37,19 @@ public class DateSerialiser implements ToBytesSerialiser<Date> {
     @Override
     public byte[] serialise(final Date value) throws SerialisationException {
         try {
-            return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
+            return ((Long) value.getTime()).toString().getBytes(getCharset());
         } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) throws SerialisationException {
-        Long longR;
+    public Date deserialiseString(final String value) throws SerialisationException {
         try {
-            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (final NumberFormatException | UnsupportedEncodingException e) {
+            return new Date(Long.parseLong(value));
+        } catch (final NumberFormatException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
-        return new Date(longR);
     }
 
     @Override
@@ -62,5 +60,10 @@ public class DateSerialiser implements ToBytesSerialiser<Date> {
     @Override
     public boolean preservesObjectOrdering() {
         return true;
+    }
+
+    @Override
+    public String getCharset() {
+        return CommonConstants.ISO_8859_1_ENCODING;
     }
 }

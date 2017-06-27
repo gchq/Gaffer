@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class IntegerSerialiser implements ToBytesSerialiser<Integer> {
+public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     private static final long serialVersionUID = 5647756843689779437L;
 
     @Override
@@ -36,17 +36,17 @@ public class IntegerSerialiser implements ToBytesSerialiser<Integer> {
     @Override
     public byte[] serialise(final Integer value) throws SerialisationException {
         try {
-            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
+            return value.toString().getBytes(getCharset());
         } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Integer deserialise(final byte[] bytes) throws SerialisationException {
+    public Integer deserialiseString(final String value) throws SerialisationException {
         try {
-            return Integer.parseInt(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (final NumberFormatException | UnsupportedEncodingException e) {
+            return Integer.parseInt(value);
+        } catch (final NumberFormatException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
@@ -59,5 +59,10 @@ public class IntegerSerialiser implements ToBytesSerialiser<Integer> {
     @Override
     public boolean preservesObjectOrdering() {
         return true;
+    }
+
+    @Override
+    public String getCharset() {
+        return CommonConstants.ISO_8859_1_ENCODING;
     }
 }

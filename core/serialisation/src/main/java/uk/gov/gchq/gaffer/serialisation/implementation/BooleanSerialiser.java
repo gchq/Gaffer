@@ -34,7 +34,12 @@ public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
 
     @Override
     public Boolean deserialise(final byte[] bytes) throws SerialisationException {
-        return bytes.length == 1 && TRUE == bytes[0];
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Boolean deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        return allBytes.length == 1 && TRUE == allBytes[offset];
     }
 
     @Override

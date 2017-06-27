@@ -39,27 +39,34 @@ public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
     public byte[] serialise(final Double d) throws SerialisationException {
         final byte[] out = new byte[8];
         final long value = Double.doubleToRawLongBits(d);
-        out[0] = (byte) ((int) (value & 255));
-        out[1] = (byte) ((int) (value >> 8) & 255);
-        out[2] = (byte) ((int) (value >> 16) & 255);
-        out[3] = (byte) ((int) (value >> 24) & 255);
-        out[4] = (byte) ((int) (value >> 32) & 255);
-        out[5] = (byte) ((int) (value >> 40) & 255);
-        out[6] = (byte) ((int) (value >> 48) & 255);
-        out[7] = (byte) ((int) (value >> 56) & 255);
+        out[0] = (byte) ((value & 255));
+        out[1] = (byte) ((value >> 8) & 255);
+        out[2] = (byte) ((value >> 16) & 255);
+        out[3] = (byte) ((value >> 24) & 255);
+        out[4] = (byte) ((value >> 32) & 255);
+        out[5] = (byte) ((value >> 40) & 255);
+        out[6] = (byte) ((value >> 48) & 255);
+        out[7] = (byte) ((value >> 56) & 255);
         return out;
     }
 
     @Override
     public Double deserialise(final byte[] bytes) throws SerialisationException {
-        return Double.longBitsToDouble((long) bytes[0] & 255L
-                | ((long) bytes[1] & 255L) << 8
-                | ((long) bytes[2] & 255L) << 16
-                | ((long) bytes[3] & 255L) << 24
-                | ((long) bytes[4] & 255L) << 32
-                | ((long) bytes[5] & 255L) << 40
-                | ((long) bytes[6] & 255L) << 48
-                | ((long) bytes[7] & 255L) << 56);
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Double deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        return Double.longBitsToDouble(allBytes[carriage++] & 255L
+                | (allBytes[carriage++] & 255L) << 8
+                | (allBytes[carriage++] & 255L) << 16
+                | (allBytes[carriage++] & 255L) << 24
+                | (allBytes[carriage++] & 255L) << 32
+                | (allBytes[carriage++] & 255L) << 40
+                | (allBytes[carriage++] & 255L) << 48
+                | (allBytes[carriage] & 255L) << 56);
+
     }
 
     @Override

@@ -17,10 +17,10 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 import java.io.UnsupportedEncodingException;
 
-public class StringSerialiser implements ToBytesSerialiser<String> {
+public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
 
@@ -32,19 +32,15 @@ public class StringSerialiser implements ToBytesSerialiser<String> {
     @Override
     public byte[] serialise(final String value) throws SerialisationException {
         try {
-            return value.getBytes(CommonConstants.UTF_8);
+            return value.getBytes(getCharset());
         } catch (final UnsupportedEncodingException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String deserialise(final byte[] bytes) throws SerialisationException {
-        try {
-            return new String(bytes, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    protected String deserialiseString(final String value) throws SerialisationException {
+        return value;
     }
 
     @Override
@@ -57,4 +53,8 @@ public class StringSerialiser implements ToBytesSerialiser<String> {
         return true;
     }
 
+    @Override
+    public String getCharset() {
+        return CommonConstants.UTF_8;
+    }
 }

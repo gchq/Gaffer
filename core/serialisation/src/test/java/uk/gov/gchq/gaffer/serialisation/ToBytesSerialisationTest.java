@@ -16,13 +16,14 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
-public abstract class ToByteSerialisationTest<T> extends SerialisationTest<T, byte[]> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+
+public abstract class ToBytesSerialisationTest<T> extends SerialisationTest<T, byte[]> {
 
     @Test
     public void shouldSerialiseNull() throws SerialisationException {
@@ -37,5 +38,11 @@ public abstract class ToByteSerialisationTest<T> extends SerialisationTest<T, by
     @Override
     public void shouldDeserialiseEmpty() throws SerialisationException {
         assertNull(serialiser.deserialiseEmpty());
+    }
+
+    @Override
+    protected void serialiseFirst(final Pair<T, byte[]> pair) throws SerialisationException {
+        byte[] serialise = serialiser.serialise(pair.getFirst());
+        assertArrayEquals(pair.getSecond(), serialise);
     }
 }
