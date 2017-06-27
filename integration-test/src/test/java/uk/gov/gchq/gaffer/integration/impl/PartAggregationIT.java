@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
+import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -121,7 +122,8 @@ public class PartAggregationIT extends AbstractStoreIT {
                 .merge(defaultSchema)
                 .entity(TestGroups.ENTITY_3,
                         new SchemaEntityDefinition.Builder()
-                                .merge(defaultSchema.getEntity(TestGroups.ENTITY))
+                                .vertex(TestTypes.ID_STRING)
+                                .property(TestPropertyNames.STRING, TestTypes.PROP_STRING)
                                 .property("NonAggregatedProperty", "NonAggregatedString")
                                 .property("NonAggregatedProperty", "AggregatedString")
                                 .aggregate(false)
@@ -129,7 +131,11 @@ public class PartAggregationIT extends AbstractStoreIT {
                                 .build())
                 .edge(TestGroups.EDGE_3,
                         new SchemaEdgeDefinition.Builder()
-                                .merge(defaultSchema.getEdge(TestGroups.EDGE))
+                                .source(TestTypes.ID_STRING)
+                                .destination(TestTypes.ID_STRING)
+                                .directed(TestTypes.DIRECTED_EITHER)
+                                .property(TestPropertyNames.INT, TestTypes.PROP_INTEGER)
+                                .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
                                 .property("NonAggregatedProperty", "NonAggregatedString")
                                 .aggregate(false)
                                 .groupBy()

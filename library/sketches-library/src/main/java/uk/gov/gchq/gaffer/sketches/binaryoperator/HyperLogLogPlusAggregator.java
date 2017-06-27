@@ -20,7 +20,7 @@ import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
 /**
- * An <code>HyperLogLogPlusAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
+ * A <code>HyperLogLogPlusAggregator</code> is a {@link java.util.function.BinaryOperator} that takes in
  * {@link HyperLogLogPlus}s and merges the sketches together.
  */
 public class HyperLogLogPlusAggregator extends KorypheBinaryOperator<HyperLogLogPlus> {

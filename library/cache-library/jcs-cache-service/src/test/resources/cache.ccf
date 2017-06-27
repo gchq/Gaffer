@@ -21,7 +21,12 @@ jcs.region.namedOperationsRegion=DC
 jcs.region.jobTrackerRegion=DC
 jcs.region.jobTrackerRegion.cacheattributes.UseMemoryShrinker=true
 jcs.region.jobTrackerRegion.elementattributes.IsEternal=false
-jcs.region.jobTrackerRegion.elementattributes.MaxLifeSeconds=604800
+jcs.region.jobTrackerRegion.elementattributes.MaxLife=604800
 
 # Region for testing the JCS cache service
 jcs.region.alternativeTest=DC
+
+# Region for testing the age-off
+jcs.region.ageOff=DC
+jcs.region.ageOff.elementattributes.IsEternal=false
+jcs.region.ageOff.elementattributes.MaxLife=2
