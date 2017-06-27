@@ -16,6 +16,23 @@
 
 package uk.gov.gchq.gaffer.store;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,8 +67,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser.implementation.StringToStringSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -76,23 +92,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
     private final User user = new User("user01");
@@ -152,7 +151,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
@@ -168,7 +167,7 @@ public class StoreTest {
                         .build())
                 .type("invalidType", new TypeDefinition.Builder()
                         .clazz(Object.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -533,7 +532,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .build())
                 .type("invalidString", new TypeDefinition.Builder()
                         .clazz(String.class)

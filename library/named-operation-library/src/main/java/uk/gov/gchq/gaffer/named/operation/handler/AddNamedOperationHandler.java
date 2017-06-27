@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.named.operation.handler;
 import uk.gov.gchq.gaffer.named.operation.AddNamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperation;
 import uk.gov.gchq.gaffer.named.operation.NamedOperationDetail;
+import uk.gov.gchq.gaffer.named.operation.ParameterDetail;
 import uk.gov.gchq.gaffer.named.operation.cache.CacheOperationFailedException;
 import uk.gov.gchq.gaffer.named.operation.cache.NamedOperationCache;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -27,15 +28,21 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
-import uk.gov.gchq.gaffer.user.User;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Operation handler for AddNamedOperation which adds a Named Operation to the cache.
  */
 public class AddNamedOperationHandler implements OperationHandler<AddNamedOperation> {
-    private NamedOperationCache cache = new NamedOperationCache();
+    private final NamedOperationCache cache;
+
+    public AddNamedOperationHandler() {
+        this(new NamedOperationCache());
+    }
+
+    public AddNamedOperationHandler(final NamedOperationCache cache) {
+        this.cache = cache;
+    }
 
     /**
      * Adds a NamedOperation to a cache which must be specified in the operation declarations file. An
@@ -43,7 +50,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
      * fields must be set and cannot be left empty, or the build() method will fail and a runtime exception will be
      * thrown. The handler then adds/overwrites the NamedOperation according toa an overwrite flag.
      *
-     * @param operation the {@link uk.gov.gchq.gaffer.operation.Operation} to be executed
+     * @param operation the {@link Operation} to be executed
      * @param context   the operation chain context, containing the user who executed the operation
      * @param store     the {@link Store} the operation should be run on
      * @return null (since the output is void)
@@ -52,18 +59,17 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     @Override
     public Void doOperation(final AddNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
-            if (cache == null) {
-                throw new OperationException("Cache must not be null");
-            }
-            validate(context.getUser(), operation.getOperationName(), operation.getOperationChain(), cache);
-            NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
+            final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
                     .operationChain(operation.getOperationChain())
                     .operationName(operation.getOperationName())
                     .creatorId(context.getUser().getUserId())
                     .readers(operation.getReadAccessRoles())
                     .writers(operation.getWriteAccessRoles())
                     .description(operation.getDescription())
+                    .parameters(operation.getParameters())
                     .build();
+
+            validate(namedOperationDetail.getOperationChainWithDefaultParams(), namedOperationDetail);
 
             cache.addNamedOperation(namedOperationDetail, operation.isOverwriteFlag(), context.getUser());
         } catch (final CacheOperationFailedException e) {
@@ -72,31 +78,20 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
         return null;
     }
 
-    public NamedOperationCache getCache() {
-        return cache;
-    }
-
-    public void setCache(final NamedOperationCache cache) {
-        this.cache = cache;
-    }
-
-    private void validate(final User user, final String parent, final OperationChain<?> operationChain, final NamedOperationCache cache) throws CacheOperationFailedException, OperationException {
-        ArrayList<String> parentOperations = new ArrayList<>();
-        parentOperations.add(parent);
-
-        validate(user, parentOperations, operationChain, cache);
-    }
-
-    private void validate(final User user, final List<String> parentOperations, final OperationChain<?> operationChain, final NamedOperationCache cache) throws CacheOperationFailedException, OperationException {
+    private void validate(final OperationChain<?> operationChain, final NamedOperationDetail namedOperationDetail) throws CacheOperationFailedException, OperationException {
         for (final Operation op : operationChain.getOperations()) {
             if (op instanceof NamedOperation) {
-                if (parentOperations.contains(((NamedOperation) op).getOperationName())) {
-                    throw new OperationException("The Operation Chain must not be recursive");
+                throw new OperationException("NamedOperations can not be nested within NamedOperations");
+            }
+        }
+
+        if (namedOperationDetail.getParameters() != null) {
+            String operationString = namedOperationDetail.getOperations();
+            for (final Map.Entry<String, ParameterDetail> parameterDetail : namedOperationDetail.getParameters().entrySet()) {
+                String varName = "${" + parameterDetail.getKey() + "}";
+                if (!operationString.contains(varName)) {
+                    throw new OperationException("Parameter specified in NamedOperation doesn't occur in OperationChain string for " + varName);
                 }
-                NamedOperationDetail operation = cache.getNamedOperation(((NamedOperation) op).getOperationName(), user);
-                parentOperations.add(((NamedOperation) op).getOperationName());
-                validate(user, parentOperations, operation.getOperationChain(), cache);
-                parentOperations.remove(((NamedOperation) op).getOperationName());
             }
         }
     }

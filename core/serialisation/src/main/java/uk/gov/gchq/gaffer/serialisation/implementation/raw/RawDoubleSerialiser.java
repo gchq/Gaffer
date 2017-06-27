@@ -20,8 +20,13 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser}.
  * RawDoubleSerialiser serialises Doubles into an IEEE floating point little-endian byte array.
+ *
+ * @deprecated this is unable to preserve object ordering.
+ * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDoubleSerialiser
  */
+@Deprecated
 public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
     private static final long serialVersionUID = 1568251281744704278L;
 

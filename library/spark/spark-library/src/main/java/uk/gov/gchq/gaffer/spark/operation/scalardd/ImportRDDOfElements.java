@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -29,6 +30,7 @@ public class ImportRDDOfElements implements
         Rdd,
         Options {
     public static final String HADOOP_CONFIGURATION_KEY = "Hadoop_Configuration_Key";
+    @Required
     private SparkContext sparkContext;
     private RDD<Element> input;
     private Map<String, String> options;

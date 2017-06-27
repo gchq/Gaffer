@@ -19,14 +19,20 @@ package uk.gov.gchq.gaffer.operation.job;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.job.GetJobDetails;
 
 import static org.junit.Assert.assertEquals;
 
 
-public class GetJobDetailsTest implements OperationTest {
+public class GetJobDetailsTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return GetJobDetails.class;
+    }
 
     @Test
     @Override

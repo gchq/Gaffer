@@ -1,0 +1,16 @@
+{
+  "types": {
+    "id.string": {
+      "class": "java.lang.String"
+    },
+    "directed.true": {
+      "class": "java.lang.Boolean"
+    },
+    "count.long": {
+      "class": "java.lang.Long"
+    },
+    "prop.string": {
+      "class": "java.lang.String"
+    }
+  }
+}

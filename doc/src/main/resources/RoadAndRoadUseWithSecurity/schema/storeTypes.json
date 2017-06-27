@@ -6,7 +6,9 @@
       }
     },
     "visibility": {
-      "serialiserClass": "uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser",
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.doc.dev.serialiser.VisibilitySerialiser"
+      },
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.doc.dev.aggregator.VisibilityAggregator"
       }

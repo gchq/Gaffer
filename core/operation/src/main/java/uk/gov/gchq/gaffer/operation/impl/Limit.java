@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.io.InputOutput;
 import uk.gov.gchq.gaffer.operation.io.MultiInput;
@@ -34,6 +35,7 @@ public class Limit<T> implements
         Operation,
         InputOutput<Iterable<? extends T>, Iterable<? extends T>>,
         MultiInput<T> {
+    @Required
     protected Integer resultLimit;
     private Iterable<? extends T> input;
 

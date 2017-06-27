@@ -75,6 +75,8 @@ that extends the `OperationTest` class.
 Operation implementations should override the close method and ensure all
 closeable fields are closed.
 
+Any fields that are required should be annotated with the Required annotation.
+
 All implementations should also have a static inner `Builder` class that
 implements the required builders. For example:
 

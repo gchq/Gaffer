@@ -17,9 +17,11 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public class DeleteNamedOperation implements Operation {
+    @Required
     private String operationName;
 
     public String getOperationName() {

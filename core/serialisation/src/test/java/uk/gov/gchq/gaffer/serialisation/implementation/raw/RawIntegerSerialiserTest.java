@@ -27,9 +27,6 @@ import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
 public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
-    private RawIntegerSerialiser serialiser
-            = new RawIntegerSerialiser();
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (int i = 0; i < 1000; i++) {
@@ -65,7 +62,6 @@ public class RawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> 
     public void canSerialiseIntegerClass() throws SerialisationException {
         assertTrue(serialiser.canHandle(Integer.class));
     }
-
 
     @Override
     public Serialiser<Integer, byte[]> getSerialisation() {
