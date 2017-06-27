@@ -13,79 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.datasketches.theta.function.aggregate;
+package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator;
 
-import com.yahoo.sketches.theta.Sketches;
-import com.yahoo.sketches.theta.Union;
+import com.google.common.collect.Ordering;
+import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator;
+import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.StringsUnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class UnionAggregatorTest extends BinaryOperatorTest {
-    private static final double DELTA = 0.01D;
-    private Union union1;
-    private Union union2;
+public class StringsUnionAggregatorTest extends BinaryOperatorTest {
+    private ItemsUnion<String> union1;
+    private ItemsUnion<String> union2;
 
     @Before
     public void setup() {
-        union1 = Sketches.setOperationBuilder().buildUnion();
-        union1.update("A");
-        union1.update("B");
+        union1 = ItemsUnion.getInstance(Ordering.<String>natural());
+        union1.update("1");
+        union1.update("2");
+        union1.update("3");
 
-        union2 = Sketches.setOperationBuilder().buildUnion();
-        union2.update("C");
-        union2.update("D");
+        union2 = ItemsUnion.getInstance(Ordering.<String>natural());
+        union2.update("4");
+        union2.update("5");
+        union2.update("6");
+        union2.update("7");
     }
 
     @Test
     public void testAggregate() {
-        final UnionAggregator unionAggregator = new UnionAggregator();
-        Union currentState = union1;
-        assertEquals(2.0D, currentState.getResult().getEstimate(), DELTA);
+        final StringsUnionAggregator unionAggregator = new StringsUnionAggregator();
+        ItemsUnion<String> currentState = union1;
+        assertEquals(3L, currentState.getResult().getN());
+        assertEquals("2", currentState.getResult().getQuantile(0.5D));
+
         currentState = unionAggregator.apply(currentState, union2);
-        assertEquals(4.0D, currentState.getResult().getEstimate(), DELTA);
+        assertEquals(7L, currentState.getResult().getN());
+        assertEquals("4", currentState.getResult().getQuantile(0.5D));
     }
 
     @Test
     public void testEquals() {
-        assertEquals(new UnionAggregator(), new UnionAggregator());
+        assertEquals(new StringsUnionAggregator(), new StringsUnionAggregator());
     }
 
     @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final UnionAggregator aggregator = new UnionAggregator();
+        final StringsUnionAggregator aggregator = new StringsUnionAggregator();
 
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.StringsUnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final UnionAggregator deserialisedAggregator = new JSONSerialiser()
-                .deserialise(json.getBytes(), UnionAggregator.class);
+        final StringsUnionAggregator deserialisedAggregator = new JSONSerialiser()
+                .deserialise(json.getBytes(), StringsUnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
 
     @Override
     protected Class<? extends BinaryOperator> getFunctionClass() {
-        return UnionAggregator.class;
+        return StringsUnionAggregator.class;
     }
 
     @Override
-    protected UnionAggregator getInstance() {
-        return new UnionAggregator();
+    protected StringsUnionAggregator getInstance() {
+        return new StringsUnionAggregator();
     }
 }

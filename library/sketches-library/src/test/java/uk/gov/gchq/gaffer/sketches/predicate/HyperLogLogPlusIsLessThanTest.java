@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.function.filter;
+package uk.gov.gchq.gaffer.sketches.predicate;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;

@@ -13,84 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.function.aggregate;
+package uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator;
 
-import com.yahoo.sketches.quantiles.DoublesUnion;
+import com.yahoo.sketches.theta.Sketches;
+import com.yahoo.sketches.theta.Union;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator;
+import uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class DoublesUnionAggregatorTest extends BinaryOperatorTest {
+public class UnionAggregatorTest extends BinaryOperatorTest {
     private static final double DELTA = 0.01D;
-    private DoublesUnion union1;
-    private DoublesUnion union2;
+    private Union union1;
+    private Union union2;
 
     @Before
     public void setup() {
-        union1 = DoublesUnion.builder().build();
-        union1.update(1.0D);
-        union1.update(2.0D);
-        union1.update(3.0D);
+        union1 = Sketches.setOperationBuilder().buildUnion();
+        union1.update("A");
+        union1.update("B");
 
-        union2 = DoublesUnion.builder().build();
-        union2.update(4.0D);
-        union2.update(5.0D);
-        union2.update(6.0D);
-        union2.update(7.0D);
+        union2 = Sketches.setOperationBuilder().buildUnion();
+        union2.update("C");
+        union2.update("D");
     }
 
     @Test
     public void testAggregate() {
-        final DoublesUnionAggregator unionAggregator = new DoublesUnionAggregator();
-        DoublesUnion currentState = union1;
-        assertEquals(3L, currentState.getResult().getN());
-        assertEquals(2.0D, currentState.getResult().getQuantile(0.5D), DELTA);
-
+        final UnionAggregator unionAggregator = new UnionAggregator();
+        Union currentState = union1;
+        assertEquals(2.0D, currentState.getResult().getEstimate(), DELTA);
         currentState = unionAggregator.apply(currentState, union2);
-        assertEquals(7L, currentState.getResult().getN());
-        assertEquals(4.0D, currentState.getResult().getQuantile(0.5D), DELTA);
+        assertEquals(4.0D, currentState.getResult().getEstimate(), DELTA);
     }
 
     @Test
     public void testEquals() {
-        assertEquals(new DoublesUnionAggregator(), new DoublesUnionAggregator());
+        assertEquals(new UnionAggregator(), new UnionAggregator());
     }
 
     @Override
     @Test
     public void shouldJsonSerialiseAndDeserialise() throws SerialisationException {
         // Given
-        final DoublesUnionAggregator aggregator = new DoublesUnionAggregator();
+        final UnionAggregator aggregator = new UnionAggregator();
 
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
         JsonUtil.assertEquals(String.format("{%n" +
-                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesUnionAggregator\"%n" +
+                "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
                 "}"), json);
 
         // When 2
-        final DoublesUnionAggregator deserialisedAggregator = new JSONSerialiser()
-                .deserialise(json.getBytes(), DoublesUnionAggregator.class);
+        final UnionAggregator deserialisedAggregator = new JSONSerialiser()
+                .deserialise(json.getBytes(), UnionAggregator.class);
         // Then 2
         assertNotNull(deserialisedAggregator);
     }
 
     @Override
     protected Class<? extends BinaryOperator> getFunctionClass() {
-        return DoublesUnionAggregator.class;
+        return UnionAggregator.class;
     }
 
     @Override
-    protected DoublesUnionAggregator getInstance() {
-        return new DoublesUnionAggregator();
+    protected UnionAggregator getInstance() {
+        return new UnionAggregator();
     }
 }
