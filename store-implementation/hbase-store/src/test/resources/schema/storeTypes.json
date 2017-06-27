@@ -4,19 +4,25 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      }
     },
     "simpleProperty": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      }
     },
     "visibility": {
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser"
+      }
     }
   }
 }

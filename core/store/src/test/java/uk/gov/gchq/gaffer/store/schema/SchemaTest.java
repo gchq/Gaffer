@@ -33,6 +33,9 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
@@ -44,6 +47,7 @@ import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,6 +71,7 @@ public class SchemaTest {
     public static final String INTEGER_TYPE_DESCRIPTION = "Integer type description";
     public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
+    public static final String MAP_TYPE_DESCRIPTION = "Map type description";
 
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
@@ -224,6 +229,16 @@ public class SchemaTest {
         assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
+
+        TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
+        assertEquals(LinkedHashMap.class, mapTypeDef.getClazz());
+        assertEquals(MAP_TYPE_DESCRIPTION, mapTypeDef.getDescription());
+        Serialiser serialiser = mapTypeDef.getSerialiser();
+        assertEquals(MapSerialiser.class, serialiser.getClass());
+        MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
+        assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
+        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertNull(mapSerialiser.getMapClass());
     }
 
     @Test
@@ -248,10 +263,14 @@ public class SchemaTest {
 
     @Test
     public void createProgramaticSchema() {
-        schema = createSchema();
+        createSchema();
     }
 
     private Schema createSchema() {
+        MapSerialiser mapSerialiser = new MapSerialiser();
+        mapSerialiser.setKeySerialiser(new StringSerialiser());
+        mapSerialiser.setValueSerialiser(new RawLongSerialiser());
+        mapSerialiser.setMapClass(LinkedHashMap.class);
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -282,6 +301,12 @@ public class SchemaTest {
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
+                .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
+                        .description(MAP_TYPE_DESCRIPTION)
+                        .clazz(LinkedHashMap.class)
+                        .serialiser(mapSerialiser)
+                        .build()
+                )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -301,7 +326,7 @@ public class SchemaTest {
 
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
-        schema = createSchema();
+        Schema schema = createSchema();
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
@@ -344,6 +369,16 @@ public class SchemaTest {
                 "    \"id.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.map\" : {%n" +
+                "      \"serialiser\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n" +
+                "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n" +
+                "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n" +
+                "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" +
+                "      },%n" +
+                "      \"description\" : \"Map type description\",%n" +
+                "      \"class\" : \"java.util.LinkedHashMap\"%n" +
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
