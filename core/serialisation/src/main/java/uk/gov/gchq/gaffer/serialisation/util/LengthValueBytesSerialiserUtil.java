@@ -30,6 +30,24 @@ import java.util.Arrays;
 public abstract class LengthValueBytesSerialiserUtil {
     private static final byte[] EMPTY_BYTES = new byte[0];
 
+    public static ByteArrayOutputStream createByteArray() {
+        return new ByteArrayOutputStream();
+    }
+
+    public static ByteArrayOutputStream appendLengthValueFromObjectToByteStream(final ByteArrayOutputStream byteOut, final ToBytesSerialiser serialiser, final Object object) throws SerialisationException {
+        return appendLengthValueFromBytesToByteStream(byteOut, serialiser.serialise(object));
+    }
+
+    public static ByteArrayOutputStream appendLengthValueFromBytesToByteStream(final ByteArrayOutputStream byteOut, final byte[] serialisedObject) throws SerialisationException {
+        CompactRawSerialisationUtils.write(serialisedObject.length, byteOut);
+        try {
+            byteOut.write(serialisedObject);
+        } catch (IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
+        return byteOut;
+    }
+
     public static <T> byte[] serialise(final ToBytesSerialiser<T> serialiser, final T value)
             throws SerialisationException {
         final byte[] valueBytes = getValueBytes(serialiser, value);
@@ -163,6 +181,70 @@ public abstract class LengthValueBytesSerialiserUtil {
             return serialiser.deserialiseEmpty();
         }
         return serialiser.deserialise(valueBytes);
+    }
+
+
+    public static <T> ObjectCarriage<T> deserialiseNextObject(final ToBytesSerialiser<T> serialiser, final int currentCarriage, final byte[] bytes) throws SerialisationException {
+        int rtn = currentCarriage;
+        int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[rtn]);
+        int currentPropLength = getCurrentPropLength(bytes, rtn, numBytesForLength);
+        int from = rtn += numBytesForLength;
+        int to = rtn += currentPropLength;
+        T object = serialiser.deserialise(Arrays.copyOfRange(bytes, from, to));
+        return new ObjectCarriage<T>(object, rtn);
+    }
+
+    private static int getCurrentPropLength(final byte[] bytes, final int pos, final int numBytesForLength) throws SerialisationException {
+        final byte[] length = new byte[numBytesForLength];
+        System.arraycopy(bytes, pos, length, 0, numBytesForLength);
+        return (int) CompactRawSerialisationUtils.readLong(length);
+    }
+
+
+    public static class ObjectCarriage<T> {
+        private T object;
+        private int carriage;
+
+        ObjectCarriage(final T object, final int carriage) {
+            this.object = object;
+            this.carriage = carriage;
+        }
+
+        public T getObject() {
+            return object;
+        }
+
+        public void setObject(final T object) {
+            this.object = object;
+        }
+
+        public int getCarriage() {
+            return carriage;
+        }
+
+        public void setCarriage(final int carriage) {
+            this.carriage = carriage;
+        }
+    }
+
+    public static class LengthValueBuilder {
+
+        ByteArrayOutputStream byteOut = LengthValueBytesSerialiserUtil.createByteArray();
+
+        public LengthValueBuilder appendLengthValueFromObjectToByteStream(final ToBytesSerialiser serialiser, final Object object) throws SerialisationException {
+            LengthValueBytesSerialiserUtil.appendLengthValueFromObjectToByteStream(byteOut, serialiser, object);
+            return this;
+        }
+
+        public LengthValueBuilder appendLengthValueFromBytesToByteStream(final byte[] serialisedObject) throws SerialisationException {
+            LengthValueBytesSerialiserUtil.appendLengthValueFromBytesToByteStream(byteOut, serialisedObject);
+            return this;
+        }
+
+        public byte[] toArray() {
+            return byteOut.toByteArray();
+        }
+
     }
 }
 

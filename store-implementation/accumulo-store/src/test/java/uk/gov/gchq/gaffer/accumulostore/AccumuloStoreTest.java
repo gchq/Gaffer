@@ -58,7 +58,8 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -146,11 +147,10 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialiser serialiser = mock(ToBytesSerialiser.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(true);
+        final Serialiser serialiser = new StringSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -165,15 +165,13 @@ public class AccumuloStoreTest {
         // Then
         assertTrue(isGetElementsInRangesSupported);
         assertTrue(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
     public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialiser serialiser = mock(ToBytesSerialiser.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(false);
+        final Serialiser serialiser = new CompactRawLongSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -188,20 +186,20 @@ public class AccumuloStoreTest {
         // Then
         assertFalse(isGetElementsInRangesSupported);
         assertFalse(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException, StoreException {
+        store.initialise(schema, PROPERTIES);
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
