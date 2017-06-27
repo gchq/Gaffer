@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -99,23 +101,9 @@ public final class AggregatorUtil {
      * the Group-by values in the {@link Schema}, the Identifiers and the Group. These act as a key and can be used in a
      * Collector to do ingest aggregation.
      */
-    public static class ToIngestElementKey implements Function<Element, Element> {
-        private final Schema schema;
-
+    public static class ToIngestElementKey extends ToElementKey {
         public ToIngestElementKey(final Schema schema) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
-            }
-            this.schema = schema;
-        }
-
-        @Override
-        public Element apply(final Element element) {
-            final Element key = element.emptyClone();
-            for (final String propertyName : getGroupBy(element, schema)) {
-                key.putProperty(propertyName, element.getProperty(propertyName));
-            }
-            return key;
+            super(getGroupBys(schema));
         }
     }
 
@@ -124,132 +112,63 @@ public final class AggregatorUtil {
      * the Group-by values in the {@link View}, the Identifiers and the Group. These act as a key and can be used in a
      * Collector to do query aggregation.
      */
-    public static class ToQueryElementKey implements Function<Element, Element> {
-        private final Schema schema;
-        private final View view;
-
+    public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
+            super(getGroupBys(schema, view));
+        }
+    }
+
+    public static class ToElementKey implements Function<Element, Element> {
+        private final Map<String, Set<String>> groupToGroupBys;
+
+        public ToElementKey(final Map<String, Set<String>> groupToGroupBys) {
+            if (null == groupToGroupBys) {
+                throw new IllegalArgumentException("groupToGroupBys map is required");
             }
-            if (null == view) {
-                throw new IllegalArgumentException("View is required");
-            }
-            this.schema = schema;
-            this.view = view;
+            this.groupToGroupBys = groupToGroupBys;
         }
 
         @Override
         public Element apply(final Element element) {
             final Element key = element.emptyClone();
-            for (final String propertyName : getGroupBy(element, schema, view)) {
+            final Set<String> groupBy = groupToGroupBys.get(element.getGroup());
+            if (null == groupBy) {
+                throw new IllegalArgumentException("Group " + element.getGroup() + " was not recognised");
+            }
+            for (final String propertyName : groupBy) {
                 key.putProperty(propertyName, element.getProperty(propertyName));
             }
             return key;
         }
     }
 
-    public static class IngestElementBinaryOperator implements BinaryOperator<Element> {
-        private final Schema schema;
-
+    public static class IngestElementBinaryOperator extends ElementBinaryOperator {
         public IngestElementBinaryOperator(final Schema schema) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
-            }
-            this.schema = schema;
-        }
-
-        @Override
-        public Element apply(final Element a, final Element b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
-            return schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
+            super(schema, null);
         }
     }
 
-    public static class QueryElementBinaryOperator implements BinaryOperator<Element> {
-        private final Schema schema;
-        private final View view;
-
+    public static class QueryElementBinaryOperator extends ElementBinaryOperator {
         public QueryElementBinaryOperator(final Schema schema, final View view) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
-            }
+            super(schema, view);
             if (null == view) {
                 throw new IllegalArgumentException("View is required");
             }
-            this.view = view;
-            this.schema = schema;
-        }
-
-        @Override
-        public Element apply(final Element a, final Element b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
-            final String group = a.getGroup();
-            return schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
         }
     }
 
-    public static class IngestPropertiesBinaryOperator implements BinaryOperator<GroupedProperties> {
-        private final Schema schema;
-
+    public static class IngestPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public IngestPropertiesBinaryOperator(final Schema schema) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
-            }
-            this.schema = schema;
-        }
-
-        @Override
-        public GroupedProperties apply(final GroupedProperties a, final GroupedProperties b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
-            schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
-            // The aggregator will always return a so this is safe
-            return a;
+            super(schema, null);
         }
     }
 
-    public static class QueryPropertiesBinaryOperator implements BinaryOperator<GroupedProperties> {
-        private final Schema schema;
-        private final View view;
-
+    public static class QueryPropertiesBinaryOperator extends PropertiesBinaryOperator {
         public QueryPropertiesBinaryOperator(final Schema schema, final View view) {
-            if (null == schema) {
-                throw new IllegalArgumentException("Schema is required");
-            }
+            super(schema, view);
             if (null == view) {
                 throw new IllegalArgumentException("View is required");
             }
-            this.schema = schema;
-            this.view = view;
-        }
-
-        @Override
-        public GroupedProperties apply(final GroupedProperties a, final GroupedProperties b) {
-            if (null == a) {
-                return b;
-            }
-            if (null == b) {
-                return a;
-            }
-            final String group = a.getGroup();
-            schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
-            // The aggregator will always return a so this is safe
-            return a;
         }
     }
 
@@ -273,6 +192,67 @@ public final class AggregatorUtil {
         @Override
         public boolean test(final Element element) {
             return null != element && aggregatedGroups.contains(element.getGroup());
+        }
+    }
+
+    protected static class ElementBinaryOperator implements BinaryOperator<Element> {
+        private final Schema schema;
+        private final View view;
+
+        protected ElementBinaryOperator(final Schema schema, final View view) {
+            if (null == schema) {
+                throw new IllegalArgumentException("Schema is required");
+            }
+            this.view = view;
+            this.schema = schema;
+        }
+
+        @Override
+        public Element apply(final Element a, final Element b) {
+            if (null == a) {
+                return b;
+            }
+            if (null == b) {
+                return a;
+            }
+            final String group = a.getGroup();
+            if (null == view) {
+                return schema.getElement(group).getIngestAggregator().apply(a, b);
+            }
+            return schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+        }
+    }
+
+    protected static class PropertiesBinaryOperator implements BinaryOperator<GroupedProperties> {
+        private final Schema schema;
+        private final View view;
+
+        protected PropertiesBinaryOperator(final Schema schema, final View view) {
+            if (null == schema) {
+                throw new IllegalArgumentException("Schema is required");
+            }
+            this.schema = schema;
+            this.view = view;
+        }
+
+        @Override
+        public GroupedProperties apply(final GroupedProperties a, final GroupedProperties b) {
+            if (null == a) {
+                return b;
+            }
+            if (null == b) {
+                return a;
+            }
+
+            final String group = a.getGroup();
+            if (null == view) {
+                schema.getElement(a.getGroup()).getIngestAggregator().apply(a, b);
+            } else {
+                schema.getElement(group).getQueryAggregator(view.getElement(group).getGroupBy()).apply(a, b);
+            }
+
+            // The aggregator will always return a so this is safe
+            return a;
         }
     }
 
@@ -308,17 +288,44 @@ public final class AggregatorUtil {
         }
     }
 
-    private static Set<String> getGroupBy(final Element element, final Schema schema) {
-        final SchemaElementDefinition elDef = schema.getElement(element.getGroup());
+    private static Map<String, Set<String>> getGroupBys(final Schema schema) {
+        if (null == schema) {
+            throw new IllegalArgumentException("Schema is required");
+        }
+
+        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
+        for (final String group : schema.getGroups()) {
+            groupToGroupBys.put(group, getGroupBy(group, schema));
+        }
+
+        return groupToGroupBys;
+    }
+
+    private static Map<String, Set<String>> getGroupBys(final Schema schema, final View view) {
+        if (null == schema) {
+            throw new IllegalArgumentException("Schema is required");
+        }
+        if (null == view) {
+            throw new IllegalArgumentException("View is required");
+        }
+        final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
+        for (final String group : schema.getGroups()) {
+            groupToGroupBys.put(group, getGroupBy(group, schema, view));
+        }
+
+        return groupToGroupBys;
+    }
+
+    private static Set<String> getGroupBy(final String group, final Schema schema) {
+        final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
-            throw new IllegalArgumentException("Received element " + element
-                    + " which belongs to a group not found in the schema");
+            throw new IllegalArgumentException("Received group " + group
+                    + " which was not found in the schema");
         }
         return elDef.getGroupBy();
     }
 
-    private static Set<String> getGroupBy(final Element element, final Schema schema, final View view) {
-        final String group = element.getGroup();
+    private static Set<String> getGroupBy(final String group, final Schema schema, final View view) {
         Set<String> groupBy = null;
         if (null != view) {
             final ViewElementDefinition elDef = view.getElement(group);
@@ -329,8 +336,8 @@ public final class AggregatorUtil {
         if (null == groupBy) {
             final SchemaElementDefinition elDef = schema.getElement(group);
             if (elDef == null) {
-                throw new IllegalArgumentException("Received element " + element
-                        + " which belongs to a group not found in the schema");
+                throw new IllegalArgumentException("Received group " + group
+                        + " which was not found in the schema");
             }
             groupBy = elDef.getGroupBy();
         }
