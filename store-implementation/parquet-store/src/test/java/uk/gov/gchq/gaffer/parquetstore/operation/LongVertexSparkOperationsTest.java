@@ -39,7 +39,11 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties()).execute(new ImportRDDOfElements.Builder().input(getElements(spark)).build(), USER);
+        getGraph(getSchema(), getParquetStoreProperties())
+                .execute(new ImportRDDOfElements.Builder()
+                        .input(getElements(spark))
+                        .sparkContext(spark.sparkContext())
+                        .build(), USER);
     }
 
     @Before

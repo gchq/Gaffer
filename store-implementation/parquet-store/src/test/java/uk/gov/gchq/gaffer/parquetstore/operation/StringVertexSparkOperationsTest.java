@@ -39,7 +39,11 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     @BeforeClass
     public static void genData() throws OperationException, StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);
-        getGraph(getSchema(), getParquetStoreProperties()).execute(new ImportRDDOfElements.Builder().input(getElements(spark)).build(), USER);
+        getGraph(getSchema(), getParquetStoreProperties())
+                .execute(new ImportRDDOfElements.Builder()
+                        .input(getElements(spark))
+                        .sparkContext(spark.sparkContext())
+                        .build(), USER);
     }
 
     @Before
@@ -48,7 +52,8 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        return Schema.fromJson(
+                StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));

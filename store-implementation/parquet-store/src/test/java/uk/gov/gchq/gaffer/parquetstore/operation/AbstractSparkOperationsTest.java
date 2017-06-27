@@ -124,20 +124,24 @@ public abstract class AbstractSparkOperationsTest {
 
     @Test
     public void getDataFrameOfElementsTest() throws OperationException {
-        Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder().build(), USER);
+        final Dataset<Row> data = graph.execute(new GetDataFrameOfElements.Builder()
+                .sqlContext(spark.sqlContext())
+                .build(), USER);
         checkGetDataFrameOfElements(data);
     }
 
     @Test
     public void getDataFrameOfElementsWithViewTest() throws OperationException {
-        View view = new View.Builder()
+        final View view = new View.Builder()
                 .entity("BasicEntity",
                         new ViewElementDefinition.Builder().preAggregationFilter(
                                 new ElementFilter.Builder().select("property2").execute(new IsEqual(0.2)).build()
                         ).build())
                 .build();
         try {
-            graph.execute(new GetDataFrameOfElements.Builder().view(view).build(), USER);
+            graph.execute(new GetDataFrameOfElements.Builder()
+                    .sqlContext(spark.sqlContext())
+                    .view(view).build(), USER);
             fail();
         } catch (final OperationException e) {
             assertEquals("Views are not supported by this operation yet", e.getMessage());
