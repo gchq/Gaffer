@@ -15,20 +15,22 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-import java.util.HashSet;
-import java.util.TreeSet;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class TreeSetStringSerialiserTest extends ToByteSerialisationTest<TreeSet<String>> {
+import com.google.common.collect.Sets;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import java.util.HashSet;
+import java.util.TreeSet;
+
+public class TreeSetStringSerialiserTest extends ToBytesSerialisationTest<TreeSet<String>> {
 
     @Test
     public void shouldSerialiseAndDeserialiseATreeSet() throws SerialisationException {
@@ -96,5 +98,13 @@ public class TreeSetStringSerialiserTest extends ToByteSerialisationTest<TreeSet
         final TreeSet<String> tree = serialiser.deserialiseEmpty();
         assertNotNull(tree);
         assertTrue(tree.isEmpty());
+    }
+
+    public Pair<TreeSet<String>, byte[]>[] getHistoricSerialisationPairs() {
+        TreeSet<String> set = Sets.newTreeSet();
+        set.add("this");
+        set.add("is");
+        set.add("S P A R T A!!!!!");
+        return new Pair[]{new Pair(set, new byte[]{123, 83, 32, 80, 32, 65, 32, 82, 32, 84, 32, 65, 33, 33, 33, 33, 33, 92, 44, 105, 115, 92, 44, 116, 104, 105, 115, 125})};
     }
 }
