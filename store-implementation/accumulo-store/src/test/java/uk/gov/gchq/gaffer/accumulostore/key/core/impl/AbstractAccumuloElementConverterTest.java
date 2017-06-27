@@ -31,7 +31,12 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -500,15 +505,14 @@ public abstract class AbstractAccumuloElementConverterTest {
 
 
     @Test
-    public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty()
-            {
+    public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty() {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(TestPropertyNames.PROP_1, "map")
-                                .property(TestPropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "map")
+                        .property(TestPropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
@@ -538,5 +542,95 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // Then 2
         assertEquals(entity.getProperties(), properties);
+    }
+
+    @Test
+    public void shouldDeserialiseEntityId() {
+        // Given 
+        final EntityId expectedElementId = new EntitySeed("vertex1");
+        final Entity entity = new Entity.Builder()
+                .vertex("vertex1")
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        final Key key = converter.getKeyFromEntity(entity);
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeId() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        final Key key = converter.getKeysFromEdge(edge).getFirst();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeIdWithMatchAsSourceOption() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("dest1", "source1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
+
+        final Key key = converter.getKeysFromEdge(edge).getSecond();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeIdWithoutMatchAsSourceOption() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "false");
+
+        final Key key = converter.getKeysFromEdge(edge).getSecond();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
     }
 }

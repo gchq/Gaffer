@@ -33,6 +33,7 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
@@ -877,6 +878,120 @@ public class SchemaTest {
 
         assertEquals(allGroups, groups);
     }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityPropertyFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityIdentifierFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(IdentifierType.VERTEX.name())
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgePropertyFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgeIdentifierFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(IdentifierType.SOURCE.name())
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasNullValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(null)
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasEmptyValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertFalse(result);
+    }
+
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
