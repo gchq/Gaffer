@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusDeserialiser;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusSerialiser;
@@ -95,7 +95,7 @@ public final class Error {
         return new ToStringBuilder(this)
                 .append("statusCode", statusCode)
                 .append("simpleMessage", simpleMessage)
-                .toString();
+                .build();
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -138,12 +138,12 @@ public final class Error {
 
         @Override
         public String toString() {
-            final ToStringBuilder sb = new ToStringBuilder(this);
-            sb.append("simpleMessage", simpleMessage);
-            sb.append("detailMessage", detailMessage);
-            sb.append("statusCode", statusCode);
-            sb.append("status", status);
-            return sb.build();
+            return new ToStringBuilder(this)
+                    .append("simpleMessage", simpleMessage)
+                    .append("detailMessage", detailMessage)
+                    .append("statusCode", statusCode)
+                    .append("status", status)
+                    .build();
         }
     }
 }
