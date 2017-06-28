@@ -24,6 +24,8 @@ import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.client.security.tokens.PasswordToken;
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
@@ -35,6 +37,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  * provide a {@link Connector}.
  */
 public class MockAccumuloStore extends AccumuloStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
 
     private static final PasswordToken PASSWORD_TOKEN = new PasswordToken(AccumuloProperties.PASSWORD);
     private MockInstance mockAccumulo = null;
@@ -85,5 +88,4 @@ public class MockAccumuloStore extends AccumuloStore {
     OperationHandler getOperationHandlerExposed(final Class<? extends Operation> opClass) {
         return super.getOperationHandler(opClass);
     }
-
 }

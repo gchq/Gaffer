@@ -244,17 +244,6 @@ accumulo.password=password
 ################################################################################
 
 ################################################################################
-# accumulo store property - accumulo.splits.file.path
-# description - the path to a splits file containing a newline separated list of Base64 encoded split points that represent ranges to partition tables on.
-# notes
-#   - property is not required
-#   - default value is provided of "/data/splits.txt"
-
-# accumulo.splits.file.path=target/data/splits.txt
-
-################################################################################
-
-################################################################################
 # accumulo store property - accumulo.file.replication
 # description - the number of replicas to keep of a table's files in HDFS. When this value is LTE 0, HDFS defaults are used.
 # notes
