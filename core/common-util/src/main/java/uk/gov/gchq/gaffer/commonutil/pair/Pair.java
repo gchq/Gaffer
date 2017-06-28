@@ -19,7 +19,7 @@ package uk.gov.gchq.gaffer.commonutil.pair;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 /**
  * A simple class to contain a pair of items.
@@ -76,15 +76,15 @@ public class Pair<F, S> {
         final Pair<?, ?> pair = (Pair<?, ?>) obj;
 
         return new EqualsBuilder().append(first, pair.first)
-                                  .append(second, pair.second)
-                                  .isEquals();
+                .append(second, pair.second)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(first)
-                                          .append(second)
-                                          .toHashCode();
+                .append(second)
+                .toHashCode();
     }
 
     @Override
@@ -92,6 +92,6 @@ public class Pair<F, S> {
         return new ToStringBuilder(this)
                 .append("first", first)
                 .append("second", second)
-                .toString();
+                .build();
     }
 }
