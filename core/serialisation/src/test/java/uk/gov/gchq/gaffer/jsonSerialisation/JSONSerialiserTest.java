@@ -36,13 +36,13 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class JSONSerialiserTest {
 
     private JSONSerialiser serialiser = null;
     private final Pair<Object, byte[]>[] historicSerialisationPairs;
 
+    @SuppressWarnings("unchecked")
     public JSONSerialiserTest() {
         ParameterisedTestObject<Object> paramTest = new ParameterisedTestObject<>();
         paramTest.setX("Test");
@@ -213,7 +213,7 @@ public class JSONSerialiserTest {
 
     protected void serialiseFirst(final Pair<Object, byte[]> pair) throws SerialisationException {
         byte[] serialise = serialiser.serialise(pair.getFirst());
-        assertArrayEquals(String.format("For: %s \nFound: \n%s\n", pair.getFirst(), Arrays.toString(serialise)), pair.getSecond(), serialise);
+        assertArrayEquals(pair.getSecond(), serialise);
     }
 
 }

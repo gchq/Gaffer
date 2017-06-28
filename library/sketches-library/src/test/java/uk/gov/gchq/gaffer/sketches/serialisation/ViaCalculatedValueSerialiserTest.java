@@ -59,20 +59,4 @@ public abstract class ViaCalculatedValueSerialiserTest<OUTPUT, VALUE> extends To
             fail("A SerialisationException occurred");
         }
     }
-
-    /*@Override
-    protected void testSerialiser(final ReservoirItemsUnion<Number> union) {
-        try {
-            super.testSerialiser(union);
-        } catch (NullPointerException e) {
-            try {
-                final boolean resultIsNull = union.getResult() == null;
-                final boolean deserialisedResultIsNull = serialiser.deserialise(serialiser.serialise(union)).getResult() == null;
-                assertTrue(resultIsNull || deserialisedResultIsNull);
-                assertEquals(resultIsNull, deserialisedResultIsNull);
-            } catch (SerialisationException e) {
-                fail("A serialisation exception occurred but should have been caught by ViaCalculatedValueSerialiserTest.testSerialiser");
-            }
-        }
-    }*/
 }
