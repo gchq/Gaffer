@@ -92,6 +92,6 @@ public class Pair<F, S> {
         return new ToStringBuilder(this)
                 .append("first", first)
                 .append("second", second)
-                .build();
+                .toString();
     }
 }

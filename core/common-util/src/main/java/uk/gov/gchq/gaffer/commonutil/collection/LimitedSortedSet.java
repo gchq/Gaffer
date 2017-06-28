@@ -164,7 +164,7 @@ public class LimitedSortedSet<E> implements SortedSet<E> {
         return new ToStringBuilder(this)
                 .append("limit", limit)
                 .append("backingSet", backingSet)
-                .build();
+                .toString();
     }
 
     @Override

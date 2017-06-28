@@ -143,7 +143,7 @@ public final class Error {
                     .append("detailMessage", detailMessage)
                     .append("statusCode", statusCode)
                     .append("status", status)
-                    .build();
+                    .toString();
         }
     }
 }
