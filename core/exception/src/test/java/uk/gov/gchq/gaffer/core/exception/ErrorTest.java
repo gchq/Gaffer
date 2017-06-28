@@ -40,6 +40,36 @@ public class ErrorTest {
     }
 
     @Test
+    public void shouldNotBuildDetailedMessageWithMissingPropertyFlag() {
+        // Given
+        setDebugMode(null);
+
+        // When
+        final Error error = new ErrorBuilder()
+                .simpleMessage(SIMPLE_MSG)
+                .detailMessage(DETAILED_MSG)
+                .build();
+
+        // Then
+        assertNotEquals("Detailed message is present when build and debug is false", DETAILED_MSG, error.getDetailMessage());
+    }
+
+    @Test
+    public void shouldNotBuildDetailedMessageWithIncorrectPropertyFlad() {
+        // Given
+        setDebugMode("wrong");
+
+        // When
+        final Error error = new ErrorBuilder()
+                .simpleMessage(SIMPLE_MSG)
+                .detailMessage(DETAILED_MSG)
+                .build();
+
+        // Then
+        assertNotEquals("Detailed message is present when build and debug is false", DETAILED_MSG, error.getDetailMessage());
+    }
+
+    @Test
     public void shouldBuildDetailedMessage() throws Exception {
         // Given
         setDebugMode("true");
