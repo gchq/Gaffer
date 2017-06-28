@@ -37,7 +37,9 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -233,4 +235,54 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             }
         }
     }
+
+    @Test
+    public void shouldThrowExceptionWhenValidateOptionsWithDirectedAndUndirectedEdgeFlags() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+        options.put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+
+        // When / Then
+        try {
+            filter.validateOptions(options);
+
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenValidateOptionsWithInAndOutEdgeFlags() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
+        options.put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+
+        // When / Then
+        try {
+            filter.validateOptions(options);
+
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldValidateOptionsSuccessfully() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+
+        // When
+        final boolean result = filter.validateOptions(options);
+
+        // Then
+        assertTrue(result);
+    }
 }
+

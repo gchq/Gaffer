@@ -63,7 +63,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
     public static final String ENTITY_DESCRIPTION = "Entity description";
@@ -915,7 +914,7 @@ public class SchemaTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenSchemaHasValidatorEntityPropertyFilters() {
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityFilters() {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
@@ -923,6 +922,26 @@ public class SchemaTest {
                                 .select(TestPropertyNames.PROP_1)
                                 .execute(new Exists())
                                 .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityPropertyFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
                         .build())
                 .edge(TestGroups.EDGE)
                 .build();
@@ -939,12 +958,32 @@ public class SchemaTest {
         // Given
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .validator(new ElementFilter.Builder()
-                                .select(IdentifierType.VERTEX.name())
+                                .select(TestPropertyNames.PROP_1)
                                 .execute(new Exists())
                                 .build())
                         .build())
-                .edge(TestGroups.EDGE)
+                .edge(TestGroups.ENTITY)
                 .build();
 
         // When
@@ -958,13 +997,13 @@ public class SchemaTest {
     public void shouldReturnTrueWhenSchemaHasValidatorEdgePropertyFilters() {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .validator(new ElementFilter.Builder()
-                                .select(TestPropertyNames.PROP_1)
-                                .execute(new Exists())
-                                .build())
+                        .property(TestPropertyNames.PROP_1, "str")
                         .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.ENTITY)
                 .build();
 
         // When
@@ -978,13 +1017,13 @@ public class SchemaTest {
     public void shouldReturnTrueWhenSchemaHasValidatorEdgeIdentifierFilters() {
         // Given
         final Schema schema = new Schema.Builder()
-                .entity(TestGroups.ENTITY)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
-                        .validator(new ElementFilter.Builder()
-                                .select(IdentifierType.SOURCE.name())
-                                .execute(new Exists())
-                                .build())
+                        .source("str")
                         .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.ENTITY)
                 .build();
 
         // When

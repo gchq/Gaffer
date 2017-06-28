@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -233,14 +234,14 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
             return true;
         }
 
-        for (final Entry<IdentifierType, String> entry : getIdentifierMap().entrySet()) {
-            if (null != getTypeDef(entry.getValue()).getValidateFunctions()) {
-                return true;
-            }
-        }
-        for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-            if (null != getTypeDef(entry.getValue()).getValidateFunctions()) {
-                return true;
+        final Set<String> typeNames = Sets.newHashSet(identifiers.values());
+        typeNames.addAll(properties.values());
+        for (final String typeName : typeNames) {
+            final TypeDefinition typeDef = getTypeDef(typeName);
+            if (null != typeDef) {
+                if (null != typeDef.getValidateFunctions() && !typeDef.getValidateFunctions().isEmpty()) {
+                    return true;
+                }
             }
         }
 
