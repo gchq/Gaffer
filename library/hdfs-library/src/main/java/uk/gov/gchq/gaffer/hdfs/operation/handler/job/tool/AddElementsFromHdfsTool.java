@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool;
+package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -22,35 +22,32 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloAddElementsFromHdfsJobFactory;
-import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.store.Store;
 import java.io.IOException;
 
-public class FetchElementsFromHdfsTool extends Configured implements Tool {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FetchElementsFromHdfsTool.class);
+public class AddElementsFromHdfsTool extends Configured implements Tool {
     public static final int SUCCESS_RESPONSE = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsFromHdfsTool.class);
 
     private final AddElementsFromHdfs operation;
-    private final AccumuloStore store;
+    private final Store store;
+    private final AddElementsFromHdfsJobFactory jobFactory;
 
-    public FetchElementsFromHdfsTool(final AddElementsFromHdfs operation, final AccumuloStore store) {
+    public AddElementsFromHdfsTool(final AddElementsFromHdfsJobFactory jobFactory, final AddElementsFromHdfs operation, final Store store) {
         this.operation = operation;
         this.store = store;
+        this.jobFactory = jobFactory;
     }
 
     @Override
     public int run(final String[] strings) throws Exception {
         checkHdfsDirectories(operation);
-
-        LOGGER.info("Ensuring table {} exists", store.getProperties().getTable());
-        TableUtils.ensureTableExists(store);
-
+        jobFactory.prepareStore(store);
         LOGGER.info("Adding elements from HDFS");
-        final Job job = new AccumuloAddElementsFromHdfsJobFactory().createJob(operation, store);
+        final Job job = jobFactory.createJob(operation, store);
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
             LOGGER.error("Error running job");
@@ -75,6 +72,5 @@ public class FetchElementsFromHdfsTool extends Configured implements Tool {
             LOGGER.info("Output directory exists and is empty so deleting: {}", outputPath);
             fs.delete(outputPath, true);
         }
-
     }
 }
