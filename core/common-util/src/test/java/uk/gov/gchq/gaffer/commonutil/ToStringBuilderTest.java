@@ -16,21 +16,45 @@
 
 package uk.gov.gchq.gaffer.commonutil;
 
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import java.util.ArrayList;
-import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ToStringBuilderTest {
 
+    @Before
+    public void setUp() throws Exception {
+        setDebugMode(null);
+    }
+
+    @After
+    public void after() throws Exception {
+        setDebugMode(null);
+    }
+
     @Test
-    public void testToStringBuilder() {
-        List<String> testArrayList = new ArrayList<>();
-        testArrayList.add("Hello");
-        testArrayList.add("How");
-        testArrayList.add("Are");
-        testArrayList.add("You");
-        ToStringBuilder toStringBuilder = new ToStringBuilder(testArrayList);
-        System.out.println(toStringBuilder.getStyle());
-        System.out.println(toStringBuilder.build());
+    public void testDebugOffToStringBuilder() {
+        setDebugMode("false");
+        ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
+        assertEquals(ToStringStyle.SHORT_PREFIX_STYLE, toStringBuilder.getStyle());
+    }
+
+    @Test
+    public void testDebugOnToStringBuilder() {
+        setDebugMode("true");
+        ToStringBuilder toStringBuilder = new ToStringBuilder("Test String");
+        assertEquals(ToStringStyle.DEFAULT_STYLE, toStringBuilder.getStyle());
+    }
+
+    private void setDebugMode(final String value) {
+        if (value == null) {
+            System.clearProperty(DebugUtil.DEBUG);
+        } else {
+            System.setProperty(DebugUtil.DEBUG, value);
+        }
+        DebugUtil.updateDebugMode();
     }
 }
