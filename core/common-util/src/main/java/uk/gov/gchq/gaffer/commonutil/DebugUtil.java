@@ -45,7 +45,7 @@ public final class DebugUtil {
         return isDebug;
     }
 
-    public static void setDebugMode(final boolean debugMode) {
-        isDebug = debugMode;
+    public static void updateDebugMode() {
+        isDebug = checkDebugMode();
     }
 }

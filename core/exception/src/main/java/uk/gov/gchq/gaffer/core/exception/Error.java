@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.core.exception.Error.ErrorBuilder;
 import uk.gov.gchq.gaffer.core.exception.serialisation.StatusDeserialiser;
@@ -102,8 +100,6 @@ public final class Error {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class ErrorBuilder {
-        private static final Logger LOGGER = LoggerFactory.getLogger(ErrorBuilder.class);
-        private static boolean isDebug = DebugUtil.checkDebugMode();
         private int statusCode;
         private Status status;
         private String simpleMessage;
@@ -137,7 +133,7 @@ public final class Error {
         }
 
         public Error build() {
-            return new Error(isDebug ? this : this.detailMessage(null));
+            return new Error(DebugUtil.checkDebugMode() ? this : this.detailMessage(null));
         }
 
         @Override
