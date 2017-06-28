@@ -19,11 +19,18 @@ package uk.gov.gchq.gaffer.commonutil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Util methods for debugging
+ */
 public final class DebugUtil {
     public static final String DEBUG = "gaffer.error-mode.debug";
     public static final String DEBUG_DEFAULT = String.valueOf(false);
     public static boolean isDebug;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
+
+    private DebugUtil() {
+        // this class should not be instantiated - it contains only util methods and constants.
+    }
 
     public static boolean checkDebugMode() {
         try {
@@ -35,7 +42,10 @@ public final class DebugUtil {
             LOGGER.error("Defaulting Debug flag. Could not assign from System Properties: {}", e.getMessage());
             isDebug = Boolean.valueOf(DEBUG_DEFAULT);
         }
-
         return isDebug;
+    }
+
+    public static void setDebugMode(final boolean debugMode) {
+        isDebug = debugMode;
     }
 }

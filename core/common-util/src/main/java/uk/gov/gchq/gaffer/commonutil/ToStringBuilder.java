@@ -17,18 +17,18 @@
 package uk.gov.gchq.gaffer.commonutil;
 
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ToStringBuilder extends org.apache.commons.lang3.builder.ToStringBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ToStringBuilder.class);
-
     public ToStringBuilder(final Object object) {
-        super(object);
-        if (!DebugUtil.checkDebugMode()) {
-            LOGGER.debug("Debug mode set to false, short prefix toString will be used.");
-            setDefaultStyle(ToStringStyle.SHORT_PREFIX_STYLE);
+        super(object, getGafferToStringStyle());
+    }
+
+    private static ToStringStyle getGafferToStringStyle() {
+        if (DebugUtil.checkDebugMode()) {
+            return ToStringStyle.DEFAULT_STYLE;
+        } else {
+            return ToStringStyle.SHORT_PREFIX_STYLE;
         }
     }
 }
