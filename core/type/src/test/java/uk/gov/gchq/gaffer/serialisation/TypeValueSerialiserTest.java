@@ -15,15 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.TypeValue;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TypeValueSerialiserTest extends ToByteSerialisationTest<TypeValue> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.types.TypeValue;
+
+public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue> {
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectly() throws SerialisationException {
@@ -86,7 +87,15 @@ public class TypeValueSerialiserTest extends ToByteSerialisationTest<TypeValue> 
     }
 
     @Override
-    public Serialiser<TypeValue,byte[]> getSerialisation() {
+    public Serialiser<TypeValue, byte[]> getSerialisation() {
         return new TypeValueSerialiser();
+    }
+
+    public Pair<TypeValue, byte[]>[] getHistoricSerialisationPairs() {
+        TypeValue typeValue = new TypeValue("testType", "testValue");
+        return new Pair[]{
+                new Pair(typeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
+        };
+
     }
 }
