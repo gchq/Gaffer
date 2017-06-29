@@ -113,6 +113,7 @@ public class ProxyStoreBasicIT {
         // setup ProxyStore
         graph = new Graph.Builder()
                 .store(new ProxyStore.Builder()
+                        .graphId("graph1")
                         .host("localhost")
                         .port(8080)
                         .contextRoot("rest/v1")

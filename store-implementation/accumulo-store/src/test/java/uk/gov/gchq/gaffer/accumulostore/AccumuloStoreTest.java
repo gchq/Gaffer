@@ -87,10 +87,11 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class AccumuloStoreTest {
-
+    private static final String BYTE_ENTITY_GRAPH = "byteEntityGraph";
+    private static final String GAFFER_1_GRAPH = "gaffer1Graph";
     private static SingleUseMockAccumuloStore byteEntityStore;
     private static SingleUseMockAccumuloStore gaffer1KeyStore;
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(AccumuloStoreTest.class));
     private static final AccumuloProperties PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
     private static final AccumuloProperties CLASSIC_PROPERTIES = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
 
@@ -98,21 +99,13 @@ public class AccumuloStoreTest {
     public static void setup() throws StoreException, AccumuloException, AccumuloSecurityException, IOException {
         byteEntityStore = new SingleUseMockAccumuloStore();
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
     }
 
     @Before
     public void beforeMethod() throws StoreException, IOException {
-        if (!byteEntityStore.getConnection().tableOperations().exists(byteEntityStore.getTableName())) {
-            byteEntityStore.initialise(schema, PROPERTIES);
-        }
-
-        if (!gaffer1KeyStore.getConnection().tableOperations().exists(gaffer1KeyStore.getTableName())) {
-            gaffer1KeyStore.initialise(schema, PROPERTIES);
-        }
+        byteEntityStore.initialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
+        gaffer1KeyStore.initialise(GAFFER_1_GRAPH, SCHEMA, CLASSIC_PROPERTIES);
     }
-
 
     @AfterClass
     public static void tearDown() {
@@ -127,11 +120,11 @@ public class AccumuloStoreTest {
         connector.tableOperations().delete(byteEntityStore.getTableName());
         assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
-        byteEntityStore.preInitialise(schema, PROPERTIES);
+        byteEntityStore.preInitialise(BYTE_ENTITY_GRAPH, SCHEMA, PROPERTIES);
         connector = byteEntityStore.getConnection();
         assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
-        byteEntityStore.initialise(schema, PROPERTIES);
+        byteEntityStore.initialise(GAFFER_1_GRAPH, SCHEMA, PROPERTIES);
         connector = byteEntityStore.getConnection();
         assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
     }
@@ -147,8 +140,8 @@ public class AccumuloStoreTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Serialiser serialiser = new StringSerialiser();
-
         store.initialise(
+                BYTE_ENTITY_GRAPH,
                 new Schema.Builder()
                         .vertexSerialiser(serialiser)
                         .build(),
@@ -168,8 +161,8 @@ public class AccumuloStoreTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Serialiser serialiser = new CompactRawLongSerialiser();
-
         store.initialise(
+                BYTE_ENTITY_GRAPH,
                 new Schema.Builder()
                         .vertexSerialiser(serialiser)
                         .build(),
@@ -195,7 +188,6 @@ public class AccumuloStoreTest {
     }
 
     public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException, StoreException {
-        store.initialise(schema, PROPERTIES);
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);

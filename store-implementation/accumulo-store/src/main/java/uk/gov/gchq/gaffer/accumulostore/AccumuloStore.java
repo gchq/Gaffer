@@ -127,20 +127,21 @@ public class AccumuloStore extends Store {
     private Connector connection = null;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        preInitialise(schema, properties);
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
     /**
      * Performs general initialisation without creating the table.
      *
+     * @param graphId    the graph ID
      * @param schema     the gaffer Schema
      * @param properties the accumulo store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
-        super.initialise(schema, properties);
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        super.initialise(graphId, schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
             this.keyPackage = Class.forName(keyPackageClass).asSubclass(AccumuloKeyPackage.class).newInstance();
@@ -167,7 +168,7 @@ public class AccumuloStore extends Store {
     }
 
     public String getTableName() {
-        return getProperties().getTable();
+        return getGraphId();
     }
 
     /**

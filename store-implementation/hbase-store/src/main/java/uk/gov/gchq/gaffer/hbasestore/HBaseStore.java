@@ -98,22 +98,23 @@ public class HBaseStore extends Store {
     private Connection connection;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        preInitialise(schema, properties);
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
     /**
      * Performs general initialisation without creating the table.
      *
+     * @param graphId    the graph ID
      * @param schema     the gaffer Schema
      * @param properties the hbase store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void preInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        super.initialise(graphId, schema, properties);
     }
 
     public Configuration getConfiguration() {
@@ -136,7 +137,7 @@ public class HBaseStore extends Store {
     }
 
     public TableName getTableName() {
-        return getProperties().getTable();
+        return TableName.valueOf(getGraphId());
     }
 
     /**

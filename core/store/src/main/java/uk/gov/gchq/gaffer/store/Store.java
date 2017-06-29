@@ -139,6 +139,7 @@ public abstract class Store {
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
+    private String graphId;
 
     public Store() {
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
@@ -146,7 +147,11 @@ public abstract class Store {
         this.schemaOptimiser = createSchemaOptimiser();
     }
 
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        if (null == graphId) {
+            throw new IllegalArgumentException("graphId is required");
+        }
+        this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
         startCacheServiceLoader(properties);
@@ -352,6 +357,10 @@ public abstract class Store {
         }
 
         return lazyElement.getElement();
+    }
+
+    public String getGraphId() {
+        return graphId;
     }
 
     /**

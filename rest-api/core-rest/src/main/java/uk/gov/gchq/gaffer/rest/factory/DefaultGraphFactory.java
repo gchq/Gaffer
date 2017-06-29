@@ -73,10 +73,14 @@ public class DefaultGraphFactory implements GraphFactory {
         return Boolean.parseBoolean(System.getProperty(SystemProperty.ENABLE_CHAIN_LIMITER, "false"));
     }
 
+    protected static String getGraphId() {
+        return System.getProperty(SystemProperty.GRAPH_ID);
+    }
+
     protected static Path[] getSchemaPaths() {
         final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
         if (null == schemaPaths) {
-            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
+            return new Path[0];
         }
 
         final String[] schemaPathsArray = schemaPaths.split(",");
@@ -121,6 +125,7 @@ public class DefaultGraphFactory implements GraphFactory {
 
         final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storePropertiesPath);
+        builder.graphId(getGraphId());
         for (final Path path : getSchemaPaths()) {
             builder.addSchema(path);
         }

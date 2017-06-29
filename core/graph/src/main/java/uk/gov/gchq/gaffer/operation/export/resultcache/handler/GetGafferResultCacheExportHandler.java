@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.export.GetExportHandler;
 
 public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGafferResultCacheExport, GafferResultCacheExporter> {
+    private String graphId = "gafferResultCache";
+
     /**
      * Time to live in milliseconds.
      */
@@ -51,7 +53,15 @@ public class GetGafferResultCacheExportHandler extends GetExportHandler<GetGaffe
     }
 
     protected Graph createGraph(final Store store) {
-        return GafferResultCacheUtil.createGraph(cacheStorePropertiesPath, timeToLive);
+        return GafferResultCacheUtil.createGraph(graphId, cacheStorePropertiesPath, timeToLive);
+    }
+
+    public String getGraphId() {
+        return graphId;
+    }
+
+    public void setGraphId(final String graphId) {
+        this.graphId = graphId;
     }
 
     public Long getTimeToLive() {

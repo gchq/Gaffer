@@ -63,7 +63,7 @@ public class MiniHBaseStore extends HBaseStore {
 
     @SuppressFBWarnings({"DE_MIGHT_IGNORE", "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"})
     @Override
-    public void preInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         if (!(properties instanceof HBaseProperties)) {
             throw new StoreException("Store must be initialised with HBaseProperties");
@@ -83,13 +83,13 @@ public class MiniHBaseStore extends HBaseStore {
         }
 
         try {
-            super.preInitialise(schema, properties);
+            super.preInitialise(graphId, schema, properties);
         } catch (final StoreException e) {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }
 
         TableUtils.dropTable(this);
-        super.preInitialise(schema, properties);
+        super.preInitialise(graphId, schema, properties);
     }
 
     @Override

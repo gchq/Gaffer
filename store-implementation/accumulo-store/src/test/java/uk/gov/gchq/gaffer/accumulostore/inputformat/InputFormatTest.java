@@ -237,17 +237,20 @@ public class InputFormatTest {
             throws Exception {
         final AccumuloStore store = new SingleUseMockAccumuloStore();
         final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
+        String graphId = null;
         switch (kp) {
             case BYTE_ENTITY_KEY_PACKAGE:
                 properties.setKeyPackageClass(ByteEntityKeyPackage.class.getName());
                 properties.setInstance(instanceName + "_BYTE_ENTITY");
+                graphId = "byteEntityGraph";
                 break;
             case CLASSIC_KEY_PACKAGE:
+                graphId = "gaffer1Graph";
                 properties.setKeyPackageClass(ClassicKeyPackage.class.getName());
                 properties.setInstance(instanceName + "_CLASSIC");
         }
         try {
-            store.initialise(schema, properties);
+            store.initialise(graphId, schema, properties);
         } catch (final StoreException e) {
             fail("StoreException thrown: " + e);
         }

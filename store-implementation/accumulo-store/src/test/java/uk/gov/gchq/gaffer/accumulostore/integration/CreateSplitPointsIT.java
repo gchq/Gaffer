@@ -81,6 +81,7 @@ public class CreateSplitPointsIT {
 
         final SingleUseMockAccumuloStoreWithTabletServers store = new SingleUseMockAccumuloStoreWithTabletServers();
         store.initialise(
+                "graphId1",
                 Schema.fromJson(StreamUtil.schemas(getClass())),
                 StoreProperties.loadStoreProperties(StreamUtil.storeProps(getClass()))
         );

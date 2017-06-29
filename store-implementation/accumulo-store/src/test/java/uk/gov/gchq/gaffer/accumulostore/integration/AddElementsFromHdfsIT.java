@@ -244,7 +244,7 @@ public class AddElementsFromHdfsIT {
         properties.setInstance("instance_" + keyPackageClass.getName());
 
         final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         assertEquals(0, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
         return store;
     }

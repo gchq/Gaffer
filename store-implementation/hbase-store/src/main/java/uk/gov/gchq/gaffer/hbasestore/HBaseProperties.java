@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.hbasestore;
 
-import org.apache.hadoop.hbase.TableName;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -29,7 +28,6 @@ import java.nio.file.Path;
  */
 public class HBaseProperties extends StoreProperties {
     public static final String ZOOKEEPERS = "hbase.zookeepers";
-    public static final String TABLE = "hbase.table";
     public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
     public static final String DEPENDENCY_JARS_HDFS_DIR_PATH = "hbase.hdfs.jars.path";
     public static final String MAX_ENTRIES_FOR_BATCH_SCANNER = "hbase.entriesForBatchScanner";
@@ -79,24 +77,6 @@ public class HBaseProperties extends StoreProperties {
      */
     public void setZookeepers(final String zookeepers) {
         set(ZOOKEEPERS, zookeepers);
-    }
-
-    /**
-     * Get the particular table name.
-     *
-     * @return The hbase table to use as set in the properties file
-     */
-    public TableName getTable() {
-        return TableName.valueOf(get(TABLE));
-    }
-
-    /**
-     * Set the table name.
-     *
-     * @param table the table name
-     */
-    public void setTable(final String table) {
-        set(TABLE, table);
     }
 
     public int getWriteBufferSize() {
