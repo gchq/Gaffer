@@ -195,6 +195,7 @@ public class StoreTest {
                 .build();
         given(properties.getOperationDeclarations()).willReturn(opDeclarations);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.isAdvancedMode()).willReturn(true);
 
         // When
         store.initialise(schema, properties);
@@ -214,7 +215,54 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(ExportToSet.class) instanceof ExportToSetHandler);
         assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
 
+        assertTrue(store.isSupported(ExportToGafferResultCache.class));
+        assertTrue(store.isSupported(GetGafferResultCacheExport.class));
+
         assertEquals(1, store.getCreateOperationHandlersCallCount());
+        assertEquals(1, store.getCreateAdvOperationHandlersCallCount());
+        assertSame(schema, store.getSchema());
+        assertSame(properties, store.getProperties());
+        verify(schemaOptimiser).optimise(schema, true);
+    }
+
+    @Test
+    public void shouldCreateStoreNotInAdvModeWithValidSchemasAndRegisterOperations() throws StoreException {
+        // Given
+        final StoreProperties properties = mock(StoreProperties.class);
+        final OperationHandler<AddElements> addElementsHandlerOverridden = mock(OperationHandler.class);
+        final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
+                .declaration(new OperationDeclaration.Builder()
+                        .operation(AddElements.class)
+                        .handler(addElementsHandlerOverridden)
+                        .build())
+                .build();
+        given(properties.getOperationDeclarations()).willReturn(opDeclarations);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+        given(properties.isAdvancedMode()).willReturn(false);
+
+        // When
+        store.initialise(schema, properties);
+
+        // Then
+        assertNotNull(store.getOperationHandlerExposed(Validate.class));
+        assertSame(addElementsHandlerOverridden, store.getOperationHandlerExposed(AddElements.class));
+
+        assertSame(getAllElementsHandler, store.getOperationHandlerExposed(GetAllElements.class));
+
+        assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
+        assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
+
+        assertTrue(store.getOperationHandlerExposed(CountGroups.class) instanceof CountGroupsHandler);
+        assertTrue(store.getOperationHandlerExposed(ToSet.class) instanceof ToSetHandler);
+
+        assertTrue(store.getOperationHandlerExposed(ExportToSet.class) instanceof ExportToSetHandler);
+        assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
+
+        assertFalse(store.isSupported(ExportToGafferResultCache.class));
+        assertFalse(store.isSupported(ExportToGafferResultCache.class));
+
+        assertEquals(1, store.getCreateOperationHandlersCallCount());
+        assertEquals(0, store.getCreateAdvOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
         verify(schemaOptimiser).optimise(schema, true);
@@ -376,6 +424,7 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.isAdvancedMode()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final int expectedNumberOfOperations = 33;
         store.initialise(schema, properties);
@@ -447,6 +496,7 @@ public class StoreTest {
                 .then(new ExportToGafferResultCache())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.isAdvancedMode()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
@@ -474,6 +524,7 @@ public class StoreTest {
         final Operation operation = mock(Operation.class);
         final OperationChain<?> opChain = new OperationChain<>(operation);
         final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.isAdvancedMode()).willReturn(true);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
@@ -563,6 +614,7 @@ public class StoreTest {
         private final Set<StoreTrait> TRAITS = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, TRANSFORMATION, ORDERED));
         private final ArrayList<Operation> doUnhandledOperationCalls = new ArrayList<>();
         private int createOperationHandlersCallCount;
+        private int createAdvOperationHandlersCallCount;
         private boolean validationRequired;
 
         @Override
@@ -582,12 +634,18 @@ public class StoreTest {
         @Override
         protected void addAdditionalOperationHandlers() {
             createOperationHandlersCallCount++;
-            addOperationHandler(mock(AddElements.class).getClass(), (OperationHandler) addElementsHandler);
-            addOperationHandler(mock(GetElements.class).getClass(), (OperationHandler) getElementsHandler);
-            addOperationHandler(mock(GetAdjacentIds.class).getClass(), (OperationHandler) getElementsHandler);
-            addOperationHandler(Validate.class, (OperationHandler) validateHandler);
-            addOperationHandler(ExportToGafferResultCache.class, (OperationHandler) exportToGafferResultCacheHandler);
-            addOperationHandler(GetGafferResultCacheExport.class, (OperationHandler) getGafferResultCacheExportHandler);
+            addOperationHandler(mock(AddElements.class).getClass(), addElementsHandler);
+            addOperationHandler(mock(GetElements.class).getClass(), getElementsHandler);
+            addOperationHandler(mock(GetAdjacentIds.class).getClass(), getElementsHandler);
+            addOperationHandler(Validate.class, validateHandler);
+        }
+
+        @Override
+        protected void addAdvancedOperationHandlers() {
+            super.addAdvancedOperationHandlers();
+            createAdvOperationHandlersCallCount++;
+            addOperationHandler(ExportToGafferResultCache.class, exportToGafferResultCacheHandler);
+            addOperationHandler(GetGafferResultCacheExport.class, getGafferResultCacheExportHandler);
         }
 
         @Override
@@ -618,6 +676,10 @@ public class StoreTest {
 
         public int getCreateOperationHandlersCallCount() {
             return createOperationHandlersCallCount;
+        }
+
+        public int getCreateAdvOperationHandlersCallCount() {
+            return createAdvOperationHandlersCallCount;
         }
 
         public ArrayList<Operation> getDoUnhandledOperationCalls() {

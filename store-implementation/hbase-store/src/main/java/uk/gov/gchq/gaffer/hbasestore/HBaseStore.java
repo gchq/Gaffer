@@ -208,11 +208,13 @@ public class HBaseStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
-        }
+        // No additional handlers.
+    }
+
+    @Override
+    protected void addAdvancedOperationHandlers() {
+        super.addAdvancedOperationHandlers();
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
     }
 
     @Override
