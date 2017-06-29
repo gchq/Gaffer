@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public final class DebugUtil {
     public static final String DEBUG = "gaffer.error-mode.debug";
     public static final String DEBUG_DEFAULT = String.valueOf(false);
-    public static boolean isDebug;
+    public static Boolean isDebug;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugUtil.class);
 
     private DebugUtil() {
@@ -33,6 +33,13 @@ public final class DebugUtil {
     }
 
     public static boolean checkDebugMode() {
+        if (isDebug == null) {
+            updateDebugMode();
+        }
+        return isDebug;
+    }
+
+    public static void updateDebugMode() {
         try {
             isDebug = Boolean.valueOf(System.getProperty(DEBUG, DEBUG_DEFAULT).trim());
             if (isDebug) {
@@ -42,10 +49,5 @@ public final class DebugUtil {
             LOGGER.error("Defaulting Debug flag. Could not assign from System Properties: {}", e.getMessage());
             isDebug = Boolean.valueOf(DEBUG_DEFAULT);
         }
-        return isDebug;
-    }
-
-    public static void updateDebugMode() {
-        isDebug = checkDebugMode();
     }
 }
