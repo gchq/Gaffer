@@ -58,8 +58,8 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -76,10 +76,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -108,11 +104,11 @@ public class AccumuloStoreTest {
 
     @Before
     public void beforeMethod() throws StoreException, IOException {
-        if (!byteEntityStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!byteEntityStore.getConnection().tableOperations().exists(byteEntityStore.getTableName())) {
             byteEntityStore.initialise(schema, PROPERTIES);
         }
 
-        if (!gaffer1KeyStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!gaffer1KeyStore.getConnection().tableOperations().exists(gaffer1KeyStore.getTableName())) {
             gaffer1KeyStore.initialise(schema, PROPERTIES);
         }
     }
@@ -128,16 +124,16 @@ public class AccumuloStoreTest {
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         Connector connector = byteEntityStore.getConnection();
 
-        connector.tableOperations().delete(PROPERTIES.getTable());
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        connector.tableOperations().delete(byteEntityStore.getTableName());
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.preInitialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.initialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertTrue(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
     }
 
     @Test
