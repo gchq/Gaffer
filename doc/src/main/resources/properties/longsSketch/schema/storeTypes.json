@@ -4,7 +4,9 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator.LongsSketchAggregator"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation.LongsSketchSerialiser"
+      }
     }
   }
 }

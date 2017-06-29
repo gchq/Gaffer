@@ -29,7 +29,9 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.sketches.serialisation.HyperLogLogPlusSerialiser"
+      }
     }
   }
 }

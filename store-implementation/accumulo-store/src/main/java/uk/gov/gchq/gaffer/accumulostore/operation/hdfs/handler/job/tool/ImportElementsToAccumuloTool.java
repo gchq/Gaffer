@@ -28,9 +28,8 @@ import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
 import java.io.IOException;
 
 public class ImportElementsToAccumuloTool extends Configured implements Tool {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImportElementsToAccumuloTool.class);
     public static final int SUCCESS_RESPONSE = 0;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImportElementsToAccumuloTool.class);
 
     private final String inputPath;
     private final String failurePath;

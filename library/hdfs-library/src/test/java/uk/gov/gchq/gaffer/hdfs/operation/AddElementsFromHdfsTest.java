@@ -21,6 +21,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -33,10 +34,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 
-public class AddElementsFromHdfsOperationTest extends OperationTest {
-
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-    public static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
+public class AddElementsFromHdfsTest extends OperationTest {
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+    private static final String ADD_ELEMENTS_FROM_HDFS_JSON = String.format("{%n" +
             "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
             "  \"inputPaths\" : [ \"TestInput\" ],%n" +
             "  \"outputPath\" : \"TestOutput\",%n" +
@@ -65,17 +65,19 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
         // Given
         final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
                 .addInputPath("inputPath")
-                .failurePath("failurePath")
                 .outputPath("outputPath")
+                .failurePath("failurePath")
                 .jobInitialiser(new TextJobInitialiser())
                 .partitioner(Partitioner.class)
-                .reducers(10)
                 .mappers(5)
-                .validate(true)
+                .reducers(10)
+                .splitsFilePath("/path/to/splits/file")
+                .useProvidedSplits(false)
+                .mapperGenerator(MapperGenerator.class)
                 .build();
 
         // When
-        String json = new String(serialiser.serialise(addElements, true));
+        String json = new String(SERIALISER.serialise(addElements, true));
 
         // Then
         JsonUtil.assertEquals(String.format("{%n" +
@@ -89,14 +91,24 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
                 "  },%n" +
                 "  \"numMapTasks\" : 5,%n" +
                 "  \"numReduceTasks\" : 10,%n" +
-                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\"%n" +
+                "  \"splitsFilePath\" : \"/path/to/splits/file\",%n" +
+                "  \"partitioner\" : \"org.apache.hadoop.mapreduce.Partitioner\",%n" +
+                "  \"mapperGeneratorClassName\" : \"uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator\"%n" +
                 "}"), json);
     }
 
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder().option("testOption", "true").validate(true).addInputPath("input").failurePath("fail").mappers(10).reducers(20).outputPath("output").build();
+        final AddElementsFromHdfs addElements = new AddElementsFromHdfs.Builder()
+                .addInputPath("input")
+                .outputPath("output")
+                .failurePath("fail")
+                .mappers(10)
+                .reducers(20)
+                .validate(true)
+                .option("testOption", "true")
+                .build();
         assertEquals("true", addElements.getOption("testOption"));
         assertTrue(addElements.isValidate());
         assertEquals("fail", addElements.getFailurePath());
@@ -112,8 +124,10 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
         final AddElementsFromHdfs addElementsFromHdfs = new AddElementsFromHdfs();
         addElementsFromHdfs.setInputPaths(Arrays.asList("TestInput"));
         addElementsFromHdfs.setOutputPath("TestOutput");
+
         // When
-        String json = new String(serialiser.serialise(addElementsFromHdfs, true));
+        final String json = new String(SERIALISER.serialise(addElementsFromHdfs, true));
+
         // Then
         JsonUtil.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
     }
@@ -121,12 +135,11 @@ public class AddElementsFromHdfsOperationTest extends OperationTest {
     @Test
     public void shouldDeserialiseAddElementsOperation() throws IOException {
         // When
-        AddElementsFromHdfs addElementsFromHdfs = serialiser.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
+        final AddElementsFromHdfs addElementsFromHdfs = SERIALISER.deserialise(ADD_ELEMENTS_FROM_HDFS_JSON.getBytes(), AddElementsFromHdfs.class);
 
         // Then
-        List<String> inputPaths = addElementsFromHdfs.getInputPaths();
+        final List<String> inputPaths = addElementsFromHdfs.getInputPaths();
         assertEquals("TestInput", inputPaths.get(0));
         assertEquals("TestOutput", addElementsFromHdfs.getOutputPath());
-
     }
 }
