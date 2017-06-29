@@ -15,58 +15,57 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.collect.Ordering;
 import com.yahoo.sketches.quantiles.ItemsUnion;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
 
 /**
  * NB: When Gaffer requires Java 8, <code>Ordering.natural()</code> can be replaced with
  * <code>Comparator.naturalOrder()</code>.
  */
-public class StringsUnionSerialiserTest {
-    private static final StringsUnionSerialiser SERIALISER = new StringsUnionSerialiser();
+public class StringsUnionSerialiserTest extends ViaCalculatedValueSerialiserTest<ItemsUnion<String>, String> {
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+    @Override
+    protected ItemsUnion<String> getEmptyExampleOutput() {
+        return ItemsUnion.getInstance(32, Ordering.<String>natural());
+    }
+
+    @Override
+    public Serialiser<ItemsUnion<String>, byte[]> getSerialisation() {
+        return new StringsUnionSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<ItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
+        final ItemsUnion<String> union = getExampleOutput();
+        testSerialiser(union);
+        return new Pair[]{new Pair(union, new byte[]{2, 3, 8, 8, 32, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 51, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
+    }
+
+    @Override
+    protected ItemsUnion<String> getExampleOutput() {
         final ItemsUnion<String> union = ItemsUnion.getInstance(32, Ordering.<String>natural());
         union.update("1");
         union.update("2");
         union.update("3");
-        testSerialiser(union);
-
-        final ItemsUnion<String> emptyUnion = ItemsUnion.getInstance(32, Ordering.<String>natural());
-        testSerialiser(emptyUnion);
+        return union;
     }
 
-    private void testSerialiser(final ItemsUnion<String> union) {
-        final String quantile1 = union.getResult().getQuantile(0.5D);
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(union);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
 
-        final ItemsUnion<String> unionDeserialised;
-        try {
-            unionDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(quantile1, unionDeserialised.getResult().getQuantile(0.5D));
+    @Override
+    protected String getTestValue(final ItemsUnion<String> object) {
+        return object.getResult().getQuantile(0.5D);
     }
 
     @Test
     public void testCanHandleItemsUnion() {
-        assertTrue(SERIALISER.canHandle(ItemsUnion.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(ItemsUnion.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }
