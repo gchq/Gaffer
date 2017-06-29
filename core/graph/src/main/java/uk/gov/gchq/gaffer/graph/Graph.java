@@ -492,7 +492,7 @@ public final class Graph {
         private void updateStore() {
             if (null == store) {
                 store = createStore(properties, cloneSchema(schema));
-            } else {
+            } else if (null != graphId || null != schema || null != properties) {
                 if (null == graphId) {
                     graphId = store.getGraphId();
                 }
@@ -508,10 +508,10 @@ public final class Graph {
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }
+            }
 
-                if (null == schema) {
-                    schema = store.getSchema();
-                }
+            if (null == schema) {
+                schema = store.getSchema();
             }
         }
 
