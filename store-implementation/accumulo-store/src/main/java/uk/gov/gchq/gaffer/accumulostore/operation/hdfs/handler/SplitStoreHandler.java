@@ -65,10 +65,10 @@ public class SplitStoreHandler implements OperationHandler<SplitStore> {
         @Override
         public void accept(final SortedSet<Text> splits) {
             try {
-                store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
-                LOGGER.info("Added {} splits to table {}", splits.size(), store.getProperties().getTable());
+                store.getConnection().tableOperations().addSplits(store.getTableName(), splits);
+                LOGGER.info("Added {} splits to table {}", splits.size(), store.getTableName());
             } catch (final TableNotFoundException | AccumuloException | AccumuloSecurityException | StoreException e) {
-                LOGGER.error("Failed to add {} split points to table {}", splits.size(), store.getProperties().getTable());
+                LOGGER.error("Failed to add {} split points to table {}", splits.size(), store.getTableName());
                 throw new RuntimeException("Failed to add split points to the table specified: " + e.getMessage(), e);
             }
         }
