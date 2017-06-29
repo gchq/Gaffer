@@ -29,9 +29,19 @@ import java.io.UnsupportedEncodingException;
  */
 public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialiser<T> {
 
-    private final String charsetName = getCharset();
+    private String charset;
 
-    public abstract String getCharset();
+    public ToBytesViaStringDeserialiser(final String charsetName) {
+        this.charset = charsetName;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(final String charset) {
+        this.charset = charset;
+    }
 
     @Override
     public final T deserialise(final byte[] bytes) throws SerialisationException {
@@ -41,7 +51,7 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
     @Override
     public final T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         try {
-            String valueString = new String(allBytes, offset, length, charsetName);
+            String valueString = new String(allBytes, offset, length, charset);
             return deserialiseString(valueString);
         } catch (final UnsupportedEncodingException | StringIndexOutOfBoundsException e) {
             throw new SerialisationException(e.getMessage(), e);

@@ -37,6 +37,21 @@ public class CloseableUtilTest {
     }
 
     @Test
+    public void shouldCloseAllCloseables() throws IOException {
+        // Given
+        final Closeable closeable1 = mock(Closeable.class);
+        final Closeable closeable2 = mock(Closeable.class);
+        final Object nonCloseable = mock(Object.class);
+
+        // When
+        CloseableUtil.close(closeable1, nonCloseable, closeable2);
+
+        // Then
+        verify(closeable1).close();
+        verify(closeable2).close();
+    }
+
+    @Test
     public void shouldNotThrowExceptionForNullObject() throws IOException {
         // Given
         final Object obj = null;

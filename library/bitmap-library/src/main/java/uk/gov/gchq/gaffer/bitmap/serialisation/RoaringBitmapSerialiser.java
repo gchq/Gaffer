@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
-
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -37,8 +36,8 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
 
     @Override
     public byte[] serialise(final RoaringBitmap object) throws SerialisationException {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(byteOut);
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final DataOutputStream out = new DataOutputStream(byteOut);
         try {
             object.serialize(out);
         } catch (final IOException e) {
@@ -49,10 +48,10 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
 
     @Override
     public RoaringBitmap deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
-        RoaringBitmap value = new RoaringBitmap();
-        byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(allBytes, offset, length);
-        ByteArrayInputStream byteIn = new ByteArrayInputStream(convertedBytes);
-        DataInputStream in = new DataInputStream(byteIn);
+        final RoaringBitmap value = new RoaringBitmap();
+        final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(allBytes, offset, length);
+        final ByteArrayInputStream byteIn = new ByteArrayInputStream(convertedBytes);
+        final DataInputStream in = new DataInputStream(byteIn);
         try {
             value.deserialize(in);
         } catch (final IOException e) {

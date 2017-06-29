@@ -24,6 +24,10 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
 
+    public StringSerialiser() {
+        super(CommonConstants.UTF_8);
+    }
+
     @Override
     public boolean canHandle(final Class clazz) {
         return String.class.equals(clazz);
@@ -51,10 +55,5 @@ public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
     @Override
     public boolean preservesObjectOrdering() {
         return true;
-    }
-
-    @Override
-    public String getCharset() {
-        return CommonConstants.UTF_8;
     }
 }

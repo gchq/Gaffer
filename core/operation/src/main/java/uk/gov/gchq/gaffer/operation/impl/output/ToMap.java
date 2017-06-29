@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.operation.impl.output;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.generator.MapGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -37,6 +38,7 @@ public class ToMap implements
         InputOutput<Iterable<? extends Element>, Iterable<? extends Map<String, Object>>>,
         MultiInput<Element> {
 
+    @Required
     private MapGenerator elementGenerator;
     private Iterable<? extends Element> input;
 

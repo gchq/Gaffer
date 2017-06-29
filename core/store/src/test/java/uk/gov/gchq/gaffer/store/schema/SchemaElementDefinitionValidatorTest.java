@@ -75,6 +75,7 @@ public class SchemaElementDefinitionValidatorTest {
 
             // Then
             assertFalse(result.isValid());
+            assertTrue(result.getErrorString().contains("reserved word"));
         }
     }
 
@@ -114,6 +115,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -131,6 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("null function"));
     }
 
     @Test
@@ -179,6 +182,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
@@ -223,7 +229,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
         given(elementDef.isAggregate()).willReturn(false);
@@ -256,7 +262,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
         given(elementDef.isAggregate()).willReturn(true);
@@ -288,7 +294,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
         given(elementDef.isAggregate()).willReturn(true);
@@ -298,6 +304,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("No aggregator found for properties"));
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
@@ -340,7 +347,7 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
         given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(null);
+        given(elementDef.getFullAggregator()).willReturn(null);
         given(elementDef.isAggregate()).willReturn(true);
 
         // When

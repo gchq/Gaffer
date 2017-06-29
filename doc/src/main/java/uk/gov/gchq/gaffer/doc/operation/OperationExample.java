@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.doc.operation;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.doc.operation.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.doc.util.Example;
@@ -29,6 +31,7 @@ import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -45,6 +48,12 @@ public abstract class OperationExample extends Example {
     }
 
     @Override
+    protected void printDescription() {
+        super.printDescription();
+        printRequiredFields();
+    }
+
+    @Override
     protected void runExamples() {
         // not used - implement runExample(Graph) instead.
     }
@@ -53,9 +62,35 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
-    protected void runExampleNoResult(final Operation operation) {
+    protected void showJavaExample(final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        if (StringUtils.isNotBlank(description)) {
+            log(description + "\n");
+        }
+        printMethodJavaSnippet();
+
+        log(METHOD_DIVIDER);
+    }
+
+    protected void showExample(final Operation operation,
+                               final String description) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description);
+        }
+        printMethodJavaSnippet();
+        printAsJson(operation);
+
+        log(METHOD_DIVIDER);
+    }
+
+    protected void runExampleNoResult(final Operation operation,
+                                      final String description) {
+        log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description + "\n");
+        }
+        printMethodJavaSnippet();
         printAsJson(operation);
 
         try {
@@ -67,10 +102,14 @@ public abstract class OperationExample extends Example {
         log(METHOD_DIVIDER);
     }
 
-    protected <RESULT_TYPE> RESULT_TYPE runExample(final Output<RESULT_TYPE> operation) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(
+            final Output<RESULT_TYPE> operation, final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description);
+        }
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printMethodJavaSnippet();
         printAsJson(operation);
 
         final RESULT_TYPE results;
@@ -87,10 +126,15 @@ public abstract class OperationExample extends Example {
         return results;
     }
 
-    protected <RESULT_TYPE> RESULT_TYPE runExample(final OperationChain<RESULT_TYPE> operationChain) {
+    protected <RESULT_TYPE> RESULT_TYPE runExample(
+            final OperationChain<RESULT_TYPE> operationChain,
+            final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description);
+        }
         printGraph();
-        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
+        printMethodJavaSnippet();
         printAsJson(operationChain);
 
         final RESULT_TYPE result;
@@ -188,5 +232,31 @@ public abstract class OperationExample extends Example {
         log("         \\");
         log("           -->  5");
         log("```\n");
+    }
+
+    protected void printRequiredFields() {
+        log("### Required fields");
+        boolean hasRequiredFields = false;
+        for (final Field field : getClassForExample().getDeclaredFields()) {
+            final Required[] annotations = field.getAnnotationsByType(Required.class);
+            if (null != annotations && annotations.length > 0) {
+                if (!hasRequiredFields) {
+                    hasRequiredFields = true;
+                    log("The following fields are required: ");
+                }
+                final String name = field.getName();
+                log("- " + name);
+            }
+        }
+
+        if (!hasRequiredFields) {
+            log("No required fields");
+        }
+
+        log("\n");
+    }
+
+    private void printMethodJavaSnippet() {
+        printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(2) + "() {", String.format("---%n"), "// ----"));
     }
 }

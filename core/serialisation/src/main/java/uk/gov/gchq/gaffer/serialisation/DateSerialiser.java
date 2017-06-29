@@ -29,6 +29,10 @@ import java.util.Date;
 public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
 
+    public DateSerialiser() {
+        super(CommonConstants.ISO_8859_1_ENCODING);
+    }
+
     @Override
     public boolean canHandle(final Class clazz) {
         return Date.class.equals(clazz);
@@ -60,10 +64,5 @@ public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     @Override
     public boolean preservesObjectOrdering() {
         return true;
-    }
-
-    @Override
-    public String getCharset() {
-        return CommonConstants.ISO_8859_1_ENCODING;
     }
 }

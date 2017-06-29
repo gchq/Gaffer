@@ -20,11 +20,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-public class RawFloatSerialiserTest extends ToByteSerialisationTest<Float> {
+public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
@@ -65,5 +66,15 @@ public class RawFloatSerialiserTest extends ToByteSerialisationTest<Float> {
     @Override
     public Serialiser<Float, byte[]> getSerialisation() {
         return new RawFloatSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Float.MAX_VALUE, new byte[]{-1, -1, 127, 127}),
+                new Pair<>(Float.MIN_VALUE, new byte[]{1, 0, 0, 0}),
+                new Pair<>(0f, new byte[]{0, 0, 0, 0}),
+                new Pair<>(1f, new byte[]{0, 0, -128, 63})
+        };
     }
 }

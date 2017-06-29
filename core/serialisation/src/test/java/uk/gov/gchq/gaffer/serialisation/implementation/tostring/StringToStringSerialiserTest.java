@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Assert;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -52,5 +53,12 @@ public class StringToStringSerialiserTest extends SerialisationTest<String, Stri
     @Override
     public Serialiser<String, String> getSerialisation() {
         return new StringToStringSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<String, String>[] getHistoricSerialisationPairs() {
+        String s = "this is a string to be used for checking the serialisation.";
+        return new Pair[]{
+                new Pair<>(s, s)};
     }
 }

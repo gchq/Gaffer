@@ -27,4 +27,5 @@ public class TestTypes {
     public static final String PROP_INTEGER = "prop.integer";
     public static final String PROP_INTEGER_2 = "prop.integer.2";
     public static final String PROP_COUNT = "prop.count";
+    public static final String PROP_MAP = "prop.map";
 }

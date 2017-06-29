@@ -43,7 +43,7 @@ public class GetAllElementsExample extends OperationExample {
         final GetAllElements operation = new GetAllElements();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 
     public CloseableIterable<? extends Element> getAllElementsWithCountGreaterThan2() {
@@ -66,6 +66,6 @@ public class GetAllElementsExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(operation);
+        return runExample(operation, null);
     }
 }

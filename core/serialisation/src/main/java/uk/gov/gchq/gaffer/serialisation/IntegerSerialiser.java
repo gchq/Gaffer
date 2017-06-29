@@ -28,6 +28,10 @@ import java.io.UnsupportedEncodingException;
 public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     private static final long serialVersionUID = 5647756843689779437L;
 
+    public IntegerSerialiser() {
+        super(CommonConstants.ISO_8859_1_ENCODING);
+    }
+
     @Override
     public boolean canHandle(final Class clazz) {
         return Integer.class.equals(clazz);
@@ -59,10 +63,5 @@ public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     @Override
     public boolean preservesObjectOrdering() {
         return true;
-    }
-
-    @Override
-    public String getCharset() {
-        return CommonConstants.ISO_8859_1_ENCODING;
     }
 }

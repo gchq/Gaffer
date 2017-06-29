@@ -12,9 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+This page has been copied from the Store module README. To make any changes please update that README and this page will be automatically updated when the next release is done.
 
-Store
-=============
+
+# Store
 
 This Store module defines the API for Store implementations. The abstract Store class handles Operations by delegating the Operations to their registered handlers.
 
@@ -23,3 +24,48 @@ Store implementations need to define a set of StoreTraits. These traits tells Ga
 When implementing a Store, the main task is to write handlers for the operations your Store chooses to support. This can be tricky, but there is a Store Integration test suite that should be used by all Store implementations to validate these operation handlers. When writing these handlers you should implement OperationHandler or OutputOperationHandler depending on whether the operation has an output.
 
 In addition to OperationHandlers the other large part of this module is the Schema. The Schema is what defines what is in the Graph and how it should be persisted, compacted/summarised and validated.
+
+
+## Customisable Operations
+
+Some operations are not available by default and you will need to manually configure them.
+
+These customisable operations can be added to you Gaffer graph by providing config
+in one or more operation declaration json files.
+
+### ScoreOperationChain
+
+Variables:
+- operationScoresFileName - required file name for your operation scores. These are the operation score values.
+- authScoresFileName - required file name for your operation authorisation scores. These are the maximum scores allowed for a user with a given role.
+
+Example operation scores file:
+
+```properties
+uk.gov.gchq.gaffer.operation.Operation=2
+uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects=0
+```
+
+Example operation authorisation scores file:
+
+```properties
+User=4
+EnhancedUser=10
+```
+
+Example operation declarations json file:
+
+```json
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.ScoreOperationChain",
+      "handler": {
+        "class": "uk.gov.gchq.gaffer.store.operation.handler.ScoreOperationChainHandler",
+        "authScoresFileName": "/path/to/authScores.properties",
+        "operationScoresFileName": "/path/to/opScores.properties"
+      }
+    }
+  ]
+}
+```

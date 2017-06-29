@@ -65,7 +65,7 @@ ${DATA_TYPES_JSON}
 ##### Store Types
 These fields are optional:
 
-- serialiserClass - the java class of the serialiser to use. If this is not provided Gaffer will attempt to select an appropriate one for you - this is only available for simple Java types.
+- serialiser - an object that contains a field class which represents the java class of the serialiser to use, and potentially arguments depending on the serialiser. If this is not provided Gaffer will attempt to select an appropriate one for you - this is only available for simple Java types.
 - aggregateFunction - the aggregate binary operator to use to aggregate/summarise/merge property values of the same type together.
 
 Here are some example Store Types

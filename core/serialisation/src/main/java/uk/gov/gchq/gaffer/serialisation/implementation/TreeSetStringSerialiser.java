@@ -33,6 +33,10 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     private static final String OPEN = "{";
     private static final String CLOSE = "}";
 
+    public TreeSetStringSerialiser() {
+        super(CommonConstants.UTF_8);
+    }
+
     @Override
     public boolean canHandle(final Class clazz) {
         return TreeSet.class.isAssignableFrom(clazz);
@@ -79,10 +83,5 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     @Override
     public boolean preservesObjectOrdering() {
         return true;
-    }
-
-    @Override
-    public String getCharset() {
-        return CommonConstants.UTF_8;
     }
 }

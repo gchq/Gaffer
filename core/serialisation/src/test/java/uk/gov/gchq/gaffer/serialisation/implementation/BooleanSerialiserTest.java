@@ -19,9 +19,9 @@ import org.junit.Assert;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-public class BooleanSerialiserTest extends ToByteSerialisationTest<Boolean> {
+public class BooleanSerialiserTest extends ToBytesSerialisationTest<Boolean> {
 
     @Override
     public Serialiser<Boolean, byte[]> getSerialisation() {

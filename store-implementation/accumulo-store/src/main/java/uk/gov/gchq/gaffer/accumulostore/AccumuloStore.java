@@ -50,10 +50,8 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.SummariseGroupOverRang
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
@@ -68,7 +66,9 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -128,6 +128,18 @@ public class AccumuloStore extends Store {
 
     @Override
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        preInitialise(schema, properties);
+        TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param schema     the gaffer Schema
+     * @param properties the accumulo store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -136,7 +148,6 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
-        TableUtils.ensureTableExists(this);
     }
 
     /**
@@ -247,7 +258,7 @@ public class AccumuloStore extends Store {
             addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
             addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
             addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-            addOperationHandler(SplitTable.class, new SplitTableHandler());
+            addOperationHandler(SplitStore.class, new SplitStoreHandler());
             addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
             addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
 
@@ -374,5 +385,4 @@ public class AccumuloStore extends Store {
     public List<String> getTabletServers() throws StoreException {
         return getConnection().instanceOperations().getTabletServers();
     }
-
 }

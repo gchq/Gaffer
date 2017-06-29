@@ -184,19 +184,75 @@ public abstract class SchemaElementDefinitionTest<T extends SchemaElementDefinit
     public void shouldReturnFullAggregator() {
         // Given
         final T elementDef = createBuilder()
-                .property("property", PROPERTY_STRING_TYPE)
+                .property("property1", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property3", PROPERTY_STRING_TYPE)
+                .groupBy("property1", "property2")
                 .build();
 
         setupSchema(elementDef);
 
         // When
-        final ElementAggregator aggregator = elementDef.getAggregator();
+        final ElementAggregator aggregator = elementDef.getFullAggregator();
+
+        // Then
+        assertEquals(3, aggregator.getComponents().size());
+        assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property1"},
+                aggregator.getComponents().get(0).getSelection());
+        assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property2"},
+                aggregator.getComponents().get(1).getSelection());
+        assertTrue(aggregator.getComponents().get(2).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property3"},
+                aggregator.getComponents().get(2).getSelection());
+    }
+
+    @Test
+    public void shouldReturnIngestAggregator() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property1", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property3", PROPERTY_STRING_TYPE)
+                .groupBy("property1", "property2")
+                .build();
+
+        setupSchema(elementDef);
+
+        // When
+        final ElementAggregator aggregator = elementDef.getIngestAggregator();
 
         // Then
         assertEquals(1, aggregator.getComponents().size());
         assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
-        assertArrayEquals(new String[]{"property"},
+        assertArrayEquals(new String[]{"property3"},
                 aggregator.getComponents().get(0).getSelection());
+    }
+
+    @Test
+    public void shouldReturnQueryAggregator() {
+        // Given
+        final T elementDef = createBuilder()
+                .property("property1", PROPERTY_STRING_TYPE)
+                .property("property2", PROPERTY_STRING_TYPE)
+                .property("property3", PROPERTY_STRING_TYPE)
+                .groupBy("property1", "property2")
+                .build();
+
+        setupSchema(elementDef);
+
+        // When
+        final ElementAggregator aggregator = elementDef.getQueryAggregator(Sets.newHashSet("property1"));
+
+        // Then
+        assertEquals(2, aggregator.getComponents().size());
+        assertTrue(aggregator.getComponents().get(0).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property2"},
+                aggregator.getComponents().get(0).getSelection());
+        assertTrue(aggregator.getComponents().get(1).getBinaryOperator() instanceof ExampleAggregateFunction);
+        assertArrayEquals(new String[]{"property3"},
+                aggregator.getComponents().get(1).getSelection());
     }
 
     @Test
