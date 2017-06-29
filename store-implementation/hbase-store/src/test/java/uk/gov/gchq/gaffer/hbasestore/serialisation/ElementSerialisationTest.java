@@ -15,6 +15,12 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.serialisation;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
@@ -23,7 +29,9 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
@@ -37,12 +45,6 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Copied and adapted from the AcummuloStore ElementConverterTests
@@ -106,8 +108,7 @@ public class ElementSerialisationTest {
     @Test
     public void shouldReturnHBaseKeySerialisationFromCFCQPropertyEntity() throws SchemaException, IOException {
         // Given
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, 100);
+        final Entity entity = getExampleEntity(100);
 
         // When
         final byte[] columnQualifier = serialisation.getColumnQualifier(entity);
@@ -520,5 +521,66 @@ public class ElementSerialisationTest {
 
         // Then 2
         assertEquals(entity.getProperties(), properties);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        // Given
+        Properties properties = new Properties();
+        properties.put(HBasePropertyNames.PROP_1, 60);
+        properties.put(HBasePropertyNames.PROP_2, Integer.MAX_VALUE);
+        properties.put(HBasePropertyNames.PROP_3, 299);
+        properties.put(HBasePropertyNames.PROP_4, Integer.MIN_VALUE);
+        properties.put(HBasePropertyNames.COUNT, 8);
+
+        // When
+        final byte[] value = serialisation.getValue(TestGroups.EDGE, properties);
+
+        // Then
+        assertArrayEquals(new byte[]{1, 60, 5, -116, 127, -1, -1, -1, 3, -114, 1, 43, 5, -124, 127, -1, -1, -1, 1, 8, 0}, value);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricRowKey() throws Exception {
+        // Given
+        final Entity entityMax = new Entity(TestGroups.ENTITY);
+        String vertexString = "test a b c Vertex";
+        entityMax.setVertex(vertexString);
+        byte[] expectedBytes = {116, 101, 115, 116, 32, 97, 32, 98, 32, 99, 32, 86, 101, 114, 116, 101, 120, 0, 1};
+
+        // When
+        final byte[] keyMax = serialisation.getRowKey(entityMax);
+        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes).getIdentifier(IdentifierType.VERTEX);
+
+        // Then
+        assertArrayEquals(expectedBytes, keyMax);
+        assertEquals(vertexString, deserialisedVertex);
+    }
+
+    @Test
+    public void shouldSerialiseWithHistoricColumnQualifier() throws Exception {
+        // Given
+        @SuppressWarnings("unchecked")
+        Pair<Element, byte[]>[] historicSerialisationPairs = new Pair[]{
+                new Pair(getExampleEntity(100), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 100, 0, 0, 0, 4, 102, 0, 0, 0, 0, 0}),
+                new Pair(getExampleEntity(Integer.MAX_VALUE), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, -1, -1, -1, 127, 4, 1, 0, 0, -128, 0, 0}),
+                new Pair(getExampleEntity(Integer.MIN_VALUE), new byte[]{11, 66, 97, 115, 105, 99, 69, 110, 116, 105, 116, 121, 4, 0, 0, 0, -128, 4, 2, 0, 0, -128, 0, 0})
+        };
+
+        for (final Pair<Element, byte[]> pair : historicSerialisationPairs) {
+            // When
+            final byte[] columnQualifier = serialisation.getColumnQualifier(pair.getFirst());
+            Properties propertiesFromColumnQualifier = serialisation.getPropertiesFromColumnQualifier(TestGroups.ENTITY, pair.getSecond());
+            // Then
+            assertArrayEquals(pair.getSecond(), columnQualifier);
+            assertEquals(pair.getFirst().getProperties(), propertiesFromColumnQualifier);
+        }
+    }
+
+    private Entity getExampleEntity(final int value) {
+        final Entity entity = new Entity(TestGroups.ENTITY);
+        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER, value);
+        entity.putProperty(HBasePropertyNames.COLUMN_QUALIFIER_2, value + 2);
+        return entity;
     }
 }

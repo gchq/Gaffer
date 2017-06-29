@@ -15,16 +15,17 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawLongSerialiserTest extends ToByteSerialisationTest<Long> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+public class RawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
 
     @Test
@@ -67,5 +68,16 @@ public class RawLongSerialiserTest extends ToByteSerialisationTest<Long> {
     @Override
     public Serialiser<Long, byte[]> getSerialisation() {
         return new RawLongSerialiser();
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Long.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -1, 127}),
+                new Pair<>(Long.MIN_VALUE, new byte[]{0, 0, 0, 0, 0, 0, 0, -128}),
+                new Pair<>(0l, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1l, new byte[]{1, 0, 0, 0, 0, 0, 0, 0})
+        };
     }
 }

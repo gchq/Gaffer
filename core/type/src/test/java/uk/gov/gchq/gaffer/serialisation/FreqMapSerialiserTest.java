@@ -15,15 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.FreqMap;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class FreqMapSerialiserTest extends ToByteSerialisationTest<FreqMap> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.types.FreqMap;
+
+public class FreqMapSerialiserTest extends ToBytesSerialisationTest<FreqMap> {
 
     @Test
     public void canSerialiseEmptyFreqMap() throws SerialisationException {
@@ -128,5 +129,15 @@ public class FreqMapSerialiserTest extends ToByteSerialisationTest<FreqMap> {
     @Override
     public Serialiser<FreqMap, byte[]> getSerialisation() {
         return new FreqMapSerialiser();
+    }
+
+    public Pair<FreqMap, byte[]>[] getHistoricSerialisationPairs() {
+        final FreqMap freqMap = new FreqMap();
+        freqMap.put("x", 10L);
+        freqMap.put("y", 5L);
+        freqMap.put("z", 20L);
+        return new Pair[]{
+                new Pair(freqMap, new byte[]{120, 0, 10, 0, 121, 0, 5, 0, 122, 0, 20})
+        };
     }
 }

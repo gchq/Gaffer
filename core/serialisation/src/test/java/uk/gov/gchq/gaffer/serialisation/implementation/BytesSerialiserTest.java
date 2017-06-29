@@ -15,17 +15,19 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class ByteSerialiserTest extends ToByteSerialisationTest<byte[]> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+public class BytesSerialiserTest extends ToBytesSerialisationTest<byte[]> {
 
     @Test
     public void cantSerialiseLongClass() throws SerialisationException {
@@ -74,5 +76,20 @@ public class ByteSerialiserTest extends ToByteSerialisationTest<byte[]> {
     @Override
     public Serialiser<byte[], byte[]> getSerialisation() {
         return new BytesSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<byte[], byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair(new byte[]{1, 2, 3, 4, 5, 6}, new byte[]{1, 2, 3, 4, 5, 6}),
+                new Pair(new byte[]{12, 31, 43}, new byte[]{12, 31, 43}),
+                new Pair(new byte[]{}, new byte[]{}),
+                new Pair(new byte[]{122, -111, -33}, new byte[]{122, -111, -33})
+        };
+    }
+
+    @Override
+    protected void deserialiseSecond(final Pair<byte[], byte[]> pair) throws SerialisationException {
+        assertArrayEquals(pair.getFirst(), serialiser.deserialise(pair.getSecond()));
     }
 }
