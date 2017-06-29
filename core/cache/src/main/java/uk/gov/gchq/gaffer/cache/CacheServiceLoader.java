@@ -30,7 +30,6 @@ public final class CacheServiceLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
-    private static boolean shutdownHookAdded = false;
 
     /**
      * Looks at a system property and initialises an appropriate cache service. Then adds a shutdown hook to close the
@@ -60,15 +59,6 @@ public final class CacheServiceLoader {
         }
 
         service.initialise(properties);
-
-        if (!shutdownHookAdded) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    shutdown();
-                }
-            });
-            shutdownHookAdded = true;
-        }
     }
 
     /**
@@ -78,6 +68,9 @@ public final class CacheServiceLoader {
         return service;
     }
 
+    /**
+     * Gracefully shutdown and reset the cache service.
+     */
     public static void shutdown() {
         if (service != null) {
             service.shutdown();

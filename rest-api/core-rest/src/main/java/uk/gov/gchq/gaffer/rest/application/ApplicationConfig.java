@@ -20,6 +20,7 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import org.glassfish.jersey.server.ResourceConfig;
+import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.rest.FactoriesBinder;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.mapper.GafferCheckedExceptionMapper;
@@ -33,13 +34,16 @@ import uk.gov.gchq.gaffer.rest.service.GraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.JobService;
 import uk.gov.gchq.gaffer.rest.service.OperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * An <code>ApplicationConfig</code> sets up the application resources.
  */
-public class ApplicationConfig extends ResourceConfig {
+public class ApplicationConfig extends ResourceConfig implements ServletContextListener {
     protected final Set<Class<?>> resources = new HashSet<>();
 
     public ApplicationConfig() {
@@ -85,4 +89,13 @@ public class ApplicationConfig extends ResourceConfig {
         resources.add(GenericExceptionMapper.class);
     }
 
+    @Override
+    public void contextInitialized(final ServletContextEvent servletContextEvent) {
+
+    }
+
+    @Override
+    public void contextDestroyed(final ServletContextEvent servletContextEvent) {
+        CacheServiceLoader.shutdown();
+    }
 }
