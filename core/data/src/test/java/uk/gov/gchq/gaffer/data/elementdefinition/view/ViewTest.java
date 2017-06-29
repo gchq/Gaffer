@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.elementdefinition.view;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
@@ -129,7 +129,7 @@ public class ViewTest {
         byte[] json = view.toJson(true);
 
         // Then
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"transientProperties\" : {%n" +
@@ -252,7 +252,7 @@ public class ViewTest {
         // When
         view.expandGlobalDefinitions();
 
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge2\" : {%n" +
                 "      \"groupBy\" : [ ],%n" +

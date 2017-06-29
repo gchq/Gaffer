@@ -19,18 +19,29 @@ package uk.gov.gchq.gaffer.commonutil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-public class JsonUtil {
+public class JsonAssert {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static void assertEquals(final String expectedJson, final String actualJson) {
         try {
-            final Map expectedSchemaMap = OBJECT_MAPPER.readValue(expectedJson, Map.class);
-            final Map actualSchemaMap = OBJECT_MAPPER.readValue(actualJson, Map.class);
+            final Map expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, Map.class) : Collections.emptyMap();
+            final Map actualSchemaMap = null != actualJson ? OBJECT_MAPPER.readValue(actualJson, Map.class) : Collections.emptyMap();
+            Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
+            return;
+        } catch (final IOException e) {
+            // ignore the error and try using lists instead
+        }
+
+        try {
+            final List expectedSchemaMap = null != expectedJson ? OBJECT_MAPPER.readValue(expectedJson, List.class) : Collections.emptyList();
+            final List actualSchemaMap = null != actualJson ? OBJECT_MAPPER.readValue(actualJson, List.class) : Collections.emptyList();
             Assert.assertEquals(expectedSchemaMap, actualSchemaMap);
         } catch (final IOException e) {
-            throw new AssertionError(expectedJson + "is not equal to " + actualJson, e);
+            throw new AssertionError(expectedJson + " is not equal to " + actualJson, e);
         }
     }
 
