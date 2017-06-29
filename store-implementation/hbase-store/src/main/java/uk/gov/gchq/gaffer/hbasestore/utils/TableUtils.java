@@ -37,7 +37,6 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -88,8 +87,6 @@ public final class TableUtils {
         }
 
         final Schema schema = Schema.fromJson(Paths.get(args[1]));
-
-        SchemaLibrary.addOrUpdate(args[0], schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
