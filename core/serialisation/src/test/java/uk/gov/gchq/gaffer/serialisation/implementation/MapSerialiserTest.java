@@ -15,24 +15,41 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
 import uk.gov.gchq.gaffer.serialisation.LongSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
-public class MapSerialiserTest extends ToByteSerialisationTest<Map<? extends Object, ? extends Object>> {
+public class MapSerialiserTest extends ToBytesSerialisationTest<Map<? extends Object, ? extends Object>> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseOverlappingMapValuesWithDifferentKeys() throws SerialisationException {
 
+        Map<String, Long> map = getExampleValue();
+
+        byte[] b = serialiser.serialise(map);
+        Map o = serialiser.deserialise(b);
+
+        assertEquals(HashMap.class, o.getClass());
+        assertEquals(6, o.size());
+        assertEquals(map, o);
+        assertEquals((Long) 123298333L, o.get("one"));
+        assertEquals((Long) 342903339L, o.get("two"));
+        assertEquals((Long) 123298333L, o.get("three"));
+        assertEquals((Long) 345353439L, o.get("four"));
+        assertEquals((Long) 123338333L, o.get("five"));
+        assertEquals((Long) 345353439L, o.get("six"));
+    }
+
+    private Map<String, Long> getExampleValue() {
         Map<String, Long> map = new HashMap<>();
         map.put("one", 123298333L);
         map.put("two", 342903339L);
@@ -40,23 +57,7 @@ public class MapSerialiserTest extends ToByteSerialisationTest<Map<? extends Obj
         map.put("four", 345353439L);
         map.put("five", 123338333L);
         map.put("six", 345353439L);
-
-        MapSerialiser s = new MapSerialiser();
-        s.setKeySerialiser(new StringSerialiser());
-        s.setValueSerialiser(new LongSerialiser());
-
-        byte[] b = s.serialise(map);
-        Map o = s.deserialise(b);
-
-        assertEquals(HashMap.class, o.getClass());
-        assertEquals(6, o.size());
-        assertEquals(map, o);
-        assertEquals((Long)123298333L, o.get("one"));
-        assertEquals((Long)342903339L, o.get("two"));
-        assertEquals((Long)123298333L, o.get("three"));
-        assertEquals((Long)345353439L, o.get("four"));
-        assertEquals((Long)123338333L, o.get("five"));
-        assertEquals((Long)345353439L, o.get("six"));
+        return map;
     }
 
     @Test
@@ -67,13 +68,12 @@ public class MapSerialiserTest extends ToByteSerialisationTest<Map<? extends Obj
         map.put(2, 7);
         map.put(3, 11);
 
-        MapSerialiser s = new MapSerialiser();
-        s.setKeySerialiser(new IntegerSerialiser());
-        s.setValueSerialiser(new IntegerSerialiser());
-        s.setMapClass(LinkedHashMap.class);
+        ((MapSerialiser) serialiser).setKeySerialiser(new IntegerSerialiser());
+        ((MapSerialiser) serialiser).setValueSerialiser(new IntegerSerialiser());
+        ((MapSerialiser) serialiser).setMapClass(LinkedHashMap.class);
 
-        byte[] b =s.serialise(map);
-        Map o = s.deserialise(b);
+        byte[] b = serialiser.serialise(map);
+        Map o = serialiser.deserialise(b);
 
 
         assertEquals(LinkedHashMap.class, o.getClass());
@@ -85,6 +85,15 @@ public class MapSerialiserTest extends ToByteSerialisationTest<Map<? extends Obj
 
     @Override
     public Serialiser<Map<? extends Object, ? extends Object>, byte[]> getSerialisation() {
-        return new MapSerialiser();
+        MapSerialiser serialiser = new MapSerialiser();
+        serialiser.setKeySerialiser(new StringSerialiser());
+        serialiser.setValueSerialiser(new LongSerialiser());
+        return serialiser;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Pair<Map<? extends Object, ? extends Object>, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 4, 102, 111, 117, 114, 9, 51, 52, 53, 51, 53, 51, 52, 51, 57, 3, 111, 110, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 3, 116, 119, 111, 9, 51, 52, 50, 57, 48, 51, 51, 51, 57, 5, 116, 104, 114, 101, 101, 9, 49, 50, 51, 50, 57, 56, 51, 51, 51, 4, 102, 105, 118, 101, 9, 49, 50, 51, 51, 51, 56, 51, 51, 51})};
     }
 }
