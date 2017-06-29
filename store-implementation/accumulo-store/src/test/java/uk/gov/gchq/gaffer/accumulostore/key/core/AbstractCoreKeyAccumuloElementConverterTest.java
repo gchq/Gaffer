@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-/**
- * Created on 25/05/2017.
- */
 public class AbstractCoreKeyAccumuloElementConverterTest {
 
     @Test

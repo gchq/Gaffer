@@ -23,9 +23,6 @@ import static uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSeri
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created on 01/06/2017.
- */
 public class CompactRawSerialisationUtilsTest {
 
     private static final String LONG_VALUE_IS_LEGAL_TO_NOT_REQUIRE_A_LENGTH_BYTE = "long value is legal to not require a length byte";

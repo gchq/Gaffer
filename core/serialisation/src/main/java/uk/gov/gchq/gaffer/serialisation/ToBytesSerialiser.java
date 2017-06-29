@@ -61,7 +61,7 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
         final byte[] selection = new byte[length];
         try {
             System.arraycopy(allBytes, offset, selection, 0, length);
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             throw new SerialisationException(String.format("Deserialising with giving range caused ArrayIndexOutOfBoundsException. byte[].size:%d startPos:%d length:%d", allBytes.length, 0, length), e);
         }
         return deserialise(selection);

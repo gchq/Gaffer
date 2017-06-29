@@ -44,9 +44,8 @@ public final class ByteArrayEscapeUtils {
      * @return the escaped byte array
      */
     public static byte[] escape(final byte[] bytes, final byte... appendAfterEscaping) {
-        final byte[] temp = new byte[2 * (bytes.length + ((appendAfterEscaping == null) ? 0 : appendAfterEscaping.length))];
-        int currentPosition = 0;
-        currentPosition = escape(bytes, temp, currentPosition);
+        final byte[] temp = new byte[(2 * bytes.length) + ((appendAfterEscaping == null) ? 0 : appendAfterEscaping.length)];
+        int currentPosition = escape(bytes, temp, 0);
         if (appendAfterEscaping != null) {
             for (final byte b : appendAfterEscaping) {
                 temp[currentPosition++] = b;

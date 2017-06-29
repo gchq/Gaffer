@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,13 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created on 02/06/2017.
+ * Abstract serialiser that deserialises the given byte[] via an interim String object.
+ * The concrete implementation of this class may use the string in the constructor of the final return type.
+ * <br>example :
+ * <pre>   @Override
+ * public Date deserialiseString(final String value) {
+ * return new Date(Long.parseLong(value));
+ * }</pre>
  */
 public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialiser<T> {
 
@@ -35,9 +41,9 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
     @Override
     public final T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         try {
-        String valueString = new String(allBytes, offset, length, charsetName);
+            String valueString = new String(allBytes, offset, length, charsetName);
             return deserialiseString(valueString);
-        } catch (UnsupportedEncodingException | StringIndexOutOfBoundsException e) {
+        } catch (final UnsupportedEncodingException | StringIndexOutOfBoundsException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }

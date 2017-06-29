@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package uk.gov.gchq.gaffer.accumulostore.utils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.security.InvalidParameterException;
 
-/**
- * Created on 05/06/2017.
- */
 public class BytesAndRange {
 
     private byte[] bytes;
