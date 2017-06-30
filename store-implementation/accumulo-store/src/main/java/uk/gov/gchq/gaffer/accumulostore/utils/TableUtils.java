@@ -64,7 +64,7 @@ public final class TableUtils {
      * @throws StoreException if a connection to accumulo could not be created or there is a failure to create a table/iterator
      */
     public static void ensureTableExists(final AccumuloStore store) throws StoreException {
-        final String tableName = store.getProperties().getTable();
+        final String tableName = store.getTableName();
         if (null == tableName) {
             throw new AccumuloRuntimeException("Table name is required.");
         }
@@ -94,7 +94,7 @@ public final class TableUtils {
     public static synchronized void createTable(final AccumuloStore store)
             throws StoreException, TableExistsException {
         // Create table
-        final String tableName = store.getProperties().getTable();
+        final String tableName = store.getTableName();
         if (null == tableName) {
             throw new AccumuloRuntimeException("Table name is required.");
         }
@@ -147,7 +147,7 @@ public final class TableUtils {
     }
 
     public static void setLocalityGroups(final AccumuloStore store) throws StoreException {
-        final String tableName = store.getProperties().getTable();
+        final String tableName = store.getTableName();
         Map<String, Set<Text>> localityGroups =
                 new HashMap<>();
         for (final String group : store.getSchema().getGroups()) {
@@ -173,7 +173,7 @@ public final class TableUtils {
      * @throws StoreException if the table could not be found or other table issues
      */
     public static BatchWriter createBatchWriter(final AccumuloStore store) throws StoreException {
-        return createBatchWriter(store, store.getProperties().getTable());
+        return createBatchWriter(store, store.getTableName());
     }
 
     /**
@@ -236,7 +236,7 @@ public final class TableUtils {
             return store.getConnection().createBatchWriter(tableName, batchConfig);
         } catch (final TableNotFoundException e) {
             throw new StoreException("Table not set up! Use table gaffer.accumulostore.utils to create the table"
-                    + store.getProperties().getTable(), e);
+                    + store.getTableName(), e);
         }
     }
 

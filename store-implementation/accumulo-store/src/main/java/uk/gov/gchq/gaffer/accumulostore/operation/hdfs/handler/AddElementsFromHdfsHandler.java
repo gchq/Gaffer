@@ -105,7 +105,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         final boolean lessThan2Splits;
         try {
-            lessThan2Splits = store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), 2).size() < 2;
+            lessThan2Splits = store.getConnection().tableOperations().listSplits(store.getTableName(), 2).size() < 2;
         } catch (TableNotFoundException | AccumuloSecurityException | StoreException | AccumuloException e) {
             throw new OperationException("Unable to get accumulo's split points", e);
         }
