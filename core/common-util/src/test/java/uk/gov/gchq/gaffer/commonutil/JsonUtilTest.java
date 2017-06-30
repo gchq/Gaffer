@@ -164,4 +164,33 @@ public class JsonUtilTest {
             assertNotNull(e.getMessage());
         }
     }
+
+    @Test
+    public void shouldReturnFalseWhenOneJsonObjectIsNull() {
+        // Given
+        final String json1 = "{\"a\": 1, \"b\": 2}";
+        final String json2 = null;
+        // Required as .getBytes() of a null string throws a NullPointer
+        final byte[] json2ToBytes = null;
+
+        // When
+        final boolean resultStr = JsonUtil.equals(json1, json2);
+        final boolean resultBytes = JsonUtil.equals(json1.getBytes(), json2ToBytes);
+
+        // Then
+        assertFalse(resultStr);
+        assertFalse(resultBytes);
+        try {
+            JsonAssert.assertEquals(json1, json2);
+            fail("Exception expected");
+        } catch (final AssertionError e) {
+            assertNotNull(e.getMessage());
+        }
+        try {
+            JsonAssert.assertEquals(json1.getBytes(), json2ToBytes);
+            fail("Exception expected");
+        } catch (final AssertionError e) {
+            assertNotNull(e.getMessage());
+        }
+    }
 }
