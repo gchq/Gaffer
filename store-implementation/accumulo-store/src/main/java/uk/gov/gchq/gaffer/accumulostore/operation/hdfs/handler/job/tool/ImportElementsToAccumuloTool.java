@@ -43,7 +43,7 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
 
     @Override
     public int run(final String[] strings) throws Exception {
-        LOGGER.info("Ensuring table {} exists", store.getProperties().getTable());
+        LOGGER.info("Ensuring table {} exists", store.getTableName());
         TableUtils.ensureTableExists(store);
 
         // Hadoop configuration
@@ -60,8 +60,8 @@ public class ImportElementsToAccumuloTool extends Configured implements Tool {
         IngestUtils.setDirectoryPermsForAccumulo(fs, new Path(inputPath));
 
         // Import the files
-        LOGGER.info("Importing files in {} to table {}", inputPath, store.getProperties().getTable());
-        store.getConnection().tableOperations().importDirectory(store.getProperties().getTable(), inputPath,
+        LOGGER.info("Importing files in {} to table {}", inputPath, store.getTableName());
+        store.getConnection().tableOperations().importDirectory(store.getTableName(), inputPath,
                 failurePath, false);
 
         return SUCCESS_RESPONSE;

@@ -86,7 +86,7 @@ public final class TableUtils {
                 HBaseProperties.loadStoreProperties(args[1]));
 
         try (final Admin admin = store.getConnection().getAdmin()) {
-            final TableName tableName = store.getProperties().getTable();
+            final TableName tableName = store.getTableName();
             if (admin.tableExists(tableName)) {
                 final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
                 descriptor.removeCoprocessor(GafferCoprocessor.class.getName());
@@ -107,7 +107,7 @@ public final class TableUtils {
      */
     public static void ensureTableExists(final HBaseStore store) throws StoreException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try {
             final Admin admin = connection.getAdmin();
             if (admin.tableExists(tableName)) {
@@ -139,7 +139,7 @@ public final class TableUtils {
      */
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try {
             final Admin admin = store.getConnection().getAdmin();
             if (admin.tableExists(tableName)) {
@@ -170,9 +170,9 @@ public final class TableUtils {
     public static void deleteAllRows(final HBaseStore store, final String... auths) throws StoreException {
         final Connection connection = store.getConnection();
         try {
-            if (connection.getAdmin().tableExists(store.getProperties().getTable())) {
-                connection.getAdmin().flush(store.getProperties().getTable());
-                final Table table = connection.getTable(store.getProperties().getTable());
+            if (connection.getAdmin().tableExists(store.getTableName())) {
+                connection.getAdmin().flush(store.getTableName());
+                final Table table = connection.getTable(store.getTableName());
                 final Scan scan = new Scan();
                 scan.setAuthorizations(new Authorizations(auths));
                 try (ResultScanner scanner = table.getScanner(scan)) {
@@ -181,26 +181,22 @@ public final class TableUtils {
                         deletes.add(new Delete(result.getRow()));
                     }
                     table.delete(deletes);
-                    connection.getAdmin().flush(store.getProperties().getTable());
+                    connection.getAdmin().flush(store.getTableName());
                 }
 
                 try (ResultScanner scanner = table.getScanner(scan)) {
                     if (scanner.iterator().hasNext()) {
-                        throw new StoreException("Some rows in table " + store.getProperties().getTable() + " failed to delete");
+                        throw new StoreException("Some rows in table " + store.getTableName() + " failed to delete");
                     }
                 }
             }
         } catch (final IOException e) {
-            throw new StoreException("Failed to delete all rows in table " + store.getProperties().getTable(), e);
+            throw new StoreException("Failed to delete all rows in table " + store.getTableName(), e);
         }
     }
 
     public static void dropTable(final HBaseStore store) throws StoreException {
-        dropTable(store.getConnection(), store.getProperties());
-    }
-
-    public static void dropTable(final Connection connection, final HBaseProperties properties) throws StoreException {
-        dropTable(connection, properties.getTable());
+        dropTable(store.getConnection(), store.getTableName());
     }
 
     public static void dropTable(final Connection connection, final TableName tableName) throws StoreException {
