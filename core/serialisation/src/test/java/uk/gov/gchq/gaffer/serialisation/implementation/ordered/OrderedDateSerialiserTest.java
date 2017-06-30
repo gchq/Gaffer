@@ -17,14 +17,17 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedDateSerialiserTest {
+public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     private static final OrderedDateSerialiser SERIALISER = new OrderedDateSerialiser();
 
@@ -83,5 +86,19 @@ public class OrderedDateSerialiserTest {
             }
         }
         return 0;
+    }
+
+    @Override
+    public Serialiser<Date, byte[]> getSerialisation() {
+        return new OrderedDateSerialiser();
+    }
+
+    @Override
+    public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(new Date(1985, 10, 26, 9, 0, 0), new byte[]{8, -128, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(2015, 10, 21, 7, 28, 0), new byte[]{8, -128, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(1955, 11, 12, 6, 38, 0), new byte[]{8, -128, 0, 54, 32, -41, 41, -107, 64})
+        };
     }
 }

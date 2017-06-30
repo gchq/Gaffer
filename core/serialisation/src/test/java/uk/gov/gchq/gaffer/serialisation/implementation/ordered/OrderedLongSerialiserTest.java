@@ -17,13 +17,16 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedLongSerialiserTest {
+public class OrderedLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     private static final OrderedLongSerialiser SERIALISER = new OrderedLongSerialiser();
 
@@ -82,5 +85,20 @@ public class OrderedLongSerialiserTest {
             }
         }
         return 0;
+    }
+
+    @Override
+    public Serialiser<Long, byte[]> getSerialisation() {
+        return new OrderedLongSerialiser();
+    }
+
+    @Override
+    public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Long.MAX_VALUE, new byte[]{16}),
+                new Pair<>(Long.MIN_VALUE, new byte[]{0}),
+                new Pair<>(0l, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1l, new byte[]{8, -128, 0, 0, 0, 0, 0, 0, 1})
+        };
     }
 }
