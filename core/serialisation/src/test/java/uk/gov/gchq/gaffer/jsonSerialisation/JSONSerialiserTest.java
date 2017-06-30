@@ -16,27 +16,45 @@
 
 package uk.gov.gchq.gaffer.jsonSerialisation;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
 import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
 public class JSONSerialiserTest {
 
     private JSONSerialiser serialiser = null;
+    private final Pair<Object, byte[]>[] historicSerialisationPairs;
+
+    @SuppressWarnings("unchecked")
+    public JSONSerialiserTest() {
+        ParameterisedTestObject<Object> paramTest = new ParameterisedTestObject<>();
+        paramTest.setX("Test");
+        paramTest.setK(2);
+        SimpleTestObject simpleTestObject = new SimpleTestObject();
+        simpleTestObject.setX("Test");
+
+        this.historicSerialisationPairs = new Pair[]{
+                new Pair(simpleTestObject, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 125}),
+                new Pair(paramTest, new byte[]{123, 34, 120, 34, 58, 34, 84, 101, 115, 116, 34, 44, 34, 107, 34, 58, 50, 125})
+        };
+    }
 
     @Before
     public void setupTest() throws SerialisationException {
@@ -179,4 +197,23 @@ public class JSONSerialiserTest {
         // Then
         assertTrue(json.contains("x"));
     }
+
+    @Test
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        assertNotNull(historicSerialisationPairs);
+        for (Pair<Object, byte[]> pair : historicSerialisationPairs) {
+            serialiseFirst(pair);
+            deserialiseSecond(pair);
+        }
+    }
+
+    protected void deserialiseSecond(final Pair<Object, byte[]> pair) throws SerialisationException {
+        assertEquals(pair.getFirst(), serialiser.deserialise(pair.getSecond(), pair.getFirst().getClass()));
+    }
+
+    protected void serialiseFirst(final Pair<Object, byte[]> pair) throws SerialisationException {
+        byte[] serialise = serialiser.serialise(pair.getFirst());
+        assertArrayEquals(pair.getSecond(), serialise);
+    }
+
 }
