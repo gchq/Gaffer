@@ -461,6 +461,15 @@ public abstract class Store {
      */
     protected abstract void addAdditionalOperationHandlers();
 
+
+    /**
+     * Any advanced operations that a store can only handle.
+     * Typically these will be disabled if the Graph is accessed over a rest api.
+     */
+    protected void addAdvancedOperationHandlers() {
+        // none by default
+    }
+
     /**
      * Get this Stores implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.get.GetElements}. All Stores must implement this.
      *
@@ -594,6 +603,9 @@ public abstract class Store {
     private void addOpHandlers() {
         addCoreOpHandlers();
         addAdditionalOperationHandlers();
+        if (properties.isAdvancedMode()) {
+            addAdvancedOperationHandlers();
+        }
         addConfiguredOperationHandlers();
     }
 

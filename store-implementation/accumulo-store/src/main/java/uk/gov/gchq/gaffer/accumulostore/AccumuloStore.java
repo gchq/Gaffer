@@ -258,24 +258,24 @@ public class AccumuloStore extends Store {
 
     @Override
     protected void addAdditionalOperationHandlers() {
-        try {
-            addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
-            addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
-            addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
-            addOperationHandler(SplitStore.class, new SplitStoreHandler());
-            addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
-            addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
-
-            if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
-                addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
-                addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
-            } else {
-                LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
-                        getSchema().getVertexSerialiser().getClass().getName());
-            }
-        } catch (final NoClassDefFoundError e) {
-            LOGGER.warn("Unable to added handler for {} due to missing classes on the classpath", AddElementsFromHdfs.class.getSimpleName(), e);
+        addOperationHandler(GetElementsBetweenSets.class, new GetElementsBetweenSetsHandler());
+        addOperationHandler(GetElementsWithinSet.class, new GetElementsWithinSetHandler());
+        if (null == getSchema().getVertexSerialiser() || getSchema().getVertexSerialiser().preservesObjectOrdering()) {
+            addOperationHandler(SummariseGroupOverRanges.class, new SummariseGroupOverRangesHandler());
+            addOperationHandler(GetElementsInRanges.class, new GetElementsInRangesHandler());
+        } else {
+            LOGGER.warn("Accumulo range scan operations will not be available on this store as the vertex serialiser does not preserve object ordering. Vertex serialiser: {}",
+                    getSchema().getVertexSerialiser().getClass().getName());
         }
+    }
+
+    @Override
+    protected void addAdvancedOperationHandlers() {
+        super.addAdvancedOperationHandlers();
+        addOperationHandler(AddElementsFromHdfs.class, new AddElementsFromHdfsHandler());
+        addOperationHandler(SplitStore.class, new SplitStoreHandler());
+        addOperationHandler(SampleDataForSplitPoints.class, new SampleDataForSplitPointsHandler());
+        addOperationHandler(ImportAccumuloKeyValueFiles.class, new ImportAccumuloKeyValueFilesHandler());
     }
 
     @Override

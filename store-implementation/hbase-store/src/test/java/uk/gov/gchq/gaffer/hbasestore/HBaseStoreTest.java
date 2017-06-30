@@ -150,6 +150,26 @@ public class HBaseStoreTest {
     }
 
     @Test
+    public void testStoreDoesNotRegisterAdvOpsWhenNotInAdvMode() throws StoreException {
+        // Given
+        final MiniHBaseStore storeNotAdv = new MiniHBaseStore();
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        properties.setAdvancedMode(false);
+
+        // When
+        storeNotAdv.initialise(schema, properties);
+
+        // Then
+        assertNotNull(storeNotAdv.getOperationHandlerExposed(Validate.class));
+        assertTrue(storeNotAdv.getOperationHandlerExposed(GetElements.class) instanceof GetElementsHandler);
+        assertTrue(storeNotAdv.getOperationHandlerExposed(GetAllElements.class) instanceof GetAllElementsHandler);
+        assertTrue(storeNotAdv.getOperationHandlerExposed(AddElements.class) instanceof AddElementsHandler);
+        assertTrue(storeNotAdv.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
+        assertTrue(storeNotAdv.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
+        assertFalse(storeNotAdv.isSupported(AddElementsFromHdfs.class));
+    }
+
+    @Test
     public void testRequestForNullHandlerManaged() {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);

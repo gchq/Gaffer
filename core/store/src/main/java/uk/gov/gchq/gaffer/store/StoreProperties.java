@@ -46,6 +46,9 @@ public class StoreProperties implements Cloneable {
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
+    public static final String ADVANCED_MODE = "gaffer.store.operation.advanced.mode";
+    public static final String ADVANCED_MODE_DEFAULT = "true";
+
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
@@ -205,6 +208,14 @@ public class StoreProperties implements Cloneable {
         return Integer.parseInt(get(EXECUTOR_SERVICE_THREAD_COUNT, EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT));
     }
 
+    public boolean isAdvancedMode() {
+        return Boolean.parseBoolean(get(ADVANCED_MODE, ADVANCED_MODE_DEFAULT));
+    }
+
+    public void setAdvancedMode(final boolean advancedMode) {
+        set(ADVANCED_MODE, Boolean.toString(advancedMode));
+    }
+
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
     }
@@ -222,28 +233,18 @@ public class StoreProperties implements Cloneable {
     }
 
     public static StoreProperties loadStoreProperties(final String pathStr) {
-        final StoreProperties storeProperties;
-        final Path path = Paths.get(pathStr);
-        try {
-            if (path.toFile().exists()) {
-                storeProperties = loadStoreProperties(Files.newInputStream(path));
-            } else {
-                storeProperties = loadStoreProperties(StreamUtil.openStream(StoreProperties.class, pathStr));
-            }
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
-        }
-
-        return storeProperties;
+        return loadStoreProperties(Paths.get(pathStr));
     }
 
-
     public static StoreProperties loadStoreProperties(final Path storePropertiesPath) {
-        try {
-            return loadStoreProperties(null != storePropertiesPath ? Files.newInputStream(storePropertiesPath) : null);
-        } catch (final IOException e) {
-            throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+        if (storePropertiesPath.toFile().exists()) {
+            try {
+                return loadStoreProperties(Files.newInputStream(storePropertiesPath));
+            } catch (final IOException e) {
+                throw new RuntimeException("Failed to load store properties file : " + e.getMessage(), e);
+            }
         }
+        return loadStoreProperties(StreamUtil.openStream(StoreProperties.class, storePropertiesPath.toFile().getPath()));
     }
 
     public static StoreProperties loadStoreProperties(final InputStream storePropertiesStream) {

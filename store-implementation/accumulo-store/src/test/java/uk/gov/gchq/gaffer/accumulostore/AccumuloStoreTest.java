@@ -260,7 +260,7 @@ public class AccumuloStoreTest {
         testStoreReturnsHandlersForRegisteredOperations(byteEntityStore);
     }
 
-    public void testStoreReturnsHandlersForRegisteredOperations(final SingleUseMockAccumuloStore store) throws StoreException {
+    private void testStoreReturnsHandlersForRegisteredOperations(final SingleUseMockAccumuloStore store) throws StoreException {
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
         assertTrue(store.getOperationHandlerExposed(AddElementsFromHdfs.class) instanceof AddElementsFromHdfsHandler);
@@ -272,6 +272,37 @@ public class AccumuloStoreTest {
         assertTrue(store.getOperationHandlerExposed(ImportAccumuloKeyValueFiles.class) instanceof ImportAccumuloKeyValueFilesHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
+    }
+
+    @Test
+    public void testStoreDoesNotRegisterAdvancedOperationsWhenNotInAdvancedModeGaffer1() throws OperationException, StoreException {
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.openStream(AccumuloStoreTest.class, "/accumuloStoreClassicKeys.properties"));
+        properties.setAdvancedMode(false);
+        store.initialise(schema, properties);
+        testStoreDoesNotRegisterAdvancedOperationsWhenNotInAdvancedMode(store);
+    }
+
+    @Test
+    public void testStoreDoesNotRegisterAdvancedOperationsWhenNotInAdvancedModeByteEntity() throws OperationException, StoreException {
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setAdvancedMode(false);
+        store.initialise(schema, properties);
+        testStoreDoesNotRegisterAdvancedOperationsWhenNotInAdvancedMode(store);
+    }
+
+    private void testStoreDoesNotRegisterAdvancedOperationsWhenNotInAdvancedMode(final SingleUseMockAccumuloStore store) throws StoreException {
+        // Then
+        assertNotNull(store.getOperationHandlerExposed(Validate.class));
+        assertTrue(store.getOperationHandlerExposed(GetElementsInRanges.class) instanceof GetElementsInRangesHandler);
+        assertTrue(store.getOperationHandlerExposed(GetElementsWithinSet.class) instanceof GetElementsWithinSetHandler);
+        assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);
+        assertTrue(store.getOperationHandlerExposed(GenerateObjects.class) instanceof GenerateObjectsHandler);
+        assertFalse(store.isSupported(AddElementsFromHdfs.class));
+        assertFalse(store.isSupported(SplitStore.class));
+        assertFalse(store.isSupported(SampleDataForSplitPoints.class));
+        assertFalse(store.isSupported(ImportAccumuloKeyValueFiles.class));
     }
 
     @Test
