@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,6 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-/**
- * Created on 15/05/2017.
- */
 public abstract class SerialisationTest<INPUT, OUTPUT> {
     protected final Serialiser<INPUT, OUTPUT> serialiser;
     private final Pair<INPUT, OUTPUT>[] historicSerialisationPairs;

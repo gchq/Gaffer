@@ -52,14 +52,21 @@ public class RawDoubleSerialiser implements ToBytesSerialiser<Double> {
 
     @Override
     public Double deserialise(final byte[] bytes) throws SerialisationException {
-        return Double.longBitsToDouble((long) bytes[0] & 255L
-                | ((long) bytes[1] & 255L) << 8
-                | ((long) bytes[2] & 255L) << 16
-                | ((long) bytes[3] & 255L) << 24
-                | ((long) bytes[4] & 255L) << 32
-                | ((long) bytes[5] & 255L) << 40
-                | ((long) bytes[6] & 255L) << 48
-                | ((long) bytes[7] & 255L) << 56);
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Double deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        return Double.longBitsToDouble(allBytes[carriage++] & 255L
+                | ((long) allBytes[carriage++] & 255L) << 8
+                | ((long) allBytes[carriage++] & 255L) << 16
+                | ((long) allBytes[carriage++] & 255L) << 24
+                | ((long) allBytes[carriage++] & 255L) << 32
+                | ((long) allBytes[carriage++] & 255L) << 40
+                | ((long) allBytes[carriage++] & 255L) << 48
+                | ((long) allBytes[carriage] & 255L) << 56);
+
     }
 
     @Override
