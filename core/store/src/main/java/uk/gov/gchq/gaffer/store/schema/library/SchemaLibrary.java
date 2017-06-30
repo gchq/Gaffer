@@ -22,7 +22,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
 
 public abstract class SchemaLibrary {
-    protected static final Pattern GRAPH_ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_].*");
+    protected static final Pattern GRAPH_ID_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_]*");
 
     public static SchemaLibrary createSchemaLibrary(final StoreProperties storeProps) {
         String schemaLibraryClassName = storeProps.getSchemaLibraryClass();
@@ -74,7 +74,7 @@ public abstract class SchemaLibrary {
 
     protected abstract byte[] _get(final String graphId);
 
-    protected void validateGraphId(final String graphId) {
+    public void validateGraphId(final String graphId) {
         if (!GRAPH_ID_ALLOWED_CHARACTERS.matcher(graphId).matches()) {
             throw new IllegalArgumentException("graphId is invalid: " + graphId + ", it must match regex: " + GRAPH_ID_ALLOWED_CHARACTERS);
         }

@@ -152,12 +152,11 @@ public abstract class Store {
     }
 
     public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
-        if (null == graphId) {
-            throw new IllegalArgumentException("graphId is required");
-        }
-        this.graphId = graphId;
         this.properties = properties;
         this.schemaLibrary = createSchemaLibrary();
+
+        schemaLibrary.validateGraphId(graphId);
+        this.graphId = graphId;
 
         if (null == schema) {
             originalSchema = fetchSchema(graphId);

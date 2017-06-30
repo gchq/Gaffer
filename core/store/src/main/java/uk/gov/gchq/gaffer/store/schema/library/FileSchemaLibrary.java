@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class FileSchemaLibrary extends SchemaLibrary {
     public static final String LIBRARY_PATH_KEY = "gaffer.store.schema.library.path";
     public static final String LIBRARY_PATH_DEFAULT = "schemaLibrary";
-    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\].*");
+    private static final Pattern PATH_ALLOWED_CHARACTERS = Pattern.compile("[a-zA-Z0-9_/\\\\]*");
 
     private String path;
 
