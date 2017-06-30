@@ -97,7 +97,7 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
 ## FAQs
 Here are some frequently asked questions.
 
-#### If I a do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
+#### If I do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
 To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the cases of Accumulo and HBase this means a connection to Accumulo/HBase must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo/HBase will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
 
 #### Following on from the previous question, why can't I iterate around the results in parallel?
