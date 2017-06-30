@@ -40,6 +40,11 @@ public class CompactRawLongSerialiser implements ToBytesSerialiser<Long> {
     }
 
     @Override
+    public Long deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        return CompactRawSerialisationUtils.readLong(allBytes, offset);
+    }
+
+    @Override
     public Long deserialise(final byte[] bytes) throws SerialisationException {
         return CompactRawSerialisationUtils.readLong(bytes);
     }

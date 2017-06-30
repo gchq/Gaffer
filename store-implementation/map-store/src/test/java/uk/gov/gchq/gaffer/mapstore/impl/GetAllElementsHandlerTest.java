@@ -357,7 +357,7 @@ public class GetAllElementsHandlerTest {
 
     static Graph getGraphNoIndices() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
-        storeProperties.setCreateIndex("false");
+        storeProperties.setCreateIndex(false);
         return new Graph.Builder()
                 .graphId("graphWithNoIndices")
                 .addSchema(getSchema())

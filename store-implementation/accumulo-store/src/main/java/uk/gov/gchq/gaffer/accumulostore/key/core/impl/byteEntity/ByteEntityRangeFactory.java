@@ -29,13 +29,12 @@ import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 
 public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
 
@@ -67,7 +66,7 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
     protected Key getKeyFromEdgeId(final Object source, final Object destination, final boolean directed,
                                    final boolean endKey) throws RangeFactoryException {
         final ToBytesSerialiser vertexSerialiser = (ToBytesSerialiser) schema.getVertexSerialiser();
-        final byte directionFlag1 = directed ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
+        final byte directionFlag = directed ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE
                 : ByteEntityPositions.UNDIRECTED_EDGE;
         byte[] sourceValue;
         try {
@@ -81,26 +80,32 @@ public class ByteEntityRangeFactory extends AbstractCoreKeyRangeFactory {
         } catch (final SerialisationException e) {
             throw new RangeFactoryException("Failed to serialise Edge Destination", e);
         }
-        int length;
-        byte[] key;
-        if (endKey) {
-            length = sourceValue.length + destinationValue.length + 6;
-            key = new byte[length];
-            key[key.length - 3] = ByteArrayEscapeUtils.DELIMITER;
-            key[key.length - 2] = directionFlag1;
-            key[key.length - 1] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
-        } else {
-            length = sourceValue.length + destinationValue.length + 5;
-            key = new byte[length];
-            key[key.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-            key[key.length - 1] = directionFlag1;
-        }
-        System.arraycopy(sourceValue, 0, key, 0, sourceValue.length);
-        key[sourceValue.length] = ByteArrayEscapeUtils.DELIMITER;
-        key[sourceValue.length + 1] = directionFlag1;
-        key[sourceValue.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destinationValue, 0, key, sourceValue.length + 3, destinationValue.length);
+
+        byte[] key = getKey(endKey, directionFlag, sourceValue, destinationValue);
         return new Key(key, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, AccumuloStoreConstants.EMPTY_BYTES, Long.MAX_VALUE);
+    }
+
+    private byte[] getKey(final boolean endKey, final byte directionFlag, final byte[] sourceValue, final byte[] destinationValue) {
+        byte[] key;
+        final int length = sourceValue.length + destinationValue.length + 5;
+        if (endKey) {
+            key = new byte[length + 1];
+            key[length] = ByteArrayEscapeUtils.DELIMITER_PLUS_ONE;
+        } else {
+            key = new byte[length];
+        }
+
+        System.arraycopy(sourceValue, 0, key, 0, sourceValue.length);
+        int carriage = sourceValue.length;
+        key[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        key[carriage++] = directionFlag;
+        key[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(destinationValue, 0, key, carriage, destinationValue.length);
+        carriage += destinationValue.length;
+        key[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        key[carriage] = directionFlag;
+        //carriage++;
+        return key;
     }
 
     @Override

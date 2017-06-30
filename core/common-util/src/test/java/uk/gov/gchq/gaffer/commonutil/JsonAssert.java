@@ -46,6 +46,6 @@ public class JsonAssert {
     }
 
     public static void assertEquals(final byte[] expectedJson, final byte[] actualJson) {
-        assertEquals(new String(expectedJson), new String(actualJson));
+        assertEquals(expectedJson != null ? new String(expectedJson) : null, actualJson != null ? new String(actualJson) : null);
     }
 }
