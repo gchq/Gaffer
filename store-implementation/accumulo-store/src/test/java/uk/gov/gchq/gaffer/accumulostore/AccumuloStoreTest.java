@@ -104,11 +104,11 @@ public class AccumuloStoreTest {
 
     @Before
     public void beforeMethod() throws StoreException, IOException {
-        if (!byteEntityStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!byteEntityStore.getConnection().tableOperations().exists(byteEntityStore.getTableName())) {
             byteEntityStore.initialise(schema, PROPERTIES);
         }
 
-        if (!gaffer1KeyStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!gaffer1KeyStore.getConnection().tableOperations().exists(gaffer1KeyStore.getTableName())) {
             gaffer1KeyStore.initialise(schema, PROPERTIES);
         }
     }
@@ -124,16 +124,16 @@ public class AccumuloStoreTest {
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         Connector connector = byteEntityStore.getConnection();
 
-        connector.tableOperations().delete(PROPERTIES.getTable());
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        connector.tableOperations().delete(byteEntityStore.getTableName());
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.preInitialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.initialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertTrue(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
     }
 
     @Test

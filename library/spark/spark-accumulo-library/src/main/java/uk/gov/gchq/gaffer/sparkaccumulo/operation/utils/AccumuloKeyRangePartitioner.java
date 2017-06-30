@@ -85,7 +85,7 @@ public class AccumuloKeyRangePartitioner extends Partitioner {
             throw new OperationException("Failed to create accumulo connection", e);
         }
 
-        final String table = store.getProperties().getTable();
+        final String table = store.getTableName();
         try {
             final Collection<Text> splits = connector.tableOperations().listSplits(table);
             final String[] arr = new String[splits.size()];

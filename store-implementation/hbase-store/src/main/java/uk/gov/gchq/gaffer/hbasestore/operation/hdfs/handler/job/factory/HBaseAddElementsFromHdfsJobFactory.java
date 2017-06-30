@@ -126,7 +126,7 @@ public class HBaseAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJo
             HFileOutputFormat2.configureIncrementalLoad(
                     job,
                     store.getTable(),
-                    store.getConnection().getRegionLocator(store.getProperties().getTable())
+                    store.getConnection().getRegionLocator(store.getTableName())
             );
         } catch (final StoreException e) {
             throw new RuntimeException(e);

@@ -74,7 +74,7 @@ public class HBaseStoreTest {
     @Before
     public void beforeMethod() throws StoreException, IOException {
         try (final Admin admin = store.getConnection().getAdmin()) {
-            if (!admin.tableExists(store.getProperties().getTable())) {
+            if (!admin.tableExists(store.getTableName())) {
                 store.initialise(schema, PROPERTIES);
             }
         }
@@ -88,7 +88,7 @@ public class HBaseStoreTest {
     @Test
     public void shouldCreateTableWhenInitialised() throws StoreException, IOException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try (final Admin admin = connection.getAdmin()) {
             assertTrue(admin.tableExists(tableName));
         }
@@ -96,7 +96,7 @@ public class HBaseStoreTest {
 
     @Test
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException {
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         Connection connection = store.getConnection();
 
         TableUtils.dropTable(store);
