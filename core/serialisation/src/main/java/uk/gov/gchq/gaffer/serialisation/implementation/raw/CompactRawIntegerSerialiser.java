@@ -44,12 +44,17 @@ public class CompactRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
     }
 
     @Override
-    public Integer deserialise(final byte[] bytes) throws SerialisationException {
-        final long result = CompactRawSerialisationUtils.readLong(bytes);
+    public Integer deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        final long result = CompactRawSerialisationUtils.readLong(allBytes, offset);
         if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
             throw new SerialisationException("Value too long to fit in integer");
         }
         return (int) result;
+    }
+
+    @Override
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

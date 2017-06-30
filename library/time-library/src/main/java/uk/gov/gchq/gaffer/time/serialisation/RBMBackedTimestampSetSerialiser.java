@@ -30,16 +30,15 @@ import java.io.IOException;
 
 /**
  * A <code>RBMBackedTimestampSetSerialiser</code> serialises a {@link RBMBackedTimestampSet} to an array of bytes.
- *
  * <p>The following figures illustrate the serialised size of some {@link RBMBackedTimestampSet}s with different
  * numbers of timestamps added and different time buckets:
  * <ul>
- *     <li> When the time bucket is a minute and 100 random minutes from a single day are added then the serialised
- *     size is approximately 210 bytes.
- *     <li> When the time bucket is a minute and every minute in a single year is added then the serialised size is
- *     approximately 73000 bytes.
- *     <li> When the time bucket is a second and every second in a single year is added then the serialised size is
- *     approximately 4,000,000 bytes.
+ * <li> When the time bucket is a minute and 100 random minutes from a single day are added then the serialised
+ * size is approximately 210 bytes.
+ * <li> When the time bucket is a minute and every minute in a single year is added then the serialised size is
+ * approximately 73000 bytes.
+ * <li> When the time bucket is a second and every second in a single year is added then the serialised size is
+ * approximately 4,000,000 bytes.
  * </ul>
  */
 public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBackedTimestampSet> {
@@ -68,20 +67,18 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
     }
 
     @Override
-    public RBMBackedTimestampSet deserialise(final byte[] bytes) throws SerialisationException {
-        if (0 == bytes.length) {
+    public RBMBackedTimestampSet deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        if (allBytes.length == 0 || length == 0) {
             return null;
         }
-        final int bucketInt = (int) CompactRawSerialisationUtils.readLong(bytes);
-        final int numBytesForInt = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]);
+        final int bucketInt = (int) CompactRawSerialisationUtils.readLong(allBytes, offset);
+        final int numBytesForInt = CompactRawSerialisationUtils.decodeVIntSize(allBytes[offset]);
         final TimeBucket bucket = TimeBucket.values()[bucketInt];
         final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(bucket);
         final RoaringBitmap rbm = new RoaringBitmap();
         try {
-            final byte[] serialisedRBM = new byte[bytes.length - numBytesForInt];
-            System.arraycopy(bytes, numBytesForInt, serialisedRBM, 0, serialisedRBM.length);
             // Deal with different versions of RoaringBitmap
-            final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM);
+            final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(allBytes, offset + numBytesForInt, length - numBytesForInt);
             final ByteArrayInputStream baisConvertedBytes = new ByteArrayInputStream(convertedBytes);
             final DataInputStream disConvertedBytes = new DataInputStream(baisConvertedBytes);
             rbm.deserialize(disConvertedBytes);
@@ -90,6 +87,11 @@ public class RBMBackedTimestampSetSerialiser implements ToBytesSerialiser<RBMBac
         }
         rbmBackedTimestampSet.setRbm(rbm);
         return rbmBackedTimestampSet;
+    }
+
+    @Override
+    public RBMBackedTimestampSet deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

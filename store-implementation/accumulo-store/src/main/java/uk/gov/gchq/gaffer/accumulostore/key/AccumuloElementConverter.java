@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -174,9 +175,9 @@ public interface AccumuloElementConverter {
      * @param group    the element group
      * @param bytes    the full list of property bytes
      * @param numProps the number of properties to extract
-     * @return the truncated property bytes.
+     * @return details of the bytes range.
      */
-    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
+    BytesAndRange getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
 
     /**
      * Creates a byte array representing the group.
