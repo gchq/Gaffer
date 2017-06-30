@@ -387,16 +387,14 @@ of an edge.
 
 The main two operations are the `AddElements` and the `GetElements`.
 
-The `AddElements` operation can be thought of as a 4 stage process. 
-1. Copy the previous latest store files into the temporary files directory;
-2. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `AvroParquetWriter`;
-3. Using Spark, sort and aggregate the data in the temporary files directory on a per group basis;
-4. Generate an index containing the range of vertices in each file and load that into memory.
+The `AddElements` operation is a three stage process:
+1. Write the unsorted data split by group and `Element` type into Parquet files in the temporary files directory using the `AvroParquetWriter`;
+2. Using Spark, sort and aggregate the data in the temporary files directory and the current store files on a per group basis;
+3. Generate an index containing the range of vertices in each file and load that into memory.
 
-
-The `GetElements` operation can also be thought of as a 4 stage process per group.
+The `GetElements` operation is a four stage process per group:
 1. From the Gaffer view build up a corresponding Parquet filter;
-2. For each seed, build up a file path to Parquet filter map. This is done by using the index to determine which files 
+2. For each seed, build a map from file path to Parquet filter. This is done by using the index to determine which files 
 will contain which seeds;
 3. If the query has seeds then for each filter in the path to filter map add in the group filter built in the first stage;
 4. Using the path to filter map build an `Iterable` that will iterate through the required files applying only the 
