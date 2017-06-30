@@ -15,7 +15,8 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.commonutil.iterable.RepeatItemIterable;
+import uk.gov.gchq.gaffer.commonutil.stream.Streams;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
@@ -46,10 +47,6 @@ public class MapImpl {
     public static final String NON_AGG_ELEMENTS = "nonAggElements";
     public static final String ENTITY_ID_TO_ELEMENTS = "entityIdToElements";
     public static final String EDGE_ID_TO_ELEMENTS = "edgeIdToElements";
-    public static final Set<String> MAP_NAMES = Collections.unmodifiableSet(
-            Sets.newHashSet(AGG_ELEMENTS, NON_AGG_ELEMENTS));
-    public static final Set<String> MULTI_MAP_NAMES = Collections.unmodifiableSet(
-            Sets.newHashSet(ENTITY_ID_TO_ELEMENTS, EDGE_ID_TO_ELEMENTS));
 
     /**
      * aggElements maps from an Element containing the group-by properties
@@ -61,7 +58,7 @@ public class MapImpl {
      * nonAggElements maps from a non aggregated Element to the count of the
      * number of times that element has been seen.
      */
-    private final Map<String, Map<Element, Integer>> nonAggElements = new HashMap<>();
+    private final Map<String, Map<Element, Long>> nonAggElements = new HashMap<>();
 
     /**
      * entityIdToElements is a map from an EntityId to the element key from aggElements or nonAggElements
@@ -90,7 +87,7 @@ public class MapImpl {
 
         for (final String group : schema.getGroups()) {
             aggElements.put(group, mapFactory.getMap(group + "|" + AGG_ELEMENTS, Element.class, GroupedProperties.class));
-            nonAggElements.put(group, mapFactory.getMap(group + "|" + NON_AGG_ELEMENTS, Element.class, Integer.class));
+            nonAggElements.put(group, mapFactory.getMap(group + "|" + NON_AGG_ELEMENTS, Element.class, Long.class));
         }
 
         if (maintainIndex) {
@@ -116,7 +113,7 @@ public class MapImpl {
     }
 
     void addNonAggElement(final Element element) {
-        nonAggElements.get(element.getGroup()).merge(element, 1, (a, b) -> a + b);
+        nonAggElements.get(element.getGroup()).merge(element, 1L, (a, b) -> a + b);
     }
 
     void addAggElement(final Element elementWithGroupByProperties, final GroupedProperties properties) {
@@ -142,12 +139,12 @@ public class MapImpl {
         return results;
     }
 
-    List<Element> getNonAggElements(final Element element) {
-        final Integer count = nonAggElements.get(element.getGroup()).get(element);
-        if (null == count) {
+    Iterable<Element> getNonAggElements(final Element element) {
+        final Long count = nonAggElements.get(element.getGroup()).get(element);
+        if (null == count || count < 1) {
             return Collections.emptyList();
         }
-        return Collections.nCopies(count, element);
+        return new RepeatItemIterable<>(element, count);
     }
 
     Element getAggElement(final Element element) {
@@ -157,7 +154,7 @@ public class MapImpl {
         return clone;
     }
 
-    List<Element> getElements(final Element element) {
+    Iterable<Element> getElements(final Element element) {
         if (!isAggregationEnabled(element)) {
             return getNonAggElements(element);
         } else {
@@ -183,8 +180,8 @@ public class MapImpl {
                 .filter(entry -> groups.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .flatMap(map -> map.entrySet().stream())
-                .map(x -> Collections.nCopies(x.getValue(), cloneElement(x.getKey(), schema)))
-                .flatMap(Collection::stream);
+                .map(x -> new RepeatItemIterable<>(cloneElement(x.getKey(), schema), x.getValue()))
+                .flatMap(Streams::toStream);
     }
 
     Stream<Element> getAllElements(final Set<String> groups) {
@@ -230,9 +227,11 @@ public class MapImpl {
 
     long countNonAggElements() {
         long totalCount = 0;
-        for (final Map<Element, Integer> map : nonAggElements.values()) {
-            for (final Integer count : map.values()) {
-                totalCount += count;
+        for (final Map<Element, Long> map : nonAggElements.values()) {
+            for (final Long count : map.values()) {
+                if (null != count) {
+                    totalCount += count;
+                }
             }
         }
 

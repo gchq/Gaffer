@@ -72,7 +72,7 @@ public class MapImplTest {
 
         // Then
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class);
-        verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class);
+        verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Long.class);
         verify(mockMapFactory).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS, EntityId.class, Element.class);
         verify(mockMapFactory).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS, EdgeId.class, Element.class);
     }
@@ -96,7 +96,7 @@ public class MapImplTest {
 
         // Then
         verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.AGG_ELEMENTS, Element.class, GroupedProperties.class);
-        verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Integer.class);
+        verify(mockMapFactory).getMap(TestGroups.EDGE + "|" + MapImpl.NON_AGG_ELEMENTS, Element.class, Long.class);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.ENTITY_ID_TO_ELEMENTS, EntityId.class, Element.class);
         verify(mockMapFactory, never()).getMultiMap(MapImpl.EDGE_ID_TO_ELEMENTS, EdgeId.class, Element.class);
     }
