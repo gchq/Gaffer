@@ -22,11 +22,7 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 
-/**
- *
- */
 public class CountAllElementsDefaultViewHandler implements OutputOperationHandler<CountAllElementsDefaultView, Long> {
-
     @Override
     public Long doOperation(final CountAllElementsDefaultView operation, final Context context, final Store store)
             throws OperationException {
@@ -34,6 +30,6 @@ public class CountAllElementsDefaultViewHandler implements OutputOperationHandle
     }
 
     private Long doOperation(final MapStore mapStore) {
-        return (long) mapStore.getMapImpl().elementToProperties.size();
+        return mapStore.getMapImpl().countAggElements() + mapStore.getMapImpl().countNonAggElements();
     }
 }

@@ -5,7 +5,8 @@
       "properties": {
         "property1": "string",
         "count": "int"
-      }
+      },
+      "aggregate": "false"
     }
   },
   "edges": {
@@ -16,7 +17,8 @@
       "properties": {
         "property1": "string",
         "count": "int"
-      }
+      },
+      "aggregate": "false"
     },
     "BasicEdge2": {
       "source": "vertex.string",
@@ -26,7 +28,8 @@
         "property1": "string",
         "property2": "string",
         "count": "int"
-      }
+      },
+      "aggregate": "false"
     }
   }
 }
