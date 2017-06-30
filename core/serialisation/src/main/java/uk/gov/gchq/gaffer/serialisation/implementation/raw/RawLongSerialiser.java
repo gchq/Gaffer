@@ -38,14 +38,14 @@ public class RawLongSerialiser implements ToBytesSerialiser<Long> {
     @Override
     public byte[] serialise(final Long value) throws SerialisationException {
         final byte[] out = new byte[8];
-        out[0] = (byte) ((value & 255));
-        out[1] = (byte) ((value >> 8) & 255);
-        out[2] = (byte) ((value >> 16) & 255);
-        out[3] = (byte) ((value >> 24) & 255);
-        out[4] = (byte) ((value >> 32) & 255);
-        out[5] = (byte) ((value >> 40) & 255);
-        out[6] = (byte) ((value >> 48) & 255);
-        out[7] = (byte) ((value >> 56) & 255);
+        out[0] = (byte) ((int) (value & 255));
+        out[1] = (byte) ((int) (value >> 8) & 255);
+        out[2] = (byte) ((int) (value >> 16) & 255);
+        out[3] = (byte) ((int) (value >> 24) & 255);
+        out[4] = (byte) ((int) (value >> 32) & 255);
+        out[5] = (byte) ((int) (value >> 40) & 255);
+        out[6] = (byte) ((int) (value >> 48) & 255);
+        out[7] = (byte) ((int) (value >> 56) & 255);
         return out;
     }
 

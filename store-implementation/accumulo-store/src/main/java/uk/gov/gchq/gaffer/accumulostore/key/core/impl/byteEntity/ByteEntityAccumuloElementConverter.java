@@ -102,7 +102,6 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         carriage += secondLen;
         rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
         rowKey[carriage] = directionFlag;
-        //carriage++;
         return rowKey;
     }
 
