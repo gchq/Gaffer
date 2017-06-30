@@ -135,6 +135,10 @@ public class HBaseStore extends Store {
         return connection;
     }
 
+    public TableName getTableName() {
+        return getProperties().getTable();
+    }
+
     /**
      * Gets the HBase table.
      *
@@ -142,7 +146,7 @@ public class HBaseStore extends Store {
      * @throws StoreException if a reference to the table could not be created.
      */
     public HTable getTable() throws StoreException {
-        final TableName tableName = getProperties().getTable();
+        final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
             return (HTable) connection.getTable(tableName);
