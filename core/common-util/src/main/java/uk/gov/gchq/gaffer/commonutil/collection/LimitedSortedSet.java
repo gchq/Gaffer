@@ -17,7 +17,7 @@ package uk.gov.gchq.gaffer.commonutil.collection;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;

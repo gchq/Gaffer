@@ -169,8 +169,8 @@ public class AddElementsFromHdfsIT {
 
         // Add some splits so that the sample and split operations do not get invoked.
         final SortedSet<Text> splits = Sets.newTreeSet(Arrays.asList(new Text("1"), new Text("2")));
-        store.getConnection().tableOperations().addSplits(store.getProperties().getTable(), splits);
-        assertEquals(splits.size(), store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
+        store.getConnection().tableOperations().addSplits(store.getTableName(), splits);
+        assertEquals(splits.size(), store.getConnection().tableOperations().listSplits(store.getTableName()).size());
 
         addElementsFromHdfs(store, splits.size());
     }
@@ -212,7 +212,7 @@ public class AddElementsFromHdfsIT {
                     .build());
         }
         assertEquals(expectedElements, elementSet);
-        assertEquals(expectedSplits, store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
+        assertEquals(expectedSplits, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
     }
 
     private void createInputFile() throws IOException, StoreException {
@@ -245,7 +245,7 @@ public class AddElementsFromHdfsIT {
 
         final AccumuloStore store = new SingleUseMockAccumuloStoreWithTabletServers();
         store.initialise(schema, properties);
-        assertEquals(0, store.getConnection().tableOperations().listSplits(store.getProperties().getTable()).size());
+        assertEquals(0, store.getConnection().tableOperations().listSplits(store.getTableName()).size());
         return store;
     }
 

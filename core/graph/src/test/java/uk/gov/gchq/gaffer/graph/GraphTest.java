@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -179,7 +179,7 @@ public class GraphTest {
         }
 
         // Then
-        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class GraphTest {
         }
 
         // Then
-        JsonUtil.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
+        JsonAssert.assertEquals(expectedSchema.toJson(true), graph.getSchema().toJson(true));
     }
 
     private URI getResourceUri(String resource) throws URISyntaxException {

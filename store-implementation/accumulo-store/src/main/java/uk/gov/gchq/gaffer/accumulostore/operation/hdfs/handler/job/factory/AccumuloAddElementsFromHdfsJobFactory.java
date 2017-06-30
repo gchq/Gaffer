@@ -161,7 +161,7 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
     protected void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
                                                       final AccumuloStore store) throws IOException {
         final String splitsFilePath = operation.getSplitsFilePath();
-        LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
+        LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getTableName());
         final int maxReducers = validateValue(operation.getMaxReduceTasks());
         final int minReducers = validateValue(operation.getMinReduceTasks());
         if ((maxReducers != -1 && minReducers != -1)
@@ -173,10 +173,10 @@ public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdf
         int numSplits;
         try {
             if (maxReducers == -1) {
-                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
             } else {
-                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
             }
         } catch (final StoreException e) {

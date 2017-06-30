@@ -16,7 +16,7 @@
 package uk.gov.gchq.gaffer.user;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
