@@ -41,10 +41,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ExtractKeyFromRowTest {
-
     private LinkedHashSet<String> groupByColumns;
     private HashMap<String, String[]> columnsToPaths;
     private SchemaUtils utils;
+
     @Before
     public void setUp() throws StoreException {
         Logger.getRootLogger().setLevel(Level.WARN);

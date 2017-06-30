@@ -50,6 +50,7 @@ import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -57,7 +58,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class EdgeCasesTest {
-    private static Logger LOGGER = LoggerFactory.getLogger(EdgeCasesTest.class);
     private static User USER = new User();
 
     @BeforeClass
@@ -90,8 +90,8 @@ public class EdgeCasesTest {
 
     @Test
     public void addElementsToExistingFolderTest() throws StoreException, OperationException, IOException {
-        LOGGER.info("Starting addElementsToExistingFolderTest");
-        final Schema gafferSchema = Schema.fromJson(EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        final Schema gafferSchema = Schema.fromJson(
+                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
@@ -118,10 +118,10 @@ public class EdgeCasesTest {
 
     @Test
     public void readElementsWithZeroElementFiles() throws IOException, OperationException, StoreException {
-        LOGGER.info("Starting readElementsWithZeroElementFiles");
         final Iterable<? extends Element> elements = DataGen.generate300StringElementsWithNullProperties();
 
-        final Schema gafferSchema = Schema.fromJson(EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        final Schema gafferSchema = Schema.fromJson(
+                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
@@ -152,14 +152,14 @@ public class EdgeCasesTest {
 
     @Test
     public void indexOutOfRangeTest() throws IOException, StoreException, OperationException {
-        LOGGER.info("Starting indexOutOfRangeTest");
-        final Schema gafferSchema = Schema.fromJson(EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        final Schema gafferSchema = Schema.fromJson(
+                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
-        ParquetStoreProperties parquetProperties = getParquetStoreProperties();
+        final ParquetStoreProperties parquetProperties = getParquetStoreProperties();
         parquetProperties.setAddElementsOutputFilesPerGroup(1);
-        Graph graph = new Graph.Builder()
+        final Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetProperties)
                 .build();
@@ -173,7 +173,7 @@ public class EdgeCasesTest {
         elements.add(B2A);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
 
-        ArrayList<EntitySeed> entitySeeds = new ArrayList<>(1);
+        final List<EntitySeed> entitySeeds = new ArrayList<>(1);
         entitySeeds.add(new EntitySeed("0"));
         Iterable<? extends Element> results = graph.execute(new GetElements.Builder().input(entitySeeds).build(), USER);
         Iterator<? extends Element> iter = results.iterator();
@@ -188,8 +188,8 @@ public class EdgeCasesTest {
 
     @Test
     public void deduplicateEdgeWhenSrcAndDstAreEqual() throws OperationException {
-        LOGGER.info("Starting deduplicateEdgeWhenSrcAndDstAreEqual");
-        final Schema gafferSchema = Schema.fromJson(EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        final Schema gafferSchema = Schema.fromJson(
+                EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 EdgeCasesTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
@@ -206,7 +206,7 @@ public class EdgeCasesTest {
         elements.add(A2A);
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
 
-        ArrayList<EntitySeed> entitySeeds = new ArrayList<>(1);
+        final List<EntitySeed> entitySeeds = new ArrayList<>(1);
         entitySeeds.add(new EntitySeed("A"));
         Iterable<? extends Element> results = graph.execute(new GetElements.Builder().input(entitySeeds).build(), USER);
         Iterator<? extends Element> iter = results.iterator();

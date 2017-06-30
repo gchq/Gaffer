@@ -52,18 +52,19 @@ public class TypeValueVertexSparkOperationsTest extends AbstractSparkOperationsT
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
+        return Schema.fromJson(
+                TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
                 TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
                 TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
                 TypeValueVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
     }
 
-    private static RDD<Element> getElements(SparkSession spark) {
+    private static RDD<Element> getElements(final SparkSession spark) {
         return DataGen.generate300TypeValueElementsRDD(spark);
     }
 
     @Override
-    void checkGetDataFrameOfElements(Dataset<Row> data) {
+    void checkGetDataFrameOfElements(final Dataset<Row> data) {
         assertEquals(18, data.columns().length);
         assertEquals(175L, data.count());
     }

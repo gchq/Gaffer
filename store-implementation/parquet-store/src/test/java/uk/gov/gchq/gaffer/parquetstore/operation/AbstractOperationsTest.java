@@ -50,7 +50,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 public abstract class AbstractOperationsTest {
-    private static Logger LOGGER = LoggerFactory.getLogger(AbstractOperationsTest.class);
     static User USER = new User();
     Graph graph;
     List<ElementSeed> seedsList;
@@ -85,7 +84,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getAllElementsTest() throws OperationException {
-        LOGGER.info("Starting getAllElementsTest");
         final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().build(), USER);
         checkData(data);
         data.close();
@@ -93,7 +91,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsTest() throws OperationException {
-        LOGGER.info("Starting getElementsTest");
         final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().build(), USER);
         assertFalse(data.iterator().hasNext());
         data.close();
@@ -101,7 +98,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getSeededElementsTest() throws OperationException {
-        LOGGER.info("Starting getSeededElementsTest");
         setupSeeds();
         final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).build(), USER);
         checkGetSeededElementsData(data);
@@ -110,7 +106,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getFilteredElementsTest() throws OperationException {
-        LOGGER.info("Starting getFilteredElementsTest");
         setupView();
         final CloseableIterable<? extends Element> data = graph.execute(new GetAllElements.Builder().view(view).build(), USER);
         checkGetFilteredElementsData(data);
@@ -119,7 +114,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getSeededAndFilteredElementsTest() throws OperationException {
-        LOGGER.info("Starting getSeededAndFilteredElementsTest");
         setupSeeds();
         setupView();
         final CloseableIterable<? extends Element> data = graph.execute(new GetElements.Builder().input(seedsList).view(view).build(), USER);
@@ -129,7 +123,6 @@ public abstract class AbstractOperationsTest {
 
     @Test
     public void getElementsWithPostAggregationFilterTest() throws OperationException {
-        LOGGER.info("Starting getElementsWithInvalidViewTest");
         final View view = new View.Builder().edge("BasicEdge",
                 new ViewElementDefinition.Builder()
                         .postAggregationFilter(
@@ -145,14 +138,13 @@ public abstract class AbstractOperationsTest {
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
-        } catch (Exception ex) {
-            fail("IllegalArgumentException Exception expected");
+        } catch (final Exception ex) {
+            fail("IllegalArgumentException expected");
         }
     }
 
     @Test
     public void getElementsWithPostTransformFilterTest() throws OperationException {
-        LOGGER.info("Starting getElementsWithInvalidViewTest");
         final View view = new View.Builder().edge("BasicEdge",
                 new ViewElementDefinition.Builder()
                         .postTransformFilter(
@@ -168,8 +160,8 @@ public abstract class AbstractOperationsTest {
             fail("IllegalArgumentException Exception expected");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Operation chain"));
-        } catch (Exception ex) {
-            fail("IllegalArgumentException Exception expected");
+        } catch (final Exception ex) {
+            fail("IllegalArgumentException expected");
         }
     }
 }

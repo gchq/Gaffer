@@ -31,7 +31,6 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 public class ParquetFileIteratorTest {
-
     private FileSystem fs;
     private String rootDir;
     private ParquetFileIterator iterator;

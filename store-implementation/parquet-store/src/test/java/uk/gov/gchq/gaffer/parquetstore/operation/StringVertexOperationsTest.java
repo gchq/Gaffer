@@ -69,7 +69,8 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     protected static Schema getSchema() {
-        return Schema.fromJson(StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
+        return Schema.fromJson(
+                StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataSchema.json"),
                 StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/dataTypes.json"),
                 StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeSchema.json"),
                 StringVertexOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
@@ -114,7 +115,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    protected void checkData(CloseableIterable<? extends Element> data) {
+    protected void checkData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -126,7 +127,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -138,7 +139,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -150,7 +151,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;

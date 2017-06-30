@@ -59,12 +59,12 @@ public class LongVertexSparkOperationsTest extends AbstractSparkOperationsTest {
                 LongVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingLongVertexType/storeTypes.json"));
     }
 
-    private static RDD<Element> getElements(SparkSession spark) {
+    private static RDD<Element> getElements(final SparkSession spark) {
         return DataGen.generate300LongElementsRDD(spark);
     }
 
     @Override
-    void checkGetDataFrameOfElements(Dataset<Row> data) {
+    void checkGetDataFrameOfElements(final Dataset<Row> data) {
         assertEquals(15, data.columns().length);
         assertEquals(175L, data.count());
     }

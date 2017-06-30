@@ -61,7 +61,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     private static Graph getGraph() {
-        ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
+        final ParquetStoreProperties pp = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                 AbstractOperationsTest.class.getResourceAsStream("/multiUseStore.properties"));
         return new Graph.Builder()
                 .addSchema(getSchema())
@@ -70,7 +70,8 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
     
     protected static Schema getSchema() {
-        return Schema.fromJson(TypeValueVertexOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
+        return Schema.fromJson(
+                TypeValueVertexOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataSchema.json"),
                 TypeValueVertexOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/dataTypes.json"),
                 TypeValueVertexOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeSchema.json"),
                 TypeValueVertexOperationsTest.class.getResourceAsStream("/schemaUsingTypeValueVertexType/storeTypes.json"));
@@ -120,7 +121,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    protected void checkData(CloseableIterable<? extends Element> data) {
+    protected void checkData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -132,7 +133,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetSeededElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -144,7 +145,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetFilteredElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;
@@ -156,7 +157,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
     }
 
     @Override
-    void checkGetSeededAndFilteredElementsData(CloseableIterable<? extends Element> data) {
+    void checkGetSeededAndFilteredElementsData(final CloseableIterable<? extends Element> data) {
         final Iterator<? extends Element> dataIter = data.iterator();
         assertTrue(dataIter.hasNext());
         int counter = 0;

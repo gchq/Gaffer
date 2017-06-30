@@ -40,7 +40,6 @@ import java.util.Date;
 import java.util.List;
 
 public class DataGen {
-
     private static final String EntityGroup1 = "BasicEntity";
     private static final String EntityGroup2 = "BasicEntity2";
     private static final String EdgeGroup1 = "BasicEdge";

@@ -59,12 +59,12 @@ public class StringVertexSparkOperationsTest extends AbstractSparkOperationsTest
                 StringVertexSparkOperationsTest.class.getResourceAsStream("/schemaUsingStringVertexType/storeTypes.json"));
     }
 
-    private static RDD<Element> getElements(SparkSession spark) {
+    private static RDD<Element> getElements(final SparkSession spark) {
         return DataGen.generate300StringElementsWithNullPropertiesRDD(spark);
     }
 
     @Override
-    void checkGetDataFrameOfElements(Dataset<Row> data) {
+    void checkGetDataFrameOfElements(final Dataset<Row> data) {
         assertEquals(15, data.columns().length);
         assertEquals(150L, data.count());
     }

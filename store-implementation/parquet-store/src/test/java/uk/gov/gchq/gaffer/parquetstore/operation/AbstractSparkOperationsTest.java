@@ -103,7 +103,6 @@ public abstract class AbstractSparkOperationsTest {
 
     @AfterClass
     public static void cleanUpData() throws IOException {
-        LOGGER.info("Cleaning up the data");
         try (final FileSystem fs = FileSystem.get(new Configuration())) {
             final ParquetStoreProperties props = (ParquetStoreProperties) StoreProperties.loadStoreProperties(
                     StreamUtil.storeProps(AbstractSparkOperationsTest.class));
