@@ -49,13 +49,13 @@ public class MapImpl {
     public static final String EDGE_ID_TO_ELEMENTS = "edgeIdToElements";
 
     /**
-     * aggElements maps from an Element containing the group-by properties
+     * aggElements maps from an Element group to a map of Elements containing the group-by properties
      * to a Properties object without the group-by properties
      */
     private final Map<String, Map<Element, GroupedProperties>> aggElements = new HashMap<>();
 
     /**
-     * nonAggElements maps from a non aggregated Element to the count of the
+     * nonAggElements maps from an Element group to a map of non aggregated Elements to the count of the
      * number of times that element has been seen.
      */
     private final Map<String, Map<Element, Long>> nonAggElements = new HashMap<>();
