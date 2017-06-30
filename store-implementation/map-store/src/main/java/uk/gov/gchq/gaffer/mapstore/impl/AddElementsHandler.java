@@ -15,11 +15,12 @@
  */
 package uk.gov.gchq.gaffer.mapstore.impl;
 
-import uk.gov.gchq.gaffer.commonutil.stream.Streams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.GroupedProperties;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
@@ -31,147 +32,119 @@ import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import uk.gov.gchq.gaffer.store.util.AggregatorUtil;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An {@link OperationHandler} for the {@link AddElements} operation on the {@link MapStore}.
  */
 public class AddElementsHandler implements OperationHandler<AddElements> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddElementsHandler.class);
 
     @Override
     public Void doOperation(final AddElements addElements, final Context context, final Store store) throws OperationException {
-        doOperation(addElements, (MapStore) store);
+        addElements(addElements.getInput(), (MapStore) store);
         return null;
     }
 
-    private void doOperation(final AddElements addElements, final MapStore mapStore) {
+    private void addElements(final Iterable<? extends Element> elements, final MapStore mapStore) {
         final MapImpl mapImpl = mapStore.getMapImpl();
-        addElements(addElements.getInput(), mapImpl, mapStore.getSchema());
-    }
+        final Schema schema = mapStore.getSchema();
 
-    private void addElements(final Iterable<? extends Element> elements, final MapImpl mapImpl, final Schema schema) {
-        final boolean maintainIndex = mapImpl.maintainIndex;
-        final Set<String> groupsWithNoAggregation = mapImpl.groupsWithNoAggregation;
-        final Map<EntityId, Set<Element>> entityIdToElements = mapImpl.entityIdToElements;
-        final Map<EdgeId, Set<Element>> edgeIdToElements = mapImpl.edgeIdToElements;
-        final Map<String, Set<String>> groupToGroupByProperties = mapImpl.groupToGroupByProperties;
-        final Map<String, Set<String>> groupToNonGroupByProperties = mapImpl.groupToNonGroupByProperties;
-        final Map<Element, Properties> elementToProperties = mapImpl.elementToProperties;
+        final int bufferSize = mapStore.getProperties().getIngestBufferSize();
 
-        Streams.toStream(elements)
-                .forEach(element -> {
-                    // Update main map of element with group-by properties to properties
-                    final Element elementWithGroupByProperties = updateElementToProperties(schema,
-                            element, elementToProperties, groupsWithNoAggregation, groupToGroupByProperties,
-                            groupToNonGroupByProperties);
-                    // Update entityIdToElements and edgeIdToElements if index required
-                    if (maintainIndex) {
-                        updateEntityIdIndex(entityIdToElements, elementWithGroupByProperties);
-                        updateEdgeIdIndex(edgeIdToElements, elementWithGroupByProperties);
-                    }
-                });
-    }
-
-    private Element updateElementToProperties(final Schema schema,
-                                              final Element element,
-                                              final Map<Element, Properties> elementToProperties,
-                                              final Set<String> groupsWithNoAggregation,
-                                              final Map<String, Set<String>> groupToGroupByProperties,
-                                              final Map<String, Set<String>> groupToNonGroupByProperties) {
-        final Element elementForIndexing;
-        if (groupsWithNoAggregation.contains(element.getGroup())) {
-            elementForIndexing = updateElementToPropertiesNoGroupBy(element, elementToProperties);
+        if (bufferSize < 1) {
+            // Add all elements directly
+            addBatch(mapImpl, schema, elements);
         } else {
-            elementForIndexing = updateElementToPropertiesWithGroupBy(schema, elementToProperties, groupToGroupByProperties,
-                    groupToNonGroupByProperties, element);
+            LOGGER.info("Adding elements in batches, batch size = " + bufferSize);
+            int count = 0;
+            final List<Element> batch = new ArrayList<>(bufferSize);
+            for (final Element element : elements) {
+                if (null != element) {
+                    batch.add(element);
+                    count++;
+                    if (count >= bufferSize) {
+                        addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));
+                        batch.clear();
+                        count = 0;
+                    }
+                }
+            }
+
+            if (count > 0) {
+                addBatch(mapImpl, schema, AggregatorUtil.ingestAggregate(batch, schema));
+            }
+        }
+    }
+
+    private void addBatch(final MapImpl mapImpl, final Schema schema, final Iterable<? extends Element> elements) {
+        for (final Element element : elements) {
+            if (null != element) {
+                final Element elementForIndexing = addElement(element, schema, mapImpl);
+
+                // Update entityIdToElements and edgeIdToElements if index required
+                if (mapImpl.isMaintainIndex()) {
+                    updateElementIndex(elementForIndexing, mapImpl);
+                }
+            }
+        }
+    }
+
+    private Element addElement(final Element element, final Schema schema, final MapImpl mapImpl) {
+        final Element elementForIndexing;
+        if (!mapImpl.isAggregationEnabled(element)) {
+            elementForIndexing = addNonAggElement(element, schema, mapImpl);
+        } else {
+            elementForIndexing = addAggElement(element, schema, mapImpl);
         }
         return elementForIndexing;
     }
 
-    private void updateEntityIdIndex(final Map<EntityId, Set<Element>> entityIdToElements,
-                                     final Element elementWithGroupByProperties) {
-        if (elementWithGroupByProperties instanceof Entity) {
-            final EntityId entityId = new EntitySeed(((Entity) elementWithGroupByProperties).getVertex());
-            updateEntityIdToElementsMap(entityIdToElements, entityId, elementWithGroupByProperties);
-        } else {
-            final Edge edge = (Edge) elementWithGroupByProperties;
-            final EntityId sourceEntityId = new EntitySeed(edge.getSource());
-            final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
-            updateEntityIdToElementsMap(entityIdToElements, sourceEntityId, elementWithGroupByProperties);
-            updateEntityIdToElementsMap(entityIdToElements, destinationEntityId, elementWithGroupByProperties);
-        }
-    }
-
-    private void updateEdgeIdIndex(final Map<EdgeId, Set<Element>> edgeIdToElements,
-                                   final Element elementWithGroupByProperties) {
-        if (elementWithGroupByProperties instanceof Edge) {
-            final Edge edge = (Edge) elementWithGroupByProperties;
-            final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
-            updateEdgeIdToElementsMap(edgeIdToElements, edgeId, elementWithGroupByProperties);
-        }
-    }
-
-    private void updateEntityIdToElementsMap(final Map<EntityId, Set<Element>> entityIdToElements,
-                                             final EntityId entityId,
-                                             final Element element) {
-        Set<Element> elements = entityIdToElements.get(entityId);
-        if (null == elements) {
-            elements = new HashSet<>();
-            entityIdToElements.put(entityId, elements);
-        }
-        elements.add(element);
-    }
-
-    private void updateEdgeIdToElementsMap(final Map<EdgeId, Set<Element>> edgeIdToElements,
-                                           final EdgeId edgeId,
-                                           final Element element) {
-        Set<Element> elements = edgeIdToElements.get(edgeId);
-        if (null == elements) {
-            elements = new HashSet<>();
-            edgeIdToElements.put(edgeId, elements);
-        }
-        elements.add(element);
-    }
-
-    private Element updateElementToPropertiesWithGroupBy(final Schema schema,
-                                                         final Map<Element, Properties> elementToProperties,
-                                                         final Map<String, Set<String>> groupToGroupByProperties,
-                                                         final Map<String, Set<String>> groupToNonGroupByProperties,
-                                                         final Element element) {
+    private Element addAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
         final String group = element.getGroup();
         final Element elementWithGroupByProperties = element.emptyClone();
-        final Properties properties = new Properties();
-        groupToGroupByProperties.get(group)
-                .forEach(propertyName -> elementWithGroupByProperties
-                        .putProperty(propertyName, element.getProperty(propertyName)));
-        groupToNonGroupByProperties.get(group)
-                .forEach(propertyName -> properties.put(propertyName, element.getProperty(propertyName)));
-
-        Properties existingProperties = elementToProperties.get(elementWithGroupByProperties);
-        if (null == existingProperties) {
-            existingProperties = new Properties();
-            elementToProperties.put(elementWithGroupByProperties, existingProperties);
+        final GroupedProperties properties = new GroupedProperties(element.getGroup());
+        for (final String propertyName : mapImpl.getGroupByProperties(group)) {
+            elementWithGroupByProperties.putProperty(propertyName, element.getProperty(propertyName));
+        }
+        for (final String propertyName : mapImpl.getNonGroupByProperties(group)) {
+            properties.put(propertyName, element.getProperty(propertyName));
         }
 
-        schema.getElement(group).getIngestAggregator().apply(existingProperties, properties);
+        mapImpl.addAggElement(elementWithGroupByProperties, properties);
         return elementWithGroupByProperties;
     }
 
-    private Element updateElementToPropertiesNoGroupBy(final Element element,
-                                                       final Map<Element, Properties> elementToProperties) {
-        final Properties existingProperties = elementToProperties.get(element);
-        if (null == existingProperties) {
-            // Clone element and add to map with properties containing 1
-            final Element elementWithGroupByProperties = element.emptyClone();
-            elementWithGroupByProperties.copyProperties(element.getProperties());
-            final Properties properties = new Properties();
-            properties.put(MapImpl.COUNT, 1);
-            elementToProperties.put(elementWithGroupByProperties, properties);
-        } else {
-            existingProperties.put(MapImpl.COUNT, ((int) existingProperties.get(MapImpl.COUNT)) + 1);
+    private Element addNonAggElement(final Element element, final Schema schema, final MapImpl mapImpl) {
+        final Element elementClone = element.emptyClone();
+
+        // Copy properties that exist in the schema
+        final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
+        for (final String property : elementDef.getProperties()) {
+            elementClone.putProperty(property, element.getProperty(property));
         }
-        return element;
+
+        mapImpl.addNonAggElement(elementClone);
+        return elementClone;
+    }
+
+    private void updateElementIndex(final Element element, final MapImpl mapImpl) {
+        if (element instanceof Entity) {
+            final Entity entity = (Entity) element;
+            final EntityId entityId = new EntitySeed(entity.getVertex());
+            mapImpl.addIndex(entityId, element);
+        } else {
+            final Edge edge = (Edge) element;
+            final EntityId sourceEntityId = new EntitySeed(edge.getSource());
+            final EntityId destinationEntityId = new EntitySeed(edge.getDestination());
+            mapImpl.addIndex(sourceEntityId, element);
+            mapImpl.addIndex(destinationEntityId, element);
+
+            final EdgeId edgeId = new EdgeSeed(edge.getSource(), edge.getDestination(), edge.isDirected());
+            mapImpl.addIndex(edgeId, edge);
+        }
     }
 }
