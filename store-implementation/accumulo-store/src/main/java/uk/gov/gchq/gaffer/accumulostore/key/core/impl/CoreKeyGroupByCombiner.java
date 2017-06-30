@@ -31,6 +31,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AggregationException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.ByteUtils;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -62,6 +63,9 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in init method, which is always called first")
     protected AccumuloElementConverter elementConverter;
+
+    private Key topKey;
+    private Value topValue;
 
     /**
      * A Java Iterator that iterates over the properties for a given row Key
@@ -192,8 +196,8 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 return false;
             }
 
-            final byte[] groupByPropBytes1;
-            final byte[] groupByPropBytes2;
+            final BytesAndRange groupByPropBytes1;
+            final BytesAndRange groupByPropBytes2;
             try {
                 groupByPropBytes1 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual1, groupBy.size());
                 groupByPropBytes2 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual2, groupBy.size());
@@ -204,9 +208,6 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             return ByteUtils.areKeyBytesEqual(groupByPropBytes1, groupByPropBytes2);
         }
     }
-
-    Key topKey;
-    Value topValue;
 
     @Override
     public Key getTopKey() {

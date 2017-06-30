@@ -67,6 +67,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
@@ -151,7 +152,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
@@ -167,7 +168,7 @@ public class StoreTest {
                         .build())
                 .type("invalidType", new TypeDefinition.Builder()
                         .clazz(Object.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -532,7 +533,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .type("invalidString", new TypeDefinition.Builder()
                         .clazz(String.class)

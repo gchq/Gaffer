@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core;
+
+import static org.junit.Assert.assertArrayEquals;
 
 import com.google.common.primitives.Bytes;
 import org.apache.accumulo.core.data.Key;
@@ -30,11 +32,6 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-
-/**
- * Created on 25/05/2017.
- */
 public class AbstractCoreKeyAccumuloElementConverterTest {
 
     @Test

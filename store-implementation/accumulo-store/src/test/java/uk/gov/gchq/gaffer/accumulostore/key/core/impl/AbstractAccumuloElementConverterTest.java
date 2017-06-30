@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -99,7 +100,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertyEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -119,7 +120,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertyEntity() throws SchemaException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
@@ -135,7 +136,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertyEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -331,7 +332,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
-        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+        final BytesAndRange br = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
         final Properties truncatedProperties = new Properties() {
@@ -340,6 +341,8 @@ public abstract class AbstractAccumuloElementConverterTest {
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
             }
         };
+        byte[] truncatedBytes = new byte[br.getLength()];
+        System.arraycopy(bytes, br.getOffSet(), truncatedBytes, 0, br.getLength());
         assertEquals(truncatedProperties, converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, truncatedBytes));
     }
 
@@ -349,10 +352,10 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = AccumuloStoreConstants.EMPTY_BYTES;
 
         // When
-        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+        final BytesAndRange truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
-        assertEquals(0, truncatedBytes.length);
+        assertEquals(0, truncatedBytes.getLength());
     }
 
     @Test
