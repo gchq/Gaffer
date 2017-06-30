@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
@@ -124,25 +123,6 @@ public final class IngestUtils {
     }
 
     /**
-     * Given some split points, write a Base64 encoded splits file
-     * <p>
-     *
-     * @param splits     - A Collection of splits
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
-     * @throws IOException for any IO issues writing to the file system.
-     */
-    public static void writeSplitsFile(final Collection<Text> splits, final FileSystem fs, final Path splitsFile)
-            throws IOException {
-        try (final PrintStream out = new PrintStream(new BufferedOutputStream(fs.create(splitsFile, true)), false,
-                CommonConstants.UTF_8)) {
-            for (final Text split : splits) {
-                out.println(new String(Base64.encodeBase64(split.getBytes()), CommonConstants.UTF_8));
-            }
-        }
-    }
-
-    /**
      * Read a splits file and get the number of split points within
      *
      * @param fs         - The FileSystem in which to create the splits file
@@ -162,32 +142,6 @@ public final class IngestUtils {
         }
 
         return numSplits;
-    }
-
-    /**
-     * Read a Base64 encoded splits file and return the splits as Text objects
-     * <p>
-     *
-     * @param fs         - The FileSystem in which to create the splits file
-     * @param splitsFile - A Path for the output splits file
-     * @return A set of Text objects representing the locations of split points
-     * in HDFS
-     * @throws IOException for any IO issues reading from the file system.
-     */
-    public static SortedSet<Text> getSplitsFromFile(final FileSystem fs,
-                                                    final Path splitsFile) throws IOException {
-        final SortedSet<Text> splits = new TreeSet<>();
-
-        try (final FSDataInputStream fis = fs.open(splitsFile);
-             final InputStreamReader streamReader = new InputStreamReader(fis, CommonConstants.UTF_8);
-             final BufferedReader reader = new BufferedReader(streamReader)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                splits.add(new Text(Base64.decodeBase64(line)));
-            }
-        }
-
-        return splits;
     }
 
     /**

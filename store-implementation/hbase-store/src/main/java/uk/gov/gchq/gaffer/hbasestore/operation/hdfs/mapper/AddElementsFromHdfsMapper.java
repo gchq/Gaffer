@@ -20,11 +20,11 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
 import java.io.IOException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
-        extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, ImmutableBytesWritable, Put> {
+        extends GafferMapper<KEY_IN, VALUE_IN, ImmutableBytesWritable, Put> {
     private ElementSerialisation serialisation;
 
     @Override

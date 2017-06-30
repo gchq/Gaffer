@@ -40,4 +40,13 @@ public class ParameterisedTestObject<K> implements Serializable {
         this.k = k;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof ParameterisedTestObject) {
+            ParameterisedTestObject that = (ParameterisedTestObject) obj;
+            return super.equals(obj) || (this.getX().equals(that.getX()) && this.getK().equals(that.getK()));
+        } else {
+            return false;
+        }
+    }
 }

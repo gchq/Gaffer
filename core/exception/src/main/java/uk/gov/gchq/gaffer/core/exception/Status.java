@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.core.exception;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Arrays;
 
 /**
