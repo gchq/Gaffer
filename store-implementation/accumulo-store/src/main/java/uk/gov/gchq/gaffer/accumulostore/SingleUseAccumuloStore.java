@@ -42,7 +42,7 @@ public class SingleUseAccumuloStore extends AccumuloStore {
         }
 
         try {
-            getConnection().tableOperations().delete(getProperties().getTable());
+            getConnection().tableOperations().delete(getTableName());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }

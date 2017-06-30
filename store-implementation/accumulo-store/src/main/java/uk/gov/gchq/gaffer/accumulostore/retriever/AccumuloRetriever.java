@@ -111,7 +111,7 @@ public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? ex
      * @throws StoreException         if a connection to accumulo could not be created.
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
-        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(),
+        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
                 authorisations, store.getProperties().getThreadsForBatchScanner());
         if (iteratorSettings != null) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {
