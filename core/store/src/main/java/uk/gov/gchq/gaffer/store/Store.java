@@ -99,6 +99,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.ViewValidator;
+import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
@@ -130,6 +131,8 @@ public abstract class Store {
      */
     private Schema schema;
 
+    private Schema originalSchema;
+
     /**
      * The store properties - contains specific configuration information for the store - such as database connection strings.
      */
@@ -139,6 +142,7 @@ public abstract class Store {
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
+    private SchemaLibrary schemaLibrary;
     private String graphId;
 
     public Store() {
@@ -152,12 +156,24 @@ public abstract class Store {
             throw new IllegalArgumentException("graphId is required");
         }
         this.graphId = graphId;
-        this.schema = schema;
         this.properties = properties;
+        this.schemaLibrary = createSchemaLibrary();
+
+        if (null == schema) {
+            originalSchema = fetchSchema(graphId);
+        } else {
+            originalSchema = schema;
+            schemaLibrary.add(graphId, schema);
+        }
+
+        final Schema clonedSchema = null != originalSchema ? originalSchema.clone() : null;
+        this.schema = null != clonedSchema ? clonedSchema : originalSchema;
+        optimiseSchema();
+
+
         startCacheServiceLoader(properties);
         this.jobTracker = createJobTracker(properties);
 
-        optimiseSchema();
         validateSchemas();
         addOpHandlers();
         addExecutorService();
@@ -373,6 +389,10 @@ public abstract class Store {
         return schema;
     }
 
+    public Schema getOriginalSchema() {
+        return originalSchema;
+    }
+
     /**
      * Get this Store's {@link uk.gov.gchq.gaffer.store.StoreProperties}.
      *
@@ -418,6 +438,14 @@ public abstract class Store {
             throw new SchemaException("Schema is not valid. "
                     + validationResult.getErrorString());
         }
+    }
+
+    protected Schema fetchSchema(final String graphId) {
+        return schemaLibrary.get(graphId);
+    }
+
+    protected SchemaLibrary createSchemaLibrary() throws StoreException {
+        return SchemaLibrary.createSchemaLibrary(properties);
     }
 
     protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {

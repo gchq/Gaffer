@@ -78,7 +78,7 @@ public class ExamplesServiceTest {
 
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
-        given(store.getSchema()).willReturn(schema);
+        given(store.getOriginalSchema()).willReturn(schema);
         final Graph graph = new Graph.Builder()
                 .graphId("graphId")
                 .store(store)

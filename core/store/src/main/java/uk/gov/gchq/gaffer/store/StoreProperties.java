@@ -26,6 +26,8 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.library.NoSchemaLibrary;
+import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -35,12 +37,12 @@ import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 
 /**
- * A <code>StoreProperties</code> contains specific configuration information for the store, such as database
- * connection strings. It wraps {@link Properties} and lazy loads the all properties from a file when first used.
+ * A <code>StoreProperties</code> contains specific configuration information
+ * for the store, such as database connection strings.
+ * It wraps {@link Properties}.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
@@ -48,9 +50,13 @@ public class StoreProperties implements Cloneable {
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
-    public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
-    private static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+    public static final String SCHEMA_LIBRARY_CLASS = "gaffer.store.schema.library.class";
+    public static final String SCHEMA_LIBRARY_CLASS_DEFAULT = NoSchemaLibrary.class.getName();
 
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
     private Properties props = new Properties();
 
@@ -135,6 +141,19 @@ public class StoreProperties implements Cloneable {
 
     public void setStoreClass(final String storeClass) {
         set(STORE_CLASS, storeClass);
+    }
+
+    public String getSchemaLibraryClass() {
+        return get(SCHEMA_LIBRARY_CLASS, SCHEMA_LIBRARY_CLASS_DEFAULT);
+    }
+
+    @JsonIgnore
+    public void setSchemaLibraryClass(final Class<? extends SchemaLibrary> schemaLibraryClass) {
+        setSchemaLibraryClass(schemaLibraryClass.getName());
+    }
+
+    public void setSchemaLibraryClass(final String schemaLibraryClass) {
+        set(SCHEMA_LIBRARY_CLASS, schemaLibraryClass);
     }
 
     public Boolean getJobTrackerEnabled() {

@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
@@ -191,6 +192,8 @@ public final class AddUpdateTableIterator {
         }
 
         final Schema schema = Schema.fromJson(getSchemaPaths(args));
+
+        SchemaLibrary.addOrUpdate(getGraphId(args), schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {

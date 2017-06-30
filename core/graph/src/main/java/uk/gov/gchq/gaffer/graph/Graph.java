@@ -76,22 +76,18 @@ public final class Graph {
      */
     private List<GraphHook> graphHooks;
 
-    private Schema schema;
-
     /**
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
      * @param store      a {@link Store} used to store the elements and handle operations.
-     * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final Store store, final View view, final List<GraphHook> graphHooks) {
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
-        this.schema = schema;
     }
 
     /**
@@ -249,7 +245,7 @@ public final class Graph {
      * @return the schema.
      */
     public Schema getSchema() {
-        return schema;
+        return store.getOriginalSchema();
     }
 
     /**
@@ -472,7 +468,7 @@ public final class Graph {
             updateStore();
             updateView();
 
-            return new Graph(store, schema, view, graphHooks);
+            return new Graph(store, view, graphHooks);
         }
 
         private void updateSchema() {
@@ -491,20 +487,20 @@ public final class Graph {
 
         private void updateStore() {
             if (null == store) {
-                store = createStore(properties, cloneSchema(schema));
+                store = createStore(properties, schema);
             } else if (null != graphId || null != schema || null != properties) {
                 if (null == graphId) {
                     graphId = store.getGraphId();
                 }
                 if (null == schema) {
-                    schema = store.getSchema();
+                    schema = store.getOriginalSchema();
                 }
                 if (null == properties) {
                     properties = store.getProperties();
                 }
 
                 try {
-                    store.initialise(graphId, cloneSchema(schema), properties);
+                    store.initialise(graphId, schema, properties);
                 } catch (final StoreException e) {
                     throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
                 }
@@ -543,14 +539,10 @@ public final class Graph {
         private void updateView() {
             if (null == view) {
                 this.view = new View.Builder()
-                        .entities(schema.getEntityGroups())
-                        .edges(schema.getEdgeGroups())
+                        .entities(store.getSchema().getEntityGroups())
+                        .edges(store.getSchema().getEdgeGroups())
                         .build();
             }
-        }
-
-        private Schema cloneSchema(final Schema schema) {
-            return null != schema ? schema.clone() : null;
         }
     }
 }

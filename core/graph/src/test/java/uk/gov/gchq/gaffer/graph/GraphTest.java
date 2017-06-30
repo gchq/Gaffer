@@ -61,6 +61,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
+import uk.gov.gchq.gaffer.store.schema.library.FileSchemaLibrary;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -860,5 +861,68 @@ public class GraphTest {
         public InputStream getInput() throws IOException {
             return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
         }
+    }
+
+    @Test
+    public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
+        // Given
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(GraphFileSchemaTest.StoreImpl.class.getName());
+        storeProperties.setSchemaLibraryClass(FileSchemaLibrary.class);
+        storeProperties.set(FileSchemaLibrary.LIBRARY_PATH_KEY, tempFolder.newFolder().getAbsolutePath());
+
+        final Schema schemaModule1 = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule2 = new Schema.Builder()
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule3 = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule4 = new Schema.Builder()
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
+                .storeProperties(storeProperties)
+                .addSchema(schemaModule1)
+                .addSchema(schemaModule2)
+                .addSchema(schemaModule3)
+                .addSchema(schemaModule4)
+                .build();
+
+        final Graph graph2 = new Graph.Builder()
+                .graphId(GRAPH_ID)
+                .storeProperties(storeProperties)
+                .build();
+
+        // Then
+        JsonAssert.assertEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
     }
 }
