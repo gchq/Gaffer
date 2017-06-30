@@ -166,6 +166,10 @@ public class AccumuloStore extends Store {
         return connection;
     }
 
+    public String getTableName() {
+        return getProperties().getTable();
+    }
+
     /**
      * Updates a Hadoop {@link Configuration} with information needed to connect to the Accumulo store. It adds
      * iterators to apply the provided {@link View}. This method will be used by operations that run MapReduce
@@ -181,7 +185,7 @@ public class AccumuloStore extends Store {
             // Table name
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
                     conf,
-                    getProperties().getTable());
+                    getTableName());
             // User
             addUserToConfiguration(conf);
             // Authorizations

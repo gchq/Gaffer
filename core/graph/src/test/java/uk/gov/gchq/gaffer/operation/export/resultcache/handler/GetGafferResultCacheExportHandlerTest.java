@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.commonutil.CollectionUtil;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
@@ -155,7 +155,7 @@ public class GetGafferResultCacheExportHandlerTest {
 
         // Then
         final Schema schema = graph.getSchema();
-        JsonUtil.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
+        JsonAssert.assertEquals(GafferResultCacheUtil.createSchema(timeToLive).toJson(false), schema.toJson(true));
         assertTrue(schema.validate().isValid());
         assertEquals(timeToLive, ((AgeOff) schema.getType("timestamp").getValidateFunctions().get(0)).getAgeOffTime());
         assertTrue(new ElementValidator(schema).validate(validEdge));
