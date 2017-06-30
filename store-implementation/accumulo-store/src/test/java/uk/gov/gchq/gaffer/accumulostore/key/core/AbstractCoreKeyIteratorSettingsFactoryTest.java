@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.impl.ElementPostAggregationFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ElementPreAggregationFilter;
 import uk.gov.gchq.gaffer.accumulostore.key.impl.ValidatorFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
@@ -86,7 +86,7 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ValidatorFilter.class.getName(), iterator.getIteratorClass());
-        JsonUtil.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 
@@ -139,8 +139,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ElementPreAggregationFilter.class.getName(), iterator.getIteratorClass());
-        JsonUtil.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
-        JsonUtil.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
+        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 
@@ -193,8 +193,8 @@ public abstract class AbstractCoreKeyIteratorSettingsFactoryTest {
         assertEquals(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, iterator.getName());
         assertEquals(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY, iterator.getPriority());
         assertEquals(ElementPostAggregationFilter.class.getName(), iterator.getIteratorClass());
-        JsonUtil.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
-        JsonUtil.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
+        JsonAssert.assertEquals(schema.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.SCHEMA).getBytes());
+        JsonAssert.assertEquals(view.toCompactJson(), iterator.getOptions().get(AccumuloStoreConstants.VIEW).getBytes());
         assertEquals(converter.getClass().getName(), iterator.getOptions().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
     }
 
