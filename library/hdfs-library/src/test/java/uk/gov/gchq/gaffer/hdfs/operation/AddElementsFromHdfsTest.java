@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 import com.google.common.collect.Sets;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
@@ -80,7 +80,7 @@ public class AddElementsFromHdfsTest extends OperationTest {
         String json = new String(SERIALISER.serialise(addElements, true));
 
         // Then
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs\",%n" +
                 "  \"failurePath\" : \"failurePath\",%n" +
                 "  \"validate\" : true,%n" +
@@ -129,7 +129,7 @@ public class AddElementsFromHdfsTest extends OperationTest {
         final String json = new String(SERIALISER.serialise(addElementsFromHdfs, true));
 
         // Then
-        JsonUtil.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
+        JsonAssert.assertEquals(ADD_ELEMENTS_FROM_HDFS_JSON, json);
     }
 
     @Test
