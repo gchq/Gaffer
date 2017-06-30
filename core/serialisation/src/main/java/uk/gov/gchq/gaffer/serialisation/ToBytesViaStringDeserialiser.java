@@ -43,6 +43,7 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
         this.charset = charset;
     }
 
+    @Deprecated
     @Override
     public final T deserialise(final byte[] bytes) throws SerialisationException {
         return deserialise(bytes, 0, bytes.length);
@@ -58,7 +59,27 @@ public abstract class ToBytesViaStringDeserialiser<T> implements ToBytesSerialis
         }
     }
 
-
     protected abstract T deserialiseString(final String value) throws SerialisationException;
+
+    @Override
+    public byte[] serialise(final T object) throws SerialisationException {
+        String str;
+        try {
+            str = serialiseToString(object);
+        } catch (final Exception e) {
+            throw new SerialisationException("failed to convert object to string for serialisation.", e);
+        }
+        if (str != null) {
+            try {
+                return str.getBytes(getCharset());
+            } catch (final UnsupportedEncodingException e) {
+                throw new SerialisationException("Unable to serialise to bytes using charset: " + getCharset(), e);
+            }
+        }
+
+        return serialiseNull();
+    }
+
+    protected abstract String serialiseToString(final T object) throws SerialisationException;
 
 }

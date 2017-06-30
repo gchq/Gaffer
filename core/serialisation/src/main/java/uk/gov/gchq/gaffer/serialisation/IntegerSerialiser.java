@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * @deprecated this is not very efficient and should only be used for compatibility
@@ -38,12 +37,8 @@ public class IntegerSerialiser extends ToBytesViaStringDeserialiser<Integer> {
     }
 
     @Override
-    public byte[] serialise(final Integer value) throws SerialisationException {
-        try {
-            return value.toString().getBytes(getCharset());
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    protected String serialiseToString(final Integer object) throws SerialisationException {
+        return object.toString();
     }
 
     @Override

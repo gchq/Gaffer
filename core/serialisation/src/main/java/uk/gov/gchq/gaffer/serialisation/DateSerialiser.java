@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
@@ -39,12 +38,8 @@ public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     }
 
     @Override
-    public byte[] serialise(final Date value) throws SerialisationException {
-        try {
-            return ((Long) value.getTime()).toString().getBytes(getCharset());
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    protected String serialiseToString(final Date object) throws SerialisationException {
+        return ((Long) object.getTime()).toString();
     }
 
     @Override

@@ -19,7 +19,6 @@ import com.google.common.base.Splitter;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
-import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -43,9 +42,9 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
     }
 
     @Override
-    public byte[] serialise(final TreeSet<String> treeSet) throws SerialisationException {
+    protected String serialiseToString(final TreeSet<String> object) throws SerialisationException {
         final StringBuilder builder = new StringBuilder(OPEN);
-        final Iterator values = treeSet.iterator();
+        final Iterator values = object.iterator();
         if (values.hasNext()) {
             builder.append(values.next());
         }
@@ -53,12 +52,7 @@ public class TreeSetStringSerialiser extends ToBytesViaStringDeserialiser<TreeSe
             builder.append(COMMA).append(values.next());
         }
         builder.append(CLOSE);
-
-        try {
-            return builder.toString().getBytes(getCharset());
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+        return builder.toString();
     }
 
     @Override
