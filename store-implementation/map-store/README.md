@@ -40,7 +40,7 @@ Note that this store requires that the classes used for the vertices, and for al
 
 To configure your choice of Map implementation you can either:
 
-- Set this "gaffer.store.mapstore.map.class" store property to be you chosen Map implementation class. This will require that java class to be on the classpath.
+- Set this "gaffer.store.mapstore.map.class" store property to be your chosen Map implementation class. This will require that java class to be on the classpath.
 
 or
 
@@ -49,6 +49,5 @@ This allows you to implement your own map factory to use different Map implement
 However due to the nature of having to query-update-put in order to add a new element other implementations may be slow. 
 In addition you can provide you map factory with configuration using the "gaffer.store.mapstore.map.factory.config" store property.
 
-This map store does not attempt to handle concurrent adding of elements. Elements should
-be added from a single thread.
+This map store does not attempt to handle concurrent adding of elements. Elements should be added from a single thread.
 

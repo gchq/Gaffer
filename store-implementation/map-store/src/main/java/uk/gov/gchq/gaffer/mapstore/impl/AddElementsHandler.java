@@ -123,12 +123,8 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
 
         // Copy properties that exist in the schema
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
-        if (elementDef.getProperties().equals(element.getProperties().keySet())) {
-            elementClone.copyProperties(element.getProperties());
-        } else {
-            for (final String property : elementDef.getProperties()) {
-                elementClone.putProperty(property, element.getProperty(property));
-            }
+        for (final String property : elementDef.getProperties()) {
+            elementClone.putProperty(property, element.getProperty(property));
         }
 
         mapImpl.addNonAggElement(elementClone);
