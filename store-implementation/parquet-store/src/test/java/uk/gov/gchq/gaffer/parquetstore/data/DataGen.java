@@ -76,14 +76,17 @@ public class DataGen {
         return edge;
     }
 
-    public static GenericRowWithSchema generateEntityRow(final SchemaUtils utils, final String group, final String vertex, final byte p1, final double p2, final float p3,
-                                        final HyperLogLogPlus p4, final long p5, final short p6,
-                                        final Date p7) throws OperationException, SerialisationException {
+    public static GenericRowWithSchema generateEntityRow(final SchemaUtils utils, final String group, final String vertex,
+                                                         final byte p1, final double p2, final float p3,
+                                                         final HyperLogLogPlus p4, final long p5, final short p6,
+                                                         final Date p7) throws OperationException, SerialisationException {
+        final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(
+                utils.getColumnToSerialiser(group),
+                utils.getSerialisers(),
+                utils.getColumnToPaths(group),
+                utils.getAvroSchema(group).toString());
 
-
-        final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(utils.getColumnToSerialiser(group), utils.getSerialisers(), utils.getColumnToPaths(group), utils.getAvroSchema(group).toString());
-
-        final ArrayList<Object> list = new ArrayList<>();
+        final List<Object> list = new ArrayList<>();
         list.add(group);
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects(ParquetStoreConstants.VERTEX, vertex)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property1", p1)));
@@ -93,7 +96,8 @@ public class DataGen {
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property5", p5)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property6", p6)));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("property7", p7)));
-        list.add(new GenericRowWithSchema(entityConverter.gafferObjectToParquetObjects("property8", p4), (StructType) utils.getSparkSchema(group).apply("property8").dataType()));
+        list.add(new GenericRowWithSchema(entityConverter.gafferObjectToParquetObjects("property8", p4),
+                (StructType) utils.getSparkSchema(group).apply("property8").dataType()));
         list.addAll(Arrays.asList(entityConverter.gafferObjectToParquetObjects("count", 1)));
 
         final Object[] objects = new Object[list.size()];
@@ -101,13 +105,18 @@ public class DataGen {
         return new GenericRowWithSchema(objects, utils.getSparkSchema(group));
     }
 
-    public static GenericRowWithSchema generateEdgeRow(final SchemaUtils utils, final String group, final String src, final String dst, final Boolean directed, final byte p1,
-                                      final double p2, final float p3, final HyperLogLogPlus p4, final long p5,
-                                      final short p6, final Date p7) throws OperationException, SerialisationException {
+    public static GenericRowWithSchema generateEdgeRow(final SchemaUtils utils, final String group,
+                                                       final String src, final String dst, final Boolean directed,
+                                                       final byte p1, final double p2, final float p3,
+                                                       final HyperLogLogPlus p4, final long p5, final short p6,
+                                                       final Date p7) throws OperationException, SerialisationException {
+        final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(
+                utils.getColumnToSerialiser(group),
+                utils.getSerialisers(),
+                utils.getColumnToPaths(group),
+                utils.getAvroSchema(group).toString());
 
-        final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(utils.getColumnToSerialiser(group), utils.getSerialisers(), utils.getColumnToPaths(group), utils.getAvroSchema(group).toString());
-
-        final ArrayList<Object> list = new ArrayList<>();
+        final List<Object> list = new ArrayList<>();
         list.add(group);
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.SOURCE, src)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects(ParquetStoreConstants.DESTINATION, dst)));
@@ -119,7 +128,8 @@ public class DataGen {
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property5", p5)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property6", p6)));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("property7", p7)));
-        list.add(new GenericRowWithSchema(edgeConverter.gafferObjectToParquetObjects("property8", p4), (StructType) utils.getSparkSchema(group).apply("property8").dataType()));
+        list.add(new GenericRowWithSchema(edgeConverter.gafferObjectToParquetObjects("property8", p4),
+                (StructType) utils.getSparkSchema(group).apply("property8").dataType()));
         list.addAll(Arrays.asList(edgeConverter.gafferObjectToParquetObjects("count", 1)));
 
         final Object[] objects = new Object[list.size()];
@@ -129,7 +139,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicStringEntitysWithNullProperties(final String group, final int size) {
-        final ArrayList<Element> entities = new ArrayList<>();
+        final List<Element> entities = new ArrayList<>();
 
         for (int x = 0 ; x < size/2 ; x++){
             final Entity entity = DataGen.getEntity(group, "vert" + x, null, null, null, null, null, null, null);
@@ -141,7 +151,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicStringEdgesWithNullProperties(final String group, final int size) {
-        final ArrayList<Element> edges = new ArrayList<>();
+        final List<Element> edges = new ArrayList<>();
 
         for (int x = 0 ; x < size/4 ; x++){
             final Edge edge = DataGen.getEdge(group, "src" + x, "dst" + x, true, null, null, null, null, null, null, null);
@@ -157,7 +167,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicLongEntitys(final String group, final int size) {
-        final ArrayList<Element> entities = new ArrayList<>();
+        final List<Element> entities = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
@@ -178,7 +188,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicLongEdges(final String group, final int size) {
-        final ArrayList<Element> edges = new ArrayList<>();
+        final List<Element> edges = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
@@ -203,7 +213,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicTypeValueEntitys(final String group, final int size) {
-        final ArrayList<Element> entities = new ArrayList<>();
+        final List<Element> entities = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
@@ -226,7 +236,7 @@ public class DataGen {
     }
 
     private static List<Element> generateBasicTypeValueEdges(final String group, final int size) {
-        final ArrayList<Element> edges = new ArrayList<>();
+        final List<Element> edges = new ArrayList<>();
         final HyperLogLogPlus h = new HyperLogLogPlus(5, 5);
         h.offer("A");
         h.offer("B");
@@ -254,7 +264,7 @@ public class DataGen {
     }
 
     public static List<Element> generate300StringElementsWithNullProperties() {
-        final ArrayList<Element> elements = new ArrayList<>(300);
+        final List<Element> elements = new ArrayList<>(300);
         elements.addAll(generateBasicStringEntitysWithNullProperties(EntityGroup1, 50));
         elements.addAll(generateBasicStringEdgesWithNullProperties(EdgeGroup1, 100));
         elements.addAll(generateBasicStringEntitysWithNullProperties(EntityGroup2, 50));
