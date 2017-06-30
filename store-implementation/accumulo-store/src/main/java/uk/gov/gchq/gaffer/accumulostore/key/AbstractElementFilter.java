@@ -90,41 +90,35 @@ public abstract class AbstractElementFilter extends Filter {
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
 
-        if (null == schema) {
-            schema = Schema.fromJson(StringUtil.toBytes(options.get(AccumuloStoreConstants.SCHEMA)));
+        schema = Schema.fromJson(StringUtil.toBytes(options.get(AccumuloStoreConstants.SCHEMA)));
+
+        try {
+            elementConverter = Class
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
+                    .newInstance(schema);
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new ElementFilterException("Failed to load element converter from class name provided : "
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
 
-        if (null == elementConverter) {
-            try {
-                elementConverter = Class
-                        .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
-                        .asSubclass(AccumuloElementConverter.class)
-                        .getConstructor(Schema.class)
-                        .newInstance(schema);
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                throw new ElementFilterException("Failed to load element converter from class name provided : "
-                        + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+        if (filterType == ElementValidator.FilterType.SCHEMA_VALIDATION) {
+            updateSchemaGroupsWithoutFilters();
+            elementPredicate = new ElementValidator(schema, false)::validateWithSchema;
+        } else {
+            final String viewJson = options.get(AccumuloStoreConstants.VIEW);
+            if (null == viewJson) {
+                throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
             }
-        }
-
-        if (null == elementPredicate) {
-            if (filterType == ElementValidator.FilterType.SCHEMA_VALIDATION) {
-                updateSchemaGroupsWithoutFilters();
-                elementPredicate = new ElementValidator(schema, false)::validateWithSchema;
+            final View view = View.fromJson(StringUtil.toBytes(viewJson));
+            if (filterType == ElementValidator.FilterType.PRE_AGGREGATION_FILTER) {
+                updateViewGroupsWithoutFilters(view, ViewElementDefinition::hasPreAggregationFilters);
+                elementPredicate = new ElementValidator(view)::validateInput;
             } else {
-                final String viewJson = options.get(AccumuloStoreConstants.VIEW);
-                if (null == viewJson) {
-                    throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
-                }
-                final View view = View.fromJson(StringUtil.toBytes(viewJson));
-                if (filterType == ElementValidator.FilterType.PRE_AGGREGATION_FILTER) {
-                    updateViewGroupsWithoutFilters(view, ViewElementDefinition::hasPreAggregationFilters);
-                    elementPredicate = new ElementValidator(view)::validateInput;
-                } else {
-                    updateViewGroupsWithoutFilters(view, ViewElementDefinition::hasPostAggregationFilters);
-                    elementPredicate = new ElementValidator(view)::validateAggregation;
-                }
+                updateViewGroupsWithoutFilters(view, ViewElementDefinition::hasPostAggregationFilters);
+                elementPredicate = new ElementValidator(view)::validateAggregation;
             }
         }
     }

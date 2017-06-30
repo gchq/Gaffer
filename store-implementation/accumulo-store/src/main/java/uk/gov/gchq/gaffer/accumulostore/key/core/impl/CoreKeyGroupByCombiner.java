@@ -345,33 +345,27 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
     @Override
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-        if (null == schema) {
-            try {
-                schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
-            } catch (final UnsupportedEncodingException e) {
-                throw new SchemaException("Unable to deserialise the schema", e);
-            }
+        try {
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the schema", e);
         }
-        if (null == view) {
-            try {
-                view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
-            } catch (final UnsupportedEncodingException e) {
-                throw new SchemaException("Unable to deserialise the view", e);
-            }
+        try {
+            view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the view", e);
         }
 
-        if (null == elementConverter) {
-            try {
-                elementConverter = Class
-                        .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
-                        .asSubclass(AccumuloElementConverter.class)
-                        .getConstructor(Schema.class)
-                        .newInstance(schema);
-            } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                throw new AggregationException("Failed to load element converter from class name provided : "
-                        + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
-            }
+        try {
+            elementConverter = Class
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
+                    .newInstance(schema);
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
     }
 
