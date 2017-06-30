@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package uk.gov.gchq.gaffer.serialisation.implementation.tostring;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToStringSerialiser;
 
 public class StringToStringSerialiser implements ToStringSerialiser<String> {
-
 
     private static final long serialVersionUID = -3000859022586008228L;
 
