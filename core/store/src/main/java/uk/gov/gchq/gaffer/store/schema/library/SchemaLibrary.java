@@ -75,7 +75,7 @@ public abstract class SchemaLibrary {
     protected abstract byte[] _get(final String graphId);
 
     public void validateGraphId(final String graphId) {
-        if (!GRAPH_ID_ALLOWED_CHARACTERS.matcher(graphId).matches()) {
+        if (null == graphId || !GRAPH_ID_ALLOWED_CHARACTERS.matcher(graphId).matches()) {
             throw new IllegalArgumentException("graphId is invalid: " + graphId + ", it must match regex: " + GRAPH_ID_ALLOWED_CHARACTERS);
         }
     }
