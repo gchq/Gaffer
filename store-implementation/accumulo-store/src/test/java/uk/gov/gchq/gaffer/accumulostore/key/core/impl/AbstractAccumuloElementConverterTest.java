@@ -15,6 +15,12 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
@@ -47,15 +53,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public abstract class AbstractAccumuloElementConverterTest {
 
-    private AccumuloElementConverter converter;
+    protected AccumuloElementConverter converter;
 
     @Before
     public void setUp() throws SchemaException, IOException {

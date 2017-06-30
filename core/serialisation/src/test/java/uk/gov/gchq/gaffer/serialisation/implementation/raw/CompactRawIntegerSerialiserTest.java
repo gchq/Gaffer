@@ -15,16 +15,17 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CompactRawIntegerSerialiserTest extends ToByteSerialisationTest<Integer>{
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+public class CompactRawIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
@@ -79,5 +80,15 @@ public class CompactRawIntegerSerialiserTest extends ToByteSerialisationTest<Int
     @Override
     public Serialiser<Integer, byte[]> getSerialisation() {
         return new CompactRawIntegerSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Integer.MAX_VALUE, new byte[]{-116, 127, -1, -1, -1}),
+                new Pair<>(Integer.MIN_VALUE, new byte[]{-124, 127, -1, -1, -1}),
+                new Pair<>(0, new byte[]{0}),
+                new Pair<>(1, new byte[]{1})
+        };
     }
 }

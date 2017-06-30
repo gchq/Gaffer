@@ -112,11 +112,10 @@ public final class AddUpdateTableIterator {
      */
     public static void removeIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         try {
-            if (store.getConnection().tableOperations().listIterators(store.getProperties().getTable()).containsKey(iteratorName)) {
+            if (store.getConnection().tableOperations().listIterators(store.getTableName()).containsKey(iteratorName)) {
                 store.getConnection()
                         .tableOperations()
-                        .removeIterator(store.getProperties()
-                                        .getTable(), iteratorName,
+                        .removeIterator(store.getTableName(), iteratorName,
                                 EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
             }
         } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
@@ -157,7 +156,7 @@ public final class AddUpdateTableIterator {
             throws StoreException {
         if (null != iteratorSetting) {
             try {
-                store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
+                store.getConnection().tableOperations().attachIterator(store.getTableName(), iteratorSetting);
             } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
                 throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
             }

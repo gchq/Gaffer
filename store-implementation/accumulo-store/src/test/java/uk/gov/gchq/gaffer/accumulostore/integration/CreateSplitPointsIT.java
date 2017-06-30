@@ -108,7 +108,7 @@ public class CreateSplitPointsIT {
                 .build(), new User());
 
         // Then
-        final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), 10));
+        final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
         final List<String> stringSplitsOnTable = Lists.transform(splitsOnTable, t -> StringUtil.toString(t.getBytes()));
         final List<String> fileSplits = FileUtils.readLines(new File(splitsFile));
         final List<String> fileSplitsDecoded = Lists.transform(fileSplits, t -> StringUtil.toString(Base64.decodeBase64(t)));
