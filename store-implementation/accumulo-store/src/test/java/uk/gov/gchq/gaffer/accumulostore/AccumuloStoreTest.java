@@ -76,6 +76,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -128,6 +129,64 @@ public class AccumuloStoreTest {
         connector = byteEntityStore.getConnection();
         assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
     }
+
+    @Test
+    public void shouldCreateAStoreUsingTableName() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setTable("tableName");
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        // When
+        store.initialise(null, SCHEMA, properties);
+
+        // Then
+        assertEquals("tableName", store.getTableName());
+    }
+
+    @Test
+    public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setTable("tableName");
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        // When
+        store.initialise("tableName", SCHEMA, properties);
+
+        // Then
+        assertEquals("tableName", store.getTableName());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        properties.setTable("tableName");
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        // When / Then
+        try {
+            store.initialise("graphId", SCHEMA, properties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldCreateAStoreUsingGraphId() throws Exception {
+        // Given
+        final AccumuloProperties properties = AccumuloProperties.loadStoreProperties(StreamUtil.storeProps(AccumuloStoreTest.class));
+        final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
+
+        // When
+        store.initialise("graphId", SCHEMA, properties);
+
+        // Then
+        assertEquals("graphId", store.getTableName());
+    }
+
 
     @Test
     public void shouldBeAnOrderedStore() {
