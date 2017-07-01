@@ -4,6 +4,10 @@
       "description": "ID/Vertex type description",
       "class": "java.lang.String"
     },
+    "prop.map": {
+      "description": "Map type description",
+      "class": "java.util.LinkedHashMap"
+    },
     "directed.true": {
       "class": "java.lang.Boolean",
       "description": "Directed true type description",

@@ -73,6 +73,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -81,9 +82,11 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
@@ -118,14 +121,25 @@ public class AccumuloStore extends Store {
                     TRANSFORMATION,
                     STORE_VALIDATION
             ));
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     public static final String FAILED_TO_CREATE_AN_ACCUMULO_FROM_ELEMENT_OF_TYPE_WHEN_TRYING_TO_INSERT_ELEMENTS = "Failed to create an accumulo {} from element of type {} when trying to insert elements";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloStore.class);
     private AccumuloKeyPackage keyPackage;
     private Connector connection = null;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
-            throws StoreException {
+    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+        preInitialise(schema, properties);
+        TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param schema     the gaffer Schema
+     * @param properties the accumulo store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void preInitialise(final Schema schema, final StoreProperties properties) throws StoreException {
         super.initialise(schema, properties);
         final String keyPackageClass = getProperties().getKeyPackageClass();
         try {
@@ -134,7 +148,6 @@ public class AccumuloStore extends Store {
             throw new StoreException("Unable to construct an instance of key package: " + keyPackageClass, e);
         }
         this.keyPackage.setSchema(getSchema());
-        TableUtils.ensureTableExists(this);
     }
 
     /**
@@ -201,6 +214,16 @@ public class AccumuloStore extends Store {
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);
         }
+    }
+
+    @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new AccumuloSerialisationFactory());
+    }
+
+    @Override
+    protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     protected void addUserToConfiguration(final Configuration conf) throws AccumuloSecurityException {
@@ -358,4 +381,9 @@ public class AccumuloStore extends Store {
     public boolean isValidationRequired() {
         return false;
     }
+
+    public List<String> getTabletServers() throws StoreException {
+        return getConnection().instanceOperations().getTabletServers();
+    }
+
 }

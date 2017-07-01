@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>road-traffic</artifactId>
-        <version>0.7.3</version>
+        <version>0.7.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,7 +11,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <standalone-path>/</standalone-path>
+        <standalone-path>rest</standalone-path>
         <standalone-port>8080</standalone-port>
     </properties>
 
@@ -53,19 +53,12 @@
                         <artifactId>tomcat7-maven-plugin</artifactId>
                         <version>2.0</version>
                         <configuration>
-                            <path>${standalone-path}</path>
+                            <path>/</path>
                             <port>${standalone-port}</port>
                             <webapps>
                                 <webapp>
-                                    <contextPath>/ui</contextPath>
-                                    <groupId>uk.gov.gchq.gaffer</groupId>
-                                    <artifactId>ui</artifactId>
-                                    <version>${project.parent.version}</version>
-                                    <type>war</type>
-                                    <asWebapp>true</asWebapp>
-                                </webapp>
-                                <webapp>
-                                    <contextPath>/rest</contextPath>
+                                    <contextPath>/${standalone-path}
+                                    </contextPath>
                                     <groupId>uk.gov.gchq.gaffer</groupId>
                                     <artifactId>road-traffic-rest</artifactId>
                                     <version>${project.parent.version}</version>
@@ -74,7 +67,7 @@
                                 </webapp>
                             </webapps>
                             <systemProperties>
-                                <gaffer.rest-api.basePath>rest/v1
+                                <gaffer.rest-api.basePath>${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
                                 <gaffer.schemas>
                                     ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
@@ -94,12 +87,6 @@
                             <dependency>
                                 <groupId>uk.gov.gchq.gaffer</groupId>
                                 <artifactId>road-traffic-rest</artifactId>
-                                <version>${project.parent.version}</version>
-                                <type>war</type>
-                            </dependency>
-                            <dependency>
-                                <groupId>uk.gov.gchq.gaffer</groupId>
-                                <artifactId>ui</artifactId>
                                 <version>${project.parent.version}</version>
                                 <type>war</type>
                             </dependency>

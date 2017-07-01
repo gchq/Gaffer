@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -74,6 +75,7 @@ public class SchemaElementDefinitionValidatorTest {
 
             // Then
             assertFalse(result.isValid());
+            assertTrue(result.getErrorString().contains("reserved word"));
         }
     }
 
@@ -113,6 +115,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nClass null for property property1 could not be found", result.getErrorString());
     }
 
     @Test
@@ -130,6 +133,7 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("null function"));
     }
 
     @Test
@@ -178,6 +182,9 @@ public class SchemaElementDefinitionValidatorTest {
 
         // Then
         assertFalse(result.isValid());
+        assertEquals("Validation errors: \nControl value class java.lang.Integer is not compatible" +
+                " with the input type: class java.lang.String", result.getErrorString());
+
     }
 
     @Test
@@ -205,18 +212,30 @@ public class SchemaElementDefinitionValidatorTest {
     }
 
     @Test
-    public void shouldValidateAndReturnTrueWhenNoPropertiesAggregated() {
+    public void shouldValidateAndReturnTrueWhenAggregationIsDisabled() {
         // Given
         final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
         final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "int");
+        properties.put(TestPropertyNames.PROP_2, "string");
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function1)
+                .build();
 
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(new HashSet<>());
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(mock(ElementAggregator.class));
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+        given(elementDef.isAggregate()).willReturn(false);
 
         // When
-        final ValidationResult result = validator.validate(elementDef, false);
+        final ValidationResult result = validator.validate(elementDef);
 
         // Then
         assertTrue(result.isValid());
@@ -243,15 +262,78 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getProperties()).willReturn(properties.keySet());
         given(elementDef.getPropertyMap()).willReturn(properties);
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
         given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
+        given(elementDef.isAggregate()).willReturn(true);
 
         // When
-        final ValidationResult result = validator.validate(elementDef, true);
+        final ValidationResult result = validator.validate(elementDef);
 
         // Then
         assertTrue(result.isValid());
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenAggregatorIsInvalid() {
+        // Given
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "int");
+        properties.put(TestPropertyNames.PROP_2, "string");
+        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
+        final ElementAggregator aggregator = new ElementAggregator.Builder()
+                .select(TestPropertyNames.PROP_1)
+                .execute(function1)
+                .build();
+
+        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getFullAggregator()).willReturn(aggregator);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+        given(elementDef.isAggregate()).willReturn(true);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
+        assertTrue(result.getErrorString().contains("No aggregator found for properties"));
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
+        verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenNoAggregatorByGroupBysSet() {
+        // Given
+        Set<String> groupBys = new HashSet<>();
+        groupBys.add("int");
+        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
+        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
+        final Map<String, String> properties = new HashMap<>();
+        properties.put(TestPropertyNames.PROP_1, "int");
+        properties.put(TestPropertyNames.PROP_2, "string");
+
+        given(elementDef.getGroupBy()).willReturn(groupBys);
+        given(elementDef.getProperties()).willReturn(properties.keySet());
+        given(elementDef.getPropertyMap()).willReturn(properties);
+        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) Integer.class);
+        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) String.class);
+        given(elementDef.isAggregate()).willReturn(false);
+
+        // When
+        final ValidationResult result = validator.validate(elementDef);
+
+        // Then
+        assertFalse(result.isValid());
+        assertEquals("Validation errors: \nGroups with aggregation disabled should not have groupBy properties.", result.getErrorString());
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_1);
         verify(elementDef, Mockito.atLeastOnce()).getPropertyClass(TestPropertyNames.PROP_2);
     }
@@ -265,65 +347,13 @@ public class SchemaElementDefinitionValidatorTest {
         given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
         given(elementDef.getPropertyMap()).willReturn(Collections.emptyMap());
         given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(null);
+        given(elementDef.getFullAggregator()).willReturn(null);
+        given(elementDef.isAggregate()).willReturn(true);
 
         // When
-        final ValidationResult result = validator.validate(elementDef, true);
+        final ValidationResult result = validator.validate(elementDef);
 
         // Then
         assertTrue(result.isValid());
-    }
-
-    @Test
-    public void shouldValidateAndReturnFalseWhenNoBinaryOperatorAndBinaryOperatorsAreRequired() {
-        // Given
-        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-
-        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        final Map<String, String> properties = new HashMap<>();
-        properties.put(TestPropertyNames.PROP_1, "string");
-        properties.put(TestPropertyNames.PROP_2, "int");
-        given(elementDef.getPropertyMap()).willReturn(properties);
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(null);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-
-        // When
-        final ValidationResult result = validator.validate(elementDef, true);
-
-        // Then
-        assertFalse(result.isValid());
-    }
-
-    @Test
-    public void shouldValidateAndReturnFalseWhenAPropertyDoesNotHaveAnBinaryOperator() {
-        // Given
-        final SchemaElementDefinition elementDef = mock(SchemaElementDefinition.class);
-        final SchemaElementDefinitionValidator validator = new SchemaElementDefinitionValidator();
-        final Map<String, String> properties = new HashMap<>();
-        properties.put(TestPropertyNames.PROP_1, "string");
-        properties.put(TestPropertyNames.PROP_2, "int");
-        final BinaryOperator<Integer> function1 = mock(BinaryOperator.class);
-        final ElementAggregator aggregator = new ElementAggregator.Builder()
-                .select(TestPropertyNames.PROP_1)
-                .execute(function1)
-                .build();
-
-        given(elementDef.getIdentifiers()).willReturn(new HashSet<>());
-        given(elementDef.getProperties()).willReturn(properties.keySet());
-        given(elementDef.getPropertyMap()).willReturn(properties);
-        given(elementDef.getValidator()).willReturn(mock(ElementFilter.class));
-        given(elementDef.getAggregator()).willReturn(aggregator);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_1)).willReturn((Class) String.class);
-        given(elementDef.getPropertyClass(TestPropertyNames.PROP_2)).willReturn((Class) Integer.class);
-
-        // When
-        final ValidationResult result = validator.validate(elementDef, true);
-
-        // Then
-        assertFalse(result.isValid());
     }
 }

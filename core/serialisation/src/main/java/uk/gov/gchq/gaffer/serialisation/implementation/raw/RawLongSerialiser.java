@@ -17,12 +17,17 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser}.
  * RawLongSerialiser serialises Longs into a little-endian byte array.
+ *
+ * @deprecated this is unable to preserve object ordering.
+ * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser
  */
-public class RawLongSerialiser implements Serialisation<Long> {
+@Deprecated
+public class RawLongSerialiser implements ToBytesSerialiser<Long> {
     private static final long serialVersionUID = 369129707952407270L;
 
     @Override
@@ -57,7 +62,7 @@ public class RawLongSerialiser implements Serialisation<Long> {
     }
 
     @Override
-    public Long deserialiseEmptyBytes() {
+    public Long deserialiseEmpty() {
         return null;
     }
 

@@ -19,27 +19,21 @@ package uk.gov.gchq.gaffer.serialisation;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertArrayEquals;
-
-public abstract class SerialisationTest<T> {
-
-    protected final Serialisation<T> serialiser;
+/**
+ * Created on 15/05/2017.
+ */
+public abstract class SerialisationTest<INPUT, OUTPUT> {
+    protected final Serialiser<INPUT, OUTPUT> serialiser;
 
     public SerialisationTest() {
         this.serialiser = getSerialisation();
     }
 
     @Test
-    public void shouldSerialiseNull() throws SerialisationException {
-        // When
-        final byte[] bytes = serialiser.serialiseNull();
-
-        // Then
-        assertArrayEquals(new byte[0], bytes);
-    }
+    public abstract void shouldSerialiseNull() throws SerialisationException;
 
     @Test
-    public abstract void shouldDeserialiseEmptyBytes() throws SerialisationException;
+    public abstract void shouldDeserialiseEmpty() throws SerialisationException;
 
-    public abstract Serialisation<T> getSerialisation();
+    public abstract Serialiser<INPUT, OUTPUT> getSerialisation();
 }

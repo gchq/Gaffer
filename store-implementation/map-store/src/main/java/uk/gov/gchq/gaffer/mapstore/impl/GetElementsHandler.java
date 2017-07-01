@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -37,7 +38,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
@@ -122,23 +122,25 @@ public class GetElementsHandler
                                             final GetElements getElements) {
         if (elementId instanceof EntityId) {
             final Set<Element> relevantElements = new HashSet<>();
-            if (null != mapImpl.entityIdToElements.get(elementId)) {
-                relevantElements.addAll(mapImpl.entityIdToElements.get(elementId));
+            final Set<Element> elements = mapImpl.entityIdToElements.get(elementId);
+            if (null != elements) {
+                relevantElements.addAll(elements);
             }
             if (relevantElements.isEmpty()) {
                 return Collections.emptySet();
             }
             // Apply inOutType options
-            // If option is BOTH then nothing to do
+            // If option is EITHER then nothing to do
             if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING) {
                 relevantElements.removeIf(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
-                        && ((Edge) e).getSource().equals(((EntityId) elementId).getVertex()));
-            }
-            if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.OUTGOING) {
+                        && ((Edge) e).getSource().equals(((EntityId) elementId).getVertex())
+                        && !((Edge) e).getDestination().equals(((EntityId) elementId).getVertex()));
+            } else if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.OUTGOING) {
                 relevantElements.removeIf(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
-                        && ((Edge) e).getDestination().equals(((EntityId) elementId).getVertex()));
+                        && ((Edge) e).getDestination().equals(((EntityId) elementId).getVertex())
+                        && !((Edge) e).getSource().equals(((EntityId) elementId).getVertex()));
             }
             // Apply seedMatching option
             // If option is RELATED then nothing to do
@@ -149,18 +151,32 @@ public class GetElementsHandler
         } else {
             final EdgeId edgeId = (EdgeSeed) elementId;
             final Set<Element> relevantElements = new HashSet<>();
-            if (mapImpl.edgeIdToElements.get(edgeId) != null) {
-                relevantElements.addAll(mapImpl.edgeIdToElements.get(edgeId));
+            if (DirectedType.isEither(edgeId.getDirectedType())) {
+                final Set<Element> elements = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false));
+                if (elements != null) {
+                    relevantElements.addAll(elements);
+                }
+                final Set<Element> elementsDir = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true));
+                if (elementsDir != null) {
+                    relevantElements.addAll(elementsDir);
+                }
+            } else {
+                final Set<Element> elements = mapImpl.edgeIdToElements.get(edgeId);
+                if (elements != null) {
+                    relevantElements.addAll(elements);
+                }
             }
-            if (mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource())) != null) {
+            final Set<Element> elementsFromSource = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource()));
+            if (elementsFromSource != null) {
                 final Set<Element> related = new HashSet<>();
-                related.addAll(mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource())));
+                related.addAll(elementsFromSource);
                 related.removeIf(e -> e instanceof Edge);
                 relevantElements.addAll(related);
             }
-            if (mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination())) != null) {
+            final Set<Element> elementsFromDest = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination()));
+            if (elementsFromDest != null) {
                 final Set<Element> related = new HashSet<>();
-                related.addAll(mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination())));
+                related.addAll(elementsFromDest);
                 related.removeIf(e -> e instanceof Edge);
                 relevantElements.addAll(related);
             }
@@ -188,7 +204,7 @@ public class GetElementsHandler
         Stream<Element> elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
         if (!includeEdges) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> !(e instanceof Edge));
-        } else if (null == directedType || directedType == DirectedType.BOTH) {
+        } else if (DirectedType.isEither(directedType)) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
         } else if (directedType == DirectedType.DIRECTED) {
             elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> {

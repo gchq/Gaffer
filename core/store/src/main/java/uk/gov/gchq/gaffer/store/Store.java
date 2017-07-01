@@ -22,26 +22,22 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.Count;
 import uk.gov.gchq.gaffer.operation.impl.CountGroups;
 import uk.gov.gchq.gaffer.operation.impl.DiscardOutput;
 import uk.gov.gchq.gaffer.operation.impl.Limit;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
-import uk.gov.gchq.gaffer.operation.impl.compare.ElementComparison;
 import uk.gov.gchq.gaffer.operation.impl.compare.Max;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min;
 import uk.gov.gchq.gaffer.operation.impl.compare.Sort;
@@ -67,7 +63,9 @@ import uk.gov.gchq.gaffer.operation.impl.output.ToStream;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
 import uk.gov.gchq.gaffer.operation.io.Input;
 import uk.gov.gchq.gaffer.operation.io.Output;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
+import uk.gov.gchq.gaffer.store.operation.OperationUtil;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.CountHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.DiscardOutputHandler;
@@ -106,9 +104,9 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -122,8 +120,10 @@ import java.util.concurrent.Executors;
  */
 public abstract class Store {
     private static final Logger LOGGER = LoggerFactory.getLogger(Store.class);
+    private final Class<? extends Serialiser> requiredParentSerialiserClass;
     private final Map<Class<? extends Operation>, OperationHandler> operationHandlers = new LinkedHashMap<>();
     private final List<OperationChainOptimiser> opChainOptimisers = new ArrayList<>();
+    private final OperationChainValidator opChainValidator;
 
     /**
      * The schema - contains the type of {@link uk.gov.gchq.gaffer.data.element.Element}s to be stored and how to aggregate the elements.
@@ -135,14 +135,15 @@ public abstract class Store {
      */
     private StoreProperties properties;
 
-    private SchemaOptimiser schemaOptimiser;
-    private ViewValidator viewValidator;
+    private final SchemaOptimiser schemaOptimiser;
+
     private JobTracker jobTracker;
     private ExecutorService executorService;
 
     public Store() {
-        this.viewValidator = new ViewValidator();
-        this.schemaOptimiser = new SchemaOptimiser();
+        this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
+        this.opChainValidator = createOperationChainValidator();
+        this.schemaOptimiser = createSchemaOptimiser();
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -155,17 +156,6 @@ public abstract class Store {
         validateSchemas();
         addOpHandlers();
         addExecutorService();
-    }
-
-    private void startCacheServiceLoader(final StoreProperties properties) {
-        CacheServiceLoader.initialise(properties.getProperties());
-    }
-
-    protected JobTracker createJobTracker(final StoreProperties properties) {
-        if (properties.getJobTrackerEnabled()) {
-            return new JobTracker();
-        }
-        return null;
     }
 
     /**
@@ -234,9 +224,9 @@ public abstract class Store {
             final O result = _execute(operationChain, context);
             addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
             return result;
-        } catch (final Exception e) {
-            addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
-            throw e;
+        } catch (final Throwable t) {
+            addOrUpdateJobDetail(operationChain, context, t.getMessage(), JobStatus.FAILED);
+            throw t;
         }
     }
 
@@ -278,6 +268,9 @@ public abstract class Store {
                 try {
                     _execute(operationChain, context);
                     addOrUpdateJobDetail(operationChain, context, null, JobStatus.FINISHED);
+                } catch (final Error e) {
+                    addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
+                    throw e;
                 } catch (final Exception e) {
                     LOGGER.warn("Operation chain job failed to execute", e);
                     addOrUpdateJobDetail(operationChain, context, e.getMessage(), JobStatus.FAILED);
@@ -313,6 +306,27 @@ public abstract class Store {
      */
     public Set<Class<? extends Operation>> getSupportedOperations() {
         return operationHandlers.keySet();
+    }
+
+    public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
+        if (null == operation || !Output.class.isAssignableFrom(operation)) {
+            return getSupportedOperations();
+        }
+
+        final Set<Class<? extends Operation>> ops = new LinkedHashSet<>();
+        if (Output.class.isAssignableFrom(operation)) {
+            final Class<?> outputType = OperationUtil.getOutputType((Class) operation);
+            for (final Class<? extends Operation> nextOp : getSupportedOperations()) {
+                if (Input.class.isAssignableFrom(nextOp)) {
+                    final Class<?> inputType = OperationUtil.getInputType((Class) nextOp);
+                    if (OperationUtil.isValid(outputType, inputType).isValid()) {
+                        ops.add(nextOp);
+                    }
+                }
+            }
+        }
+
+        return ops;
     }
 
     /**
@@ -370,31 +384,25 @@ public abstract class Store {
         } else {
             validationResult.add(schema.validate());
 
-            final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
-            schemaElements.putAll(getSchema().getEdges());
-            schemaElements.putAll(getSchema().getEntities());
-            for (final Entry<String, SchemaElementDefinition> schemaElementDefinitionEntry : schemaElements.entrySet()) {
-                for (final String propertyName : schemaElementDefinitionEntry.getValue().getProperties()) {
-                    Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
-                    final Serialisation serialisation = schemaElementDefinitionEntry
-                            .getValue()
-                            .getPropertyTypeDef(propertyName)
-                            .getSerialiser();
-                    if (null == serialisation) {
-                        validationResult.addError(
-                                "Could not find a serialiser for property '"
-                                        + propertyName
-                                        + "' in the group '"
-                                        + schemaElementDefinitionEntry.getKey() + "'.");
-                    } else if (!serialisation.canHandle(propertyClass)) {
-                        validationResult.addError("Schema serialiser ("
-                                + serialisation.getClass().getName()
-                                + ") for property '" + propertyName
-                                + "' in the group '" + schemaElementDefinitionEntry.getKey()
-                                + "' cannot handle property found in the schema");
-                    }
+            getSchemaElements().entrySet().forEach(schemaElementDefinitionEntry -> schemaElementDefinitionEntry.getValue().getProperties().forEach(propertyName -> {
+                final Class propertyClass = schemaElementDefinitionEntry.getValue().getPropertyClass(propertyName);
+                final Serialiser serialisation = schemaElementDefinitionEntry
+                        .getValue()
+                        .getPropertyTypeDef(propertyName)
+                        .getSerialiser();
+
+                if (null == serialisation) {
+                    validationResult.addError(
+                            String.format("Could not find a serialiser for property '%s' in the group '%s'.", propertyName, schemaElementDefinitionEntry.getKey()));
+                } else if (!serialisation.canHandle(propertyClass)) {
+                    validationResult.addError(String.format("Schema serialiser (%s) for property '%s' in the group '%s' cannot handle property found in the schema", serialisation.getClass().getName(), propertyName, schemaElementDefinitionEntry.getKey()));
                 }
-            }
+            }));
+
+            validateSchema(validationResult, getSchema().getVertexSerialiser());
+
+            getSchema().getTypes().entrySet().forEach(entrySet ->
+                    validateSchema(validationResult, entrySet.getValue().getSerialiser()));
         }
 
         if (!validationResult.isValid()) {
@@ -403,8 +411,20 @@ public abstract class Store {
         }
     }
 
+    protected void validateSchema(final ValidationResult validationResult, final Serialiser serialiser) {
+        if ((serialiser != null) && !requiredParentSerialiserClass.isInstance(serialiser)) {
+            validationResult.addError(
+                    String.format("Schema serialiser (%s) is not instance of %s",
+                            serialiser.getClass().getSimpleName(),
+                            requiredParentSerialiserClass.getSimpleName()));
+        }
+    }
+
     protected <O> OperationChain<O> prepareOperationChain(final OperationChain<O> operationChain, final Context context) {
-        validateOperationChain(operationChain, context.getUser());
+        final ValidationResult validationResult = opChainValidator.validate(operationChain, context.getUser(), this);
+        if (!validationResult.isValid()) {
+            throw new IllegalArgumentException("Operation chain is invalid. " + validationResult.getErrorString());
+        }
 
         OperationChain<O> optimisedOperationChain = operationChain;
         for (final OperationChainOptimiser opChainOptimiser : opChainOptimisers) {
@@ -413,60 +433,19 @@ public abstract class Store {
         return optimisedOperationChain;
     }
 
-    protected void validateOperationChain(
-            final OperationChain<?> operationChain, final User user) {
-        if (operationChain.getOperations().isEmpty()) {
-            throw new IllegalArgumentException("Operation chain contains no operations");
+    protected JobTracker createJobTracker(final StoreProperties properties) {
+        if (properties.getJobTrackerEnabled()) {
+            return new JobTracker();
         }
-
-        for (final Operation op : operationChain.getOperations()) {
-            final View opView;
-            if (op instanceof GraphFilters) {
-                opView = ((GraphFilters) op).getView();
-            } else {
-                opView = null;
-            }
-            final ValidationResult viewValidationResult = viewValidator.validate(opView, schema, hasTrait(StoreTrait.ORDERED));
-            if (!viewValidationResult.isValid()) {
-                throw new SchemaException("View for operation "
-                        + op.getClass().getName()
-                        + " is not valid. " + viewValidationResult.getErrorString());
-            }
-
-            if (op instanceof ElementComparison) {
-                for (final Pair<String, String> pair : ((ElementComparison) op).getComparableGroupPropertyPairs()) {
-                    final SchemaElementDefinition elementDef = schema.getElement(pair.getFirst());
-                    if (null == elementDef) {
-                        throw new IllegalArgumentException(op.getClass().getName()
-                                + " references " + pair.getFirst()
-                                + " group that does not exist in the schema");
-                    }
-                    Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
-                    if (null != propertyClass && !Comparable.class.isAssignableFrom(propertyClass)) {
-                        throw new SchemaException("Property " + pair.getSecond()
-                                + " in group " + pair.getFirst()
-                                + " has a java class of " + propertyClass.getName()
-                                + " which does not extend Comparable.");
-                    }
-                }
-
-                final ValidationResult operationValidationResult = viewValidator
-                        .validate(opView, schema, hasTrait(StoreTrait.ORDERED));
-                if (!operationValidationResult.isValid()) {
-                    throw new SchemaException("View for operation "
-                            + op.getClass().getName()
-                            + " is not valid. " + operationValidationResult.getErrorString());
-                }
-            }
-        }
+        return null;
     }
 
-    protected void setSchemaOptimiser(final SchemaOptimiser schemaOptimiser) {
-        this.schemaOptimiser = schemaOptimiser;
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser();
     }
 
-    protected void setViewValidator(final ViewValidator viewValidator) {
-        this.viewValidator = viewValidator;
+    protected OperationChainValidator createOperationChainValidator() {
+        return new OperationChainValidator(new ViewValidator());
     }
 
     protected void addOperationChainOptimisers(final List<OperationChainOptimiser> newOpChainOptimisers) {
@@ -510,6 +489,15 @@ public abstract class Store {
      * @return the implementation of the handler for {@link uk.gov.gchq.gaffer.operation.impl.add.AddElements}
      */
     protected abstract OperationHandler<? extends AddElements> getAddElementsHandler();
+
+    protected HashMap<String, SchemaElementDefinition> getSchemaElements() {
+        final HashMap<String, SchemaElementDefinition> schemaElements = new HashMap<>();
+        schemaElements.putAll(getSchema().getEdges());
+        schemaElements.putAll(getSchema().getEntities());
+        return schemaElements;
+    }
+
+    protected abstract Class<? extends Serialiser> getRequiredParentSerialiserClass();
 
     /**
      * Should deal with any unhandled operations, could simply throw an {@link UnsupportedOperationException}.
@@ -664,5 +652,9 @@ public abstract class Store {
                 addOperationHandler(definition.getOperation(), definition.getHandler());
             }
         }
+    }
+
+    private void startCacheServiceLoader(final StoreProperties properties) {
+        CacheServiceLoader.initialise(properties.getProperties());
     }
 }

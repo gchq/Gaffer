@@ -17,20 +17,20 @@ package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawDoubleSerialiserTest {
-
-    private static final RawDoubleSerialiser SERIALISER = new RawDoubleSerialiser();
+public class RawDoubleSerialiserTest extends ToByteSerialisationTest<Double> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (double i = 0; i < 1000; i+=1.1) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,28 +38,32 @@ public class RawDoubleSerialiserTest {
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Double.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Double.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseDoubleClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Double.class));
+        assertTrue(serialiser.canHandle(Double.class));
     }
 
+    @Override
+    public Serialiser<Double, byte[]> getSerialisation() {
+        return new RawDoubleSerialiser();
+    }
 }

@@ -40,7 +40,7 @@
         <level value="ERROR"/>
     </logger>
 
-    <logger name="org.apache.jcs">
+    <logger name="org.apache.commons.jcs">
         <level value="ERROR"/>
     </logger>
 

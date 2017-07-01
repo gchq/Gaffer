@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.operation.impl.compare;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -24,8 +25,10 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.impl.compare.Min.Builder;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -35,8 +38,18 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
-public class MinTest implements OperationTest {
+public class MinTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return Min.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("comparators");
+    }
 
     @Test
     @Override
@@ -73,7 +86,7 @@ public class MinTest implements OperationTest {
         assertThat(min.getInput(), is(notNullValue()));
         assertThat(min.getInput(), iterableWithSize(2));
         assertThat(Streams.toStream(min.getInput())
-                          .map(e -> e.getProperty("property"))
-                          .collect(toList()), containsInAnyOrder(1, 2));
+                .map(e -> e.getProperty("property"))
+                .collect(toList()), containsInAnyOrder(1, 2));
     }
 }

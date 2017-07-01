@@ -177,6 +177,7 @@ public class TableUtilsTest {
                         .source(TestTypes.ID_STRING)
                         .destination(TestTypes.ID_STRING)
                         .directed(TestTypes.DIRECTED_TRUE)
+                        .aggregate(false)
                         .build())
                 .build();
 

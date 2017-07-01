@@ -18,7 +18,9 @@ package uk.gov.gchq.gaffer.spark.operation.scalardd;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.spark.SparkContext;
 import org.apache.spark.rdd.RDD;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -38,6 +40,7 @@ public class GetRDDOfElements implements
         Options {
 
     private Map<String, String> options;
+    @Required
     private SparkContext sparkContext;
     private Iterable<? extends ElementId> input;
     private IncludeIncomingOutgoingType inOutType;

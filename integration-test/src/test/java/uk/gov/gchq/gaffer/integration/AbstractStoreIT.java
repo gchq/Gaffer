@@ -48,7 +48,6 @@ import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
 import uk.gov.gchq.koryphe.impl.predicate.AgeOff;
 import uk.gov.gchq.koryphe.impl.predicate.IsLessThan;
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -67,9 +66,6 @@ import static org.junit.Assume.assumeTrue;
 public abstract class AbstractStoreIT {
     protected static final String USER_01 = "user01";
     protected static final long AGE_OFF_TIME = 4L * 1000; // 4 seconds;
-
-    // Temporary folder location
-    protected static final File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
 
     // Identifier prefixes
     public static final String SOURCE = "source";
@@ -287,17 +283,22 @@ public abstract class AbstractStoreIT {
                 edge.putProperty(TestPropertyNames.INT, 1);
                 edge.putProperty(TestPropertyNames.COUNT, 1L);
                 addToMap(edge, edges);
+
+                final Edge edgeDir = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, true);
+                edgeDir.putProperty(TestPropertyNames.INT, 1);
+                edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+                addToMap(edgeDir, edges);
             }
 
-            final Edge firstEdge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
-            firstEdge.putProperty(TestPropertyNames.INT, 1);
-            firstEdge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(firstEdge, edges);
+            final Edge edge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
+            edge.putProperty(TestPropertyNames.INT, 1);
+            edge.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(edge, edges);
 
-            final Edge secondEdge = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
-            secondEdge.putProperty(TestPropertyNames.INT, 1);
-            secondEdge.putProperty(TestPropertyNames.COUNT, 1L);
-            addToMap(secondEdge, edges);
+            final Edge edgeDir = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
+            edgeDir.putProperty(TestPropertyNames.INT, 1);
+            edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+            addToMap(edgeDir, edges);
         }
 
         return edges;

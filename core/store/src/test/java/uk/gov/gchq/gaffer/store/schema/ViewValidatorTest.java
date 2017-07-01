@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.store.schema;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -25,17 +26,26 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.ValidationResult;
 import uk.gov.gchq.koryphe.impl.predicate.And;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsEqual;
 import uk.gov.gchq.koryphe.impl.predicate.IsMoreThan;
 import uk.gov.gchq.koryphe.impl.predicate.Not;
 import uk.gov.gchq.koryphe.impl.predicate.Or;
+import java.util.Collections;
+import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ViewValidatorTest {
+
+    public static final Set<StoreTrait> ALL_STORE_TRAITS = Sets.newHashSet(StoreTrait.values());
+    public static final Set<StoreTrait> NO_STORE_TRAITS = Collections.emptySet();
+
     @Test
     public void shouldValidateAndReturnTrueWhenEmptyFunctions() {
         // Given
@@ -44,7 +54,7 @@ public class ViewValidatorTest {
         final Schema schema = new Schema();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -67,7 +77,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -90,7 +100,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -116,7 +126,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -144,7 +154,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -173,7 +183,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -204,7 +214,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -228,7 +238,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -250,7 +260,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -275,7 +285,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -302,7 +312,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -331,7 +341,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -362,7 +372,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -390,7 +400,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -415,7 +425,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -462,7 +472,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -504,7 +514,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -548,7 +558,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, true);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -581,7 +591,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -614,7 +624,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -647,7 +657,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -680,7 +690,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -713,7 +723,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -746,7 +756,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
@@ -779,7 +789,7 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertTrue(result.isValid());
@@ -812,9 +822,59 @@ public class ViewValidatorTest {
                 .build();
 
         // When
-        final ValidationResult result = validator.validate(view, schema, false);
+        final ValidationResult result = validator.validate(view, schema, ALL_STORE_TRAITS);
 
         // Then
         assertFalse(result.isValid());
+    }
+
+    @Test
+    public void shouldValidateAndReturnFalseWhenMissingTraits() {
+        // Given
+        final ViewValidator validator = new ViewValidator();
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .transientProperty(TestPropertyNames.PROP_3, String.class)
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_2)
+                                .execute(new Exists())
+                                .build())
+                        .transformer(new ElementTransformer.Builder()
+                                .select(TestPropertyNames.PROP_1, TestPropertyNames.PROP_2)
+                                .execute(new ExampleTransformFunction())
+                                .project(TestPropertyNames.PROP_3)
+                                .build())
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_3)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .build();
+
+        final Schema schema = new Schema.Builder()
+                .type("obj", String.class)
+                .type("string", String.class)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "obj")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .build();
+
+        // When
+        final ValidationResult result = validator.validate(view, schema, NO_STORE_TRAITS);
+
+        // Then
+        final String errPrefix = "This store does not currently support ";
+        assertFalse(result.isValid());
+        assertEquals(Sets.newHashSet(
+                errPrefix + StoreTrait.PRE_AGGREGATION_FILTERING.name(),
+                errPrefix + StoreTrait.POST_AGGREGATION_FILTERING.name(),
+                errPrefix + StoreTrait.TRANSFORMATION.name(),
+                errPrefix + StoreTrait.POST_TRANSFORMATION_FILTERING.name()
+        ), result.getErrors());
     }
 }

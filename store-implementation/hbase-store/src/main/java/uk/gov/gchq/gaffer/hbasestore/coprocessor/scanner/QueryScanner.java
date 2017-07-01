@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.regionserver.RegionScanner;
 import org.apache.hadoop.hbase.regionserver.ScannerContext;
 import org.apache.hadoop.hbase.util.Bytes;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
@@ -33,7 +34,6 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.StoreAggregationProce
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
             }
         }
 
-        if (schema.hasAggregators()) {
+        if (schema.isAggregationEnabled()) {
             processors.add(new StoreAggregationProcessor(serialisation, schema));
         }
 
@@ -73,7 +73,7 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
 
         if (null != view) {
             processors.add(new PreAggregationFilterProcessor(view));
-            if (schema.hasAggregators()) {
+            if (schema.isAggregationEnabled()) {
                 processors.add(new QueryAggregationProcessor(serialisation, schema, view));
             }
             processors.add(new PostAggregationFilterProcessor(view));

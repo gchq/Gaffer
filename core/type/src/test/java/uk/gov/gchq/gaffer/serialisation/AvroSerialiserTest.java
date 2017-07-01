@@ -15,21 +15,13 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class AvroSerialiserTest {
-
-    private AvroSerialiser serialiser = null;
-
-    @Before
-    public void setupTest() throws SerialisationException {
-        serialiser = new AvroSerialiser();
-    }
+public class AvroSerialiserTest extends ToByteSerialisationTest<Object>{
 
     @Test
     public void testCanHandleObjectClass() {
@@ -44,13 +36,8 @@ public class AvroSerialiserTest {
         assertEquals(2, o);
     }
 
-    @Test
-    public void testParameterisedDeserialisationOfSimpleObject() throws SerialisationException {
-        byte[] b = serialiser.serialise(2);
-        Integer o = serialiser.deserialise(b, Integer.class);
-        assertEquals(Integer.class, o.getClass());
-        assertEquals(0, o.compareTo(2));
+    @Override
+    public Serialiser<Object, byte[]> getSerialisation() {
+        return new AvroSerialiser();
     }
-
-
 }

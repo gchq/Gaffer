@@ -30,8 +30,12 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.function.ExampleAggregateFunction;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
@@ -42,6 +46,7 @@ import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +70,7 @@ public class SchemaTest {
     public static final String INTEGER_TYPE_DESCRIPTION = "Integer type description";
     public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
+    public static final String MAP_TYPE_DESCRIPTION = "Map type description";
 
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
@@ -209,7 +215,7 @@ public class SchemaTest {
         assertEquals(TestPropertyNames.PROP_1, tuplePredicate.getSelection()[0]);
 
 
-        final ElementAggregator aggregator = edgeDefinition.getAggregator();
+        final ElementAggregator aggregator = edgeDefinition.getFullAggregator();
         final List<TupleAdaptedBinaryOperator<String, ?>> aggContexts = aggregator.getComponents();
         assertEquals(3, aggContexts.size());
 
@@ -222,65 +228,48 @@ public class SchemaTest {
         assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
+
+        TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
+        assertEquals(LinkedHashMap.class, mapTypeDef.getClazz());
+        assertEquals(MAP_TYPE_DESCRIPTION, mapTypeDef.getDescription());
+        Serialiser serialiser = mapTypeDef.getSerialiser();
+        assertEquals(MapSerialiser.class, serialiser.getClass());
+        MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
+        assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
+        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertNull(mapSerialiser.getMapClass());
     }
 
     @Test
-    public void shouldReturnTrueWhenSchemaHasNoAggregators() {
+    public void shouldReturnTrueWhenSchemaHasAggregationEnabled() {
         final Schema schemaWithAggregators = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .description(STRING_TYPE_DESCRIPTION)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .aggregate(true)
                         .build())
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .description(STRING_TYPE_DESCRIPTION)
-                        .build())
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .description(INTEGER_TYPE_DESCRIPTION)
-                        .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .aggregateFunction(new ExampleAggregateFunction())
-                        .description(TIMESTAMP_TYPE_DESCRIPTION)
-                        .build())
-                .visibilityProperty(TestPropertyNames.VISIBILITY)
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
-        assertTrue(schemaWithAggregators.hasAggregators());
+        assertTrue(schemaWithAggregators.isAggregationEnabled());
     }
 
     @Test
-    public void shouldReturnFalseWhenSchemaHasNoAggregators() {
+    public void shouldReturnFalseWhenSchemaHasAggregationDisabled() {
         final Schema schemaNoAggregators = new Schema.Builder()
-                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .description(STRING_TYPE_DESCRIPTION)
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .aggregate(false)
                         .build())
-                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
-                        .clazz(String.class)
-                        .description(STRING_TYPE_DESCRIPTION)
-                        .build())
-                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
-                        .clazz(Integer.class)
-                        .description(INTEGER_TYPE_DESCRIPTION)
-                        .build())
-                .type(TestTypes.TIMESTAMP, new TypeDefinition.Builder()
-                        .clazz(Long.class)
-                        .description(TIMESTAMP_TYPE_DESCRIPTION)
-                        .build())
-                .visibilityProperty(TestPropertyNames.VISIBILITY)
-                .timestampProperty(TestPropertyNames.TIMESTAMP)
                 .build();
-        assertFalse(schemaNoAggregators.hasAggregators());
+        assertFalse(schemaNoAggregators.isAggregationEnabled());
     }
 
     @Test
     public void createProgramaticSchema() {
-        schema = createSchema();
+        createSchema();
     }
 
     private Schema createSchema() {
+        MapSerialiser mapSerialiser = new MapSerialiser();
+        mapSerialiser.setKeySerialiser(new StringSerialiser());
+        mapSerialiser.setValueSerialiser(new RawLongSerialiser());
+        mapSerialiser.setMapClass(LinkedHashMap.class);
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -311,6 +300,12 @@ public class SchemaTest {
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
+                .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
+                                .description(MAP_TYPE_DESCRIPTION)
+                                .clazz(LinkedHashMap.class)
+                                .serialiser(mapSerialiser)
+                                .build()
+                )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -330,7 +325,7 @@ public class SchemaTest {
 
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
-        schema = createSchema();
+        Schema schema = createSchema();
         JsonUtil.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
@@ -373,6 +368,16 @@ public class SchemaTest {
                 "    \"id.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.map\" : {%n" +
+                "      \"serialiser\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n" +
+                "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n" +
+                "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n" +
+                "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" +
+                "      },%n" +
+                "      \"description\" : \"Map type description\",%n" +
+                "      \"class\" : \"java.util.LinkedHashMap\"%n" +
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
@@ -458,7 +463,7 @@ public class SchemaTest {
     @Test
     public void shouldBuildSchema() {
         // Given
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
 
         // When
         final Schema schema = new Schema.Builder()
@@ -491,7 +496,7 @@ public class SchemaTest {
         // Given
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
@@ -532,7 +537,7 @@ public class SchemaTest {
         // Given
         final String type1 = "type1";
         final String type2 = "type2";
-        final Serialisation vertexSerialiser = mock(Serialisation.class);
+        final Serialiser vertexSerialiser = mock(Serialiser.class);
         final Schema schema1 = new Schema.Builder()
                 .edge(TestGroups.EDGE)
                 .entity(TestGroups.ENTITY)
@@ -613,8 +618,8 @@ public class SchemaTest {
     @Test
     public void shouldThrowExceptionWhenMergeSchemasWithConflictingVertexSerialiser() {
         // Given
-        final Serialisation vertexSerialiser1 = mock(Serialisation.class);
-        final Serialisation vertexSerialiser2 = mock(SerialisationImpl.class);
+        final Serialiser vertexSerialiser1 = mock(Serialiser.class);
+        final Serialiser vertexSerialiser2 = mock(SerialisationImpl.class);
         final Schema schema1 = new Schema.Builder()
                 .vertexSerialiser(vertexSerialiser1)
                 .build();
@@ -908,7 +913,7 @@ public class SchemaTest {
         assertEquals(allGroups, groups);
     }
 
-    private class SerialisationImpl implements Serialisation<Object> {
+    private class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;
 
         @Override
@@ -927,7 +932,7 @@ public class SchemaTest {
         }
 
         @Override
-        public Object deserialiseEmptyBytes() throws SerialisationException {
+        public Object deserialiseEmpty() throws SerialisationException {
             return null;
         }
 

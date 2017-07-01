@@ -20,7 +20,6 @@ package uk.gov.gchq.gaffer.data.element.function;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.koryphe.tuple.Tuple;
@@ -60,9 +59,7 @@ public class ElementTuple implements Tuple<String> {
 
     @Override
     public Iterable<Object> values() {
-        return new ChainedIterable<>(
-                //element.getIdentifiers
-                element.getProperties().values());
+        throw new UnsupportedOperationException("Calling values() is not supported for ElementTuples");
     }
 
     @Override

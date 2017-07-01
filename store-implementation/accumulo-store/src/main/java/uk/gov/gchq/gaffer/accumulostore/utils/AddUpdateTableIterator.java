@@ -134,7 +134,7 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         if ((!AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME.equals(iteratorName) || store.getProperties().getEnableValidatorIterator())
-                && (store.getSchema().hasAggregators())) {
+                && (store.getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
                                         .getIteratorFactory()
@@ -173,7 +173,7 @@ public final class AddUpdateTableIterator {
         }
 
         final AccumuloStore store = new AccumuloStore();
-        store.initialise(Schema.fromJson(getSchemaPaths(args)),
+        store.preInitialise(Schema.fromJson(getSchemaPaths(args)),
                 AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
 
         final String modifyKey = getModifyKey(args);

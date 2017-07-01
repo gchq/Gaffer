@@ -18,9 +18,9 @@ package uk.gov.gchq.gaffer.cache.impl;
 
 
 import org.apache.commons.io.IOUtils;
-import org.apache.jcs.access.exception.CacheException;
-import org.apache.jcs.engine.control.CompositeCache;
-import org.apache.jcs.engine.control.CompositeCacheManager;
+import org.apache.commons.jcs.access.exception.CacheException;
+import org.apache.commons.jcs.engine.control.CompositeCache;
+import org.apache.commons.jcs.engine.control.CompositeCacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
@@ -46,7 +46,7 @@ public class JcsCacheService implements ICacheService {
                 manager.configure(cacheProperties);
                 return;
             } catch (IOException e) {
-                throw new IllegalArgumentException("Cannot create uk.gov.gchq.gaffer.cache using config file " + configFile, e);
+                throw new IllegalArgumentException("Cannot create cache using config file " + configFile, e);
             }
         }
         LOGGER.debug("No config file configured. Using default.");

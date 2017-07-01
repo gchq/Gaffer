@@ -39,6 +39,9 @@ public final class TypeReferenceImpl {
     public static class Long extends TypeReference<java.lang.Long> {
     }
 
+    public static class Integer extends TypeReference<java.lang.Integer> {
+    }
+
     public static class Object extends TypeReference<java.lang.Object> {
     }
 

@@ -17,14 +17,14 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import uk.gov.gchq.gaffer.serialisation.SerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StringSerialiserTest extends SerialisationTest<String> {
+public class StringSerialiserTest extends ToByteSerialisationTest<String> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
@@ -49,16 +49,16 @@ public class StringSerialiserTest extends SerialisationTest<String> {
     }
 
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final String value = serialiser.deserialiseEmptyBytes();
+        final String value = serialiser.deserialiseEmpty();
 
         // Then
         assertEquals("", value);
     }
 
     @Override
-    public Serialisation<String> getSerialisation() {
+    public Serialiser<String, byte[]> getSerialisation() {
         return new StringSerialiser();
     }
 }

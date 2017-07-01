@@ -171,6 +171,7 @@ public interface ElementKey {
                     .isEquals()
                     || new EqualsBuilder()
                     .append(edge.isDirected(), false)
+                    .append(edge.getDirectedType(), edgeKey.edge.getDirectedType())
                     .append(edge.getGroup(), edgeKey.edge.getGroup())
                     .append(edge.getSource(), edgeKey.edge.getDestination())
                     .append(edge.getDestination(), edgeKey.edge.getSource())

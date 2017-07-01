@@ -19,7 +19,10 @@ package uk.gov.gchq.gaffer.accumulostore;
 import com.google.common.collect.Iterables;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsBetweenSetsHandler;
@@ -54,7 +57,9 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -99,13 +104,40 @@ public class AccumuloStoreTest {
         gaffer1KeyStore = new SingleUseMockAccumuloStore();
         byteEntityStore.initialise(schema, PROPERTIES);
         gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
-
     }
+
+    @Before
+    public void beforeMethod() throws StoreException, IOException {
+        if (!byteEntityStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+            byteEntityStore.initialise(schema, PROPERTIES);
+        }
+
+        if (!gaffer1KeyStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+            gaffer1KeyStore.initialise(schema, PROPERTIES);
+        }
+    }
+
 
     @AfterClass
     public static void tearDown() {
         byteEntityStore = null;
         gaffer1KeyStore = null;
+    }
+
+    @Test
+    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        Connector connector = byteEntityStore.getConnection();
+
+        connector.tableOperations().delete(PROPERTIES.getTable());
+        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+
+        byteEntityStore.preInitialise(schema, PROPERTIES);
+        connector = byteEntityStore.getConnection();
+        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+
+        byteEntityStore.initialise(schema, PROPERTIES);
+        connector = byteEntityStore.getConnection();
+        assertTrue(connector.tableOperations().exists(PROPERTIES.getTable()));
     }
 
     @Test
@@ -115,11 +147,10 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialisation serialiser = mock(Serialisation.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(true);
+        final Serialiser serialiser = new StringSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -134,15 +165,13 @@ public class AccumuloStoreTest {
         // Then
         assertTrue(isGetElementsInRangesSupported);
         assertTrue(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
     public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialisation serialiser = mock(Serialisation.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(false);
+        final Serialiser serialiser = new CompactRawLongSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -157,20 +186,20 @@ public class AccumuloStoreTest {
         // Then
         assertFalse(isGetElementsInRangesSupported);
         assertFalse(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException, StoreException {
+        store.initialise(schema, PROPERTIES);
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -259,11 +288,11 @@ public class AccumuloStoreTest {
         testRequestForNullHandlerManaged(byteEntityStore);
     }
 
-
     public void testRequestForNullHandlerManaged(final SingleUseMockAccumuloStore store) {
         final OperationHandler returnedHandler = store.getOperationHandlerExposed(null);
         assertNull(returnedHandler);
     }
+
 
     @Test
     public void testStoreTraitsGaffer1() throws OperationException {
@@ -289,5 +318,4 @@ public class AccumuloStoreTest {
         assertTrue("Collection should contain ORDERED trait", traits.contains(ORDERED));
         assertTrue("Collection should contain VISIBILITY trait", traits.contains(VISIBILITY));
     }
-
 }

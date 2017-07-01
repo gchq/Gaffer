@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -55,6 +56,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Collections;
@@ -98,8 +100,20 @@ public class HBaseStore extends Store {
     @Override
     public void initialise(final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        preInitialise(schema, properties);
         TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param schema     the gaffer Schema
+     * @param properties the hbase store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void preInitialise(final Schema schema, final StoreProperties properties)
+            throws StoreException {
+        super.initialise(schema, properties);
     }
 
     public Configuration getConfiguration() {
@@ -147,6 +161,11 @@ public class HBaseStore extends Store {
     }
 
     @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new HBaseSerialisationFactory());
+    }
+
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -160,6 +179,11 @@ public class HBaseStore extends Store {
     @Override
     public HBaseProperties getProperties() {
         return (HBaseProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     @Override
@@ -195,4 +219,5 @@ public class HBaseStore extends Store {
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
+
 }

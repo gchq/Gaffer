@@ -17,8 +17,13 @@
 package uk.gov.gchq.gaffer.operation;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * An <code>Operation</code> defines an operation to be processed on a graph.
@@ -28,6 +33,9 @@ import java.io.IOException;
  * This will allow you to execute the same operation on different stores with different handlers.
  * <p>
  * Operations must be JSON serialisable in order to make REST API calls.
+ * </p>
+ * <p>
+ * Any fields that are required should be annotated with the {@link Required} annotation.
  * </p>
  * <p>
  * Operation implementations need to implement this Operation interface and any of the following interfaces they wish to make use of:
@@ -78,6 +86,52 @@ public interface Operation extends Closeable {
         // do nothing by default
     }
 
+    /**
+     * Validates an operation. This should be used to validate that fields have been be configured correctly.
+     * By default no validation is applied. Override this method to implement validation.
+     *
+     * @return validation result.
+     */
+    default ValidationResult validate() {
+        final ValidationResult result = new ValidationResult();
+        for (final Field field : getClass().getDeclaredFields()) {
+            final Required[] annotations = field.getAnnotationsByType(Required.class);
+            if (null != annotations && annotations.length > 0) {
+                if (field.isAccessible()) {
+                    final String name = field.getName();
+                    final Object value;
+                    try {
+                        value = field.get(this);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    if (null == value) {
+                        result.addError(name + " is required");
+                    }
+                } else {
+                    AccessController.doPrivileged((PrivilegedAction<Operation>) () -> {
+                        field.setAccessible(true);
+                        final String name = field.getName();
+                        final Object value;
+                        try {
+                            value = field.get(this);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (null == value) {
+                            result.addError(name + " is required");
+                        }
+                        return null;
+                    });
+                }
+            }
+        }
+
+        return result;
+    }
+
     interface Builder<OP, B extends Builder<OP, ?>> {
         OP _getOp();
 
@@ -110,6 +164,7 @@ public interface Operation extends Closeable {
         public B _self() {
             return (B) this;
         }
+
     }
 }
 

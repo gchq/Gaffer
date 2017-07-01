@@ -17,16 +17,18 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
 import java.util.HashSet;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-public class TreeSetStringSerialiserTest {
-    private static final TreeSetStringSerialiser SERIALISER = new TreeSetStringSerialiser();
+public class TreeSetStringSerialiserTest extends ToByteSerialisationTest<TreeSet<String>> {
 
     @Test
     public void shouldSerialiseAndDeserialiseATreeSet() throws SerialisationException {
@@ -38,8 +40,8 @@ public class TreeSetStringSerialiserTest {
         set.add("string4");
 
         // When
-        final byte[] serialisedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
+        final byte[] serialisedSet = serialiser.serialise(set);
+        final TreeSet deserialisedSet = serialiser.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);
@@ -52,8 +54,8 @@ public class TreeSetStringSerialiserTest {
         final TreeSet<String> set = new TreeSet<>();
 
         // When
-        final byte[] serialisedSet = SERIALISER.serialise(set);
-        final TreeSet deserialisedSet = SERIALISER.deserialise(serialisedSet);
+        final byte[] serialisedSet = serialiser.serialise(set);
+        final TreeSet deserialisedSet = serialiser.deserialise(serialisedSet);
 
         // Then
         assertNotSame(deserialisedSet, set);
@@ -66,7 +68,7 @@ public class TreeSetStringSerialiserTest {
         final Class testClass = TreeSet.class;
 
         // When
-        final boolean canHandle = SERIALISER.canHandle(testClass);
+        final boolean canHandle = serialiser.canHandle(testClass);
 
         // Then
         assertTrue(canHandle);
@@ -78,9 +80,21 @@ public class TreeSetStringSerialiserTest {
         final Class testClass = HashSet.class;
 
         // When
-        final boolean canHandle = SERIALISER.canHandle(testClass);
+        final boolean canHandle = serialiser.canHandle(testClass);
 
         // Then
         assertFalse(canHandle);
+    }
+
+    @Override
+    public Serialiser<TreeSet<String>, byte[]> getSerialisation() {
+        return new TreeSetStringSerialiser();
+    }
+
+    @Override
+    public void shouldDeserialiseEmpty() throws SerialisationException {
+        final TreeSet<String> tree = serialiser.deserialiseEmpty();
+        assertNotNull(tree);
+        assertTrue(tree.isEmpty());
     }
 }

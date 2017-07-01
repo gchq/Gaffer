@@ -32,7 +32,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawSerialisationUtils;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
@@ -69,7 +69,7 @@ public class ElementSerialisation {
             propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             if (isStoredInValue(propertyName, elementDefinition)) {
-                final Serialisation serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 try {
                     if (null != serialiser) {
                         Object value = properties.get(propertyName);
@@ -110,7 +110,7 @@ public class ElementSerialisation {
             final String propertyName = propertyNames.next();
             if (isStoredInValue(propertyName, elementDefinition)) {
                 final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-                final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+                final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(value[lastDelimiter]);
                     final byte[] length = new byte[numBytesForLength];
@@ -129,7 +129,7 @@ public class ElementSerialisation {
                         }
                     } else {
                         try {
-                            properties.put(propertyName, serialiser.deserialiseEmptyBytes());
+                            properties.put(propertyName, serialiser.deserialiseEmpty());
                         } catch (final SerialisationException e) {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
@@ -178,14 +178,15 @@ public class ElementSerialisation {
             final TypeDefinition propertyDef = elementDefinition.getPropertyTypeDef(schema.getVisibilityProperty());
             if (null != propertyDef) {
                 final Object property = properties.get(schema.getVisibilityProperty());
+                final ToBytesSerialiser serialiser = (ToBytesSerialiser) propertyDef.getSerialiser();
                 if (property != null) {
                     try {
-                        return propertyDef.getSerialiser().serialise(property);
+                        return serialiser.serialise(property);
                     } catch (final SerialisationException e) {
                         throw new SerialisationException(e.getMessage(), e);
                     }
                 } else {
-                    return propertyDef.getSerialiser().serialiseNull();
+                    return serialiser.serialiseNull();
                 }
             }
         }
@@ -214,7 +215,7 @@ public class ElementSerialisation {
 
         for (final String propertyName : elementDefinition.getGroupBy()) {
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<Object> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             try {
                 if (null != serialiser) {
                     Object value = properties.get(propertyName);
@@ -256,7 +257,7 @@ public class ElementSerialisation {
         while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
-            final Serialisation<?> serialiser = (typeDefinition != null) ? typeDefinition.getSerialiser() : null;
+            final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
                 final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
                 final byte[] length = new byte[numBytesForLength];
@@ -270,6 +271,12 @@ public class ElementSerialisation {
                 if (currentPropLength > 0) {
                     try {
                         properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
+                    } catch (final SerialisationException e) {
+                        throw new SerialisationException("Failed to deserialise property " + propertyName, e);
+                    }
+                } else {
+                    try {
+                        properties.put(propertyName, serialiser.deserialiseEmpty());
                     } catch (final SerialisationException e) {
                         throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                     }
@@ -369,7 +376,7 @@ public class ElementSerialisation {
 
     public byte[] serialiseVertex(final Object vertex) throws SerialisationException {
         try {
-            return ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(vertex));
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(vertex));
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to serialise given vertex object.", e);
         }
@@ -516,31 +523,33 @@ public class ElementSerialisation {
         } catch (final NumberFormatException e) {
             throw new SerialisationException("Error parsing direction flag from row cell - " + e);
         }
-        if (directionFlag == HBaseStoreConstants.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new SerialisationException(
-                    "Invalid direction flag in row cell - flag was " + directionFlag);
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
+        sourceDestValues[0] = sourceBytes;
+        sourceDestValues[1] = destBytes;
+        boolean rtn;
+        switch (directionFlag) {
+            case HBaseStoreConstants.UNDIRECTED_EDGE:
+                // Edge is undirected
+                rtn = false;
+                break;
+            case HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the first identifier is the source of the edge
+                rtn = true;
+                break;
+            case HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the second identifier is the source of the edge
+                if (!matchEdgeSource(options)) {
+                    sourceDestValues[0] = destBytes;
+                    sourceDestValues[1] = sourceBytes;
+                }
+                rtn = true;
+                break;
+            default:
+                throw new SerialisationException(
+                        "Invalid direction flag in row cell - flag was " + directionFlag);
         }
+        return rtn;
     }
 
     private boolean isStoredInValue(final String propertyName, final SchemaElementDefinition elementDef) {
@@ -564,18 +573,14 @@ public class ElementSerialisation {
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
 
-    private Serialisation<Object> getVertexSerialiser() {
-        return schema.getVertexSerialiser();
-    }
-
     private Edge getEdge(final Cell cell, final Map<String, String> options)
             throws SerialisationException {
         final byte[][] result = new byte[3][];
         final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
         final String group = getGroup(cell);
         try {
-            final Edge edge = new Edge(group, getVertexSerialiser().deserialise(result[0]),
-                    getVertexSerialiser().deserialise(result[1]), directed);
+            final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
             addPropertiesToElement(edge, cell);
             return edge;
         } catch (final SerialisationException e) {
@@ -587,24 +592,13 @@ public class ElementSerialisation {
 
         try {
             final byte[] row = CellUtil.cloneRow(cell);
-            final Entity entity = new Entity(getGroup(cell), getVertexSerialiser()
+            final Entity entity = new Entity(getGroup(cell), ((ToBytesSerialiser) schema.getVertexSerialiser())
                     .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
             addPropertiesToElement(entity, cell);
             return entity;
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to re-create Entity from cell", e);
         }
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-    }
-
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {

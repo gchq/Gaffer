@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.LazyEntity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.jobtracker.JobStatus;
 import uk.gov.gchq.gaffer.jobtracker.JobTracker;
@@ -49,8 +48,10 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringSerialiser;
+import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
@@ -66,9 +67,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.store.schema.ViewValidator;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
+import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -82,6 +83,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -104,11 +107,15 @@ public class StoreTest {
     private JobTracker jobTracker;
     private OperationHandler<ExportToGafferResultCache> exportToGafferResultCacheHandler;
     private OperationHandler<GetGafferResultCacheExport> getGafferResultCacheExportHandler;
+    private StoreImpl store;
+    private OperationChainValidator operationChainValidator;
 
     @Before
     public void setup() {
         schemaOptimiser = mock(SchemaOptimiser.class);
-
+        operationChainValidator = mock(OperationChainValidator.class);
+        store = new StoreImpl();
+        given(operationChainValidator.validate(any(OperationChain.class), any(User.class), any(Store.class))).willReturn(new ValidationResult());
         addElementsHandler = mock(OperationHandler.class);
         getElementsHandler = mock(OutputOperationHandler.class);
         getAllElementsHandler = mock(OutputOperationHandler.class);
@@ -144,7 +151,8 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
                 .build();
@@ -159,11 +167,10 @@ public class StoreTest {
                         .build())
                 .type("invalidType", new TypeDefinition.Builder()
                         .clazz(Object.class)
-                        .serialiser(new StringSerialiser())
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
@@ -179,7 +186,6 @@ public class StoreTest {
     public void shouldCreateStoreWithValidSchemasAndRegisterOperations() throws StoreException {
         // Given
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         final OperationHandler<AddElements> addElementsHandlerOverridden = mock(OperationHandler.class);
         final OperationDeclarations opDeclarations = new OperationDeclarations.Builder()
                 .declaration(new OperationDeclaration.Builder()
@@ -221,7 +227,6 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final AddElements addElements = new AddElements();
-        final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
         // When
@@ -271,31 +276,28 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfOperationViewIsInvalid() throws OperationException, StoreException {
+    public void shouldThrowExceptionIfOperationChainIsInvalid() throws OperationException, StoreException {
         // Given
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final GetAllElements op = new GetAllElements();
-        final View view = mock(View.class);
-        final ViewValidator viewValidator = mock(ViewValidator.class);
-        final StoreImpl store = new StoreImpl(viewValidator);
+        final OperationChain opChain = new OperationChain();
+        final StoreImpl store = new StoreImpl();
 
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        op.setView(view);
         given(schema.validate()).willReturn(new ValidationResult());
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
-        given(viewValidator.validate(view, schema, true)).willReturn(validationResult);
+        given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
         store.initialise(schema, properties);
 
         // When / Then
         try {
-            store.execute(op, user);
+            store.execute(opChain, user);
             fail("Exception expected");
-        } catch (final SchemaException e) {
-            verify(viewValidator).validate(view, schema, true);
-            assertTrue(e.getMessage().contains("View"));
+        } catch (final IllegalArgumentException e) {
+            verify(operationChainValidator).validate(opChain, user, store);
+            assertTrue(e.getMessage().contains("Operation chain"));
         }
     }
 
@@ -305,7 +307,6 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         final Operation operation = mock(Operation.class);
-        final StoreImpl store = new StoreImpl();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         store.initialise(schema, properties);
@@ -346,7 +347,6 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         final CloseableIterable getElementsResult = mock(CloseableIterable.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
@@ -377,7 +377,6 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        final StoreImpl store = new StoreImpl();
         final int expectedNumberOfOperations = 33;
         store.initialise(schema, properties);
 
@@ -395,7 +394,6 @@ public class StoreTest {
         // Given
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
-        final StoreImpl store = new StoreImpl();
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         store.initialise(schema, properties);
 
@@ -416,7 +414,6 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
         // When
@@ -432,7 +429,6 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        final StoreImpl store = new StoreImpl();
         store.initialise(schema, properties);
 
         // When
@@ -463,12 +459,12 @@ public class StoreTest {
         // Then
         Thread.sleep(1000);
         final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
-        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), eq(user));
         assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
         assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
 
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), Mockito.eq(store));
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
         assertSame(user, contextCaptor.getValue().getUser());
     }
 
@@ -490,12 +486,12 @@ public class StoreTest {
         // Then
         Thread.sleep(1000);
         final ArgumentCaptor<JobDetail> jobDetail = ArgumentCaptor.forClass(JobDetail.class);
-        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), Mockito.eq(user));
+        verify(jobTracker, times(2)).addOrUpdateJob(jobDetail.capture(), eq(user));
         assertEquals(jobDetail.getAllValues().get(0), resultJobDetail);
         assertEquals(JobStatus.FINISHED, jobDetail.getAllValues().get(1).getStatus());
 
         final ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), Mockito.eq(store));
+        verify(exportToGafferResultCacheHandler).doOperation(Mockito.any(ExportToGafferResultCache.class), contextCaptor.capture(), eq(store));
         assertSame(user, contextCaptor.getValue().getUser());
     }
 
@@ -518,8 +514,49 @@ public class StoreTest {
     private Schema createSchemaMock() {
         final Schema schema = mock(Schema.class);
         given(schema.validate()).willReturn(new ValidationResult());
-        given(schema.getVertexSerialiser()).willReturn(mock(Serialisation.class));
+        given(schema.getVertexSerialiser()).willReturn(mock(Serialiser.class));
         return schema;
+    }
+
+
+    @Test(expected = SchemaException.class)
+    public void shouldFindInvalidSerialiser() throws Exception {
+        final Class<StringSerialiser> invalidSerialiserClass = StringSerialiser.class;
+        Schema invalidSchema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("string")
+                        .destination("invalidString")
+                        .directed("true")
+                        .property(TestPropertyNames.PROP_1, "string")
+                        .property(TestPropertyNames.PROP_2, "string")
+                        .build())
+                .type("string", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .build())
+                .type("invalidString", new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .serialiser(invalidSerialiserClass.newInstance())
+                        .build())
+                .type("true", Boolean.class)
+                .build();
+
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        final Class<ToBytesSerialiser> validSerialiserInterface = ToBytesSerialiser.class;
+        try {
+            new StoreImpl() {
+                @Override
+                protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+                    return validSerialiserInterface;
+                }
+            }.initialise(invalidSchema, properties);
+        } catch (SchemaException e) {
+            assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
+            throw e;
+        }
+        fail("Exception wasn't caught");
     }
 
     private class StoreImpl extends Store {
@@ -528,11 +565,9 @@ public class StoreTest {
         private int createOperationHandlersCallCount;
         private boolean validationRequired;
 
-        public StoreImpl() {
-        }
-
-        public StoreImpl(final ViewValidator viewValidator) {
-            setViewValidator(viewValidator);
+        @Override
+        protected OperationChainValidator createOperationChainValidator() {
+            return operationChainValidator;
         }
 
         @Override
@@ -615,6 +650,11 @@ public class StoreTest {
             }
 
             return null;
+        }
+
+        @Override
+        protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+            return Serialiser.class;
         }
     }
 }
