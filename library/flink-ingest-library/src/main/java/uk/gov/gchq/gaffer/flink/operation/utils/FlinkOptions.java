@@ -15,7 +15,11 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.utils;
 
-public class FlinkOptions {
+public final class FlinkOptions {
+
+    private FlinkOptions() {
+    }
+
     public static final String FLINK_KAFKA_BOOTSTRAP_SERVERS = "bootstrap.servers";
     public static final String FLINK_KAFKA_GROUP_ID = "group.id";
 }

@@ -15,9 +15,10 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;

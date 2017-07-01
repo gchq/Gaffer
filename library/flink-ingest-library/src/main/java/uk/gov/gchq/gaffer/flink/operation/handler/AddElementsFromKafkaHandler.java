@@ -15,12 +15,14 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromKafka;
-import uk.gov.gchq.gaffer.flink.operation.utils.FlinkOptions;
 import org.apache.commons.lang.StringUtils;
+
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
+
+import uk.gov.gchq.gaffer.flink.operation.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.flink.operation.utils.FlinkOptions;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -58,7 +60,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
         final Map<String, String> options = operation.getOptions();
 
-        if (operation.getJobName() == null || StringUtils.isEmpty(operation.getJobName()) ) {
+        if (operation.getJobName() == null || StringUtils.isEmpty(operation.getJobName())) {
             throw new IllegalArgumentException("Unable to build AddElementsFromKafka operation - operation.jobName is not set");
         }
         if (operation.getGroupId() ==  null || StringUtils.isEmpty(operation.getGroupId())) {
