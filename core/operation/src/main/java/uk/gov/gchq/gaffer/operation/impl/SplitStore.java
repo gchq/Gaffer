@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
+package uk.gov.gchq.gaffer.operation.impl;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -22,11 +22,12 @@ import java.util.Map;
 
 
 /**
- * The <code>SplitTable</code> operation is for splitting an accumulo table based on a sequence file of split points.
+ * The <code>SplitStore</code> operation is for splitting a store
+ * based on a sequence file of split points.
  *
- * @see SplitTable.Builder
+ * @see SplitStore.Builder
  */
-public class SplitTable implements Operation, Options {
+public class SplitStore implements Operation, Options {
     @Required
     private String inputPath;
     private Map<String, String> options;
@@ -49,10 +50,10 @@ public class SplitTable implements Operation, Options {
         this.options = options;
     }
 
-    public static class Builder extends Operation.BaseBuilder<SplitTable, Builder>
-            implements Options.Builder<SplitTable, Builder> {
+    public static class Builder extends Operation.BaseBuilder<SplitStore, Builder>
+            implements Options.Builder<SplitStore, Builder> {
         public Builder() {
-            super(new SplitTable());
+            super(new SplitStore());
         }
 
         public Builder inputPath(final String inputPath) {

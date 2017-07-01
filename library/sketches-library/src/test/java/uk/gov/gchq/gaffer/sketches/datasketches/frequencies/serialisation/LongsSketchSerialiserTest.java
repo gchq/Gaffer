@@ -15,53 +15,52 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import com.yahoo.sketches.frequencies.LongsSketch;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class LongsSketchSerialiserTest {
-    private static final LongsSketchSerialiser SERIALISER = new LongsSketchSerialiser();
+import com.yahoo.sketches.frequencies.LongsSketch;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+public class LongsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<LongsSketch, Long> {
+
+    @Override
+    protected LongsSketch getEmptyExampleOutput() {
+        return new LongsSketch(32);
+    }
+
+    @Override
+    public Serialiser<LongsSketch, byte[]> getSerialisation() {
+        return new LongsSketchSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<LongsSketch, byte[]>[] getHistoricSerialisationPairs() {
+        final LongsSketch sketch = getExampleOutput();
+
+        return new Pair[]{new Pair(sketch, new byte[]{4, 1, 10, 5, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0})};
+    }
+
+    @Override
+    protected LongsSketch getExampleOutput() {
         final LongsSketch sketch = new LongsSketch(32);
         sketch.update(1L);
         sketch.update(2L);
         sketch.update(3L);
-        testSerialiser(sketch);
-
-        final LongsSketch emptySketch = new LongsSketch(32);
-        testSerialiser(emptySketch);
+        return sketch;
     }
 
-    private void testSerialiser(final LongsSketch sketch) {
-        final long freqOf1 = sketch.getEstimate(1L);
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
 
-        final LongsSketch sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(freqOf1, sketchDeserialised.getEstimate(1L));
+    @Override
+    protected Long getTestValue(final LongsSketch object) {
+        return object.getEstimate(1L);
     }
 
     @Test
     public void testCanHandleLongsSketch() {
-        assertTrue(SERIALISER.canHandle(LongsSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(LongsSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }

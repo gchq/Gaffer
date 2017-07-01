@@ -13,52 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool;
+package uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool;
 
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Value;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.Task;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.SampleDataForSplitPointsJobFactory;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.Store;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
 
 public class SampleDataAndCreateSplitsFileTool extends Configured implements Tool {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataAndCreateSplitsFileTool.class);
     public static final int SUCCESS_RESPONSE = 1;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataAndCreateSplitsFileTool.class);
 
     private final SampleDataForSplitPoints operation;
-    private final AccumuloStore store;
-    private Job job;
+    private final Store store;
+    private final SampleDataForSplitPointsJobFactory jobFactory;
+    private final int expectedNumberOfSplits;
 
-    public SampleDataAndCreateSplitsFileTool(final SampleDataForSplitPoints operation, final AccumuloStore store) {
+    public SampleDataAndCreateSplitsFileTool(final SampleDataForSplitPointsJobFactory jobFactory, final SampleDataForSplitPoints operation, final Store store) {
         this.operation = operation;
         this.store = store;
+        this.jobFactory = jobFactory;
+        if (null == operation.getNumSplits() || operation.getNumSplits() < 1) {
+            expectedNumberOfSplits = jobFactory.getExpectedNumberOfSplits(store);
+        } else {
+            expectedNumberOfSplits = operation.getNumSplits();
+        }
     }
 
     @Override
     public int run(final String[] strings) throws OperationException {
+        final Job job;
         try {
             LOGGER.info("Creating job using SampleDataForSplitPointsJobFactory");
-            job = new SampleDataForSplitPointsJobFactory().createJob(operation, store);
+            job = jobFactory.createJob(operation, store);
         } catch (final IOException e) {
             LOGGER.error("Failed to create Hadoop job: {}", e.getMessage());
             throw new OperationException("Failed to create the Hadoop job: " + e.getMessage(), e);
@@ -94,16 +99,13 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             throw new OperationException("Failed to get counter: " + Task.Counter.REDUCE_OUTPUT_RECORDS, e);
         }
 
-        int numberTabletServers;
-        try {
-            numberTabletServers = store.getTabletServers().size();
-            LOGGER.info("Number of tablet servers is {}", numberTabletServers);
-        } catch (final StoreException e) {
-            LOGGER.error("Exception thrown getting number of tablet servers: {}", e.getMessage());
-            throw new OperationException(e.getMessage(), e);
+        final long outputEveryNthRecord;
+        if (counter.getValue() < 2 || expectedNumberOfSplits < 1) {
+            outputEveryNthRecord = 1;
+        } else {
+            outputEveryNthRecord = counter.getValue() / expectedNumberOfSplits;
         }
 
-        long outputEveryNthRecord = counter.getValue() / (numberTabletServers - 1);
         final Path resultsFile = new Path(operation.getOutputPath(), "part-r-00000");
         LOGGER.info("Will output every {}-th record from {}", outputEveryNthRecord, resultsFile);
 
@@ -117,7 +119,8 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
             throw new OperationException("Failed to get filesystem from configuration: " + e.getMessage(), e);
         }
 
-        writeSplits(fs, resultsFile, outputEveryNthRecord, numberTabletServers);
+
+        writeSplits(fs, resultsFile, outputEveryNthRecord, expectedNumberOfSplits);
 
         try {
             fs.delete(resultsFile, true);
@@ -130,25 +133,29 @@ public class SampleDataAndCreateSplitsFileTool extends Configured implements Too
         return SUCCESS_RESPONSE;
     }
 
-    private void writeSplits(final FileSystem fs, final Path resultsFile, final long outputEveryNthRecord, final int numberTabletServers) throws OperationException {
-        LOGGER.info("Writing splits to {}", operation.getResultingSplitsFilePath());
-        final Key key = new Key();
-        final Value value = new Value();
+    private void writeSplits(final FileSystem fs, final Path resultsFile, final long outputEveryNthRecord, final int numberSplitsExpected) throws OperationException {
+        LOGGER.info("Writing splits to {}", operation.getSplitsFilePath());
+        final Writable key = jobFactory.createKey();
+        final Writable value = jobFactory.createValue();
         long count = 0;
         int numberSplitPointsOutput = 0;
         try (final SequenceFile.Reader reader = new SequenceFile.Reader(fs, resultsFile, fs.getConf());
              final PrintStream splitsWriter = new PrintStream(
-                     new BufferedOutputStream(fs.create(new Path(operation.getResultingSplitsFilePath()), true)),
+                     new BufferedOutputStream(fs.create(new Path(operation.getSplitsFilePath()), true)),
                      false, CommonConstants.UTF_8)
         ) {
-            while (reader.next(key, value) && numberSplitPointsOutput < numberTabletServers - 1) {
+            while (numberSplitPointsOutput < numberSplitsExpected) {
+                if (!reader.next(key, value)) {
+                    break;
+                }
                 count++;
                 if (count % outputEveryNthRecord == 0) {
+                    final byte[] split = jobFactory.createSplit(key, value);
                     LOGGER.debug("Outputting split point number {} ({})",
                             numberSplitPointsOutput,
-                            Base64.encodeBase64(key.getRow().getBytes()));
+                            Base64.encodeBase64(split));
                     numberSplitPointsOutput++;
-                    splitsWriter.println(new String(Base64.encodeBase64(key.getRow().getBytes()), CommonConstants.UTF_8));
+                    splitsWriter.println(new String(Base64.encodeBase64(split), CommonConstants.UTF_8));
                 }
             }
             LOGGER.info("Total number of records read was {}", count);

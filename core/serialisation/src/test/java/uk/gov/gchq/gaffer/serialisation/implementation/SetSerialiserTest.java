@@ -15,42 +15,28 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
-import uk.gov.gchq.gaffer.serialisation.LongSerialiser;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Object>> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.IntegerSerialiser;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+public class SetSerialiserTest extends ToBytesSerialisationTest<Set<? extends Object>> {
 
     @Test
     public void shouldSerialiseAndDeSerialiseSet() throws SerialisationException {
 
-        Set<String> set = new HashSet<>();
-        set.add("one");
-        set.add("two");
-        set.add("three");
-        set.add("four");
-        set.add("five");
-        set.add("six");
+        Set<String> set = getExampleValue();
 
-        SetSerialiser s = new SetSerialiser();
-        s.setObjectSerialiser(new StringSerialiser());
-
-        byte[] b = s.serialise(set);
-        Set o = s.deserialise(b);
+        byte[] b = serialiser.serialise(set);
+        Set o = serialiser.deserialise(b);
 
         assertEquals(HashSet.class, o.getClass());
         assertEquals(6, o.size());
@@ -61,6 +47,17 @@ public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Obj
         assertTrue(o.contains("four"));
         assertTrue(o.contains("five"));
         assertTrue(o.contains("six"));
+    }
+
+    private Set<String> getExampleValue() {
+        Set<String> set = new HashSet<>();
+        set.add("one");
+        set.add("two");
+        set.add("three");
+        set.add("four");
+        set.add("five");
+        set.add("six");
+        return set;
     }
 
     @Test
@@ -74,12 +71,11 @@ public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Obj
         set.add(3);
         set.add(11);
 
-        SetSerialiser s = new SetSerialiser();
-        s.setObjectSerialiser(new IntegerSerialiser());
-        s.setSetClass(LinkedHashSet.class);
+        ((SetSerialiser) serialiser).setObjectSerialiser(new IntegerSerialiser());
+        ((SetSerialiser) serialiser).setSetClass(LinkedHashSet.class);
 
-        byte[] b = s.serialise(set);
-        Set o = s.deserialise(b);
+        byte[] b = serialiser.serialise(set);
+        Set o = serialiser.deserialise(b);
 
         assertEquals(LinkedHashSet.class, o.getClass());
         assertEquals(5, o.size());
@@ -92,7 +88,15 @@ public class SetSerialiserTest extends ToByteSerialisationTest<Set<? extends Obj
 
     @Override
     public Serialiser<Set<? extends Object>, byte[]> getSerialisation() {
-        return new SetSerialiser();
+        SetSerialiser serialiser = new SetSerialiser();
+        serialiser.setObjectSerialiser(new StringSerialiser());
+        return serialiser;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Pair<Set<? extends Object>, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{3, 115, 105, 120, 4, 102, 111, 117, 114, 3, 111, 110, 101, 3, 116, 119, 111, 5, 116, 104, 114, 101, 101, 4, 102, 105, 118, 101})};
     }
 
     @Test

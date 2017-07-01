@@ -15,9 +15,16 @@
  */
 package uk.gov.gchq.gaffer.time.serialisation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.time.RBMBackedTimestampSet;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -25,33 +32,32 @@ import java.time.ZonedDateTime;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-public class RBMBackedTimestampSetSerialiserTest {
-    private static final RBMBackedTimestampSetSerialiser RBM_BACKED_TIMESTAMP_SET_SERIALISER
-            = new RBMBackedTimestampSetSerialiser();
+public class RBMBackedTimestampSetSerialiserTest extends ToBytesSerialisationTest<RBMBackedTimestampSet> {
 
     @Test
     public void testSerialiser() throws SerialisationException {
         // Given
-        final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
-        rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000L));
-        rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000000L));
+        final RBMBackedTimestampSet rbmBackedTimestampSet = getExampleValue();
 
         // When
-        final byte[] serialised = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet);
-        final RBMBackedTimestampSet deserialised = RBM_BACKED_TIMESTAMP_SET_SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(rbmBackedTimestampSet);
+        final RBMBackedTimestampSet deserialised = serialiser.deserialise(serialised);
 
         // Then
         assertEquals(rbmBackedTimestampSet, deserialised);
     }
 
+    private RBMBackedTimestampSet getExampleValue() {
+        final RBMBackedTimestampSet rbmBackedTimestampSet = new RBMBackedTimestampSet(CommonTimeUtil.TimeBucket.SECOND);
+        rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000L));
+        rbmBackedTimestampSet.add(Instant.ofEpochMilli(1000000L));
+        return rbmBackedTimestampSet;
+    }
+
     @Test
     public void testCanHandle() throws SerialisationException {
-        assertTrue(RBM_BACKED_TIMESTAMP_SET_SERIALISER.canHandle(RBMBackedTimestampSet.class));
-        assertFalse(RBM_BACKED_TIMESTAMP_SET_SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(RBMBackedTimestampSet.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
@@ -73,13 +79,25 @@ public class RBMBackedTimestampSetSerialiserTest {
                 .forEach(i -> rbmBackedTimestampSet3.add(instant.plusSeconds(i)));
 
         // When
-        final int lengthSet1 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet1).length;
-        final int lengthSet2 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet2).length;
-        final int lengthSet3 = RBM_BACKED_TIMESTAMP_SET_SERIALISER.serialise(rbmBackedTimestampSet3).length;
+        final int lengthSet1 = serialiser.serialise(rbmBackedTimestampSet1).length;
+        final int lengthSet2 = serialiser.serialise(rbmBackedTimestampSet2).length;
+        final int lengthSet3 = serialiser.serialise(rbmBackedTimestampSet3).length;
 
         // Then
         assertTrue(200 < lengthSet1 && lengthSet1 < 220);
         assertTrue(72000 < lengthSet2 && lengthSet2 < 74000);
         assertTrue(3900000 < lengthSet3 && lengthSet3 < 4100000);
+    }
+
+    @Override
+    public Serialiser<RBMBackedTimestampSet, byte[]> getSerialisation() {
+        return new RBMBackedTimestampSetSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Pair<RBMBackedTimestampSet, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
+
     }
 }

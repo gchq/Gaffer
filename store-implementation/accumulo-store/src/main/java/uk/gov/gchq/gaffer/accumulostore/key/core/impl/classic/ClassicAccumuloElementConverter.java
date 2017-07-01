@@ -27,7 +27,6 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Arrays;
 import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
@@ -55,50 +54,45 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // the direction flag is 2 indicating that the first identifier
         // in the key is the destination and the second identifier
         // in the key is the source, i.e. they need flipping around.
-        byte directionFlag1;
-        byte directionFlag2;
-        if (edge.isDirected()) {
-            directionFlag1 = ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE;
-            directionFlag2 = ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE;
-        } else {
-            directionFlag1 = ClassicBytePositions.UNDIRECTED_EDGE;
-            directionFlag2 = ClassicBytePositions.UNDIRECTED_EDGE;
-        }
+        byte directionFlag = edge.isDirected() ? ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE : ClassicBytePositions.UNDIRECTED_EDGE;
 
         // Serialise source and destination to byte arrays, escaping if necessary
         final byte[] source = getSerialisedSource(edge);
         final byte[] destination = getSerialisedDestination(edge);
 
-        // Length of row key is the length of the source plus the length of the destination
-        // plus one for the delimiter in between the source and destination
-        // plus one for the delimiter in between the destination and the direction flag
-        // plus one for the direction flag at the end.
-        final int length = source.length + destination.length + 3;
-        final byte[] rowKey1 = new byte[length];
-        final byte[] rowKey2 = new byte[length];
-
         // Create first key: source DELIMITER destination
         // DELIMITER (CORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        System.arraycopy(source, 0, rowKey1, 0, source.length);
-        rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destination, 0, rowKey1, source.length + 1, destination.length);
-        rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[rowKey1.length - 1] = directionFlag1;
+        final byte[] rowKey1 = getRowKey(source, destination, directionFlag);
 
-        // Create second key: destination DELIMITER source
-        // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
-        System.arraycopy(destination, 0, rowKey2, 0, destination.length);
-        rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(source, 0, rowKey2, destination.length + 1, source.length);
-        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[rowKey2.length - 1] = directionFlag2;
 
         // Is this a self-edge? If so then return null for the second rowKey as
         // we don't want the same edge to go into Accumulo twice.
-        if (selfEdge(edge)) {
-            return new Pair<>(rowKey1, null);
+        byte[] rowKey2 = null;
+        if (!selfEdge(edge)) {
+            final byte invertDirectedFlag = (directionFlag == ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE) ? ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
+            // Create second key: destination DELIMITER source
+            // DELIMITER (INCORRECT_WAY_DIRECTED_EDGE or UNDIRECTED_EDGE)
+            rowKey2 = getRowKey(destination, source, invertDirectedFlag);
         }
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    private byte[] getRowKey(final byte[] first, final byte[] second, final byte invertDirectedFlag) {
+        // Length of row key is the length of the first plus the length of the second
+        // plus one for the delimiter in between the first and second
+        // plus one for the delimiter in between the second and the direction flag
+        // plus one for the direction flag at the end.
+        int carriage = first.length;
+        int secondLen = second.length;
+        final byte[] rowKey = new byte[carriage + secondLen + 3];
+        System.arraycopy(first, 0, rowKey, 0, carriage);
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(second, 0, rowKey, carriage, secondLen);
+        carriage += second.length;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage] = invertDirectedFlag;
+        //carriage++;
+        return rowKey;
     }
 
     @Override
@@ -154,8 +148,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         // (no need to worry about which direction the vertices should go in).
         // If the edge is directed then need to decide which way round the vertices should go.
         final int directionFlag = rowKey[rowKey.length - 1];
-        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]));
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]);
         sourceDestValue[0] = sourceBytes;
         sourceDestValue[1] = destBytes;
         boolean rtn;

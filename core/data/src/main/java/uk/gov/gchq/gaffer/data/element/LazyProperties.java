@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;

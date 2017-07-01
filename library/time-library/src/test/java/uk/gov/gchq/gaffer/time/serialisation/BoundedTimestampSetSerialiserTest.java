@@ -15,33 +15,32 @@
  */
 package uk.gov.gchq.gaffer.time.serialisation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import uk.gov.gchq.gaffer.time.BoundedTimestampSet;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-public class BoundedTimestampSetSerialiserTest {
-    private static final BoundedTimestampSetSerialiser BOUNDED_TIMESTAMP_SET_SERIALISER
-            = new BoundedTimestampSetSerialiser();
+public class BoundedTimestampSetSerialiserTest extends ToBytesSerialisationTest<BoundedTimestampSet> {
 
     @Test
     public void testSerialiserWhenNotFull() throws SerialisationException {
         // Given
-        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
-        boundedTimestampSet.add(Instant.ofEpochMilli(1000L));
-        boundedTimestampSet.add(Instant.ofEpochMilli(1000000L));
+        final BoundedTimestampSet boundedTimestampSet = getExampleValue();
 
         // When
-        final byte[] serialised = BOUNDED_TIMESTAMP_SET_SERIALISER.serialise(boundedTimestampSet);
-        final BoundedTimestampSet deserialised = BOUNDED_TIMESTAMP_SET_SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(boundedTimestampSet);
+        final BoundedTimestampSet deserialised = serialiser.deserialise(serialised);
 
         // Then
         assertEquals(boundedTimestampSet.getState(), deserialised.getState());
@@ -49,6 +48,13 @@ public class BoundedTimestampSetSerialiserTest {
         assertEquals(boundedTimestampSet.getMaxSize(), deserialised.getMaxSize());
         assertEquals(boundedTimestampSet.getNumberOfTimestamps(), deserialised.getNumberOfTimestamps());
         assertEquals(boundedTimestampSet.getTimestamps(), deserialised.getTimestamps());
+    }
+
+    private BoundedTimestampSet getExampleValue() {
+        final BoundedTimestampSet boundedTimestampSet = new BoundedTimestampSet(CommonTimeUtil.TimeBucket.SECOND, 10);
+        boundedTimestampSet.add(Instant.ofEpochMilli(1000L));
+        boundedTimestampSet.add(Instant.ofEpochMilli(1000000L));
+        return boundedTimestampSet;
     }
 
     @Test
@@ -61,8 +67,8 @@ public class BoundedTimestampSetSerialiserTest {
         instants.forEach(boundedTimestampSet::add);
 
         // When
-        final byte[] serialised = BOUNDED_TIMESTAMP_SET_SERIALISER.serialise(boundedTimestampSet);
-        final BoundedTimestampSet deserialised = BOUNDED_TIMESTAMP_SET_SERIALISER.deserialise(serialised);
+        final byte[] serialised = serialiser.serialise(boundedTimestampSet);
+        final BoundedTimestampSet deserialised = serialiser.deserialise(serialised);
 
         // Then
         assertEquals(boundedTimestampSet.getState(), deserialised.getState());
@@ -74,7 +80,18 @@ public class BoundedTimestampSetSerialiserTest {
 
     @Test
     public void testCanHandle() throws SerialisationException {
-        assertTrue(BOUNDED_TIMESTAMP_SET_SERIALISER.canHandle(BoundedTimestampSet.class));
-        assertFalse(BOUNDED_TIMESTAMP_SET_SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(BoundedTimestampSet.class));
+        assertFalse(serialiser.canHandle(String.class));
+    }
+
+    @Override
+    public Serialiser<BoundedTimestampSet, byte[]> getSerialisation() {
+        return new BoundedTimestampSetSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Pair<BoundedTimestampSet, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{new Pair(getExampleValue(), new byte[]{0, 10, 0, 58, 48, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 16, 0, 0, 0, 1, 0, -24, 3})};
     }
 }

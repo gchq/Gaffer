@@ -15,20 +15,21 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawDoubleSerialiserTest extends ToByteSerialisationTest<Double> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+public class RawDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (double i = 0; i < 1000; i+=1.1) {
+        for (double i = 0; i < 1000; i += 1.1) {
             byte[] b = serialiser.serialise(i);
             Object o = serialiser.deserialise(b);
             assertEquals(Double.class, o.getClass());
@@ -65,5 +66,15 @@ public class RawDoubleSerialiserTest extends ToByteSerialisationTest<Double> {
     @Override
     public Serialiser<Double, byte[]> getSerialisation() {
         return new RawDoubleSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Double.MAX_VALUE, new byte[]{-1, -1, -1, -1, -1, -1, -17, 127}),
+                new Pair<>(Double.MIN_VALUE, new byte[]{1, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(0.0, new byte[]{0, 0, 0, 0, 0, 0, 0, 0}),
+                new Pair<>(1.00, new byte[]{0, 0, 0, 0, 0, 0, -16, 63}),
+        };
     }
 }

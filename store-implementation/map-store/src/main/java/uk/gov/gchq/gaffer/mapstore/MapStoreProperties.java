@@ -15,16 +15,28 @@
  */
 package uk.gov.gchq.gaffer.mapstore;
 
+import uk.gov.gchq.gaffer.mapstore.factory.MapFactory;
+import uk.gov.gchq.gaffer.mapstore.factory.SimpleMapFactory;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-/**
- *
- */
 public class MapStoreProperties extends StoreProperties {
-    public static final String MAP_CLASS = "gaffer.store.mapstore.map.class";
     public static final String CREATE_INDEX = "gaffer.store.mapstore.createIndex";
+    public static final String CREATE_INDEX_DEFAULT = "true";
+
+    public static final String MAP_FACTORY = "gaffer.store.mapstore.map.factory";
+    public static final Class<? extends MapFactory> MAP_FACTORY_DEFAULT = SimpleMapFactory.class;
+
+    public static final String MAP_FACTORY_CONFIG = "gaffer.store.mapstore.map.factory.config";
+    public static final String MAP_FACTORY_CONFIG_DEFAULT = null;
+
+    /**
+     * Property name for the ingest buffer size. If the value is set to less than 1 then
+     * no buffer is used and elements are added directly to the underlying maps.
+     */
+    public static final String INGEST_BUFFER_SIZE = "gaffer.store.mapstore.map.ingest.buffer.size";
+    public static final int INGEST_BUFFER_SIZE_DEFAULT = 0;
 
     public MapStoreProperties() {
         super();
@@ -44,20 +56,44 @@ public class MapStoreProperties extends StoreProperties {
         return (MapStoreProperties) super.clone();
     }
 
-    public void setMapClass(final String mapClass) {
-        set(MAP_CLASS, mapClass);
-    }
-
-    public String getMapClass() {
-        return get(MAP_CLASS, "java.util.HashMap");
-    }
-
-    public void setCreateIndex(final String createIndex) {
-        set(CREATE_INDEX, createIndex);
+    public void setCreateIndex(final boolean createIndex) {
+        set(CREATE_INDEX, Boolean.toString(createIndex));
     }
 
     public boolean getCreateIndex() {
-        return Boolean.parseBoolean(get(CREATE_INDEX, "true"));
+        return Boolean.parseBoolean(get(CREATE_INDEX, CREATE_INDEX_DEFAULT));
     }
 
+    public String getMapFactory() {
+        return get(MAP_FACTORY, MAP_FACTORY_DEFAULT.getName());
+    }
+
+    public void setMapFactory(final String mapFactory) {
+        set(MAP_FACTORY, mapFactory);
+    }
+
+    public void setMapFactory(final Class<? extends MapFactory> mapFactory) {
+        setMapFactory(mapFactory.getName());
+    }
+
+    public String getMapFactoryConfig() {
+        return get(MAP_FACTORY_CONFIG, MAP_FACTORY_CONFIG_DEFAULT);
+    }
+
+    public void setMapFactoryConfig(final String path) {
+        set(MAP_FACTORY_CONFIG, path);
+    }
+
+    public int getIngestBufferSize() {
+        final String size = get(INGEST_BUFFER_SIZE, null);
+        if (null == size) {
+            return INGEST_BUFFER_SIZE_DEFAULT;
+        }
+
+        return Integer.parseInt(size);
+    }
+
+    public void setIngestBufferSize(final int ingestBufferSize) {
+        set(INGEST_BUFFER_SIZE, String.valueOf(ingestBufferSize));
+    }
 }

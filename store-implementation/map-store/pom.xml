@@ -21,13 +21,13 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.7.5</version>
+        <version>0.7.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>map-store</artifactId>
 
     <dependencies>
-        <!-- Internal Gaffer2 framework dependencies -->
+        <!-- Internal Gaffer framework dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>

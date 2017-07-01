@@ -30,12 +30,13 @@ public class ElementClonerTest {
     @Test
     public void testElementCloner() throws StoreException {
         // Given
+        final ElementCloner cloner = new ElementCloner();
         final MapStore mapStore = new MapStore();
         mapStore.initialise(GetAllElementsHandlerTest.getSchema(), new MapStoreProperties());
 
         // Then
         Streams.toStream(GetAllElementsHandlerTest.getElements())
-                .map(element -> new Pair<>(element, ElementCloner.cloneElement(element, mapStore.getSchema())))
+                .map(element -> new Pair<>(element, cloner.cloneElement(element, mapStore.getSchema())))
                 .forEach(pair -> assertEquals(pair.getFirst(), pair.getSecond()));
     }
 }
