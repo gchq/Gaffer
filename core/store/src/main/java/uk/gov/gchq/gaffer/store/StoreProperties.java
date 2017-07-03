@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
@@ -220,6 +221,17 @@ public class StoreProperties implements Cloneable {
 
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
+    }
+
+    public void addOperationDeclarationPaths(final String... newPaths) {
+        final String newPathsCsv = StringUtils.join(newPaths, ",");
+        String combinedPaths = getOperationDeclarationPaths();
+        if (null == combinedPaths) {
+            combinedPaths = newPathsCsv;
+        } else {
+            combinedPaths = combinedPaths + "," + newPathsCsv;
+        }
+        setOperationDeclarationPaths(combinedPaths);
     }
 
     public void setProperties(final Properties properties) {
