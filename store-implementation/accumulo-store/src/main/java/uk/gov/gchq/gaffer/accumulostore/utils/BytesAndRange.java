@@ -27,13 +27,11 @@ public class BytesAndRange {
     @SuppressFBWarnings(value = "EI_EXPOSE_REP2", justification = "This is a simple class to identify a range within the given byte array.")
     public BytesAndRange(final byte[] bytes, final int offSet, final int length) {
         this.bytes = bytes;
-        if (length > -1) {
+        if (length > -1 && offSet > -1) {
             this.length = length;
-        } else {
-            throw new InvalidParameterException("length can't be negative");
-        }
-        if (offSet > -1) {
             this.offSet = offSet;
+        } else {
+            throw new InvalidParameterException("length and offset can't be negative");
         }
     }
 
