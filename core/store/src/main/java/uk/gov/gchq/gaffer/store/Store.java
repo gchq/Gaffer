@@ -509,7 +509,11 @@ public abstract class Store {
     protected abstract Object doUnhandledOperation(final Operation operation, final Context context);
 
     protected final void addOperationHandler(final Class<? extends Operation> opClass, final OperationHandler handler) {
-        operationHandlers.put(opClass, handler);
+        if (null == handler) {
+            operationHandlers.remove(opClass);
+        } else {
+            operationHandlers.put(opClass, handler);
+        }
     }
 
     protected final <OP extends Output<O>, O> void addOperationHandler(final Class<? extends Output<O>> opClass, final OutputOperationHandler<OP, O> handler) {
