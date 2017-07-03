@@ -1,0 +1,8 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.SplitStore",
+      "handler": null
+    }
+  ]
+}
