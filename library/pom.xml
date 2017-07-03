@@ -32,7 +32,7 @@
         <module>named-operation-library</module>
         <module>bitmap-library</module>
         <module>cache-library</module>
-        <module>flink-ingest-library</module>
+        <module>flink-library</module>
         <module>time-library</module>
     </modules>
 
