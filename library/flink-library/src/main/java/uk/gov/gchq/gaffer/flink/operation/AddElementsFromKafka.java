@@ -16,36 +16,47 @@
 package uk.gov.gchq.gaffer.flink.operation;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-
+import uk.gov.gchq.gaffer.operation.Validatable;
+import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
 public class AddElementsFromKafka implements
         Operation,
+        Validatable,
         Options {
     private String topic;
     /**
      * The id of the consumer group
      */
+    @Required
     private String groupId;
     /**
      * Comma separated list of Kafka brokers
      */
+    @Required
     private String[] bootstrapServers;
     /**
      * The name of the job to be created
      */
+    @Required
     private String jobName;
     /**
      * The parallelism of the job to be created
      */
     private int parallelism;
 
+    private boolean validate = true;
+    private boolean skipInvalidElements;
+
+    @Required
     private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+
     private Map<String, String> options;
 
     public String getTopic() {
@@ -98,6 +109,26 @@ public class AddElementsFromKafka implements
     }
 
     @Override
+    public boolean isValidate() {
+        return validate;
+    }
+
+    @Override
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
+    }
+
+    @Override
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
+
+    @Override
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @Override
     public Map<String, String> getOptions() {
         return options;
     }
@@ -107,8 +138,19 @@ public class AddElementsFromKafka implements
         this.options = options;
     }
 
+    @Override
+    public ValidationResult validate() {
+        final ValidationResult result = Operation.super.validate();
+        if (null != bootstrapServers && bootstrapServers.length < 0) {
+            result.addError("At least 1 bootstrap server is required.");
+        }
+
+        return result;
+    }
+
     public static class Builder extends BaseBuilder<AddElementsFromKafka, Builder>
-            implements Options.Builder<AddElementsFromKafka, Builder> {
+            implements Validatable.Builder<AddElementsFromKafka, Builder>,
+            Options.Builder<AddElementsFromKafka, Builder> {
         public Builder() {
             super(new AddElementsFromKafka());
         }
@@ -140,11 +182,6 @@ public class AddElementsFromKafka implements
 
         public Builder parallelism(final int parallelism) {
             _getOp().setParallelism(parallelism);
-            return _self();
-        }
-
-        public Builder options(final Map<String, String> options) {
-            _getOp().setOptions(options);
             return _self();
         }
     }

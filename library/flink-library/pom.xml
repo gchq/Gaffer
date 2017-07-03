@@ -18,17 +18,7 @@
         <!--Gaffer dependencies-->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>operation</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>data</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

@@ -15,53 +15,29 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
 import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 
-import java.util.Map;
-
 public class AddElementsFromSocketHandler implements OperationHandler<AddElementsFromSocket> {
     @Override
-    public Object doOperation(final AddElementsFromSocket operation, final Context context, final Store store) throws OperationException {
-
-        validateOperation(operation);
-
+    public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.socketTextStream(operation.getHostname(), operation.getPort(), "\n")
-                .map(new GafferMapFunction(operation.getElementGenerator()))
-                .returns(GafferMapFunction.getReturnClass())
+        env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
+                .map(new GafferMapFunction(op.getElementGenerator()))
+                .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()
-                .addSink(new GafferSink(store));
+                .addSink(new GafferSink(op, store));
 
         try {
-            env.execute(operation.getJobName());
+            env.execute(op.getJobName());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from port: " + operation.getPort(), e);
+            throw new OperationException("Failed to add elements from port: " + op.getPort(), e);
         }
 
         return null;
-    }
-
-    private Map<String, String> validateOperation(final AddElementsFromSocket operation) {
-
-        final Map<String, String> options = operation.getOptions();
-
-        if (null == operation.getHostname() || StringUtils.isEmpty(operation.getHostname())) {
-            throw new IllegalArgumentException("Unable to build AddElementsFromSocket operation - operation.hostname not set");
-        }
-        if (null == (Integer) operation.getPort()) {
-            throw new IllegalArgumentException("Unable to build AddElementsFromSocket operation - operation.port not set");
-        }
-
-        if (operation.getJobName() == null || StringUtils.isEmpty(operation.getJobName())) {
-            throw new IllegalArgumentException("Unable to build AddElementsFromSocket operation - operation.jobName is not set");
-        }
-        return options;
     }
 }

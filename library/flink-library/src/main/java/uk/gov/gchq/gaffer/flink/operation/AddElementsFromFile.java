@@ -15,35 +15,39 @@
  */
 package uk.gov.gchq.gaffer.flink.operation;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-
+import uk.gov.gchq.gaffer.operation.Validatable;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Properties;
 import java.util.function.Function;
 
-public class AddElementsFromFile implements Operation, Options {
-
+public class AddElementsFromFile implements
+        Operation,
+        Validatable,
+        Options {
     /**
      * The fully qualified path of the file from which Flink should consume
      */
+    @Required
     private String filename;
     /**
      * The name of the job to be created
      */
+    @Required
     private String jobName;
     /**
      * The parallelism of the job to be created
      */
     private int parallelism;
-    /**
-     * Any properties to be passed to the Flink Job
-     */
-    private Properties properties;
 
+    @Required
     private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+
+    private boolean validate = true;
+    private boolean skipInvalidElements;
     private Map<String, String> options;
 
     public String getFilename() {
@@ -70,14 +74,6 @@ public class AddElementsFromFile implements Operation, Options {
         return this.parallelism;
     }
 
-    public Properties getProperties() {
-        return this.properties;
-    }
-
-    public void setProperties(final Properties properties) {
-        this.properties = properties;
-    }
-
     public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> T getElementGenerator() {
         return (T) elementGenerator;
     }
@@ -96,8 +92,29 @@ public class AddElementsFromFile implements Operation, Options {
         this.options = options;
     }
 
+    @Override
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
+
+    @Override
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @Override
+    public boolean isValidate() {
+        return validate;
+    }
+
+    @Override
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
+    }
+
     public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>
-            implements Options.Builder<AddElementsFromFile, Builder> {
+            implements Validatable.Builder<AddElementsFromFile, Builder>,
+            Options.Builder<AddElementsFromFile, Builder> {
         public Builder() {
             super(new AddElementsFromFile());
         }
@@ -119,11 +136,6 @@ public class AddElementsFromFile implements Operation, Options {
 
         public Builder parallelism(final int parallelism) {
             _getOp().setParallelism(parallelism);
-            return _self();
-        }
-
-        public Builder options(final Map<String, String> options) {
-            _getOp().setOptions(options);
             return _self();
         }
     }

@@ -107,6 +107,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -144,6 +145,35 @@ public abstract class Store {
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
         this.opChainValidator = createOperationChainValidator();
         this.schemaOptimiser = createSchemaOptimiser();
+    }
+
+    public static Store createStore(final byte[] schema, final Properties storeProperties) {
+        return createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
+    }
+
+    public static Store createStore(final Schema schema, final StoreProperties storeProperties) {
+        if (null == storeProperties) {
+            throw new IllegalArgumentException("Store properties are required to create a store");
+        }
+
+        final String storeClass = storeProperties.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+
+        final Store newStore;
+        try {
+            newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+
+        try {
+            newStore.initialise(schema, storeProperties);
+        } catch (final StoreException e) {
+            throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
+        }
+        return newStore;
     }
 
     public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
@@ -286,6 +316,10 @@ public abstract class Store {
     public <O> O _execute(final OperationChain<O> operationChain, final Context context) throws OperationException {
         final OperationChain<O> optimisedOperationChain = prepareOperationChain(operationChain, context);
         return handleOperationChain(optimisedOperationChain, context);
+    }
+
+    public void run(final Runnable runnable) {
+        executorService.execute(runnable);
     }
 
     public JobTracker getJobTracker() {

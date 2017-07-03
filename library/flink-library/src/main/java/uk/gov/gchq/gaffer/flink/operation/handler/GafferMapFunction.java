@@ -18,13 +18,13 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.api.common.functions.MapFunction;
 import uk.gov.gchq.gaffer.data.element.Element;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.function.Function;
 
 public class GafferMapFunction implements MapFunction<String, Iterable<? extends Element>> {
     private static final long serialVersionUID = -2338397824952911347L;
+    public static final Class<Iterable<? extends Element>> RETURN_CLASS = (Class) Iterable.class;
 
     private Class<? extends Function> generatorClassName;
 
@@ -42,9 +42,5 @@ public class GafferMapFunction implements MapFunction<String, Iterable<? extends
             elementGenerator = generatorClassName.newInstance();
         }
         return elementGenerator.apply(Collections.singleton(csv));
-    }
-
-    public static Class<Iterable<? extends Element>> getReturnClass() {
-        return (Class) Iterable.class;
     }
 }

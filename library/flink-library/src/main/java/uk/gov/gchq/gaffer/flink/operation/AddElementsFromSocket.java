@@ -15,22 +15,33 @@
  */
 package uk.gov.gchq.gaffer.flink.operation;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
-
+import uk.gov.gchq.gaffer.operation.Validatable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
 public class AddElementsFromSocket implements
         Operation,
+        Validatable,
         Options {
+    public static final String DEFAULT_DELIMITER = "\n";
+
+    @Required
     private String hostname;
+    @Required
     private int port;
+    @Required
     private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
-    private Map<String, String> options;
+    @Required
     private String jobName;
+    private Map<String, String> options;
+    private boolean validate = true;
+    private boolean skipInvalidElements;
+    private String delimiter = DEFAULT_DELIMITER;
 
     public String getHostname() {
         return hostname;
@@ -74,8 +85,37 @@ public class AddElementsFromSocket implements
         this.options = options;
     }
 
+    @Override
+    public boolean isSkipInvalidElements() {
+        return skipInvalidElements;
+    }
+
+    @Override
+    public void setSkipInvalidElements(final boolean skipInvalidElements) {
+        this.skipInvalidElements = skipInvalidElements;
+    }
+
+    @Override
+    public boolean isValidate() {
+        return validate;
+    }
+
+    @Override
+    public void setValidate(final boolean validate) {
+        this.validate = validate;
+    }
+
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(final String delimiter) {
+        this.delimiter = delimiter;
+    }
+
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
-            implements Options.Builder<AddElementsFromSocket, Builder> {
+            implements Validatable.Builder<AddElementsFromSocket, Builder>,
+            Options.Builder<AddElementsFromSocket, Builder> {
         public Builder() {
             super(new AddElementsFromSocket());
         }
@@ -97,6 +137,11 @@ public class AddElementsFromSocket implements
 
         public Builder jobName(final String jobName) {
             _getOp().setJobName(jobName);
+            return _self();
+        }
+
+        public Builder delimiter(final String delimiter) {
+            _getOp().setDelimiter(delimiter);
             return _self();
         }
     }
