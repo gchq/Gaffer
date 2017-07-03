@@ -591,13 +591,16 @@ public final class Graph {
 
             if (null == store) {
                 store = createStore(mergedStoreProperties, cloneSchema(schema));
-            } else if (null != graphId || null != schema || null != properties) {
+            } else if ((null != graphId && !graphId.equals(store.getGraphId()))
+                    || (null != schema)
+                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
                 if (null == graphId) {
                     graphId = store.getGraphId();
                 }
                 if (null == schema) {
                     schema = store.getSchema();
                 }
+
                 if (null == mergedStoreProperties) {
                     mergedStoreProperties = store.getProperties();
                 }
