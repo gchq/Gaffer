@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
 import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import com.yahoo.sketches.sampling.ReservoirItemsUnion;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 

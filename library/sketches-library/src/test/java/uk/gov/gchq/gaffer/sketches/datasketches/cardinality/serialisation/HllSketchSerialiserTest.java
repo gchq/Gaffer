@@ -16,7 +16,6 @@
 package uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation;
 
 import com.yahoo.sketches.hll.HllSketch;
-import com.yahoo.sketches.hll.Union;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 

@@ -100,7 +100,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
                 if (-1 == dis.read(serialisedRLU)) {
                     throw new SerialisationException("Unexpected end of stream when reading serialised ReservoirLongsUnion");
                 }
-                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.heapify(WritableMemory.wrap(bytes));
+                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.heapify(WritableMemory.wrap(serialisedRLU));
                 boundedTimestampSet.setReservoirLongsUnion(reservoirLongsUnion);
             } else {
                 throw new SerialisationException("Unexpected byte indicating the state: expected " + NOT_FULL + " or "
