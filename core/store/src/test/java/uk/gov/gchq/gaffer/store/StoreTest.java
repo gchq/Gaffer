@@ -160,19 +160,6 @@ public class StoreTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
-        final StoreProperties properties = mock(StoreProperties.class);
-        given(properties.getJobExecutorThreadCount()).willReturn(1);
-
-        try {
-            store.initialise("invalid-id", schema, properties);
-            fail("Exception expected");
-        } catch (final IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
-
-    @Test
     public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
@@ -242,7 +229,7 @@ public class StoreTest {
         assertTrue(store.getOperationHandlerExposed(GetSetExport.class) instanceof GetSetExportHandler);
 
         assertEquals(1, store.getCreateOperationHandlersCallCount());
-        assertSame(schema, store.getOriginalSchema());
+        assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
         verify(schemaOptimiser).optimise(store.getSchema(), true);
     }

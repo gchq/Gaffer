@@ -20,14 +20,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.operationdeclaration.OperationDeclarations;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.library.NoSchemaLibrary;
-import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -45,13 +45,11 @@ import java.util.Properties;
 public class StoreProperties implements Cloneable {
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
+    public static final String ID = "gaffer.store.id";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
-
-    public static final String SCHEMA_LIBRARY_CLASS = "gaffer.store.schema.library.class";
-    public static final String SCHEMA_LIBRARY_CLASS_DEFAULT = NoSchemaLibrary.class.getName();
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
     public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
@@ -107,6 +105,15 @@ public class StoreProperties implements Cloneable {
         props.setProperty(key, value);
     }
 
+
+    public String getId() {
+        return get(ID);
+    }
+
+    public void setId(final String id) {
+        set(ID, id);
+    }
+
     /**
      * Returns the operation definitions from the file specified in the properties.
      * This is an optional feature, so if the property does not exist then this function
@@ -141,19 +148,6 @@ public class StoreProperties implements Cloneable {
 
     public void setStoreClass(final String storeClass) {
         set(STORE_CLASS, storeClass);
-    }
-
-    public String getSchemaLibraryClass() {
-        return get(SCHEMA_LIBRARY_CLASS, SCHEMA_LIBRARY_CLASS_DEFAULT);
-    }
-
-    @JsonIgnore
-    public void setSchemaLibraryClass(final Class<? extends SchemaLibrary> schemaLibraryClass) {
-        setSchemaLibraryClass(schemaLibraryClass.getName());
-    }
-
-    public void setSchemaLibraryClass(final String schemaLibraryClass) {
-        set(SCHEMA_LIBRARY_CLASS, schemaLibraryClass);
     }
 
     public Boolean getJobTrackerEnabled() {
@@ -289,6 +283,29 @@ public class StoreProperties implements Cloneable {
     @Override
     public StoreProperties clone() {
         return StoreProperties.loadStoreProperties((Properties) getProperties().clone());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final StoreProperties properties = (StoreProperties) obj;
+        return new EqualsBuilder()
+                .append(props, properties.props)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(props)
+                .toHashCode();
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {

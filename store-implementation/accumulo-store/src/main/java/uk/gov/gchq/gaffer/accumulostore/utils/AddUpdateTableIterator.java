@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import uk.gov.gchq.gaffer.store.schema.library.SchemaLibrary;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
@@ -180,9 +179,8 @@ public final class AddUpdateTableIterator {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
                     + "<graphId> "
-                    + "<comma separated schema paths> <store properties path> <"
-                    + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
-                    + ">");
+                    + "<comma separated schema paths> <store properties path> "
+                    + "<" + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ">");
             System.exit(1);
         }
 
@@ -193,7 +191,7 @@ public final class AddUpdateTableIterator {
 
         final Schema schema = Schema.fromJson(getSchemaPaths(args));
 
-        SchemaLibrary.addOrUpdate(getGraphId(args), schema, storeProps);
+        // TODO create a GraphLibrary and update the schema and StoreProperties in it
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {

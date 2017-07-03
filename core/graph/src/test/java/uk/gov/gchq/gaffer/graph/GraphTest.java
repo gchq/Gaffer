@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -61,7 +62,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
-import uk.gov.gchq.gaffer.store.schema.library.FileSchemaLibrary;
 import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
 import uk.gov.gchq.koryphe.impl.binaryoperator.Sum;
@@ -864,13 +864,26 @@ public class GraphTest {
     }
 
     @Test
+    public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        try {
+            new Graph.Builder()
+                    .graphId("invalid-id")
+                    .build();
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
         // Given
+        HashMapGraphLibrary.clear();
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setStoreClass(StoreImpl.class.getName());
-        storeProperties.setStoreClass(GraphFileSchemaTest.StoreImpl.class.getName());
-        storeProperties.setSchemaLibraryClass(FileSchemaLibrary.class);
-        storeProperties.set(FileSchemaLibrary.LIBRARY_PATH_KEY, tempFolder.newFolder().getAbsolutePath());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -910,15 +923,17 @@ public class GraphTest {
         // When
         final Graph graph = new Graph.Builder()
                 .graphId(GRAPH_ID)
-                .storeProperties(storeProperties)
+                .library(new HashMapGraphLibrary())
                 .addSchema(schemaModule1)
                 .addSchema(schemaModule2)
                 .addSchema(schemaModule3)
                 .addSchema(schemaModule4)
+                .storeProperties(storeProperties)
                 .build();
 
         final Graph graph2 = new Graph.Builder()
                 .graphId(GRAPH_ID)
+                .library(new HashMapGraphLibrary())
                 .storeProperties(storeProperties)
                 .build();
 
