@@ -31,10 +31,8 @@ import uk.gov.gchq.gaffer.accumulostore.operation.handler.GetElementsWithinSetHa
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.AddElementsFromHdfsHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.ImportAccumuloKeyValueFilesHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SampleDataForSplitPointsHandler;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitTableHandler;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.SplitStoreHandler;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsBetweenSets;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsInRanges;
 import uk.gov.gchq.gaffer.accumulostore.operation.impl.GetElementsWithinSet;
@@ -50,15 +48,18 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateElements;
 import uk.gov.gchq.gaffer.operation.impl.generate.GenerateObjects;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawLongSerialiser;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -75,10 +76,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
 import static uk.gov.gchq.gaffer.store.StoreTrait.POST_AGGREGATION_FILTERING;
@@ -107,11 +104,11 @@ public class AccumuloStoreTest {
 
     @Before
     public void beforeMethod() throws StoreException, IOException {
-        if (!byteEntityStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!byteEntityStore.getConnection().tableOperations().exists(byteEntityStore.getTableName())) {
             byteEntityStore.initialise(schema, PROPERTIES);
         }
 
-        if (!gaffer1KeyStore.getConnection().tableOperations().exists(PROPERTIES.getTable())) {
+        if (!gaffer1KeyStore.getConnection().tableOperations().exists(gaffer1KeyStore.getTableName())) {
             gaffer1KeyStore.initialise(schema, PROPERTIES);
         }
     }
@@ -127,16 +124,16 @@ public class AccumuloStoreTest {
     public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException, AccumuloSecurityException, AccumuloException, TableNotFoundException {
         Connector connector = byteEntityStore.getConnection();
 
-        connector.tableOperations().delete(PROPERTIES.getTable());
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        connector.tableOperations().delete(byteEntityStore.getTableName());
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.preInitialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertFalse(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertFalse(connector.tableOperations().exists(byteEntityStore.getTableName()));
 
         byteEntityStore.initialise(schema, PROPERTIES);
         connector = byteEntityStore.getConnection();
-        assertTrue(connector.tableOperations().exists(PROPERTIES.getTable()));
+        assertTrue(connector.tableOperations().exists(byteEntityStore.getTableName()));
     }
 
     @Test
@@ -146,11 +143,10 @@ public class AccumuloStoreTest {
     }
 
     @Test
-    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
+    public void shouldAllowRangeScanOperationsWhenVertexSerialiserDoesPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialiser serialiser = mock(ToBytesSerialiser.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(true);
+        final Serialiser serialiser = new StringSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -165,15 +161,13 @@ public class AccumuloStoreTest {
         // Then
         assertTrue(isGetElementsInRangesSupported);
         assertTrue(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
     public void shouldNotAllowRangeScanOperationsWhenVertexSerialiserDoesNotPreserveObjectOrdering() throws StoreException {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        final Serialiser serialiser = mock(ToBytesSerialiser.class);
-        given(serialiser.preservesObjectOrdering()).willReturn(false);
+        final Serialiser serialiser = new CompactRawLongSerialiser();
 
         store.initialise(
                 new Schema.Builder()
@@ -188,20 +182,20 @@ public class AccumuloStoreTest {
         // Then
         assertFalse(isGetElementsInRangesSupported);
         assertFalse(isSummariseGroupOverRangesSupported);
-        verify(serialiser, atLeastOnce()).preservesObjectOrdering();
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedGaffer1() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(gaffer1KeyStore);
     }
 
     @Test
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelatedByteEntity() throws OperationException, StoreException {
         testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(byteEntityStore);
     }
 
-    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException {
+    public void testAbleToInsertAndRetrieveEntityQueryingEqualAndRelated(final AccumuloStore store) throws OperationException, StoreException {
+        store.initialise(schema, PROPERTIES);
         final Entity e = new Entity(TestGroups.ENTITY, "1");
         e.putProperty(TestPropertyNames.PROP_1, 1);
         e.putProperty(TestPropertyNames.PROP_2, 2);
@@ -273,7 +267,7 @@ public class AccumuloStoreTest {
         assertTrue(store.getOperationHandlerExposed(GetElementsBetweenSets.class) instanceof GetElementsBetweenSetsHandler);
         assertTrue(store.getOperationHandlerExposed(GetElementsInRanges.class) instanceof GetElementsInRangesHandler);
         assertTrue(store.getOperationHandlerExposed(GetElementsWithinSet.class) instanceof GetElementsWithinSetHandler);
-        assertTrue(store.getOperationHandlerExposed(SplitTable.class) instanceof SplitTableHandler);
+        assertTrue(store.getOperationHandlerExposed(SplitStore.class) instanceof SplitStoreHandler);
         assertTrue(store.getOperationHandlerExposed(SampleDataForSplitPoints.class) instanceof SampleDataForSplitPointsHandler);
         assertTrue(store.getOperationHandlerExposed(ImportAccumuloKeyValueFiles.class) instanceof ImportAccumuloKeyValueFilesHandler);
         assertTrue(store.getOperationHandlerExposed(GenerateElements.class) instanceof GenerateElementsHandler);

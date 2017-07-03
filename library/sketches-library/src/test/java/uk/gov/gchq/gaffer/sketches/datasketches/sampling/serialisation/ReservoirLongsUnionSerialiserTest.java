@@ -15,64 +15,55 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.sketches.sampling.ReservoirLongsSketch;
-import com.yahoo.sketches.sampling.ReservoirLongsUnion;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class ReservoirLongsUnionSerialiserTest {
-    private static final ReservoirLongsUnionSerialiser SERIALISER = new ReservoirLongsUnionSerialiser();
+import com.yahoo.sketches.sampling.ReservoirLongsUnion;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedArrayValueSerialiserTest;
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+public class ReservoirLongsUnionSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirLongsUnion, Long> {
+
+    @Override
+    protected ReservoirLongsUnion getEmptyExampleOutput() {
+        return ReservoirLongsUnion.newInstance(20);
+    }
+
+    public Serialiser<ReservoirLongsUnion, byte[]> getSerialisation() {
+        return new ReservoirLongsUnionSerialiser();
+    }
+
+    public Pair<ReservoirLongsUnion, byte[]>[] getHistoricSerialisationPairs() {
+        final ReservoirLongsUnion union = getExampleOutput();
+        return new Pair[]{new Pair(union, new byte[]{1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0})};
+    }
+
+    @Override
+    protected ReservoirLongsUnion getExampleOutput() {
         final ReservoirLongsUnion union = ReservoirLongsUnion.newInstance(20);
         union.update(1L);
         union.update(2L);
         union.update(3L);
-        testSerialiser(union);
-
-        final ReservoirLongsUnion emptyUnion = ReservoirLongsUnion.newInstance(20);
-        testSerialiser(emptyUnion);
+        return union;
     }
 
-    private void testSerialiser(final ReservoirLongsUnion union) {
-        final ReservoirLongsSketch result = union.getResult();
-        final boolean resultIsNull = result == null;
-        long[] sample = new long[]{};
-        if (!resultIsNull) {
-            sample = union.getResult().getSamples();
-        }
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(union);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
+    protected Long[] getTestValue(final ReservoirLongsUnion object) {
+        final long[] samples = object.getResult().getSamples();
+
+        // Not ideal but this is test code, performance not important.
+        final Long[] longs = new Long[samples.length];
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = samples[i];
         }
 
-        final ReservoirLongsUnion unionDeserialised;
-        try {
-            unionDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        final ReservoirLongsSketch deserialisedResult = unionDeserialised.getResult();
-        if (deserialisedResult == null) {
-            assertTrue(resultIsNull);
-        } else {
-            assertArrayEquals(sample, unionDeserialised.getResult().getSamples());
-        }
+        return longs;
     }
 
     @Test
     public void testCanHandleReservoirLongsUnion() {
-        assertTrue(SERIALISER.canHandle(ReservoirLongsUnion.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(ReservoirLongsUnion.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }

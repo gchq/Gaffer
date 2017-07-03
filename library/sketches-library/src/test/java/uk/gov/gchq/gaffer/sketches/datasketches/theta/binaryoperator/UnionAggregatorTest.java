@@ -19,7 +19,7 @@ import com.yahoo.sketches.theta.Sketches;
 import com.yahoo.sketches.theta.Union;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator;
@@ -68,7 +68,7 @@ public class UnionAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.theta.binaryoperator.UnionAggregator\"%n" +
                 "}"), json);
 

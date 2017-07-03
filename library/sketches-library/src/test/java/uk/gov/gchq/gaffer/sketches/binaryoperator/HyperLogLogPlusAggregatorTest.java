@@ -18,10 +18,9 @@ package uk.gov.gchq.gaffer.sketches.binaryoperator;
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator;
 import uk.gov.gchq.koryphe.binaryoperator.BinaryOperatorTest;
 import java.util.function.BinaryOperator;
 
@@ -71,7 +70,7 @@ public class HyperLogLogPlusAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.binaryoperator.HyperLogLogPlusAggregator\"%n" +
                 "}"), json);
 

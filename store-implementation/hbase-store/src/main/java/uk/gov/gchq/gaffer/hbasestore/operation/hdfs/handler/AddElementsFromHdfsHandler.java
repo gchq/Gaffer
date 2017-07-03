@@ -24,10 +24,11 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
-import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.tool.FetchElementsFromHdfsTool;
+import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory.HBaseAddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.hbasestore.utils.IngestUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool.AddElementsFromHdfsTool;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
@@ -45,6 +46,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
     }
 
     public void doOperation(final AddElementsFromHdfs operation, final HBaseStore store) throws OperationException {
+        validateOperation(operation);
         fetchElements(operation, store);
         final String skipImport = operation.getOption(HBaseStoreConstants.ADD_ELEMENTS_FROM_HDFS_SKIP_IMPORT);
         if (null == skipImport || !"TRUE".equalsIgnoreCase(skipImport)) {
@@ -55,9 +57,27 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
         }
     }
 
+    private void validateOperation(final AddElementsFromHdfs operation) {
+        if (null != operation.getMinMapTasks()) {
+            LOGGER.warn("minMapTasks field will be ignored");
+        }
+
+        if (null != operation.getMaxMapTasks()) {
+            LOGGER.warn("minMaxTasks field will be ignored");
+        }
+
+        if (null != operation.getMinReduceTasks()) {
+            LOGGER.warn("minMapTasks field will be ignored");
+        }
+
+        if (null != operation.getMaxReduceTasks()) {
+            LOGGER.warn("minMaxTasks field will be ignored");
+        }
+    }
+
     private void fetchElements(final AddElementsFromHdfs operation, final HBaseStore store)
             throws OperationException {
-        final FetchElementsFromHdfsTool fetchTool = new FetchElementsFromHdfsTool(operation, store);
+        final AddElementsFromHdfsTool fetchTool = new AddElementsFromHdfsTool(new HBaseAddElementsFromHdfsJobFactory(), operation, store);
         try {
             LOGGER.info("Running FetchElementsFromHdfsTool job");
             ToolRunner.run(fetchTool, new String[0]);
@@ -91,7 +111,7 @@ public class AddElementsFromHdfsHandler implements OperationHandler<AddElementsF
 
         try {
             LOGGER.info("Running import job");
-            ToolRunner.run(importTool, new String[]{operation.getOutputPath(), store.getProperties().getTable().getNameAsString()});
+            ToolRunner.run(importTool, new String[]{operation.getOutputPath(), store.getTableName().getNameAsString()});
             LOGGER.info("Finished running import job");
         } catch (final Exception e) {
             LOGGER.error("Failed to import elements into HBase: {}", e.getMessage());

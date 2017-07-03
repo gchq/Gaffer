@@ -20,6 +20,7 @@ import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.graph.hook.OperationAuthoriser;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -120,7 +121,13 @@ public class DefaultGraphFactory implements GraphFactory {
         }
 
         final Graph.Builder builder = new Graph.Builder();
-        builder.storeProperties(storePropertiesPath);
+
+        // Disable any operations required
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
+        storeProperties.addOperationDeclarationPaths("disableOperations.json");
+
+        builder.storeProperties(storeProperties);
+
         for (final Path path : getSchemaPaths()) {
             builder.addSchema(path);
         }

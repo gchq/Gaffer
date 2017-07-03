@@ -15,26 +15,24 @@
  */
 package uk.gov.gchq.gaffer.bitmap.serialisation;
 
-import org.junit.Test;
-import org.roaringbitmap.RoaringBitmap;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-
 import static org.junit.Assert.assertEquals;
 
-public class RoaringBitmapSerialiserTest extends ToByteSerialisationTest<RoaringBitmap> {
+import org.junit.Test;
+import org.roaringbitmap.RoaringBitmap;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+
+public class RoaringBitmapSerialiserTest extends ToBytesSerialisationTest<RoaringBitmap> {
 
     private static final RoaringBitmapSerialiser SERIALISER = new RoaringBitmapSerialiser();
 
     @Test
     public void testCanSerialiseAndDeserialise() throws SerialisationException {
-        RoaringBitmap testBitmap = new RoaringBitmap();
-        testBitmap.add(2);
-        testBitmap.add(3000);
-        testBitmap.add(300000);
+        RoaringBitmap testBitmap = getExampleValue();
 
-        for (int i=400000; i<500000; i+=2) {
+        for (int i = 400000; i < 500000; i += 2) {
             testBitmap.add(i);
         }
 
@@ -42,6 +40,14 @@ public class RoaringBitmapSerialiserTest extends ToByteSerialisationTest<Roaring
         Object o = SERIALISER.deserialise(b);
         assertEquals(RoaringBitmap.class, o.getClass());
         assertEquals(testBitmap, o);
+    }
+
+    private RoaringBitmap getExampleValue() {
+        RoaringBitmap testBitmap = new RoaringBitmap();
+        testBitmap.add(2);
+        testBitmap.add(3000);
+        testBitmap.add(300000);
+        return testBitmap;
     }
 
     @Override
@@ -54,7 +60,12 @@ public class RoaringBitmapSerialiserTest extends ToByteSerialisationTest<Roaring
     }
 
     @Override
-    public Serialiser<RoaringBitmap,byte[]> getSerialisation() {
+    public Serialiser<RoaringBitmap, byte[]> getSerialisation() {
         return new RoaringBitmapSerialiser();
+    }
+
+    public Pair<RoaringBitmap, byte[]>[] getHistoricSerialisationPairs() {
+        RoaringBitmap testBitmap = getExampleValue();
+        return new Pair[]{new Pair(testBitmap, new byte[]{58, 48, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 4, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 2, 0, -72, 11, -32, -109})};
     }
 }

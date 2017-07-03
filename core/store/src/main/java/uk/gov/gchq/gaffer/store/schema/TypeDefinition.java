@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
@@ -82,7 +82,7 @@ public class TypeDefinition {
     /**
      * @return the {@link Serialiser} for the property.
      */
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Serialiser getSerialiser() {
         return serialiser;
     }
@@ -94,6 +94,7 @@ public class TypeDefinition {
         this.serialiser = serialiser;
     }
 
+    @JsonIgnore
     public String getSerialiserClass() {
         if (null == serialiser) {
             return null;
@@ -102,6 +103,8 @@ public class TypeDefinition {
         return serialiser.getClass().getName();
     }
 
+    @Deprecated
+    @JsonSetter("serialiserClass")
     public void setSerialiserClass(final String clazz) {
         if (null == clazz) {
             this.serialiser = null;

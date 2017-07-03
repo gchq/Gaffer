@@ -28,8 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SplitTable;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
@@ -38,9 +36,11 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.TextJobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -99,16 +99,16 @@ public class CreateSplitPointsIT {
                         .proportionToSample(1f)
                         .validate(true)
                         .mappers(5)
-                        .resultingSplitsFilePath(splitsFile)
+                        .splitsFilePath(splitsFile)
                         .compressionCodec(null)
                         .build())
-                .then(new SplitTable.Builder()
+                .then(new SplitStore.Builder()
                         .inputPath(splitsFile)
                         .build())
                 .build(), new User());
 
         // Then
-        final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getProperties().getTable(), 10));
+        final List<Text> splitsOnTable = Lists.newArrayList(store.getConnection().tableOperations().listSplits(store.getTableName(), 10));
         final List<String> stringSplitsOnTable = Lists.transform(splitsOnTable, t -> StringUtil.toString(t.getBytes()));
         final List<String> fileSplits = FileUtils.readLines(new File(splitsFile));
         final List<String> fileSplitsDecoded = Lists.transform(fileSplits, t -> StringUtil.toString(Base64.decodeBase64(t)));

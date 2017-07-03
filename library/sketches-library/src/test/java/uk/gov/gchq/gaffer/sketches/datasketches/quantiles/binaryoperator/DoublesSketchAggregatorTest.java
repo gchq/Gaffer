@@ -74,7 +74,7 @@ public class DoublesSketchAggregatorTest extends BinaryOperatorTest {
         // When 1
         final String json = new String(new JSONSerialiser().serialise(aggregator, true));
         // Then 1
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonUtil.equals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator.DoublesSketchAggregator\"%n" +
                 "}"), json);
 

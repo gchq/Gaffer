@@ -17,14 +17,16 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -202,11 +204,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      *
      * @return An implementation of {@link Serialiser} that will be used to serialise all vertices.
      */
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Serialiser getVertexSerialiser() {
         return vertexSerialiser;
     }
 
+    @Deprecated
+    @JsonIgnore
     public String getVertexSerialiserClass() {
         if (null == vertexSerialiser) {
             return null;
@@ -268,6 +272,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiser the {@link Serialiser} to set
          * @return this Builder
          */
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public CHILD_CLASS vertexSerialiser(final Serialiser vertexSerialiser) {
             getThisSchema().vertexSerialiser = vertexSerialiser;
             return self();
@@ -279,6 +284,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiserClass the {@link Serialiser} class name to set
          * @return this Builder
          */
+        @Deprecated
+        @JsonSetter("vertexSerialiserClass")
         public CHILD_CLASS vertexSerialiserClass(final String vertexSerialiserClass) {
             if (null == vertexSerialiserClass) {
                 getThisSchema().vertexSerialiser = null;

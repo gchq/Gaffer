@@ -24,8 +24,10 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +51,46 @@ public class AggregatorUtilTest {
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldIngestAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.NON_AGG_ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .build()
+        );
+
+        final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
+            private boolean firstTime = true;
+
+            @Override
+            public Iterator<Element> iterator() {
+
+                if (firstTime) {
+                    firstTime = false;
+                    return elements.iterator();
+                }
+
+                throw new NoSuchElementException();
+            }
+        };
+
+        // when
+        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
+
+        // then
+        assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
@@ -371,6 +413,53 @@ public class AggregatorUtilTest {
 
         // then
         assertElementEquals(expected, aggregatedElements);
+    }
+
+    @Test
+    public void shouldQueryAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.NON_AGG_ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .build()
+        );
+
+        final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
+            private boolean firstTime = true;
+
+            @Override
+            public Iterator<Element> iterator() {
+
+                if (firstTime) {
+                    firstTime = false;
+                    return elements.iterator();
+                }
+
+                throw new NoSuchElementException();
+            }
+        };
+
+        // when
+        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(onlyConsumingOnceIterable, schema, view);
+
+        // then
+        assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
