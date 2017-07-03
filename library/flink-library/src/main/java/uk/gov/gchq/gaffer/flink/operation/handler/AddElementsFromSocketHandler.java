@@ -27,6 +27,7 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
     public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
+                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()

@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -44,7 +43,7 @@ public class AddElementsFromFile implements
     private int parallelism;
 
     @Required
-    private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
     private boolean validate = true;
     private boolean skipInvalidElements;
@@ -74,11 +73,11 @@ public class AddElementsFromFile implements
         return this.parallelism;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> T getElementGenerator() {
-        return (T) elementGenerator;
+    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
+        return elementGenerator;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> void setElementGenerator(final T elementGenerator) {
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -119,7 +118,7 @@ public class AddElementsFromFile implements
             super(new AddElementsFromFile());
         }
 
-        public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> Builder generator(final T generator) {
+        public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

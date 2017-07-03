@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -47,12 +46,6 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
         this.skipInvalid = validatable.isSkipInvalidElements();
         schema = store.getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
-    }
-
-    @Override
-    public void open(final Configuration parameters) throws Exception {
-        super.open(parameters);
-        checkStore();
     }
 
     @Override

@@ -34,6 +34,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
     public Object doOperation(final AddElementsFromKafka op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SimpleStringSchema(), createFlinkProperties(op)))
+                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()

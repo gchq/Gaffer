@@ -22,7 +22,6 @@ import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
 import uk.gov.gchq.koryphe.ValidationResult;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -55,7 +54,7 @@ public class AddElementsFromKafka implements
     private boolean skipInvalidElements;
 
     @Required
-    private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
     private Map<String, String> options;
 
@@ -100,11 +99,11 @@ public class AddElementsFromKafka implements
         this.bootstrapServers = bootstrapServers;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> T getElementGenerator() {
-        return (T) elementGenerator;
+    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
+        return elementGenerator;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> void setElementGenerator(final T elementGenerator) {
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -155,7 +154,7 @@ public class AddElementsFromKafka implements
             super(new AddElementsFromKafka());
         }
 
-        public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> Builder generator(final T generator) {
+        public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }

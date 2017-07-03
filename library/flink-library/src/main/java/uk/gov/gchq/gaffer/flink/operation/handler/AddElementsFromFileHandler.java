@@ -27,6 +27,7 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
     public Object doOperation(final AddElementsFromFile op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.readTextFile(op.getFilename())
+                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()

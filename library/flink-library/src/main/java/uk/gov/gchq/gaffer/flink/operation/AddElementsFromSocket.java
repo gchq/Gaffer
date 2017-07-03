@@ -20,7 +20,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -32,16 +31,25 @@ public class AddElementsFromSocket implements
 
     @Required
     private String hostname;
+
     @Required
     private int port;
+
     @Required
-    private Function<Iterable<? extends String>, Iterable<? extends Element>> elementGenerator;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
+
     @Required
     private String jobName;
-    private Map<String, String> options;
+
+    /**
+     * The parallelism of the job to be created
+     */
+    private int parallelism;
+
     private boolean validate = true;
     private boolean skipInvalidElements;
     private String delimiter = DEFAULT_DELIMITER;
+    private Map<String, String> options;
 
     public String getHostname() {
         return hostname;
@@ -67,11 +75,11 @@ public class AddElementsFromSocket implements
         this.jobName = jobName;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> T getElementGenerator() {
-        return (T) elementGenerator;
+    public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
+        return elementGenerator;
     }
 
-    public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> void setElementGenerator(final T elementGenerator) {
+    public void setElementGenerator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator) {
         this.elementGenerator = elementGenerator;
     }
 
@@ -113,6 +121,14 @@ public class AddElementsFromSocket implements
         this.delimiter = delimiter;
     }
 
+    public void setParallelism(final int parallelism) {
+        this.parallelism = parallelism;
+    }
+
+    public int getParallelism() {
+        return this.parallelism;
+    }
+
     public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
             implements Validatable.Builder<AddElementsFromSocket, Builder>,
             Options.Builder<AddElementsFromSocket, Builder> {
@@ -120,7 +136,7 @@ public class AddElementsFromSocket implements
             super(new AddElementsFromSocket());
         }
 
-        public <T extends Function<Iterable<? extends String>, Iterable<? extends Element>> & Serializable> Builder generator(final T generator) {
+        public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
             _getOp().setElementGenerator(generator);
             return _self();
         }
@@ -142,6 +158,11 @@ public class AddElementsFromSocket implements
 
         public Builder delimiter(final String delimiter) {
             _getOp().setDelimiter(delimiter);
+            return _self();
+        }
+
+        public Builder parallelism(final int parallelism) {
+            _getOp().setParallelism(parallelism);
             return _self();
         }
     }

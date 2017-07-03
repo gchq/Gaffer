@@ -478,7 +478,7 @@ public final class Graph {
 
         private void updateStore() {
             if (null == store) {
-                store = Store.createStore(properties, cloneSchema(schema));
+                store = Store.createStore(cloneSchema(schema), properties);
             } else if (null != properties || null != schema) {
                 try {
                     if (null == properties) {
