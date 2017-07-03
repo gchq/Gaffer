@@ -196,7 +196,7 @@ public abstract class OperationExample extends Example {
         // Load data into memory
         final List<String> data;
         try {
-            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "uk/gov/gchq/gaffer/flink/operation/data.txt"));
+            data = IOUtils.readLines(StreamUtil.openStream(getClass(), "operation/data.txt"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
