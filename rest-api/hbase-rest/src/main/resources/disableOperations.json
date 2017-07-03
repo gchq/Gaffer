@@ -1,0 +1,16 @@
+{
+  "operations": [
+    {
+      "operation": "uk.gov.gchq.gaffer.operation.impl.SplitStore",
+      "handler": null
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs",
+      "handler": null
+    },
+    {
+      "operation": "uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints",
+      "handler": null
+    }
+  ]
+}
