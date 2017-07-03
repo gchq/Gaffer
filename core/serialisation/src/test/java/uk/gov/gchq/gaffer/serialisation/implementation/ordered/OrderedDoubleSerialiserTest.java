@@ -28,13 +28,11 @@ import static org.junit.Assert.assertTrue;
 
 public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double> {
 
-    private static final OrderedDoubleSerialiser SERIALISER = new OrderedDoubleSerialiser();
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (double i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Double.class, o.getClass());
             assertEquals(i, o);
         }
@@ -42,25 +40,25 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
 
     @Test
     public void canSerialiseDoubleMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Double.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseDoubleMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Double.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Double.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Double.class, o.getClass());
         assertEquals(Double.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        byte[] startBytes = SERIALISER.serialise(0d);
+        byte[] startBytes = serialiser.serialise(0d);
         for (Double test = 1d; test >= 10d; test++) {
-            byte[] newTestBytes = SERIALISER.serialise(test);
+            byte[] newTestBytes = serialiser.serialise(test);
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -68,12 +66,12 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
 
     @Test
     public void cantSerialiseStringClass() {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseDoubleClass() {
-        assertTrue(SERIALISER.canHandle(Double.class));
+        assertTrue(serialiser.canHandle(Double.class));
     }
 
     private static int compare(final byte[] first, final byte[] second) {
@@ -93,6 +91,7 @@ public class OrderedDoubleSerialiserTest extends ToBytesSerialisationTest<Double
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Pair<Double, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
                 new Pair<>(Double.MAX_VALUE, new byte[]{8, 127, -17, -1, -1, -1, -1, -1, -1}),

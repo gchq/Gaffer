@@ -28,13 +28,11 @@ import static org.junit.Assert.assertTrue;
 
 public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integer> {
 
-    private static final OrderedIntegerSerialiser SERIALISER = new OrderedIntegerSerialiser();
-
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (int i = 0; i < 1000; i++) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Integer.class, o.getClass());
             assertEquals(i, o);
         }
@@ -42,25 +40,25 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void canSerialiseIntegerMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Integer.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseIntegerMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Integer.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Integer.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Integer.class, o.getClass());
         assertEquals(Integer.MAX_VALUE, o);
     }
 
     @Test
     public void checkOrderPreserved() throws SerialisationException {
-        byte[] startBytes = SERIALISER.serialise(0);
+        byte[] startBytes = serialiser.serialise(0);
         for (Integer test = 1; test >= 10; test++) {
-            byte[] newTestBytes = SERIALISER.serialise(test);
+            byte[] newTestBytes = serialiser.serialise(test);
             assertTrue(compare(newTestBytes, startBytes) < 0);
             startBytes = newTestBytes;
         }
@@ -68,12 +66,12 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
 
     @Test
     public void cantSerialiseStringClass() {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseIntegerClass() {
-        assertTrue(SERIALISER.canHandle(Integer.class));
+        assertTrue(serialiser.canHandle(Integer.class));
     }
 
     private static int compare(final byte[] first, final byte[] second) {
@@ -93,6 +91,7 @@ public class OrderedIntegerSerialiserTest extends ToBytesSerialisationTest<Integ
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Pair<Integer, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
                 new Pair<>(Integer.MAX_VALUE, new byte[]{8}),
