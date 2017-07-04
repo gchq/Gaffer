@@ -182,6 +182,17 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return result;
     }
 
+    public boolean hasValidation() {
+        for (final SchemaElementDefinition elementDef : new ChainedIterable<SchemaElementDefinition>(getEntities().values(), getEdges().values())) {
+            if (null != elementDef) {
+                if (elementDef.hasValidation()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Map<String, TypeDefinition> getTypes() {
         return types;
     }

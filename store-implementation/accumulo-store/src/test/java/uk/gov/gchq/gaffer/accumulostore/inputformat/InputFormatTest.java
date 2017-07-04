@@ -47,7 +47,9 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
@@ -130,22 +132,24 @@ public class InputFormatTest {
 
     @Test
     public void shouldReturnCorrectDataToMapReduceJob() throws Exception {
-        final View view = new View.Builder().build();
+        final GetElements op = new GetElements.Builder()
+                .view(new View())
+                .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
             expectedResults.add(getJsonString(element));
         }
         shouldReturnCorrectDataToMapReduceJob(getSchema(),
-                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
+                KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA,
-                view,
+                op,
                 new User(),
                 "instance1",
                 expectedResults);
         shouldReturnCorrectDataToMapReduceJob(getSchema(),
-                KeyPackage.CLASSIC_KEY_PACKAGE,
+                KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA,
-                view,
+                op,
                 new User(),
                 "instance2",
                 expectedResults);
@@ -154,7 +158,11 @@ public class InputFormatTest {
     @Test
     public void shouldReturnCorrectDataToMapReduceJobWithView() throws Exception {
         final Schema schema = getSchema();
-        final View view = new View.Builder().edge(TestGroups.EDGE).build();
+        final GetElements op = new GetElements.Builder()
+                .view(new View.Builder()
+                        .edge(TestGroups.EDGE)
+                        .build())
+                .build();
         final Set<String> expectedResults = new HashSet<>();
         for (final Element element : DATA) {
             if (element.getGroup().equals(TestGroups.EDGE)) {
@@ -164,14 +172,14 @@ public class InputFormatTest {
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA,
-                view,
+                op,
                 new User(),
                 "instance3",
                 expectedResults);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA,
-                view,
+                op,
                 new User(),
                 "instance4",
                 expectedResults);
@@ -180,7 +188,9 @@ public class InputFormatTest {
     @Test
     public void shouldReturnCorrectDataToMapReduceJobRespectingAuthorizations() throws Exception {
         final Schema schema = getSchemaWithVisibilities();
-        final View view = new View.Builder().build();
+        final GetElements op = new GetElements.Builder()
+                .view(new View())
+                .build();
         final Set<String> expectedResultsPublicNotPrivate = new HashSet<>();
         final Set<String> expectedResultsPrivate = new HashSet<>();
         for (final Element element : DATA_WITH_VISIBILITIES) {
@@ -200,28 +210,28 @@ public class InputFormatTest {
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
-                view,
+                op,
                 userWithPublicNotPrivate,
                 "instance5",
                 expectedResultsPublicNotPrivate);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.BYTE_ENTITY_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
-                view,
+                op,
                 userWithPrivate,
                 "instance6",
                 expectedResultsPrivate);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
-                view,
+                op,
                 userWithPublicNotPrivate,
                 "instance7",
                 expectedResultsPublicNotPrivate);
         shouldReturnCorrectDataToMapReduceJob(schema,
                 KeyPackage.CLASSIC_KEY_PACKAGE,
                 DATA_WITH_VISIBILITIES,
-                view,
+                op,
                 userWithPrivate,
                 "instance8",
                 expectedResultsPrivate);
@@ -230,7 +240,7 @@ public class InputFormatTest {
     private void shouldReturnCorrectDataToMapReduceJob(final Schema schema,
                                                        final KeyPackage kp,
                                                        final List<Element> data,
-                                                       final View view,
+                                                       final GraphFilters graphFilters,
                                                        final User user,
                                                        final String instanceName,
                                                        final Set<String> expectedResults)
@@ -260,7 +270,7 @@ public class InputFormatTest {
         final FileSystem fs = FileSystem.getLocal(conf);
 
         // Update configuration with instance, table name, etc.
-        store.updateConfiguration(conf, view, user);
+        store.updateConfiguration(conf, graphFilters, user);
 
         // Run Driver
         final File outputFolder = testFolder.newFolder();
@@ -290,12 +300,7 @@ public class InputFormatTest {
     }
 
     private Schema getSchema() {
-        final Schema schema = Schema.fromJson(
-                this.getClass().getResourceAsStream("/schema/dataSchema.json"),
-                this.getClass().getResourceAsStream("/schema/dataTypes.json"),
-                this.getClass().getResourceAsStream("/schema/storeSchema.json"),
-                this.getClass().getResourceAsStream("/schema/storeTypes.json"));
-        return schema;
+        return Schema.fromJson(StreamUtil.schemas(getClass()));
     }
 
     private Schema getSchemaWithVisibilities() {

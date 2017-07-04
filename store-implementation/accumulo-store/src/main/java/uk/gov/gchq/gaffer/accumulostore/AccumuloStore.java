@@ -33,6 +33,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.inputformat.ElementInputFormat;
@@ -68,6 +69,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.operation.Operation;
+import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.SplitStore;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -88,6 +90,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
@@ -166,22 +170,28 @@ public class AccumuloStore extends Store {
         return connection;
     }
 
+    public String getTableName() {
+        return getProperties().getTable();
+    }
+
     /**
      * Updates a Hadoop {@link Configuration} with information needed to connect to the Accumulo store. It adds
      * iterators to apply the provided {@link View}. This method will be used by operations that run MapReduce
      * or Spark jobs against the Accumulo store.
      *
-     * @param conf A {@link Configuration} to be updated.
-     * @param view The {@link View} to be applied.
-     * @param user The {@link User} to be used.
+     * @param conf         A {@link Configuration} to be updated.
+     * @param graphFilters The operation {@link GraphFilters} to be applied.
+     * @param user         The {@link User} to be used.
      * @throws StoreException if there is a failure to connect to Accumulo or a problem setting the iterators.
      */
-    public void updateConfiguration(final Configuration conf, final View view, final User user) throws StoreException {
+    public void updateConfiguration(final Configuration conf, final GraphFilters graphFilters, final User user) throws StoreException {
         try {
+            final View view = graphFilters.getView();
+
             // Table name
             InputConfigurator.setInputTableName(AccumuloInputFormat.class,
                     conf,
-                    getProperties().getTable());
+                    getTableName());
             // User
             addUserToConfiguration(conf);
             // Authorizations
@@ -200,16 +210,33 @@ public class AccumuloStore extends Store {
             conf.set(ElementInputFormat.KEY_PACKAGE, getProperties().getKeyPackageClass());
             conf.set(ElementInputFormat.SCHEMA, new String(getSchema().toCompactJson(), CommonConstants.UTF_8));
             conf.set(ElementInputFormat.VIEW, new String(view.toCompactJson(), CommonConstants.UTF_8));
-            // Add iterators that depend on the view
+
             if (view.hasGroups()) {
-                IteratorSetting elementPreFilter = getKeyPackage()
+                // Add the columns to fetch
+                InputConfigurator.fetchColumns(AccumuloInputFormat.class, conf,
+                        Stream.concat(view.getEntityGroups().stream(), view.getEdgeGroups().stream())
+                                .map(g -> new org.apache.accumulo.core.util.Pair<>(new Text(g), (Text) null))
+                                .collect(Collectors.toSet()));
+
+                // Add iterators that depend on the view
+                final IteratorSetting elementPreFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPreAggregationFilterIteratorSetting(view, this);
-                IteratorSetting elementPostFilter = getKeyPackage()
+                if (null != elementPreFilter) {
+                    InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
+                }
+                final IteratorSetting elementPostFilter = getKeyPackage()
                         .getIteratorFactory()
                         .getElementPostAggregationFilterIteratorSetting(view, this);
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
-                InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPreFilter);
+                if (null != elementPostFilter) {
+                    InputConfigurator.addIterator(AccumuloInputFormat.class, conf, elementPostFilter);
+                }
+                final IteratorSetting edgeEntityDirFilter = getKeyPackage()
+                        .getIteratorFactory()
+                        .getEdgeEntityDirectionFilterIteratorSetting(graphFilters);
+                if (null != edgeEntityDirFilter) {
+                    InputConfigurator.addIterator(AccumuloInputFormat.class, conf, edgeEntityDirFilter);
+                }
             }
         } catch (final AccumuloSecurityException | IteratorSettingException | UnsupportedEncodingException e) {
             throw new StoreException(e);

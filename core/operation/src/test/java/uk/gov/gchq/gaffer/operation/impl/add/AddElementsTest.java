@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -74,7 +74,7 @@ public class AddElementsTest extends OperationTest {
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
-        JsonUtil.assertEquals(String.format("{%n" +
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElements\",%n" +
                 "  \"validate\" : true,%n" +
                 "  \"skipInvalidElements\" : false%n" +
@@ -105,7 +105,7 @@ public class AddElementsTest extends OperationTest {
         String json = new String(serialiser.serialise(addElements, true));
 
         // Then
-        JsonUtil.assertEquals(ADD_ELEMENTS_JSON, json);
+        JsonAssert.assertEquals(ADD_ELEMENTS_JSON, json);
     }
 
     @Test

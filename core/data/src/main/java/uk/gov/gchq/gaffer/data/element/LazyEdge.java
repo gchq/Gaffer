@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,20 +68,12 @@ public class LazyEdge extends Edge {
 
     @Override
     public boolean isDirected() {
-        if (!loadedIdentifiers.contains(IdentifierType.DIRECTED)) {
+        if (loadedIdentifiers.contains(IdentifierType.DIRECTED)) {
             return edge.isDirected();
         }
 
-        return (boolean) lazyLoadIdentifier(IdentifierType.DIRECTED);
-    }
-
-    @Override
-    public DirectedType getDirectedType() {
-        if (loadedIdentifiers.contains(IdentifierType.DIRECTED)) {
-            lazyLoadIdentifier(IdentifierType.DIRECTED);
-        }
-
-        return edge.getDirectedType();
+        lazyLoadIdentifier(IdentifierType.DIRECTED);
+        return edge.isDirected();
     }
 
     @Override
@@ -101,11 +92,6 @@ public class LazyEdge extends Edge {
     public void setDirected(final boolean directed) {
         edge.setDirected(directed);
         loadedIdentifiers.add(IdentifierType.DIRECTED);
-    }
-
-    @Override
-    public Object getIdentifier(final IdentifierType name) {
-        return lazyLoadIdentifier(edge.getIdentifier(name), name);
     }
 
     @Override
@@ -154,7 +140,7 @@ public class LazyEdge extends Edge {
     }
 
     private Object lazyLoadIdentifier(final IdentifierType name) {
-        Object value = valueLoader.getIdentifier(name);
+        Object value = valueLoader.getIdentifier(name, this);
         putIdentifier(name, value);
 
         return value;

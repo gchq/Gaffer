@@ -51,6 +51,23 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
     byte[] serialise(final T object) throws SerialisationException;
 
     /**
+     * @param allBytes The bytes to be decoded into characters
+     * @param offset   The index of the first byte to decode
+     * @param length   The number of bytes to decode
+     * @return T the deserialised object
+     * @throws SerialisationException issues during deserialisation
+     */
+    default T deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        final byte[] selection = new byte[length];
+        try {
+            System.arraycopy(allBytes, offset, selection, 0, length);
+        } catch (final NullPointerException e) {
+            throw new SerialisationException(String.format("Deserialising with giving range caused ArrayIndexOutOfBoundsException. byte[].size:%d startPos:%d length:%d", allBytes.length, 0, length), e);
+        }
+        return deserialise(selection);
+    }
+
+    /**
      * Deserialise an array of bytes into the original object.
      *
      * @param bytes the bytes to deserialise
@@ -58,6 +75,7 @@ public interface ToBytesSerialiser<T> extends Serialiser<T, byte[]> {
      * @throws SerialisationException if the object fails to deserialise
      */
     @Override
+    @Deprecated
     T deserialise(final byte[] bytes) throws SerialisationException;
 
     /**

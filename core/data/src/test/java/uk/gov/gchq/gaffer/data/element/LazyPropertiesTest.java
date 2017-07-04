@@ -41,9 +41,9 @@ public class LazyPropertiesTest {
         final Properties properties = new Properties();
         final String propertyName = "property name";
         final String exceptedPropertyValue = "property value";
-        given(elementLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+
+        given(elementLoader.getProperty(propertyName, lazyProperties)).willReturn(exceptedPropertyValue);
 
         // When
         final Object propertyValue = lazyProperties.get(propertyName);
@@ -62,14 +62,14 @@ public class LazyPropertiesTest {
         final Properties properties = new Properties(propertyName, exceptedPropertyValue);
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
 
-        given(elementLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
+        given(elementLoader.getProperty(propertyName, lazyProperties)).willReturn(exceptedPropertyValue);
 
         // When
         final Object propertyValue = lazyProperties.get(propertyName);
 
         // Then
         assertEquals(exceptedPropertyValue, propertyValue);
-        verify(elementLoader, never()).getProperty(propertyName);
+        verify(elementLoader, never()).getProperty(propertyName, lazyProperties);
     }
 
     @Test
@@ -79,15 +79,14 @@ public class LazyPropertiesTest {
         final Properties properties = new Properties();
         final String propertyName = "property name";
         final String propertyValue = "property value";
-        given(elementLoader.getProperty(propertyName)).willReturn(propertyValue);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+        given(elementLoader.getProperty(propertyName, lazyProperties)).willReturn(propertyValue);
 
         // When
         lazyProperties.put(propertyName, propertyValue);
 
         // Then
-        verify(elementLoader, never()).getProperty(propertyName);
+        verify(elementLoader, never()).getProperty(propertyName, lazyProperties);
         assertEquals(propertyValue, properties.get(propertyName));
     }
 
@@ -98,9 +97,9 @@ public class LazyPropertiesTest {
         final Properties properties = new Properties();
         final String propertyName = "property name";
         final String propertyValue = "property value";
-        given(elementLoader.getProperty(propertyName)).willReturn(propertyValue);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+        given(elementLoader.getProperty(propertyName, lazyProperties)).willReturn(propertyValue);
+
         lazyProperties.get(propertyName); // call it to load the value.
 
         // When
@@ -108,7 +107,7 @@ public class LazyPropertiesTest {
         lazyProperties.get(propertyName);
 
         // Then
-        verify(elementLoader, times(2)).getProperty(propertyName); // should be called twice before and after clear()
+        verify(elementLoader, times(2)).getProperty(propertyName, lazyProperties); // should be called twice before and after clear()
         assertEquals(propertyValue, properties.get(propertyName));
     }
 
@@ -119,9 +118,9 @@ public class LazyPropertiesTest {
         final Properties properties = new Properties();
         final String propertyName = "property name";
         final String propertyValue = "property value";
-        given(elementLoader.getProperty(propertyName)).willReturn(propertyValue);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+        given(elementLoader.getProperty(propertyName, lazyProperties)).willReturn(propertyValue);
+
         lazyProperties.get(propertyName); // call it to load the value.
 
         // When
@@ -129,7 +128,7 @@ public class LazyPropertiesTest {
         lazyProperties.get(propertyName);
 
         // Then
-        verify(elementLoader, times(2)).getProperty(propertyName); // should be called twice before and after removeProperty()
+        verify(elementLoader, times(2)).getProperty(propertyName, lazyProperties); // should be called twice before and after removeProperty()
         assertEquals(propertyValue, properties.get(propertyName));
     }
 
@@ -142,10 +141,10 @@ public class LazyPropertiesTest {
         final String propertyName2 = "property name2";
         final String propertyValue1 = "property value1";
         final String propertyValue2 = "property value2";
-        given(elementLoader.getProperty(propertyName1)).willReturn(propertyValue1);
-        given(elementLoader.getProperty(propertyName2)).willReturn(propertyValue2);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+        given(elementLoader.getProperty(propertyName1, lazyProperties)).willReturn(propertyValue1);
+        given(elementLoader.getProperty(propertyName2, lazyProperties)).willReturn(propertyValue2);
+
         lazyProperties.get(propertyName1); // call it to load value 1.
         lazyProperties.get(propertyName2); // call it to load value 2.
 
@@ -155,8 +154,8 @@ public class LazyPropertiesTest {
         lazyProperties.get(propertyName2);
 
         // Then
-        verify(elementLoader, times(2)).getProperty(propertyName1);
-        verify(elementLoader, times(1)).getProperty(propertyName2);
+        verify(elementLoader, times(2)).getProperty(propertyName1, lazyProperties);
+        verify(elementLoader, times(1)).getProperty(propertyName2, lazyProperties);
         assertEquals(propertyValue1, properties.get(propertyName1));
         assertEquals(propertyValue2, properties.get(propertyName2));
     }
@@ -170,10 +169,11 @@ public class LazyPropertiesTest {
         final String propertyName2 = "property name2";
         final String propertyValue1 = "property value1";
         final String propertyValue2 = "property value2";
-        given(elementLoader.getProperty(propertyName1)).willReturn(propertyValue1);
-        given(elementLoader.getProperty(propertyName2)).willReturn(propertyValue2);
-
         final LazyProperties lazyProperties = new LazyProperties(properties, elementLoader);
+
+        given(elementLoader.getProperty(propertyName1, lazyProperties)).willReturn(propertyValue1);
+        given(elementLoader.getProperty(propertyName2, lazyProperties)).willReturn(propertyValue2);
+
         lazyProperties.get(propertyName1); // call it to load value 1.
         lazyProperties.get(propertyName2); // call it to load value 2.
 
@@ -183,8 +183,8 @@ public class LazyPropertiesTest {
         lazyProperties.get(propertyName2);
 
         // Then
-        verify(elementLoader, times(2)).getProperty(propertyName1);
-        verify(elementLoader, times(1)).getProperty(propertyName2);
+        verify(elementLoader, times(2)).getProperty(propertyName1, lazyProperties);
+        verify(elementLoader, times(1)).getProperty(propertyName2, lazyProperties);
         assertEquals(propertyValue1, properties.get(propertyName1));
         assertEquals(propertyValue2, properties.get(propertyName2));
     }

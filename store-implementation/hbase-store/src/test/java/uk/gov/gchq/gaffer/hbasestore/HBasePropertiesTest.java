@@ -37,7 +37,6 @@ public class HBasePropertiesTest {
 
         // THen
         assertEquals(new Path("pathTo/jars"), properties.getDependencyJarsHdfsDirPath());
-        assertEquals("tableName", properties.getTable().getNameAsString());
         assertEquals(10, properties.getWriteBufferSize());
         assertEquals("zookeeper1,zookeeper2", properties.getZookeepers());
     }
