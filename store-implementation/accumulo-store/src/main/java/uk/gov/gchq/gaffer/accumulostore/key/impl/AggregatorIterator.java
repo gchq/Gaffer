@@ -90,7 +90,23 @@ public class AggregatorIterator extends Combiner {
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-        validateOptions(options);
+        try {
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the schema from json", e);
+        }
+
+        try {
+            elementConverter = Class
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
+                    .newInstance(schema);
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+        }
     }
 
     @Override
@@ -103,23 +119,6 @@ public class AggregatorIterator extends Combiner {
         }
         if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
-        }
-
-        try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the schema from json", e);
-        }
-
-        try {
-            final Class<?> elementConverterClass = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
-                    .newInstance(schema);
-        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
         return true;
     }
