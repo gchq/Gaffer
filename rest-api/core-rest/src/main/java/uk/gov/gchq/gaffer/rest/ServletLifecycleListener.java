@@ -28,13 +28,13 @@ import javax.servlet.ServletContextListener;
  * In order to use this listener, reference it in your web.xml file:
  * <pre>
  *     {@code
- *      <xml>
- *          <web-app>
- *              <listener>
- *                 <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
- *              </listener>
- *          </web-app>
- *      </xml>
+ *      &lt;xml&gt;
+ *          &lt;web-app&gt;
+ *              &lt;listener&gt;
+ *                 &lt;listener-class&gt;uk.gov.gchq.gaffer.rest.ServletLifecycleListener&lt;/listener-class&gt;
+ *              &lt;/listener&gt;
+ *          &lt;/web-app&gt;
+ *      &lt;/xml&gt;
  *     }
  * </pre>
  */
