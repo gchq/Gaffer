@@ -53,7 +53,7 @@ Operations must be JSON serialisable in order to be used via the REST API
 getters and setters.
 
 Operation implementations need to implement the `Operation` interface and
-the extra interfaces they they wish to make use of. For example an operation
+the extra interfaces they wish to make use of. For example an operation
 that takes a single input value should implement the `Input` interface.
 
 Here is a list of some of the common interfaces:
