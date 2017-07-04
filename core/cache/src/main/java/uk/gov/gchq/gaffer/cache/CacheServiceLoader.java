@@ -32,8 +32,7 @@ public final class CacheServiceLoader {
     private static ICacheService service;
 
     /**
-     * Looks at a system property and initialises an appropriate cache service. Then adds a shutdown hook to close the
-     * cache service gracefully.
+     * Looks at a system property and initialises an appropriate cache service.
      *
      * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property

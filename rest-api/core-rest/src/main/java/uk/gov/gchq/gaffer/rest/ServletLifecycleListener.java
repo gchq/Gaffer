@@ -23,13 +23,41 @@ import uk.gov.gchq.gaffer.cache.CacheServiceLoader;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+/**
+ * Listener for starting and stopping services when the servlet starts up and shuts down.
+ * In order to use this listener, reference it in your web.xml file:
+ * <pre>
+ *     {@code
+ *      <xml>
+ *          <web-app>
+ *              <listener>
+ *                 <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
+ *              </listener>
+ *          </web-app>
+ *      </xml>
+ *     }
+ * </pre>
+ */
 public class ServletLifecycleListener implements ServletContextListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletLifecycleListener.class);
 
+    /**
+     * Code executed when the servlet starts. The CacheServiceLoader is not initialised here
+     * as it requires the store properties file. Therefore it is started when the store
+     * is initialised instead.
+     * @param servletContextEvent the context event
+     */
     @Override
     public void contextInitialized(final ServletContextEvent servletContextEvent) {
     }
 
+    /**
+     * Code executed when the servlet is being shut down. The cache service loader is shut
+     * down here to avoid ClassNotFoundExceptions which result from a Servlet's ClassLoader
+     * being shut down. All Gaffer services should use this class rather than Shutdown hooks
+     * if they want to run Gaffer in a servlet such as JBOSS or Tomcat.
+     * @param servletContextEvent the context event
+     */
     @Override
     public void contextDestroyed(final ServletContextEvent servletContextEvent) {
         LOGGER.info("Server shutting down - releasing resources");
