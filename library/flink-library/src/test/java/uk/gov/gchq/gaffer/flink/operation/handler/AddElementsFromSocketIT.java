@@ -17,19 +17,18 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class AddElementsFromSocketTest extends FlinkTest {
+public class AddElementsFromSocketIT extends FlinkTest {
     @Test
-    public void shouldAddElementsFromFile() throws CacheOperationException, OperationException, IOException {
+    public void shouldAddElementsFromFile() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;

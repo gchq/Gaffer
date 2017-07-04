@@ -26,7 +26,11 @@ import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
+import javax.annotation.Nonnull;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @SuppressFBWarnings(value = "SE_TRANSIENT_FIELD_NOT_RESTORED", justification = "There are null checks that will initialise the fields")
 public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
@@ -81,6 +85,29 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
     private void checkStore() {
         if (null == store) {
             store = Store.createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+        }
+    }
+
+    private static final class GafferQueue<T> extends ConcurrentLinkedQueue<T> {
+        private static final long serialVersionUID = -5222649835225228337L;
+
+        @Override
+        @Nonnull
+        public Iterator<T> iterator() {
+            return new Iterator<T>() {
+                @Override
+                public boolean hasNext() {
+                    return !isEmpty();
+                }
+
+                @Override
+                public T next() {
+                    if (!hasNext()) {
+                        throw new NoSuchElementException("No more elements");
+                    }
+                    return poll();
+                }
+            };
         }
     }
 }

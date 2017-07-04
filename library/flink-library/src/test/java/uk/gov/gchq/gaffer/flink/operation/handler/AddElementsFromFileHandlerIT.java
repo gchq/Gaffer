@@ -21,16 +21,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.AddElementsFromFile;
+import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
 
-public class AddElementsFromFileHandlerTest extends FlinkTest {
+public class AddElementsFromFileHandlerIT extends FlinkTest {
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
     private File file;
@@ -42,7 +41,7 @@ public class AddElementsFromFileHandlerTest extends FlinkTest {
     }
 
     @Test
-    public void shouldAddElementsFromFile() throws CacheOperationException, OperationException {
+    public void shouldAddElementsFromFile() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;

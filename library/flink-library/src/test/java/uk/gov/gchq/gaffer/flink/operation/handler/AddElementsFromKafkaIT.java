@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.AddElementsFromKafka;
+import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.user.User;
@@ -40,7 +41,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 
-public class AddElementsFromKafkaTest extends FlinkTest {
+public class AddElementsFromKafkaIT extends FlinkTest {
     private static final String TOPIC = UUID.randomUUID().toString();
     private static final String BOOTSTRAP_SERVERS = "localhost:9092";
 
@@ -64,9 +65,9 @@ public class AddElementsFromKafkaTest extends FlinkTest {
 
         // Create kafka producer
         producer = new KafkaProducer<>(producerProps());
-        producer.send(new ProducerRecord<>(TOPIC, "1")).get();
-        producer.send(new ProducerRecord<>(TOPIC, "2")).get();
-        producer.send(new ProducerRecord<>(TOPIC, "3")).get();
+        for (final String dataValue : DATA_VALUES) {
+            producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
+        }
         producer.flush();
         producer.close();
     }

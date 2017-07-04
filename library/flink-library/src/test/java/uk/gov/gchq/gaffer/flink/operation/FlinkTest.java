@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.flink.operation.handler;
+package uk.gov.gchq.gaffer.flink.operation;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
+import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -27,6 +29,8 @@ import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
@@ -37,28 +41,19 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class FlinkTest {
-    protected static final String DATA = "1\n2\n3\n";
-    protected static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
-
-    protected Graph createGraph() {
-        return new Graph.Builder()
-                .addSchemas(new Schema.Builder()
-                        .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
-                                .clazz(String.class)
-                                .build())
-                        .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
-                                .clazz(Long.class)
-                                .aggregateFunction(new Sum())
-                                .build())
-                        .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex(TestTypes.ID_STRING)
-                                .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
-                                .build())
-                        .build())
-                .storeProperties("store.properties")
-                .build();
-    }
-
+    public static final Schema SCHEMA = new Schema.Builder()
+            .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                    .clazz(String.class)
+                    .build())
+            .type(TestTypes.PROP_COUNT, new TypeDefinition.Builder()
+                    .clazz(Long.class)
+                    .aggregateFunction(new Sum())
+                    .build())
+            .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                    .vertex(TestTypes.ID_STRING)
+                    .property(TestPropertyNames.COUNT, TestTypes.PROP_COUNT)
+                    .build())
+            .build();
 
     public static final java.util.HashSet<Entity> EXPECTED_ELEMENTS = Sets.newHashSet(
             new Entity.Builder()
@@ -78,7 +73,23 @@ public class FlinkTest {
                     .build()
     );
 
-    protected void verifyElements(final Graph graph) throws OperationException {
+    public static final String[] DATA_VALUES = {"1", "2", "3"};
+    public static final String DATA = StringUtils.join(DATA_VALUES, "\n");
+    public static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
+
+    public static Graph createGraph() {
+        return new Graph.Builder()
+                .store(createStore())
+                .build();
+    }
+
+    public static AccumuloStore createStore() {
+        return (AccumuloStore) Store.createStore(SCHEMA, StoreProperties.loadStoreProperties("store.properties"));
+    }
+
+    public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {
+        // Wait for the elements to be ingested.
+        Thread.sleep(2000);
         final Set<Element> allElements = Sets.newHashSet(graph.execute(new GetAllElements(), new User()));
         assertEquals(EXPECTED_ELEMENTS, allElements);
     }

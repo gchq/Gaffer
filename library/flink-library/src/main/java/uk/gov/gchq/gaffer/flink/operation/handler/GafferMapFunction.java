@@ -18,6 +18,8 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.flink.api.common.functions.MapFunction;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.generator.OneToManyElementGenerator;
+import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import java.util.Collections;
 import java.util.function.Function;
 
@@ -45,6 +47,15 @@ public class GafferMapFunction implements MapFunction<String, Iterable<? extends
         if (null == elementGenerator) {
             elementGenerator = generatorClassName.newInstance();
         }
+
+        if (elementGenerator instanceof OneToOneElementGenerator) {
+            return Collections.singleton(((OneToOneElementGenerator) elementGenerator)._apply(csv));
+        }
+
+        if (elementGenerator instanceof OneToManyElementGenerator) {
+            return ((OneToManyElementGenerator) elementGenerator)._apply(csv);
+        }
+
         return elementGenerator.apply(Collections.singleton(csv));
     }
 }
