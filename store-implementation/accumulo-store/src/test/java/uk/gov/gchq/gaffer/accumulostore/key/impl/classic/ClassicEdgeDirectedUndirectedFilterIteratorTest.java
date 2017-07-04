@@ -29,6 +29,7 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,9 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private static final Schema SCHEMA = new Schema.Builder()
@@ -61,7 +64,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -69,7 +72,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -86,7 +89,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -94,7 +97,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -111,7 +114,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -119,7 +122,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -136,14 +139,14 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDirectedEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -160,14 +163,14 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptUndirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptUndirectedEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -184,7 +187,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptIncomingEdges() throws OperationException {
+    public void shouldOnlyAcceptIncomingEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -192,7 +195,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -209,7 +212,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptOutgoingEdges() throws OperationException {
+    public void shouldOnlyAcceptOutgoingEdges() throws OperationException, IOException {
         // Given
         final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -217,7 +220,7 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -232,4 +235,54 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             }
         }
     }
+
+    @Test
+    public void shouldThrowExceptionWhenValidateOptionsWithDirectedAndUndirectedEdgeFlags() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
+        options.put(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY, "true");
+
+        // When / Then
+        try {
+            filter.validateOptions(options);
+
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenValidateOptionsWithInAndOutEdgeFlags() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
+        options.put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
+
+        // When / Then
+        try {
+            filter.validateOptions(options);
+
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldValidateOptionsSuccessfully() throws OperationException, IOException {
+        // Given
+        final ClassicEdgeDirectedUndirectedFilterIterator filter = new ClassicEdgeDirectedUndirectedFilterIterator();
+        final Map<String, String> options = new HashMap<>();
+
+        // When
+        final boolean result = filter.validateOptions(options);
+
+        // Then
+        assertTrue(result);
+    }
 }
+

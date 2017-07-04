@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.function.ExampleTransformFunction;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -451,6 +452,231 @@ public class ViewTest {
         allGroups.addAll(view.getEdgeGroups());
 
         assertEquals(allGroups, groups);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPreAggEntityFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPreAggregationFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPreAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPreAggregationFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasNullPreAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(null)
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPreAggregationFilters();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasEmptyPreAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .preAggregationFilter(new ElementFilter.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPreAggregationFilters();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPostAggEntityFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPostAggregationFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPostAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPostAggregationFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasNullPostAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(null)
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPostAggregationFilters();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasEmptyPostAggEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postAggregationFilter(new ElementFilter.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPostAggregationFilters();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPostTransformEntityFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPostTransformFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenViewHasPostTransformEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY)
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE_2, null)
+                .build();
+
+        // When
+        final boolean result = view.hasPostTransformFilters();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasNullPostTransformEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postTransformFilter(null)
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPostTransformFilters();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenViewHasEmptyPostTransformEdgeFilters() {
+        // Given
+        final View view = new View.Builder()
+                .edge(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .postTransformFilter(new ElementFilter.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = view.hasPostTransformFilters();
+
+        // Then
+        assertFalse(result);
     }
 
     private View createView() {

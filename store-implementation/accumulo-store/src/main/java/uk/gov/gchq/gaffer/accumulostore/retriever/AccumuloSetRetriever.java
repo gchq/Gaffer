@@ -52,7 +52,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters & Options>
-        extends AccumuloRetriever<OP> {
+        extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
@@ -170,7 +170,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
     }
 
     protected abstract class AbstractElementIteratorReadIntoMemory implements CloseableIterator<Element> {
-        private AccumuloRetriever<?> parentRetriever;
+        private AccumuloItemRetriever<?, ?> parentRetriever;
         private Iterator<Element> iterator;
         private Element nextElm;
 

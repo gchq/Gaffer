@@ -116,22 +116,6 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-        validateOptions(options);
-    }
-
-    @Override
-    public boolean validateOptions(final Map<String, String> options) {
-        if (!super.validateOptions(options)) {
-            return false;
-        }
-        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
-            throw new IllegalArgumentException("Must specify ONLY ONE of " + AccumuloStoreConstants.DIRECTED_EDGE_ONLY + " or "
-                    + AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY);
-        }
-        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
-            throw new IllegalArgumentException(
-                    "Must specify ONLY ONE of " + AccumuloStoreConstants.INCOMING_EDGE_ONLY + " or " + AccumuloStoreConstants.OUTGOING_EDGE_ONLY);
-        }
         if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY)) {
             incomingEdges = true;
         } else if (options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
@@ -150,6 +134,21 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         }
         if (options.containsKey(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES)) {
             deduplicateUndirectedEdges = true;
+        }
+    }
+
+    @Override
+    public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
+        if (options.containsKey(AccumuloStoreConstants.DIRECTED_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY)) {
+            throw new IllegalArgumentException("Must specify ONLY ONE of " + AccumuloStoreConstants.DIRECTED_EDGE_ONLY + " or "
+                    + AccumuloStoreConstants.UNDIRECTED_EDGE_ONLY);
+        }
+        if (options.containsKey(AccumuloStoreConstants.INCOMING_EDGE_ONLY) && options.containsKey(AccumuloStoreConstants.OUTGOING_EDGE_ONLY)) {
+            throw new IllegalArgumentException(
+                    "Must specify ONLY ONE of " + AccumuloStoreConstants.INCOMING_EDGE_ONLY + " or " + AccumuloStoreConstants.OUTGOING_EDGE_ONLY);
         }
         return true;
     }

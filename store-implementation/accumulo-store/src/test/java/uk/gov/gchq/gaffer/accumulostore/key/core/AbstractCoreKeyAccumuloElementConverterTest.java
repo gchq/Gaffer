@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -78,6 +79,11 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
+        protected EntityId getEntityId(final byte[] row) {
+            return null;
+        }
+
+        @Override
         protected byte[] getRowKeyFromEntity(Entity entity) {
             return new byte[0];
         }
@@ -93,7 +99,7 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
-        protected Entity getEntityFromKey(Key key) {
+        protected Entity getEntityFromKey(Key key, byte[] row) {
             return null;
         }
 
