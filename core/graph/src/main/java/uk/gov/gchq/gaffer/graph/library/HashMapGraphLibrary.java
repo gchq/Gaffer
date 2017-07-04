@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.graph.library;
 
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class HashMapGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    protected Pair<String, String> getIds(final String graphId) {
+    public Pair<String, String> getIds(final String graphId) {
         return GRAPHS.get(graphId);
     }
 

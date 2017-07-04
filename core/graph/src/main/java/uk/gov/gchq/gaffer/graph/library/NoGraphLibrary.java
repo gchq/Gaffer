@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.library;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class NoGraphLibrary extends GraphLibrary {
@@ -28,7 +29,7 @@ public class NoGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    protected Pair<String, String> getIds(final String graphId) {
+    public Pair<String, String> getIds(final String graphId) {
         return null;
     }
 

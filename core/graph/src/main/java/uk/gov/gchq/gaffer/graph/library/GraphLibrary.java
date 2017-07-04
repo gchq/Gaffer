@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.graph.library;
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.regex.Pattern;
@@ -28,52 +29,20 @@ public abstract class GraphLibrary {
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
 
+        if (null == properties) {
+            throw new IllegalArgumentException("StoreProperties must not be null");
+        }
+
         final byte[] schemaJson = null != schema ? schema.toJson(false) : null;
+
         checkExisting(graphId, schemaJson, properties);
 
-        String schemaId = null;
-        if (null != schema) {
-            schemaId = schema.getId();
-        }
-        if (null == schemaId) {
-            schemaId = graphId;
-        }
-
-        String propertiesId = null;
-        if (null != properties) {
-            propertiesId = properties.getId();
-        }
-        if (null == properties) {
-            propertiesId = graphId;
-        }
+        String schemaId = null != schema ? schema.getId() : graphId;
+        String propertiesId = null != properties ? properties.getId() : graphId;
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
-
-        if (null != schema) {
-            _addSchema(schemaId, schemaJson);
-        }
-
-        if (null != properties) {
-            _addProperties(propertiesId, properties);
-        }
-    }
-
-    public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
-        validateId(graphId);
-
-        final String schemaId = null != schema ? schema.getId() : graphId;
-        final String propertiesId = null != properties ? properties.getId() : graphId;
-
-        _addIds(graphId, new Pair<>(schemaId, propertiesId));
-
-        if (null != schema) {
-            final byte[] schemaJson = schema.toJson(false);
-            _addSchema(schemaId, schemaJson);
-        }
-
-        if (null != properties) {
-            _addProperties(propertiesId, properties);
-        }
+        _addSchema(schemaId, schemaJson);
+        _addProperties(propertiesId, properties);
     }
 
     public Pair<Schema, StoreProperties> get(final String graphId) {
@@ -90,7 +59,7 @@ public abstract class GraphLibrary {
         return new Pair<>(schema, _getProperties(schemaAndPropsId.getSecond()));
     }
 
-    protected abstract Pair<String, String> getIds(final String graphId);
+    public abstract Pair<String, String> getIds(final String graphId);
 
     public Schema getSchema(final String schemaId) {
         validateId(schemaId);
@@ -115,13 +84,13 @@ public abstract class GraphLibrary {
 
     protected abstract StoreProperties _getProperties(final String propertiesId);
 
-    public void validateId(final String graphId) {
+    private void validateId(final String graphId) {
         if (null == graphId || !GRAPH_ID_ALLOWED_CHARACTERS.matcher(graphId).matches()) {
             throw new IllegalArgumentException("graphId is invalid: " + graphId + ", it must match regex: " + GRAPH_ID_ALLOWED_CHARACTERS);
         }
     }
 
-    protected void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
+    private void checkExisting(final String graphId, final byte[] schema, final StoreProperties properties) {
         final Pair<Schema, StoreProperties> existingPair = get(graphId);
         if (null != existingPair) {
             if (null != existingPair.getFirst()) {
@@ -131,27 +100,11 @@ public abstract class GraphLibrary {
                             + "\nnew schema:\n" + StringUtil.toString(schema));
                 }
             }
-
             if (null != existingPair.getSecond()) {
                 if (!existingPair.getSecond().equals(properties)) {
                     throw new OverwritingException("GraphId " + graphId + " already exists with a different store properties.");
                 }
             }
-        }
-    }
-
-    public static class OverwritingException extends IllegalArgumentException {
-        private static final long serialVersionUID = -1995995721072170558L;
-
-        public OverwritingException() {
-        }
-
-        public OverwritingException(final String message) {
-            super(message);
-        }
-
-        public OverwritingException(final String message, final Throwable cause) {
-            super(message, cause);
         }
     }
 }

@@ -23,6 +23,9 @@ import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -169,10 +172,13 @@ public final class AddUpdateTableIterator {
      * and recreate them with the provided schema.
      * </p>
      * <p>
-     * Usage: java -cp accumulo-store-[version]-utility.jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator [graphId] [pathToSchemaDirectory] [pathToStoreProperties]
+     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * </p>
+     * <p>
+     * Usage: java -cp accumulo-store-[version]-utility.jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator [graphId] [pathToSchemaDirectory] [pathToStoreProperties] [pathToFileGraphLibrary]
      * </p>
      *
-     * @param args [graphId] [schema directory path] [store properties path]
+     * @param args [graphId] [schema directory path] [store properties path] [ file graph library path]
      * @throws Exception if the tables fails to be created/updated
      */
     public static void main(final String[] args) throws Exception {
@@ -180,7 +186,8 @@ public final class AddUpdateTableIterator {
             System.err.println("Wrong number of arguments. \nUsage: "
                     + "<graphId> "
                     + "<comma separated schema paths> <store properties path> "
-                    + "<" + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ">");
+                    + "<" + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ">"
+                    + "<file graph library path>");
             System.exit(1);
         }
 
@@ -191,7 +198,16 @@ public final class AddUpdateTableIterator {
 
         final Schema schema = Schema.fromJson(getSchemaPaths(args));
 
-        // TODO create a GraphLibrary and update the schema and StoreProperties in it
+        GraphLibrary library;
+
+        // TODO this is pretty horrible and potentially needs some more thought
+        if (args[3] == null) {
+            library = new NoGraphLibrary();
+        } else {
+            library = new FileGraphLibrary(args[3]);
+        }
+
+        library.add(args[0], schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {

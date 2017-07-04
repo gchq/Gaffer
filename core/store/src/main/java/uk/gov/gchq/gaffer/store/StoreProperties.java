@@ -63,6 +63,12 @@ public class StoreProperties implements Cloneable {
     public StoreProperties() {
     }
 
+    public StoreProperties(String id) {
+        if (null != id) {
+            setId(id);
+        }
+    }
+
     public StoreProperties(final Path propFileLocation) {
         if (null != propFileLocation) {
             try (final InputStream accIs = Files.newInputStream(propFileLocation, StandardOpenOption.READ)) {

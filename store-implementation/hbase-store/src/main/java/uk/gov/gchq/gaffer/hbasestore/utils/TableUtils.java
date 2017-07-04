@@ -32,6 +32,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -53,7 +56,7 @@ import java.util.Map;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
-    private static final int NUM_REQUIRED_ARGS = 3;
+    private static final int NUM_REQUIRED_ARGS = 4;
 
     private TableUtils() {
     }
@@ -65,19 +68,22 @@ public final class TableUtils {
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
      * </p>
      * <p>
+     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * </p>
+     * <p>
      * Usage:
      * </p>
      * <p>
-     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties]
+     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties] [pathToFileGraphLibrary]
      * </p>
      *
-     * @param args [graphId] [schema directory path] [store properties path]
+     * @param args [graphId] [schema directory path] [store properties path] [ file graph library path]
      * @throws Exception if the tables fails to be created/updated
      */
     public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<graphId> <schema directory path> <store properties path>");
+                    + "<graphId> <schema directory path> <store properties path> <file graph library path>");
             System.exit(1);
         }
 
@@ -88,17 +94,34 @@ public final class TableUtils {
 
         final Schema schema = Schema.fromJson(Paths.get(args[1]));
 
-        // TODO create a GraphLibrary and update the schema and StoreProperties in it
+        GraphLibrary library;
+
+        // TODO this is pretty horrible and potentially needs some more thought
+        if (args[3] == null) {
+            library = new NoGraphLibrary();
+        } else {
+            library = new FileGraphLibrary(args[3]);
+        }
+
+        library.add(args[0], schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
-        if (null == storeClass) {
+        if (null == storeClass)
+
+        {
             throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
         }
 
         final HBaseStore store;
-        try {
+        try
+
+        {
             store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException |
+                ClassNotFoundException e
+                )
+
+        {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 
@@ -108,12 +131,26 @@ public final class TableUtils {
                 storeProps
         );
 
-        if (!store.getConnection().getAdmin().tableExists(store.getTableName())) {
+        if (!store.getConnection().
+
+                getAdmin()
+
+                .
+
+                        tableExists(store.getTableName()
+
+                        ))
+
+        {
             createTable(store);
         }
 
 
-        try (final Admin admin = store.getConnection().getAdmin()) {
+        try (
+                final Admin admin = store.getConnection().getAdmin()
+        )
+
+        {
             final TableName tableName = store.getTableName();
             if (admin.tableExists(tableName)) {
                 final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
@@ -124,6 +161,7 @@ public final class TableUtils {
                 TableUtils.createTable(store);
             }
         }
+
     }
 
     /**
