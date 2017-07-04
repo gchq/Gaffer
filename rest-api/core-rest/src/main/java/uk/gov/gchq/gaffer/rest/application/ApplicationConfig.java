@@ -33,7 +33,6 @@ import uk.gov.gchq.gaffer.rest.service.GraphConfigurationService;
 import uk.gov.gchq.gaffer.rest.service.JobService;
 import uk.gov.gchq.gaffer.rest.service.OperationService;
 import uk.gov.gchq.gaffer.rest.service.StatusService;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -85,4 +84,5 @@ public class ApplicationConfig extends ResourceConfig {
         resources.add(WebApplicationExceptionMapper.class);
         resources.add(GenericExceptionMapper.class);
     }
+
 }

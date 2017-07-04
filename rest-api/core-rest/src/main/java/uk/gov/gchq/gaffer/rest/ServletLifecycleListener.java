@@ -54,8 +54,8 @@ public class ServletLifecycleListener implements ServletContextListener {
     /**
      * Code executed when the servlet is being shut down. The cache service loader is shut
      * down here to avoid ClassNotFoundExceptions which result from a Servlet's ClassLoader
-     * being shut down. All Gaffer services should use this class rather than Shutdown hooks
-     * if they want to run Gaffer in a servlet such as JBOSS or Tomcat.
+     * being shut down before the ShutdownHooks run. All Gaffer services should use this class
+     * rather than Shutdown hooks if they want to run Gaffer in a servlet such as JBOSS or Tomcat.
      * @param servletContextEvent the context event
      */
     @Override
