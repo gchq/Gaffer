@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
@@ -36,6 +37,8 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 
 public class FlinkTest {
+    protected static final String DATA = "1\n2\n3\n";
+    protected static final byte[] DATA_BYTES = StringUtil.toBytes(DATA);
 
     protected Graph createGraph() {
         return new Graph.Builder()

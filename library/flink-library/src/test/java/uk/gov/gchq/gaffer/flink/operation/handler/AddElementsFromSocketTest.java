@@ -18,7 +18,6 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.junit.Test;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -28,7 +27,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class AddElementsFromFileSocketTest extends FlinkTest {
+public class AddElementsFromSocketTest extends FlinkTest {
     @Test
     public void shouldAddElementsFromFile() throws CacheOperationException, OperationException, IOException {
         // Given
@@ -39,7 +38,7 @@ public class AddElementsFromFileSocketTest extends FlinkTest {
         final int port = 6666;
 
         final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .jobName("test import from file")
+                .jobName("test import from topic")
                 .generator(BasicGenerator.class)
                 .parallelism(1)
                 .validate(validate)
@@ -52,7 +51,7 @@ public class AddElementsFromFileSocketTest extends FlinkTest {
             try (final ServerSocket server = new ServerSocket(6666);
                  final Socket socket = server.accept();
                  final OutputStream out = socket.getOutputStream()) {
-                out.write(StringUtil.toBytes("1\n2\n3\n"));
+                out.write(DATA_BYTES);
             } catch (IOException e) {
                 throw new RuntimeException();
             }

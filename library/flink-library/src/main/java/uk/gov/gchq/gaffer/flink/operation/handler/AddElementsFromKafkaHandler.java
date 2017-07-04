@@ -43,7 +43,7 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
         try {
             env.execute(op.getJobName());
         } catch (final Exception e) {
-            throw new OperationException("Failed to add elements from kafta topic: " + op.getTopic(), e);
+            throw new OperationException("Failed to add elements from kafka topic: " + op.getTopic(), e);
         }
 
         return null;
@@ -51,7 +51,9 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
 
     private Properties createFlinkProperties(final AddElementsFromKafka operation) {
         final Properties properties = new Properties();
-        properties.putAll(operation.getOptions());
+        if (null != operation.getOptions()) {
+            properties.putAll(operation.getOptions());
+        }
         properties.put(FLINK_KAFKA_GROUP_ID, operation.getGroupId());
         properties.put(FLINK_KAFKA_BOOTSTRAP_SERVERS, StringUtils.join(operation.getBootstrapServers(), ","));
         return properties;

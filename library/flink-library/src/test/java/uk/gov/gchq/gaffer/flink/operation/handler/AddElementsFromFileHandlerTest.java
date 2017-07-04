@@ -38,7 +38,7 @@ public class AddElementsFromFileHandlerTest extends FlinkTest {
     @Before
     public void before() throws IOException {
         file = testFolder.newFile("inputFile.txt");
-        FileUtils.write(file, "1\n2\n3\n");
+        FileUtils.write(file, DATA);
     }
 
     @Test

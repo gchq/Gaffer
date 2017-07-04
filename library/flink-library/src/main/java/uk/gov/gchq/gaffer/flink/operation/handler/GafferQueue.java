@@ -22,15 +22,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GafferQueue<T> extends ConcurrentLinkedQueue<T> {
     private static final long serialVersionUID = -5222649835225228337L;
-    private boolean singleIteratorInUse = false;
 
     @Override
     @Nonnull
     public Iterator<T> iterator() {
-        if (singleIteratorInUse) {
-            throw new RuntimeException("Only 1 iterator can be used.");
-        }
-        singleIteratorInUse = true;
         return new Iterator<T>() {
             @Override
             public boolean hasNext() {
@@ -39,7 +34,7 @@ public class GafferQueue<T> extends ConcurrentLinkedQueue<T> {
 
             @Override
             public T next() {
-                if (isEmpty()) {
+                if (!hasNext()) {
                     throw new NoSuchElementException("No more elements");
                 }
                 return poll();
