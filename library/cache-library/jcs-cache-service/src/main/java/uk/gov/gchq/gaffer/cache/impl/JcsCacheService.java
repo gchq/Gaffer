@@ -67,8 +67,10 @@ public class JcsCacheService implements ICacheService {
 
     @Override
     public void shutdown() {
-        LOGGER.info("Shutting down cache service...");
-        manager.shutDown();
+        if (manager.isInitialized()) {
+            LOGGER.info("Shutting down JCS cache service...");
+            manager.shutDown();
+        }
     }
 
     private Properties readProperties(final String configFilePath) throws IOException {

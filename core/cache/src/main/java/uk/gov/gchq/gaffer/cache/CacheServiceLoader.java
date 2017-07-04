@@ -30,9 +30,12 @@ public final class CacheServiceLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
+    private static boolean shutdownHookAdded = false;
 
     /**
-     * Looks at a system property and initialises an appropriate cache service.
+     * Looks at a system property and initialises an appropriate cache service. Adds a shutdown hook
+     * which gracefully closes the cache service if JVM is stopped. This should not be relied upon
+     * in a servlet context - use the ServletLifecycleListener located in the REST module instead
      *
      * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
@@ -58,6 +61,15 @@ public final class CacheServiceLoader {
         }
 
         service.initialise(properties);
+
+        if (!shutdownHookAdded) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    shutdown();
+                }
+            });
+            shutdownHookAdded = true;
+        }
     }
 
     /**
