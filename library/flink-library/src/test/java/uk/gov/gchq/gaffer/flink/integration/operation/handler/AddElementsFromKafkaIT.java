@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.flink.operation.handler;
+package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServer;
@@ -38,12 +38,13 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
 
 public class AddElementsFromKafkaIT extends FlinkTest {
     private static final String TOPIC = UUID.randomUUID().toString();
-    private static final String BOOTSTRAP_SERVERS = "localhost:9092";
+    private static final String BOOTSTRAP_SERVERS = "localhost:" + getOpenPort();
 
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
@@ -62,14 +63,6 @@ public class AddElementsFromKafkaIT extends FlinkTest {
 
         // Create kafka server
         kafkaServer = TestUtils.createServer(new KafkaConfig(serverProperties()), new MockTime());
-
-        // Create kafka producer
-        producer = new KafkaProducer<>(producerProps());
-        for (final String dataValue : DATA_VALUES) {
-            producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
-        }
-        producer.flush();
-        producer.close();
     }
 
     @After
@@ -91,7 +84,7 @@ public class AddElementsFromKafkaIT extends FlinkTest {
     // on the first attempt. It does work properly with a real kafka instance.
     @RetryOnFailure(times = 1)
     @Test
-    public void shouldAddElementsFromFile() throws Exception {
+    public void shouldAddElements() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
@@ -117,8 +110,11 @@ public class AddElementsFromKafkaIT extends FlinkTest {
             }
         }).start();
 
-        // Wait for the elements to be ingested.
-        Thread.sleep(5000);
+        // Create kafka producer and add some data
+        producer = new KafkaProducer<>(producerProps());
+        for (final String dataValue : DATA_VALUES) {
+            producer.send(new ProducerRecord<>(TOPIC, dataValue)).get();
+        }
 
         // Then
         verifyElements(graph);
@@ -135,7 +131,6 @@ public class AddElementsFromKafkaIT extends FlinkTest {
         props.put("bootstrap.servers", BOOTSTRAP_SERVERS);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("request.required.acks", "1");
         return props;
     }
 
@@ -145,5 +140,13 @@ public class AddElementsFromKafkaIT extends FlinkTest {
         props.put("broker.id", "0");
         props.setProperty("listeners", "PLAINTEXT://" + BOOTSTRAP_SERVERS);
         return props;
+    }
+
+    private static int getOpenPort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

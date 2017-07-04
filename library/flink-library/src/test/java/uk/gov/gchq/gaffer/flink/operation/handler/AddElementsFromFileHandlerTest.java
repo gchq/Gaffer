@@ -16,45 +16,45 @@
 
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
+import uk.gov.gchq.gaffer.flink.operation.AddElementsFromFile;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
-public class AddElementsFromSocketIT extends FlinkTest {
+public class AddElementsFromFileHandlerTest extends FlinkTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private File file;
+
+    @Before
+    public void before() throws IOException {
+        file = testFolder.newFile("inputFile.txt");
+        FileUtils.write(file, DATA);
+    }
+
     @Test
-    public void shouldAddElementsFromFile() throws Exception {
+    public void shouldAddElements() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final String hostname = "localhost";
-        final int port = 6666;
 
-        final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .jobName("test import from topic")
+        final AddElementsFromFile op = new AddElementsFromFile.Builder()
+                .filename(file.getAbsolutePath())
+                .jobName("test import from file")
                 .generator(BasicGenerator.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .hostname(hostname)
-                .port(port)
                 .build();
-
-        new Thread(() -> {
-            try (final ServerSocket server = new ServerSocket(6666);
-                 final Socket socket = server.accept();
-                 final OutputStream out = socket.getOutputStream()) {
-                out.write(DATA_BYTES);
-            } catch (IOException e) {
-                throw new RuntimeException();
-            }
-        }).start();
 
         // When
         graph.execute(op, new User());
