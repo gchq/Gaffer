@@ -63,17 +63,7 @@ public class CoreKeyBloomFilterIterator extends Filter {
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-        validateOptions(options);
-    }
 
-    @Override
-    public boolean validateOptions(final Map<String, String> options) {
-        if (!super.validateOptions(options)) {
-            return false;
-        }
-        if (!options.containsKey(AccumuloStoreConstants.BLOOM_FILTER)) {
-            throw new BloomFilterIteratorException("Must set the " + AccumuloStoreConstants.BLOOM_FILTER + " option");
-        }
         filter = new BloomFilter();
         final byte[] bytes;
         try {
@@ -88,6 +78,17 @@ public class CoreKeyBloomFilterIterator extends Filter {
         } catch (final IOException e) {
             throw new BloomFilterIteratorException("Failed to re-create serialised bloom filter", e);
         }
+    }
+
+    @Override
+    public boolean validateOptions(final Map<String, String> options) {
+        if (!super.validateOptions(options)) {
+            return false;
+        }
+        if (!options.containsKey(AccumuloStoreConstants.BLOOM_FILTER)) {
+            throw new BloomFilterIteratorException("Must set the " + AccumuloStoreConstants.BLOOM_FILTER + " option");
+        }
+
         return true;
     }
 

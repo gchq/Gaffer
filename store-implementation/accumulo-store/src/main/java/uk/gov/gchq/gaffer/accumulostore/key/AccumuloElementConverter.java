@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map;
 
 /**
@@ -93,6 +94,15 @@ public interface AccumuloElementConverter {
      * the property stored within the {@link Value}
      */
     Properties getPropertiesFromValue(final String group, final Value value);
+
+    /**
+     * Gets a new {@link ElementId} from an Accumulo {@link Key}.
+     *
+     * @param key     the Key containing serialised parts of the Element
+     * @param options the operation options
+     * @return A new {@link ElementId}
+     */
+    ElementId getElementId(final Key key, final Map<String, String> options);
 
     /**
      * Gets a new {@link Element} from an Accumulo {@link Key}.

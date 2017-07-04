@@ -82,23 +82,6 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
         if (!options.containsKey(AccumuloStoreConstants.COLUMN_FAMILY)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.COLUMN_FAMILY);
         }
-        try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the schema", e);
-        }
-        try {
-            final Class<?> elementConverterClass = Class
-                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
-                    .newInstance(schema);
-        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new AggregationException("Failed to load element converter from class name provided : "
-                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
-        }
-        group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
-        aggregator = schema.getElement(group).getFullAggregator();
         return true;
     }
 
@@ -120,7 +103,25 @@ public class RowIDAggregator extends WrappingIterator implements OptionDescriber
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
         this.source = source;
-        validateOptions(options);
+        try {
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the schema", e);
+        }
+        try {
+            elementConverter = Class
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
+                    .newInstance(schema);
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+        }
+
+        group = options.get(AccumuloStoreConstants.COLUMN_FAMILY);
+        aggregator = schema.getElement(group).getFullAggregator();
     }
 
     @Override

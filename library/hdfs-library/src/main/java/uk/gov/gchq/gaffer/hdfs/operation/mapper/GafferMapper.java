@@ -79,7 +79,7 @@ public abstract class GafferMapper<KEY_IN, VALUE_IN, KEY_OUT, VALUE_OUT> extends
     }
 
     protected boolean isValid(final Element element) {
-        return elementValidator.validateInput(element);
+        return elementValidator.validateWithSchema(element);
     }
 
     protected abstract void map(final Element element, final Context context) throws IOException, InterruptedException;

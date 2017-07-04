@@ -38,7 +38,10 @@ public class ElementValidator implements Validator<Element> {
     private final boolean includeIsA;
 
     public enum FilterType {
-        PRE_AGGREGATION_FILTER, POST_AGGREGATION_FILTER, POST_TRANSFORM_FILTER
+        SCHEMA_VALIDATION,
+        PRE_AGGREGATION_FILTER,
+        POST_AGGREGATION_FILTER,
+        POST_TRANSFORM_FILTER
     }
 
     /**
@@ -97,14 +100,13 @@ public class ElementValidator implements Validator<Element> {
             return validateWithSchema(element);
         }
 
-        if (!validateAgainstViewFilter(element, FilterType.PRE_AGGREGATION_FILTER)) {
-            return false;
+        if (null != view) {
+            return validateAgainstViewFilter(element, FilterType.PRE_AGGREGATION_FILTER)
+                    && validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER)
+                    && validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
         }
-        if (!validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER)) {
-            return false;
-        }
-        return validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
 
+        return true;
     }
 
     public boolean validateInput(final Element element) {
@@ -119,11 +121,15 @@ public class ElementValidator implements Validator<Element> {
         return validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
     }
 
-    public boolean validateAggregationTransformation(final Element element) {
-        return validateAgainstViewFilter(element, FilterType.POST_AGGREGATION_FILTER) && validateAgainstViewFilter(element, FilterType.POST_TRANSFORM_FILTER);
-    }
-
     public boolean validateWithSchema(final Element element) {
+        if (null == element) {
+            return false;
+        }
+
+        if (null == schema) {
+            return true;
+        }
+
         final SchemaElementDefinition elementDef = schema.getElement(element.getGroup());
         if (null == elementDef) {
             LOGGER.warn("No element definition found for : {}", element.getGroup());
@@ -137,9 +143,11 @@ public class ElementValidator implements Validator<Element> {
         if (null == element) {
             return false;
         }
-        if (null != schema) {
-            return validateWithSchema(element);
+
+        if (null == view) {
+            return true;
         }
+
         final ViewElementDefinition elementDef = view.getElement(element.getGroup());
         if (null == elementDef) {
             return false;

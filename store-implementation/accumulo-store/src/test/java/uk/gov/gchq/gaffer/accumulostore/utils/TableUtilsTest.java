@@ -38,6 +38,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -114,6 +115,7 @@ public class TableUtilsTest {
         final Schema schema = new Schema.Builder()
                 .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                         .aggregateFunction(new StringConcat())
+                        .validateFunctions(new Exists())
                         .clazz(String.class)
                         .build())
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
@@ -171,7 +173,10 @@ public class TableUtilsTest {
         // Given
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
         final Schema schema = new Schema.Builder()
-                .type(TestTypes.ID_STRING, String.class)
+                .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .validateFunctions(new Exists())
+                        .build())
                 .type(TestTypes.DIRECTED_TRUE, Boolean.class)
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
