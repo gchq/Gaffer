@@ -23,6 +23,14 @@ import uk.gov.gchq.gaffer.operation.Validatable;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * An <code>AddElementsFromFile</code> operation takes a filename, converts each
+ * line of the file to a Gaffer {@link Element} using the provided
+ * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
+ * elements to the Graph. This operation uses Flink so you can either run it
+ * in local mode or configure flink on your cluster to distribute the job.
+ * @see Builder
+ */
 public class AddElementsFromFile implements
         Operation,
         Validatable,

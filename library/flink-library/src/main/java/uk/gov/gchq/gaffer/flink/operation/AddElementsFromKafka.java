@@ -25,6 +25,16 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * An <code>AddElementsFromKafka</code> operation consumes records of a kafka topic,
+ * converts each record into a Gaffer {@link Element} using the provided
+ * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
+ * elements to the Graph. This operation uses Flink so you can either run it
+ * in local mode or configure flink on your cluster to distribute the job.
+ * This operation is a blocking operation and will never stop. You will need to
+ * terminate the job when you want to stop consuming data.
+ * @see Builder
+ */
 public class AddElementsFromKafka implements
         Operation,
         Validatable,
