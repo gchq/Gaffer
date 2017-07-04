@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package uk.gov.gchq.gaffer.rest.service.v2;
 
-package uk.gov.gchq.gaffer.rest;
+import uk.gov.gchq.gaffer.rest.AbstractRestApiIT;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
+import uk.gov.gchq.gaffer.rest.service.v1.RestApiV1TestClient;
 
-import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
+public class AbstractRestApiV2IT extends AbstractRestApiIT {
 
-public class UserFactoryForTest extends UnknownUserFactory {
+    @Override
+    protected RestApiTestClient getClient() {
+        return new RestApiV2TestClient();
+    }
 }

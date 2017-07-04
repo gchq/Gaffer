@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest;
+package uk.gov.gchq.gaffer.rest.service.v2;
 
-import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
+import uk.gov.gchq.gaffer.rest.RestApiTestClient;
 
-public class GraphFactoryForTest extends DefaultGraphFactory {
+public class RestApiV2TestClient extends RestApiTestClient {
+
+    public RestApiV2TestClient() {
+        super("http://localhost:8080/rest/v2");
+    }
+
 }

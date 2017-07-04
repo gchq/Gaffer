@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,6 +37,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static uk.gov.gchq.gaffer.rest.SystemProperty.GAFFER_MEDIA_TYPE_V1;
+
 /**
  * An <code>IOperationService</code> has methods to execute {@link uk.gov.gchq.gaffer.operation.Operation}s on the
  * {@link uk.gov.gchq.gaffer.graph.Graph}.
@@ -44,7 +46,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/graph/doOperation")
 @Api(value = "operations", description = "Allows operations to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@Produces(GAFFER_MEDIA_TYPE_V1)
 public interface IOperationService {
 
     @POST

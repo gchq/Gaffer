@@ -17,9 +17,8 @@
 package uk.gov.gchq.gaffer.rest;
 
 import org.hamcrest.core.IsCollectionContaining;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
@@ -34,7 +33,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class AbstractRestApiIT {
+public abstract class AbstractRestApiIT {
     protected static final Element[] DEFAULT_ELEMENTS = {
             new uk.gov.gchq.gaffer.data.element.Entity.Builder()
                     .group(TestGroups.ENTITY)
@@ -55,7 +54,7 @@ public class AbstractRestApiIT {
                     .build()};
     @Rule
     public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
-
+    protected final RestApiTestClient client = getClient();
     private final String storePropertiesResourcePath;
     private final String schemaResourcePath;
 
@@ -68,23 +67,21 @@ public class AbstractRestApiIT {
         this.storePropertiesResourcePath = storePropertiesResourcePath;
     }
 
-    @BeforeClass
-    public static void beforeClass() throws IOException {
-        RestApiTestUtil.startServer();
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        RestApiTestUtil.stopServer();
-    }
-
     @Before
     public void before() throws IOException {
-        RestApiTestUtil.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+        client.startServer();
+        client.reinitialiseGraph(testFolder, schemaResourcePath, storePropertiesResourcePath);
+    }
+
+    @After
+    public void after() {
+        client.stopServer();
     }
 
     protected void verifyElements(final Element[] expected, final List<Element> actual) {
         assertEquals(expected.length, actual.size());
         assertThat(actual, IsCollectionContaining.hasItems(expected));
     }
+
+    protected abstract RestApiTestClient getClient();
 }

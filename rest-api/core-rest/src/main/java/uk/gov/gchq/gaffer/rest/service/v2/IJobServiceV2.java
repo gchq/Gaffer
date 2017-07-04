@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v2;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -30,6 +32,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static uk.gov.gchq.gaffer.rest.SystemProperty.GAFFER_MEDIA_TYPE_V2;
+
 /**
  * An <code>IJobService</code> handles jobs - executing Jobs and getting Job
  * statuses.
@@ -37,25 +41,29 @@ import javax.ws.rs.core.MediaType;
 @Path("/graph/jobs")
 @Api(value = "job", description = "Allows jobs to be executed on the graph. See <a href='https://github.com/gchq/Gaffer/wiki/operation-examples' target='_blank'>Wiki</a>.")
 @Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
-public interface IJobService {
+@Produces(GAFFER_MEDIA_TYPE_V2)
+public interface IJobServiceV2 {
 
     @POST
     @Path("/doOperation")
     @ApiOperation(value = "Performs the given operation chain job on the graph", response = JobDetail.class)
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "A new job was successfully submitted")})
     JobDetail executeJob(final OperationChain opChain);
 
     @GET
     @ApiOperation(value = "Get the details of all jobs", response = JobDetail.class, responseContainer = "List")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     CloseableIterable<JobDetail> details();
 
     @GET
     @Path("{id}")
     @ApiOperation(value = "Get the details of a job", response = JobDetail.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     JobDetail details(@ApiParam(value = "a job id") @PathParam("id") final String id);
 
     @GET
     @Path("{id}/results")
     @ApiOperation(value = "Get the results of a job", response = Object.class, responseContainer = "List")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     CloseableIterable results(@ApiParam(value = "a job id") @PathParam("id") final String id);
 }

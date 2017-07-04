@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.rest.service;
+package uk.gov.gchq.gaffer.rest.service.v2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +31,19 @@ import uk.gov.gchq.gaffer.user.User;
 import javax.inject.Inject;
 
 /**
- * An implementation of {@link IJobService}. By default it will use a singleton
+ * An implementation of {@link IJobServiceV2}. By default it will use a singleton
  * {@link uk.gov.gchq.gaffer.graph.Graph} generated using the {@link uk.gov.gchq.gaffer.rest.factory.GraphFactory}.
  * All operations are simply delegated to the graph.
  * Pre and post operation hooks are available by extending this class and implementing preOperationHook and/or
  * postOperationHook.
  * <p>
  * By default queries will be executed with an UNKNOWN user containing no auths.
- * TheuserFactory.createUser() method should be overridden and a {@link User} object should
+ * TheuserFactory.createUser() method should be overridden and a {@link uk.gov.gchq.gaffer.user.User} object should
  * be created from the http request.
  * </p>
  */
-public class JobService implements IJobService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobService.class);
+public class JobServiceV2 implements IJobServiceV2 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobServiceV2.class);
 
     @Inject
     private GraphFactory graphFactory;

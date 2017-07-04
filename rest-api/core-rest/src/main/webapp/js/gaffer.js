@@ -35,7 +35,7 @@ function log() {
 
 function init(onSwaggerComplete){
       window.swaggerUi = new SwaggerUi({
-      url: getVersion() + "/swagger.json",
+      url: "latest/swagger.json",
       dom_id:"swagger-ui-container",
       supportedSubmitMethods: ['get','post','put','delete'],
       onComplete: function(swaggerApi, swaggerUi){
@@ -59,5 +59,5 @@ function init(onSwaggerComplete){
 }
 
 function getVersion() {
-    return "v1";
+    return "v2";
 }
