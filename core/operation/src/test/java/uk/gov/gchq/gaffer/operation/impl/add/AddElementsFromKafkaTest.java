@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.flink.operation;
+package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.util.Set;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class AddElementsFromSocketTest extends OperationTest {
+public class AddElementsFromKafkaTest extends OperationTest {
     @Override
     protected Class<? extends Operation> getOperationClass() {
-        return AddElementsFromSocket.class;
+        return AddElementsFromKafka.class;
     }
 
     @Override
@@ -37,48 +39,44 @@ public class AddElementsFromSocketTest extends OperationTest {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final int parallelism = 2;
-        final String jobName = "jobName";
-        final Class<FlinkTest.BasicGenerator> generator = FlinkTest.BasicGenerator.class;
-        final int port = 6874;
-        final String hostname = "hostname";
-        final String delimiter = ",";
-        final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .jobName(jobName)
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final String groupId = "groupId";
+        final String topic = "topic";
+        final String[] servers = {"server1", "server2"};
+        final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
                 .generator(generator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .hostname(hostname)
-                .port(port)
-                .delimiter(delimiter)
+                .groupId(groupId)
+                .topic(topic)
+                .bootstrapServers(servers)
                 .build();
 
         // When
         final byte[] json = JSON_SERIALISER.serialise(op, true);
-        final AddElementsFromSocket deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromSocket.class);
+        final AddElementsFromKafka deserialisedOp = JSON_SERIALISER.deserialise(json, AddElementsFromKafka.class);
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket\",%n" +
-                        "  \"hostname\" : \"hostname\",%n" +
-                        "  \"port\" : 6874,%n" +
-                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.flink.operation.FlinkTest$BasicGenerator\",%n" +
-                        "  \"jobName\" : \"jobName\",%n" +
+                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka\",%n" +
+                        "  \"topic\" : \"topic\",%n" +
+                        "  \"groupId\" : \"groupId\",%n" +
+                        "  \"bootstrapServers\" : [ \"server1\", \"server2\" ],%n" +
                         "  \"parallelism\" : 2,%n" +
                         "  \"validate\" : true,%n" +
                         "  \"skipInvalidElements\" : false,%n" +
-                        "  \"delimiter\" : \",\"%n" +
+                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.generator.TestGeneratorImpl\"%n" +
                         "}").getBytes(),
                 json);
-        assertEquals(jobName, deserialisedOp.getJobName());
         assertEquals(generator, deserialisedOp.getElementGenerator());
         assertEquals(parallelism, deserialisedOp.getParallelism());
         assertEquals(validate, deserialisedOp.isValidate());
         assertEquals(skipInvalid, deserialisedOp.isSkipInvalidElements());
-        assertEquals(hostname, deserialisedOp.getHostname());
-        assertEquals(port, deserialisedOp.getPort());
-        assertEquals(delimiter, deserialisedOp.getDelimiter());
+        assertEquals(groupId, deserialisedOp.getGroupId());
+        assertEquals(topic, deserialisedOp.getTopic());
+        assertArrayEquals(servers, deserialisedOp.getBootstrapServers());
     }
 
     @Override
@@ -86,40 +84,35 @@ public class AddElementsFromSocketTest extends OperationTest {
         // Given
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final int parallelism = 2;
-        final String jobName = "jobName";
-        final Class<FlinkTest.BasicGenerator> generator = FlinkTest.BasicGenerator.class;
-        final int port = 6874;
-        final String hostname = "hostname";
-        final String delimiter = ",";
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
+        final String groupId = "groupId";
+        final String topic = "topic";
+        final String[] servers = {"server1", "server2"};
 
-        // Given
-        final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .jobName(jobName)
+        // When
+        final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
                 .generator(generator)
                 .parallelism(parallelism)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .hostname(hostname)
-                .port(port)
-                .delimiter(delimiter)
+                .groupId(groupId)
+                .topic(topic)
+                .bootstrapServers(servers)
                 .build();
 
-
         // Then
-        assertEquals(jobName, op.getJobName());
         assertEquals(generator, op.getElementGenerator());
         assertEquals(parallelism, op.getParallelism());
         assertEquals(validate, op.isValidate());
         assertEquals(skipInvalid, op.isSkipInvalidElements());
-        assertEquals(hostname, op.getHostname());
-        assertEquals(port, op.getPort());
-        assertEquals(delimiter, op.getDelimiter());
+        assertEquals(groupId, op.getGroupId());
+        assertEquals(topic, op.getTopic());
+        assertArrayEquals(servers, op.getBootstrapServers());
     }
 
     @Override
     protected Set<String> getRequiredFields() {
-        // port is required but as it is an int it cannot be null
-        return Sets.newHashSet("hostname", "jobName", "elementGenerator");
+        return Sets.newHashSet("topic", "groupId", "bootstrapServers", "elementGenerator");
     }
 }

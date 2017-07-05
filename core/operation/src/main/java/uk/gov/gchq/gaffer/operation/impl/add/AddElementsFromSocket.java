@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.flink.operation;
+package uk.gov.gchq.gaffer.operation.impl.add;
 
 import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -24,61 +24,55 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * An <code>AddElementsFromFile</code> operation takes a filename, converts each
- * line of the file to a Gaffer {@link Element} using the provided
+ * An <code>AddElementsFromSocket</code> operation consumes records from a socket,
+ * converts each record into a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
  * elements to the Graph. This operation uses Flink so you can either run it
  * in local mode or configure flink on your cluster to distribute the job.
+ * This operation is a blocking operation and will only stop when the socket is
+ * closed or you manually terminate the job.
+ *
  * @see Builder
  */
-public class AddElementsFromFile implements
+public class AddElementsFromSocket implements
         Operation,
         Validatable,
         Options {
-    /**
-     * The fully qualified path of the file from which Flink should consume
-     */
+    public static final String DEFAULT_DELIMITER = "\n";
+
     @Required
-    private String filename;
-    /**
-     * The name of the job to be created
-     */
+    private String hostname;
+
     @Required
-    private String jobName;
-    /**
-     * The parallelism of the job to be created
-     */
-    private int parallelism;
+    private int port;
 
     @Required
     private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
+    /**
+     * The parallelism of the job to be created
+     */
+    private Integer parallelism;
+
     private boolean validate = true;
     private boolean skipInvalidElements;
+    private String delimiter = DEFAULT_DELIMITER;
     private Map<String, String> options;
 
-    public String getFilename() {
-        return filename;
+    public String getHostname() {
+        return hostname;
     }
 
-    public void setFilename(final String filename) {
-        this.filename = filename;
+    public void setHostname(final String hostname) {
+        this.hostname = hostname;
     }
 
-    public String getJobName() {
-        return this.jobName;
+    public int getPort() {
+        return port;
     }
 
-    public void setJobName(final String jobName) {
-        this.jobName = jobName;
-    }
-
-    public void setParallelism(final int parallelism) {
-        this.parallelism = parallelism;
-    }
-
-    public int getParallelism() {
-        return this.parallelism;
+    public void setPort(final int port) {
+        this.port = port;
     }
 
     public Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> getElementGenerator() {
@@ -119,11 +113,27 @@ public class AddElementsFromFile implements
         this.validate = validate;
     }
 
-    public static class Builder extends BaseBuilder<AddElementsFromFile, Builder>
-            implements Validatable.Builder<AddElementsFromFile, Builder>,
-            Options.Builder<AddElementsFromFile, Builder> {
+    public String getDelimiter() {
+        return delimiter;
+    }
+
+    public void setDelimiter(final String delimiter) {
+        this.delimiter = delimiter;
+    }
+
+    public void setParallelism(final Integer parallelism) {
+        this.parallelism = parallelism;
+    }
+
+    public Integer getParallelism() {
+        return this.parallelism;
+    }
+
+    public static class Builder extends Operation.BaseBuilder<AddElementsFromSocket, Builder>
+            implements Validatable.Builder<AddElementsFromSocket, Builder>,
+            Options.Builder<AddElementsFromSocket, Builder> {
         public Builder() {
-            super(new AddElementsFromFile());
+            super(new AddElementsFromSocket());
         }
 
         public Builder generator(final Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> generator) {
@@ -131,17 +141,22 @@ public class AddElementsFromFile implements
             return _self();
         }
 
-        public Builder filename(final String filename) {
-            _getOp().setFilename(filename);
+        public Builder hostname(final String hostname) {
+            _getOp().setHostname(hostname);
             return _self();
         }
 
-        public Builder jobName(final String jobName) {
-            _getOp().setJobName(jobName);
+        public Builder port(final int port) {
+            _getOp().setPort(port);
             return _self();
         }
 
-        public Builder parallelism(final int parallelism) {
+        public Builder delimiter(final String delimiter) {
+            _getOp().setDelimiter(delimiter);
+            return _self();
+        }
+
+        public Builder parallelism(final Integer parallelism) {
             _getOp().setParallelism(parallelism);
             return _self();
         }

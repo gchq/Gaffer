@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.commonutil.TestTypes;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.generator.OneToOneElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
@@ -92,16 +91,5 @@ public class FlinkTest {
         Thread.sleep(2000);
         final Set<Element> allElements = Sets.newHashSet(graph.execute(new GetAllElements(), new User()));
         assertEquals(EXPECTED_ELEMENTS, allElements);
-    }
-
-    public static final class BasicGenerator implements OneToOneElementGenerator<String> {
-        @Override
-        public Element _apply(final String domainObject) {
-            return new Entity.Builder()
-                    .group(TestGroups.ENTITY)
-                    .vertex(domainObject)
-                    .property(TestPropertyNames.COUNT, 1L)
-                    .build();
-        }
     }
 }

@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromFile;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -26,15 +26,18 @@ public class AddElementsFromFileHandler implements OperationHandler<AddElementsF
     @Override
     public Object doOperation(final AddElementsFromFile op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        if (null != op.getParallelism()) {
+            env.setParallelism(op.getParallelism());
+        }
+
         env.readTextFile(op.getFilename())
-                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()
                 .addSink(new GafferSink(op, store));
 
         try {
-            env.execute(op.getJobName());
+            env.execute(op.getClass().getSimpleName() + "-" + op.getFilename());
         } catch (final Exception e) {
             throw new OperationException("Failed to add elements from file: " + op.getFilename(), e);
         }

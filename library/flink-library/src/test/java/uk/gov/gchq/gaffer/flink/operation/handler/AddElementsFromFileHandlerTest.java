@@ -22,9 +22,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromFile;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +50,7 @@ public class AddElementsFromFileHandlerTest extends FlinkTest {
 
         final AddElementsFromFile op = new AddElementsFromFile.Builder()
                 .filename(file.getAbsolutePath())
-                .jobName("test import from file")
-                .generator(BasicGenerator.class)
+                .generator(TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)

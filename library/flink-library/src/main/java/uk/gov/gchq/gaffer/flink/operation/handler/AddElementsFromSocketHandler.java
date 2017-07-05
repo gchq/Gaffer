@@ -16,8 +16,8 @@
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -26,15 +26,19 @@ public class AddElementsFromSocketHandler implements OperationHandler<AddElement
     @Override
     public Object doOperation(final AddElementsFromSocket op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        if (null != op.getParallelism()) {
+            env.setParallelism(op.getParallelism());
+        }
+
         env.socketTextStream(op.getHostname(), op.getPort(), op.getDelimiter())
-                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()
                 .addSink(new GafferSink(op, store));
 
+
         try {
-            env.execute(op.getJobName());
+            env.execute(op.getClass().getSimpleName() + "-" + op.getHostname() + ":" + op.getPort());
         } catch (final Exception e) {
             throw new OperationException("Failed to add elements from port: " + op.getPort(), e);
         }

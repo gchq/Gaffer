@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.flink.operation;
+package uk.gov.gchq.gaffer.operation.impl.add;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import uk.gov.gchq.gaffer.commonutil.Required;
@@ -29,17 +29,18 @@ import java.util.function.Function;
  * An <code>AddElementsFromKafka</code> operation consumes records of a kafka topic,
  * converts each record into a Gaffer {@link Element} using the provided
  * {@link uk.gov.gchq.gaffer.data.generator.ElementGenerator} then adds these
- * elements to the Graph. This operation uses Flink so you can either run it
- * in local mode or configure flink on your cluster to distribute the job.
- * This operation is a blocking operation and will never stop. You will need to
- * terminate the job when you want to stop consuming data.
+ * elements to the Graph. This operation is a blocking operation and will never stop.
+ * You will need to terminate the job when you want to stop consuming data.
+ *
  * @see Builder
  */
 public class AddElementsFromKafka implements
         Operation,
         Validatable,
         Options {
+    @Required
     private String topic;
+
     /**
      * The id of the consumer group
      */
@@ -50,21 +51,18 @@ public class AddElementsFromKafka implements
      */
     @Required
     private String[] bootstrapServers;
-    /**
-     * The name of the job to be created
-     */
+
     @Required
-    private String jobName;
+    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
+
     /**
      * The parallelism of the job to be created
      */
-    private int parallelism;
+    private Integer parallelism;
 
     private boolean validate = true;
     private boolean skipInvalidElements;
 
-    @Required
-    private Class<? extends Function<Iterable<? extends String>, Iterable<? extends Element>>> elementGenerator;
 
     private Map<String, String> options;
 
@@ -84,19 +82,11 @@ public class AddElementsFromKafka implements
         this.groupId = groupId;
     }
 
-    public String getJobName() {
-        return this.jobName;
-    }
-
-    public void setJobName(final String jobName) {
-        this.jobName = jobName;
-    }
-
-    public void setParallelism(final int parallelism) {
+    public void setParallelism(final Integer parallelism) {
         this.parallelism = parallelism;
     }
 
-    public int getParallelism() {
+    public Integer getParallelism() {
         return this.parallelism;
     }
 
@@ -184,12 +174,7 @@ public class AddElementsFromKafka implements
             return _self();
         }
 
-        public Builder jobName(final String jobName) {
-            _getOp().setJobName(jobName);
-            return _self();
-        }
-
-        public Builder parallelism(final int parallelism) {
+        public Builder parallelism(final Integer parallelism) {
             _getOp().setParallelism(parallelism);
             return _self();
         }

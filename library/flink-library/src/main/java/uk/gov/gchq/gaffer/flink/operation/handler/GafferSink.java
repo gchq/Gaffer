@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.flink.operation.handler;
 
 import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
@@ -41,7 +42,7 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
     private final boolean skipInvalid;
 
     private transient Store store;
-    private transient GafferQueue<Element> queue;
+    private transient ConcurrentLinkedQueue<Element> queue;
     private transient boolean restart;
 
     public GafferSink(final Validatable validatable, final Store store) {
@@ -53,9 +54,17 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
     }
 
     @Override
+    public void open(final Configuration parameters) throws Exception {
+        super.open(parameters);
+        if (null == store) {
+            store = Store.createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+        }
+    }
+
+    @Override
     public void invoke(final Iterable<? extends Element> elements) throws Exception {
         if (null == queue) {
-            queue = new GafferQueue<>();
+            queue = new ConcurrentLinkedQueue<>();
             restart = true;
         }
 
@@ -65,11 +74,10 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
 
         if (restart && !queue.isEmpty()) {
             restart = false;
-            checkStore();
-            store.run(() -> {
+            store.runAsync(() -> {
                 try {
                     store.execute(new AddElements.Builder()
-                                    .input(queue)
+                                    .input(new GafferQueue<>(queue))
                                     .validate(validate)
                                     .skipInvalidElements(skipInvalid)
                                     .build(),
@@ -82,22 +90,26 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
         }
     }
 
-    private void checkStore() {
-        if (null == store) {
-            store = Store.createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
-        }
-    }
+    private static final class GafferQueue<T> implements Iterable<T> {
+        private final ConcurrentLinkedQueue<T> queue;
+        private boolean iteratorAvailable = true;
 
-    private static final class GafferQueue<T> extends ConcurrentLinkedQueue<T> {
-        private static final long serialVersionUID = -5222649835225228337L;
+        private GafferQueue(final ConcurrentLinkedQueue<T> queue) {
+            this.queue = queue;
+        }
 
         @Override
         @Nonnull
         public Iterator<T> iterator() {
+            if (!iteratorAvailable) {
+                throw new IllegalArgumentException("This iterable can only be iterated over once.");
+            }
+
+            iteratorAvailable = false;
             return new Iterator<T>() {
                 @Override
                 public boolean hasNext() {
-                    return !isEmpty();
+                    return !queue.isEmpty();
                 }
 
                 @Override
@@ -105,7 +117,7 @@ public class GafferSink extends RichSinkFunction<Iterable<? extends Element>> {
                     if (!hasNext()) {
                         throw new NoSuchElementException("No more elements");
                     }
-                    return poll();
+                    return queue.poll();
                 }
             };
         }

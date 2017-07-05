@@ -318,7 +318,7 @@ public abstract class Store {
         return handleOperationChain(optimisedOperationChain, context);
     }
 
-    public void run(final Runnable runnable) {
+    public void runAsync(final Runnable runnable) {
         executorService.execute(runnable);
     }
 

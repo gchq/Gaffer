@@ -19,8 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -33,15 +33,18 @@ public class AddElementsFromKafkaHandler implements OperationHandler<AddElements
     @Override
     public Object doOperation(final AddElementsFromKafka op, final Context context, final Store store) throws OperationException {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        if (null != op.getParallelism()) {
+            env.setParallelism(op.getParallelism());
+        }
+
         env.addSource(new FlinkKafkaConsumer010<>(op.getTopic(), new SimpleStringSchema(), createFlinkProperties(op)))
-                .setParallelism(op.getParallelism())
                 .map(new GafferMapFunction(op.getElementGenerator()))
                 .returns(GafferMapFunction.RETURN_CLASS)
                 .rebalance()
                 .addSink(new GafferSink(op, store));
 
         try {
-            env.execute(op.getJobName());
+            env.execute(op.getClass().getSimpleName() + "-" + op.getGroupId() + "-" + op.getTopic());
         } catch (final Exception e) {
             throw new OperationException("Failed to add elements from kafka topic: " + op.getTopic(), e);
         }

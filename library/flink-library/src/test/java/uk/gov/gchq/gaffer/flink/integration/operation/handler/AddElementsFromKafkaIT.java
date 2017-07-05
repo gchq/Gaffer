@@ -31,10 +31,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromKafka;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.File;
 import java.io.IOException;
@@ -91,8 +92,7 @@ public class AddElementsFromKafkaIT extends FlinkTest {
         final boolean skipInvalid = false;
 
         final AddElementsFromKafka op = new AddElementsFromKafka.Builder()
-                .jobName("test import from kafka")
-                .generator(BasicGenerator.class)
+                .generator(TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)

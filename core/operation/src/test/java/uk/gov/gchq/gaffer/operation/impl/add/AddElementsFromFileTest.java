@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.gchq.gaffer.flink.operation;
+package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Sets;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -38,12 +39,10 @@ public class AddElementsFromFileTest extends OperationTest {
         final boolean validate = true;
         final boolean skipInvalid = false;
         final String filename = "filename";
-        final int parallelism = 2;
-        final String jobName = "test import from file";
-        final Class<FlinkTest.BasicGenerator> generator = FlinkTest.BasicGenerator.class;
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
         final AddElementsFromFile op = new AddElementsFromFile.Builder()
                 .filename(filename)
-                .jobName(jobName)
                 .generator(generator)
                 .parallelism(parallelism)
                 .validate(validate)
@@ -56,16 +55,14 @@ public class AddElementsFromFileTest extends OperationTest {
 
         // Then
         JsonAssert.assertEquals(String.format("{%n" +
-                        "  \"class\" : \"uk.gov.gchq.gaffer.flink.operation.AddElementsFromFile\",%n" +
+                        "  \"class\" : \"uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile\",%n" +
                         "  \"filename\" : \"filename\",%n" +
-                        "  \"jobName\" : \"test import from file\",%n" +
                         "  \"parallelism\" : 2,%n" +
-                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.flink.operation.FlinkTest$BasicGenerator\",%n" +
+                        "  \"elementGenerator\" : \"uk.gov.gchq.gaffer.generator.TestGeneratorImpl\",%n" +
                         "  \"validate\" : true,%n" +
                         "  \"skipInvalidElements\" : false%n" +
                         "}").getBytes(),
                 json);
-        assertEquals(jobName, deserialisedOp.getJobName());
         assertEquals(filename, deserialisedOp.getFilename());
         assertEquals(generator, deserialisedOp.getElementGenerator());
         assertEquals(parallelism, deserialisedOp.getParallelism());
@@ -79,14 +76,12 @@ public class AddElementsFromFileTest extends OperationTest {
         final boolean validate = true;
         final boolean skipInvalid = false;
         final String filename = "filename";
-        final int parallelism = 2;
-        final String jobName = "test import from file";
-        final Class<FlinkTest.BasicGenerator> generator = FlinkTest.BasicGenerator.class;
+        final Integer parallelism = 2;
+        final Class<TestGeneratorImpl> generator = TestGeneratorImpl.class;
 
         // When
         final AddElementsFromFile op = new AddElementsFromFile.Builder()
                 .filename(filename)
-                .jobName(jobName)
                 .generator(generator)
                 .parallelism(parallelism)
                 .validate(validate)
@@ -94,7 +89,6 @@ public class AddElementsFromFileTest extends OperationTest {
                 .build();
 
         // Then
-        assertEquals(jobName, op.getJobName());
         assertEquals(filename, op.getFilename());
         assertEquals(generator, op.getElementGenerator());
         assertEquals(parallelism, op.getParallelism());
@@ -104,6 +98,6 @@ public class AddElementsFromFileTest extends OperationTest {
 
     @Override
     protected Set<String> getRequiredFields() {
-        return Sets.newHashSet("filename", "jobName", "elementGenerator");
+        return Sets.newHashSet("filename", "elementGenerator");
     }
 }

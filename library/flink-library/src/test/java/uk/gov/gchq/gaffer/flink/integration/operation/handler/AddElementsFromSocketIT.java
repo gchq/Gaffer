@@ -17,9 +17,10 @@
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
 import org.junit.Test;
-import uk.gov.gchq.gaffer.flink.operation.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
+import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,8 +50,7 @@ public class AddElementsFromSocketIT extends FlinkTest {
         }).start();
 
         final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
-                .jobName("test import from topic")
-                .generator(BasicGenerator.class)
+                .generator(TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
