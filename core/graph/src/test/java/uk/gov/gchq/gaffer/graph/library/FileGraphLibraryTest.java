@@ -44,7 +44,7 @@ public class FileGraphLibraryTest {
 
     @Test
     public void shouldGetIdsInFileGraphLibrary() {
-        fileGraphLibrary = new FileGraphLibrary("test");
+        fileGraphLibrary = new FileGraphLibrary("src/test/resources/graphLibrary");
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setId(PROPERTIES_ID);
         final Schema schema = new Schema.Builder()
