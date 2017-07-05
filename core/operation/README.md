@@ -53,7 +53,7 @@ Operations must be JSON serialisable in order to be used via the REST API
 getters and setters.
 
 Operation implementations need to implement the `Operation` interface and
-the extra interfaces they they wish to make use of. For example an operation
+the extra interfaces they wish to make use of. For example an operation
 that takes a single input value should implement the `Input` interface.
 
 Here is a list of some of the common interfaces:
@@ -97,7 +97,7 @@ public static class Builder extends Operation.BaseBuilder<GetElements, Builder>
 ## FAQs
 Here are some frequently asked questions.
 
-#### If a do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
+#### If I do a query like GetElements or GetAdjacentIds the response type is a CloseableIterable - why?
 To avoid loading all the results into memory, Gaffer stores should return an iterable that lazily loads and returns the data as a user iterates around the results. In the cases of Accumulo and HBase this means a connection to Accumulo/HBase must remain open whilst you iterate around the results. This closeable iterable should automatically close itself when you get to the end of the results. However, if you decide not to read all the results, i.e you just want to check if the results are not empty !results.iterator().hasNext() or an exception is thrown whilst iterating around the results, then the results iterable will not be closed and hence the connection to Accumulo/HBase will remain open. Therefore, to be safe you should always consume the results in a try-with-resources block.
 
 #### Following on from the previous question, why can't I iterate around the results in parallel?
@@ -212,3 +212,60 @@ Then you can do another GetAdjacentIds and get the following:
 ```
 
 You can continue doing multiple GetAdjacentIds to traverse around the Graph further. If you want the properties on the edges to be returned you can use GetElements in your final operation in your chain.
+
+#### Any tips for optimising my queries?
+Limit the number of groups you query for using a View - this could result in a
+big improvement.
+
+When defining filters in your View try and use the preAggregationFilter for all your filters as
+this will be run before aggregation and will mean less work has to be done to aggregate
+properties that you will later just discard. On Accumulo and HBase, postTransformFilters 
+are not distributed, the are computed on a single node so they can be slow.
+
+Also, when defining the order of Predicates in a Filter, the order is important.
+ It will run the predicates in the order your provide so order them so that the first
+ ones are the more efficient and will filter out the most data.
+ 
+Some stores (like Accumulo) store the properties in different columns and lazily
+deserialise a column as properties in that column are requested. So if you limit
+your filters to just 1 column then less data needs to be deserialised. For 
+Accumulo and HBase the columns are split up depending on whether the property is 
+a groupBy property, the timestampProperty, the visibilityProperty and the remaining. 
+So if you want to execute a time window query and your timestamp is a groupBy 
+property or the special timestampProperty then depending on the store you are
+running against this may be optimised. On Accumulo this will be fast as it 
+doesn't need to deserialise the entire Value, just the column qualifier or timestamp column
+containing your timestamp property.
+
+When doing queries, if you don't specify Pre or Post Aggregation filters then this
+means the entire filter can be skipped. When running on stores like Accumulo this
+means entire iterators can be skipped and this will save a lot of time. 
+So, if applicable, you will save time if you put all your filtering in either the
+Pre or Post section (in some cases this isn't possible).
+
+Gaffer lets you specify validation predicates in your Schema to validate your data
+when added and continuously in the background for age off. 
+You can optimise this validation, by removing any unnecessary validation. 
+You can do most of the validation you require in your ElementGenerator class when
+you generate your elements. The validation you provide in the schema should be 
+just the validation that you actually have to have, because this may be run A LOT.
+On Accumulo - it is run in major/minor compactions and for every query. 
+If you can, just validate properties that are in the groupBy or just the 
+timestampProperty, this will mean that the store may not need to deserialise 
+all of the other properties just to perform the validation.
+
+
+#### How can I optimise the GetAdjacentIds query?
+When doing GetAdjacentIds, try and avoid using PostTransformFilters. 
+If you don't specify these then the final part of the query won't need to deserialise 
+the properties it can just extract the destination off the edge. Also see the answer 
+above for general query optimisation.
+
+
+#### How can I optimise my AddElementsFromHdfs?
+Try using the SampleDataForSplitPoints and SplitStore operations to calculate 
+splits points. These can then be used to partition your data in the map reduce job
+used to import the data. If adding elements into an empty Accumulo table or a table 
+without any splits then the SampleDataForSplitPoints and SplitStore operations will
+be executed automatically for you. You can also optionally provide your own splits 
+points for your AddElementsFromHdfs operation.

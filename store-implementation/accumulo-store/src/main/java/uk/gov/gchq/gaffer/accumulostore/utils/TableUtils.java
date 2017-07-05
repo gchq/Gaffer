@@ -134,9 +134,14 @@ public final class TableUtils {
 
             if (store.getProperties().getEnableValidatorIterator()) {
                 // Add validator iterator to table for all scopes
-                LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
-                connector.tableOperations().attachIterator(tableName,
-                        store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
+                final IteratorSetting itrSetting = store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store);
+                if (null == itrSetting) {
+                    LOGGER.info("Not adding Validator iterator to table {} as there are no validation functions defined in the schema", tableName);
+                } else {
+                    LOGGER.info("Adding Validator iterator to table {} for all scopes", tableName);
+                    connector.tableOperations().attachIterator(tableName,
+                            store.getKeyPackage().getIteratorFactory().getValidatorIteratorSetting(store));
+                }
             } else {
                 LOGGER.info("Validator iterator has not been added to table {}", tableName);
             }
