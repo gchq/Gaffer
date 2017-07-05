@@ -153,6 +153,19 @@
                             </artifactSet>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>utility
+                            </shadedClassifierName>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

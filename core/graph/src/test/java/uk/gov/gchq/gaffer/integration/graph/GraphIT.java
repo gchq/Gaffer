@@ -56,6 +56,7 @@ public class GraphIT {
         // When
         try {
             new Graph.Builder()
+                    .graphId("graph1")
                     .storeProperties(storePropertiesStream)
                     .addSchema(dataStream)
                     .addSchema(dataTypesStream)
@@ -110,6 +111,7 @@ public class GraphIT {
 
         // When
         new Graph.Builder()
+                .graphId("graphId")
                 .storeProperties(storePropertiesStream)
                 .addSchema(dataStream)
                 .addSchema(dataTypesStream)

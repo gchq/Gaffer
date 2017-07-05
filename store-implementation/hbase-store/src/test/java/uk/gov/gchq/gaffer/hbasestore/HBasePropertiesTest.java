@@ -31,11 +31,10 @@ public class HBasePropertiesTest {
 
         // When
         properties.setDependencyJarsHdfsDirPath("pathTo/jars");
-        properties.setTable("tableName");
         properties.setWriteBufferSize(10);
         properties.setZookeepers("zookeeper1,zookeeper2");
 
-        // THen
+        // Then
         assertEquals(new Path("pathTo/jars"), properties.getDependencyJarsHdfsDirPath());
         assertEquals(10, properties.getWriteBufferSize());
         assertEquals("zookeeper1,zookeeper2", properties.getZookeepers());

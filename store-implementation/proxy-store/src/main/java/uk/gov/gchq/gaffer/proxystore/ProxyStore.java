@@ -72,7 +72,7 @@ public class ProxyStore extends Store {
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "The properties should always be ProxyProperties")
     @Override
-    public void initialise(final Schema unusedSchema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema unusedSchema, final StoreProperties properties) throws StoreException {
         final ProxyProperties proxyProps = (ProxyProperties) properties;
         jsonSerialiser = proxyProps.getJsonSerialiser();
 
@@ -81,7 +81,7 @@ public class ProxyStore extends Store {
         traits = fetchTraits(proxyProps);
         supportedOperations = fetchOperations(proxyProps);
 
-        super.initialise(schema, proxyProps);
+        super.initialise(graphId, schema, proxyProps);
         checkDelegateStoreStatus(proxyProps);
     }
 
@@ -124,6 +124,11 @@ public class ProxyStore extends Store {
             StoreException {
         final URL url = proxyProps.getGafferUrl("graph/schema");
         return doGet(url, new TypeReferenceStoreImpl.Schema(), null);
+    }
+
+    @Override
+    public void validateSchemas() {
+        // no validation required
     }
 
     @Override
@@ -315,6 +320,7 @@ public class ProxyStore extends Store {
     public static final class Builder {
         private final ProxyStore store;
         private final ProxyProperties properties;
+        private String graphId;
 
         public Builder() {
             store = new ProxyStore();
@@ -353,9 +359,14 @@ public class ProxyStore extends Store {
             return this;
         }
 
+        public Builder graphId(final String graphId) {
+            this.graphId = graphId;
+            return this;
+        }
+
         public ProxyStore build() {
             try {
-                store.initialise(new Schema(), properties);
+                store.initialise(graphId, new Schema(), properties);
             } catch (final StoreException e) {
                 throw new IllegalArgumentException("The store could not be initialised with the provided properties", e);
             }

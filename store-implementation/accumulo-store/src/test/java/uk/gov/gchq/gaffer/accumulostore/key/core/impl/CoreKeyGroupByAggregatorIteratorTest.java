@@ -79,8 +79,8 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Before
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }

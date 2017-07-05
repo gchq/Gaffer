@@ -32,13 +32,14 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ import java.util.Map;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
-    private static final int NUM_REQUIRED_ARGS = 2;
+    private static final int NUM_REQUIRED_ARGS = 3;
 
     private TableUtils() {
     }
@@ -68,22 +69,48 @@ public final class TableUtils {
      * Usage:
      * </p>
      * <p>
-     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [pathToSchemaDirectory] [pathToStoreProperties]
+     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties]
      * </p>
      *
-     * @param args [schema directory path] [store properties path]
+     * @param args [graphId] [schema directory path] [store properties path]
      * @throws Exception if the tables fails to be created/updated
      */
     public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<schema directory path> <store properties path>");
+                    + "<graphId> <schema directory path> <store properties path>");
             System.exit(1);
         }
 
-        final HBaseStore store = new HBaseStore();
-        store.preInitialise(Schema.fromJson(Paths.get(args[0])),
-                HBaseProperties.loadStoreProperties(args[1]));
+        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getStorePropertiesPathString(args));
+        if (null == storeProps) {
+            throw new IllegalArgumentException("Store properties are required to create a store");
+        }
+
+        final Schema schema = Schema.fromJson(getSchemaDirectoryPath(args));
+
+        final String storeClass = storeProps.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+
+        final HBaseStore store;
+        try {
+            store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+
+        store.preInitialise(
+                getGraphId(args),
+                schema,
+                storeProps
+        );
+
+        if (!store.getConnection().getAdmin().tableExists(store.getTableName())) {
+            createTable(store);
+        }
+
 
         try (final Admin admin = store.getConnection().getAdmin()) {
             final TableName tableName = store.getTableName();
@@ -96,6 +123,18 @@ public final class TableUtils {
                 TableUtils.createTable(store);
             }
         }
+    }
+
+    private static String getGraphId(final String[] args) {
+        return args[0];
+    }
+
+    private static Path getSchemaDirectoryPath(final String[] args) {
+        return Paths.get(args[1]);
+    }
+
+    private static String getStorePropertiesPathString(final String[] args) {
+        return args[2];
     }
 
     /**
