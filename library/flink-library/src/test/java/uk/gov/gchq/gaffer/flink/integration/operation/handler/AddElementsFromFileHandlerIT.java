@@ -16,46 +16,44 @@
 
 package uk.gov.gchq.gaffer.flink.integration.operation.handler;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import uk.gov.gchq.gaffer.generator.TestGeneratorImpl;
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromSocket;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElementsFromFile;
 import uk.gov.gchq.gaffer.user.User;
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 
-public class AddElementsFromSocketIT extends FlinkTest {
+public class AddElementsFromFileHandlerIT extends FlinkTest {
+    @Rule
+    public final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
+    private File file;
+
+    @Before
+    public void before() throws IOException {
+        file = testFolder.newFile("inputFile.txt");
+        FileUtils.write(file, DATA);
+    }
+
     @Test
     public void shouldAddElements() throws Exception {
         // Given
         final Graph graph = createGraph();
         final boolean validate = true;
         final boolean skipInvalid = false;
-        final String hostname = "localhost";
-        final int[] port = new int[1];
 
-        final ServerSocket server = new ServerSocket(0);
-        port[0] = server.getLocalPort();
-
-        new Thread(() -> {
-            try (final Socket socket = server.accept();
-                 final OutputStream out = socket.getOutputStream()) {
-                out.write(DATA_BYTES);
-            } catch (IOException e) {
-                throw new RuntimeException();
-            }
-        }).start();
-
-        final AddElementsFromSocket op = new AddElementsFromSocket.Builder()
+        final AddElementsFromFile op = new AddElementsFromFile.Builder()
+                .filename(file.getAbsolutePath())
                 .generator(TestGeneratorImpl.class)
                 .parallelism(1)
                 .validate(validate)
                 .skipInvalidElements(skipInvalid)
-                .hostname(hostname)
-                .port(port[0])
                 .build();
 
         // When

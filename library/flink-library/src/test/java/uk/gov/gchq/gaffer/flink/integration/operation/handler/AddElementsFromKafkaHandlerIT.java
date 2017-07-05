@@ -43,7 +43,7 @@ import java.net.ServerSocket;
 import java.util.Properties;
 import java.util.UUID;
 
-public class AddElementsFromKafkaIT extends FlinkTest {
+public class AddElementsFromKafkaHandlerIT extends FlinkTest {
     private static final String TOPIC = UUID.randomUUID().toString();
     private static final String BOOTSTRAP_SERVERS = "localhost:" + getOpenPort();
 

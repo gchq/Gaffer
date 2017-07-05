@@ -22,28 +22,28 @@ import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class GafferSinkTest {
+public class GafferOutputTest {
     @Test
     public void shouldDelegateOpenToGafferAddedInitialise() throws Exception {
         // Given
         final GafferAdder adder = mock(GafferAdder.class);
-        final GafferSink sink = new GafferSink(adder);
+        final GafferOutput output = new GafferOutput(adder);
 
         // When
-        sink.open(null);
+        output.open(1, 2);
 
         // Then
         verify(adder).initialise();
     }
 
     @Test
-    public void shouldDelegateInvokeToGafferAddedInitialise() throws Exception {
+    public void shouldDelegateWriteRecordToGafferAddedInitialise() throws Exception {
         // Given
         final GafferAdder adder = mock(GafferAdder.class);
-        final GafferSink sink = new GafferSink(adder);
+        final GafferOutput output = new GafferOutput(adder);
 
         // When
-        sink.invoke(FlinkTest.EXPECTED_ELEMENTS);
+        output.writeRecord(FlinkTest.EXPECTED_ELEMENTS);
 
         // Then
         verify(adder).add(FlinkTest.EXPECTED_ELEMENTS);
