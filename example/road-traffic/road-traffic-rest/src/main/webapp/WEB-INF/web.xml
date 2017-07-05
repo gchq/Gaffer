@@ -8,6 +8,7 @@
     <listener>
         <listener-class>uk.gov.gchq.gaffer.traffic.listeners.DataLoader
         </listener-class>
+        <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
     </listener>
 
 
