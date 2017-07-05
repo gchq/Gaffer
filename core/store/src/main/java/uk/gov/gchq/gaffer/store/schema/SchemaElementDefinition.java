@@ -187,7 +187,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final ElementAggregator aggregator = new ElementAggregator();
         if (aggregate) {
             for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                if (!groupBy.contains(entry.getKey())) {
+                if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
                     addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
                 }
             }
