@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> implements CloseableIterable<Element> {
-    protected CloseableIterator<Element> iterator;
+public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements CloseableIterable<O_ITEM> {
+    protected CloseableIterator<O_ITEM> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final User user;

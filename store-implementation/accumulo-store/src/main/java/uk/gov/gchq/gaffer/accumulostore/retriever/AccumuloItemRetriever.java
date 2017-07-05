@@ -46,7 +46,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters & Options, I_ITEM>
-        extends AccumuloRetriever<OP> {
+        extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloItemRetriever.class);
 
     private final Iterable<? extends I_ITEM> ids;

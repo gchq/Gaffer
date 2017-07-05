@@ -93,11 +93,6 @@ public class LazyEntity extends Entity {
     }
 
     @Override
-    public Object getIdentifier(final IdentifierType name) {
-        return lazyLoadIdentifier(entity.getIdentifier(name), name);
-    }
-
-    @Override
     public void putIdentifier(final IdentifierType name, final Object value) {
         entity.putIdentifier(name, value);
         loadedIdentifiers.add(name);
@@ -111,7 +106,7 @@ public class LazyEntity extends Entity {
     private Object lazyLoadIdentifier(final Object currentValue, final IdentifierType name) {
         Object value = currentValue;
         if (null == value && !loadedIdentifiers.contains(name)) {
-            value = valueLoader.getIdentifier(name);
+            value = valueLoader.getIdentifier(name, this);
             putIdentifier(name, value);
         }
 

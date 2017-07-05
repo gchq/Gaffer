@@ -47,17 +47,31 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
     @Override
     public IteratorSetting getElementPreAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
+        if (!view.hasPreAggregationFilters()) {
+            return null;
+        }
+
         return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, ElementPreAggregationFilter.class).schema(store.getSchema())
-                .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
+                AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME, ElementPreAggregationFilter.class)
+                .schema(store.getSchema())
+                .view(view)
+                .keyConverter(store.getKeyPackage().getKeyConverter())
+                .build();
     }
 
     @Override
     public IteratorSetting getElementPostAggregationFilterIteratorSetting(final View view, final AccumuloStore store)
             throws IteratorSettingException {
+        if (!view.hasPostAggregationFilters()) {
+            return null;
+        }
+
         return new IteratorSettingBuilder(AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_PRIORITY,
-                AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, ElementPostAggregationFilter.class).schema(store.getSchema())
-                .view(view).keyConverter(store.getKeyPackage().getKeyConverter()).build();
+                AccumuloStoreConstants.ELEMENT_POST_AGGREGATION_FILTER_ITERATOR_NAME, ElementPostAggregationFilter.class)
+                .schema(store.getSchema())
+                .view(view)
+                .keyConverter(store.getKeyPackage().getKeyConverter())
+                .build();
     }
 
     @Override
@@ -87,9 +101,12 @@ public abstract class AbstractCoreKeyIteratorSettingsFactory implements Iterator
 
     @Override
     public IteratorSetting getValidatorIteratorSetting(final AccumuloStore store) {
+        if (!store.getSchema().hasValidation()) {
+            return null;
+        }
+
         return new IteratorSettingBuilder(AccumuloStoreConstants.VALIDATOR_ITERATOR_PRIORITY,
                 AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME, ValidatorFilter.class)
-                .all()
                 .schema(store.getSchema())
                 .keyConverter(store.getKeyPackage().getKeyConverter())
                 .build();
