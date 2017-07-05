@@ -74,10 +74,14 @@ public class DefaultGraphFactory implements GraphFactory {
         return Boolean.parseBoolean(System.getProperty(SystemProperty.ENABLE_CHAIN_LIMITER, "false"));
     }
 
+    protected static String getGraphId() {
+        return System.getProperty(SystemProperty.GRAPH_ID);
+    }
+
     protected static Path[] getSchemaPaths() {
         final String schemaPaths = System.getProperty(SystemProperty.SCHEMA_PATHS);
         if (null == schemaPaths) {
-            throw new SchemaException("The path to the schema was not found in system properties for key: " + SystemProperty.SCHEMA_PATHS);
+            return new Path[0];
         }
 
         final String[] schemaPathsArray = schemaPaths.split(",");
@@ -119,14 +123,14 @@ public class DefaultGraphFactory implements GraphFactory {
         if (null == storePropertiesPath) {
             throw new SchemaException("The path to the Store Properties was not found in system properties for key: " + SystemProperty.STORE_PROPERTIES_PATH);
         }
-
-        final Graph.Builder builder = new Graph.Builder();
+        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
 
         // Disable any operations required
-        final StoreProperties storeProperties = StoreProperties.loadStoreProperties(storePropertiesPath);
         storeProperties.addOperationDeclarationPaths("disableOperations.json");
 
+        final Graph.Builder builder = new Graph.Builder();
         builder.storeProperties(storeProperties);
+        builder.graphId(getGraphId());
 
         for (final Path path : getSchemaPaths()) {
             builder.addSchema(path);

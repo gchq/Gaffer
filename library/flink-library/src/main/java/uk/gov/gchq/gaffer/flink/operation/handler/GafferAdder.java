@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class GafferAdder implements Serializable {
     private static final long serialVersionUID = -3418606107861031989L;
 
+    private final String graphId;
     private final byte[] schema;
     private final Properties properties;
     private final boolean validate;
@@ -46,13 +47,14 @@ public class GafferAdder implements Serializable {
         this.store = store;
         this.validate = validatable.isValidate();
         this.skipInvalid = validatable.isSkipInvalidElements();
+        graphId = store.getGraphId();
         schema = store.getSchema().toCompactJson();
         properties = store.getProperties().getProperties();
     }
 
     public void initialise() {
         if (null == store) {
-            store = Store.createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
+            store = Store.createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(properties));
         }
     }
 

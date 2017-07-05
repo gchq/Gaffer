@@ -69,8 +69,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Before
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }

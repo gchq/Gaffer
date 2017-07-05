@@ -70,11 +70,13 @@ public class MapStore extends Store {
     private MapImpl mapImpl;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties storeProperties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
         if (!(storeProperties instanceof MapStoreProperties)) {
             throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName());
         }
-        super.initialise(schema, storeProperties);
+        // Initialise store
+        final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
+        super.initialise(graphId, schema, mapStoreProperties);
 
         // Initialise maps
         mapImpl = new MapImpl(getSchema(), getProperties());

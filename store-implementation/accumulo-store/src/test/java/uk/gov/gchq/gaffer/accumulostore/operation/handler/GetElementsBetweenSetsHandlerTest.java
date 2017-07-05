@@ -108,8 +108,8 @@ public class GetElementsBetweenSetsHandlerTest {
                 .entity(TestGroups.ENTITY)
                 .build();
 
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore);
         setupGraph(gaffer1KeyStore);
     }

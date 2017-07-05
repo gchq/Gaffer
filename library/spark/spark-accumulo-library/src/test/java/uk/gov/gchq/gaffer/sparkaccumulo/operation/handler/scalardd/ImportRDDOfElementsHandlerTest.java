@@ -52,6 +52,7 @@ public class ImportRDDOfElementsHandlerTest {
     @Test
     public void checkImportRDDOfElements() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))

@@ -140,6 +140,7 @@ public abstract class Store {
 
     private JobTracker jobTracker;
     private ExecutorService executorService;
+    private String graphId;
 
     public Store() {
         this.requiredParentSerialiserClass = getRequiredParentSerialiserClass();
@@ -147,11 +148,11 @@ public abstract class Store {
         this.schemaOptimiser = createSchemaOptimiser();
     }
 
-    public static Store createStore(final byte[] schema, final Properties storeProperties) {
-        return createStore(Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
+    public static Store createStore(final String graphId, final byte[] schema, final Properties storeProperties) {
+        return createStore(graphId, Schema.fromJson(schema), StoreProperties.loadStoreProperties(storeProperties));
     }
 
-    public static Store createStore(final Schema schema, final StoreProperties storeProperties) {
+    public static Store createStore(final String graphId, final Schema schema, final StoreProperties storeProperties) {
         if (null == storeProperties) {
             throw new IllegalArgumentException("Store properties are required to create a store");
         }
@@ -169,14 +170,18 @@ public abstract class Store {
         }
 
         try {
-            newStore.initialise(schema, storeProperties);
+            newStore.initialise(graphId, schema, storeProperties);
         } catch (final StoreException e) {
             throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
         }
         return newStore;
     }
 
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
+        if (null == graphId) {
+            throw new IllegalArgumentException("graphId is required");
+        }
+        this.graphId = graphId;
         this.schema = schema;
         this.properties = properties;
         startCacheServiceLoader(properties);
@@ -386,6 +391,10 @@ public abstract class Store {
         }
 
         return lazyElement.getElement();
+    }
+
+    public String getGraphId() {
+        return graphId;
     }
 
     /**

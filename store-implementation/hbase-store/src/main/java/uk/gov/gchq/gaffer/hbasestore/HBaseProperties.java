@@ -29,6 +29,10 @@ import java.nio.file.Path;
  */
 public class HBaseProperties extends StoreProperties {
     public static final String ZOOKEEPERS = "hbase.zookeepers";
+    /**
+     * @deprecated use a graphId
+     */
+    @Deprecated
     public static final String TABLE = "hbase.table";
     public static final String WRITE_BUFFER_SIZE = "hbase.writeBufferSize";
     public static final String DEPENDENCY_JARS_HDFS_DIR_PATH = "hbase.hdfs.jars.path";
@@ -82,19 +86,32 @@ public class HBaseProperties extends StoreProperties {
     }
 
     /**
-     * Get the particular table name.
-     *
-     * @return The hbase table to use as set in the properties file
+     * @return The hbase table name
+     * @deprecated use {@link HBaseStore#getTableName}
      */
+    @Deprecated
+    public String getTableName() {
+        return get(TABLE);
+    }
+
+    /**
+     * Get the particular table.
+     *
+     * @return The hbase table
+     * @deprecated use {@link HBaseStore#getTable}
+     */
+    @Deprecated
     public TableName getTable() {
-        return TableName.valueOf(get(TABLE));
+        return TableName.valueOf(getTableName());
     }
 
     /**
      * Set the table name.
      *
      * @param table the table name
+     * @deprecated use a graphId
      */
+    @Deprecated
     public void setTable(final String table) {
         set(TABLE, table);
     }

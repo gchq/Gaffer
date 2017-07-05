@@ -340,6 +340,7 @@ public class GetAllElementsHandlerTest {
     public static Graph getGraph() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
+                .graphId("graph1")
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();
@@ -348,6 +349,7 @@ public class GetAllElementsHandlerTest {
     static Graph getGraphNoAggregation() {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         return new Graph.Builder()
+                .graphId("graph1")
                 .addSchema(getSchemaNoAggregation())
                 .storeProperties(storeProperties)
                 .build();
@@ -357,6 +359,7 @@ public class GetAllElementsHandlerTest {
         final MapStoreProperties storeProperties = new MapStoreProperties();
         storeProperties.setCreateIndex(false);
         return new Graph.Builder()
+                .graphId("graphWithNoIndices")
                 .addSchema(getSchema())
                 .storeProperties(storeProperties)
                 .build();

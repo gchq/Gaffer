@@ -53,6 +53,7 @@ public class GetRDDOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInRDDForEntityId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
@@ -225,6 +226,7 @@ public class GetRDDOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
@@ -381,6 +383,7 @@ public class GetRDDOfElementsHandlerTest {
     @Test
     public void testNoSparkContext() throws OperationException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))

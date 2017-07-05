@@ -186,6 +186,7 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

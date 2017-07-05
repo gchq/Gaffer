@@ -100,7 +100,7 @@ public class AccumuloStoreRelationTest {
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(AccumuloStoreRelationTest.class.getResourceAsStream("/store.properties"));
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When
@@ -148,7 +148,7 @@ public class AccumuloStoreRelationTest {
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When
@@ -202,7 +202,7 @@ public class AccumuloStoreRelationTest {
         final AccumuloProperties properties = AccumuloProperties
                 .loadStoreProperties(getClass().getResourceAsStream("/store.properties"));
         final SingleUseMockAccumuloStore store = new SingleUseMockAccumuloStore();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         addElements(store);
 
         // When

@@ -102,7 +102,7 @@ public abstract class FlinkTest {
     }
 
     public static AccumuloStore createStore() {
-        return (AccumuloStore) Store.createStore(SCHEMA, StoreProperties.loadStoreProperties("store.properties"));
+        return (AccumuloStore) Store.createStore("graphId", SCHEMA, StoreProperties.loadStoreProperties("store.properties"));
     }
 
     public static void verifyElements(final Graph graph) throws OperationException, InterruptedException {

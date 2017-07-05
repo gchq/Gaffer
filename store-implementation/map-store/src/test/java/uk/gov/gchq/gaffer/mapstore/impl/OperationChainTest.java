@@ -46,6 +46,7 @@ public class OperationChainTest {
     public void testOperationChain() throws StoreException, OperationException {
         // Given
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
                 .storeProperties(new MapStoreProperties())
                 .build();
