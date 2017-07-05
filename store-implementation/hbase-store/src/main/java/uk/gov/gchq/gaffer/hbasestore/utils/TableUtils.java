@@ -39,6 +39,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,12 +82,12 @@ public final class TableUtils {
             System.exit(1);
         }
 
-        final StoreProperties storeProps = StoreProperties.loadStoreProperties(args[2]);
+        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getStorePropertiesPathString(args));
         if (null == storeProps) {
             throw new IllegalArgumentException("Store properties are required to create a store");
         }
 
-        final Schema schema = Schema.fromJson(Paths.get(args[1]));
+        final Schema schema = Schema.fromJson(getSchemaDirectoryPath(args));
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
@@ -101,7 +102,7 @@ public final class TableUtils {
         }
 
         store.preInitialise(
-                args[0],
+                getGraphId(args),
                 schema,
                 storeProps
         );
@@ -122,6 +123,18 @@ public final class TableUtils {
                 TableUtils.createTable(store);
             }
         }
+    }
+
+    private static String getGraphId(String[] args) {
+        return args[0];
+    }
+
+    private static Path getSchemaDirectoryPath(String[] args) {
+        return Paths.get(args[1]);
+    }
+
+    private static String getStorePropertiesPathString(String[] args) {
+        return args[2];
     }
 
     /**
