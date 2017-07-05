@@ -51,4 +51,8 @@ If we rerun the query as the private user, we get back all of the edges:
 ${GET_PRIVATE_EDGES_RESULT}
 ```
 
+The visibility property as defined by the visibilityProperty field in the Schema is special case of a groupBy property.
+- When ingest aggregation is carried out the visibilityProperty is treated as groupBy property.
+- When query aggregation is carried out the visibilityProperty is no longer treated as a groupBy property.
+
 Here we performed a query with just 2 seeds. You can provide as many seeds here as you like and the Gaffer store will handle it for you, batching them up if required.

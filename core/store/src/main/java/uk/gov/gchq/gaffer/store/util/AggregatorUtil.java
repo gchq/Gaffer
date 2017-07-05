@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +124,7 @@ public final class AggregatorUtil {
      */
     public static class ToIngestElementKey extends ToElementKey {
         public ToIngestElementKey(final Schema schema) {
-            super(getGroupBys(schema));
+            super(getIngestGroupBys(schema));
         }
     }
 
@@ -134,7 +135,7 @@ public final class AggregatorUtil {
      */
     public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
-            super(getGroupBys(schema, view));
+            super(getQueryGroupBys(schema, view));
         }
     }
 
@@ -276,20 +277,20 @@ public final class AggregatorUtil {
         }
     }
 
-    private static Map<String, Set<String>> getGroupBys(final Schema schema) {
+    public static Map<String, Set<String>> getIngestGroupBys(final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
 
         final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
         for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getGroupBy(group, schema));
+            groupToGroupBys.put(group, getIngestGroupBy(group, schema));
         }
 
         return groupToGroupBys;
     }
 
-    private static Map<String, Set<String>> getGroupBys(final Schema schema, final View view) {
+    public static Map<String, Set<String>> getQueryGroupBys(final Schema schema, final View view) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
@@ -298,22 +299,28 @@ public final class AggregatorUtil {
         }
         final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
         for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getGroupBy(group, schema, view));
+            groupToGroupBys.put(group, getQueryGroupBy(group, schema, view));
         }
 
         return groupToGroupBys;
     }
 
-    private static Set<String> getGroupBy(final String group, final Schema schema) {
+    public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
         final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new IllegalArgumentException("Received group " + group
                     + " which was not found in the schema");
         }
-        return elDef.getGroupBy();
+        if (null == schema.getVisibilityProperty() || !elDef.containsProperty(schema.getVisibilityProperty())) {
+            return elDef.getGroupBy();
+        }
+
+        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getGroupBy());
+        groupBy.add(schema.getVisibilityProperty());
+        return groupBy;
     }
 
-    private static Set<String> getGroupBy(final String group, final Schema schema, final View view) {
+    public static Set<String> getQueryGroupBy(final String group, final Schema schema, final View view) {
         Set<String> groupBy = null;
         if (null != view) {
             final ViewElementDefinition elDef = view.getElement(group);
