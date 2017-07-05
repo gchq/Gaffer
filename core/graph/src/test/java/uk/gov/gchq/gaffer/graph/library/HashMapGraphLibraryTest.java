@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,16 +34,6 @@ public class HashMapGraphLibraryTest {
     private static final String PROPERTIES_ID = "hashMapTestPropertiesId";
     private static StoreProperties storeProperties = new StoreProperties(PROPERTIES_ID);
     private static Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
-
-    @Test
-    public void shouldThrowExceptionWithNullProperties() {
-        try {
-            hashMapGraphLibrary.add(GRAPH_ID, schema, null);
-            fail("Exception expected");
-        } catch (IllegalArgumentException e) {
-            assertNotNull(e.getMessage());
-        }
-    }
 
     @Test
     public void shouldGetIdsInHashMapGraphLibrary() {

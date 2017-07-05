@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.gchq.gaffer.graph.library;
 
 import uk.gov.gchq.gaffer.commonutil.JsonUtil;
@@ -28,10 +29,6 @@ public abstract class GraphLibrary {
 
     public void add(final String graphId, final Schema schema, final StoreProperties properties) throws OverwritingException {
         validateId(graphId);
-
-        if (null == properties) {
-            throw new IllegalArgumentException("StoreProperties must not be null");
-        }
 
         final byte[] schemaJson = null != schema ? schema.toJson(false) : null;
 

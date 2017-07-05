@@ -63,7 +63,7 @@ public class StoreProperties implements Cloneable {
     public StoreProperties() {
     }
 
-    public StoreProperties(String id) {
+    public StoreProperties(final String id) {
         if (null != id) {
             setId(id);
         }
