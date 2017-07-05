@@ -52,6 +52,8 @@ public class FileGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWithInvalidPath() {
+
+        // When / Then
         try {
             fileGraphLibrary = new FileGraphLibrary("inv@lidP@th");
             fail("Exception expected");
@@ -61,22 +63,31 @@ public class FileGraphLibraryTest {
     }
 
     @Test
-    public void shouldGetIdsInFileGraphLibrary() {
+    public void shouldThrowExceptionWithInvalidGraphId() {
+
+        // Given
         fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
-        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
-
-        assertEquals(new Pair<>(SCHEMA_ID, PROPERTIES_ID), fileGraphLibrary.getIds(GRAPH_ID));
+        // When / Then
+        try {
+            fileGraphLibrary.add(GRAPH_ID + "@#", schema, storeProperties);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
     public void shouldThrowExceptionWhenGraphIdWithDifferentSchemaExists() {
+
+        // Given
         fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final StoreProperties storeProperties = new StoreProperties();
         final Schema schema1 = new Schema.Builder()
                 .id(SCHEMA_ID + "1")
                 .build();
 
+        // When / Then
         try {
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
             fileGraphLibrary.add(GRAPH_ID, schema1, storeProperties);
@@ -89,10 +100,13 @@ public class FileGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
+
+        // Given
         fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final StoreProperties storeProperties1 = new StoreProperties();
         storeProperties1.setId(PROPERTIES_ID + "1");
 
+        // When / Then
         try {
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
             fileGraphLibrary.add(GRAPH_ID, schema, storeProperties1);
@@ -101,6 +115,45 @@ public class FileGraphLibraryTest {
             assertNotNull(e.getMessage());
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
+    }
+
+    @Test
+    public void shouldGetIds() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When
+        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // Then
+        assertEquals(new Pair<>(SCHEMA_ID, PROPERTIES_ID), fileGraphLibrary.getIds(GRAPH_ID));
+    }
+
+    @Test
+    public void shouldGetSchema() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When
+        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // Then
+        assertEquals(schema, fileGraphLibrary.getSchema(SCHEMA_ID));
+    }
+
+    @Test
+    public void shouldGetProperties() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When
+        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // Then
+        assertEquals(storeProperties, fileGraphLibrary.getProperties(PROPERTIES_ID));
     }
 
     private static void deleteTestFiles() {

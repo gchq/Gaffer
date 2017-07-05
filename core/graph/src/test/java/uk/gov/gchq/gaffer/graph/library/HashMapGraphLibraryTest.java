@@ -23,6 +23,7 @@ import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -37,12 +38,44 @@ public class HashMapGraphLibraryTest {
 
     @Test
     public void shouldGetIdsInHashMapGraphLibrary() {
+
+        // When
         hashMapGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // Then
         assertEquals(new Pair<>(SCHEMA_ID, PROPERTIES_ID), hashMapGraphLibrary.getIds(GRAPH_ID));
     }
 
     @Test
+    public void shouldClearHashMaps() {
+
+        // Given
+        hashMapGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // When
+        hashMapGraphLibrary.clear();
+
+        // Then
+        assertEquals(null, hashMapGraphLibrary.getIds(GRAPH_ID));
+        assertEquals(null, hashMapGraphLibrary.getSchema(SCHEMA_ID));
+        assertEquals(null, hashMapGraphLibrary.getProperties(PROPERTIES_ID));
+    }
+
+    @Test
+    public void shouldThrowExceptionWithInvalidGraphId() {
+
+        // When / Then
+        try {
+            hashMapGraphLibrary.add(GRAPH_ID + "@#", schema, storeProperties);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionWhenGraphIdWithDifferentSchemaExists() {
+
         // Given
         hashMapGraphLibrary.add(GRAPH_ID, schema, storeProperties);
         Schema schema1 = new Schema.Builder()
@@ -60,6 +93,7 @@ public class HashMapGraphLibraryTest {
 
     @Test
     public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
+
         // Given
         hashMapGraphLibrary.add(GRAPH_ID, schema, storeProperties);
         StoreProperties storeProperties1 = new StoreProperties("hashMapTestPropertiesId1");

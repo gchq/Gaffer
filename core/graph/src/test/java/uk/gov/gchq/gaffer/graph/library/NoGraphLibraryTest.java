@@ -16,7 +16,6 @@
 
 package uk.gov.gchq.gaffer.graph.library;
 
-import org.junit.Before;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -29,20 +28,30 @@ public class NoGraphLibraryTest {
     private static final String GRAPH_ID = "noGraphLibraryTestId";
     private static final String SCHEMA_ID = "noGraphLibrarySchemaId";
     private static final String PROPERTIES_ID = "noGraphLibraryPropertiesId";
+    private final StoreProperties storeProperties = new StoreProperties(GRAPH_ID);
+    final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
 
-    @Before
-    public void setUp() {
-        final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setId(PROPERTIES_ID);
-        final Schema schema = new Schema.Builder()
-                .id(SCHEMA_ID)
-                .build();
+    @Test
+    public void shouldReturnNullWhenGettingIds() {
 
+        // When / Then
         noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        assertNull(noGraphLibrary.getIds(GRAPH_ID));
     }
 
     @Test
-    public void testAddIds() {
-        assertNull(noGraphLibrary.getIds(GRAPH_ID));
+    public void shouldReturnNullWhenGettingSchema() {
+
+        // When / Then
+        noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        assertNull(noGraphLibrary.getSchema(SCHEMA_ID));
+    }
+
+    @Test
+    public void shouldReturnNullWhenGettingProperties() {
+
+        // When / Then
+        noGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        assertNull(noGraphLibrary.getProperties(PROPERTIES_ID));
     }
 }
