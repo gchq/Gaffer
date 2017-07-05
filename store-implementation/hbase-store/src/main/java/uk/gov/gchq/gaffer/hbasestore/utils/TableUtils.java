@@ -106,22 +106,16 @@ public final class TableUtils {
         library.add(args[0], schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
-        if (null == storeClass)
-
-        {
+        if (null == storeClass) {
             throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
         }
 
         final HBaseStore store;
-        try
-
-        {
+        try {
             store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
         } catch (final InstantiationException | IllegalAccessException |
                 ClassNotFoundException e
-                )
-
-        {
+                ) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 
@@ -131,26 +125,12 @@ public final class TableUtils {
                 storeProps
         );
 
-        if (!store.getConnection().
-
-                getAdmin()
-
-                .
-
-                        tableExists(store.getTableName()
-
-                        ))
-
-        {
+        if (!store.getConnection().getAdmin()
+                .tableExists(store.getTableName())) {
             createTable(store);
         }
 
-
-        try (
-                final Admin admin = store.getConnection().getAdmin()
-        )
-
-        {
+        try (final Admin admin = store.getConnection().getAdmin()) {
             final TableName tableName = store.getTableName();
             if (admin.tableExists(tableName)) {
                 final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);

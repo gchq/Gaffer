@@ -33,9 +33,9 @@ public class FileGraphLibraryTest {
     private static final String PROPERTIES_ID = "fileGraphLibraryTestPropertiesId";
 
     @Test
-    public void testInvalidPath() {
+    public void shouldThrowExceptionWithInvalidPath() {
         try {
-            fileGraphLibrary = new FileGraphLibrary("%$#@#@$");
+            fileGraphLibrary = new FileGraphLibrary("inv@lidP@th");
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -43,7 +43,7 @@ public class FileGraphLibraryTest {
     }
 
     @Test
-    public void testAdd() {
+    public void shouldGetIdsInFileGraphLibrary() {
         fileGraphLibrary = new FileGraphLibrary("test");
         final StoreProperties storeProperties = new StoreProperties();
         storeProperties.setId(PROPERTIES_ID);
