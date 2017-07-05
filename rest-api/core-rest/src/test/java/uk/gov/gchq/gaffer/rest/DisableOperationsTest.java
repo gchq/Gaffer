@@ -39,7 +39,7 @@ public class DisableOperationsTest {
     private final Class<? extends Operation>[] disabledOperations;
     private File storePropsPath;
     private File schemaPath;
-    private static final String GRAPH_ID = "table1";
+    private static final String GRAPH_ID = "graphId";
 
     public DisableOperationsTest() throws IOException {
         this(SplitStore.class);
@@ -54,7 +54,7 @@ public class DisableOperationsTest {
     public void before() throws IOException {
         storePropsPath = tempFolder.newFile("tmpStore.properties");
         schemaPath = tempFolder.newFile("tmpSchema.json");
-        System.setProperty(SystemProperty.GRAPH_ID, "table1");
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
         FileUtils.copyURLToFile(getClass().getResource("/store.properties"), storePropsPath);
         FileUtils.copyURLToFile(getClass().getResource("/schema/schema.json"), schemaPath);
     }
