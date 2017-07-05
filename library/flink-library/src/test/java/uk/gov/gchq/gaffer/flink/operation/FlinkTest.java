@@ -39,7 +39,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class FlinkTest {
+public abstract class FlinkTest {
     public static final Schema SCHEMA = new Schema.Builder()
             .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
                     .clazz(String.class)
@@ -71,6 +71,25 @@ public class FlinkTest {
                     .property(TestPropertyNames.COUNT, 1L)
                     .build()
     );
+
+    public static final java.util.HashSet<Entity> EXPECTED_ELEMENTS_2 = Sets.newHashSet(
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("4")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("5")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("6")
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build()
+    );
+
 
     public static final String[] DATA_VALUES = {"1", "2", "3"};
     public static final String DATA = StringUtils.join(DATA_VALUES, "\n");

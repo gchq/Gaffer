@@ -16,33 +16,31 @@
 
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
-import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
-import uk.gov.gchq.gaffer.commonutil.TestGroups;
-import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
+import org.mockito.ArgumentCaptor;
 import uk.gov.gchq.gaffer.flink.operation.FlinkTest;
-import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.Validatable;
-import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class GafferAdderTest {
     @Test
     public void shouldAddElementsToStore() throws Exception {
         // Given
         final Validatable op = mock(Validatable.class);
-        final AccumuloStore store = FlinkTest.createStore();
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .build();
+        final Store store = mock(Store.class);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
 
@@ -52,87 +50,82 @@ public class GafferAdderTest {
         adder.add(FlinkTest.EXPECTED_ELEMENTS);
 
         // Then
-        FlinkTest.verifyElements(graph);
+        final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(store).runAsync(runnableCaptor.capture());
+        runnableCaptor.getValue().run();
+        verify(store).execute(new AddElements.Builder()
+                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS)))
+                .validate(true)
+                .skipInvalidElements(false)
+                .build(), new User());
     }
 
     @Test
     public void shouldRestartAddElementsIfPauseInIngest() throws Exception {
         // Given
         final Validatable op = mock(Validatable.class);
-        final AccumuloStore store = FlinkTest.createStore();
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .build();
+        final Store store = mock(Store.class);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
 
         final GafferAdder adder = new GafferAdder(op, store);
 
-        // When / Then
-        adder.add(FlinkTest.EXPECTED_ELEMENTS);
-        FlinkTest.verifyElements(graph);
+        // When
         adder.add(FlinkTest.EXPECTED_ELEMENTS);
 
-        Thread.sleep(2000);
-        final Set<Element> allElements = Sets.newHashSet(graph.execute(new GetAllElements(), new User()));
-        Set<Element> allExpectedElements = Sets.newHashSet(
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("1")
-                        .property(TestPropertyNames.COUNT, 2L)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("2")
-                        .property(TestPropertyNames.COUNT, 2L)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("3")
-                        .property(TestPropertyNames.COUNT, 2L)
-                        .build()
-        );
-        assertEquals(allExpectedElements, allElements);
+        // Then
+        final ArgumentCaptor<Runnable> runnableCaptor1 = ArgumentCaptor.forClass(Runnable.class);
+        verify(store).runAsync(runnableCaptor1.capture());
+        runnableCaptor1.getValue().run();
+        verify(store).execute(new AddElements.Builder()
+                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS)))
+                .validate(true)
+                .skipInvalidElements(false)
+                .build(), new User());
+
+        // When
+        adder.add(FlinkTest.EXPECTED_ELEMENTS_2);
+
+        // Then
+        final ArgumentCaptor<Runnable> runnableCaptor2 = ArgumentCaptor.forClass(Runnable.class);
+        verify(store).runAsync(runnableCaptor2.capture());
+        runnableCaptor2.getValue().run();
+        verify(store).execute(new AddElements.Builder()
+                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS_2)))
+                .validate(true)
+                .skipInvalidElements(false)
+                .build(), new User());
     }
 
     @Test
     public void shouldAddElementsIfInvokeCalledMultipleTimes() throws Exception {
         // Given
-        final long duplicates = 1000;
+        final int duplicates = 4;
         final Validatable op = mock(Validatable.class);
-        final AccumuloStore store = FlinkTest.createStore();
-        final Graph graph = new Graph.Builder()
-                .store(store)
-                .build();
+        final Store store = mock(Store.class);
+        given(store.getProperties()).willReturn(new StoreProperties());
+        given(store.getSchema()).willReturn(new Schema());
         given(op.isValidate()).willReturn(true);
         given(op.isSkipInvalidElements()).willReturn(false);
 
         final GafferAdder adder = new GafferAdder(op, store);
 
-        // When / Then
+        // When
         for (int i = 0; i < duplicates; i++) {
             adder.add(FlinkTest.EXPECTED_ELEMENTS);
         }
 
-        Thread.sleep(2000);
-        final Set<Element> allElements = Sets.newHashSet(graph.execute(new GetAllElements(), new User()));
-        Set<Element> allExpectedElements = Sets.newHashSet(
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("1")
-                        .property(TestPropertyNames.COUNT, duplicates)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("2")
-                        .property(TestPropertyNames.COUNT, duplicates)
-                        .build(),
-                new Entity.Builder()
-                        .group(TestGroups.ENTITY)
-                        .vertex("3")
-                        .property(TestPropertyNames.COUNT, duplicates)
-                        .build()
-        );
-        assertEquals(allExpectedElements, allElements);
+        // Then
+        final ArgumentCaptor<Runnable> runnableCaptor1 = ArgumentCaptor.forClass(Runnable.class);
+        verify(store, times(duplicates)).runAsync(runnableCaptor1.capture());
+        assertEquals(1, runnableCaptor1.getAllValues().size());
+        runnableCaptor1.getValue().run();
+        verify(store).execute(new AddElements.Builder()
+                .input(new GafferQueue<>(new ConcurrentLinkedQueue<>(FlinkTest.EXPECTED_ELEMENTS)))
+                .validate(true)
+                .skipInvalidElements(false)
+                .build(), new User());
     }
 }

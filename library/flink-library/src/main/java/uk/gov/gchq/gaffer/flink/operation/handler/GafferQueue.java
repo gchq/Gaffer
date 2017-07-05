@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.flink.operation.handler;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -50,5 +52,42 @@ public class GafferQueue<T> implements Iterable<T> {
                 return queue.poll();
             }
         };
+    }
+
+    /**
+     * Warning - this will convert the entire queue to an array to check if the
+     * items are equal so use it with with caution.
+     *
+     * @param obj the object to compare
+     * @return true if equal, otherwise false.
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final GafferQueue gafferQueue = (GafferQueue) obj;
+
+        return new EqualsBuilder()
+                .append(queue.toArray(), gafferQueue.queue.toArray())
+                .append(iteratorAvailable, gafferQueue.iteratorAvailable)
+                .isEquals();
+    }
+
+    /**
+     * Warning - this will convert the entire queue to an array to get a hashcode
+     * so use it with caution.
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 37)
+                .append(queue.toArray())
+                .append(iteratorAvailable)
+                .toHashCode();
     }
 }

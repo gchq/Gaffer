@@ -17,6 +17,8 @@
 package uk.gov.gchq.gaffer.operation.impl.add;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
@@ -87,6 +89,36 @@ public class AddElements implements
     @Override
     public void setOptions(final Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final AddElements addElements = (AddElements) obj;
+
+        return new EqualsBuilder()
+                .append(options, addElements.options)
+                .append(validate, addElements.validate)
+                .append(skipInvalidElements, addElements.skipInvalidElements)
+                .append(elements, addElements.elements)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(options)
+                .append(validate)
+                .append(skipInvalidElements)
+                .append(elements)
+                .toHashCode();
     }
 
     public static class Builder extends Operation.BaseBuilder<AddElements, Builder>
