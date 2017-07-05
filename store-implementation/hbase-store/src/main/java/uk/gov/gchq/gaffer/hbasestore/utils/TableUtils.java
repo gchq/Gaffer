@@ -96,7 +96,6 @@ public final class TableUtils {
 
         GraphLibrary library;
 
-        // TODO this is pretty horrible and potentially needs some more thought
         if (args[3] == null) {
             library = new NoGraphLibrary();
         } else {
