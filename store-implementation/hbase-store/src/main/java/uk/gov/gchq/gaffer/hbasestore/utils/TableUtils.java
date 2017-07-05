@@ -125,15 +125,15 @@ public final class TableUtils {
         }
     }
 
-    private static String getGraphId(String[] args) {
+    private static String getGraphId(final String[] args) {
         return args[0];
     }
 
-    private static Path getSchemaDirectoryPath(String[] args) {
+    private static Path getSchemaDirectoryPath(final String[] args) {
         return Paths.get(args[1]);
     }
 
-    private static String getStorePropertiesPathString(String[] args) {
+    private static String getStorePropertiesPathString(final String[] args) {
         return args[2];
     }
 
