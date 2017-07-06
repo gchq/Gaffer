@@ -60,7 +60,9 @@ public class MapFilterExample extends PredicateExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3L);
 
-        runExample(function, map1, map2, map3, map4, map5);
+        runExample(function,
+                null,
+                map1, map2, map3, map4, map5);
     }
 
     public void freqMapIsMoreThanOrEqualTo2() {
@@ -84,7 +86,9 @@ public class MapFilterExample extends PredicateExample {
         final FreqMap map5 = new FreqMap();
         map5.put("key2", 3L);
 
-        runExample(function, map1, map2, map3, map4, map5);
+        runExample(function,
+                null,
+                map1, map2, map3, map4, map5);
     }
 
     public void mapWithDateKeyHasAValueThatExists() {
@@ -98,6 +102,8 @@ public class MapFilterExample extends PredicateExample {
         final Map<Date, Long> map2 = new HashMap<>();
         map2.put(new Date(), 2L);
 
-        runExample(function, map1, map2);
+        runExample(function,
+                null,
+                map1, map2);
     }
 }

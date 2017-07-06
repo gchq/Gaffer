@@ -38,7 +38,9 @@ public class IsEqualExample extends PredicateExample {
         final IsEqual function = new IsEqual(5);
         // ---------------------------------------------------------
 
-        runExample(function, 5, 5L, "5", '5');
+        runExample(function,
+                null,
+                5, 5L, "5", '5');
     }
 
     public void isEqualToString5() {
@@ -46,7 +48,9 @@ public class IsEqualExample extends PredicateExample {
         final IsEqual function = new IsEqual("5");
         // ---------------------------------------------------------
 
-        runExample(function, 5, 5L, "5", '5');
+        runExample(function,
+                null,
+                5, 5L, "5", '5');
     }
 
     public void isEqualLong5() {
@@ -54,6 +58,8 @@ public class IsEqualExample extends PredicateExample {
         final IsEqual function = new IsEqual(5L);
         // ---------------------------------------------------------
 
-        runExample(function, 5, 5L, "5", '5');
+        runExample(function,
+                null,
+                5, 5L, "5", '5');
     }
 }

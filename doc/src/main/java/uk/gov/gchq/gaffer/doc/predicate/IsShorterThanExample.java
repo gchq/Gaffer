@@ -47,6 +47,7 @@ public class IsShorterThanExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 "123", "1234",
                 new Integer[]{1, 2, 3}, new Integer[]{1, 2, 3, 4},
                 Lists.newArrayList(1, 2, 3), Lists.newArrayList(1, 2, 3, 4),
