@@ -79,13 +79,17 @@ public class WriteUnsortedData {
             final Element element = elements.next();
             final String group = element.getGroup();
             ParquetWriter<GenericRecord> writer = groupToWriter.get(group);
-            if (writer.getDataSize() >= batchSize) {
-                groupToFileNumber.put(group, groupToFileNumber.getOrDefault(group, 0) + 1);
-                writer.close();
-                writer = buildWriter(group);
-                groupToWriter.put(group, writer);
+            if (writer != null) {
+                if (writer.getDataSize() >= batchSize) {
+                    groupToFileNumber.put(group, groupToFileNumber.getOrDefault(group, 0) + 1);
+                    writer.close();
+                    writer = buildWriter(group);
+                    groupToWriter.put(group, writer);
+                }
+                writer.write(convertElementToGenericRecord(element));
+            } else {
+                LOGGER.warn("Skipped the adding of an Element with Group = {} as that group does not exist in the schema.", group);
             }
-            writer.write(convertElementToGenericRecord(element));
         }
     }
 
