@@ -26,7 +26,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>basic-generators</module>
         <module>basic-model</module>
         <module>basic-rest</module>
     </modules>
