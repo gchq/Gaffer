@@ -17,10 +17,7 @@ Flink Library
 ============
 This module contains various libraries for Apache Flink.
 
-It is currently being developed and is experimental so should not yet be used.
-
 In order to make use of the flink libraries you will need to include these libraries as a dependency:
-
 ```
  <dependency>
   <groupId>uk.gov.gchq.gaffer</groupId>
