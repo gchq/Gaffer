@@ -27,6 +27,7 @@ import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -174,12 +175,7 @@ public class FileGraphLibraryTest {
         fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
 
         // Then
-        try {
-            fileGraphLibrary.getProperties(PROPERTIES_ID + "1");
-            fail("Exception expected");
-        } catch (RuntimeException e) {
-            assertNotNull(e.getMessage());
-        }
+        assertNull(fileGraphLibrary.getProperties(PROPERTIES_ID + "1"));
     }
 
     @Test

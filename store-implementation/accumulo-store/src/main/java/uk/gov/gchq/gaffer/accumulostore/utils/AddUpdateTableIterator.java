@@ -273,7 +273,10 @@ public final class AddUpdateTableIterator {
     }
 
     private static String getFileGraphLibraryPathString(final String[] args) {
-        return args[4];
+        if (args.length < 5) {
+            return args[4];
+        }
+        return null;
     }
 
     private static Path[] getSchemaPaths(final String[] args) {
