@@ -667,7 +667,7 @@ public class GraphTest {
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
                                     .aggregateFunction(new Sum())
-                                    // invalid serialiser
+                                            // invalid serialiser
                                     .serialiser(new RawDoubleSerialiser())
                                     .build())
                             .type("string", new TypeDefinition.Builder()
@@ -883,7 +883,7 @@ public class GraphTest {
         // Given
         HashMapGraphLibrary.clear();
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
