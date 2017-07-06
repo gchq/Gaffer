@@ -22,4 +22,7 @@ public final class ElementGroup {
 
     // Edges
     public static final String BASIC_EDGE = "BasicEdge";
+
+    private ElementGroup() {
+    }
 }
