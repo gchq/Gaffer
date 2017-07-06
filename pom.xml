@@ -42,6 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
+        <exclude.tests/>
 
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -553,6 +554,9 @@
                 <configuration>
                     <argLine>${surefireArgLine}</argLine>
                     <skipTests>${skip.surefire.tests}</skipTests>
+                    <excludes>
+                        <exclude>${exclude.tests}</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -574,6 +578,7 @@
                     <excludes>
                         <exclude>**/*$*</exclude>
                         <exclude>**/performance/**</exclude>
+                        <exclude>${exclude.tests}</exclude>
                     </excludes>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
@@ -1042,6 +1047,10 @@
         </profile>
         <profile>
             <id>travis</id>
+            <properties>
+                <!-- The flink integration tests don't run on Travis CI -->
+                <exclude.tests>**/flink/**/*IT.java</exclude.tests>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
