@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.operation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Collections;
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 public abstract class OperationTest {
+    protected static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     protected abstract Class<? extends Operation> getOperationClass();
 
     protected Set<String> getRequiredFields() {
