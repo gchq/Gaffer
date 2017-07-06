@@ -109,7 +109,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaModules() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -659,7 +659,7 @@ public class GraphTest {
     @Test
     public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
         try {
             new Graph.Builder()
                     .graphId(GRAPH_ID)
@@ -756,7 +756,7 @@ public class GraphTest {
 
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         //When / Then
         try {
@@ -777,7 +777,7 @@ public class GraphTest {
     public void shouldThrowExceptionWithNullSchema() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         //When / Then
         try {
@@ -790,7 +790,7 @@ public class GraphTest {
         }
     }
 
-    static class StoreImpl extends Store {
+    public static class TestStoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
             return new HashSet<>(0);

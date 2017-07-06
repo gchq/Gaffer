@@ -88,7 +88,7 @@ public class AccumuloIDWithinSetRetrieverTest {
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsWithinSet operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
-        final AccumuloRetriever<?> retriever = new AccumuloIDWithinSetRetriever(store, operation, user, loadIntoMemory);
+        final AccumuloRetriever<?, Element> retriever = new AccumuloIDWithinSetRetriever(store, operation, user, loadIntoMemory);
         final Set<Element> results = new HashSet<>();
 
         for (final Element elm : retriever) {

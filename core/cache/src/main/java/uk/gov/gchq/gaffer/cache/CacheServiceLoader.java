@@ -33,8 +33,9 @@ public final class CacheServiceLoader {
     private static boolean shutdownHookAdded = false;
 
     /**
-     * Looks at a system property and initialises an appropriate cache service. Then adds a shutdown hook to close the
-     * cache service gracefully.
+     * Looks at a system property and initialises an appropriate cache service. Adds a shutdown hook
+     * which gracefully closes the cache service if JVM is stopped. This should not be relied upon
+     * in a servlet context - use the ServletLifecycleListener located in the REST module instead
      *
      * @param properties the cache service properties
      * @throws IllegalArgumentException if an invalid cache class is specified in the system property
@@ -78,6 +79,9 @@ public final class CacheServiceLoader {
         return service;
     }
 
+    /**
+     * Gracefully shutdown and reset the cache service.
+     */
     public static void shutdown() {
         if (service != null) {
             service.shutdown();

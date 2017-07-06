@@ -17,22 +17,23 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.ordered;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class OrderedDateSerialiserTest {
-
-    private static final OrderedDateSerialiser SERIALISER = new OrderedDateSerialiser();
+public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (long i = 1000000L; i < 1001000L; i++) {
-            final byte[] b = SERIALISER.serialise(new Date(i));
-            final Object o = SERIALISER.deserialise(b);
+            final byte[] b = serialiser.serialise(new Date(i));
+            final Object o = serialiser.deserialise(b);
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -40,36 +41,36 @@ public class OrderedDateSerialiserTest {
 
     @Test
     public void canSerialiseEpoch() throws SerialisationException {
-        final byte[] b = SERIALISER.serialise(new Date(0));
-        final Object o = SERIALISER.deserialise(b);
+        final byte[] b = serialiser.serialise(new Date(0));
+        final Object o = serialiser.deserialise(b);
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }
 
     @Test
     public void cantSerialiseStringClass() {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseDateClass() {
-        assertTrue(SERIALISER.canHandle(Date.class));
+        assertTrue(serialiser.canHandle(Date.class));
     }
 
     @Test
-    public void checkOrderPreserved() {
+    public void checkOrderPreserved() throws SerialisationException {
         Date testDate = new Date(1L);
         Date aDayLater = new Date(86400000L);
-        assertTrue(compare(SERIALISER.serialise(testDate), SERIALISER.serialise(aDayLater)) < 0);
+        assertTrue(compare(serialiser.serialise(testDate), serialiser.serialise(aDayLater)) < 0);
     }
 
     @Test
-    public void checkMultipleDatesOrderPreserved() {
+    public void checkMultipleDatesOrderPreserved() throws SerialisationException {
         Date startTestDate = new Date(1L);
         Date newTestDate;
         for (Long time = 2L; time > 10L; time++) {
             newTestDate = new Date(time);
-            assertTrue(compare(SERIALISER.serialise(startTestDate), SERIALISER.serialise(newTestDate)) < 0);
+            assertTrue(compare(serialiser.serialise(startTestDate), serialiser.serialise(newTestDate)) < 0);
             startTestDate = newTestDate;
         }
     }
@@ -83,5 +84,21 @@ public class OrderedDateSerialiserTest {
             }
         }
         return 0;
+    }
+
+    @Override
+    public Serialiser<Date, byte[]> getSerialisation() {
+        return new OrderedDateSerialiser();
+    }
+
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(new Date(1985, 10, 26, 9, 0, 0), new byte[]{8, -128, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(2015, 10, 21, 7, 28, 0), new byte[]{8, -128, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(1955, 11, 12, 6, 38, 0), new byte[]{8, -128, 0, 54, 32, -41, 41, -107, 64})
+        };
     }
 }

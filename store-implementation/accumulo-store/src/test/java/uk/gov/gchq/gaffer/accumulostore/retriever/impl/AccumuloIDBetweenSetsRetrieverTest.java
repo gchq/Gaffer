@@ -473,7 +473,7 @@ public class AccumuloIDBetweenSetsRetrieverTest {
 
     private Set<Element> returnElementsFromOperation(final AccumuloStore store, final GetElementsBetweenSets operation, final User user, final boolean loadIntoMemory) throws StoreException {
 
-        final AccumuloRetriever<?> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory, store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
+        final AccumuloRetriever<?, Element> retriever = new AccumuloIDBetweenSetsRetriever(store, operation, user, loadIntoMemory, store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
         final Set<Element> results = new HashSet<>();
 
         for (final Element elm : retriever) {

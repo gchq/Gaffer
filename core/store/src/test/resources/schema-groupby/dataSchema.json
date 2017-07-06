@@ -7,7 +7,8 @@
         "count": "count.long",
         "property1": "prop.string",
         "property2": "prop.string",
-        "property3": "prop.string"
+        "property3": "prop.string",
+        "visibility": "prop.string"
       },
       "groupBy": [
         "property2",
@@ -21,7 +22,8 @@
         "count": "count.long",
         "property1": "prop.string",
         "property2": "prop.string",
-        "property3": "prop.string"
+        "property3": "prop.string",
+        "visibility": "prop.string"
       },
       "groupBy": [
         "property2",
@@ -40,12 +42,14 @@
         "count": "count.long",
         "property1": "prop.string",
         "property2": "prop.string",
-        "property3": "prop.string"
+        "property3": "prop.string",
+        "visibility": "prop.string"
       },
       "groupBy": [
         "property2",
         "property3"
       ]
     }
-  }
+  },
+  "visibilityProperty": "visibility"
 }

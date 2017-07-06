@@ -61,7 +61,7 @@ public class ElementPreAggregationFilterTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoView() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenInitWithNoView() throws Exception {
         // Given
         final AbstractElementFilter filter = new ElementPreAggregationFilter();
 
@@ -72,7 +72,7 @@ public class ElementPreAggregationFilterTest {
 
         // When / Then
         try {
-            filter.validateOptions(options);
+            filter.init(null, options, null);
             fail("Expected IllegalArgumentException to be thrown on method invocation");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains(AccumuloStoreConstants.VIEW));
@@ -126,7 +126,7 @@ public class ElementPreAggregationFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
@@ -152,7 +152,7 @@ public class ElementPreAggregationFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 

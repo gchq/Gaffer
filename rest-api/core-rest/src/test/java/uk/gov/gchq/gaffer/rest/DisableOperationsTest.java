@@ -64,6 +64,7 @@ public class DisableOperationsTest {
         // Given
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, storePropsPath.getAbsolutePath());
         System.setProperty(SystemProperty.SCHEMA_PATHS, schemaPath.getAbsolutePath());
+        System.setProperty(SystemProperty.GRAPH_ID, "graphId");
         final DefaultGraphFactory factory = new DefaultGraphFactory();
 
         // When

@@ -25,7 +25,7 @@ public class VisibilityAggregator extends KorypheBinaryOperator<String> {
         validateInput(input1);
         validateInput(input2);
 
-        if ("private".equals(input1) || "public".equals(input2)) {
+        if ("private".equals(input1) || "private".equals(input2)) {
             return "private";
         }
 
