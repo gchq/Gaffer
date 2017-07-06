@@ -73,20 +73,28 @@ public class FileGraphLibrary extends GraphLibrary {
     @Override
     protected void _addSchema(final String schemaId,
                               final byte[] schema) throws OverwritingException {
-        try {
-            FileUtils.writeByteArrayToFile(getSchemaPath(schemaId).toFile(), schema);
-        } catch (final IOException e) {
-            throw new IllegalArgumentException("Could not write schema to path: " + getSchemaPath(schemaId), e);
+        if (schema != null) {
+            try {
+                FileUtils.writeByteArrayToFile(getSchemaPath(schemaId).toFile(), schema);
+            } catch (final IOException e) {
+                throw new IllegalArgumentException("Could not write schema to path: " + getSchemaPath(schemaId), e);
+            }
+        } else {
+            throw new IllegalArgumentException("Schema cannot be null");
         }
     }
 
     @Override
     protected void _addProperties(final String propertiesId,
                                   final StoreProperties properties) {
-        try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
-            properties.getProperties().store(propertiesFileOutputStream, null);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
+        if (properties != null) {
+            try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
+                properties.getProperties().store(propertiesFileOutputStream, null);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Could not write properties to path: " + getSchemaPath(propertiesId), e);
+            }
+        } else {
+            throw new IllegalArgumentException("StoreProperties cannot be null");
         }
     }
 
@@ -107,11 +115,11 @@ public class FileGraphLibrary extends GraphLibrary {
     }
 
     private Path getSchemaPath(final String schemaId) {
-        return Paths.get(path + "/" + schemaId + ".json");
+        return Paths.get(path + "/" + schemaId + "Schema.json");
     }
 
     private Path getPropertiesPath(final String propertiesId) {
-        return Paths.get(path + "/" + propertiesId + ".json");
+        return Paths.get(path + "/" + propertiesId + "Props.properties");
     }
 
     private Path getGraphsPath(final String graphId) {

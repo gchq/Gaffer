@@ -82,7 +82,6 @@ public class FileGraphLibraryTest {
 
         // Given
         fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
-        final StoreProperties storeProperties = new StoreProperties();
         final Schema schema1 = new Schema.Builder()
                 .id(SCHEMA_ID + "1")
                 .build();
@@ -93,7 +92,6 @@ public class FileGraphLibraryTest {
             fileGraphLibrary.add(GRAPH_ID, schema1, storeProperties);
             fail("Exception expected");
         } catch (OverwritingException e) {
-            assertNotNull(e.getMessage());
             assertTrue(e.getMessage().contains("already exists with a different schema"));
         }
     }
@@ -103,8 +101,7 @@ public class FileGraphLibraryTest {
 
         // Given
         fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
-        final StoreProperties storeProperties1 = new StoreProperties();
-        storeProperties1.setId(PROPERTIES_ID + "1");
+        final StoreProperties storeProperties1 = new StoreProperties(PROPERTIES_ID + "1");
 
         // When / Then
         try {
@@ -115,6 +112,91 @@ public class FileGraphLibraryTest {
             assertNotNull(e.getMessage());
             assertTrue(e.getMessage().contains("already exists with a different store properties"));
         }
+    }
+
+    @Test
+    public void shouldUpdateWhenGraphIdExists() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final StoreProperties storeProperties1 = new StoreProperties(PROPERTIES_ID + "1");
+
+        // When
+        fileGraphLibrary.addOrUpdate(GRAPH_ID, schema, storeProperties);
+
+        // Then
+        assertEquals(fileGraphLibrary.getProperties(PROPERTIES_ID), storeProperties);
+
+        // When
+        fileGraphLibrary.addOrUpdate(GRAPH_ID, schema, storeProperties1);
+
+        // Then
+        assertEquals(fileGraphLibrary.getProperties(PROPERTIES_ID + "1"), storeProperties1);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenSchemaIsNull() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When / Then
+        try {
+            fileGraphLibrary.add(GRAPH_ID, schema, null);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("StoreProperties cannot be null"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenStorePropertiesAreNull() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When / Then
+        try {
+            fileGraphLibrary.add(GRAPH_ID, null, storeProperties);
+            fail("Exception expected");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Schema cannot be null"));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPropertiesFileDoesntExist() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When
+        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+
+        // Then
+        try {
+            fileGraphLibrary.getProperties(PROPERTIES_ID + "1");
+            fail("Exception expected");
+        } catch (RuntimeException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldGetIdsWhenAllIdsMatch() {
+
+        // Given
+        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final StoreProperties storeProperties1 = new StoreProperties(GRAPH_ID);
+        final Schema schema1 = new Schema.Builder()
+                .id(GRAPH_ID)
+                .build();
+
+        // When
+        fileGraphLibrary.add(GRAPH_ID, schema1, storeProperties1);
+
+        // Then
+        assertEquals(new Pair<>(GRAPH_ID, GRAPH_ID), fileGraphLibrary.getIds(GRAPH_ID));
     }
 
     @Test

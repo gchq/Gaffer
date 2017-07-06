@@ -57,7 +57,7 @@ import java.util.Map;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
-    private static final int NUM_REQUIRED_ARGS = 4;
+    private static final int NUM_REQUIRED_ARGS = 3;
 
     private TableUtils() {
     }
@@ -97,13 +97,13 @@ public final class TableUtils {
 
         GraphLibrary library;
 
-        if (args[3] == null) {
+        if (getFileGraphLibraryPathString(args) == null) {
             library = new NoGraphLibrary();
         } else {
-            library = new FileGraphLibrary(args[3]);
+            library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
         }
 
-        library.add(args[0], schema, storeProps);
+        library.addOrUpdate(getGraphId(args), schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
@@ -154,6 +154,10 @@ public final class TableUtils {
 
     private static String getStorePropertiesPathString(final String[] args) {
         return args[2];
+    }
+
+    private static String getFileGraphLibraryPathString(final String[] args) {
+        return args[3];
     }
 
     /**

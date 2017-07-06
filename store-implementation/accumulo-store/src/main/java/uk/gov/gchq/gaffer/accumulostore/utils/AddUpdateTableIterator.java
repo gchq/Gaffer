@@ -57,7 +57,7 @@ public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
     public static final String ADD_KEY = "add";
-    private static final int NUM_REQUIRED_ARGS = 5;
+    private static final int NUM_REQUIRED_ARGS = 4;
     private static final String[] ITERATORS = {
             AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
             AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME
@@ -208,7 +208,7 @@ public final class AddUpdateTableIterator {
             library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
         }
 
-        library.add(getGraphId(args), schema, storeProps);
+        library.addOrUpdate(getGraphId(args), schema, storeProps);
 
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {

@@ -42,6 +42,25 @@ public abstract class GraphLibrary {
         _addProperties(propertiesId, properties);
     }
 
+    public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
+        validateId(graphId);
+
+        final String schemaId = null != schema ? schema.getId() : graphId;
+        final String propertiesId = null != properties ? properties.getId() : graphId;
+
+        _addIds(graphId, new Pair<>(schemaId, propertiesId));
+
+        if (null != schema) {
+            final byte[] schemaJson = schema.toJson(false);
+            _addSchema(schemaId, schemaJson);
+        }
+
+        if (null != properties) {
+            _addProperties(propertiesId, properties);
+        }
+    }
+
+
     public Pair<Schema, StoreProperties> get(final String graphId) {
         validateId(graphId);
 
