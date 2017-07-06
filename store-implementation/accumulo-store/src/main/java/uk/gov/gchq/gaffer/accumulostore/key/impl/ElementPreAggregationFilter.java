@@ -18,19 +18,18 @@ package uk.gov.gchq.gaffer.accumulostore.key.impl;
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractElementFilter;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
-import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.store.ElementValidator;
 
 public class ElementPreAggregationFilter extends AbstractElementFilter {
 
-    @Override
-    protected boolean validate(final Element element) {
-        return validator.validateInput(element);
+    public ElementPreAggregationFilter() {
+        super(ElementValidator.FilterType.PRE_AGGREGATION_FILTER);
     }
 
     @Override
     public IteratorOptions describeOptions() {
         return new IteratorOptionsBuilder(super.describeOptions()).addViewNamedOption().addSchemaNamedOption()
                 .addElementConverterClassNamedOption().setIteratorName(AccumuloStoreConstants.ELEMENT_PRE_AGGREGATION_FILTER_ITERATOR_NAME)
-                .setIteratorDescription("Only returns elements that pass validation against the given view").build();
+                .setIteratorDescription("Only returns elements that pass pre aggregation validation against the given view").build();
     }
 }

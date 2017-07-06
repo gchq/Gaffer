@@ -22,9 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 
@@ -83,7 +83,7 @@ public class Edge extends Element implements EdgeId {
     @JsonIgnore
     @Override
     public DirectedType getDirectedType() {
-        if (directed) {
+        if (isDirected()) {
             return DirectedType.DIRECTED;
         }
 
@@ -105,7 +105,7 @@ public class Edge extends Element implements EdgeId {
 
     @Override
     public void setDirectedType(final DirectedType directed) {
-        this.directed = DirectedType.UNDIRECTED != directed;
+        setDirected(DirectedType.UNDIRECTED != directed);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Edge extends Element implements EdgeId {
                 setDestination(propertyToBeSet);
                 break;
             case DIRECTED:
-                setDirected((boolean) propertyToBeSet);
+                setDirected(null != propertyToBeSet && (boolean) propertyToBeSet);
                 break;
             default:
                 LOGGER.error("Unknown identifier type: {} detected.", identifierType);

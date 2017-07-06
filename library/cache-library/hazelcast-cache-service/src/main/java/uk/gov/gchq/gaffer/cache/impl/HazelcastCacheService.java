@@ -21,11 +21,11 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.ICacheService;
+
 import java.util.Properties;
 
 import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;
@@ -33,9 +33,9 @@ import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;
 
 public class HazelcastCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
-    private static HazelcastInstance hazelcast;
+    private HazelcastInstance hazelcast;
 
-    private static void configureHazelcast(final Properties properties) {
+    private void configureHazelcast(final Properties properties) {
         if (null == hazelcast || !Hazelcast.getAllHazelcastInstances().contains(hazelcast)) {
             String configFile = properties.getProperty(CACHE_CONFIG_FILE);
             if (configFile == null) {
@@ -60,10 +60,9 @@ public class HazelcastCacheService implements ICacheService {
         LOGGER.info(hazelcast.getCluster().getClusterState().name()); // bootstraps hazelcast
     }
 
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     @Override
     public void shutdown() {
-        if (null != hazelcast) {
+        if (null != hazelcast && hazelcast.getLifecycleService().isRunning()) {
             hazelcast.shutdown();
         }
     }

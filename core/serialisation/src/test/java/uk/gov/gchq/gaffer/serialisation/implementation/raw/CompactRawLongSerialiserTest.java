@@ -15,20 +15,22 @@
 */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CompactRawLongSerialiserTest extends ToByteSerialisationTest<Long> {
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+
+public class CompactRawLongSerialiserTest extends ToBytesSerialisationTest<Long> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
@@ -64,28 +66,38 @@ public class CompactRawLongSerialiserTest extends ToByteSerialisationTest<Long> 
     }
 
     @Test
-    public void cantSerialiseStringClass() throws SerialisationException {
+    public void cantSerialiseStringClass() {
         assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
-    public void canSerialiseLongClass() throws SerialisationException {
+    public void canSerialiseLongClass() {
         assertTrue(serialiser.canHandle(Long.class));
     }
 
     private void test(final long value) throws SerialisationException {
         final byte[] b = serialiser.serialise(value);
-        final Object o = serialiser.deserialise(b);
+        final Object o = ((ToBytesSerialiser) serialiser).deserialise(b, 0, b.length);
         assertEquals(Long.class, o.getClass());
         assertEquals(value, o);
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        CompactRawSerialisationUtils.write(value, new DataOutputStream(baos));
-        final long result = CompactRawSerialisationUtils.read(new DataInputStream(new ByteArrayInputStream(baos.toByteArray())));
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        CompactRawSerialisationUtils.write(value, new DataOutputStream(stream));
+        final long result = CompactRawSerialisationUtils.read(new DataInputStream(new ByteArrayInputStream(stream.toByteArray())));
         assertEquals(result, value);
     }
 
     @Override
     public Serialiser<Long, byte[]> getSerialisation() {
         return new CompactRawLongSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Long, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Long.MAX_VALUE, new byte[]{-120, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(Long.MIN_VALUE, new byte[]{-128, 127, -1, -1, -1, -1, -1, -1, -1}),
+                new Pair<>(0l, new byte[]{0}),
+                new Pair<>(1l, new byte[]{1})
+        };
     }
 }

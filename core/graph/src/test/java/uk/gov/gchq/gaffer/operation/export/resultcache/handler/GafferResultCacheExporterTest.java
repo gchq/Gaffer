@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.resultcache.handler;
 
 import com.google.common.collect.Lists;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -63,11 +64,16 @@ public class GafferResultCacheExporterTest {
     private final TreeSet<String> requiredOpAuths = CollectionUtil.treeSet(new String[]{"1", "2"});
     private final List<?> results = Arrays.asList(1, "2", null);
     private final byte[][] serialisedResults = {serialise(1), serialise("2"), null};
-    private final Graph resultCache = new Graph.Builder()
-            .addSchema(new Schema())
-            .store(store)
-            .build();
+    private Graph resultCache;
 
+    @Before
+    public void before() {
+        given(store.getSchema()).willReturn(new Schema());
+        resultCache = new Graph.Builder()
+                .graphId("resultCacheGraph")
+                .store(store)
+                .build();
+    }
 
     @Test
     public void shouldAddResults() throws OperationException, SerialisationException {

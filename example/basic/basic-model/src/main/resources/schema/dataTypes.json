@@ -1,10 +1,10 @@
 {
   "types": {
     "vertex": {
-      "class": "java.lang.Long"
+      "class": "java.lang.String"
     },
     "count": {
-      "class": "java.lang.Long"
+      "class": "java.lang.Integer"
     },
     "true": {
       "description": "A simple boolean that must always be true.",

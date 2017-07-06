@@ -62,10 +62,10 @@ public abstract class OperationExample extends Example {
         return graph;
     }
 
-    protected void showJavaExample(final Operation operation, final String description) {
+    protected void showJavaExample(final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         if (StringUtils.isNotBlank(description)) {
-            log(description);
+            log(description + "\n");
         }
         printMethodJavaSnippet();
 
@@ -186,6 +186,7 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

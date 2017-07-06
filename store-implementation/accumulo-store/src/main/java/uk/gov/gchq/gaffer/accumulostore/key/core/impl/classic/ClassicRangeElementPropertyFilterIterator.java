@@ -59,21 +59,12 @@ public class ClassicRangeElementPropertyFilterIterator extends Filter {
     public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
                      final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
-        validateOptions(options);
-    }
-
-    @Override
-    public boolean validateOptions(final Map<String, String> options) {
-        if (!super.validateOptions(options)) {
-            return false;
-        }
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_ENTITIES)) {
             entities = true;
         }
         if (options.containsKey(AccumuloStoreConstants.INCLUDE_EDGES)) {
             edges = true;
         }
-        return true;
     }
 
     @Override

@@ -89,9 +89,6 @@ gaffer.store.properties.class=uk.gov.gchq.gaffer.hbasestore.HBaseProperties
 # In AWS it will just be something like: ec2-xx-xx-xx-xx.location.compute.amazonaws.com
 hbase.zookeepers=localhost:2181
 
-# Name of table to store the Gaffer elements
-hbase.table=table1
-
 # Add the hbase-store-[version]-deploy.jar to the cluster - either local file system or hdfs.
 # e.g /user/hbase/gaffer/jars/hbase-store-0.7.0-deploy.jar
 hbase.hdfs.jars.path=[path to jar folder]/hbase-store-[version]-deploy.jar
@@ -104,6 +101,7 @@ See [Getting Started](Getting-Started.md) for details of how to write a schema t
 
 ```java
 Graph graph = new Graph.Builder()
+      .graphId(uniqueNameOfYourGraph)
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();

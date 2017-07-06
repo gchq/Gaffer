@@ -507,6 +507,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private Graph getGraph(final String dataSchema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream(dataSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))

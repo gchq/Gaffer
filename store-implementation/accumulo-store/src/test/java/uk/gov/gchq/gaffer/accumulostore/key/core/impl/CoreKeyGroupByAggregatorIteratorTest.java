@@ -79,8 +79,8 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
     @Before
     public void reInitialise() throws StoreException, TableExistsException {
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         createTable(byteEntityStore);
         createTable(gaffer1KeyStore);
     }
@@ -167,7 +167,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -177,7 +177,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
@@ -257,7 +257,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.close();
 
@@ -270,7 +270,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
@@ -372,7 +372,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -393,7 +393,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
@@ -545,7 +545,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -605,7 +605,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
@@ -776,7 +776,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -823,7 +823,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()
@@ -988,7 +988,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             writerConfig.setMaxMemory(1000000L);
             writerConfig.setMaxLatency(1000L, TimeUnit.MILLISECONDS);
             writerConfig.setMaxWriteThreads(1);
-            final BatchWriter writer = store.getConnection().createBatchWriter(store.getProperties().getTable(), writerConfig);
+            final BatchWriter writer = store.getConnection().createBatchWriter(store.getTableName(), writerConfig);
             writer.addMutation(m1);
             writer.addMutation(m2);
             writer.addMutation(m3);
@@ -1011,7 +1011,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
 
             // Read data back and check we get one merged element
             final Authorizations authorizations = new Authorizations(visibilityString);
-            final Scanner scanner = store.getConnection().createScanner(store.getProperties().getTable(), authorizations);
+            final Scanner scanner = store.getConnection().createScanner(store.getTableName(), authorizations);
             final IteratorSetting iteratorSetting = new IteratorSettingBuilder(AccumuloStoreConstants.COLUMN_QUALIFIER_AGGREGATOR_ITERATOR_PRIORITY,
                     "KeyCombiner", CoreKeyGroupByAggregatorIterator.class)
                     .all()

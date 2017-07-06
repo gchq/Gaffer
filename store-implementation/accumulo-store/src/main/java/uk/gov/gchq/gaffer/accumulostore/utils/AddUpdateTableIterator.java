@@ -21,13 +21,11 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.iterators.IteratorUtil.IteratorScope;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
-import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
@@ -56,7 +54,7 @@ public final class AddUpdateTableIterator {
     public static final String UPDATE_KEY = "update";
     public static final String REMOVE_KEY = "remove";
     public static final String ADD_KEY = "add";
-    private static final int NUM_REQUIRED_ARGS = 3;
+    private static final int NUM_REQUIRED_ARGS = 4;
     private static final String[] ITERATORS = {
             AccumuloStoreConstants.AGGREGATOR_ITERATOR_NAME,
             AccumuloStoreConstants.VALIDATOR_ITERATOR_NAME
@@ -112,11 +110,10 @@ public final class AddUpdateTableIterator {
      */
     public static void removeIterator(final AccumuloStore store, final String iteratorName) throws StoreException {
         try {
-            if (store.getConnection().tableOperations().listIterators(store.getProperties().getTable()).containsKey(iteratorName)) {
+            if (store.getConnection().tableOperations().listIterators(store.getTableName()).containsKey(iteratorName)) {
                 store.getConnection()
                         .tableOperations()
-                        .removeIterator(store.getProperties()
-                                        .getTable(), iteratorName,
+                        .removeIterator(store.getTableName(), iteratorName,
                                 EnumSet.of(IteratorScope.majc, IteratorScope.minc, IteratorScope.scan));
             }
         } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException | StoreException e) {
@@ -137,8 +134,8 @@ public final class AddUpdateTableIterator {
                 && (store.getSchema().isAggregationEnabled())) {
             try {
                 addIterator(store, store.getKeyPackage()
-                                        .getIteratorFactory()
-                                        .getIteratorSetting(store, iteratorName));
+                        .getIteratorFactory()
+                        .getIteratorSetting(store, iteratorName));
             } catch (final IteratorSettingException e) {
                 throw new StoreException(e.getMessage(), e);
             }
@@ -155,26 +152,73 @@ public final class AddUpdateTableIterator {
      */
     public static void addIterator(final AccumuloStore store, final IteratorSetting iteratorSetting)
             throws StoreException {
-        try {
-            store.getConnection().tableOperations().attachIterator(store.getProperties().getTable(), iteratorSetting);
-        } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
-            throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
+        if (null != iteratorSetting) {
+            try {
+                store.getConnection().tableOperations().attachIterator(store.getTableName(), iteratorSetting);
+            } catch (final AccumuloSecurityException | AccumuloException | TableNotFoundException e) {
+                throw new StoreException("Add iterator with Name: " + iteratorSetting.getName(), e);
+            }
         }
         TableUtils.setLocalityGroups(store);
     }
 
-    public static void main(final String[] args) throws StoreException, SchemaException, IOException {
+    /**
+     * Utility for creating and updating an Accumulo table.
+     * Accumulo tables are automatically created when the Gaffer Accumulo store
+     * is initialised when an instance of Graph is created.
+     * <p>
+     * Running this with an existing table will remove the existing iterators
+     * and recreate them with the provided schema.
+     * </p>
+     * <p>
+     * Usage: java -cp accumulo-store-[version]-utility.jar uk.gov.gchq.gaffer.accumulostore.utils.AddUpdateTableIterator [graphId] [pathToSchemaDirectory] [pathToStoreProperties]
+     * </p>
+     *
+     * @param args [graphId] [schema directory path] [store properties path]
+     * @throws Exception if the tables fails to be created/updated
+     */
+    public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
+                    + "<graphId> "
                     + "<comma separated schema paths> <store properties path> <"
                     + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY
                     + ">");
             System.exit(1);
         }
 
-        final AccumuloStore store = new AccumuloStore();
-        store.preInitialise(Schema.fromJson(getSchemaPaths(args)),
-                AccumuloProperties.loadStoreProperties(getAccumuloPropertiesPath(args)));
+        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getAccumuloPropertiesPath(args));
+        if (null == storeProps) {
+            throw new IllegalArgumentException("Store properties are required to create a store");
+        }
+
+        final Schema schema = Schema.fromJson(getSchemaPaths(args));
+
+        final String storeClass = storeProps.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+
+        final AccumuloStore store;
+        try {
+            store = Class.forName(storeClass).asSubclass(AccumuloStore.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+
+        try {
+            store.preInitialise(
+                    getGraphId(args),
+                    schema,
+                    storeProps
+            );
+        } catch (final StoreException e) {
+            throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
+        }
+
+        if (!store.getConnection().tableOperations().exists(store.getTableName())) {
+            TableUtils.createTable(store);
+        }
 
         final String modifyKey = getModifyKey(args);
         switch (modifyKey) {
@@ -201,15 +245,19 @@ public final class AddUpdateTableIterator {
     }
 
     private static String getModifyKey(final String[] arg) {
-        return arg[2];
+        return arg[3];
     }
 
     private static Path getAccumuloPropertiesPath(final String[] args) {
-        return Paths.get(args[1]);
+        return Paths.get(args[2]);
+    }
+
+    private static String getGraphId(final String[] args) {
+        return args[0];
     }
 
     private static Path[] getSchemaPaths(final String[] args) {
-        final String[] pathStrs = args[0].split(",");
+        final String[] pathStrs = args[1].split(",");
         final Path[] paths = new Path[pathStrs.length];
         for (int i = 0; i < paths.length; i++) {
             paths[i] = Paths.get(pathStrs[i]);

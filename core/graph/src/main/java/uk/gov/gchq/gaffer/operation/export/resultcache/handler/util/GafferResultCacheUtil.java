@@ -33,12 +33,13 @@ public final class GafferResultCacheUtil {
     private GafferResultCacheUtil() {
     }
 
-    public static Graph createGraph(final String cacheStorePropertiesPath, final Long timeToLive) {
+    public static Graph createGraph(final String graphId, final String cacheStorePropertiesPath, final Long timeToLive) {
         if (null == cacheStorePropertiesPath) {
             throw new IllegalArgumentException("Gaffer result cache Store properties are required");
         }
 
         final Graph.Builder graphBuilder = new Graph.Builder()
+                .graphId(graphId)
                 .storeProperties(cacheStorePropertiesPath)
                 .addSchema(createSchema(timeToLive));
 

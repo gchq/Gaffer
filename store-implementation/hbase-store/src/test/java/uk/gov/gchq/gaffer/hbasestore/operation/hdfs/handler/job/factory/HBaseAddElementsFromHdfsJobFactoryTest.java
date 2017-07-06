@@ -77,7 +77,7 @@ public class HBaseAddElementsFromHdfsJobFactoryTest {
         final HBaseStore store = new MiniHBaseStore();
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
         final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(getClass()));
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         given(job.getConfiguration()).willReturn(localConf);
 

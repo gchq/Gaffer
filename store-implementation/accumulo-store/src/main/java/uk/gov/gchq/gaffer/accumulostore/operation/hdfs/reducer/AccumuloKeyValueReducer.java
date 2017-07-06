@@ -25,12 +25,13 @@ import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+
+import static uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.SampleDataForSplitPointsJobFactory.SCHEMA;
 
 /**
  * Reducer for use in bulk import of data into Accumulo. It merges all values
@@ -50,19 +51,21 @@ public class AccumuloKeyValueReducer extends Reducer<Key, Value, Key, Value> {
     protected void setup(final Context context) {
         try {
             schema = Schema.fromJson(context.getConfiguration()
-                    .get(AddElementsFromHdfsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+                    .get(SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise schema from JSON", e);
         }
 
         try {
-            final Class<?> elementConverterClass = Class
-                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS));
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+            elementConverter = Class
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
                     .newInstance(schema);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new IllegalArgumentException("Failed to create accumulo element converter from class", e);
+            throw new IllegalArgumentException("Failed to create accumulo element converter from class "
+                    + context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
     }
 

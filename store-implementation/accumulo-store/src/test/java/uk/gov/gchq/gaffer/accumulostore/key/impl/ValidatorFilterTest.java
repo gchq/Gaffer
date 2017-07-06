@@ -101,7 +101,7 @@ public class ValidatorFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
@@ -126,7 +126,7 @@ public class ValidatorFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 

@@ -36,6 +36,7 @@ import java.util.Map;
  * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
+ * @see MapReduce
  * @see Builder
  */
 public class AddElementsFromHdfs implements
@@ -44,6 +45,11 @@ public class AddElementsFromHdfs implements
         Options {
     @Required
     private String failurePath;
+
+    /**
+     * Path to a folder to store temporary files during the add elements operation.
+     */
+    private String workingPath;
 
     private boolean validate = true;
 
@@ -65,7 +71,16 @@ public class AddElementsFromHdfs implements
     private JobInitialiser jobInitialiser;
 
     private Integer numMapTasks;
+    private Integer minMapTasks;
+    private Integer maxMapTasks;
+
     private Integer numReduceTasks;
+    private Integer minReduceTasks;
+    private Integer maxReduceTasks;
+
+    private boolean useProvidedSplits;
+    private String splitsFilePath;
+
     private Class<? extends Partitioner> partitioner;
     private Map<String, String> options;
 
@@ -149,6 +164,66 @@ public class AddElementsFromHdfs implements
     }
 
     @Override
+    public Integer getMinMapTasks() {
+        return minMapTasks;
+    }
+
+    @Override
+    public void setMinMapTasks(final Integer minMapTasks) {
+        this.minMapTasks = minMapTasks;
+    }
+
+    @Override
+    public Integer getMaxMapTasks() {
+        return maxMapTasks;
+    }
+
+    @Override
+    public void setMaxMapTasks(final Integer maxMapTasks) {
+        this.maxMapTasks = maxMapTasks;
+    }
+
+    @Override
+    public Integer getMinReduceTasks() {
+        return minReduceTasks;
+    }
+
+    @Override
+    public void setMinReduceTasks(final Integer minReduceTasks) {
+        this.minReduceTasks = minReduceTasks;
+    }
+
+    @Override
+    public Integer getMaxReduceTasks() {
+        return maxReduceTasks;
+    }
+
+    @Override
+    public void setMaxReduceTasks(final Integer maxReduceTasks) {
+        this.maxReduceTasks = maxReduceTasks;
+    }
+
+    @Override
+    public boolean isUseProvidedSplits() {
+        return useProvidedSplits;
+    }
+
+    @Override
+    public void setUseProvidedSplits(final boolean useProvidedSplits) {
+        this.useProvidedSplits = useProvidedSplits;
+    }
+
+    @Override
+    public String getSplitsFilePath() {
+        return splitsFilePath;
+    }
+
+    @Override
+    public void setSplitsFilePath(final String splitsFilePath) {
+        this.splitsFilePath = splitsFilePath;
+    }
+
+    @Override
     public Class<? extends Partitioner> getPartitioner() {
         return partitioner;
     }
@@ -156,6 +231,14 @@ public class AddElementsFromHdfs implements
     @Override
     public void setPartitioner(final Class<? extends Partitioner> partitioner) {
         this.partitioner = partitioner;
+    }
+
+    public String getWorkingPath() {
+        return workingPath;
+    }
+
+    public void setWorkingPath(final String workingPath) {
+        this.workingPath = workingPath;
     }
 
     @Override
@@ -168,29 +251,31 @@ public class AddElementsFromHdfs implements
         this.options = options;
     }
 
-    public interface IBuilder<OP extends AddElementsFromHdfs, B extends AddElementsFromHdfs.IBuilder<OP, ?>> extends Operation.Builder<OP, B> {
-        default B validate(final boolean validate) {
+    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
+            implements MapReduce.Builder<AddElementsFromHdfs, Builder>,
+            Options.Builder<AddElementsFromHdfs, Builder> {
+        public Builder() {
+            super(new AddElementsFromHdfs());
+        }
+
+        public Builder validate(final boolean validate) {
             _getOp().setValidate(validate);
             return _self();
         }
 
-        default B mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
+        public Builder mapperGenerator(final Class<? extends MapperGenerator> mapperGeneratorClass) {
             _getOp().setMapperGeneratorClassName(mapperGeneratorClass);
             return _self();
         }
 
-        default B failurePath(final String failurePath) {
+        public Builder failurePath(final String failurePath) {
             _getOp().setFailurePath(failurePath);
             return _self();
         }
-    }
 
-    public static final class Builder extends Operation.BaseBuilder<AddElementsFromHdfs, Builder>
-            implements IBuilder<AddElementsFromHdfs, Builder>,
-            MapReduce.Builder<AddElementsFromHdfs, Builder>,
-            Options.Builder<AddElementsFromHdfs, Builder> {
-        public Builder() {
-            super(new AddElementsFromHdfs());
+        public Builder workingPath(final String workingPath) {
+            _getOp().setWorkingPath(workingPath);
+            return _self();
         }
     }
 }

@@ -3,8 +3,8 @@ package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.hdfs.operation.SampleDataForSplitPoints;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class SampleDataForSplitPointsTest extends OperationTest {
-    private static final JSONSerialiser serialiser = new JSONSerialiser();
-
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
     private static final String INPUT_DIRECTORY = "/input";
     private static final String TEST_OPTION_KEY = "testOption";
 
@@ -29,7 +29,7 @@ public class SampleDataForSplitPointsTest extends OperationTest {
     @Override
     protected Set<String> getRequiredFields() {
         return Sets.newHashSet(
-                "resultingSplitsFilePath",
+                "splitsFilePath",
                 "mapperGeneratorClassName",
                 "inputPaths",
                 "outputPath",
@@ -47,17 +47,16 @@ public class SampleDataForSplitPointsTest extends OperationTest {
         op.setMapperGeneratorClassName("Test");
         op.setValidate(true);
         op.setProportionToSample(0.1f);
-        op.setResultingSplitsFilePath(resultPath);
+        op.setSplitsFilePath(resultPath);
         op.setNumMapTasks(5);
 
         // When
-        byte[] json = serialiser.serialise(op, true);
-
-        final SampleDataForSplitPoints deserialisedOp = serialiser.deserialise(json, SampleDataForSplitPoints.class);
+        byte[] json = SERIALISER.serialise(op, true);
+        final SampleDataForSplitPoints deserialisedOp = SERIALISER.deserialise(json, SampleDataForSplitPoints.class);
 
         // Then
         assertEquals(INPUT_DIRECTORY, deserialisedOp.getInputPaths().get(0));
-        assertEquals(resultPath, deserialisedOp.getResultingSplitsFilePath());
+        assertEquals(resultPath, deserialisedOp.getSplitsFilePath());
         assertEquals("Test", deserialisedOp.getMapperGeneratorClassName());
         assertTrue(deserialisedOp.isValidate());
         assertEquals(0.1f, deserialisedOp.getProportionToSample(), 1);
@@ -69,10 +68,17 @@ public class SampleDataForSplitPointsTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder().addInputPath(INPUT_DIRECTORY).option(TEST_OPTION_KEY, "true").proportionToSample(0.1f).validate(true).mappers(5).resultingSplitsFilePath("/test").build();
+        final SampleDataForSplitPoints sampleDataForSplitPoints = new SampleDataForSplitPoints.Builder()
+                .addInputPath(INPUT_DIRECTORY)
+                .splitsFilePath("/test")
+                .proportionToSample(0.1f)
+                .mappers(5)
+                .validate(true)
+                .option(TEST_OPTION_KEY, "true")
+                .build();
         assertEquals(INPUT_DIRECTORY, sampleDataForSplitPoints.getInputPaths().get(0));
         assertEquals("true", sampleDataForSplitPoints.getOption(TEST_OPTION_KEY));
-        assertEquals("/test", sampleDataForSplitPoints.getResultingSplitsFilePath());
+        assertEquals("/test", sampleDataForSplitPoints.getSplitsFilePath());
         assertTrue(sampleDataForSplitPoints.isValidate());
         assertEquals(0.1f, sampleDataForSplitPoints.getProportionToSample(), 1);
         assertEquals(new Integer(5), sampleDataForSplitPoints.getNumMapTasks());
@@ -83,9 +89,9 @@ public class SampleDataForSplitPointsTest extends OperationTest {
         final SampleDataForSplitPoints op = new SampleDataForSplitPoints();
         try {
             op.setNumReduceTasks(10);
+            fail("Exception expected");
         } catch (final IllegalArgumentException e) {
-            return;
+            assertNotNull(e.getMessage());
         }
-        fail();
     }
 }

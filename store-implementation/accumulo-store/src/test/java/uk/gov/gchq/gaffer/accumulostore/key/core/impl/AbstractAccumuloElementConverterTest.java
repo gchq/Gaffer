@@ -15,6 +15,12 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
@@ -23,6 +29,7 @@ import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.binaryoperator.FreqMapAggregator;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -31,7 +38,12 @@ import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -42,15 +54,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public abstract class AbstractAccumuloElementConverterTest {
 
-    private AccumuloElementConverter converter;
+    protected AccumuloElementConverter converter;
 
     @Before
     public void setUp() throws SchemaException, IOException {
@@ -94,7 +100,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEdge() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertyEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -114,7 +120,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterFromCFCQPropertydEntity() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterFromCFCQPropertyEntity() throws SchemaException, IOException {
         // Given
         final Entity entity = new Entity(TestGroups.ENTITY);
         entity.setVertex("3");
@@ -130,7 +136,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldReturnAccumuloKeyConverterMultipleCQPropertydEdge() throws SchemaException, IOException {
+    public void shouldReturnAccumuloKeyConverterMultipleCQPropertyEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge(TestGroups.EDGE);
         edge.setDestination("2");
@@ -326,7 +332,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = converter.buildColumnQualifier(TestGroups.EDGE, properties);
 
         // When
-        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+        final BytesAndRange br = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
         final Properties truncatedProperties = new Properties() {
@@ -335,6 +341,8 @@ public abstract class AbstractAccumuloElementConverterTest {
                 put(AccumuloPropertyNames.COLUMN_QUALIFIER_2, 2);
             }
         };
+        byte[] truncatedBytes = new byte[br.getLength()];
+        System.arraycopy(bytes, br.getOffSet(), truncatedBytes, 0, br.getLength());
         assertEquals(truncatedProperties, converter.getPropertiesFromColumnQualifier(TestGroups.EDGE, truncatedBytes));
     }
 
@@ -344,10 +352,10 @@ public abstract class AbstractAccumuloElementConverterTest {
         final byte[] bytes = AccumuloStoreConstants.EMPTY_BYTES;
 
         // When
-        final byte[] truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
+        final BytesAndRange truncatedBytes = converter.getPropertiesAsBytesFromColumnQualifier(TestGroups.EDGE, bytes, 2);
 
         // Then
-        assertEquals(0, truncatedBytes.length);
+        assertEquals(0, truncatedBytes.getLength());
     }
 
     @Test
@@ -500,15 +508,14 @@ public abstract class AbstractAccumuloElementConverterTest {
 
 
     @Test
-    public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty()
-            {
+    public void shouldSerialiseAndDeserialisePropertiesWhenAllAreEmpty() {
         // Given 
         final Schema schema = new Schema.Builder()
                 .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
-                                .vertex("string")
-                                .property(TestPropertyNames.PROP_1, "map")
-                                .property(TestPropertyNames.PROP_2, "map")
-                                .build()
+                        .vertex("string")
+                        .property(TestPropertyNames.PROP_1, "map")
+                        .property(TestPropertyNames.PROP_2, "map")
+                        .build()
                 )
                 .type("string", String.class)
                 .type("map", new TypeDefinition.Builder()
@@ -538,5 +545,95 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // Then 2
         assertEquals(entity.getProperties(), properties);
+    }
+
+    @Test
+    public void shouldDeserialiseEntityId() {
+        // Given 
+        final EntityId expectedElementId = new EntitySeed("vertex1");
+        final Entity entity = new Entity.Builder()
+                .vertex("vertex1")
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        final Key key = converter.getKeyFromEntity(entity);
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeId() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        final Key key = converter.getKeysFromEdge(edge).getFirst();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeIdWithMatchAsSourceOption() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("dest1", "source1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
+
+        final Key key = converter.getKeysFromEdge(edge).getSecond();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
+    }
+
+    @Test
+    public void shouldDeserialiseEdgeIdWithoutMatchAsSourceOption() {
+        // Given 
+        final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
+        final Edge edge = new Edge.Builder()
+                .source("source1")
+                .dest("dest1")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .property(TestPropertyNames.PROP_1, new FreqMap())
+                .property(TestPropertyNames.PROP_2, new FreqMap())
+                .build();
+        final Map<String, String> options = new HashMap<>();
+        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "false");
+
+        final Key key = converter.getKeysFromEdge(edge).getSecond();
+
+        // When
+        final ElementId elementId = converter.getElementId(key, options);
+
+        // Then
+        assertEquals(expectedElementId, elementId);
     }
 }

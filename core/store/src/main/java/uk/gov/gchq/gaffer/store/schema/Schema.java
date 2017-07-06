@@ -23,10 +23,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -180,6 +180,17 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             result.add(elementDefEntry.getValue().validate(), "VALIDITY ERROR: Invalid entity definition for group: " + elementDefEntry.getKey());
         }
         return result;
+    }
+
+    public boolean hasValidation() {
+        for (final SchemaElementDefinition elementDef : new ChainedIterable<SchemaElementDefinition>(getEntities().values(), getEdges().values())) {
+            if (null != elementDef) {
+                if (elementDef.hasValidation()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public Map<String, TypeDefinition> getTypes() {

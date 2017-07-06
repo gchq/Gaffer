@@ -15,53 +15,51 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation;
 
-import com.yahoo.sketches.frequencies.ItemsSketch;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class StringsSketchSerialiserTest {
-    private static final StringsSketchSerialiser SERIALISER = new StringsSketchSerialiser();
+import com.yahoo.sketches.frequencies.ItemsSketch;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+public class StringsSketchSerialiserTest extends ViaCalculatedValueSerialiserTest<ItemsSketch<String>, Long> {
+
+
+    @Override
+    protected ItemsSketch<String> getEmptyExampleOutput() {
+        return new ItemsSketch<>(32);
+    }
+
+    @Override
+    public Serialiser<ItemsSketch<String>, byte[]> getSerialisation() {
+        return new StringsSketchSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<ItemsSketch<String>, byte[]>[] getHistoricSerialisationPairs() {
+        final ItemsSketch<String> sketch = getExampleOutput();
+        return new Pair[]{new Pair(sketch, new byte[]{4, 1, 10, 5, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
+    }
+
+    @Override
+    protected ItemsSketch<String> getExampleOutput() {
         final ItemsSketch<String> sketch = new ItemsSketch<>(32);
         sketch.update("1");
         sketch.update("2");
         sketch.update("3");
-        testSerialiser(sketch);
-
-        final ItemsSketch<String> emptySketch = new ItemsSketch<>(32);
-        testSerialiser(emptySketch);
+        return sketch;
     }
 
-    private void testSerialiser(final ItemsSketch<String> sketch) {
-        final long freqOf1 = sketch.getEstimate("1");
-        final byte[] sketchSerialised;
-        try {
-            sketchSerialised = SERIALISER.serialise(sketch);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        final ItemsSketch<String> sketchDeserialised;
-        try {
-            sketchDeserialised = SERIALISER.deserialise(sketchSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(freqOf1, sketchDeserialised.getEstimate("1"));
+    @Override
+    protected Long getTestValue(final ItemsSketch<String> value) {
+        return value.getEstimate("1");
     }
 
     @Test
     public void testCanHandleItemsSketch() {
-        assertTrue(SERIALISER.canHandle(ItemsSketch.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(ItemsSketch.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }

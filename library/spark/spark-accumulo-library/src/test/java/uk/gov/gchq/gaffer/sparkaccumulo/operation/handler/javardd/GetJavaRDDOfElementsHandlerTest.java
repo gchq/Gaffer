@@ -54,6 +54,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInJavaRDDForEntityId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))
@@ -205,6 +206,7 @@ public class GetJavaRDDOfElementsHandlerTest {
     @Test
     public void checkGetCorrectElementsInRDDForEdgeId() throws OperationException, IOException {
         final Graph graph1 = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream("/schema/dataSchema.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema/storeTypes.json"))

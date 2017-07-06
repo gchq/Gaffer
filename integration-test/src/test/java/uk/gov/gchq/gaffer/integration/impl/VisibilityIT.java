@@ -358,6 +358,7 @@ public class VisibilityIT extends AbstractStoreIT {
 
     private Graph createGraphWithNoVisibility() {
         return new Graph.Builder()
+                .graphId("integrationTestGraphWithNoVisibility")
                 .storeProperties(getStoreProperties())
                 .addSchema(createSchemaNoVisibility())
                 .addSchema(getStoreSchema())

@@ -165,6 +165,7 @@ public abstract class AbstractStoreIT {
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
         graph = new Graph.Builder()
+                .graphId("integrationTestGraph")
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
                 .addSchema(storeSchema)

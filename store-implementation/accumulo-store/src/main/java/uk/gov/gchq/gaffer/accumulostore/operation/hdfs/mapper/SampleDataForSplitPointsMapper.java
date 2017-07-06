@@ -19,13 +19,13 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.SampleDataForSplitPointsJobFactory;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory.AccumuloSampleDataForSplitPointsJobFactory;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -35,7 +35,7 @@ import java.lang.reflect.InvocationTargetException;
  * Mapper class used for estimating the split points to ensure even distribution of
  * data in Accumulo after initial insert.
  */
-public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
+public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends GafferMapper<KEY_IN, VALUE_IN, Key, Value> {
 
     private float proportionToSample;
     private AccumuloElementConverter elementConverter;
@@ -43,23 +43,24 @@ public class SampleDataForSplitPointsMapper<KEY_IN, VALUE_IN> extends AbstractAd
     @Override
     protected void setup(final Context context) {
         super.setup(context);
-        proportionToSample = context.getConfiguration().getFloat(SampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
+        proportionToSample = context.getConfiguration().getFloat(AccumuloSampleDataForSplitPointsJobFactory.PROPORTION_TO_SAMPLE, 0.001f);
         final Schema schema;
         try {
             schema = Schema.fromJson(context.getConfiguration()
-                    .get(SampleDataForSplitPointsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
+                    .get(AccumuloSampleDataForSplitPointsJobFactory.SCHEMA).getBytes(CommonConstants.UTF_8));
         } catch (final UnsupportedEncodingException e) {
             throw new SchemaException("Unable to deserialise Store Schema from JSON", e);
         }
-
-        final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
-            final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+            elementConverter = Class
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
                     .newInstance(schema);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
+            throw new IllegalArgumentException("Element converter could not be created: "
+                    + context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
     }
 

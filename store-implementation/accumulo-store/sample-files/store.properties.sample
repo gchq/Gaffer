@@ -121,17 +121,6 @@ accumulo.zookeepers=aZookeeper
 ################################################################################
 
 ################################################################################
-# accumulo store property - accumulo.table
-# description - the accumulo store table to read/write gaffer data from/to
-# notes
-#   - property is required
-#   - no default value is provided
-
-accumulo.table=table1
-
-################################################################################
-
-################################################################################
 # accumulo store property - accumulo.user
 # description - the user that will be used to connect to accumulo
 # notes
@@ -240,17 +229,6 @@ accumulo.password=password
 #   - default value is provided of 8388608
 
 # accumulo.maxBloomFilterToPassToAnIterator=8388608
-
-################################################################################
-
-################################################################################
-# accumulo store property - accumulo.splits.file.path
-# description - the path to a splits file containing a newline separated list of Base64 encoded split points that represent ranges to partition tables on.
-# notes
-#   - property is not required
-#   - default value is provided of "/data/splits.txt"
-
-# accumulo.splits.file.path=target/data/splits.txt
 
 ################################################################################
 

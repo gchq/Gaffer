@@ -60,7 +60,7 @@ public final class ByteUtils {
 
         // since sorted data is usually compared in accumulo,
         // the prefixes will normally be the same... so compare
-        // the last two charachters first.. the most likely place
+        // the last two characters first.. the most likely place
         // to have disorder is at end of the strings when the
         // data is sorted... if those are the same compare the rest
         // of the data forward... comparing backwards is slower
@@ -81,5 +81,39 @@ public final class ByteUtils {
         }
 
         return true;
+    }
+
+    public static boolean areKeyBytesEqual(final BytesAndRange a, final BytesAndRange b) {
+        // since sorted data is usually compared in accumulo,
+        // the prefixes will normally be the same... so compare
+        // the last two characters first.. the most likely place
+        // to have disorder is at end of the strings when the
+        // data is sorted... if those are the same compare the rest
+        // of the data forward... comparing backwards is slower
+        // (compiler and cpu optimized for reading data forward)..
+        // do not want slower comparisons when data is equal...
+        // sorting brings equals data together
+
+        boolean rtn = false;
+
+        int bLength = b.getLength();
+        int aLength = a.getLength();
+        if (aLength == bLength
+                && a.getBytes() != null
+                && b.getBytes() != null) {
+            rtn = true;
+            for (int ia = a.getOffSet() - 1 + aLength,
+                 ib = b.getOffSet() - 1 + bLength;
+                 ia >= 0 && ib >= 0;
+                 ia--, ib--) {
+                byte b1 = a.getBytes()[ia];
+                byte b2 = b.getBytes()[ib];
+                if (b1 != b2) {
+                    rtn = false;
+                    break;
+                }
+            }
+        }
+        return rtn;
     }
 }

@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -82,7 +81,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
                     // Deserialise key
                     if (i > lastDelimiter) {
                         try {
-                            key = new String(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8);
+                            key = new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), CommonConstants.UTF_8);
                         } catch (final UnsupportedEncodingException e) {
                             throw new SerialisationException("Failed to deserialise a key from a FreqMap", e);
                         }
@@ -92,7 +91,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
                 } else {
                     // Deserialise value
                     if (i > lastDelimiter) {
-                        final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, i)));
+                        final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i));
                         freqMap.put(key, value);
                         key = null;
                     }
@@ -105,7 +104,7 @@ public class FreqMapSerialiser implements ToBytesSerialiser<FreqMap> {
         if (null != key) {
             // Deserialise value
             if (bytes.length > lastDelimiter) {
-                final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(bytes, lastDelimiter, bytes.length)));
+                final Long value = longSerialiser.deserialise(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length));
                 freqMap.put(key, value);
             }
         }

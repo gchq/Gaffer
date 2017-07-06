@@ -57,7 +57,7 @@ public class StoreIT {
         final Schema schema = Schema.fromJson(StreamUtil.schemas(getClass()));
 
         // When
-        testStore.initialise(schema, new StoreProperties());
+        testStore.initialise("graphId", schema, new StoreProperties());
 
         // Then
         assertTrue(testStore.getSchema().getEdges().containsKey(TestGroups.EDGE));

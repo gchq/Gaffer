@@ -270,16 +270,29 @@ public final class Graph {
     }
 
     /**
+     * @return the graphId for this Graph.
+     */
+    public String getGraphId() {
+        return store.getGraphId();
+    }
+
+    /**
      * Builder for {@link Graph}.
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
+        private String graphId;
         private StoreProperties properties;
         private Schema schema;
         private View view;
         private List<GraphHook> graphHooks = new ArrayList<>();
+
+        public Builder graphId(final String graphId) {
+            this.graphId = graphId;
+            return this;
+        }
 
         public Builder view(final View view) {
             this.view = view;
@@ -478,53 +491,28 @@ public final class Graph {
 
         private void updateStore() {
             if (null == store) {
-                store = createStore(properties, cloneSchema(schema));
-            } else if (null != properties || null != schema) {
-                try {
-                    if (null == properties) {
-                        store.initialise(cloneSchema(schema), store.getProperties());
-                    } else if (null == schema) {
-                        store.initialise(store.getSchema(), properties);
-                    } else {
-                        store.initialise(cloneSchema(schema), properties);
-                    }
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
+                store = Store.createStore(graphId, cloneSchema(schema), properties);
+            } else if (null != graphId || null != schema || null != properties) {
+                if (null == graphId) {
+                    graphId = store.getGraphId();
                 }
-            } else {
-                schema = store.getSchema();
-                store.optimiseSchema();
-                store.validateSchemas();
+                if (null == schema) {
+                    schema = store.getSchema();
+                }
+                if (null == properties) {
+                    properties = store.getProperties();
+                }
+
+                try {
+                    store.initialise(graphId, cloneSchema(schema), properties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                }
             }
 
             if (null == schema) {
                 schema = store.getSchema();
             }
-        }
-
-        private Store createStore(final StoreProperties storeProperties, final Schema schema) {
-            if (null == storeProperties) {
-                throw new IllegalArgumentException("Store properties are required to create a store");
-            }
-
-            final String storeClass = storeProperties.getStoreClass();
-            if (null == storeClass) {
-                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-            }
-
-            final Store newStore;
-            try {
-                newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-            }
-
-            try {
-                newStore.initialise(schema, storeProperties);
-            } catch (final StoreException e) {
-                throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-            }
-            return newStore;
         }
 
         private void updateView() {
