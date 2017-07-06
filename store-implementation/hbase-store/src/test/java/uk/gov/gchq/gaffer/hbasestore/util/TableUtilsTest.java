@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.koryphe.impl.binaryoperator.StringConcat;
+import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertNotNull;
@@ -39,6 +40,9 @@ import static org.junit.Assert.fail;
 
 public class TableUtilsTest {
     public static final String GRAPH_ID = "graphId";
+    public static final String SCHEMA_TEST_DIR = "src/test/resources/schema";
+    private static final String STORE_PROPS_TEST_PATH = "src/test/resources/store.properties";
+    private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "src/test/resources/graphLibrary";
 
     @Test
     public void shouldCreateTableAndValidateIt() throws Exception {
@@ -103,6 +107,41 @@ public class TableUtilsTest {
             fail("Exception expected");
         } catch (final StoreException e) {
             assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldRunMainWithFileGraphLibrary() throws Exception {
+        // Given
+        String[] args = {GRAPH_ID, SCHEMA_TEST_DIR, STORE_PROPS_TEST_PATH, FILE_GRAPH_LIBRARY_TEST_PATH};
+
+        // When
+        TableUtils.main(args);
+        deleteTestFiles(FILE_GRAPH_LIBRARY_TEST_PATH);
+
+        // Then - no exceptions
+        
+    }
+
+    @Test
+    public void shouldRunMainWithNoGraphLibrary() throws Exception {
+        // Given
+        String[] args = {GRAPH_ID, SCHEMA_TEST_DIR, STORE_PROPS_TEST_PATH};
+
+        // When
+        TableUtils.main(args);
+
+        // Then - no exceptions
+    }
+
+    private static void deleteTestFiles(final String testFilePath) {
+        final File dir = new File(testFilePath);
+        if (dir.exists()) {
+            final File[] children = dir.listFiles();
+            for (int i = 0; i < children.length; i++) {
+                children[i].delete();
+            }
+            dir.delete();
         }
     }
 }

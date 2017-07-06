@@ -188,7 +188,7 @@ public final class AddUpdateTableIterator {
             System.err.println("Wrong number of arguments. \nUsage: "
                     + "<graphId> "
                     + "<comma separated schema paths> <store properties path> "
-                    + "<" + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + ">"
+                    + "<" + ADD_KEY + "," + REMOVE_KEY + " or " + UPDATE_KEY + "> "
                     + "<file graph library path>");
             System.exit(1);
         }
@@ -273,7 +273,7 @@ public final class AddUpdateTableIterator {
     }
 
     private static String getFileGraphLibraryPathString(final String[] args) {
-        if (args.length < 5) {
+        if (args.length > 4) {
             return args[4];
         }
         return null;

@@ -157,7 +157,7 @@ public final class TableUtils {
     }
 
     private static String getFileGraphLibraryPathString(final String[] args) {
-        if (args.length < 4) {
+        if (args.length > 3) {
             return args[3];
         }
         return null;
