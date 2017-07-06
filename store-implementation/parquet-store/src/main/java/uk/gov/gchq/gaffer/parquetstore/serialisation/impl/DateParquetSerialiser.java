@@ -36,15 +36,19 @@ public class DateParquetSerialiser implements ParquetSerialiser<Date> {
 
     @Override
     public Date deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Long) {
-            return new Date((long) objects[0]);
+        if (objects.length == 1) {
+            if (objects[0] instanceof Long) {
+                return new Date((long) objects[0]);
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Could not deserialise objects to a java.util.Date");
     }
 
     @Override
     public Date deserialiseEmpty() throws SerialisationException {
-        throw new SerialisationException("Cannot deserialise the empty bytes to a Date");
+        throw new SerialisationException("Cannot deserialise the empty bytes to a java.util.Date");
     }
 
     @Override

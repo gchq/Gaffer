@@ -46,13 +46,17 @@ public class InLineHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
     @Override
     public HyperLogLogPlus deserialise(final Object[] objects) throws SerialisationException {
         try {
-            if (objects.length == 2 && objects[0] instanceof byte[]) {
-                return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+            if (objects.length == 2) {
+                if (objects[0] instanceof byte[]) {
+                    return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+                } else if (objects[0] == null) {
+                    return null;
+                }
             }
+            throw new SerialisationException("Failed to build the HyperLogLogPlus object from objects");
         } catch (IOException e) {
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
         }
-        return null;
     }
 
     @Override

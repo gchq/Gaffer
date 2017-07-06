@@ -34,8 +34,12 @@ public class BooleanParquetSerialiser implements ParquetSerialiser<Boolean> {
 
     @Override
     public Boolean deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Boolean) {
-            return (Boolean) objects[0];
+        if (objects.length == 1) {
+            if (objects[0] instanceof Boolean) {
+                return (Boolean) objects[0];
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
         throw new SerialisationException("Could not deserialise objects to a Boolean");
     }

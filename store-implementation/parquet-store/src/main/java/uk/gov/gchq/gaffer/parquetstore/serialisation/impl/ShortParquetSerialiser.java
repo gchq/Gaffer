@@ -35,10 +35,14 @@ public class ShortParquetSerialiser implements ParquetSerialiser<Short> {
 
     @Override
     public Short deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Integer) {
-            return ((Integer) objects[0]).shortValue();
+        if (objects.length == 1) {
+            if (objects[0] instanceof Integer) {
+                return ((Integer) objects[0]).shortValue();
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Cannot deserialise objects to a Short");
     }
 
     @Override

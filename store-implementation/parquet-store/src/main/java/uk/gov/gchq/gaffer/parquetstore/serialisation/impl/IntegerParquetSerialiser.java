@@ -34,10 +34,14 @@ public class IntegerParquetSerialiser implements ParquetSerialiser<Integer> {
 
     @Override
     public Integer deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Integer) {
-            return (Integer) objects[0];
+        if (objects.length == 1) {
+            if (objects[0] instanceof Integer) {
+                return (Integer) objects[0];
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Cannot deserialise objects to an Integer");
     }
 
     @Override

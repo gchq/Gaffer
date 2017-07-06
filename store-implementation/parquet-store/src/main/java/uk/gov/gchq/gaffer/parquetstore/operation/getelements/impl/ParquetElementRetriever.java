@@ -52,8 +52,10 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -254,7 +256,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     parquetObjects[i] = recursivelyGetObjectFromRecord(paths[i], (GenericData.Record) record);
                 }
                 e = new Entity(group, converter.parquetObjectsToGafferObject(ParquetStoreConstants.VERTEX, parquetObjects));
-            } else {
+            } else if (schemaUtils.getEdgeGroups().contains(group)) {
                 String[] paths = schemaUtils.getPaths(group, ParquetStoreConstants.SOURCE);
                 final Object[] srcParquetObjects = new Object[paths.length];
                 for (int i = 0; i < paths.length; i++) {
@@ -268,6 +270,8 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 e = new Edge(group, converter.parquetObjectsToGafferObject(ParquetStoreConstants.SOURCE, srcParquetObjects),
                         converter.parquetObjectsToGafferObject(ParquetStoreConstants.DESTINATION, dstParquetObjects),
                         (boolean) record.get(ParquetStoreConstants.DIRECTED));
+            } else {
+                throw new OperationException("Found an Element which has group = " + group + " that is not in the schema");
             }
 
             for (final String column : schemaUtils.getGafferSchema().getElement(group).getProperties()) {

@@ -39,10 +39,14 @@ public class TypeValueParquetSerialiser implements ParquetSerialiser<TypeValue> 
 
     @Override
     public TypeValue deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 2 && objects[0] instanceof String && objects[1] instanceof String) {
-            return new TypeValue((String) objects[0], (String) objects[1]);
+        if (objects.length == 2) {
+            if (objects[0] instanceof String && objects[1] instanceof String) {
+                return new TypeValue((String) objects[0], (String) objects[1]);
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Cannot deserialise objects to a TypeValue");
     }
 
     @Override

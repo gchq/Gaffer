@@ -34,10 +34,14 @@ public class FloatParquetSerialiser implements ParquetSerialiser<Float> {
 
     @Override
     public Float deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Float) {
-            return (Float) objects[0];
+        if (objects.length == 1) {
+            if (objects[0] instanceof Float) {
+                return (Float) objects[0];
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Cannot deserialise objects to a Float");
     }
 
     @Override

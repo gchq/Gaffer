@@ -40,16 +40,13 @@ public class ByteParquetSerialiser implements ParquetSerialiser<Byte> {
     @Override
     public Byte deserialise(final Object[] objects) throws SerialisationException {
         if (objects.length == 1) {
-            if (objects[0] == null) {
-                return null;
-            } else if (objects[0] instanceof byte[] && ((byte[]) objects[0]).length <= 1) {
+            if (objects[0] instanceof byte[] && ((byte[]) objects[0]).length <= 1) {
                 return ((byte[]) objects[0])[0];
-            } else {
-                throw new SerialisationException("Too many bytes found only expected a single byte");
+            } else if (objects[0] == null) {
+                return null;
             }
-        } else {
-            throw new SerialisationException("Too many Objects found to de-serialise");
         }
+        throw new SerialisationException("Cannot to de-serialise objects to Byte");
     }
 
     @Override

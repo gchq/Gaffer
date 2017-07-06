@@ -214,7 +214,7 @@ public class GafferGroupObjectConverter implements Serializable {
                 objectsList.add(row.getAs(path));
             }
         }
-        final Object[] objects = new Object[objectsList.size()];
+        final Object[] objects = new Object[paths.length];
         objectsList.toArray(objects);
         final Object gafferObject = parquetObjectsToGafferObject(gafferColumn, objects);
         if (gafferObject == null) {

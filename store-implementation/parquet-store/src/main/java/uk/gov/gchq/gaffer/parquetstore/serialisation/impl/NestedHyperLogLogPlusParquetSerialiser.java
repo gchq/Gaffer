@@ -51,11 +51,15 @@ public class NestedHyperLogLogPlusParquetSerialiser implements ParquetSerialiser
         try {
             if (objects.length == 2 && objects[0] instanceof byte[]) {
                 return HyperLogLogPlus.Builder.build(((byte[]) objects[0]));
+            } else if (objects.length == 2 && objects[0] == null) {
+                return null;
             }
+            throw new SerialisationException("Failed to build the HyperLogLogPlus object from objects");
+        } catch (SerialisationException e) {
+            throw e;
         } catch (IOException e) {
             throw new SerialisationException("Failed to build the HyperLogLogPlus object from byte[]");
         }
-        return null;
     }
 
     @Override

@@ -34,10 +34,14 @@ public class LongParquetSerialiser implements ParquetSerialiser<Long> {
 
     @Override
     public Long deserialise(final Object[] objects) throws SerialisationException {
-        if (objects.length == 1 && objects[0] instanceof Long) {
-            return (Long) objects[0];
+        if (objects.length == 1) {
+            if (objects[0] instanceof Long) {
+                return (Long) objects[0];
+            } else if (objects[0] == null) {
+                return null;
+            }
         }
-        return null;
+        throw new SerialisationException("Cannot deserialise objects to a Long");
     }
 
     @Override
