@@ -32,5 +32,18 @@ In order to make use of the flink libraries you will need to include these libra
 You will then need to register the flink operations and their handlers with your store.
 You just need to add the following to your store properties file.
 ```
-gaffer.store.operation.declarations=flinkOperationsDeclarations.json
+gaffer.store.operation.declarations=FlinkOperationDeclarations.json
 ```
+
+
+## FAQs
+Here are some frequently asked questions.
+
+#### I am getting errors when running the Flink operations on a cluster
+This could be to do with the way the Gaffer Store class is serialised and distributed
+around the cluster. To distribute the job, Flink requires all of the components of
+the job to be Serializable. The Gaffer Store class is not Serializable so instead
+we just Serialialize the graphId, Schema and Properties. Then when we require an
+instance of the Store class again we recreate it again with these parts.
+This means that any files that are referenced in your StoreProperties must be 
+available on all your nodes in your cluster.
