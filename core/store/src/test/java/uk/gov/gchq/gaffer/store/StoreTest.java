@@ -160,6 +160,19 @@ public class StoreTest {
     }
 
     @Test
+    public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        try {
+            store.initialise(null, schema, properties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionWhenPropertyIsNotSerialisable() throws StoreException {
         // Given
         final Schema mySchema = new Schema.Builder()

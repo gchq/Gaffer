@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -44,22 +46,29 @@ import java.util.Properties;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "storePropertiesClassName")
 public class StoreProperties implements Cloneable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
     public static final String STORE_CLASS = "gaffer.store.class";
     public static final String SCHEMA_CLASS = "gaffer.store.schema.class";
+    public static final String ID = "gaffer.store.id";
     public static final String STORE_PROPERTIES_CLASS = "gaffer.store.properties.class";
     public static final String OPERATION_DECLARATIONS = "gaffer.store.operation.declarations";
 
     public static final String JOB_TRACKER_ENABLED = "gaffer.store.job.tracker.enabled";
 
     public static final String EXECUTOR_SERVICE_THREAD_COUNT = "gaffer.store.job.executor.threads";
-    private static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
+    public static final String EXECUTOR_SERVICE_THREAD_COUNT_DEFAULT = "50";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StoreProperties.class);
 
     private Properties props = new Properties();
 
     // Required for loading by reflection.
     public StoreProperties() {
+    }
+
+    public StoreProperties(final String id) {
+        if (null != id) {
+            setId(id);
+        }
     }
 
     public StoreProperties(final Path propFileLocation) {
@@ -103,6 +112,15 @@ public class StoreProperties implements Cloneable {
      */
     public void set(final String key, final String value) {
         props.setProperty(key, value);
+    }
+
+
+    public String getId() {
+        return get(ID);
+    }
+
+    public void setId(final String id) {
+        set(ID, id);
     }
 
     /**
@@ -285,6 +303,29 @@ public class StoreProperties implements Cloneable {
     @Override
     public StoreProperties clone() {
         return StoreProperties.loadStoreProperties((Properties) getProperties().clone());
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final StoreProperties properties = (StoreProperties) obj;
+        return new EqualsBuilder()
+                .append(props, properties.props)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(props)
+                .toHashCode();
     }
 
     public static StoreProperties loadStoreProperties(final Properties props) {
