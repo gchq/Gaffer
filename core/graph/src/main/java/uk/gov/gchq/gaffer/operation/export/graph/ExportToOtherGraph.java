@@ -20,15 +20,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
-import uk.gov.gchq.gaffer.store.StoreProperties;
-import java.io.InputStream;
-import java.nio.file.Path;
 
 public class ExportToOtherGraph<T> implements
         Operation,
         ExportTo<T> {
     private T input;
-    private StoreProperties storeProperties;
+    private String graphId;
 
     @Override
     public String getKey() {
@@ -50,12 +47,12 @@ public class ExportToOtherGraph<T> implements
         this.input = input;
     }
 
-    public StoreProperties getStoreProperties() {
-        return storeProperties;
+    public String getGraphId() {
+        return graphId;
     }
 
-    public void setStoreProperties(final StoreProperties storeProperties) {
-        this.storeProperties = storeProperties;
+    public void setGraphId(final String graphId) {
+        this.graphId = graphId;
     }
 
     @Override
@@ -69,23 +66,8 @@ public class ExportToOtherGraph<T> implements
             super(new ExportToOtherGraph<>());
         }
 
-        public Builder<T> storeProperties(final StoreProperties properties) {
-            _getOp().setStoreProperties(properties);
-            return _self();
-        }
-
-        public Builder<T> storeProperties(final InputStream propertiesStream) {
-            _getOp().setStoreProperties(StoreProperties.loadStoreProperties(propertiesStream));
-            return _self();
-        }
-
-        public Builder<T> storeProperties(final String propertiesPath) {
-            _getOp().setStoreProperties(StoreProperties.loadStoreProperties(propertiesPath));
-            return _self();
-        }
-
-        public Builder<T> storeProperties(final Path propertiesPath) {
-            _getOp().setStoreProperties(StoreProperties.loadStoreProperties(propertiesPath));
+        public Builder<T> graphId(final String graphId) {
+            _getOp().setGraphId(graphId);
             return _self();
         }
     }

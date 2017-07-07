@@ -36,13 +36,14 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         return new OtherGraphExporter(
                 context.getUser(),
                 context.getJobId(),
-                createGraph(store.getSchema(), export.getStoreProperties()));
+                createGraph(store.getSchema(), export.getGraphId(), store.getProperties()));
     }
 
-    private Graph createGraph(final Schema schema, final StoreProperties storeProperties) {
+    private Graph createGraph(final Schema schema, final String graphId, final StoreProperties storeProperties) {
         return new Graph.Builder()
-                .addSchema(schema)
+                .graphId(graphId)
                 .storeProperties(storeProperties)
+                .addSchema(schema)
                 .build();
     }
 }
