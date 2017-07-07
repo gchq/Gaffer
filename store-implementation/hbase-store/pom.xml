@@ -29,7 +29,7 @@
     <dependencies>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>store</artifactId>
+            <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

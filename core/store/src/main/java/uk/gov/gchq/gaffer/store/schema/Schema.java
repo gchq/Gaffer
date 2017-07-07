@@ -63,6 +63,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
+    private String id;
+
     /**
      * The {@link Serialiser} for all vertices.
      */
@@ -97,6 +99,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return new Schema.Builder().json(jsonBytes).build();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -267,6 +277,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(schema);
         }
 
+        public CHILD_CLASS id(final String id) {
+            getThisSchema().id = id;
+            return self();
+        }
+
         @Override
         public CHILD_CLASS entity(final String group) {
             return entity(group, new SchemaEntityDefinition());
@@ -347,6 +362,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         public CHILD_CLASS merge(final Schema schema) {
             validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
             validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
+
+            if (null != schema.getId()) {
+                getThisSchema().setId(schema.getId());
+            }
 
             if (getThisSchema().getEntities().isEmpty()) {
                 getThisSchema().getEntities().putAll(schema.getEntities());

@@ -32,6 +32,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -66,19 +69,22 @@ public final class TableUtils {
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
      * </p>
      * <p>
+     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * </p>
+     * <p>
      * Usage:
      * </p>
      * <p>
-     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties]
+     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties] [pathToFileGraphLibrary]
      * </p>
      *
-     * @param args [graphId] [schema directory path] [store properties path]
+     * @param args [graphId] [schema directory path] [store properties path] [ file graph library path]
      * @throws Exception if the tables fails to be created/updated
      */
     public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<graphId> <schema directory path> <store properties path>");
+                    + "<graphId> <schema directory path> <store properties path> <file graph library path>");
             System.exit(1);
         }
 
@@ -89,6 +95,16 @@ public final class TableUtils {
 
         final Schema schema = Schema.fromJson(getSchemaDirectoryPath(args));
 
+        GraphLibrary library;
+
+        if (getFileGraphLibraryPathString(args) == null) {
+            library = new NoGraphLibrary();
+        } else {
+            library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
+        }
+
+        library.addOrUpdate(getGraphId(args), schema, storeProps);
+
         final String storeClass = storeProps.getStoreClass();
         if (null == storeClass) {
             throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
@@ -97,7 +113,9 @@ public final class TableUtils {
         final HBaseStore store;
         try {
             store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (final InstantiationException | IllegalAccessException |
+                ClassNotFoundException e
+                ) {
             throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
         }
 
@@ -107,10 +125,10 @@ public final class TableUtils {
                 storeProps
         );
 
-        if (!store.getConnection().getAdmin().tableExists(store.getTableName())) {
+        if (!store.getConnection().getAdmin()
+                .tableExists(store.getTableName())) {
             createTable(store);
         }
-
 
         try (final Admin admin = store.getConnection().getAdmin()) {
             final TableName tableName = store.getTableName();
@@ -123,6 +141,7 @@ public final class TableUtils {
                 TableUtils.createTable(store);
             }
         }
+
     }
 
     private static String getGraphId(final String[] args) {
@@ -135,6 +154,13 @@ public final class TableUtils {
 
     private static String getStorePropertiesPathString(final String[] args) {
         return args[2];
+    }
+
+    private static String getFileGraphLibraryPathString(final String[] args) {
+        if (args.length > 3) {
+            return args[3];
+        }
+        return null;
     }
 
     /**
