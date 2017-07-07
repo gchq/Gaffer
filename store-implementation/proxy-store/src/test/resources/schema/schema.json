@@ -73,14 +73,18 @@
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.CompactRawIntegerSerialiser"
+      }
     },
     "colQualProperty": {
       "class": "java.lang.Integer",
       "aggregateFunction": {
         "class": "uk.gov.gchq.koryphe.impl.binaryoperator.Sum"
       },
-      "serialiserClass": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.serialisation.implementation.raw.RawIntegerSerialiser"
+      }
     },
     "timestamp": {
       "class": "java.lang.Integer"

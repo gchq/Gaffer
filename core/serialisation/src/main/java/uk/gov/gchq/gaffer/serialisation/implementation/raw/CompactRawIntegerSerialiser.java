@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * Serialises integers using a variable-length scheme that means smaller integers get serialised into a smaller
@@ -29,7 +29,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
  * equal to <code>Integer.MIN_VALUE</code>. This means that, in terms of serialised size, there is no benefit to
  * using an integer instead of a long.
  */
-public class CompactRawIntegerSerialiser implements Serialisation<Integer> {
+public class CompactRawIntegerSerialiser implements ToBytesSerialiser<Integer> {
 
     private static final long serialVersionUID = -2874472098583724627L;
 
@@ -44,8 +44,8 @@ public class CompactRawIntegerSerialiser implements Serialisation<Integer> {
     }
 
     @Override
-    public Integer deserialise(final byte[] bytes) throws SerialisationException {
-        final long result = CompactRawSerialisationUtils.readLong(bytes);
+    public Integer deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        final long result = CompactRawSerialisationUtils.readLong(allBytes, offset);
         if ((result > Integer.MAX_VALUE) || (result < Integer.MIN_VALUE)) {
             throw new SerialisationException("Value too long to fit in integer");
         }
@@ -53,7 +53,12 @@ public class CompactRawIntegerSerialiser implements Serialisation<Integer> {
     }
 
     @Override
-    public Integer deserialiseEmptyBytes() {
+    public Integer deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Integer deserialiseEmpty() {
         return null;
     }
 

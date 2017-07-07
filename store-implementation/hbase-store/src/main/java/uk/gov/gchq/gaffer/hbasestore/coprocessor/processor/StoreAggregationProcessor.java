@@ -27,16 +27,17 @@ import uk.gov.gchq.gaffer.hbasestore.utils.HBaseUtil;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class StoreAggregationProcessor implements GafferScannerProcessor {
     private final ElementSerialisation serialisation;
     private final Schema schema;
+    private final List<String> aggregatedGroups;
 
     public StoreAggregationProcessor(final ElementSerialisation serialisation,
                                      final Schema schema) {
         this.serialisation = serialisation;
         this.schema = schema;
+        aggregatedGroups = schema.getAggregatedGroups();
     }
 
     @Override
@@ -56,22 +57,22 @@ public class StoreAggregationProcessor implements GafferScannerProcessor {
 
             if (null == firstElementCell) {
                 firstElementCell = elementCell;
-            } else if (!HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
+                aggregatedProperties = null;
+                aggregator = null;
+            } else if (!aggregatedGroups.contains(elementCell.getGroup())
+                    || !HBaseUtil.compareKeys(firstElementCell.getCell(), elementCell.getCell())) {
                 completeAggregator(firstElementCell, aggregatedProperties, output);
                 firstElementCell = elementCell;
+                aggregatedProperties = null;
                 aggregator = null;
             } else {
                 final String group = firstElementCell.getGroup();
-                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
                 if (null == aggregator) {
-                    aggregator = schema.getElement(group).getAggregator();
-                    final Properties properties = firstElementCell.getElement().getProperties();
-                    properties.remove(schemaGroupBy);
-                    aggregatedProperties = properties;
+                    aggregator = schema.getElement(group).getIngestAggregator();
+                    aggregatedProperties = firstElementCell.getElement().getProperties();
                 }
 
                 final Properties properties = elementCell.getElement().getProperties();
-                properties.remove(schemaGroupBy);
                 aggregatedProperties = aggregator.apply(properties, aggregatedProperties);
             }
         }

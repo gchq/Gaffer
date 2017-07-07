@@ -22,9 +22,8 @@ import uk.gov.gchq.gaffer.types.TypeValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
-public class TypeValueSerialiser implements Serialisation<TypeValue> {
+public class TypeValueSerialiser implements ToBytesSerialiser<TypeValue> {
 
     private static final long serialVersionUID = 8675867261911636738L;
 
@@ -67,8 +66,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
             if (bytes[i] == ByteArrayEscapeUtils.DELIMITER) {
                 if (i > 0) {
                     try {
-                        typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(Arrays
-                                .copyOfRange(bytes, lastDelimiter, i)), CommonConstants.UTF_8));
+                        typeValue.setType(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, i), CommonConstants.UTF_8));
                     } catch (final UnsupportedEncodingException e) {
                         throw new SerialisationException("Failed to deserialise the Type from TypeValue Object", e);
                     }
@@ -79,8 +77,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
         }
         if (bytes.length > lastDelimiter) {
             try {
-                typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(Arrays
-                        .copyOfRange(bytes, lastDelimiter, bytes.length)), CommonConstants.UTF_8));
+                typeValue.setValue(new String(ByteArrayEscapeUtils.unEscape(bytes, lastDelimiter, bytes.length), CommonConstants.UTF_8));
             } catch (final UnsupportedEncodingException e) {
                 throw new SerialisationException("Failed to deserialise the Value from TypeValue Object", e);
             }
@@ -89,7 +86,7 @@ public class TypeValueSerialiser implements Serialisation<TypeValue> {
     }
 
     @Override
-    public TypeValue deserialiseEmptyBytes() throws SerialisationException {
+    public TypeValue deserialiseEmpty() throws SerialisationException {
         return null;
     }
 

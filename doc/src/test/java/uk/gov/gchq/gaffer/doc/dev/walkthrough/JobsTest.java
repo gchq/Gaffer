@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.doc.dev.walkthrough;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;

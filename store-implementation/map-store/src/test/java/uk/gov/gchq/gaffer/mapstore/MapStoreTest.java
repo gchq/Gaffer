@@ -30,7 +30,7 @@ public class MapStoreTest {
     @Test
     public void testTraits() throws StoreException {
         final MapStore mapStore = new MapStore();
-        mapStore.initialise(new Schema(), new MapStoreProperties());
+        mapStore.initialise("graphId", new Schema(), new MapStoreProperties());
         final Set<StoreTrait> expectedTraits = new HashSet<>(Arrays.asList(
                 StoreTrait.INGEST_AGGREGATION,
                 StoreTrait.PRE_AGGREGATION_FILTERING,

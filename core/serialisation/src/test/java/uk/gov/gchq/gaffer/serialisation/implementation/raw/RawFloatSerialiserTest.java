@@ -15,22 +15,23 @@
  */
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawFloatSerialiserTest {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 
-    private static final RawFloatSerialiser SERIALISER = new RawFloatSerialiser();
+public class RawFloatSerialiserTest extends ToBytesSerialisationTest<Float> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
-        for (float i = 0; i < 1000; i+=1.1) {
-            byte[] b = SERIALISER.serialise(i);
-            Object o = SERIALISER.deserialise(b);
+        for (float i = 0; i < 1000; i += 1.1) {
+            byte[] b = serialiser.serialise(i);
+            Object o = serialiser.deserialise(b);
             assertEquals(Float.class, o.getClass());
             assertEquals(i, o);
         }
@@ -38,28 +39,42 @@ public class RawFloatSerialiserTest {
 
     @Test
     public void canSerialiseFloatMinValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MIN_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Float.MIN_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MIN_VALUE, o);
     }
 
     @Test
     public void canSerialiseFloatMaxValue() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(Float.MAX_VALUE);
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(Float.MAX_VALUE);
+        Object o = serialiser.deserialise(b);
         assertEquals(Float.class, o.getClass());
         assertEquals(Float.MAX_VALUE, o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseFloatClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Float.class));
+        assertTrue(serialiser.canHandle(Float.class));
     }
 
+    @Override
+    public Serialiser<Float, byte[]> getSerialisation() {
+        return new RawFloatSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Float, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(Float.MAX_VALUE, new byte[]{-1, -1, 127, 127}),
+                new Pair<>(Float.MIN_VALUE, new byte[]{1, 0, 0, 0}),
+                new Pair<>(0f, new byte[]{0, 0, 0, 0}),
+                new Pair<>(1f, new byte[]{0, 0, -128, 63})
+        };
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,50 @@
 
 package uk.gov.gchq.gaffer.serialisation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 
-import static org.junit.Assert.assertArrayEquals;
-
-public abstract class SerialisationTest<T> {
-
-    protected final Serialisation<T> serialiser;
+public abstract class SerialisationTest<INPUT, OUTPUT> {
+    protected final Serialiser<INPUT, OUTPUT> serialiser;
+    private final Pair<INPUT, OUTPUT>[] historicSerialisationPairs;
 
     public SerialisationTest() {
         this.serialiser = getSerialisation();
+        this.historicSerialisationPairs = getHistoricSerialisationPairs();
     }
 
     @Test
-    public void shouldSerialiseNull() throws SerialisationException {
-        // When
-        final byte[] bytes = serialiser.serialiseNull();
+    public void shouldSerialiseWithHistoricValues() throws Exception {
+        assertNotNull("historicSerialisationPairs should not be null.", historicSerialisationPairs);
+        assertNotEquals("historicSerialisationPairs should not be empty.", 0, historicSerialisationPairs.length);
+        for (Pair<INPUT, OUTPUT> pair : historicSerialisationPairs) {
+            assertNotNull("historicSerialisationPairs first value should not be null", pair.getFirst());
+            serialiseFirst(pair);
+            assertNotNull("historicSerialisationPairs second value should not be null", pair.getSecond());
+            deserialiseSecond(pair);
+        }
+    }
 
-        // Then
-        assertArrayEquals(new byte[0], bytes);
+    protected void deserialiseSecond(final Pair<INPUT, OUTPUT> pair) throws SerialisationException {
+        assertEquals(pair.getFirst(), serialiser.deserialise(pair.getSecond()));
+    }
+
+    protected void serialiseFirst(final Pair<INPUT, OUTPUT> pair) throws SerialisationException {
+        assertEquals(pair.getSecond(), serialiser.serialise(pair.getFirst()));
     }
 
     @Test
-    public abstract void shouldDeserialiseEmptyBytes() throws SerialisationException;
+    public abstract void shouldSerialiseNull() throws SerialisationException;
 
-    public abstract Serialisation<T> getSerialisation();
+    @Test
+    public abstract void shouldDeserialiseEmpty() throws SerialisationException;
+
+    public abstract Serialiser<INPUT, OUTPUT> getSerialisation();
+
+    public abstract Pair<INPUT, OUTPUT>[] getHistoricSerialisationPairs();
 }

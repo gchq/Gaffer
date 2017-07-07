@@ -1,21 +1,33 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.impl;
 
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation.ImportAccumuloKeyValueFiles;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-public class ImportAccumuloKeyValueFilesTest implements OperationTest {
+public class ImportAccumuloKeyValueFilesTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
 
     private static final String INPUT_DIRECTORY = "/input";
     private static final String FAIL_DIRECTORY = "/fail";
     private static final String TEST_OPTION_KEY = "testOption";
 
+    @Override
+    protected Class<? extends Operation> getOperationClass() {
+        return ImportAccumuloKeyValueFiles.class;
+    }
+
+    @Override
+    protected Set<String> getRequiredFields() {
+        return Sets.newHashSet("failurePath", "inputPath");
+    }
 
     @Test
     @Override

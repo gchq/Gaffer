@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * Serialises longs using a variable-length scheme that means smaller longs get serialised into a smaller
@@ -25,7 +25,7 @@ import uk.gov.gchq.gaffer.serialisation.Serialisation;
  * large longs may be serialised into 9 bytes. This is particularly well suited to serialising count properties in
  * power-law graphs where the majority of counts will be very small.
  */
-public class CompactRawLongSerialiser implements Serialisation<Long> {
+public class CompactRawLongSerialiser implements ToBytesSerialiser<Long> {
 
     private static final long serialVersionUID = 6104372357426908732L;
 
@@ -40,12 +40,17 @@ public class CompactRawLongSerialiser implements Serialisation<Long> {
     }
 
     @Override
+    public Long deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        return CompactRawSerialisationUtils.readLong(allBytes, offset);
+    }
+
+    @Override
     public Long deserialise(final byte[] bytes) throws SerialisationException {
         return CompactRawSerialisationUtils.readLong(bytes);
     }
 
     @Override
-    public Long deserialiseEmptyBytes() {
+    public Long deserialiseEmpty() {
         return null;
     }
 

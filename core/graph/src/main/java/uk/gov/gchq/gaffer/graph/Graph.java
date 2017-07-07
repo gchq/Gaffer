@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -228,6 +228,15 @@ public final class Graph {
     }
 
     /**
+     * @param operation the class of the operation to check
+     * @return a collection of all the compatible {@link Operation}s that could
+     * be added to an operation chain after the provided operation.
+     */
+    public Set<Class<? extends Operation>> getNextOperations(final Class<? extends Operation> operation) {
+        return store.getNextOperations(operation);
+    }
+
+    /**
      * Returns the graph view.
      *
      * @return the graph view.
@@ -261,16 +270,29 @@ public final class Graph {
     }
 
     /**
+     * @return the graphId for this Graph.
+     */
+    public String getGraphId() {
+        return store.getGraphId();
+    }
+
+    /**
      * Builder for {@link Graph}.
      */
     public static class Builder {
-        public static final String UNABLE_TO_READ_SCHEMA_FROM_URL = "Unable to read schema from URL";
+        public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
+        private String graphId;
         private StoreProperties properties;
         private Schema schema;
         private View view;
         private List<GraphHook> graphHooks = new ArrayList<>();
+
+        public Builder graphId(final String graphId) {
+            this.graphId = graphId;
+            return this;
+        }
 
         public Builder view(final View view) {
             this.view = view;
@@ -285,11 +307,11 @@ public final class Graph {
             return view(new View.Builder().json(view).build());
         }
 
-        public Builder view(final URL view) {
+        public Builder view(final URI view) {
             try {
                 view(StreamUtil.openStream(view));
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read view from URL", e);
+                throw new SchemaException("Unable to read view from URI", e);
             }
             return this;
         }
@@ -315,11 +337,11 @@ public final class Graph {
             return storeProperties(StoreProperties.loadStoreProperties(propertiesStream));
         }
 
-        public Builder storeProperties(final URL propertiesURL) {
+        public Builder storeProperties(final URI propertiesURI) {
             try {
-                storeProperties(StreamUtil.openStream(propertiesURL));
+                storeProperties(StreamUtil.openStream(propertiesURI));
             } catch (final IOException e) {
-                throw new SchemaException("Unable to read storeProperties from URL", e);
+                throw new SchemaException("Unable to read storeProperties from URI", e);
             }
 
             return this;
@@ -394,21 +416,21 @@ public final class Graph {
             }
         }
 
-        public Builder addSchema(final URL schemaURL) {
+        public Builder addSchema(final URI schemaURI) {
             try {
-                addSchema(StreamUtil.openStream(schemaURL));
+                addSchema(StreamUtil.openStream(schemaURI));
             } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
             }
 
             return this;
         }
 
-        public Builder addSchemas(final URL... schemaURL) {
+        public Builder addSchemas(final URI... schemaURI) {
             try {
-                addSchemas(StreamUtil.openStreams(schemaURL));
+                addSchemas(StreamUtil.openStreams(schemaURI));
             } catch (final IOException e) {
-                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URL, e);
+                throw new SchemaException(UNABLE_TO_READ_SCHEMA_FROM_URI, e);
             }
 
             return this;
@@ -469,53 +491,28 @@ public final class Graph {
 
         private void updateStore() {
             if (null == store) {
-                store = createStore(properties, cloneSchema(schema));
-            } else if (null != properties || null != schema) {
-                try {
-                    if (null == properties) {
-                        store.initialise(cloneSchema(schema), store.getProperties());
-                    } else if (null == schema) {
-                        store.initialise(store.getSchema(), properties);
-                    } else {
-                        store.initialise(cloneSchema(schema), properties);
-                    }
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
+                store = Store.createStore(graphId, cloneSchema(schema), properties);
+            } else if (null != graphId || null != schema || null != properties) {
+                if (null == graphId) {
+                    graphId = store.getGraphId();
                 }
-            } else {
-                schema = store.getSchema();
-                store.optimiseSchema();
-                store.validateSchemas();
+                if (null == schema) {
+                    schema = store.getSchema();
+                }
+                if (null == properties) {
+                    properties = store.getProperties();
+                }
+
+                try {
+                    store.initialise(graphId, cloneSchema(schema), properties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                }
             }
 
             if (null == schema) {
                 schema = store.getSchema();
             }
-        }
-
-        private Store createStore(final StoreProperties storeProperties, final Schema schema) {
-            if (null == storeProperties) {
-                throw new IllegalArgumentException("Store properties are required to create a store");
-            }
-
-            final String storeClass = storeProperties.getStoreClass();
-            if (null == storeClass) {
-                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-            }
-
-            final Store newStore;
-            try {
-                newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-            }
-
-            try {
-                newStore.initialise(schema, storeProperties);
-            } catch (final StoreException e) {
-                throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-            }
-            return newStore;
         }
 
         private void updateView() {

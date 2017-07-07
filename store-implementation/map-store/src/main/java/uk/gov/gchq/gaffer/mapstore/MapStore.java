@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.mapstore;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
@@ -32,6 +33,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -68,16 +70,17 @@ public class MapStore extends Store {
     private MapImpl mapImpl;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties storeProperties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties storeProperties) throws StoreException {
         if (!(storeProperties instanceof MapStoreProperties)) {
-            throw new StoreException("storeProperties must be an instance of MapStoreProperties");
+            throw new StoreException("storeProperties must be an instance of " + MapStoreProperties.class.getName());
         }
         // Initialise store
         final MapStoreProperties mapStoreProperties = (MapStoreProperties) storeProperties;
-        super.initialise(schema, mapStoreProperties);
+        super.initialise(graphId, schema, mapStoreProperties);
+
         // Initialise maps
-        mapImpl = new MapImpl(schema, mapStoreProperties);
-        LOGGER.info("Initialised MapStore");
+        mapImpl = new MapImpl(getSchema(), getProperties());
+        LOGGER.debug("Initialised MapStore");
     }
 
     public MapImpl getMapImpl() {
@@ -92,6 +95,12 @@ public class MapStore extends Store {
     @Override
     public boolean isValidationRequired() {
         return false;
+    }
+
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be MapStoreProperties")
+    @Override
+    public MapStoreProperties getProperties() {
+        return (MapStoreProperties) super.getProperties();
     }
 
     @Override
@@ -122,5 +131,10 @@ public class MapStore extends Store {
     @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported");
+    }
+
+    @Override
+    protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
+        return Serialiser.class;
     }
 }

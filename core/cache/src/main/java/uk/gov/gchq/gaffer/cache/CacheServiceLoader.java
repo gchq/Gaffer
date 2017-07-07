@@ -22,21 +22,23 @@ import uk.gov.gchq.gaffer.cache.util.CacheProperties;
 import java.util.Properties;
 
 /**
- * Initialised when the store is initialised. Looks at a system property to determine the uk.gov.gchq.gaffer.cache service to load.
+ * Initialised when the store is initialised. Looks at a system property to determine the cache service to load.
  * Then initialises it, after which any component may use {@code CacheServiceLoader.getService()} to get the service
- * that can retrieve the appropriate uk.gov.gchq.gaffer.cache.
+ * that can retrieve the appropriate cache.
  */
 public final class CacheServiceLoader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheServiceLoader.class);
     private static ICacheService service;
+    private static boolean shutdownHookAdded = false;
 
     /**
-     * Looks at a system property and initialises an appropriate uk.gov.gchq.gaffer.cache service. If no uk.gov.gchq.gaffer.cache service is specified in the
-     * system property, the loader falls back onto a default which is backed by HashMaps.
+     * Looks at a system property and initialises an appropriate cache service. Adds a shutdown hook
+     * which gracefully closes the cache service if JVM is stopped. This should not be relied upon
+     * in a servlet context - use the ServletLifecycleListener located in the REST module instead
      *
      * @param properties the cache service properties
-     * @throws IllegalArgumentException if an invalid uk.gov.gchq.gaffer.cache class is specified in the system property
+     * @throws IllegalArgumentException if an invalid cache class is specified in the system property
      */
     public static void initialise(final Properties properties) {
         if (properties == null) {
@@ -59,19 +61,33 @@ public final class CacheServiceLoader {
         }
 
         service.initialise(properties);
+
+        if (!shutdownHookAdded) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    shutdown();
+                }
+            });
+            shutdownHookAdded = true;
+        }
     }
 
     /**
-     * @return the uk.gov.gchq.gaffer.cache service
+     * @return the cache service
      */
     public static ICacheService getService() {
         return service;
     }
 
+    /**
+     * Gracefully shutdown and reset the cache service.
+     */
     public static void shutdown() {
         if (service != null) {
             service.shutdown();
         }
+
+        service = null;
     }
 
     private CacheServiceLoader() {

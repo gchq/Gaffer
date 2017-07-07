@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.sparkaccumulo.operation.javardd;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.spark.api.java.JavaPairRDD;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import uk.gov.gchq.gaffer.operation.io.Input;
@@ -28,7 +29,9 @@ public class ImportKeyValueJavaPairRDDToAccumulo implements
         Input<JavaPairRDD<Key, Value>>,
         Options {
 
+    @Required
     private String outputPath;
+    @Required
     private String failurePath;
     private JavaPairRDD<Key, Value> input;
     private Map<String, String> options;

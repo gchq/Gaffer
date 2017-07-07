@@ -26,7 +26,6 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.user.User;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -54,7 +53,7 @@ public class NamedOperationCacheIT
     public static void setUp() throws ClassNotFoundException, StoreException, IllegalAccessException, InstantiationException {
         final StoreProperties storeProps = StoreProperties.loadStoreProperties(StreamUtil.storeProps(NamedOperationCacheIT.class));
         Store store = Class.forName(storeProps.getStoreClass()).asSubclass(Store.class).newInstance();
-        store.initialise(new Schema(), storeProps);
+        store.initialise("graphId", new Schema(), storeProps);
         graph = new Graph.Builder()
                 .store(store)
                 .build();

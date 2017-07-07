@@ -17,6 +17,7 @@ package uk.gov.gchq.gaffer.hdfs.operation;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.apache.hadoop.mapreduce.Partitioner;
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser;
 import uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.MapperGenerator;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -35,13 +36,21 @@ import java.util.Map;
  * </p>
  * <b>NOTE</b> - currently this job has to be run as a hadoop job.
  *
+ * @see MapReduce
  * @see Builder
  */
 public class AddElementsFromHdfs implements
         Operation,
         MapReduce,
         Options {
+    @Required
     private String failurePath;
+
+    /**
+     * Path to a folder to store temporary files during the add elements operation.
+     */
+    private String workingPath;
+
     private boolean validate = true;
 
     /**
@@ -49,12 +58,29 @@ public class AddElementsFromHdfs implements
      * For Avro data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.AvroMapperGenerator}.
      * For Text data see {@link uk.gov.gchq.gaffer.hdfs.operation.mapper.generator.TextMapperGenerator}.
      */
+    @Required
     private String mapperGeneratorClassName;
+
+    @Required
     private List<String> inputPaths;
+
+    @Required
     private String outputPath;
+
+    @Required
     private JobInitialiser jobInitialiser;
+
     private Integer numMapTasks;
+    private Integer minMapTasks;
+    private Integer maxMapTasks;
+
     private Integer numReduceTasks;
+    private Integer minReduceTasks;
+    private Integer maxReduceTasks;
+
+    private boolean useProvidedSplits;
+    private String splitsFilePath;
+
     private Class<? extends Partitioner> partitioner;
     private Map<String, String> options;
 
@@ -138,6 +164,66 @@ public class AddElementsFromHdfs implements
     }
 
     @Override
+    public Integer getMinMapTasks() {
+        return minMapTasks;
+    }
+
+    @Override
+    public void setMinMapTasks(final Integer minMapTasks) {
+        this.minMapTasks = minMapTasks;
+    }
+
+    @Override
+    public Integer getMaxMapTasks() {
+        return maxMapTasks;
+    }
+
+    @Override
+    public void setMaxMapTasks(final Integer maxMapTasks) {
+        this.maxMapTasks = maxMapTasks;
+    }
+
+    @Override
+    public Integer getMinReduceTasks() {
+        return minReduceTasks;
+    }
+
+    @Override
+    public void setMinReduceTasks(final Integer minReduceTasks) {
+        this.minReduceTasks = minReduceTasks;
+    }
+
+    @Override
+    public Integer getMaxReduceTasks() {
+        return maxReduceTasks;
+    }
+
+    @Override
+    public void setMaxReduceTasks(final Integer maxReduceTasks) {
+        this.maxReduceTasks = maxReduceTasks;
+    }
+
+    @Override
+    public boolean isUseProvidedSplits() {
+        return useProvidedSplits;
+    }
+
+    @Override
+    public void setUseProvidedSplits(final boolean useProvidedSplits) {
+        this.useProvidedSplits = useProvidedSplits;
+    }
+
+    @Override
+    public String getSplitsFilePath() {
+        return splitsFilePath;
+    }
+
+    @Override
+    public void setSplitsFilePath(final String splitsFilePath) {
+        this.splitsFilePath = splitsFilePath;
+    }
+
+    @Override
     public Class<? extends Partitioner> getPartitioner() {
         return partitioner;
     }
@@ -145,6 +231,14 @@ public class AddElementsFromHdfs implements
     @Override
     public void setPartitioner(final Class<? extends Partitioner> partitioner) {
         this.partitioner = partitioner;
+    }
+
+    public String getWorkingPath() {
+        return workingPath;
+    }
+
+    public void setWorkingPath(final String workingPath) {
+        this.workingPath = workingPath;
     }
 
     @Override
@@ -176,6 +270,11 @@ public class AddElementsFromHdfs implements
 
         public Builder failurePath(final String failurePath) {
             _getOp().setFailurePath(failurePath);
+            return _self();
+        }
+
+        public Builder workingPath(final String workingPath) {
+            _getOp().setWorkingPath(workingPath);
             return _self();
         }
     }

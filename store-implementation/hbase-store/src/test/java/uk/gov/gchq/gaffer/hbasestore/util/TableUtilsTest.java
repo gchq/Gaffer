@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 public class TableUtilsTest {
-    public static final String TABLE_NAME = "table1";
+    public static final String GRAPH_ID = "graphId";
 
     @Test
     public void shouldCreateTableAndValidateIt() throws Exception {
@@ -58,8 +58,7 @@ public class TableUtilsTest {
                 .build();
 
         final HBaseProperties props = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        props.setTable(TABLE_NAME);
-        store.initialise(schema, props);
+        store.initialise(GRAPH_ID, schema, props);
 
         // When
         TableUtils.createTable(store);
@@ -86,11 +85,10 @@ public class TableUtilsTest {
                 .build();
 
         final HBaseProperties props = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(TableUtilsTest.class));
-        props.setTable(TABLE_NAME);
-        store.initialise(schema, props);
+        store.initialise(GRAPH_ID, schema, props);
 
         // Remove coprocessor
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try (final Admin admin = store.getConnection().getAdmin()) {
             final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
             descriptor.removeCoprocessor(GafferCoprocessor.class.getName());

@@ -21,7 +21,7 @@ and their licenses, below. For information on the dependencies of these dependen
 projects below.
 
 
-Koryphe (uk.gov.gchq.koryphe:koryphe:0.1.1):
+Koryphe (uk.gov.gchq.koryphe:koryphe:0.1.2):
 
 - Apache License, Version 2.0
 
@@ -45,7 +45,7 @@ Apache Commons Lang (org.apache.commons:commons-lang3:3.3.2):
 
 - Apache License, Version 2.0
 
-Apache Commons JCS (org.apache.jcs:jcs:1.3):
+Apache Commons JCS (org.apache.commons:commons-jcs-core:2.1):
 
 - Apache Licence, Version 2.0
 
@@ -177,9 +177,24 @@ Maven war plugin (org.apache.maven.plugins:maven-war-plugin:3.0.0):
 - Apache License, Version 2.0
 
 
+Roaring Bitmap (org.roaringbitmap:RoaringBitmap:0.5.11)
+
+- Apache License, Version 2.0
+
+
+Apache Kafka (org.apache.kafka:kafka_2.11:0.10.0.0,org.apache.kafka:kafka-clients:0.10.0.0)
+
+- Apache License, Version 2.0
+
+
+Apache Flink (org.apache.curator:curator-test:0.5.11)
+
+- Apache License, Version 2.0
+
+
 ------------------------------------------------------------------------------------------------
 
-The Gaffer rest-api and ui modules contain the following javascript dependencies:
+The Gaffer rest-api module contains the following javascript dependencies:
 
 Backbone (backbone-min.js:1.3.3)
 
@@ -244,36 +259,6 @@ Marked (marked.js)
 
 
 Swagger (swagger-oauth.js, swagger-ui.js, swagger-ui.min.js)
-
-- Apache License, Version 2.0
-
-
-Bootstrap (bootstrap.min.js)
-
-- MIT License
-
-
-Angular (angular.min.js)
-
-- MIT License
-
-
-Angular Material (angular-animate.min.js)
-
-- MIT License
-
-
-Angular Material (angular-aria.min.js)
-
-- MIT License
-
-
-Angular Material (angular-material.min.js)
-
-- MIT License
-
-
-Roaring Bitmap (org.roaringbitmap:RoaringBitmap:0.5.11)
 
 - Apache License, Version 2.0
 

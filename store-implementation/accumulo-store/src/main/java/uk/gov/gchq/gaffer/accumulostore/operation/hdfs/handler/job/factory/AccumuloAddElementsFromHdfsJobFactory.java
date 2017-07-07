@@ -16,9 +16,9 @@
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory;
 
 import org.apache.accumulo.core.client.mapreduce.AccumuloFileOutputFormat;
-import org.apache.accumulo.core.client.mapreduce.lib.partition.KeyRangePartitioner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
@@ -27,83 +27,129 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
+import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner.GafferKeyRangePartitioner;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper.AddElementsFromHdfsMapper;
 import uk.gov.gchq.gaffer.accumulostore.operation.hdfs.reducer.AccumuloKeyValueReducer;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.IngestUtils;
+import uk.gov.gchq.gaffer.accumulostore.utils.TableUtils;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
-import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AbstractAddElementsFromHdfsJobFactory;
+import uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory.AddElementsFromHdfsJobFactory;
+import uk.gov.gchq.gaffer.hdfs.operation.partitioner.NoPartitioner;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
 import java.io.IOException;
 
-public class AccumuloAddElementsFromHdfsJobFactory extends
-        AbstractAddElementsFromHdfsJobFactory {
+public class AccumuloAddElementsFromHdfsJobFactory implements AddElementsFromHdfsJobFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloAddElementsFromHdfsJobFactory.class);
 
+    /**
+     * Creates a job with the store specific job initialisation and then applies the operation specific
+     * {@link uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser.JobInitialiser}.
+     *
+     * @param operation the add elements from hdfs operation
+     * @param store     the store executing the operation
+     * @return the created job
+     * @throws IOException for IO issues
+     */
     @Override
-    protected void setupJobConf(final JobConf jobConf, final AddElementsFromHdfs operation, final Store store)
-            throws IOException {
-        super.setupJobConf(jobConf, operation, store);
-        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
-                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+    public Job createJob(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        final JobConf jobConf = createJobConf(operation, store);
+        final Job job = Job.getInstance(jobConf);
+        setupJob(job, operation, store);
+
+        // Apply Operation Specific Job Configuration
+        if (null != operation.getJobInitialiser()) {
+            operation.getJobInitialiser().initialiseJob(job, operation, store);
+        }
+
+        return job;
     }
 
     @Override
-    public void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
-        super.setupJob(job, operation, store);
+    public void prepareStore(final Store store) throws StoreException {
+        TableUtils.ensureTableExists(((AccumuloStore) store));
+    }
+
+    protected JobConf createJobConf(final AddElementsFromHdfs operation, final Store store) throws IOException {
+        final JobConf jobConf = new JobConf(new Configuration());
+
+        LOGGER.info("Setting up job conf");
+        jobConf.set(SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        LOGGER.info("Added {} {} to job conf", SCHEMA, new String(store.getSchema().toCompactJson(), CommonConstants.UTF_8));
+        jobConf.set(MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        LOGGER.info("Added {} of {} to job conf", MAPPER_GENERATOR, operation.getMapperGeneratorClassName());
+        jobConf.set(VALIDATE, String.valueOf(operation.isValidate()));
+        LOGGER.info("Added {} option of {} to job conf", VALIDATE, operation.isValidate());
+        Integer numTasks = operation.getNumMapTasks();
+        if (null != numTasks) {
+            jobConf.setNumMapTasks(numTasks);
+            LOGGER.info("Set number of map tasks to {} on job conf", numTasks);
+        }
+        numTasks = operation.getNumReduceTasks();
+        if (null != numTasks) {
+            jobConf.setNumReduceTasks(numTasks);
+            LOGGER.info("Set number of reduce tasks to {} on job conf", numTasks);
+        }
+        jobConf.set(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
+                ((AccumuloStore) store).getKeyPackage().getKeyConverter().getClass().getName());
+
+        return jobConf;
+    }
+
+    protected String getJobName(final String mapperGenerator, final String outputPath) {
+        return "Ingest HDFS data: Generator=" + mapperGenerator + ", output=" + outputPath;
+    }
+
+    protected void setupJob(final Job job, final AddElementsFromHdfs operation, final Store store) throws IOException {
+        job.setJarByClass(getClass());
+        job.setJobName(getJobName(operation.getMapperGeneratorClassName(), operation.getOutputPath()));
 
         setupMapper(job);
         setupCombiner(job);
         setupReducer(job);
         setupOutput(job, operation);
 
-        final String useAccumuloPartitioner = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_ACCUMULO_PARTITIONER);
-        if (null == useAccumuloPartitioner || "true".equalsIgnoreCase(useAccumuloPartitioner)) {
+        if (!NoPartitioner.class.equals(operation.getPartitioner())) {
+            if (null != operation.getPartitioner()) {
+                operation.setPartitioner(GafferKeyRangePartitioner.class);
+                LOGGER.warn("Partitioner class " + operation.getPartitioner().getName() + " will be replaced with " + GafferKeyRangePartitioner.class.getName());
+            }
             setupPartitioner(job, operation, (AccumuloStore) store);
         }
     }
 
-    private void setupMapper(final Job job) throws IOException {
+    protected void setupMapper(final Job job) throws IOException {
         job.setMapperClass(AddElementsFromHdfsMapper.class);
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
     }
 
-    private void setupCombiner(final Job job) throws IOException {
+    protected void setupCombiner(final Job job) throws IOException {
         job.setCombinerClass(AccumuloKeyValueReducer.class);
     }
 
-    private void setupReducer(final Job job) throws IOException {
+    protected void setupReducer(final Job job) throws IOException {
         job.setReducerClass(AccumuloKeyValueReducer.class);
         job.setOutputKeyClass(Key.class);
         job.setOutputValueClass(Value.class);
     }
 
-    private void setupOutput(final Job job, final AddElementsFromHdfs operation) throws IOException {
+    protected void setupOutput(final Job job, final AddElementsFromHdfs operation) throws IOException {
         job.setOutputFormatClass(AccumuloFileOutputFormat.class);
         FileOutputFormat.setOutputPath(job, new Path(operation.getOutputPath()));
     }
 
-    private void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
+    protected void setupPartitioner(final Job job, final AddElementsFromHdfs operation, final AccumuloStore store)
             throws IOException {
-
-        boolean userSplitsFile = false;
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-
-        final String userSplitsFileStr = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_USE_PROVIDED_SPLITS_FILE);
-
-        if (userSplitsFileStr != null) {
-            userSplitsFile = Boolean.parseBoolean(userSplitsFileStr);
-        }
-
-        if (splitsFilePath == null) {
+        if (operation.getSplitsFilePath() == null) {
             // Provide a default path if the splits file path is missing
-            operation.addOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH, "");
+            operation.setSplitsFilePath("");
             LOGGER.warn("HDFS splits file path not set - using the current directory as the default path.");
         }
 
-        if (userSplitsFile) {
+        if (operation.isUseProvidedSplits()) {
             // Use provided splits file
             setUpPartitionerFromUserProvidedSplitsFile(job, operation);
         } else {
@@ -112,12 +158,12 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         }
     }
 
-    private void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
-                                                    final AccumuloStore store) throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-        LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getProperties().getTable());
-        final int maxReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS);
-        final int minReducers = intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+    protected void setUpPartitionerGenerateSplitsFile(final Job job, final AddElementsFromHdfs operation,
+                                                      final AccumuloStore store) throws IOException {
+        final String splitsFilePath = operation.getSplitsFilePath();
+        LOGGER.info("Creating splits file in location {} from table {}", splitsFilePath, store.getTableName());
+        final int maxReducers = validateValue(operation.getMaxReduceTasks());
+        final int minReducers = validateValue(operation.getMinReduceTasks());
         if ((maxReducers != -1 && minReducers != -1)
                 && (minReducers > maxReducers)) {
             LOGGER.error("Minimum number of reducers must be less than the maximum number of reducers: minimum was {} "
@@ -127,10 +173,10 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
         int numSplits;
         try {
             if (maxReducers == -1) {
-                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
             } else {
-                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getProperties().getTable(),
+                numSplits = IngestUtils.createSplitsFile(store.getConnection(), store.getTableName(),
                         FileSystem.get(job.getConfiguration()), new Path(splitsFilePath), maxReducers - 1);
             }
         } catch (final StoreException e) {
@@ -146,48 +192,39 @@ public class AccumuloAddElementsFromHdfsJobFactory extends
             LOGGER.info("Number of reducers is {} which is less than the specified minimum number of {}", numReducers,
                     minReducers);
             int factor = (minReducers / numReducers) + 1;
-            LOGGER.info("Setting number of subbins on KeyRangePartitioner to {}", factor);
-            KeyRangePartitioner.setNumSubBins(job, factor);
+            LOGGER.info("Setting number of subbins on GafferKeyRangePartitioner to {}", factor);
+            GafferKeyRangePartitioner.setNumSubBins(job, factor);
             numReducers = numReducers * factor;
             LOGGER.info("Number of reducers is {}", numReducers);
         }
         job.setNumReduceTasks(numReducers);
-        job.setPartitionerClass(KeyRangePartitioner.class);
-        KeyRangePartitioner.setSplitFile(job, splitsFilePath);
+        job.setPartitionerClass(GafferKeyRangePartitioner.class);
+        GafferKeyRangePartitioner.setSplitFile(job, splitsFilePath);
     }
 
-    private void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
+    protected void setUpPartitionerFromUserProvidedSplitsFile(final Job job, final AddElementsFromHdfs operation)
             throws IOException {
-        final String splitsFilePath = operation.getOption(AccumuloStoreConstants.OPERATION_HDFS_SPLITS_FILE_PATH);
-        if (intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS) != -1
-                || intOptionIsValid(operation, AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS) != -1) {
-            LOGGER.info("Using splits file provided by user {}, ignoring options {} and {}", splitsFilePath,
-                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MAX_REDUCERS,
-                    AccumuloStoreConstants.OPERATION_BULK_IMPORT_MIN_REDUCERS);
+        final String splitsFilePath = operation.getSplitsFilePath();
+        if (validateValue(operation.getMaxReduceTasks()) != -1
+                || validateValue(operation.getMinReduceTasks()) != -1) {
+            LOGGER.info("Using splits file provided by user {}, ignoring minReduceTasks and maxReduceTasks", splitsFilePath);
         } else {
             LOGGER.info("Using splits file provided by user {}", splitsFilePath);
         }
         final int numSplits = IngestUtils.getNumSplits(FileSystem.get(job.getConfiguration()), new Path(splitsFilePath));
         job.setNumReduceTasks(numSplits + 1);
-        job.setPartitionerClass(KeyRangePartitioner.class);
-        KeyRangePartitioner.setSplitFile(job, splitsFilePath);
+        job.setPartitionerClass(GafferKeyRangePartitioner.class);
+        GafferKeyRangePartitioner.setSplitFile(job, splitsFilePath);
     }
 
-    private static int intOptionIsValid(final AddElementsFromHdfs operation, final String optionKey) throws IOException {
-        final String option = operation.getOption(optionKey);
+    protected static int validateValue(final Integer value) throws IOException {
         int result = -1;
-        if (option != null && !option.isEmpty()) {
-            try {
-                result = Integer.parseInt(option);
-            } catch (final NumberFormatException e) {
-                LOGGER.error("Error parsing {}, got {}", optionKey, option);
-                throw new IOException("Can't parse " + optionKey + " option, got " + option, e);
-            }
+        if (null != value) {
+            result = value;
             if (result < 1) {
-                LOGGER.error("Invalid {} option - must be >=1, got {}", optionKey, result);
-                throw new IOException("Invalid " + optionKey + " option - must be >=1, got " + result);
+                LOGGER.error("Invalid field - must be >=1, got {}", result);
+                throw new IOException("Invalid field - must be >=1, got " + result);
             }
-            LOGGER.info("{} option is {}", optionKey, result);
         }
         return result;
     }

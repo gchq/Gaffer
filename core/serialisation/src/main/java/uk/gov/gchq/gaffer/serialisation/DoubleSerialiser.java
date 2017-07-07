@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * @deprecated this is not very efficient and should only be used for compatibility
@@ -25,8 +24,12 @@ import java.io.UnsupportedEncodingException;
  * instead.
  */
 @Deprecated
-public class DoubleSerialiser implements Serialisation<Double> {
+public class DoubleSerialiser extends ToBytesViaStringDeserialiser<Double> {
     private static final long serialVersionUID = 5647756843689779437L;
+
+    public DoubleSerialiser() {
+        super(CommonConstants.ISO_8859_1_ENCODING);
+    }
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -34,25 +37,21 @@ public class DoubleSerialiser implements Serialisation<Double> {
     }
 
     @Override
-    public byte[] serialise(final Double value) throws SerialisationException {
+    protected String serialiseToString(final Double object) throws SerialisationException {
+        return object.toString();
+    }
+
+    @Override
+    public Double deserialiseString(final String value) throws SerialisationException {
         try {
-            return value.toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
+            return Double.parseDouble(value);
+        } catch (final NumberFormatException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Double deserialise(final byte[] bytes) throws SerialisationException {
-        try {
-            return Double.parseDouble(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (final NumberFormatException | UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Double deserialiseEmptyBytes() {
+    public Double deserialiseEmpty() {
         return null;
     }
 

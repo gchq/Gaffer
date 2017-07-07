@@ -21,7 +21,7 @@
     <parent>
         <groupId>uk.gov.gchq.gaffer</groupId>
         <artifactId>store-implementation</artifactId>
-        <version>0.7.2-SNAPSHOT</version>
+        <version>0.7.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>accumulo-store</artifactId>
@@ -151,6 +151,19 @@
                                     <include>com.yahoo.*</include>
                                 </includes>
                             </artifactSet>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>utility
+                            </shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>

@@ -17,12 +17,15 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
-import java.io.UnsupportedEncodingException;
+import uk.gov.gchq.gaffer.serialisation.ToBytesViaStringDeserialiser;
 
-public class StringSerialiser implements Serialisation<String> {
+public class StringSerialiser extends ToBytesViaStringDeserialiser<String> {
 
     private static final long serialVersionUID = 5647756843689779437L;
+
+    public StringSerialiser() {
+        super(CommonConstants.UTF_8);
+    }
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -30,25 +33,17 @@ public class StringSerialiser implements Serialisation<String> {
     }
 
     @Override
-    public byte[] serialise(final String value) throws SerialisationException {
-        try {
-            return value.getBytes(CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    protected String serialiseToString(final String object) throws SerialisationException {
+        return object;
     }
 
     @Override
-    public String deserialise(final byte[] bytes) throws SerialisationException {
-        try {
-            return new String(bytes, CommonConstants.UTF_8);
-        } catch (final UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
+    protected String deserialiseString(final String value) throws SerialisationException {
+        return value;
     }
 
     @Override
-    public String deserialiseEmptyBytes() {
+    public String deserialiseEmpty() {
         return "";
     }
 
@@ -56,5 +51,4 @@ public class StringSerialiser implements Serialisation<String> {
     public boolean preservesObjectOrdering() {
         return true;
     }
-
 }

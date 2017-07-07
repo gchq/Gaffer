@@ -15,56 +15,56 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.theta.serialisation;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.yahoo.sketches.theta.SetOperation;
 import com.yahoo.sketches.theta.Union;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-public class UnionSerialiserTest {
+public class UnionSerialiserTest extends ViaCalculatedValueSerialiserTest<Union, Double> {
     private static final double DELTA = 0.01D;
-    private static final UnionSerialiser SERIALISER = new UnionSerialiser();
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+    @Override
+    protected Union getEmptyExampleOutput() {
+        return SetOperation.builder().buildUnion();
+    }
+
+
+    @Override
+    public Serialiser<Union, byte[]> getSerialisation() {
+        return new UnionSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Union, byte[]>[] getHistoricSerialisationPairs() {
+        Union union = getExampleOutput();
+        return new Pair[]{new Pair(union, new byte[]{2, 3, 3, 0, 0, 26, -52, -109, 3, 0, 0, 0, 0, 0, -128, 63, 71, -94, 74, 125, 101, -74, 50, 27, 71, -54, -17, -50, 50, -91, 41, 29, -123, -46, -50, -27, -54, -41, -93, 124})};
+    }
+
+    @Override
+    protected Union getExampleOutput() {
         final Union union = SetOperation.builder().buildUnion();
         union.update(1.0D);
         union.update(2.0D);
         union.update(3.0D);
-        testSerialiser(union);
-
-        final Union emptyUnion = SetOperation.builder().buildUnion();
-        testSerialiser(emptyUnion);
+        return union;
     }
 
-    private void testSerialiser(final Union union) {
-        final double estimate = union.getResult().getEstimate();
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(union);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-
-        final Union unionDeserialised;
-        try {
-            unionDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(estimate, unionDeserialised.getResult().getEstimate(), DELTA);
+    @Override
+    protected Double getTestValue(final Union object) {
+        return object.getResult().getEstimate();
+//        assertEquals(estimate, unionDeserialised.getResult().getEstimate(), DELTA);
     }
+
 
     @Test
     public void testCanHandleUnion() {
-        assertTrue(SERIALISER.canHandle(Union.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(Union.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
 }

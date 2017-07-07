@@ -21,7 +21,6 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.FileSystemXmlConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.cache.ICache;
@@ -34,21 +33,23 @@ import static uk.gov.gchq.gaffer.cache.util.CacheProperties.CACHE_CONFIG_FILE;
 
 public class HazelcastCacheService implements ICacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCacheService.class);
-    private static HazelcastInstance hazelcast;
+    private HazelcastInstance hazelcast;
 
-    private static void configureHazelcast(final Properties properties) {
-        String configFile = properties.getProperty(CACHE_CONFIG_FILE);
-        if (configFile == null) {
-            LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
-                    + ". Using default settings");
+    private void configureHazelcast(final Properties properties) {
+        if (null == hazelcast || !Hazelcast.getAllHazelcastInstances().contains(hazelcast)) {
+            String configFile = properties.getProperty(CACHE_CONFIG_FILE);
+            if (configFile == null) {
+                LOGGER.warn("Config file not set using system property: " + CACHE_CONFIG_FILE
+                        + ". Using default settings");
 
-            hazelcast = Hazelcast.newHazelcastInstance();
-        } else {
-            try {
-                final Config config = new FileSystemXmlConfig(configFile);
-                hazelcast = Hazelcast.newHazelcastInstance(config);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+                hazelcast = Hazelcast.newHazelcastInstance();
+            } else {
+                try {
+                    final Config config = new FileSystemXmlConfig(configFile);
+                    hazelcast = Hazelcast.newHazelcastInstance(config);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Could not create cache using config path: " + configFile, e);
+                }
             }
         }
     }
@@ -61,12 +62,20 @@ public class HazelcastCacheService implements ICacheService {
 
     @Override
     public void shutdown() {
-        hazelcast.shutdown();
+        if (null != hazelcast && hazelcast.getLifecycleService().isRunning()) {
+            hazelcast.shutdown();
+        }
     }
 
     @Override
     public <K, V> ICache<K, V> getCache(final String cacheName) {
-        IMap<K, V> cache = hazelcast.getMap(cacheName);
-        return new HazelcastCache<>(cache);
+        final ICache<K, V> cache;
+        if (null != hazelcast) {
+            cache = new HazelcastCache<>(hazelcast.getMap(cacheName));
+        } else {
+            cache = null;
+        }
+
+        return cache;
     }
 }

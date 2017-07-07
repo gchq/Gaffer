@@ -23,6 +23,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ElementDedupeFilterProcessor;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.GafferScannerProcessor;
@@ -35,7 +36,6 @@ import uk.gov.gchq.gaffer.hbasestore.coprocessor.processor.ValidationProcessor;
 import uk.gov.gchq.gaffer.hbasestore.serialisation.ElementSerialisation;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -80,9 +80,11 @@ public class QueryScannerTest {
                     .source("string")
                     .destination("string")
                     .directed("true")
+                    .aggregate(false)
                     .build())
             .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
                     .vertex("string")
+                    .aggregate(false)
                     .build())
             .vertexSerialiser(new StringSerialiser())
             .build();
@@ -100,7 +102,7 @@ public class QueryScannerTest {
         final Scan scan = mock(Scan.class);
         given(scan.getAttribute(HBaseStoreConstants.VIEW)).willReturn(VIEW.toCompactJson());
         given(scan.getAttribute(HBaseStoreConstants.EXTRA_PROCESSORS)).willReturn(StringUtil.toCsv(ElementDedupeFilterProcessor.class));
-        given(scan.getAttribute(HBaseStoreConstants.DIRECTED_TYPE)).willReturn(Bytes.toBytes(GraphFilters.DirectedType.DIRECTED.name()));
+        given(scan.getAttribute(HBaseStoreConstants.DIRECTED_TYPE)).willReturn(Bytes.toBytes(DirectedType.DIRECTED.name()));
 
         // When
         final List<GafferScannerProcessor> processors = QueryScanner.createProcessors(scan, SCHEMA, serialisation);

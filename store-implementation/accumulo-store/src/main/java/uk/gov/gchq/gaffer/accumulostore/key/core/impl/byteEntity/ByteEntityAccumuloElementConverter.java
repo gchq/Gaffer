@@ -24,7 +24,10 @@ import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
 import java.util.Map;
@@ -60,15 +63,25 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         super(schema);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected EntityId getEntityId(final byte[] row) {
+        try {
+            return new EntitySeed(((ToBytesSerialiser) schema.getVertexSerialiser())
+                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0,
+                            row.length - 2))));
+        } catch (final SerialisationException e) {
+            throw new AccumuloElementConversionException("Failed to create EntityId from Accumulo row key", e);
+        }
+    }
+
     @Override
     protected byte[] getRowKeyFromEntity(final Entity entity) {
-        byte[] value;
         try {
-            value = ByteArrayEscapeUtils.escape(getVertexSerialiser().serialise(entity.getVertex()));
-            final byte[] returnVal = Arrays.copyOf(value, value.length + 2);
-            returnVal[returnVal.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-            returnVal[returnVal.length - 1] = ByteEntityPositions.ENTITY;
-            return returnVal;
+            return ByteArrayEscapeUtils.escape(((ToBytesSerialiser) schema.getVertexSerialiser()).serialise(entity.getVertex()),
+                    ByteArrayEscapeUtils.DELIMITER,
+                    ByteEntityPositions.ENTITY);
+
         } catch (final SerialisationException e) {
             throw new AccumuloElementConversionException("Failed to serialise Entity Identifier", e);
         }
@@ -76,39 +89,34 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
 
     @Override
     protected Pair<byte[], byte[]> getRowKeysFromEdge(final Edge edge) {
-        byte directionFlag1;
-        byte directionFlag2;
-        if (edge.isDirected()) {
-            directionFlag1 = ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE;
-        } else {
-            directionFlag1 = ByteEntityPositions.UNDIRECTED_EDGE;
-            directionFlag2 = ByteEntityPositions.UNDIRECTED_EDGE;
-        }
-        final byte[] source = getSerialisedSource(edge);
-        final byte[] destination = getSerialisedDestination(edge);
+        byte[] source = getSerialisedSource(edge);
+        byte[] destination = getSerialisedDestination(edge);
 
-        final int length = source.length + destination.length + 5;
-        final byte[] rowKey1 = new byte[length];
-        System.arraycopy(source, 0, rowKey1, 0, source.length);
-        rowKey1[source.length] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[source.length + 1] = directionFlag1;
-        rowKey1[source.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(destination, 0, rowKey1, source.length + 3, destination.length);
-        rowKey1[rowKey1.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey1[rowKey1.length - 1] = directionFlag1;
-        final byte[] rowKey2 = new byte[length];
-        System.arraycopy(destination, 0, rowKey2, 0, destination.length);
-        rowKey2[destination.length] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[destination.length + 1] = directionFlag2;
-        rowKey2[destination.length + 2] = ByteArrayEscapeUtils.DELIMITER;
-        System.arraycopy(source, 0, rowKey2, destination.length + 3, source.length);
-        rowKey2[rowKey2.length - 2] = ByteArrayEscapeUtils.DELIMITER;
-        rowKey2[rowKey2.length - 1] = directionFlag2;
-        if (selfEdge(edge)) {
-            return new Pair<>(rowKey1, null);
+        byte directionFlag = edge.isDirected() ? ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE : ByteEntityPositions.UNDIRECTED_EDGE;
+        final byte[] rowKey1 = getRowKey(source, destination, directionFlag);
+
+        byte[] rowKey2 = null;
+        if (!selfEdge(edge)) {
+            byte invertDirectedFlag = (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) ? ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE : directionFlag;
+            rowKey2 = getRowKey(destination, source, invertDirectedFlag);
         }
+
         return new Pair<>(rowKey1, rowKey2);
+    }
+
+    private byte[] getRowKey(final byte[] first, final byte[] second, final byte directionFlag) {
+        int carriage = first.length;
+        int secondLen = second.length;
+        byte[] rowKey = new byte[carriage + secondLen + 5];
+        System.arraycopy(first, 0, rowKey, 0, carriage);
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage++] = directionFlag;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        System.arraycopy(second, 0, rowKey, carriage, secondLen);
+        carriage += secondLen;
+        rowKey[carriage++] = ByteArrayEscapeUtils.DELIMITER;
+        rowKey[carriage] = directionFlag;
+        return rowKey;
     }
 
     @Override
@@ -117,11 +125,10 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected Entity getEntityFromKey(final Key key) {
+    protected Entity getEntityFromKey(final Key key, final byte[] row) {
         try {
-            final Entity entity = new Entity(getGroupFromKey(key), getVertexSerialiser()
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(key.getRowData().getBackingArray(), 0,
-                            key.getRowData().getBackingArray().length - 2))));
+            final Entity entity = new Entity(getGroupFromKey(key), ((ToBytesSerialiser) schema.getVertexSerialiser())
+                    .deserialise(ByteArrayEscapeUtils.unEscape(row, 0, row.length - 2)));
             addPropertiesToElement(entity, key);
             return entity;
         } catch (final SerialisationException e) {
@@ -159,41 +166,35 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
         } catch (final NumberFormatException e) {
             throw new AccumuloElementConversionException("Error parsing direction flag from row key - " + e);
         }
-        if (directionFlag == ByteEntityPositions.UNDIRECTED_EDGE) {
-            // Edge is undirected
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return false;
-        } else if (directionFlag == ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the first identifier is the source of the edge
-            sourceDestValues[0] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[1] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else if (directionFlag == ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE) {
-            // Edge is directed and the second identifier is the source of the edge
-            int src = 1;
-            int dst = 0;
-            if (matchEdgeSource(options)) {
-                src = 0;
-                dst = 1;
-            }
-            sourceDestValues[src] = getSourceBytes(rowKey, positionsOfDelimiters);
-            sourceDestValues[dst] = getDestBytes(rowKey, positionsOfDelimiters);
-            return true;
-        } else {
-            throw new AccumuloElementConversionException(
-                    "Invalid direction flag in row key - flag was " + directionFlag);
+
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
+        boolean rtn;
+        sourceDestValues[0] = sourceBytes;
+        sourceDestValues[1] = destBytes;
+
+        switch (directionFlag) {
+            case ByteEntityPositions.UNDIRECTED_EDGE:
+                // Edge is undirected
+                rtn = false;
+                break;
+            case ByteEntityPositions.CORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the first identifier is the source of the edge
+                rtn = true;
+                break;
+            case ByteEntityPositions.INCORRECT_WAY_DIRECTED_EDGE:
+                // Edge is directed and the second identifier is the source of the edge
+                if (!matchEdgeSource(options)) {
+                    sourceDestValues[0] = destBytes;
+                    sourceDestValues[1] = sourceBytes;
+                }
+                rtn = true;
+                break;
+            default:
+                throw new AccumuloElementConversionException(
+                        "Invalid direction flag in row key - flag was " + directionFlag);
         }
-    }
-
-    private byte[] getDestBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
-    }
-
-    private byte[] getSourceBytes(final byte[] rowKey, final int[] positionsOfDelimiters) {
-        return ByteArrayEscapeUtils
-                .unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
+        return rtn;
     }
 
     private boolean matchEdgeSource(final Map<String, String> options) {

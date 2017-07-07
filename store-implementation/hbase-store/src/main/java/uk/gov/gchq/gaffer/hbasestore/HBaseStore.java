@@ -47,6 +47,7 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.io.Output;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -55,6 +56,7 @@ import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.gaffer.store.schema.SchemaOptimiser;
 import uk.gov.gchq.gaffer.user.User;
 import java.io.IOException;
 import java.util.Collections;
@@ -96,10 +98,33 @@ public class HBaseStore extends Store {
     private Connection connection;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
+    }
+
+    /**
+     * Performs general initialisation without creating the table.
+     *
+     * @param graphId    the graph ID
+     * @param schema     the gaffer Schema
+     * @param properties the hbase store properties
+     * @throws StoreException the store could not be initialised.
+     */
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
+            throws StoreException {
+        final String deprecatedTableName = ((HBaseProperties) properties).getTableName();
+        if (null == graphId && null != deprecatedTableName) {
+            // Deprecated
+            super.initialise(deprecatedTableName, schema, properties);
+        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
+            throw new IllegalArgumentException(
+                    "The table in store.properties should no longer be used. " +
+                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
+        } else {
+            super.initialise(graphId, schema, properties);
+        }
     }
 
     public Configuration getConfiguration() {
@@ -121,6 +146,10 @@ public class HBaseStore extends Store {
         return connection;
     }
 
+    public TableName getTableName() {
+        return TableName.valueOf(getGraphId());
+    }
+
     /**
      * Gets the HBase table.
      *
@@ -128,7 +157,7 @@ public class HBaseStore extends Store {
      * @throws StoreException if a reference to the table could not be created.
      */
     public HTable getTable() throws StoreException {
-        final TableName tableName = getProperties().getTable();
+        final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
             return (HTable) connection.getTable(tableName);
@@ -147,6 +176,11 @@ public class HBaseStore extends Store {
     }
 
     @Override
+    protected SchemaOptimiser createSchemaOptimiser() {
+        return new SchemaOptimiser(new HBaseSerialisationFactory());
+    }
+
+    @Override
     public Set<StoreTrait> getTraits() {
         return TRAITS;
     }
@@ -160,6 +194,11 @@ public class HBaseStore extends Store {
     @Override
     public HBaseProperties getProperties() {
         return (HBaseProperties) super.getProperties();
+    }
+
+    @Override
+    protected Class<? extends ToBytesSerialiser> getRequiredParentSerialiserClass() {
+        return ToBytesSerialiser.class;
     }
 
     @Override
@@ -195,4 +234,5 @@ public class HBaseStore extends Store {
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
         throw new UnsupportedOperationException("Operation: " + operation.getClass() + " is not supported");
     }
+
 }

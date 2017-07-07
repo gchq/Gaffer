@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest.service;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,7 @@ import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
@@ -76,7 +78,11 @@ public class ExamplesServiceTest {
 
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph.Builder().store(store).build();
+        given(store.getSchema()).willReturn(schema);
+        final Graph graph = new Graph.Builder()
+                .graphId("graphId")
+                .store(store)
+                .build();
         given(graphFactory.getGraph()).willReturn(graph);
     }
 
@@ -130,7 +136,7 @@ public class ExamplesServiceTest {
         assertNotNull(view);
 
         final ViewValidator viewValidator = new ViewValidator();
-        assertTrue(viewValidator.validate(view, schema, false).isValid());
+        assertTrue(viewValidator.validate(view, schema, Sets.newHashSet(StoreTrait.values())).isValid());
     }
 
     private void shouldSerialiseAndDeserialiseOperation(final Operation operation) throws IOException {

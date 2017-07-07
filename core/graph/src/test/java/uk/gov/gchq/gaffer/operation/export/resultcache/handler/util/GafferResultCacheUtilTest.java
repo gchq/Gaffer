@@ -60,18 +60,17 @@ public class GafferResultCacheUtilTest {
     public void shouldThrowExceptionIfStorePropertiesAreNull() {
         // When / Then
         try {
-            GafferResultCacheUtil.createGraph(null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
+            GafferResultCacheUtil.createGraph("graphId", null, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
     }
 
-
     @Test
     public void shouldCreateGraphWithValidSchema() {
         // Given
-        final Graph graph = GafferResultCacheUtil.createGraph(StreamUtil.STORE_PROPERTIES, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
+        final Graph graph = GafferResultCacheUtil.createGraph("graphId", StreamUtil.STORE_PROPERTIES, GafferResultCacheUtil.DEFAULT_TIME_TO_LIVE);
         final Schema schema = graph.getSchema();
 
 
@@ -89,7 +88,7 @@ public class GafferResultCacheUtilTest {
     @Test
     public void shouldCreateGraphWithValidSchemaWithoutAgeOff() {
         // Given
-        final Graph graph = GafferResultCacheUtil.createGraph(StreamUtil.STORE_PROPERTIES, null);
+        final Graph graph = GafferResultCacheUtil.createGraph("graphId", StreamUtil.STORE_PROPERTIES, null);
         final Schema schema = graph.getSchema();
 
         // When

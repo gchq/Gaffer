@@ -15,15 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.TypeValue;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.types.TypeValue;
+
+public class TypeValueSerialiserTest extends ToBytesSerialisationTest<TypeValue> {
 
     @Test
     public void testCanSerialiseDeSerialiseCorrectly() throws SerialisationException {
@@ -31,7 +32,7 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -44,7 +45,7 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("\0testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
         assertNull(deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -57,7 +58,7 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         byte[] bytes = serialiser.serialise(typeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(bytes);
+        TypeValue deSerialisedTypeValue = serialiser.deserialise(bytes);
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertNull(typeValue.getValue(), deSerialisedTypeValue.getValue());
         assertEquals(typeValue, deSerialisedTypeValue);
@@ -69,7 +70,7 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
         byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeValue));
         String serialisedForm = new String(bytes);
         assertEquals("testType\1\1testValue", serialisedForm);
-        TypeValue deSerialisedTypeValue = (TypeValue) serialiser.deserialise(ByteArrayEscapeUtils
+        TypeValue deSerialisedTypeValue = serialiser.deserialise(ByteArrayEscapeUtils
                 .unEscape(bytes));
         assertEquals(typeValue.getType(), deSerialisedTypeValue.getType());
         assertEquals(typeValue.getValue(), deSerialisedTypeValue.getValue());
@@ -77,16 +78,24 @@ public class TypeValueSerialiserTest extends SerialisationTest<TypeValue> {
     }
 
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final TypeValue value = serialiser.deserialiseEmptyBytes();
+        final TypeValue value = serialiser.deserialiseEmpty();
 
         // Then
         assertNull(value);
     }
 
     @Override
-    public Serialisation<TypeValue> getSerialisation() {
+    public Serialiser<TypeValue, byte[]> getSerialisation() {
         return new TypeValueSerialiser();
+    }
+
+    public Pair<TypeValue, byte[]>[] getHistoricSerialisationPairs() {
+        TypeValue typeValue = new TypeValue("testType", "testValue");
+        return new Pair[]{
+                new Pair(typeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 86, 97, 108, 117, 101})
+        };
+
     }
 }

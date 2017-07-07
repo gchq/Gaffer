@@ -19,12 +19,11 @@ package uk.gov.gchq.gaffer.serialisation.implementation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -32,7 +31,7 @@ import java.io.Serializable;
 /**
  * This class is used to serialise and deserialise objects in java.
  */
-public class JavaSerialiser implements Serialisation<Object> {
+public class JavaSerialiser implements ToBytesSerialiser<Object> {
     private static final long serialVersionUID = 2073581763875104361L;
     private static final Class<Serializable> SERIALISABLE = Serializable.class;
     private static final Logger LOGGER = LoggerFactory.getLogger(JavaSerialiser.class);
@@ -55,9 +54,8 @@ public class JavaSerialiser implements Serialisation<Object> {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        try (final InputStream inputStream = new ByteArrayInputStream(bytes);
-             final ObjectInputStream is = new ObjectInputStream(inputStream)) {
+    public Object deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        try (final ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(allBytes, offset, length))) {
             return is.readObject();
         } catch (final ClassNotFoundException | IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to recreate object", e);
@@ -65,12 +63,13 @@ public class JavaSerialiser implements Serialisation<Object> {
     }
 
     @Override
-    public Object deserialiseEmptyBytes() {
-        return null;
+    public Object deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
-    public <T> T deserialise(final byte[] bytes, final Class<T> clazz) throws SerialisationException {
-        return clazz.cast(this.deserialise(bytes));
+    @Override
+    public Object deserialiseEmpty() {
+        return null;
     }
 
     private void close(final Closeable close) {

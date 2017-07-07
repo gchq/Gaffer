@@ -19,6 +19,7 @@ package uk.gov.gchq.gaffer.data.element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
@@ -197,6 +198,7 @@ public class EntityTest extends ElementTest {
 
         // Then
         assertEquals(entity, deserialisedElement);
+        assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.lang.Long\":1}"));
     }
 
     @Override

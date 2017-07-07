@@ -16,16 +16,21 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import java.util.Date;
 
 /**
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser}.
  * Serialises {@link Date}s to an array of bytes of length 8 by directly converting the underlying long to a
  * byte array. This serialiser preserves ordering, i.e. if date1 is less than date2
  * then serialise(date1) is less than serialise(date2)
  * where the byte arrays are compared one byte at a time starting with the first.
+ *
+ * @deprecated this is unable to preserve object ordering.
+ * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedDateSerialiser
  */
-public class RawDateSerialiser implements Serialisation<Date> {
+@Deprecated
+public class RawDateSerialiser implements ToBytesSerialiser<Date> {
     private static final long serialVersionUID = -1470994471883677977L;
 
     @Override
@@ -38,32 +43,38 @@ public class RawDateSerialiser implements Serialisation<Date> {
         final byte[] out = new byte[8];
         final long value = date.getTime();
         // NB Serialise high-order bits first
-        out[0] = (byte) ((int) (value >> 56) & 255);
-        out[1] = (byte) ((int) (value >> 48) & 255);
-        out[2] = (byte) ((int) (value >> 40) & 255);
-        out[3] = (byte) ((int) (value >> 32) & 255);
-        out[4] = (byte) ((int) (value >> 24) & 255);
-        out[5] = (byte) ((int) (value >> 16) & 255);
-        out[6] = (byte) ((int) (value >> 8) & 255);
-        out[7] = (byte) ((int) value & 255);
+        out[0] = (byte) ((value >> 56) & 255);
+        out[1] = (byte) ((value >> 48) & 255);
+        out[2] = (byte) ((value >> 40) & 255);
+        out[3] = (byte) ((value >> 32) & 255);
+        out[4] = (byte) ((value >> 24) & 255);
+        out[5] = (byte) ((value >> 16) & 255);
+        out[6] = (byte) ((value >> 8) & 255);
+        out[7] = (byte) (value & 255);
         return out;
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) throws SerialisationException {
-        final long value = ((long) bytes[0] & 255L) << 56
-                | ((long) bytes[1] & 255L) << 48
-                | ((long) bytes[2] & 255L) << 40
-                | ((long) bytes[3] & 255L) << 32
-                | ((long) bytes[4] & 255L) << 24
-                | ((long) bytes[5] & 255L) << 16
-                | ((long) bytes[6] & 255L) << 8
-                | ((long) bytes[7] & 255L);
+    public Date deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        final long value = (allBytes[carriage++] & 255L) << 56
+                | (allBytes[carriage++] & 255L) << 48
+                | (allBytes[carriage++] & 255L) << 40
+                | (allBytes[carriage++] & 255L) << 32
+                | (allBytes[carriage++] & 255L) << 24
+                | (allBytes[carriage++] & 255L) << 16
+                | (allBytes[carriage++] & 255L) << 8
+                | allBytes[carriage] & 255L;
         return new Date(value);
     }
 
     @Override
-    public Date deserialiseEmptyBytes() {
+    public Date deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Date deserialiseEmpty() {
         return null;
     }
 

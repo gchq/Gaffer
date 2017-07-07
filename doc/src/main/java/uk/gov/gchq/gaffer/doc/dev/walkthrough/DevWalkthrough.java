@@ -30,7 +30,7 @@ public abstract class DevWalkthrough extends AbstractWalkthrough {
     @Override
     protected String substituteParameters(final String walkthrough) {
         final String walkthroughFormatted = DevWalkthroughStrSubstitutor.substitute(super.substituteParameters(walkthrough, true), this);
-        DevWalkthroughStrSubstitutor.validateSubstitution(walkthroughFormatted);
+        DevWalkthroughStrSubstitutor.validateSubstitution(walkthroughFormatted, "limitParam", "' and '");
         return walkthroughFormatted;
     }
 }

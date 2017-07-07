@@ -32,6 +32,7 @@ import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +67,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(SCHEMA);
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -74,7 +75,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.DEDUPLICATE_UNDIRECTED_EDGES, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -91,7 +92,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedDirectedEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -100,7 +101,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -118,7 +119,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDeduplicatedUndirectedEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -127,7 +128,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -145,14 +146,14 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptDirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptDirectedEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.DIRECTED_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -169,7 +170,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptUndirectedEdges() throws OperationException {
+    public void shouldOnlyAcceptUndirectedEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -177,7 +178,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -194,7 +195,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptIncomingEdges() throws OperationException {
+    public void shouldOnlyAcceptIncomingEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -202,7 +203,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.INCOMING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -219,7 +220,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldOnlyAcceptOutgoingEdges() throws OperationException {
+    public void shouldOnlyAcceptOutgoingEdges() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
@@ -227,7 +228,7 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
             put(AccumuloStoreConstants.INCLUDE_EDGES, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 
@@ -244,14 +245,14 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
     }
 
     @Test
-    public void shouldAcceptOnlyEntities() throws OperationException {
+    public void shouldAcceptOnlyEntities() throws OperationException, IOException {
         // Given
         final ByteEntityRangeElementPropertyFilterIterator filter = new ByteEntityRangeElementPropertyFilterIterator();
         final Map<String, String> options = new HashMap<String, String>() {{
             put(AccumuloStoreConstants.INCLUDE_ENTITIES, "true");
             put(AccumuloStoreConstants.OUTGOING_EDGE_ONLY, "true");
         }};
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final Value value = null; // value should not be used
 

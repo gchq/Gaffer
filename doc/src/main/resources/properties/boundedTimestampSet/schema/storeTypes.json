@@ -1,0 +1,12 @@
+{
+  "types": {
+    "bounded.timestamp.set": {
+      "aggregateFunction": {
+        "class": "uk.gov.gchq.gaffer.time.binaryoperator.BoundedTimestampSetAggregator"
+      },
+      "serialiser": {
+        "class": "uk.gov.gchq.gaffer.time.serialisation.BoundedTimestampSetSerialiser"
+      }
+    }
+  }
+}

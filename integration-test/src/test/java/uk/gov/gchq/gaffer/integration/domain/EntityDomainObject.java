@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.integration.domain;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 
 /**
  * Please note that this object has been created in order to test the ElementGenerator code in the Gaffer framework.

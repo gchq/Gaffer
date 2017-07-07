@@ -15,15 +15,16 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTypeValue> {
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.types.TypeSubTypeValue;
+
+public class TypeSubTypeValueSerialiserTest extends ToBytesSerialisationTest<TypeSubTypeValue> {
 
     private static final TypeSubTypeValueSerialiser serialiser = new TypeSubTypeValueSerialiser();
 
@@ -33,7 +34,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0testSubType\0testValue", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertEquals(typeSubTypeValue.getType(), deSerialisedTypeSubTypeValue.getType());
         assertEquals(typeSubTypeValue.getSubType(), deSerialisedTypeSubTypeValue.getSubType());
@@ -48,7 +49,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("\0\0testValue", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertNull(deSerialisedTypeSubTypeValue.getType());
         assertNull(deSerialisedTypeSubTypeValue.getSubType());
@@ -64,7 +65,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0\0testValue", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertEquals(typeSubTypeValue.getType(), deSerialisedTypeSubTypeValue.getType());
         assertNull(deSerialisedTypeSubTypeValue.getSubType());
@@ -80,7 +81,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("\0testSubType\0testValue", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertNull(deSerialisedTypeSubTypeValue.getType());
         assertEquals(typeSubTypeValue.getSubType(), deSerialisedTypeSubTypeValue.getSubType());
@@ -95,7 +96,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0\0", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertEquals(typeSubTypeValue.getType(), deSerialisedTypeSubTypeValue.getType());
         assertNull(deSerialisedTypeSubTypeValue.getSubType());
@@ -110,7 +111,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("\0testSubType\0", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertNull(deSerialisedTypeSubTypeValue.getType());
         assertEquals(typeSubTypeValue.getSubType(), deSerialisedTypeSubTypeValue.getSubType());
@@ -126,7 +127,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = serialiser.serialise(typeSubTypeValue);
         String serialisedForm = new String(bytes);
         assertEquals("testType\0testSubType\0", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(bytes);
         assertEquals(typeSubTypeValue.getType(), deSerialisedTypeSubTypeValue.getType());
         assertEquals(typeSubTypeValue.getSubType(), deSerialisedTypeSubTypeValue.getSubType());
@@ -140,7 +141,7 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
         byte[] bytes = ByteArrayEscapeUtils.escape(serialiser.serialise(typeSubTypeValue));
         String serialisedForm = new String(bytes);
         assertEquals("testType\1\1testSubType\1\1testValue", serialisedForm);
-        TypeSubTypeValue deSerialisedTypeSubTypeValue = (TypeSubTypeValue) serialiser
+        TypeSubTypeValue deSerialisedTypeSubTypeValue = serialiser
                 .deserialise(ByteArrayEscapeUtils.unEscape(bytes));
         assertEquals(typeSubTypeValue.getType(), deSerialisedTypeSubTypeValue.getType());
         assertEquals(typeSubTypeValue.getSubType(), deSerialisedTypeSubTypeValue.getSubType());
@@ -149,16 +150,25 @@ public class TypeSubTypeValueSerialiserTest extends SerialisationTest<TypeSubTyp
     }
 
     @Override
-    public void shouldDeserialiseEmptyBytes() throws SerialisationException {
+    public void shouldDeserialiseEmpty() throws SerialisationException {
         // When
-        final TypeSubTypeValue value = serialiser.deserialiseEmptyBytes();
+        final TypeSubTypeValue value = serialiser.deserialiseEmpty();
 
         // Then
         assertEquals(new TypeSubTypeValue(), value);
     }
 
     @Override
-    public Serialisation<TypeSubTypeValue> getSerialisation() {
+    public Serialiser<TypeSubTypeValue, byte[]> getSerialisation() {
         return new TypeSubTypeValueSerialiser();
+    }
+
+    public Pair<TypeSubTypeValue, byte[]>[] getHistoricSerialisationPairs() {
+        TypeSubTypeValue typeSubTypeValue = new TypeSubTypeValue();
+        typeSubTypeValue.setType("testType");
+        typeSubTypeValue.setSubType("testSubType");
+        return new Pair[]{
+                new Pair(typeSubTypeValue, new byte[]{116, 101, 115, 116, 84, 121, 112, 101, 0, 116, 101, 115, 116, 83, 117, 98, 84, 121, 112, 101, 0})
+        };
     }
 }

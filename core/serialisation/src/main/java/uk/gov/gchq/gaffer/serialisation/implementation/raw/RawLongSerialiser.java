@@ -17,12 +17,17 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
+ * For new properties use {@link uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser}.
  * RawLongSerialiser serialises Longs into a little-endian byte array.
+ *
+ * @deprecated this is unable to preserve object ordering.
+ * @see uk.gov.gchq.gaffer.serialisation.implementation.ordered.OrderedLongSerialiser
  */
-public class RawLongSerialiser implements Serialisation<Long> {
+@Deprecated
+public class RawLongSerialiser implements ToBytesSerialiser<Long> {
     private static final long serialVersionUID = 369129707952407270L;
 
     @Override
@@ -45,19 +50,25 @@ public class RawLongSerialiser implements Serialisation<Long> {
     }
 
     @Override
-    public Long deserialise(final byte[] bytes) throws SerialisationException {
-        return (long) bytes[0] & 255L
-                | ((long) bytes[1] & 255L) << 8
-                | ((long) bytes[2] & 255L) << 16
-                | ((long) bytes[3] & 255L) << 24
-                | ((long) bytes[4] & 255L) << 32
-                | ((long) bytes[5] & 255L) << 40
-                | ((long) bytes[6] & 255L) << 48
-                | ((long) bytes[7] & 255L) << 56;
+    public Long deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        return allBytes[carriage++] & 255L
+                | (allBytes[carriage++] & 255L) << 8
+                | (allBytes[carriage++] & 255L) << 16
+                | (allBytes[carriage++] & 255L) << 24
+                | (allBytes[carriage++] & 255L) << 32
+                | (allBytes[carriage++] & 255L) << 40
+                | (allBytes[carriage++] & 255L) << 48
+                | (allBytes[carriage] & 255L) << 56;
     }
 
     @Override
-    public Long deserialiseEmptyBytes() {
+    public Long deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
+    }
+
+    @Override
+    public Long deserialiseEmpty() {
         return null;
     }
 

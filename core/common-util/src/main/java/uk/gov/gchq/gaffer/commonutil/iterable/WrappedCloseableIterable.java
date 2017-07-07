@@ -16,8 +16,8 @@
 
 package uk.gov.gchq.gaffer.commonutil.iterable;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -33,6 +33,14 @@ public class WrappedCloseableIterable<T> implements CloseableIterable<T> {
             this.iterable = new EmptyClosableIterable<>();
         } else {
             this.iterable = iterable;
+        }
+    }
+
+    public WrappedCloseableIterable(final Iterator<T> iterator) {
+        if (null == iterator) {
+            this.iterable = EmptyCloseableIterator::new;
+        } else {
+            this.iterable = () -> iterator;
         }
     }
 

@@ -19,7 +19,7 @@ Gaffer allows you to take data, convert it into a graph, store it in a database 
 
 To do this you need to do a few things:
  - Choose a database - called the Gaffer ${STORE_JAVADOC}. We've provided a few for you and in the following examples we'll be using the ${MOCK_ACCUMULO_STORE_JAVADOC}. The MockAccumuloStore behaves the same as the full ${ACCUMULO_STORE_JAVADOC} but means that you can run the code on your local machine in memory without having to have a full Accumulo cluster.
- - Write a ${SCHEMA_JAVADOC}. This is a json document that describes your graph and is made up of 3 parts:
+ - Write a ${SCHEMA_JAVADOC}. This is a JSON document that describes your graph and is made up of 3 parts:
    - DataSchema - the Elements (Edges and Entities) in your Graph; what classes represent your vertices (nodes), what ${PROPERTIES_JAVADOC} your Elements have and so on.
    - DataTypes - list of all the data types that are used in your data schema. For each type it defines the java class and a list of validation functions.
    - StoreTypes - describes how your data types are mapped into your Store, how they are aggregated and how they are serialised.
@@ -34,7 +34,7 @@ To use Gaffer the only required dependencies are the Gaffer graph module and a s
 
 ```
 <dependency>
-    <groupId>uk.gov.gchq.gaffer.core</groupId>
+    <groupId>uk.gov.gchq.gaffer</groupId>
     <artifactId>graph</artifactId>
     <version>[gaffer.version]</version>
 </dependency>

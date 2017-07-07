@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.serialisation;
 
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
@@ -26,8 +25,12 @@ import java.util.Date;
  * instead.
  */
 @Deprecated
-public class DateSerialiser implements Serialisation<Date> {
+public class DateSerialiser extends ToBytesViaStringDeserialiser<Date> {
     private static final long serialVersionUID = 5647756843689779437L;
+
+    public DateSerialiser() {
+        super(CommonConstants.ISO_8859_1_ENCODING);
+    }
 
     @Override
     public boolean canHandle(final Class clazz) {
@@ -35,27 +38,21 @@ public class DateSerialiser implements Serialisation<Date> {
     }
 
     @Override
-    public byte[] serialise(final Date value) throws SerialisationException {
+    protected String serialiseToString(final Date object) throws SerialisationException {
+        return ((Long) object.getTime()).toString();
+    }
+
+    @Override
+    public Date deserialiseString(final String value) throws SerialisationException {
         try {
-            return ((Long) value.getTime()).toString().getBytes(CommonConstants.ISO_8859_1_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
+            return new Date(Long.parseLong(value));
+        } catch (final NumberFormatException e) {
             throw new SerialisationException(e.getMessage(), e);
         }
     }
 
     @Override
-    public Date deserialise(final byte[] bytes) throws SerialisationException {
-        Long longR;
-        try {
-            longR = Long.parseLong(new String(bytes, CommonConstants.ISO_8859_1_ENCODING));
-        } catch (final NumberFormatException | UnsupportedEncodingException e) {
-            throw new SerialisationException(e.getMessage(), e);
-        }
-        return new Date(longR);
-    }
-
-    @Override
-    public Date deserialiseEmptyBytes() {
+    public Date deserialiseEmpty() {
         return null;
     }
 

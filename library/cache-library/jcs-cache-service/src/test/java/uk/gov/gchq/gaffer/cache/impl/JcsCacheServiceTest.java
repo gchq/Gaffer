@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.cache.impl;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,11 +27,12 @@ import org.junit.rules.ExpectedException;
 import uk.gov.gchq.gaffer.cache.ICache;
 import uk.gov.gchq.gaffer.cache.exception.CacheOperationException;
 import uk.gov.gchq.gaffer.cache.util.CacheProperties;
-
 import java.io.File;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -39,6 +41,7 @@ public class JcsCacheServiceTest {
     private JcsCacheService service = new JcsCacheService();
     private static final String TEST_REGION = "test";
     private static final String ALTERNATIVE_TEST_REGION = "alternativeTest";
+    private static final String AGE_OFF_REGION="ageOff";
     private Properties serviceProps = new Properties();
 
     @Rule
@@ -53,6 +56,7 @@ public class JcsCacheServiceTest {
     public void after() throws CacheOperationException {
         service.clearCache(TEST_REGION);
         service.clearCache(ALTERNATIVE_TEST_REGION);
+        service.clearCache(AGE_OFF_REGION);
     }
 
     @Test
@@ -199,5 +203,36 @@ public class JcsCacheServiceTest {
         Assert.assertEquals(4, service.getAllValuesFromCache(TEST_REGION).size());
 
         assertThat(service.getAllValuesFromCache(TEST_REGION), IsCollectionContaining.hasItems(1, 2, 3));
+    }
+
+    @Test
+    public void shouldAgeOffValues() throws CacheOperationException {
+        // given
+        String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
+        serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
+        service.initialise(serviceProps);
+
+        // when
+        service.putInCache(AGE_OFF_REGION, "test", 1);
+        Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS);
+
+        // then
+        assertNull(service.getFromCache(AGE_OFF_REGION, "test"));
+    }
+
+    @Test
+    public void shouldAllowAgedOffValuesToBeReplaced() throws CacheOperationException {
+        // given
+        String filePath = new File("src/test/resources/cache.ccf").getAbsolutePath();
+        serviceProps.setProperty(CacheProperties.CACHE_CONFIG_FILE, filePath);
+        service.initialise(serviceProps);
+
+        // when
+        service.putInCache(AGE_OFF_REGION, "test", 1);
+        Uninterruptibles.sleepUninterruptibly(3, TimeUnit.SECONDS); // aged off
+        service.putInCache(AGE_OFF_REGION, "test", 1);
+
+        // then
+        assertEquals((Integer) 1, service.getFromCache(AGE_OFF_REGION, "test"));
     }
 }

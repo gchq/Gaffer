@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -131,6 +132,11 @@ public class StoreProperties implements Cloneable {
         return get(STORE_CLASS);
     }
 
+    @JsonIgnore
+    public void setStoreClass(final Class<? extends Store> storeClass) {
+        setStoreClass(storeClass.getName());
+    }
+
     public void setStoreClass(final String storeClass) {
         set(STORE_CLASS, storeClass);
     }
@@ -205,6 +211,17 @@ public class StoreProperties implements Cloneable {
 
     public void setOperationDeclarationPaths(final String paths) {
         set(OPERATION_DECLARATIONS, paths);
+    }
+
+    public void addOperationDeclarationPaths(final String... newPaths) {
+        final String newPathsCsv = StringUtils.join(newPaths, ",");
+        String combinedPaths = getOperationDeclarationPaths();
+        if (null == combinedPaths) {
+            combinedPaths = newPathsCsv;
+        } else {
+            combinedPaths = combinedPaths + "," + newPathsCsv;
+        }
+        setOperationDeclarationPaths(combinedPaths);
     }
 
     public void setProperties(final Properties properties) {

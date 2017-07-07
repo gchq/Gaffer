@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.graph;
 
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.operation.Operation;
 
 public interface GraphFilters extends OperationView {
@@ -33,24 +34,15 @@ public interface GraphFilters extends OperationView {
     }
 
     default boolean validateFlags(final Edge edge) {
-        return null == getDirectedType()
-                || DirectedType.BOTH == getDirectedType()
-                || (DirectedType.DIRECTED == getDirectedType() && edge.isDirected())
-                || (DirectedType.UNDIRECTED == getDirectedType() && !edge.isDirected());
+        final DirectedType dirType = getDirectedType();
+        return DirectedType.isEither(dirType)
+                || (dirType.isDirected() && edge.isDirected())
+                || (dirType.isUndirected() && !edge.isDirected());
     }
 
     DirectedType getDirectedType();
 
     void setDirectedType(final DirectedType directedType);
-
-    /**
-     * A <code>DirectedType</code> defines whether
-     * {@link uk.gov.gchq.gaffer.data.element.Edge}s used in the operation should
-     * be directed.
-     */
-    enum DirectedType {
-        BOTH, DIRECTED, UNDIRECTED
-    }
 
     interface Builder<OP extends GraphFilters, B extends Builder<OP, ?>> extends
             Operation.Builder<OP, B>,

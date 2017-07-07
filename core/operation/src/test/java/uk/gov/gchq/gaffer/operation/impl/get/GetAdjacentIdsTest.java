@@ -17,13 +17,14 @@
 package uk.gov.gchq.gaffer.operation.impl.get;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.GraphFilters.DirectedType;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import java.util.Iterator;
 
@@ -34,8 +35,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-public class GetAdjacentIdsTest implements OperationTest {
+public class GetAdjacentIdsTest extends OperationTest {
     private static final JSONSerialiser serialiser = new JSONSerialiser();
+
+    @Override
+    public Class<? extends Operation> getOperationClass() {
+        return GetAdjacentIds.class;
+    }
 
     @Test
     public void shouldSetDirectedTypeToBoth() {
@@ -45,11 +51,11 @@ public class GetAdjacentIdsTest implements OperationTest {
         // When
         final GetAdjacentIds op = new GetAdjacentIds.Builder()
                 .input(elementId1)
-                .directedType(DirectedType.BOTH)
+                .directedType(DirectedType.EITHER)
                 .build();
 
         // Then
-        assertEquals(DirectedType.BOTH, op.getDirectedType());
+        assertEquals(DirectedType.EITHER, op.getDirectedType());
     }
 
     private void shouldSerialiseAndDeserialiseOperationWithEntityIds() throws SerialisationException {
@@ -72,13 +78,13 @@ public class GetAdjacentIdsTest implements OperationTest {
     private void builderShouldCreatePopulatedOperationAll() {
         final GetAdjacentIds op = new GetAdjacentIds.Builder()
                 .input(new EntitySeed("A"))
-                .inOutType(IncludeIncomingOutgoingType.BOTH)
+                .inOutType(IncludeIncomingOutgoingType.EITHER)
                 .view(new View.Builder()
                         .edge("testEdgeGroup")
                         .build())
                 .build();
 
-        assertEquals(IncludeIncomingOutgoingType.BOTH, op.getIncludeIncomingOutGoing());
+        assertEquals(IncludeIncomingOutgoingType.EITHER, op.getIncludeIncomingOutGoing());
         assertNotNull(op.getView());
     }
 
@@ -89,11 +95,11 @@ public class GetAdjacentIdsTest implements OperationTest {
         // When
         final GetAdjacentIds op = new GetAdjacentIds.Builder()
                 .input(elementId)
-                .inOutType(IncludeIncomingOutgoingType.BOTH)
+                .inOutType(IncludeIncomingOutgoingType.EITHER)
                 .build();
 
         // Then
-        assertEquals(IncludeIncomingOutgoingType.BOTH, op.getIncludeIncomingOutGoing());
+        assertEquals(IncludeIncomingOutgoingType.EITHER, op.getIncludeIncomingOutGoing());
     }
 
     @Test

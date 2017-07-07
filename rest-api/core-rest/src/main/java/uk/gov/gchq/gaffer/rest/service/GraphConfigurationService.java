@@ -26,6 +26,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import uk.gov.gchq.gaffer.data.generator.ElementGenerator;
 import uk.gov.gchq.gaffer.data.generator.ObjectGenerator;
+import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.rest.SystemProperty;
 import uk.gov.gchq.gaffer.rest.factory.GraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UserFactory;
@@ -96,7 +97,10 @@ public class GraphConfigurationService implements IGraphConfigurationService {
             try {
                 final Predicate function = (Predicate) functionClass.newInstance();
                 final Signature signature = Signature.getInputSignature(function);
-                if (signature.assignable(clazz).isValid()) {
+                if (null == signature.getNumClasses()
+                        || (1 == signature.getNumClasses() &&
+                        (Signature.UnknownGenericType.class.isAssignableFrom(signature.getClasses()[0])
+                                || signature.getClasses()[0].isAssignableFrom(clazz)))) {
                     classes.add(functionClass);
                 }
             } catch (final Exception e) {
@@ -139,6 +143,20 @@ public class GraphConfigurationService implements IGraphConfigurationService {
     @Override
     public Set<StoreTrait> getStoreTraits() {
         return graphFactory.getGraph().getStoreTraits();
+    }
+
+    @Override
+    public Set<Class> getNextOperations(final String operationClassName) {
+        Class<? extends Operation> opClass;
+        try {
+            opClass = Class.forName(operationClassName).asSubclass(Operation.class);
+        } catch (final ClassNotFoundException e) {
+            throw new IllegalArgumentException("Operation class was not found: " + operationClassName, e);
+        } catch (final ClassCastException e) {
+            throw new IllegalArgumentException(operationClassName + " does not extend Operation", e);
+        }
+
+        return (Set) graphFactory.getGraph().getNextOperations(opClass);
     }
 
     @Override

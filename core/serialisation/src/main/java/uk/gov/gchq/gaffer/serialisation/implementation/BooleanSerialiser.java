@@ -16,12 +16,12 @@
 package uk.gov.gchq.gaffer.serialisation.implementation;
 
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
  * This class is used to serialise and deserialise a boolean value
  */
-public class BooleanSerialiser implements Serialisation<Boolean> {
+public class BooleanSerialiser implements ToBytesSerialiser<Boolean> {
 
     private static final long serialVersionUID = -3964992157560886710L;
     private static final byte FALSE = (byte) 0;
@@ -34,11 +34,16 @@ public class BooleanSerialiser implements Serialisation<Boolean> {
 
     @Override
     public Boolean deserialise(final byte[] bytes) throws SerialisationException {
-        return bytes.length == 1 && TRUE == bytes[0];
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override
-    public Boolean deserialiseEmptyBytes() {
+    public Boolean deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        return length == 1 && TRUE == allBytes[offset];
+    }
+
+    @Override
+    public Boolean deserialiseEmpty() {
         return Boolean.FALSE;
     }
 

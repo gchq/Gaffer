@@ -40,9 +40,9 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
     public static final TemporaryFolder testFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Override
-    public void initialise(final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
+    public void initialise(final String graphId, final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
         startMockAccumuloRestApi(accumuloSchema);
-        super.initialise(new Schema(), proxyProps);
+        super.initialise(graphId, new Schema(), proxyProps);
     }
 
     protected void startMockAccumuloRestApi(final Schema accumuloSchema) throws StoreException {

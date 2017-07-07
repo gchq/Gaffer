@@ -38,8 +38,8 @@ import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.Set;
 
-public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? extends Element>> & GraphFilters> implements CloseableIterable<Element> {
-    protected CloseableIterator<Element> iterator;
+public abstract class AccumuloRetriever<OP extends Output & GraphFilters, O_ITEM> implements CloseableIterable<O_ITEM> {
+    protected CloseableIterator<O_ITEM> iterator;
     protected final AccumuloStore store;
     protected final Authorizations authorisations;
     protected final User user;
@@ -111,7 +111,7 @@ public abstract class AccumuloRetriever<OP extends Output<CloseableIterable<? ex
      * @throws StoreException         if a connection to accumulo could not be created.
      */
     protected BatchScanner getScanner(final Set<Range> ranges) throws TableNotFoundException, StoreException {
-        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getProperties().getTable(),
+        final BatchScanner scanner = store.getConnection().createBatchScanner(store.getTableName(),
                 authorisations, store.getProperties().getThreadsForBatchScanner());
         if (iteratorSettings != null) {
             for (final IteratorSetting iteratorSetting : iteratorSettings) {

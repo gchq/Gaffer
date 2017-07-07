@@ -28,8 +28,10 @@ import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.WrappingIterator;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
+import uk.gov.gchq.gaffer.accumulostore.key.exception.AggregationException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.accumulostore.utils.ByteUtils;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.accumulostore.utils.IteratorOptionsBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
 import uk.gov.gchq.gaffer.data.element.Properties;
@@ -38,6 +40,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -60,6 +63,9 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
 
     @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR", justification = "elementConverter is initialised in init method, which is always called first")
     protected AccumuloElementConverter elementConverter;
+
+    private Key topKey;
+    private Value topValue;
 
     /**
      * A Java Iterator that iterates over the properties for a given row Key
@@ -84,12 +90,12 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
          * @param group            the element group
          * @param elementConverter the elementConverter to use
          * @param schema           the schema
-         * @param view             the view
+         * @param groupBy          the groupBy properties
          */
         public KeyValueIterator(final SortedKeyValueIterator<Key, Value> source,
                                 final String group, final AccumuloElementConverter elementConverter,
                                 final Schema schema,
-                                final View view) {
+                                final Set<String> groupBy) {
             this.source = source;
             this.group = group;
             this.elementConverter = elementConverter;
@@ -103,7 +109,7 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                     unsafeRef.isDeleted(), true);
 
             schemaGroupBy = schema.getElement(this.group).getGroupBy();
-            groupBy = view.getElementGroupBy(this.group);
+            this.groupBy = groupBy;
             hasNext = _hasNext();
         }
 
@@ -190,8 +196,8 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 return false;
             }
 
-            final byte[] groupByPropBytes1;
-            final byte[] groupByPropBytes2;
+            final BytesAndRange groupByPropBytes1;
+            final BytesAndRange groupByPropBytes2;
             try {
                 groupByPropBytes1 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual1, groupBy.size());
                 groupByPropBytes2 = elementConverter.getPropertiesAsBytesFromColumnQualifier(group, colQual2, groupBy.size());
@@ -202,9 +208,6 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             return ByteUtils.areKeyBytesEqual(groupByPropBytes1, groupByPropBytes2);
         }
     }
-
-    Key topKey;
-    Value topValue;
 
     @Override
     public Key getTopKey() {
@@ -262,21 +265,14 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
                 throw new RuntimeException(e);
             }
 
-            final Iterator<Properties> iter = new KeyValueIterator(
-                    getSource(), group, elementConverter, schema, view);
-            final Properties aggregatedProperties = reduce(group, workKey, iter);
-
-            // Remove any group by properties from the aggregated properties
-            // as they should be held constant.
-            final Set<String> groupBy = view.getElementGroupBy(group);
+            Set<String> groupBy = view.getElementGroupBy(group);
             if (null == groupBy) {
-                final Set<String> schemaGroupBy = schema.getElement(group).getGroupBy();
-                if (null != schemaGroupBy) {
-                    aggregatedProperties.remove(schemaGroupBy);
-                }
-            } else {
-                aggregatedProperties.remove(groupBy);
+                groupBy = schema.getElement(group).getGroupBy();
             }
+
+            final Iterator<Properties> iter = new KeyValueIterator(
+                    getSource(), group, elementConverter, schema, groupBy);
+            final Properties aggregatedProperties = reduce(group, workKey, iter, groupBy);
 
             try {
                 final Properties properties = elementConverter.getPropertiesFromColumnQualifier(group, workKey.getColumnQualifierData().getBackingArray());
@@ -324,12 +320,13 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
     /**
      * Reduces an iterator of {@link Properties} into a single Properties object.
      *
-     * @param group the schema group taken from the key
-     * @param key   The most recent version of the Key being reduced.
-     * @param iter  An iterator over all {@link Properties} for different versions of the key.
+     * @param group   the schema group taken from the key
+     * @param key     The most recent version of the Key being reduced.
+     * @param iter    An iterator over all {@link Properties} for different versions of the key.
+     * @param groupBy the groupBy properties
      * @return The combined {@link Properties}.
      */
-    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter);
+    public abstract Properties reduce(final String group, final Key key, final Iterator<Properties> iter, final Set<String> groupBy);
 
     @Override
     public SortedKeyValueIterator<Key, Value> deepCopy(final IteratorEnvironment env) {
@@ -340,13 +337,37 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
             throw new RuntimeException(e);
         }
         newInstance.setSource(getSource().deepCopy(env));
+        newInstance.schema = schema;
+        newInstance.view = view;
+        newInstance.elementConverter = elementConverter;
         return newInstance;
     }
 
     @Override
-    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options,
-                     final IteratorEnvironment env) throws IOException {
+    public void init(final SortedKeyValueIterator<Key, Value> source, final Map<String, String> options, final IteratorEnvironment env) throws IOException {
         super.init(source, options, env);
+        try {
+            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the schema", e);
+        }
+        try {
+            view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
+        } catch (final UnsupportedEncodingException e) {
+            throw new SchemaException("Unable to deserialise the view", e);
+        }
+
+        try {
+            elementConverter = Class
+                    .forName(options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
+                    .newInstance(schema);
+        } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new AggregationException("Failed to load element converter from class name provided : "
+                    + options.get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
+        }
     }
 
     @Override
@@ -354,19 +375,8 @@ public abstract class CoreKeyGroupByCombiner extends WrappingIterator
         if (!options.containsKey(AccumuloStoreConstants.SCHEMA)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.SCHEMA);
         }
-        try {
-            schema = Schema.fromJson(options.get(AccumuloStoreConstants.SCHEMA).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the schema", e);
-        }
-
         if (!options.containsKey(AccumuloStoreConstants.VIEW)) {
             throw new IllegalArgumentException("Must specify the " + AccumuloStoreConstants.VIEW);
-        }
-        try {
-            view = View.fromJson(options.get(AccumuloStoreConstants.VIEW).getBytes(CommonConstants.UTF_8));
-        } catch (final UnsupportedEncodingException e) {
-            throw new SchemaException("Unable to deserialise the view", e);
         }
 
         return true;

@@ -19,17 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.Serialisation;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 
-public final class ElementCloner {
+public class ElementCloner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementCloner.class);
 
-    private ElementCloner() {
-    }
-
-    public static Element cloneElement(final Element element, final Schema schema) {
+    public Element cloneElement(final Element element, final Schema schema) {
         try {
             final Element clone = element.emptyClone();
             final SchemaElementDefinition sed = schema.getElement(clone.getGroup());
@@ -40,10 +37,8 @@ public final class ElementCloner {
                     LOGGER.warn("Can't find Serialisation for {}, returning uncloned property", propertyName);
                     clone.putProperty(propertyName, property);
                 } else if (null != property) {
-                    final Serialisation serialisation = sed.getPropertyTypeDef(propertyName).getSerialiser();
-                    final byte[] serialised = serialisation.serialise(property);
-                    final Object deserialised = serialisation.deserialise(serialised);
-                    clone.putProperty(propertyName, deserialised);
+                    final Serialiser serialiser = sed.getPropertyTypeDef(propertyName).getSerialiser();
+                    clone.putProperty(propertyName, serialiser.deserialise(serialiser.serialise(property)));
                 } else {
                     clone.putProperty(propertyName, null);
                 }

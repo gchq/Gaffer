@@ -19,6 +19,7 @@ import com.yahoo.sketches.sampling.ReservoirItemsSketch;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.doc.properties.generator.ReservoirItemsUnionElementGenerator;
 import uk.gov.gchq.gaffer.graph.Graph;
@@ -48,6 +49,7 @@ public class ReservoirItemsUnion extends PropertiesWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "properties/reservoirItemsUnion/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();
@@ -96,7 +98,7 @@ public class ReservoirItemsUnion extends PropertiesWalkthrough {
         // [get sample for edge a b] Get the edge A-B and print out the sample of strings
         // ---------------------------------------------------------
         final GetElements query = new GetElements.Builder()
-                .input(new EdgeSeed("A", "B", false))
+                .input(new EdgeSeed("A", "B", DirectedType.UNDIRECTED))
                 .build();
         final CloseableIterable<? extends Element> edges = graph.execute(query, user);
         final Element edge = edges.iterator().next();
