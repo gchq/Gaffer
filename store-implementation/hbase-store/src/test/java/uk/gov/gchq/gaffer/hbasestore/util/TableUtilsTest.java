@@ -169,7 +169,7 @@ public class TableUtilsTest {
     @Test
     public void shouldRunMainWithNoGraphLibrary() throws Exception {
         // Given
-        final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update"};
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH};
 
         // When
         TableUtils.main(args);
