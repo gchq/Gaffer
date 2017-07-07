@@ -33,7 +33,12 @@ public class EdgeIdExtractorTest {
     public void shouldGetIdentifierFromEdge() {
         // Given
         final EdgeIdExtractor extractor = new EdgeIdExtractor();
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(true)
+                .build();
 
         // When
         final EdgeId seed = extractor._apply(edge);

@@ -38,11 +38,13 @@ public class TestEdgeKryoSerializer {
     @Test
     public void testEdge() {
         // Given
-        final Edge edge = new Edge("group");
-        edge.setSource("abc");
-        edge.setDestination("xyz");
-        edge.setDirected(true);
-        edge.putProperty("property1", 1);
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("abc")
+                .dest("xyz")
+                .directed(true)
+                .property("property1", 1)
+                .build();
 
         // When
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();

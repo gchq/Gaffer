@@ -25,18 +25,20 @@ public class ExampleElementGenerator implements OneToOneElementGenerator<Example
     @Override
     public Element _apply(final ExampleDomainObject obj) {
         if (obj.getIds().length > 1) {
-            final Edge edge = new Edge(obj.getType());
-            edge.setSource(obj.getIds()[0]);
-            edge.setDestination(obj.getIds()[1]);
+            final Edge.Builder builder = new Edge.Builder()
+                    .group(obj.getType())
+                    .source(obj.getIds()[0])
+                    .dest(obj.getIds()[1]);
             if (obj.getIds().length > 2) {
-                edge.setDirected(Boolean.TRUE.equals(obj.getIds()[2]));
+                builder.directed(Boolean.TRUE.equals(obj.getIds()[2]));
             }
 
-            return edge;
+            return builder.build();
         }
 
-        final Entity entity = new Entity(obj.getType());
-        entity.setVertex(obj.getIds()[0]);
-        return entity;
+        return new Entity.Builder()
+                .group(obj.getType())
+                .vertex(obj.getIds()[0])
+                .build();
     }
 }

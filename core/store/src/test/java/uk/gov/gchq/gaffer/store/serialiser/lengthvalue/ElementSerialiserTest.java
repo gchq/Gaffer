@@ -56,7 +56,12 @@ public class ElementSerialiserTest {
     @Test
     public void testCanSerialiseEdgeElement() throws SerialisationException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(true)
+                .build();
 
         // When
         final byte[] serialisedEdge = elementSerialiser.serialise(edge);
@@ -82,7 +87,11 @@ public class ElementSerialiserTest {
     @Test
     public void testGetGroup() throws SerialisationException {
         // Given
-        final Edge edge = new Edge(TestGroups.ENTITY, "source", "destination", true);
+        final Edge edge = new Edge.Builder().group(TestGroups.ENTITY)
+                .source("source")
+                .dest("destination")
+                .directed(true)
+                .build();
 
         // When
         final byte[] serialisedEdge = elementSerialiser.serialise(edge);
