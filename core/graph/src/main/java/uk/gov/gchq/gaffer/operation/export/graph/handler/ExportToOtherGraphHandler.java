@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.graph.Graph;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
@@ -33,10 +34,13 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
+        Pair<String, String> schemaAndPropsIds = export.getGraphLibrary().getIds(export.getGraphId());
+        StoreProperties storeProperties = export.getGraphLibrary().getProperties(schemaAndPropsIds.getSecond());
+        Schema schema = export.getGraphLibrary().getSchema(schemaAndPropsIds.getFirst());
         return new OtherGraphExporter(
                 context.getUser(),
                 context.getJobId(),
-                createGraph(store.getSchema(), export.getGraphId(), store.getProperties()));
+                createGraph(schema, export.getGraphId(), storeProperties));
     }
 
     private Graph createGraph(final Schema schema, final String graphId, final StoreProperties storeProperties) {

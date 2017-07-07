@@ -17,6 +17,7 @@
 package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
@@ -26,6 +27,7 @@ public class ExportToOtherGraph<T> implements
         ExportTo<T> {
     private T input;
     private String graphId;
+    private GraphLibrary graphLibrary;
 
     @Override
     public String getKey() {
@@ -55,6 +57,14 @@ public class ExportToOtherGraph<T> implements
         this.graphId = graphId;
     }
 
+    public GraphLibrary getGraphLibrary() {
+        return graphLibrary;
+    }
+
+    public void setGraphLibrary(final GraphLibrary graphLibrary) {
+        this.graphLibrary = graphLibrary;
+    }
+
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
@@ -68,6 +78,11 @@ public class ExportToOtherGraph<T> implements
 
         public Builder<T> graphId(final String graphId) {
             _getOp().setGraphId(graphId);
+            return _self();
+        }
+
+        public Builder<T> graphLibrary(final GraphLibrary graphLibrary) {
+            _getOp().setGraphLibrary(graphLibrary);
             return _self();
         }
     }
