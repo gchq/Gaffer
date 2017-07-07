@@ -101,7 +101,7 @@ public class ExtractKeyFromRowTest {
         final Row row = DataGen.generateEntityRow(utils, "BasicEntity","vertex", (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = entityConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
-        assertEquals("vertex", results.apply(1));
+        assertEquals("vertex", results.apply(1).toString());
         assertEquals(date, new Date((long) results.apply(2)));
         assertEquals(3, results.size());
     }
@@ -116,8 +116,8 @@ public class ExtractKeyFromRowTest {
         final Row row = DataGen.generateEdgeRow(utils, "BasicEdge","src", "dst", true, (byte) 'a', 0.2, 3f, h, 5L, (short) 6, date);
         final Seq<Object> results = edgeConverter.call(row);
         assertEquals(0.2, (double) results.apply(0), 0);
-        assertEquals("dst", results.apply(1));
-        assertEquals("src", results.apply(2));
+        assertEquals("dst", results.apply(1).toString());
+        assertEquals("src", results.apply(2).toString());
         assertEquals(true, results.apply(3));
         assertEquals(date, new Date((long) results.apply(4)));
         assertEquals(5, results.size());

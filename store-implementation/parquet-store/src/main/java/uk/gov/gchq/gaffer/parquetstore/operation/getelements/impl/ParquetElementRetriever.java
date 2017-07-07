@@ -52,10 +52,7 @@ import uk.gov.gchq.koryphe.tuple.n.Tuple2;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -103,7 +100,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         private Element currentElement = null;
         private ParquetReader<GenericRecord> reader;
         private SchemaUtils schemaUtils;
-        private Map<String, GafferGroupObjectConverter> groupToObjectConverter;
         private Map<Path, FilterPredicate> pathToFilterMap;
         private Path currentPath;
         private Iterator<Path> paths;
@@ -133,7 +129,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     this.view = view;
                     this.paths = pathToFilterMap.keySet().stream().sorted().iterator();
                     this.schemaUtils = schemaUtils;
-                    this.groupToObjectConverter = new HashMap<>();
                     this.currentPath = this.paths.next();
                     try {
                         this.fileIterator = new ParquetFileIterator(this.currentPath, this.fs);
@@ -247,7 +242,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
 
         private Element convertGenericRecordToElement(final GenericRecord record) throws OperationException, SerialisationException {
             String group = (String) record.get(ParquetStoreConstants.GROUP);
-            GafferGroupObjectConverter converter = getConverter(group);
+            GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
             Element e;
             if (schemaUtils.getEntityGroups().contains(group)) {
                 final String[] paths = schemaUtils.getPaths(group, ParquetStoreConstants.VERTEX);
@@ -281,7 +276,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                     final String path = paths[i];
                     parquetObjects[i] = recursivelyGetObjectFromRecord(path, (GenericData.Record) record);
                 }
-                e.putProperty(column, getConverter(group).parquetObjectsToGafferObject(column, parquetObjects));
+                e.putProperty(column, schemaUtils.getConverter(group).parquetObjectsToGafferObject(column, parquetObjects));
             }
             return e;
         }
@@ -300,17 +295,6 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
                 } else {
                     return null;
                 }
-            }
-        }
-
-        // TODO -  seems no benefit in doing this over just getting from schemaUtils?
-        private GafferGroupObjectConverter getConverter(final String group) throws SerialisationException {
-            if (groupToObjectConverter.containsKey(group)) {
-                return groupToObjectConverter.get(group);
-            } else {
-                GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
-                groupToObjectConverter.put(group, converter);
-                return converter;
             }
         }
 

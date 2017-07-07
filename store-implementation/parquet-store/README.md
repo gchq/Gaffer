@@ -64,7 +64,6 @@ The `ParquetStoreProperties` class contains all properties relating to the confi
 - `parquet.add_elements.page.size`: This just exposes the Parquet file format parameter controlling the maximum page and 
 dictionary page size in bytes before compression, see [Parquet documentation](https://parquet.apache.org/documentation/latest/) 
 for more information. By default this is set to 1MB;
-- `parquet.add_elements.batch.size`: This is the maximum file size in bytes of the temporary files. By default this is set to 1GB;
 - `parquet.add_elements.output_files_per_group`: This is the number of files that the output data is split into per Gaffer group. By default this is set to 100.
 
 A complete Gaffer properties file using a `ParquetStore` will look like:
@@ -78,7 +77,6 @@ parquet.temp_data_dir=/tmp/my_gaffer_parquet_store_tmp
 parquet.add_elements.threadsAvailable=9
 parquet.add_elements.row_group.size=1073741824
 parquet.add_elements.page.size=4194304
-parquet.add_elements.batch.size=4294967296
 parquet.add_elements.output_files_per_group=2
 ```
 

@@ -16,23 +16,24 @@
 
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl;
 
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.GenericRecordBuilder;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.parquet.avro.AvroParquetWriter;
-import org.apache.parquet.hadoop.ParquetWriter;
-import org.apache.parquet.hadoop.metadata.CompressionCodecName;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
+import org.apache.hadoop.mapreduce.TaskID;
+import org.apache.hadoop.mapreduce.TaskType;
+import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 import org.apache.spark.TaskContext;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetOutputWriter;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetWriteSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.utils.GafferGroupObjectConverter;
 import uk.gov.gchq.gaffer.parquetstore.utils.ParquetStoreConstants;
 import uk.gov.gchq.gaffer.parquetstore.utils.SchemaUtils;
 
@@ -40,21 +41,39 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
+import static uk.gov.gchq.gaffer.parquetstore.utils.SparkParquetUtils.configureSparkConfForAddElements;
 
 public class WriteUnsortedData {
     private static final Logger LOGGER = LoggerFactory.getLogger(WriteUnsortedData.class);
     private final ParquetStoreProperties props;
-    private final Map<String, ParquetWriter<GenericRecord>> groupToWriter;
+    private final Map<String, ParquetOutputWriter> groupToWriter;
     private final Map<String, Integer> groupToFileNumber;
     private final SchemaUtils schemaUtils;
-    private final long batchSize;
+    private final Configuration conf;
+    private final Map<String, String[]> groupToGafferProperties;
 
     public WriteUnsortedData(final ParquetStoreProperties parquetStoreProperties, final SchemaUtils schemaUtils) {
         this.props = parquetStoreProperties;
         this.groupToWriter = new HashMap<>();
         this.groupToFileNumber = new HashMap<>();
         this.schemaUtils = schemaUtils;
-        this.batchSize = parquetStoreProperties.getAddElementsBatchSize();
+        this.conf = new Configuration();
+        configureSparkConfForAddElements(conf, parquetStoreProperties);
+        this.groupToGafferProperties = calculateGafferPropertes();
+    }
+
+    private Map<String, String[]> calculateGafferPropertes() {
+        final Set<String> groups = schemaUtils.getGafferSchema().getGroups();
+        final Map<String, String[]> groupToProperties = new HashMap<>(groups.size());
+        for (final String group : groups) {
+            final Set<String> propertiesList = schemaUtils.getGafferSchema().getElement(group).getProperties();
+            final String[] propertiesArray = new String[propertiesList.size()];
+            propertiesList.toArray(propertiesArray);
+            groupToProperties.put(group, propertiesArray);
+        }
+        return groupToProperties;
     }
 
     public void writeElements(final Iterator<? extends Element> elements) throws OperationException {
@@ -66,7 +85,7 @@ public class WriteUnsortedData {
             // Write elements
             _writeElements(elements);
             // Close the writers
-            for (final ParquetWriter<GenericRecord> writer : groupToWriter.values()) {
+            for (final ParquetOutputWriter writer : groupToWriter.values()) {
                 writer.close();
             }
         } catch (final IOException | OperationException e) {
@@ -78,22 +97,16 @@ public class WriteUnsortedData {
         while (elements.hasNext()) {
             final Element element = elements.next();
             final String group = element.getGroup();
-            ParquetWriter<GenericRecord> writer = groupToWriter.get(group);
+            ParquetOutputWriter writer = groupToWriter.get(group);
             if (writer != null) {
-                if (writer.getDataSize() >= batchSize) {
-                    groupToFileNumber.put(group, groupToFileNumber.getOrDefault(group, 0) + 1);
-                    writer.close();
-                    writer = buildWriter(group);
-                    groupToWriter.put(group, writer);
-                }
-                writer.write(convertElementToGenericRecord(element));
+                writer.writeInternal(schemaUtils.getConverter(group).convertElementToSparkRow(element, groupToGafferProperties.get(group), schemaUtils.getSparkSchema(group)));
             } else {
                 LOGGER.warn("Skipped the adding of an Element with Group = {} as that group does not exist in the schema.", group);
             }
         }
     }
 
-    private ParquetWriter<GenericRecord> buildWriter(final String group) throws IOException {
+    private ParquetOutputWriter buildWriter(final String group) throws IOException {
         Integer fileNumber = groupToFileNumber.get(group);
         if (fileNumber == null) {
             groupToFileNumber.put(group, 0);
@@ -102,32 +115,9 @@ public class WriteUnsortedData {
         LOGGER.debug("Creating a new writer for group: {}", group + " with file number " + fileNumber);
         final Path filePath = new Path(ParquetStore.getGroupDirectory(group, ParquetStoreConstants.VERTEX,
                 props.getTempFilesDir()) + "/part-" + TaskContext.getPartitionId() + "-" + fileNumber + ".gz.parquet");
-        return AvroParquetWriter
-                .<GenericRecord>builder(filePath)
-                .withSchema(schemaUtils.getAvroSchema(group))
-                .withCompressionCodec(CompressionCodecName.GZIP)
-                .withRowGroupSize(props.getRowGroupSize())
-                .withPageSize(props.getPageSize())
-                .withDictionaryPageSize(props.getPageSize())
-                .enableDictionaryEncoding()
-                .build();
-    }
 
-    private GenericRecord convertElementToGenericRecord(final Element e) throws OperationException, SerialisationException {
-        final String group = e.getGroup();
-        final GafferGroupObjectConverter converter = schemaUtils.getConverter(group);
-        final GenericRecordBuilder recordBuilder = new GenericRecordBuilder(schemaUtils.getAvroSchema(group));
-        recordBuilder.set(ParquetStoreConstants.GROUP, group);
-        if (e instanceof Entity) {
-            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.VERTEX, ((Entity) e).getVertex(), recordBuilder);
-        } else {
-            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.SOURCE, ((Edge) e).getSource(), recordBuilder);
-            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.DESTINATION, ((Edge) e).getDestination(), recordBuilder);
-            converter.addGafferObjectToGenericRecord(ParquetStoreConstants.DIRECTED, ((Edge) e).isDirected(), recordBuilder);
-        }
-        for (final Map.Entry<String, Object> property : e.getProperties().entrySet()) {
-            converter.addGafferObjectToGenericRecord(property.getKey(), property.getValue(), recordBuilder);
-        }
-        return recordBuilder.build();
+        conf.set(ParquetWriteSupport.SPARK_ROW_SCHEMA(), ParquetSchemaConverter.checkFieldNames(schemaUtils.getSparkSchema(group)).json());
+        final TaskAttemptContext context = new TaskAttemptContextImpl(conf, new TaskAttemptID(new TaskID(new JobID(), TaskType.MAP, TaskContext.getPartitionId()), 0));
+        return new ParquetOutputWriter(filePath.toString(), context);
     }
 }

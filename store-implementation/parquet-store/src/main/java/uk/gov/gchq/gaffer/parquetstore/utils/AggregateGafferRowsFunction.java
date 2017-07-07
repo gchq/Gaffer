@@ -107,7 +107,7 @@ public class AggregateGafferRowsFunction implements Function2<GenericRowWithSche
                     outputRow.add(v1.getAs(column));
                 }
             } else {
-                objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema());
+                objectConverter.addGafferObjectToSparkRow(propName, mergedProperties.get(propName), outputRow, v1.schema(), false);
             }
         }
         final GenericRowWithSchema mergedRow = new GenericRowWithSchema(outputRow.toArray(), v1.schema());

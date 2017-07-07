@@ -18,8 +18,6 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.parquet.avro.AvroSchemaConverter;
-import org.apache.parquet.schema.MessageTypeParser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,58 +51,6 @@ public class SchemaUtilsTest {
     @After
     public void cleanUp() {
         utils = null;
-    }
-
-    @Test
-    public void getAvroSchemaForEdgeTest() throws SerialisationException {
-        final org.apache.avro.Schema schema = utils.getAvroSchema("BasicEdge");
-        final String parquetSchema = "message Entity {\n" +
-                "required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n" +
-                "optional binary " + ParquetStoreConstants.SOURCE + " (UTF8);\n" +
-                "optional binary " + ParquetStoreConstants.DESTINATION + " (UTF8);\n" +
-                "optional boolean " + ParquetStoreConstants.DIRECTED + " ;\n" +
-                "optional binary property1 ;\n" +
-                "optional double property2 ;\n" +
-                "optional binary property3 ;\n" +
-                "optional binary property4_raw_bytes;\n" +
-                "optional int64 property4_cardinality;\n" +
-                "optional int64 property5 ;\n" +
-                "optional int32 property6 (INT_16);\n" +
-                "optional int64 property7 ;\n" +
-                "optional group property8 {\n" +
-                "\toptional binary raw_bytes;\n" +
-                "\toptional int64 cardinality;\n" +
-                "}\n" +
-                "optional int32 count ;\n" +
-                "}";
-        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter()
-                .convert(MessageTypeParser.parseMessageType(parquetSchema));
-        assertEquals(expectedSchema, schema);
-    }
-
-    @Test
-    public void getAvroSchemaForEntityTest() throws SerialisationException {
-        final org.apache.avro.Schema schema = utils.getAvroSchema("BasicEntity");
-        final String parquetSchema = "message Entity {\n" +
-                "required binary " + ParquetStoreConstants.GROUP + " (UTF8);\n" +
-                "optional binary " + ParquetStoreConstants.VERTEX + " (UTF8);\n" +
-                "optional binary property1 ;\n" +
-                "optional double property2 ;\n" +
-                "optional binary property3 ;\n" +
-                "optional binary property4_raw_bytes;\n" +
-                "optional int64 property4_cardinality;\n" +
-                "optional int64 property5 ;\n" +
-                "optional int32 property6 (INT_16);\n" +
-                "optional int64 property7 ;\n" +
-                "optional group property8 {\n" +
-                "\toptional binary raw_bytes;\n" +
-                "\toptional int64 cardinality;\n" +
-                "}\n" +
-                "optional int32 count ;\n" +
-                "}";
-        final org.apache.avro.Schema expectedSchema = new AvroSchemaConverter()
-                .convert(MessageTypeParser.parseMessageType(parquetSchema));
-        assertEquals(expectedSchema, schema);
     }
 
 

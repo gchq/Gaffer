@@ -38,13 +38,15 @@ public class SeedComparator implements Comparator<Object>, Serializable {
             Object[] o1 = (Object[]) obj1;
             Object[] o2 = (Object[]) obj2;
             for (int i = 0; i < o1.length; i++) {
-                if (o1[i] instanceof Comparable && o2[i].getClass().equals(o1[i].getClass())) {
-                    int result = ((Comparable) o1[i]).compareTo((Comparable) o2[i]);
+                Object innerObject1 = o1[i];
+                Object innerObject2 = o2[i];
+                if (innerObject1 instanceof Comparable && innerObject2.getClass().equals(innerObject1.getClass())) {
+                    int result = ((Comparable) innerObject1).compareTo((Comparable) innerObject2);
                     if (!(result == 0)) {
                         return result;
                     }
-                } else if (o1[i] instanceof byte[] && o2[i] instanceof byte[]) {
-                    int result = UnsignedBytes.lexicographicalComparator().compare((byte[]) o1[i], (byte[]) o2[i]);
+                } else if (innerObject1 instanceof byte[] && innerObject2 instanceof byte[]) {
+                    int result = UnsignedBytes.lexicographicalComparator().compare((byte[]) innerObject1, (byte[]) innerObject2);
                     if (!(result == 0)) {
                         return result;
                     }

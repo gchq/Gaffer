@@ -128,7 +128,6 @@ public class EdgeCasesTest {
         ParquetStoreProperties parquetProperties = getParquetStoreProperties();
         parquetProperties.setDataDir("readElementsWithZeroElementFiles");
         parquetProperties.setAddElementsOutputFilesPerGroup(200);
-        parquetProperties.setAddElementsBatchSize(1024);
         final SchemaOptimiser optimiser = new SchemaOptimiser(new SerialisationFactory(ParquetStoreConstants.SERIALISERS));
         final Graph graph = new Graph.Builder()
                 .addSchema(optimiser.optimise(gafferSchema, true))

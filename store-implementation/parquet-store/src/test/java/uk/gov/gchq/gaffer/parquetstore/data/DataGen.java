@@ -83,8 +83,7 @@ public class DataGen {
         final GafferGroupObjectConverter entityConverter = new GafferGroupObjectConverter(
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
-                utils.getColumnToPaths(group),
-                utils.getAvroSchema(group).toString());
+                utils.getColumnToPaths(group));
 
         final List<Object> list = new ArrayList<>();
         list.add(group);
@@ -113,8 +112,7 @@ public class DataGen {
         final GafferGroupObjectConverter edgeConverter = new GafferGroupObjectConverter(
                 utils.getColumnToSerialiser(group),
                 utils.getSerialisers(),
-                utils.getColumnToPaths(group),
-                utils.getAvroSchema(group).toString());
+                utils.getColumnToPaths(group));
 
         final List<Object> list = new ArrayList<>();
         list.add(group);

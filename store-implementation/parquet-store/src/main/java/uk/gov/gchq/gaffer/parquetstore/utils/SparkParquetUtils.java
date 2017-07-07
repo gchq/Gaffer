@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.parquetstore.utils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.execution.datasources.parquet.ParquetWriteSupport;
 import org.apache.spark.sql.internal.SQLConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +40,23 @@ public final class SparkParquetUtils {
             LOGGER.info("Setting the number of Spark shuffle partitions to " + numberOfOutputFiles);
             spark.conf().set("spark.sql.shuffle.partitions", numberOfOutputFiles);
         }
+        final Configuration hadoopConf = spark.sparkContext().hadoopConfiguration();
+        configureSparkConfForAddElements(hadoopConf, props);
+    }
 
+    public static void configureSparkConfForAddElements(final Configuration hadoopConf, final ParquetStoreProperties props) {
         LOGGER.info("Setting the parquet file properties");
         LOGGER.info("Row group size: {}", props.getRowGroupSize());
         LOGGER.info("Page size: {}", props.getPageSize());
-        final Configuration hadoopConf = spark.sparkContext().hadoopConfiguration();
         hadoopConf.setInt("parquet.block.size", props.getRowGroupSize());
         hadoopConf.setInt("parquet.page.size", props.getPageSize());
         hadoopConf.setInt("parquet.dictionary.page.size", props.getPageSize());
         hadoopConf.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false");
         hadoopConf.set("parquet.enable.summary-metadata", "false");
+        hadoopConf.set("parquet.write.support.class", ParquetWriteSupport.class.getCanonicalName());
+        hadoopConf.set("parquet.compression", "gzip");
+        hadoopConf.set(SQLConf.PARQUET_WRITE_LEGACY_FORMAT().key(), "false");
+        hadoopConf.set(SQLConf.PARQUET_BINARY_AS_STRING().key(), "false");
+        hadoopConf.set(SQLConf.PARQUET_INT96_AS_TIMESTAMP().key(), "false");
     }
 }

@@ -68,13 +68,6 @@ public class ParquetStorePropertiesTest {
     }
 
     @Test
-    public void addElementsBatchSizeTest(){
-        assertEquals(1073741824L, props.getAddElementsBatchSize());
-        props.setAddElementsBatchSize(100000L);
-        assertEquals(100000L, props.getAddElementsBatchSize());
-    }
-
-    @Test
     public void addElementsOutputFilesPerGroupTest(){
         assertEquals(100, props.getAddElementsOutputFilesPerGroup());
         props.setAddElementsOutputFilesPerGroup(10000);

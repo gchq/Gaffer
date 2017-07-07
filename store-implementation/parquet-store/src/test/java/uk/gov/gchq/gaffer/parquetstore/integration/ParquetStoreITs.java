@@ -25,22 +25,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.AggregationIT;
-import uk.gov.gchq.gaffer.integration.impl.ExportIT;
-import uk.gov.gchq.gaffer.integration.impl.FilteringIT;
-import uk.gov.gchq.gaffer.integration.impl.GeneratorsIT;
 import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
-import uk.gov.gchq.gaffer.integration.impl.GetAllElementsIT;
-import uk.gov.gchq.gaffer.integration.impl.GetElementsIT;
-import uk.gov.gchq.gaffer.integration.impl.NoAggregationIT;
-import uk.gov.gchq.gaffer.integration.impl.StoreValidationIT;
-import uk.gov.gchq.gaffer.integration.impl.TransformationIT;
-import uk.gov.gchq.gaffer.integration.impl.VisibilityIT;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
-import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortGroup;
-import uk.gov.gchq.gaffer.parquetstore.operation.getelements.impl.ParquetElementRetriever;
-import uk.gov.gchq.gaffer.parquetstore.utils.AggregateGafferRowsFunction;
-import uk.gov.gchq.gaffer.parquetstore.utils.ParquetFilterUtils;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 import java.io.IOException;
@@ -68,7 +54,7 @@ public class ParquetStoreITs extends AbstractStoreITs {
 
     public ParquetStoreITs() {
         super(STORE_PROPERTIES);
-        singleTest(ExportIT.class);
+//        singleTest(PartAggregationIT.class);
         skipTest(GetAdjacentIdsIT.class, "GetAdjacentIds is not implemented yet");
     }
 }
