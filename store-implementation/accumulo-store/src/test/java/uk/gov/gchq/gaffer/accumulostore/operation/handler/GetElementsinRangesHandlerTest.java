@@ -309,27 +309,32 @@ public class GetElementsinRangesHandlerTest {
                 s = "0" + s;
             }
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource(s);
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                    .build()
+            );
 
-            edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-            edge.setDestination("B");
-            edge.setDirected(true);
-            elements.add(edge);
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 3)
+                    .build()
+            );
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource(s);
-            edge2.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 3);
-            edge2.setDestination("B");
-            edge2.setDirected(true);
-            elements.add(edge2);
-
-            final Edge edge3 = new Edge(TestGroups.EDGE);
-            edge3.setSource(s);
-            edge3.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 5);
-            edge3.setDestination("B");
-            edge3.setDirected(true);
-            elements.add(edge3);
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(true)
+                    .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 5)
+                    .build()
+            );
         }
 
         try {

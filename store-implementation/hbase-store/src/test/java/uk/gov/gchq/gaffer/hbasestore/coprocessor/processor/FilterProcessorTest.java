@@ -56,11 +56,11 @@ public class FilterProcessorTest {
 
     private static final List<Element> ELEMENTS = Arrays.asList(
             new Entity(TestGroups.ENTITY, "vertexI"),
-            new Edge(TestGroups.EDGE, "vertexA", "vertexB", true),
-            new Edge(TestGroups.EDGE, "vertexD", "vertexC", true),
-            new Edge(TestGroups.EDGE, "vertexE", "vertexE", true),
-            new Edge(TestGroups.EDGE, "vertexF", "vertexG", false),
-            new Edge(TestGroups.EDGE, "vertexH", "vertexH", false)
+            new Edge.Builder().group(TestGroups.EDGE, "vertexA", "vertexB", true),
+            new Edge.Builder().group(TestGroups.EDGE, "vertexD", "vertexC", true),
+            new Edge.Builder().group(TestGroups.EDGE, "vertexE", "vertexE", true),
+            new Edge.Builder().group(TestGroups.EDGE, "vertexF", "vertexG", false),
+            new Edge.Builder().group(TestGroups.EDGE, "vertexH", "vertexH", false)
     );
 
     private final ElementSerialisation serialisation = new ElementSerialisation(SCHEMA);

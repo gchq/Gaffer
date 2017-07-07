@@ -102,7 +102,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .input(new EntitySeed(NEW_VERTEX), new EdgeSeed(NEW_SOURCE, NEW_DEST, false))
                 .build(), getUser()));
 
-        final Edge expectedEdge = new Edge(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);
+        final Edge expectedEdge = new Edge.Builder().group(TestGroups.EDGE, NEW_SOURCE, NEW_DEST, false);
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 1L);
 

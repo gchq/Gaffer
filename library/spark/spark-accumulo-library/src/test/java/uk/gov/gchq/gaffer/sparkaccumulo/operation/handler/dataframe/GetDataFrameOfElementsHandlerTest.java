@@ -530,36 +530,42 @@ public class GetDataFrameOfElementsHandlerTest {
     static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
-            entity.setVertex("" + i);
-            entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", i);
-            entity.putProperty("property2", 3.0F);
-            entity.putProperty("property3", 4.0D);
-            entity.putProperty("property4", 5L);
-            entity.putProperty("count", 6L);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("columnQualifier", 1)
+                    .property("property1", i)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 6L)
+                    .build();
 
-            final Edge edge1 = new Edge(EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(true);
-            edge1.putProperty("columnQualifier", 1);
-            edge1.putProperty("property1", 2);
-            edge1.putProperty("property2", 3.0F);
-            edge1.putProperty("property3", 4.0D);
-            edge1.putProperty("property4", 5L);
-            edge1.putProperty("count", 100L);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("columnQualifier", 1)
+                    .property("property1", 2)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 100L)
+                    .build();
 
-            final Edge edge2 = new Edge(EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("columnQualifier", 6);
-            edge2.putProperty("property1", 7);
-            edge2.putProperty("property2", 8.0F);
-            edge2.putProperty("property3", 9.0D);
-            edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", i * 200L);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("columnQualifier", 6)
+                    .property("property1", 7)
+                    .property("property2", 8.0F)
+                    .property("property3", 9.0D)
+                    .property("property4", 10L)
+                    .property("count", i * 200L)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -580,7 +586,7 @@ public class GetDataFrameOfElementsHandlerTest {
         hllpp.offer("AAA");
         entity.putProperty("hllpp", hllpp);
         elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
+        final Edge edge = new Edge.Builder().group(EDGE_GROUP);
         edge.setSource("B");
         edge.setDestination("C");
         edge.setDirected(true);
@@ -609,7 +615,7 @@ public class GetDataFrameOfElementsHandlerTest {
         entity.putProperty("hllpp", hllpp);
         entity.putProperty("myProperty", new MyProperty(10));
         elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
+        final Edge edge = new Edge.Builder().group(EDGE_GROUP);
         edge.setSource("B");
         edge.setDestination("C");
         edge.setDirected(true);

@@ -62,13 +62,13 @@ public class GetJavaRDDOfAllElementsHandlerTest {
             final Entity entity = new Entity(TestGroups.ENTITY);
             entity.setVertex("" + i);
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE);
             edge1.setSource("" + i);
             edge1.setDestination("B");
             edge1.setDirected(false);
             edge1.putProperty(TestPropertyNames.COUNT, 2);
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE);
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(false);
@@ -131,14 +131,14 @@ public class GetJavaRDDOfAllElementsHandlerTest {
             entity.setVertex("" + i);
             entity.putProperty("visibility", "public");
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE);
             edge1.setSource("" + i);
             edge1.setDestination("B");
             edge1.setDirected(false);
             edge1.putProperty(TestPropertyNames.COUNT, 2);
             edge1.putProperty("visibility", "private");
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE);
             edge2.setSource("" + i);
             edge2.setDestination("C");
             edge2.setDirected(false);

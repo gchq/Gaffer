@@ -58,16 +58,20 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeEntity() {
         // Create Range formed from one entity and shouldRetieveElementsInRangeBetweenSeeds
-        final Entity entity1 = new Entity(TestGroups.ENTITY);
-        entity1.setVertex(1);
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex(1)
+                .build();
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
         final Range range1 = new Range(key1, true, key1, true);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(Arrays.copyOf(key1.getRowData().getBackingArray(), key1.getRowData().getBackingArray().length));
         assertTrue(elementFunctor.transform(range1).equals(expectedBloomKey1));
 
         // Create Range formed from two entities and shouldRetieveElementsInRangeBetweenSeeds - should get null
-        final Entity entity2 = new Entity(TestGroups.ENTITY);
-        entity2.setVertex(2);
+        final Entity entity2 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex(2)
+                .build();
         final Key key2 = elementConverter.getKeyFromEntity(entity2);
         final Range range2 = new Range(key1, true, key2, true);
         assertNull(elementFunctor.transform(range2));
@@ -76,8 +80,10 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformKeyEntity() {
         // Create Key formed from entity and shouldRetieveElementsInRangeBetweenSeeds
-        final Entity entity1 = new Entity(TestGroups.ENTITY);
-        entity1.setVertex(1);
+        final Entity entity1 = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex(1)
+                .build();
         final Key key1 = elementConverter.getKeyFromEntity(entity1);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key1.getRowData().getBackingArray()));
         assertEquals(expectedBloomKey1, elementFunctor.transform(key1));
@@ -86,9 +92,10 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeEdge() {
         // Create Range formed from one edge and shouldRetieveElementsInRangeBetweenSeeds
-        final Edge edge1 = new Edge(TestGroups.EDGE);
-        edge1.setSource(1);
-        edge1.setDestination(2);
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(1)
+                .dest(2).build();
         final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
         final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
@@ -106,9 +113,10 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformKeyEdge() {
         // Create Key formed from edge and shouldRetieveElementsInRangeBetweenSeeds
-        final Edge edge1 = new Edge(TestGroups.EDGE);
-        edge1.setSource(1);
-        edge1.setDestination(2);
+        final Edge edge1 = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(1)
+                .dest(2).build();
         final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
         final Range range1 = new Range(keys.getFirst().getRow(), true, keys.getFirst().getRow(), true);
         final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(keys.getFirst().getRowData().getBackingArray()));
@@ -121,15 +129,17 @@ public class Gaffer1BloomElementFunctorTest {
     @Test
     public void shouldTransformRangeFromEntityToEntityAndSomeEdges() {
         // Create entity
-        final Entity entity = new Entity(TestGroups.ENTITY);
-        entity.setVertex(1);
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex(1).build();
         //        String key1 = ConversionUtils.getRowKeyFromEntity(entity1);
         final Key key1 = elementConverter.getKeyFromEntity(entity);
 
         // Create edge from that entity
-        final Edge edge = new Edge(TestGroups.EDGE);
-        edge.setSource(1);
-        edge.setDestination(2);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(1)
+                .dest(2).build();
         //        String key2 = ConversionUtils.getRowKeysFromEdge(edge).getFirst();
         final Key key2 = elementConverter.getKeysFromEdge(edge).getFirst();
 
@@ -148,8 +158,10 @@ public class Gaffer1BloomElementFunctorTest {
     public void shouldTransformRangeWhenUsingRangeNotExact() {
         try {
             // Create SimpleEntity
-            final Entity simpleEntity = new Entity(TestGroups.ENTITY);
-            simpleEntity.setVertex("1");
+            final Entity simpleEntity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("1")
+                    .build();
             final Key key = elementConverter.getKeyFromEntity(simpleEntity);
             final Range range = Range.exact(key.getRow());
             final org.apache.hadoop.util.bloom.Key expectedBloomKey1 = new org.apache.hadoop.util.bloom.Key(elementFunctor.getVertexFromRangeKey(key.getRowData().getBackingArray()));
@@ -164,9 +176,10 @@ public class Gaffer1BloomElementFunctorTest {
     public void shouldTransformRangeWhenRangeHasUnspecifiedStartOrEndKey() {
         try {
             // Create Range with unspecified start key and shouldRetieveElementsInRangeBetweenSeeds - should get null
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("3");
-            edge1.setDestination("4");
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("3")
+                    .dest("4").build();
             final Pair<Key, Key> keys = elementConverter.getKeysFromEdge(edge1);
             final Range range1 = new Range(null, true, keys.getFirst().getRow(), true);
             assertNull(elementFunctor.transform(range1));
