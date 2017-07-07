@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd;
 
+import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
@@ -44,7 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A <class>RFileReaderIterator</class> is a {@link scala.collection.Iterator} formed by merging iterators over
+ * A <code>RFileReaderIterator</code> is a {@link scala.collection.Iterator} formed by merging iterators over
  * a set of RFiles.
  */
 public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Value>> {
@@ -55,16 +56,20 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private final Set<String> requiredColumnFamilies;
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
+    private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
+    private IteratorSetting iteratorSetting;
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
-                               final Set<String> requiredColumnFamilies) {
+                               final Set<String> requiredColumnFamilies,
+                               final IteratorSetting iteratorSetting) {
         this.partition = partition;
         this.taskContext = taskContext;
         if (null == requiredColumnFamilies || requiredColumnFamilies.isEmpty()) {
             throw new IllegalArgumentException("requiredColumnFamilies must be non-null and non-empty");
         }
         this.requiredColumnFamilies = requiredColumnFamilies;
+        this.iteratorSetting = iteratorSetting;
         try {
             init();
         } catch (final IOException e) {
@@ -74,14 +79,15 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
     @Override
     public boolean hasNext() {
-        return mergedIterator.hasTop();
+        return iteratorAfterIterators.hasTop();
     }
 
     @Override
     public Map.Entry<Key, Value> next() {
-        final Map.Entry<Key, Value> next = new AbstractMap.SimpleEntry<>(mergedIterator.getTopKey(), mergedIterator.getTopValue());
+        final Map.Entry<Key, Value> next = new AbstractMap.SimpleEntry<>(iteratorAfterIterators.getTopKey(),
+                iteratorAfterIterators.getTopValue());
         try {
-            mergedIterator.next();
+            iteratorAfterIterators.next();
         } catch (final IOException e) {
             // Swallow
         }
@@ -115,18 +121,28 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         }
         mergedIterator = new MultiIterator(iterators, true);
 
-        // TODO add iterators
+        // Apply iterator stack
+        try {
+            if (null != iteratorSetting) {
+                iteratorAfterIterators = Class.forName(iteratorSetting.getIteratorClass()).asSubclass(SortedKeyValueIterator.class).newInstance();
+                iteratorAfterIterators.init(mergedIterator, iteratorSetting.getOptions(), null);
+            } else {
+                iteratorAfterIterators = mergedIterator;
+            }
+        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException("Exception creating iterator of class " + iteratorSetting.getIteratorClass());
+        }
 
         taskContext.addTaskCompletionListener(new TaskCompletionListener() {
             @Override
-            public void onTaskCompletion(TaskContext context) {
+            public void onTaskCompletion(final TaskContext context) {
                 close();
             }
         });
 
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
-        mergedIterator.seek(range, columnFamilies, false);
-        LOGGER.error("Initialised iterator");
+        iteratorAfterIterators.seek(range, columnFamilies, false);
+        LOGGER.info("Initialised iterator");
     }
 
     private void close() {

@@ -74,7 +74,7 @@
         </module>
 
         <module name="MethodLength"/>
-        <module name="ParameterNumber"/>
+        <!-- <module name="ParameterNumber"/> -->
 
         <module name="EmptyForIteratorPad"/>
         <module name="MethodParamPad"/>

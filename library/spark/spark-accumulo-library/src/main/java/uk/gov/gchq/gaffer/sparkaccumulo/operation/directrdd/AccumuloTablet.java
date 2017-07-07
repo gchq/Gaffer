@@ -76,18 +76,22 @@ public class AccumuloTablet implements Serializable, Partition {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-        AccumuloTablet that = (AccumuloTablet) o;
+        final AccumuloTablet that = (AccumuloTablet) o;
 
-        if (rddId != that.rddId) return false;
+        if (rddId != that.rddId) {
+            return false;
+        }
         return index == that.index;
-
     }
 
-    // TODO - is it deliberate that this only uses rddId and index?
     @Override
     public int hashCode() {
         int result = rddId;

@@ -19,6 +19,7 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
+import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.collection.JavaConversions;
 import scala.reflect.ClassTag$;
-import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,8 +49,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates an {@link RDD} of {@link Map.Entry}s of {@link Key}s and {@link Value}s for the data in the given
- * {@link AccumuloStore}.
+ * Creates an {@link RDD} of {@link Map.Entry}s of {@link Key}s and {@link Value}s for the data in the given table.
  */
 public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RFileReaderRDD.class);
@@ -60,7 +59,9 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
     private final String user;
     private final String password;
     private final String tableName;
-    private Set<String> columnFamilies;
+    private final Set<String> columnFamilies;
+    private final String iteratorClass;
+    private final Map<String, String> iteratorOptions;
 
     public RFileReaderRDD(final SparkConf sparkConf,
                           final String instanceName,
@@ -68,20 +69,32 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                           final String user,
                           final String password,
                           final String tableName,
-                          final Set<String> columnFamilies) {
-        super(new SparkContext(sparkConf), JavaConversions.asScalaBuffer(new ArrayList<>()), ClassTag$.MODULE$.apply(Map.Entry.class));
+                          final Set<String> columnFamilies,
+                          final String iteratorClass,
+                          final Map<String, String> iteratorOptions) {
+        super(new SparkContext(sparkConf), JavaConversions.asScalaBuffer(new ArrayList<>()),
+                ClassTag$.MODULE$.apply(Map.Entry.class));
         this.instanceName = instanceName;
         this.zookeepers = zookeepers;
         this.user = user;
         this.password = password;
         this.tableName = tableName;
         this.columnFamilies = columnFamilies;
+        this.iteratorClass = iteratorClass;
+        this.iteratorOptions = iteratorOptions;
     }
 
     @Override
     public scala.collection.Iterator<Map.Entry<Key, Value>> compute(final Partition split, final TaskContext context) {
+        IteratorSetting is = null;
+        if (null != iteratorClass) {
+            is = new IteratorSetting(100, "NAME", iteratorClass);
+            if (null != iteratorOptions) {
+                is.addOptions(iteratorOptions);
+            }
+        }
         return new InterruptibleIterator<>(context,
-                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, columnFamilies)));
+                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, columnFamilies, is)));
     }
 
     @Override
