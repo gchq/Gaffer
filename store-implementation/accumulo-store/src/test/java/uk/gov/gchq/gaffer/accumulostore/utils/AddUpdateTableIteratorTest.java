@@ -14,48 +14,86 @@ package uk.gov.gchq.gaffer.accumulostore.utils;/*
  * limitations under the License.
  */
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class AddUpdateTableIteratorTest {
 
-    public static final String GRAPH_ID = "graphId";
-    public static final String SCHEMA_TEST_DIR = "src/test/resources/schema";
-    private static final String STORE_PROPS_TEST_PATH = "src/test/resources/store.properties";
-    private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "src/test/resources/graphLibrary";
+    private static final String GRAPH_ID = "graphId";
+    private static final String SCHEMA_DIR = "src/test/resources/schema";
+    private static final String SCHEMA_2_DIR = "src/test/resources/schema2";
+    private static final String STORE_PROPS_PATH = "src/test/resources/store.properties";
+    private static final String STORE_PROPS_2_PATH = "src/test/resources/store2.properties";
+    private static final String FILE_GRAPH_LIBRARY_TEST_PATH = "target/graphLibrary";
+
+    @Before
+    @After
+    public void cleanUp() throws IOException {
+        if (new File(FILE_GRAPH_LIBRARY_TEST_PATH).exists()) {
+            FileUtils.forceDelete(new File(FILE_GRAPH_LIBRARY_TEST_PATH));
+        }
+    }
 
     @Test
     public void shouldRunMainWithFileGraphLibrary() throws Exception {
         // Given
-        String[] args = {GRAPH_ID, SCHEMA_TEST_DIR, STORE_PROPS_TEST_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
 
         // When
         AddUpdateTableIterator.main(args);
-        deleteTestFiles(FILE_GRAPH_LIBRARY_TEST_PATH);
 
-        // Then - no exceptions
 
+        // Then
+        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
+        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
+        assertNotNull("Schema not found", pair.getFirst());
+        assertNotNull("Store properties not found", pair.getSecond());
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_DIR)).toJson(false), pair.getFirst().toJson(false));
+        assertEquals(StoreProperties.loadStoreProperties(STORE_PROPS_PATH).getProperties(), pair.getSecond().getProperties());
+    }
+
+    @Test
+    public void shouldOverrideExistingGraphInGraphLibrary() throws Exception {
+        // Given
+        shouldRunMainWithFileGraphLibrary(); // load version graph version 1 into the library.
+        final String[] args = {GRAPH_ID, SCHEMA_2_DIR, STORE_PROPS_2_PATH, "update", FILE_GRAPH_LIBRARY_TEST_PATH};
+
+        // When
+        AddUpdateTableIterator.main(args);
+
+        // Then
+        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
+        assertNotNull("Graph for " + GRAPH_ID + " was not found", pair);
+        assertNotNull("Schema not found", pair.getFirst());
+        assertNotNull("Store properties not found", pair.getSecond());
+        JsonAssert.assertEquals(Schema.fromJson(Paths.get(SCHEMA_2_DIR)).toJson(false), pair.getFirst().toJson(false));
+        assertEquals(StoreProperties.loadStoreProperties(STORE_PROPS_2_PATH).getProperties(), pair.getSecond().getProperties());
     }
 
     @Test
     public void shouldRunMainWithNoGraphLibrary() throws Exception {
         // Given
-        String[] args = {GRAPH_ID, SCHEMA_TEST_DIR, STORE_PROPS_TEST_PATH, "update"};
+        final String[] args = {GRAPH_ID, SCHEMA_DIR, STORE_PROPS_PATH, "update"};
 
         // When
         AddUpdateTableIterator.main(args);
 
         // Then - no exceptions
-    }
-
-    private static void deleteTestFiles(final String testFilePath) {
-        final File dir = new File(testFilePath);
-        if (dir.exists()) {
-            final File[] children = dir.listFiles();
-            for (int i = 0; i < children.length; i++) {
-                children[i].delete();
-            }
-            dir.delete();
-        }
+        final Pair<Schema, StoreProperties> pair = new FileGraphLibrary(FILE_GRAPH_LIBRARY_TEST_PATH).get(GRAPH_ID);
+        assertNull("Graph should not have been stored", pair);
     }
 }

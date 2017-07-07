@@ -34,8 +34,8 @@ public abstract class GraphLibrary {
 
         checkExisting(graphId, schemaJson, properties);
 
-        String schemaId = null != schema ? schema.getId() : graphId;
-        String propertiesId = null != properties ? properties.getId() : graphId;
+        final String schemaId = null != schema && null != schema.getId() ? schema.getId() : graphId;
+        final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
         _addSchema(schemaId, schemaJson);
@@ -45,8 +45,8 @@ public abstract class GraphLibrary {
     public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
         validateId(graphId);
 
-        final String schemaId = null != schema ? schema.getId() : graphId;
-        final String propertiesId = null != properties ? properties.getId() : graphId;
+        final String schemaId = null != schema && null != schema.getId() ? schema.getId() : graphId;
+        final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
 

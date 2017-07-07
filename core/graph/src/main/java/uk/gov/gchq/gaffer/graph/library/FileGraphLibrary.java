@@ -111,11 +111,11 @@ public class FileGraphLibrary extends GraphLibrary {
 
     @Override
     protected StoreProperties _getProperties(final String propertiesId) {
-        try {
-            return StoreProperties.loadStoreProperties(getPropertiesPath(propertiesId));
-        } catch (RuntimeException e) {
+        final Path propertiesPath = getPropertiesPath(propertiesId);
+        if (!propertiesPath.toFile().exists()) {
             return null;
         }
+        return StoreProperties.loadStoreProperties(propertiesPath);
     }
 
     private Path getSchemaPath(final String schemaId) {

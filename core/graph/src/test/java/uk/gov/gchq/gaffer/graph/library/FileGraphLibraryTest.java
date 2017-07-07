@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.graph.library;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import uk.gov.gchq.gaffer.graph.exception.OverwritingException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,7 +35,6 @@ import static org.junit.Assert.fail;
 
 public class FileGraphLibraryTest {
 
-    FileGraphLibrary fileGraphLibrary;
     private static final String TEST_FILE_PATH = "src/test/resources/graphLibrary";
     private static final String GRAPH_ID = "fileGraphLibraryTestGraphId";
     private static final String SCHEMA_ID = "fileGraphLibraryTestSchemaId";
@@ -42,13 +43,11 @@ public class FileGraphLibraryTest {
     private final Schema schema = new Schema.Builder().id(SCHEMA_ID).build();
 
     @Before
-    public void setUp() {
-        deleteTestFiles();
-    }
-
     @After
-    public void tearDown() {
-        deleteTestFiles();
+    public void cleanUp() throws IOException {
+        if (new File(TEST_FILE_PATH).exists()) {
+            FileUtils.forceDelete(new File(TEST_FILE_PATH));
+        }
     }
 
     @Test
@@ -56,7 +55,7 @@ public class FileGraphLibraryTest {
 
         // When / Then
         try {
-            fileGraphLibrary = new FileGraphLibrary("inv@lidP@th");
+            new FileGraphLibrary("inv@lidP@th");
             fail("Exception expected");
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
@@ -67,7 +66,7 @@ public class FileGraphLibraryTest {
     public void shouldThrowExceptionWithInvalidGraphId() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When / Then
         try {
@@ -82,7 +81,7 @@ public class FileGraphLibraryTest {
     public void shouldThrowExceptionWhenGraphIdWithDifferentSchemaExists() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final Schema schema1 = new Schema.Builder()
                 .id(SCHEMA_ID + "1")
                 .build();
@@ -101,7 +100,7 @@ public class FileGraphLibraryTest {
     public void shouldThrowExceptionWhenGraphIdWithDifferentPropertiesExists() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final StoreProperties storeProperties1 = new StoreProperties(PROPERTIES_ID + "1");
 
         // When / Then
@@ -119,7 +118,7 @@ public class FileGraphLibraryTest {
     public void shouldUpdateWhenGraphIdExists() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final StoreProperties storeProperties1 = new StoreProperties(PROPERTIES_ID + "1");
 
         // When
@@ -139,7 +138,7 @@ public class FileGraphLibraryTest {
     public void shouldThrowExceptionWhenSchemaIsNull() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When / Then
         try {
@@ -154,7 +153,7 @@ public class FileGraphLibraryTest {
     public void shouldThrowExceptionWhenStorePropertiesAreNull() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When / Then
         try {
@@ -166,23 +165,34 @@ public class FileGraphLibraryTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenPropertiesFileDoesntExist() {
-
+    public void shouldReturnNullWhenPropertyIdIsNotFound() {
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When
-        fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
+        final StoreProperties unknownStoreProperties = fileGraphLibrary.getProperties("unknownPropertyId");
 
         // Then
-        assertNull(fileGraphLibrary.getProperties(PROPERTIES_ID + "1"));
+        assertNull(unknownStoreProperties);
+    }
+
+    @Test
+    public void shouldReturnNullWhenSChemaIdIsNotFound() {
+        // Given
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+
+        // When
+        final Schema unknownSchema = fileGraphLibrary.getSchema("unknownSchemaId");
+
+        // Then
+        assertNull(unknownSchema);
     }
 
     @Test
     public void shouldGetIdsWhenAllIdsMatch() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
         final StoreProperties storeProperties1 = new StoreProperties(GRAPH_ID);
         final Schema schema1 = new Schema.Builder()
                 .id(GRAPH_ID)
@@ -199,7 +209,7 @@ public class FileGraphLibraryTest {
     public void shouldGetIds() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When
         fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
@@ -212,7 +222,7 @@ public class FileGraphLibraryTest {
     public void shouldGetSchema() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When
         fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
@@ -225,23 +235,12 @@ public class FileGraphLibraryTest {
     public void shouldGetProperties() {
 
         // Given
-        fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
+        final FileGraphLibrary fileGraphLibrary = new FileGraphLibrary(TEST_FILE_PATH);
 
         // When
         fileGraphLibrary.add(GRAPH_ID, schema, storeProperties);
 
         // Then
         assertEquals(storeProperties, fileGraphLibrary.getProperties(PROPERTIES_ID));
-    }
-
-    private static void deleteTestFiles() {
-        final File dir = new File(TEST_FILE_PATH);
-        if (dir.exists()) {
-            final File[] children = dir.listFiles();
-            for (int i = 0; i < children.length; i++) {
-                children[i].delete();
-            }
-            dir.delete();
-        }
     }
 }
