@@ -64,7 +64,7 @@ public class GafferScannerTest {
 
     private static final List<Element> ELEMENTS = Arrays.asList(
             new Entity(TestGroups.ENTITY, "a"),
-            new Edge(TestGroups.EDGE, "b", "c", true)
+            new Edge.Builder().group(TestGroups.EDGE, "b", "c", true)
     );
 
     private final ElementSerialisation serialisation = new ElementSerialisation(SCHEMA);

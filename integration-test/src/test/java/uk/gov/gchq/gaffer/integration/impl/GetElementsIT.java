@@ -289,7 +289,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                     + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
                             expectedElements.contains(edge));
                 } else {
-                    final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
+                    final Edge edgeReversed = new Edge.Builder().group(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
 
                     Properties properties = edge.getProperties();
                     edgeReversed.copyProperties(properties);
@@ -322,19 +322,19 @@ public class GetElementsIT extends AbstractStoreIT {
             } else {
                 if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
                     if (BooleanUtils.isNotTrue(direction)) {
-                        final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), false);
+                        final Edge edge = new Edge.Builder().group(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), false);
                         edge.putProperty("intProperty", 1);
                         edge.putProperty("count", 1L);
                         elements.add(edge);
                     }
                     if (BooleanUtils.isNotFalse(direction)) {
-                        final Edge edgeDir = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), true);
+                        final Edge edgeDir = new Edge.Builder().group(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), true);
                         edgeDir.putProperty("intProperty", 1);
                         edgeDir.putProperty("count", 1L);
                         elements.add(edgeDir);
                     }
                 } else {
-                    final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), ((EdgeId) seed).isDirected());
+                    final Edge edge = new Edge.Builder().group(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), ((EdgeId) seed).isDirected());
                     edge.putProperty("intProperty", 1);
                     edge.putProperty("count", 1L);
                     elements.add(edge);

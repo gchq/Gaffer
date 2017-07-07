@@ -235,7 +235,7 @@ public class GetAllElementsIT extends AbstractStoreIT {
                 if (edge.isDirected()) {
                     assertTrue("Edge was not expected: " + edge, expectedElements.contains(edge));
                 } else {
-                    final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
+                    final Edge edgeReversed = new Edge.Builder().group(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
                     expectedElementsCopy.remove(edgeReversed);
                     assertTrue("Edge was not expected: " + seed, expectedElements.contains(result) || expectedElements.contains(edgeReversed));
                 }

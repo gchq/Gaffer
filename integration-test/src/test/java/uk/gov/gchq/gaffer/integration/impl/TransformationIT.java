@@ -54,7 +54,7 @@ public class TransformationIT extends AbstractStoreIT {
         addDefaultElements();
 
         final Collection<Element> elements = new ArrayList<>(2);
-        final Edge sampleEdgeWithTransientProperty = new Edge(TestGroups.EDGE, VERTEX + SOURCE, VERTEX + DEST, true);
+        final Edge sampleEdgeWithTransientProperty = new Edge.Builder().group(TestGroups.EDGE, VERTEX + SOURCE, VERTEX + DEST, true);
         sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.COUNT, 1L);
         sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
         elements.add(sampleEdgeWithTransientProperty);

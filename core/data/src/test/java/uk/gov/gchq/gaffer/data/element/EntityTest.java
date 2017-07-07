@@ -37,10 +37,10 @@ public class EntityTest extends ElementTest {
     @Test
     public void shouldSetAndGetFields() {
         // Given
-        final Entity entity = new Entity("group");
-
-        // When
-        entity.setVertex("identifier");
+        final Entity entity = new Entity.Builder()
+                .group("group")
+                .vertex("identifier")
+                .build();
 
         // Then
         assertEquals("group", entity.getGroup());

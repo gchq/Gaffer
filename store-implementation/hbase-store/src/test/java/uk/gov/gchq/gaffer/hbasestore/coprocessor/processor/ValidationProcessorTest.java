@@ -90,7 +90,7 @@ public class ValidationProcessorTest {
         final ValidationProcessor processor = new ValidationProcessor(SCHEMA);
 
         // When / Then
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "invalidVertex", "dest", true), serialisation)));
+        assertFalse(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "invalidVertex", "dest", true), serialisation)));
     }
 
     @Test
@@ -99,6 +99,6 @@ public class ValidationProcessorTest {
         final ValidationProcessor processor = new ValidationProcessor(SCHEMA);
 
         // When / Then
-        assertTrue(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validVertex", "dest", true), serialisation)));
+        assertTrue(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "validVertex", "dest", true), serialisation)));
     }
 }

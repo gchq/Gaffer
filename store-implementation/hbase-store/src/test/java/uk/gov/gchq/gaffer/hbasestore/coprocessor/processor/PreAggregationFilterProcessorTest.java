@@ -117,9 +117,9 @@ public class PreAggregationFilterProcessorTest {
         final PreAggregationFilterProcessor processor = new PreAggregationFilterProcessor(VIEW);
 
         // When / Then
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "invalidVertex", "dest", true), serialisation)));
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPostAggVertex", "dest", true), serialisation)));
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPostTransformVertex", "dest", true), serialisation)));
+        assertFalse(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "invalidVertex", "dest", true), serialisation)));
+        assertFalse(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "validPostAggVertex", "dest", true), serialisation)));
+        assertFalse(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "validPostTransformVertex", "dest", true), serialisation)));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class PreAggregationFilterProcessorTest {
         final PreAggregationFilterProcessor processor = new PreAggregationFilterProcessor(VIEW);
 
         // When / Then
-        assertTrue(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPreAggVertex", "dest", true), serialisation)));
+        assertTrue(processor.test(CellUtil.getLazyCell(new Edge.Builder().group(TestGroups.EDGE, "validPreAggVertex", "dest", true), serialisation)));
     }
 
 }

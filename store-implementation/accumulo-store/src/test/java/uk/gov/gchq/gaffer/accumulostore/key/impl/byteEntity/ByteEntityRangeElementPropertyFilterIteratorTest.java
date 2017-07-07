@@ -55,14 +55,44 @@ public class ByteEntityRangeElementPropertyFilterIteratorTest {
             .vertexSerialiser(new StringSerialiser())
             .build();
 
-    private static final List<Element> ELEMENTS = Arrays.asList(new Element[]{
-            new Edge(TestGroups.EDGE, "vertexA", "vertexB", true),
-            new Edge(TestGroups.EDGE, "vertexD", "vertexC", true),
-            new Edge(TestGroups.EDGE, "vertexE", "vertexE", true),
-            new Edge(TestGroups.EDGE, "vertexF", "vertexG", false),
-            new Edge(TestGroups.EDGE, "vertexH", "vertexH", false),
-            new Entity(TestGroups.ENTITY, "vertexI")}
-    );
+    private static final List<Element> ELEMENTS = Arrays.asList(
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexA")
+                    .dest("vertexB")
+                    .directed(true)
+                    .build(),
+
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexD")
+                    .dest("vertexC")
+                    .directed(true)
+                    .build(),
+
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexE")
+                    .dest("vertexE")
+                    .directed(true)
+                    .build(),
+
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexF")
+                    .dest("vertexG")
+                    .directed(false)
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexH")
+                    .dest("vertexH")
+                    .directed(false)
+                    .build(),
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("vertexI")
+                    .build());
 
     private final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(SCHEMA);
 

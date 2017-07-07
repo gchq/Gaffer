@@ -106,15 +106,17 @@ public class AccumuloRangeIDRetrieverTest {
     private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            final Edge edge = new Edge(TestGroups.EDGE);
             String s = "" + i;
             while (s.length() < 4) {
                 s = "0" + s;
             }
-            edge.setSource(s);
-            edge.setDestination("B");
-            edge.setDirected(false);
-            elements.add(edge);
+
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(s)
+                    .dest("B")
+                    .directed(false)
+                    .build());
         }
         try {
             final User user = new User();

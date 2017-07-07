@@ -60,7 +60,14 @@ public class ToArrayHandlerTest {
     @Test
     public void shouldConvertIterableOfElementsToArray() throws OperationException {
         // Given
-        final Element[] originalArray = new Element[]{new Entity("entity"), new Edge("edge")};
+        final Element[] originalArray = new Element[]{
+                new Entity.Builder()
+                        .group("entity")
+                        .build(),
+                new Edge.Builder()
+                        .group("edge")
+                        .build()
+        };
 
         final Iterable<Element> originalResults = new WrappedCloseableIterable<>(Arrays.asList(originalArray));
         final ToArrayHandler<Element> handler = new ToArrayHandler<>();
@@ -97,8 +104,12 @@ public class ToArrayHandlerTest {
     public void shouldConvertIterableOfElementsAndElementIdsToArray() throws OperationException {
         // Given
         final ElementId[] originalArray = new ElementId[]{
-                new Entity("entity"),
-                new Edge("edge"),
+                new Entity.Builder()
+                        .group("entity")
+                        .build(),
+                new Edge.Builder()
+                        .group("edge")
+                        .build(),
                 new EntitySeed("vertex"),
                 new EdgeSeed("src", "dest", true)
         };
@@ -121,7 +132,7 @@ public class ToArrayHandlerTest {
         // Given
         final Object[] originalArray = new Object[]{
                 new Entity("entity"),
-                new Edge("edge"),
+                new Edge.Builder().group("edge"),
                 new EntitySeed("vertex"),
                 new EdgeSeed("src", "dest", true),
                 1,

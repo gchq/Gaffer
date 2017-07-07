@@ -71,7 +71,7 @@ public class AggregationIT extends AbstractStoreIT {
 
         // Edge with existing ids but directed
         graph.execute(new AddElements.Builder()
-                .input(new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true))
+                .input(new Edge.Builder().group(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true))
                 .build(), getUser());
     }
 
@@ -93,7 +93,7 @@ public class AggregationIT extends AbstractStoreIT {
         final Entity expectedEntity = new Entity(TestGroups.ENTITY, AGGREGATED_SOURCE);
         expectedEntity.putProperty(TestPropertyNames.STRING, "3,3,3");
 
-        final Edge expectedEdge = new Edge(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
+        final Edge expectedEdge = new Edge.Builder().group(TestGroups.EDGE, AGGREGATED_SOURCE, AGGREGATED_DEST, false);
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 2L);
 
@@ -130,7 +130,7 @@ public class AggregationIT extends AbstractStoreIT {
         assertEquals(2, results.size());
         assertThat(results, IsCollectionContaining.hasItems(
                 getEdge(NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, false),
-                new Edge(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)
+                new Edge.Builder().group(TestGroups.EDGE, NON_AGGREGATED_SOURCE, NON_AGGREGATED_DEST, true)
         ));
     }
 
