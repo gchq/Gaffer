@@ -13,6 +13,17 @@
       "groupBy": [
         "startDate",
         "endDate"
+      ],
+      "validateFunctions": [
+        {
+          "selection": [
+            "startDate",
+            "endDate"
+          ],
+          "predicate": {
+            "class": "uk.gov.gchq.koryphe.impl.predicate.IsXLessThanY"
+          }
+        }
       ]
     },
     "RoadHasJunction": {
