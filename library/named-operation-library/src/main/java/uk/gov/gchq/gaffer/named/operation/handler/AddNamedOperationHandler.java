@@ -60,7 +60,7 @@ public class AddNamedOperationHandler implements OperationHandler<AddNamedOperat
     public Void doOperation(final AddNamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
             final NamedOperationDetail namedOperationDetail = new NamedOperationDetail.Builder()
-                    .operationChain(operation.getOperationChain())
+                    .operationChain(operation.getOperationChainAsString())
                     .operationName(operation.getOperationName())
                     .creatorId(context.getUser().getUserId())
                     .readers(operation.getReadAccessRoles())

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -257,5 +258,18 @@ public class JSONSerialiser {
     @JsonIgnore
     public ObjectMapper getMapper() {
         return mapper;
+    }
+
+    /**
+     * @param content the {@link java.lang.String} containing the bytes of the object to deserialise
+     * @return the deserialised object
+     * @throws SerialisationException if the bytes fail to deserialise
+     */
+    public JsonNode getJsonNodeFromString(final String content) throws SerialisationException {
+        try {
+            return mapper.readTree(content);
+        } catch (IOException e) {
+            throw new SerialisationException(e.getMessage(), e);
+        }
     }
 }

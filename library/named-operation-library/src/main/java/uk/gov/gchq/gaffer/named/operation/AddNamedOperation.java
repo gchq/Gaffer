@@ -60,9 +60,17 @@ public class AddNamedOperation implements Operation {
         this.operations = opChainNode.toString();
     }
 
-    @JsonGetter("operationChain")
-    public String getOperationChain() {
+    public String getOperationChainAsString() {
         return operations;
+    }
+
+    @JsonGetter("operationChain")
+    public JsonNode getOperationChain() {
+        try {
+            return SERIALISER.getJsonNodeFromString(operations);
+        } catch (SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     public void setOperationChain(final OperationChain operationChain) {
