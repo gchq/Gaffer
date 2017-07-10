@@ -107,6 +107,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         } catch (final AccumuloException | AccumuloSecurityException e) {
             throw new RuntimeException("Exception connecting to Accumulo", e);
         }
+        LOGGER.info("Obtained connection to instance {} as user {}", instanceName, user);
 
         try {
             // Check user has access
@@ -188,7 +189,8 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
             } else if (fields.length == 1) {
                 tabletName = LAST_TABLET;
             } else {
-                throw new RuntimeException("TODO");
+                throw new RuntimeException("Row in accumulo.metadata didn't have the expected number of fields: "
+                + "Expected 1 or 2, got " + fields.length);
             }
 
             // Detect start of a new tablet

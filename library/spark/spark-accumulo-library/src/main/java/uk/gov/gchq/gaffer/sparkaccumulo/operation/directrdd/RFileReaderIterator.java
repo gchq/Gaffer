@@ -49,7 +49,6 @@ import java.util.Set;
  * a set of RFiles.
  */
 public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Value>> {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(RFileReaderIterator.class);
     private final Partition partition;
     private final TaskContext taskContext;
@@ -95,7 +94,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     }
 
     private void init() throws IOException {
-        LOGGER.error("Initialising RFileReaderIterator");
+        LOGGER.info("Initialising RFileReaderIterator");
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
         final Configuration conf = new Configuration();
         final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance(DefaultConfiguration.getInstance());

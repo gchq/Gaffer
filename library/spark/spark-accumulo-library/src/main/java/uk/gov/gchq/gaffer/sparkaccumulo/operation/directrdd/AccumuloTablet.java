@@ -28,19 +28,16 @@ import java.util.Set;
  * identify which partition this tablet is in.
  */
 public class AccumuloTablet implements Serializable, Partition {
-//    private final String name;
     private final int rddId;
     private final int index;
     private final String start;
     private final String end;
     private final Set<String> files;
 
-    public AccumuloTablet(//final String name,
-                          final int rddId,
+    public AccumuloTablet(final int rddId,
                           final int index,
                           final String start,
                           final String end) {
-//        this.name = name;
         this.rddId = rddId;
         this.index = index;
         this.start = start;
