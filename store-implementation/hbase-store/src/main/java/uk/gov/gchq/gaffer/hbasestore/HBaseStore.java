@@ -98,22 +98,33 @@ public class HBaseStore extends Store {
     private Connection connection;
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties)
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        preInitialise(schema, properties);
+        preInitialise(graphId, schema, properties);
         TableUtils.ensureTableExists(this);
     }
 
     /**
      * Performs general initialisation without creating the table.
      *
+     * @param graphId    the graph ID
      * @param schema     the gaffer Schema
      * @param properties the hbase store properties
      * @throws StoreException the store could not be initialised.
      */
-    public void preInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
-        super.initialise(schema, properties);
+        final String deprecatedTableName = ((HBaseProperties) properties).getTableName();
+        if (null == graphId && null != deprecatedTableName) {
+            // Deprecated
+            super.initialise(deprecatedTableName, schema, properties);
+        } else if (null != deprecatedTableName && !deprecatedTableName.equals(graphId)) {
+            throw new IllegalArgumentException(
+                    "The table in store.properties should no longer be used. " +
+                            "Please use a graphId instead or for now just set the graphId to be the same value as the store.properties table.");
+        } else {
+            super.initialise(graphId, schema, properties);
+        }
     }
 
     public Configuration getConfiguration() {
@@ -135,6 +146,10 @@ public class HBaseStore extends Store {
         return connection;
     }
 
+    public TableName getTableName() {
+        return TableName.valueOf(getGraphId());
+    }
+
     /**
      * Gets the HBase table.
      *
@@ -142,7 +157,7 @@ public class HBaseStore extends Store {
      * @throws StoreException if a reference to the table could not be created.
      */
     public HTable getTable() throws StoreException {
-        final TableName tableName = getProperties().getTable();
+        final TableName tableName = getTableName();
         final Connection connection = getConnection();
         try {
             return (HTable) connection.getTable(tableName);

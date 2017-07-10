@@ -29,24 +29,24 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
  */
 public class SingleUseAccumuloStore extends AccumuloStore {
     @Override
-    public void preInitialise(final Schema schema, final StoreProperties properties)
+    public void preInitialise(final String graphId, final Schema schema, final StoreProperties properties)
             throws StoreException {
         // Initialise is deliberately called both before and after the deletion of the table.
         // The first call sets up a connection to the Accumulo instance
         // The second call is used to re-create the table
 
         try {
-            super.preInitialise(schema, properties);
+            super.preInitialise(graphId, schema, properties);
         } catch (final StoreException e) {
             // This is due to an invalid table, but the table is about to be deleted to we can ignore it.
         }
 
         try {
-            getConnection().tableOperations().delete(getProperties().getTable());
+            getConnection().tableOperations().delete(getTableName());
         } catch (final StoreException | AccumuloException | AccumuloSecurityException | TableNotFoundException e) {
             // no action required
         }
-        super.preInitialise(schema, properties);
+        super.preInitialise(graphId, schema, properties);
     }
 
 }

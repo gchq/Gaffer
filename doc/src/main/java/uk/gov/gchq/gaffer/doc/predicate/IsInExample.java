@@ -36,6 +36,8 @@ public class IsInExample extends PredicateExample {
         final IsIn function = new IsIn(5, 5L, "5", '5');
         // ---------------------------------------------------------
 
-        runExample(function, 5, 5L, "5", '5', 1, 1L, "1", '1');
+        runExample(function,
+                null,
+                5, 5L, "5", '5', 1, 1L, "1", '1');
     }
 }

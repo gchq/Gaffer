@@ -32,13 +32,17 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
-import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
+import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.coprocessor.GafferCoprocessor;
 import uk.gov.gchq.gaffer.store.StoreException;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.koryphe.ValidationResult;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +57,7 @@ import java.util.Map;
  */
 public final class TableUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableUtils.class);
-    private static final int NUM_REQUIRED_ARGS = 2;
+    private static final int NUM_REQUIRED_ARGS = 3;
 
     private TableUtils() {
     }
@@ -65,28 +69,69 @@ public final class TableUtils {
      * Running this with an existing table will remove the existing Gaffer Coprocessor and recreate it.
      * </p>
      * <p>
+     * A FileGraphLibrary path must be specified as an argument.  If no path is set NoGraphLibrary will be used.
+     * </p>
+     * <p>
      * Usage:
      * </p>
      * <p>
-     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [pathToSchemaDirectory] [pathToStoreProperties]
+     * java -cp hbase-store-[version]-utility.jar uk.gov.gchq.gaffer.hbasestore.utils.TableUtils [graphId] [pathToSchemaDirectory] [pathToStoreProperties] [pathToFileGraphLibrary]
      * </p>
      *
-     * @param args [schema directory path] [store properties path]
+     * @param args [graphId] [schema directory path] [store properties path] [ file graph library path]
      * @throws Exception if the tables fails to be created/updated
      */
     public static void main(final String[] args) throws Exception {
         if (args.length < NUM_REQUIRED_ARGS) {
             System.err.println("Wrong number of arguments. \nUsage: "
-                    + "<schema directory path> <store properties path>");
+                    + "<graphId> <schema directory path> <store properties path> <file graph library path>");
             System.exit(1);
         }
 
-        final HBaseStore store = new HBaseStore();
-        store.preInitialise(Schema.fromJson(Paths.get(args[0])),
-                HBaseProperties.loadStoreProperties(args[1]));
+        final StoreProperties storeProps = StoreProperties.loadStoreProperties(getStorePropertiesPathString(args));
+        if (null == storeProps) {
+            throw new IllegalArgumentException("Store properties are required to create a store");
+        }
+
+        final Schema schema = Schema.fromJson(getSchemaDirectoryPath(args));
+
+        GraphLibrary library;
+
+        if (getFileGraphLibraryPathString(args) == null) {
+            library = new NoGraphLibrary();
+        } else {
+            library = new FileGraphLibrary(getFileGraphLibraryPathString(args));
+        }
+
+        library.addOrUpdate(getGraphId(args), schema, storeProps);
+
+        final String storeClass = storeProps.getStoreClass();
+        if (null == storeClass) {
+            throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
+        }
+
+        final HBaseStore store;
+        try {
+            store = Class.forName(storeClass).asSubclass(HBaseStore.class).newInstance();
+        } catch (final InstantiationException | IllegalAccessException |
+                ClassNotFoundException e
+                ) {
+            throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
+        }
+
+        store.preInitialise(
+                getGraphId(args),
+                schema,
+                storeProps
+        );
+
+        if (!store.getConnection().getAdmin()
+                .tableExists(store.getTableName())) {
+            createTable(store);
+        }
 
         try (final Admin admin = store.getConnection().getAdmin()) {
-            final TableName tableName = store.getProperties().getTable();
+            final TableName tableName = store.getTableName();
             if (admin.tableExists(tableName)) {
                 final HTableDescriptor descriptor = admin.getTableDescriptor(tableName);
                 descriptor.removeCoprocessor(GafferCoprocessor.class.getName());
@@ -96,6 +141,26 @@ public final class TableUtils {
                 TableUtils.createTable(store);
             }
         }
+
+    }
+
+    private static String getGraphId(final String[] args) {
+        return args[0];
+    }
+
+    private static Path getSchemaDirectoryPath(final String[] args) {
+        return Paths.get(args[1]);
+    }
+
+    private static String getStorePropertiesPathString(final String[] args) {
+        return args[2];
+    }
+
+    private static String getFileGraphLibraryPathString(final String[] args) {
+        if (args.length > 3) {
+            return args[3];
+        }
+        return null;
     }
 
     /**
@@ -107,7 +172,7 @@ public final class TableUtils {
      */
     public static void ensureTableExists(final HBaseStore store) throws StoreException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try {
             final Admin admin = connection.getAdmin();
             if (admin.tableExists(tableName)) {
@@ -139,7 +204,7 @@ public final class TableUtils {
      */
     public static synchronized void createTable(final HBaseStore store)
             throws StoreException {
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try {
             final Admin admin = store.getConnection().getAdmin();
             if (admin.tableExists(tableName)) {
@@ -170,9 +235,9 @@ public final class TableUtils {
     public static void deleteAllRows(final HBaseStore store, final String... auths) throws StoreException {
         final Connection connection = store.getConnection();
         try {
-            if (connection.getAdmin().tableExists(store.getProperties().getTable())) {
-                connection.getAdmin().flush(store.getProperties().getTable());
-                final Table table = connection.getTable(store.getProperties().getTable());
+            if (connection.getAdmin().tableExists(store.getTableName())) {
+                connection.getAdmin().flush(store.getTableName());
+                final Table table = connection.getTable(store.getTableName());
                 final Scan scan = new Scan();
                 scan.setAuthorizations(new Authorizations(auths));
                 try (ResultScanner scanner = table.getScanner(scan)) {
@@ -181,26 +246,22 @@ public final class TableUtils {
                         deletes.add(new Delete(result.getRow()));
                     }
                     table.delete(deletes);
-                    connection.getAdmin().flush(store.getProperties().getTable());
+                    connection.getAdmin().flush(store.getTableName());
                 }
 
                 try (ResultScanner scanner = table.getScanner(scan)) {
                     if (scanner.iterator().hasNext()) {
-                        throw new StoreException("Some rows in table " + store.getProperties().getTable() + " failed to delete");
+                        throw new StoreException("Some rows in table " + store.getTableName() + " failed to delete");
                     }
                 }
             }
         } catch (final IOException e) {
-            throw new StoreException("Failed to delete all rows in table " + store.getProperties().getTable(), e);
+            throw new StoreException("Failed to delete all rows in table " + store.getTableName(), e);
         }
     }
 
     public static void dropTable(final HBaseStore store) throws StoreException {
-        dropTable(store.getConnection(), store.getProperties());
-    }
-
-    public static void dropTable(final Connection connection, final HBaseProperties properties) throws StoreException {
-        dropTable(connection, properties.getTable());
+        dropTable(store.getConnection(), store.getTableName());
     }
 
     public static void dropTable(final Connection connection, final TableName tableName) throws StoreException {

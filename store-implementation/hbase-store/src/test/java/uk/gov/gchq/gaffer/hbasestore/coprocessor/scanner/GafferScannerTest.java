@@ -63,8 +63,16 @@ public class GafferScannerTest {
             .build();
 
     private static final List<Element> ELEMENTS = Arrays.asList(
-            new Entity(TestGroups.ENTITY, "a"),
-            new Edge(TestGroups.EDGE, "b", "c", true)
+            new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("a")
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("b")
+                    .dest("c")
+                    .directed(true)
+                    .build()
     );
 
     private final ElementSerialisation serialisation = new ElementSerialisation(SCHEMA);

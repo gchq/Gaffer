@@ -15,14 +15,14 @@
  */
 package uk.gov.gchq.gaffer.serialisation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
@@ -63,9 +63,9 @@ public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
-                new Pair<>(new Date(1985, 10, 26, 9, 0, 0), new byte[]{54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
-                new Pair<>(new Date(2015, 10, 21, 7, 28, 0), new byte[]{54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
-                new Pair<>(new Date(1955, 11, 12, 6, 38, 0), new byte[]{53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
+                new Pair<>(new Date(60460074000000L), new byte[]{54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
+                new Pair<>(new Date(61406234880000L), new byte[]{54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
+                new Pair<>(new Date(59514676680000L), new byte[]{53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
         };
     }
 }

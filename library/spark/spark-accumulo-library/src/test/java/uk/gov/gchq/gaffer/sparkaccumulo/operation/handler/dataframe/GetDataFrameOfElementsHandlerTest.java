@@ -28,6 +28,7 @@ import org.junit.Test;
 import scala.collection.mutable.Map;
 import scala.collection.mutable.Map$;
 import scala.collection.mutable.MutableList;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
@@ -507,6 +508,7 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private Graph getGraph(final String dataSchema, final List<Element> elements) throws OperationException {
         final Graph graph = new Graph.Builder()
+                .graphId("graphId")
                 .addSchema(getClass().getResourceAsStream(dataSchema))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/dataTypes.json"))
                 .addSchema(getClass().getResourceAsStream("/schema-DataFrame/storeTypes.json"))
@@ -529,36 +531,39 @@ public class GetDataFrameOfElementsHandlerTest {
     static List<Element> getElements() {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < NUM_ELEMENTS; i++) {
-            final Entity entity = new Entity(ENTITY_GROUP);
-            entity.setVertex("" + i);
-            entity.putProperty("columnQualifier", 1);
-            entity.putProperty("property1", i);
-            entity.putProperty("property2", 3.0F);
-            entity.putProperty("property3", 4.0D);
-            entity.putProperty("property4", 5L);
-            entity.putProperty("count", 6L);
+            final Entity entity = new Entity.Builder().group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("columnQualifier", 1)
+                    .property("property1", i)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 6L)
+                    .build();
 
-            final Edge edge1 = new Edge(EDGE_GROUP);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(true);
-            edge1.putProperty("columnQualifier", 1);
-            edge1.putProperty("property1", 2);
-            edge1.putProperty("property2", 3.0F);
-            edge1.putProperty("property3", 4.0D);
-            edge1.putProperty("property4", 5L);
-            edge1.putProperty("count", 100L);
+            final Edge edge1 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(true)
+                    .property("columnQualifier", 1)
+                    .property("property1", 2)
+                    .property("property2", 3.0F)
+                    .property("property3", 4.0D)
+                    .property("property4", 5L)
+                    .property("count", 100L)
+                    .build();
 
-            final Edge edge2 = new Edge(EDGE_GROUP);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-            edge2.putProperty("columnQualifier", 6);
-            edge2.putProperty("property1", 7);
-            edge2.putProperty("property2", 8.0F);
-            edge2.putProperty("property3", 9.0D);
-            edge2.putProperty("property4", 10L);
-            edge2.putProperty("count", i * 200L);
+            final Edge edge2 = new Edge.Builder().group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .property("columnQualifier", 6)
+                    .property("property1", 7)
+                    .property("property2", 8.0F)
+                    .property("property3", 9.0D)
+                    .property("property4", 10L)
+                    .property("count", i * 200L)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -569,20 +574,28 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private static List<Element> getElementsWithNonStandardProperties() {
         final List<Element> elements = new ArrayList<>();
-        final Entity entity = new Entity(ENTITY_GROUP);
-        entity.setVertex("A");
+
         final FreqMap freqMap = new FreqMap();
         freqMap.put("W", 10L);
         freqMap.put("X", 100L);
-        entity.putProperty("freqMap", freqMap);
+
         final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
         hllpp.offer("AAA");
-        entity.putProperty("hllpp", hllpp);
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("A")
+                .property("freqMap", freqMap)
+                .property("hllpp", hllpp)
+                .build();
         elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
-        edge.setSource("B");
-        edge.setDestination("C");
-        edge.setDirected(true);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("B")
+                .dest("C")
+                .directed(true)
+                .build();
         final FreqMap freqMap2 = new FreqMap();
         freqMap2.put("Y", 1000L);
         freqMap2.put("Z", 10000L);
@@ -597,25 +610,35 @@ public class GetDataFrameOfElementsHandlerTest {
 
     private static List<Element> getElementsForUserDefinedConversion() {
         final List<Element> elements = new ArrayList<>();
-        final Entity entity = new Entity(ENTITY_GROUP);
-        entity.setVertex("A");
+
         final FreqMap freqMap = new FreqMap();
         freqMap.put("W", 10L);
         freqMap.put("X", 100L);
-        entity.putProperty("freqMap", freqMap);
+
         final HyperLogLogPlus hllpp = new HyperLogLogPlus(5, 5);
         hllpp.offer("AAA");
-        entity.putProperty("hllpp", hllpp);
-        entity.putProperty("myProperty", new MyProperty(10));
+
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("A")
+                .property("freqMap", freqMap)
+                .property("hllpp", hllpp)
+                .property("myProperty", new MyProperty(10))
+                .build();
         elements.add(entity);
-        final Edge edge = new Edge(EDGE_GROUP);
-        edge.setSource("B");
-        edge.setDestination("C");
-        edge.setDirected(true);
+
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("B")
+                .dest("C")
+                .directed(true)
+                .build();
+
         final FreqMap freqMap2 = new FreqMap();
         freqMap2.put("Y", 1000L);
         freqMap2.put("Z", 10000L);
         edge.putProperty("freqMap", freqMap2);
+
         final HyperLogLogPlus hllpp2 = new HyperLogLogPlus(5, 5);
         hllpp2.offer("AAA");
         hllpp2.offer("BBB");

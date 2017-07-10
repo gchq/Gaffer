@@ -28,6 +28,7 @@
 
     <modules>
         <module>road-traffic</module>
+        <module>basic</module>
     </modules>
 
     <build>

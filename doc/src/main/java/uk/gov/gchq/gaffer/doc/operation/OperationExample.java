@@ -106,7 +106,7 @@ public abstract class OperationExample extends Example {
             final Output<RESULT_TYPE> operation, final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         if (StringUtils.isNotBlank(description)) {
-            log(description);
+            log(description + "\n");
         }
         printGraph();
         printMethodJavaSnippet();
@@ -186,6 +186,7 @@ public abstract class OperationExample extends Example {
 
     protected Graph createExampleGraph() {
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "operation/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

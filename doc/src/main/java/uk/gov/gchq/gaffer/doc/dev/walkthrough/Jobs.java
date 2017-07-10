@@ -45,6 +45,7 @@ public class Jobs extends DevWalkthrough {
         /// [graph] create a graph using our schema and store properties
         // ---------------------------------------------------------
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "RoadAndRoadUseWithTimesAndCardinalities/schema"))
                 .storeProperties(StreamUtil.openStream(getClass(), "mockaccumulostore.properties"))
                 .build();

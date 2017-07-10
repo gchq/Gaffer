@@ -16,6 +16,19 @@
 
 package uk.gov.gchq.gaffer.jsonSerialisation;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Before;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
+import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
+import java.io.IOException;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -23,19 +36,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.CommonConstants;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
-import uk.gov.gchq.gaffer.serialisation.ParameterisedTestObject;
-import uk.gov.gchq.gaffer.serialisation.SimpleTestObject;
-import java.io.IOException;
 
 public class JSONSerialiserTest {
 
@@ -109,7 +109,7 @@ public class JSONSerialiserTest {
         SimpleTestObject test = new SimpleTestObject();
         test.setX("TestValue1");
         byte[] bytes = serialiser.serialise(test, true);
-        JsonUtil.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
+        JsonAssert.assertEquals(String.format("{%n  \"x\" : \"TestValue1\"%n}"), new String(bytes));
     }
 
     @Test

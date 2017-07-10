@@ -42,6 +42,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.surefire.tests>false</skip.surefire.tests>
         <skip.failsafe.tests>false</skip.failsafe.tests>
+        <exclude.tests/>
 
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -57,6 +58,7 @@
 
         <koryphe.version>0.1.2</koryphe.version>
         <accumulo.version>1.7.2</accumulo.version>
+        <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
         <hadoop.version>2.6.5</hadoop.version>
         <jackson.compile.version>2.6.5</jackson.compile.version>
@@ -552,6 +554,9 @@
                 <configuration>
                     <argLine>${surefireArgLine}</argLine>
                     <skipTests>${skip.surefire.tests}</skipTests>
+                    <excludes>
+                        <exclude>${exclude.tests}</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -573,6 +578,7 @@
                     <excludes>
                         <exclude>**/*$*</exclude>
                         <exclude>**/performance/**</exclude>
+                        <exclude>${exclude.tests}</exclude>
                     </excludes>
                     <includes>
                         <include>**/*IntegrationTest.java</include>
@@ -1041,6 +1047,10 @@
         </profile>
         <profile>
             <id>travis</id>
+            <properties>
+                <!-- The flink integration tests don't run on Travis CI -->
+                <exclude.tests>**/flink/**/*IT.java</exclude.tests>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
