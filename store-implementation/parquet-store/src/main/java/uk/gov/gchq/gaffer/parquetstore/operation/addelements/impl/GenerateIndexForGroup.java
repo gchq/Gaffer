@@ -93,6 +93,8 @@ public class GenerateIndexForGroup implements Callable<OperationException>, Seri
             for (int n = 0; n < columnChunks.size(); n++) {
                 if (columnChunks.get(n).getPath().toDotString().equals(path)) {
                     final OriginalType type = parquetMetadata.getFileMetaData().getSchema().getFields().get(n).getOriginalType();
+                    // the column index value is turned negative to show that the data is actually a String rather than a byte[]
+                    //TODO this should be changed to pull the parquet schema's original type as well as the column indices
                     if (type != null && "UTF8".equals(type.name())) {
                         columnindexes[i] = -n;
                     } else {

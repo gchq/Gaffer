@@ -140,13 +140,9 @@ public class AggregateAndSortGroup implements Callable<OperationException>, Seri
                         isEntity, propertyToAggregatorMap);
                 final JavaPairRDD<Seq<Object>, GenericRowWithSchema> groupedData = data.javaRDD()
                         .mapToPair(row -> Tuple2$.MODULE$.apply(keyExtractor.call(row), (GenericRowWithSchema) row));
-                LOGGER.debug("The data as a key/value pair ready to aggregate, looks like:");
-                if (LOGGER.isDebugEnabled()) {
-                    groupedData.take(20).forEach(row -> LOGGER.debug(row.toString()));
-                }
                 final List<Tuple2<Seq<Object>, GenericRowWithSchema>> kvList = groupedData.take(1);
                 if (0 == kvList.size()) {
-                    LOGGER.warn("No data was returned in AggregateAndSortGroup");
+                    LOGGER.warn("No data was returned in AggregateAndSortGroup for group = {}", group);
                     return null;
                 }
                 final Tuple2<Seq<Object>, GenericRowWithSchema> kv = kvList.get(0);
