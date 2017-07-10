@@ -17,17 +17,21 @@
 package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class ExportToOtherGraph<T> implements
         Operation,
         ExportTo<T> {
     private T input;
     private String graphId;
-    private GraphLibrary graphLibrary;
+    private Schema schema;
+    private String storePropertiesId;
+    private String graphLibraryPath;
+    private StoreProperties storeProperties;
 
     @Override
     public String getKey() {
@@ -49,6 +53,22 @@ public class ExportToOtherGraph<T> implements
         this.input = input;
     }
 
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(final Schema schema) {
+        this.schema = schema;
+    }
+
+    public String getStorePropertiesId() {
+        return storePropertiesId;
+    }
+
+    public void setStorePropertiesId(final String storePropertiesId) {
+        this.storePropertiesId = storePropertiesId;
+    }
+
     public String getGraphId() {
         return graphId;
     }
@@ -57,12 +77,20 @@ public class ExportToOtherGraph<T> implements
         this.graphId = graphId;
     }
 
-    public GraphLibrary getGraphLibrary() {
-        return graphLibrary;
+    public StoreProperties getStoreProperties() {
+        return storeProperties;
     }
 
-    public void setGraphLibrary(final GraphLibrary graphLibrary) {
-        this.graphLibrary = graphLibrary;
+    public void setStoreProperties(final StoreProperties storeProperties) {
+        this.storeProperties = storeProperties;
+    }
+
+    public String getGraphLibraryPath() {
+        return graphLibraryPath;
+    }
+
+    public void setGraphLibraryPath(final String graphLibraryPath) {
+        this.graphLibraryPath = graphLibraryPath;
     }
 
     @Override
@@ -81,8 +109,23 @@ public class ExportToOtherGraph<T> implements
             return _self();
         }
 
-        public Builder<T> graphLibrary(final GraphLibrary graphLibrary) {
-            _getOp().setGraphLibrary(graphLibrary);
+        public Builder<T> graphLibraryPath(final String graphLibraryPath) {
+            _getOp().setGraphLibraryPath(graphLibraryPath);
+            return _self();
+        }
+
+        public Builder<T> storePropertiesId(final String storePropertiesId) {
+            _getOp().setStorePropertiesId(storePropertiesId);
+            return _self();
+        }
+
+        public Builder<T> storeProperties(final StoreProperties storeProperties) {
+            _getOp().setStoreProperties(storeProperties);
+            return _self();
+        }
+
+        public Builder<T> schema(final Schema schema) {
+            _getOp().setSchema(schema);
             return _self();
         }
     }
