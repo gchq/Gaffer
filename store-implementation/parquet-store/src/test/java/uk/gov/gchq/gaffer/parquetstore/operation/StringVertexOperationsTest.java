@@ -65,6 +65,7 @@ public class StringVertexOperationsTest extends AbstractOperationsTest {
         return new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(pp)
+                .graphId("test")
                 .build();
     }
 

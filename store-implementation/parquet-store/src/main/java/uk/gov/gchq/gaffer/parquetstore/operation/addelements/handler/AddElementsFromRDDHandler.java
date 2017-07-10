@@ -22,6 +22,7 @@ import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.parquetstore.Index;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
@@ -113,10 +114,10 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
         if (fs.exists(tempReversePath)) {
             fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
         }
-        // Set the data dir property
-        store.setCurrentSnapshot(snapshot);
         // Reload indices
-        store.loadIndices();
+        final Index newIndex = new Index();
+        newIndex.loadIndices(fs, store);
+        store.setIndex(newIndex);
     }
 
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {

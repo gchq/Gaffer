@@ -98,6 +98,7 @@ public abstract class AbstractSparkOperationsTest {
         return new Graph.Builder()
                 .addSchema(optimiser.optimise(schema, true))
                 .storeProperties(properties)
+                .graphId("test")
                 .build();
     }
 

@@ -99,6 +99,7 @@ public class EdgeCasesTest {
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetProperties)
+                .graphId("test")
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(1);
@@ -132,6 +133,7 @@ public class EdgeCasesTest {
         final Graph graph = new Graph.Builder()
                 .addSchema(optimiser.optimise(gafferSchema, true))
                 .storeProperties(parquetProperties)
+                .graphId("test")
                 .build();
         graph.execute(new AddElements.Builder().input(elements).build(), USER);
 
@@ -161,6 +163,7 @@ public class EdgeCasesTest {
         final Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetProperties)
+                .graphId("test")
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(2);
@@ -197,6 +200,7 @@ public class EdgeCasesTest {
         Graph graph = new Graph.Builder()
                 .addSchemas(gafferSchema)
                 .storeProperties(parquetProperties)
+                .graphId("test")
                 .build();
 
         final ArrayList<Element> elements = new ArrayList<>(2);

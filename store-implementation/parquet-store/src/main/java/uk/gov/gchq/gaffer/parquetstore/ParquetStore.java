@@ -18,17 +18,11 @@ package uk.gov.gchq.gaffer.parquetstore;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.parquet.bytes.BytesUtils;
-import org.apache.parquet.io.api.Binary;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -78,7 +72,6 @@ public class ParquetStore extends Store {
     private Index index;
     private SchemaUtils schemaUtils;
     private FileSystem fs;
-    private long currentSnapshot;
 
     @Override
     protected SchemaOptimiser createSchemaOptimiser() {
@@ -95,7 +88,8 @@ public class ParquetStore extends Store {
             throw new StoreException("Could not connect to the file system", e);
         }
         schemaUtils = new SchemaUtils(getSchema());
-        loadIndices();
+        index = new Index();
+        index.loadIndices(fs, this);
     }
 
     public FileSystem getFS() throws StoreException {
@@ -173,7 +167,7 @@ public class ParquetStore extends Store {
 
     @Override
     protected Object doUnhandledOperation(final Operation operation, final Context context) {
-        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not supported by the ParquetStore.");
+        throw new UnsupportedOperationException("Operation " + operation.getClass() + " is not getSnapshotTimestampsupported by the ParquetStore.");
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST_OF_RETURN_VALUE", justification = "The properties should always be ParquetStoreProperties")
@@ -182,146 +176,12 @@ public class ParquetStore extends Store {
         return (ParquetStoreProperties) super.getProperties();
     }
 
-    public void loadIndices() throws StoreException {
-        LOGGER.info("Loading indices");
-        try {
-            final Index newIndex = new Index();
-            final FileSystem fs = getFS();
-            final Path rootDir = new Path(getProperties().getDataDir());
-            if (fs.exists(rootDir)) {
-                final FileStatus[] snapshots = fs.listStatus(rootDir);
-                long latestSnapshot = getCurrentSnapshot();
-                for (final FileStatus fileStatus : snapshots) {
-                    final String snapshot = fileStatus.getPath().getName();
-                    long currentSnapshot = Long.parseLong(snapshot);
-                    if (latestSnapshot < currentSnapshot) {
-                        latestSnapshot = currentSnapshot;
-                    }
-                }
-                LOGGER.info("Latest snapshot is {}", latestSnapshot);
-                if (latestSnapshot != 0L) {
-                    for (final String group : schemaUtils.getEntityGroups()) {
-                        final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.VERTEX, latestSnapshot);
-                        if (!subIndex.isEmpty()) {
-                            newIndex.add(group, subIndex);
-                        }
-                    }
-                    for (final String group : schemaUtils.getEdgeGroups()) {
-                        final Index.SubIndex subIndex = loadIndex(group, ParquetStoreConstants.SOURCE, latestSnapshot);
-                        if (!subIndex.isEmpty()) {
-                            newIndex.add(group, subIndex);
-                        }
-                        final Index.SubIndex reverseSubIndex = loadIndex(group, ParquetStoreConstants.DESTINATION, latestSnapshot);
-                        if (!reverseSubIndex.isEmpty()) {
-                            newIndex.add(group + "_reversed", reverseSubIndex);
-                        }
-                    }
-                }
-                setCurrentSnapshot(latestSnapshot);
-            }
-            index = newIndex;
-        } catch (final IOException e) {
-            throw new StoreException("Failed to connect to the file system", e);
-        }
-    }
-
-    private Index.SubIndex loadIndex(final String group,
-                                     final String identifier,
-                                     final long currentSnapshot) throws StoreException {
-        try {
-            final String indexDir;
-            final Path path;
-            if (ParquetStoreConstants.VERTEX.equals(identifier)) {
-                indexDir = getProperties().getDataDir()
-                        + "/" + currentSnapshot
-                        + "/" + ParquetStoreConstants.GRAPH
-                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + ParquetStoreConstants.INDEX);
-            } else if (ParquetStoreConstants.SOURCE.equals(identifier)) {
-                indexDir = getProperties().getDataDir()
-                        + "/" + currentSnapshot
-                        + "/" + ParquetStoreConstants.GRAPH
-                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + ParquetStoreConstants.INDEX);
-            } else {
-                indexDir = getProperties().getDataDir()
-                        + "/" + currentSnapshot
-                        + "/" + ParquetStoreConstants.REVERSE_EDGES
-                        + "/" + ParquetStoreConstants.GROUP + "=" + group + "/";
-                path = new Path(indexDir + ParquetStoreConstants.INDEX);
-            }
-            LOGGER.info("Loading the index from path {}", path);
-            final Index.SubIndex subIndex = new Index.SubIndex();
-            final FileSystem fs = getFS();
-            if (fs.exists(path)) {
-                final FSDataInputStream reader = fs.open(path);
-                while (reader.available() > 0) {
-                    final int numOfCols = reader.readInt();
-                    final Object[] minObjects = new Object[numOfCols];
-                    final Object[] maxObjects = new Object[numOfCols];
-                    for (int i = 0; i < numOfCols; i++) {
-                        final int colTypeLength = reader.readInt();
-                        final byte[] colType = readBytes(colTypeLength, reader);
-                        final int minLength = reader.readInt();
-                        final byte[] min = readBytes(minLength, reader);
-                        minObjects[i] = deserialiseColumn(colType, min);
-                        final int maxLength = reader.readInt();
-                        final byte[] max = readBytes(maxLength, reader);
-                        maxObjects[i] = deserialiseColumn(colType, max);
-                    }
-                    final int filePathLength = reader.readInt();
-                    final byte[] filePath = readBytes(filePathLength, reader);
-                    final String fileString = StringUtil.toString(filePath);
-                    subIndex.add(new Index.MinMaxPath(minObjects, maxObjects, indexDir + fileString));
-                }
-            }
-            return subIndex;
-        } catch (final IOException e) {
-            throw new StoreException("IOException while loading the index from " + getProperties().getDataDir()
-                    + "/" + getCurrentSnapshot()
-                    + "/" + (ParquetStoreConstants.DESTINATION.equals(identifier) ?
-                    ParquetStoreConstants.REVERSE_EDGES : ParquetStoreConstants.GRAPH)
-                    + "/" + ParquetStoreConstants.GROUP + "=" + group
-                    + "/" + ParquetStoreConstants.INDEX, e);
-        }
-    }
-
-    private byte[] readBytes(final int length, final FSDataInputStream reader) throws IOException {
-        final byte[] bytes = new byte[length];
-        int bytesRead = 0;
-        while (bytesRead < length && bytesRead > -1) {
-            bytesRead += reader.read(bytes, bytesRead, length - bytesRead);
-        }
-        return bytes;
-    }
-
-    private Object deserialiseColumn(final byte[] colType, final byte[] value) {
-        final String colTypeName = StringUtil.toString(colType);
-        if ("long".equals(colTypeName)) {
-            return BytesUtils.bytesToLong(value);
-        } else if ("int".equals(colTypeName)) {
-            return BytesUtils.bytesToInt(value);
-        } else if ("boolean".equals(colTypeName)) {
-            return BytesUtils.bytesToBool(value);
-        } else if ("float".equals(colTypeName)) {
-            return Float.intBitsToFloat(BytesUtils.bytesToInt(value));
-        } else if (colTypeName.endsWith(" (UTF8)")) {
-            return Binary.fromReusedByteArray(value).toStringUsingUTF8();
-        } else {
-            return value;
-        }
+    public void setIndex(final Index index) {
+        this.index = index;
     }
 
     public Index getIndex() {
         return index;
-    }
-
-    public void setCurrentSnapshot(final long timestamp) {
-        currentSnapshot = timestamp;
-    }
-
-    public long getCurrentSnapshot() {
-        return currentSnapshot;
     }
 
     public static String getGroupDirectory(final String group, final String identifier, final String rootDir) {

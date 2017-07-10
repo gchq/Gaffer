@@ -66,6 +66,7 @@ public class TypeValueVertexOperationsTest extends AbstractOperationsTest {
         return new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(pp)
+                .graphId("test")
                 .build();
     }
     

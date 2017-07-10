@@ -42,7 +42,7 @@ public class AggregateAndSortTempData {
         final SchemaUtils schemaUtils = store.getSchemaUtils();
         final ParquetStoreProperties parquetStoreProperties = store.getProperties();
         final String currentDataDir = parquetStoreProperties.getDataDir()
-                + "/" + store.getCurrentSnapshot()
+                + "/" + store.getIndex().getSnapshotTimestamp()
                 + "/" + ParquetStoreConstants.GRAPH;
         for (final String group : schemaUtils.getEdgeGroups()) {
             final String currentDataInThisGroupDir = currentDataDir + "/" + ParquetStoreConstants.GROUP + "=" + group;

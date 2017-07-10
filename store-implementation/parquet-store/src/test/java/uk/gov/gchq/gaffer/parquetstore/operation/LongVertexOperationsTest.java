@@ -64,6 +64,7 @@ public class LongVertexOperationsTest extends AbstractOperationsTest {
         return new Graph.Builder()
                 .addSchema(getSchema())
                 .storeProperties(pp)
+                .graphId("test")
                 .build();
     }
     

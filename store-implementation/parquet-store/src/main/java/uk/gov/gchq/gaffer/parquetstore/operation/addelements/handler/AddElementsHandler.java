@@ -25,6 +25,7 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterator;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
+import uk.gov.gchq.gaffer.parquetstore.Index;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStore;
 import uk.gov.gchq.gaffer.parquetstore.ParquetStoreProperties;
 import uk.gov.gchq.gaffer.parquetstore.operation.addelements.impl.AggregateAndSortTempData;
@@ -125,11 +126,10 @@ public class AddElementsHandler implements OperationHandler<AddElements> {
         if (fs.exists(tempReversePath)) {
             fs.rename(tempReversePath, new Path(destPath + "/" + ParquetStoreConstants.REVERSE_EDGES));
         }
-        // Set the data dir property
-        LOGGER.info("Setting current snapshot to {}", snapshot);
-        store.setCurrentSnapshot(snapshot);
         // Reload indices
-        store.loadIndices();
+        final Index newIndex = new Index();
+        newIndex.loadIndices(fs, store);
+        store.setIndex(newIndex);
     }
 
     private void tidyUp(final FileSystem fs, final String tempDataDirString) throws IOException {

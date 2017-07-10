@@ -82,7 +82,7 @@ public class ParquetElementRetriever implements CloseableIterable<Element> {
         this.seedMatchingType = seedMatchingType;
         this.seeds = seeds;
         this.index = store.getIndex();
-        this.dataDir = store.getProperties().getDataDir() + "/" + store.getCurrentSnapshot();
+        this.dataDir = store.getProperties().getDataDir() + "/" + store.getIndex().getSnapshotTimestamp();
         this.fs = store.getFS();
     }
 
