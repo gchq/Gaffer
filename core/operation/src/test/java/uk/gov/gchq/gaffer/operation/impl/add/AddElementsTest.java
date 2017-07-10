@@ -26,7 +26,7 @@ import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -84,18 +84,19 @@ public class AddElementsTest extends OperationTest {
     @Test
     public void shouldSerialisePopulatedAddElementsOperation() throws IOException {
         // Given
-        final List<Element> elements = new ArrayList<>();
-        {
-            final Entity elm1 = new Entity("entity type 1", "vertex 1");
-            elm1.putProperty("property 1", "property 1 value");
-            elements.add(elm1);
-
-        }
-        {
-            final Edge elm2 = new Edge("edge type 2", "source vertex 1", "dest vertex 1", true);
-            elm2.putProperty("property 2", "property 2 value");
-            elements.add(elm2);
-        }
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group("entity type 1")
+                        .vertex("vertex 1")
+                        .property("property 1", "property 1 value")
+                        .build(),
+                new Edge.Builder().group("edge type 2")
+                        .source("source vertex 1")
+                        .dest("dest vertex 1")
+                        .directed(true)
+                        .property("property 2", "property 2 value")
+                        .build()
+        );
 
         final AddElements addElements = new AddElements.Builder()
                 .input(elements)
@@ -136,7 +137,7 @@ public class AddElementsTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element element = new Edge("testEdgeGroup");
+        Element element = new Edge.Builder().group("testEdgeGroup").build();
         AddElements addElements = new AddElements.Builder()
                 .input(element)
                 .skipInvalidElements(true)

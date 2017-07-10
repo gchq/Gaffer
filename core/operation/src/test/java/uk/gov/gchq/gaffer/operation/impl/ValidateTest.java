@@ -24,7 +24,7 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationTest;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -45,18 +45,19 @@ public class ValidateTest extends OperationTest {
     @Override
     public void shouldSerialiseAndDeserialiseOperation() throws SerialisationException {
         // Given
-        final List<Element> elements = new ArrayList<>();
-        {
-            final Entity elm1 = new Entity("entity type 1", "vertex 1");
-            elm1.putProperty("property 1", "property 1 value");
-            elements.add(elm1);
-
-        }
-        {
-            final Edge elm2 = new Edge("edge type 2", "source vertex 1", "dest vertex 1", true);
-            elm2.putProperty("property 2", "property 2 value");
-            elements.add(elm2);
-        }
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group("entity type 1")
+                        .vertex("vertex 1")
+                        .property("property 1", "property 1 value")
+                        .build(),
+                new Edge.Builder().group("edge type 2")
+                        .source("source vertex 1")
+                        .dest("dest vertex 1")
+                        .directed(true)
+                        .property("property 2", "property 2 value")
+                        .build()
+        );
 
         final Validate op = new Validate.Builder()
                 .validate(true)
@@ -91,7 +92,9 @@ public class ValidateTest extends OperationTest {
     @Test
     @Override
     public void builderShouldCreatePopulatedOperation() {
-        Element edge = new Edge("testGroup");
+        Element edge = new Edge.Builder()
+                .group("testGroup")
+                .build();
         Validate validate = new Validate.Builder()
                 .input(edge)
                 .skipInvalidElements(true)
