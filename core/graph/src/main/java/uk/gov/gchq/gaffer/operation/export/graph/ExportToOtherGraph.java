@@ -29,7 +29,6 @@ public class ExportToOtherGraph<T> implements
     private T input;
     private String graphId;
     private Schema schema;
-    private String storePropertiesId;
     private String graphLibraryPath;
     private StoreProperties storeProperties;
 
@@ -59,14 +58,6 @@ public class ExportToOtherGraph<T> implements
 
     public void setSchema(final Schema schema) {
         this.schema = schema;
-    }
-
-    public String getStorePropertiesId() {
-        return storePropertiesId;
-    }
-
-    public void setStorePropertiesId(final String storePropertiesId) {
-        this.storePropertiesId = storePropertiesId;
     }
 
     public String getGraphId() {
@@ -114,11 +105,6 @@ public class ExportToOtherGraph<T> implements
             return _self();
         }
 
-        public Builder<T> storePropertiesId(final String storePropertiesId) {
-            _getOp().setStorePropertiesId(storePropertiesId);
-            return _self();
-        }
-
         public Builder<T> storeProperties(final StoreProperties storeProperties) {
             _getOp().setStoreProperties(storeProperties);
             return _self();
@@ -128,5 +114,6 @@ public class ExportToOtherGraph<T> implements
             _getOp().setSchema(schema);
             return _self();
         }
+
     }
 }

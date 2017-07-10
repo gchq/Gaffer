@@ -90,6 +90,13 @@ public abstract class GraphLibrary {
         return _getProperties(propertiesId);
     }
 
+    public boolean exists(final String graphId) {
+        if (getIds(graphId) != null) {
+            return true;
+        }
+        return false;
+    }
+
     protected abstract void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException;
 
     protected abstract void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
