@@ -86,9 +86,9 @@ public class ParquetStore extends Store {
     }
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         LOGGER.info("Initialising ParquetStore");
-        super.initialise(schema, properties);
+        super.initialise(graphId, schema, properties);
         try {
             fs = FileSystem.get(new Configuration());
         } catch (final IOException e) {

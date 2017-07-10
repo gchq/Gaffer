@@ -31,9 +31,9 @@ public class SingleUseParquetStore extends ParquetStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(SingleUseParquetStore.class);
 
     @Override
-    public void initialise(final Schema schema, final StoreProperties properties) throws StoreException {
+    public void initialise(final String graphId, final Schema schema, final StoreProperties properties) throws StoreException {
         cleanUp();
-        super.initialise(schema, properties);
+        super.initialise(graphId, schema, properties);
     }
 
     private void cleanUp() throws StoreException {
