@@ -16,6 +16,8 @@
 package uk.gov.gchq.gaffer.sparkaccumulo.operation.directrdd;
 
 import org.apache.accumulo.core.client.IteratorSetting;
+import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
+import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
@@ -30,19 +32,25 @@ import org.apache.accumulo.core.iterators.system.MultiIterator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
 import org.apache.spark.util.TaskCompletionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.AbstractMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A <code>RFileReaderIterator</code> is a {@link scala.collection.Iterator} formed by merging iterators over
@@ -56,19 +64,19 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
-    private IteratorSetting iteratorSetting;
+    private Configuration configuration;
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
                                final Set<String> requiredColumnFamilies,
-                               final IteratorSetting iteratorSetting) {
+                               final Configuration configuration) {
         this.partition = partition;
         this.taskContext = taskContext;
         if (null == requiredColumnFamilies || requiredColumnFamilies.isEmpty()) {
             throw new IllegalArgumentException("requiredColumnFamilies must be non-null and non-empty");
         }
         this.requiredColumnFamilies = requiredColumnFamilies;
-        this.iteratorSetting = iteratorSetting;
+        this.configuration = configuration;
         try {
             init();
         } catch (final IOException e) {
@@ -96,7 +104,6 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private void init() throws IOException {
         LOGGER.info("Initialising RFileReaderIterator");
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
-        final Configuration conf = new Configuration();
         final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance(DefaultConfiguration.getInstance());
 
         // Column families
@@ -104,10 +111,10 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
         for (final String filename : accumuloTablet.getFiles()) {
             final Path path = new Path(filename);
-            final FileSystem fs = path.getFileSystem(conf);
+            final FileSystem fs = path.getFileSystem(configuration);
 
             final RFile.Reader rFileReader = new RFile.Reader(
-                    new CachableBlockFile.Reader(fs, path, conf, null, null, accumuloConfiguration));
+                    new CachableBlockFile.Reader(fs, path, configuration, null, null, accumuloConfiguration));
             iterators.add(rFileReader);
 
             for (final ArrayList<ByteSequence> cfs : rFileReader.getLocalityGroupCF().values()) {
@@ -121,15 +128,11 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         mergedIterator = new MultiIterator(iterators, true);
 
         // Apply iterator stack
-        try {
-            if (null != iteratorSetting) {
-                iteratorAfterIterators = Class.forName(iteratorSetting.getIteratorClass()).asSubclass(SortedKeyValueIterator.class).newInstance();
-                iteratorAfterIterators.init(mergedIterator, iteratorSetting.getOptions(), null);
-            } else {
-                iteratorAfterIterators = mergedIterator;
-            }
-        } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException("Exception creating iterator of class " + iteratorSetting.getIteratorClass());
+        final List<IteratorSetting> iteratorSettings = getIteratorSettings();
+        iteratorSettings.sort((is1, is2) -> is1.getPriority() - is2.getPriority());
+        iteratorAfterIterators = mergedIterator;
+        for (final IteratorSetting is : iteratorSettings) {
+            iteratorAfterIterators = applyIterator(iteratorAfterIterators, is);
         }
 
         taskContext.addTaskCompletionListener(new TaskCompletionListener() {
@@ -142,6 +145,50 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         final Range range = new Range(accumuloTablet.getStartRow(), true, accumuloTablet.getEndRow(), false);
         iteratorAfterIterators.seek(range, columnFamilies, false);
         LOGGER.info("Initialised iterator");
+    }
+
+    private SortedKeyValueIterator<Key, Value> applyIterator(SortedKeyValueIterator<Key, Value> source, IteratorSetting is) {
+        try {
+            SortedKeyValueIterator<Key, Value> result = Class.forName(is.getIteratorClass())
+                    .asSubclass(SortedKeyValueIterator.class).newInstance();
+            result.init(source, is.getOptions(), null);
+            return result;
+        } catch (final IOException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException("Exception creating iterator of class " + is.getIteratorClass());
+        }
+    }
+
+    // Taken from org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator
+    private List<IteratorSetting> getIteratorSettings() {
+        final String iterators = configuration.get(enumToConfKey(AccumuloInputFormat.class, InputConfigurator.ScanOpts.ITERATORS));
+
+        // If no iterators are present, return an empty list
+        if (iterators == null || iterators.isEmpty()) {
+            LOGGER.info("Found no iterators on configuration");
+            return new ArrayList<>();
+        }
+        LOGGER.info("Found {} iterators in configuration", iterators.length());
+
+        // Compose the set of iterators encoded in the job configuration
+        final StringTokenizer tokens = new StringTokenizer(iterators, StringUtils.COMMA_STR);
+        final List<IteratorSetting> list = new ArrayList<>();
+        try {
+            while (tokens.hasMoreTokens()) {
+                final String itstring = tokens.nextToken();
+                final ByteArrayInputStream bais = new ByteArrayInputStream(
+                        org.apache.accumulo.core.util.Base64.decodeBase64(itstring.getBytes(UTF_8)));
+                list.add(new IteratorSetting(new DataInputStream(bais)));
+                bais.close();
+                LOGGER.info("Added iterator {}", list.get(list.size() - 1));
+            }
+        } catch (final IOException e) {
+            throw new IllegalArgumentException("couldn't decode iterator settings");
+        }
+        return list;
+    }
+
+    protected static String enumToConfKey(Class<?> implementingClass, Enum<?> e) {
+        return implementingClass.getSimpleName() + "." + e.getDeclaringClass().getSimpleName() + "." + StringUtils.camelize(e.name().toLowerCase());
     }
 
     private void close() {

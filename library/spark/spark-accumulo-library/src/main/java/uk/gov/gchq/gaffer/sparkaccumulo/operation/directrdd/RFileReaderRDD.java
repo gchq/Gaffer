@@ -19,7 +19,6 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Instance;
-import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
@@ -30,6 +29,7 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.NamespacePermission;
 import org.apache.accumulo.core.security.TablePermission;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.spark.InterruptibleIterator;
 import org.apache.spark.Partition;
@@ -42,6 +42,9 @@ import org.slf4j.LoggerFactory;
 import scala.collection.JavaConversions;
 import scala.reflect.ClassTag$;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,8 +63,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
     private final String password;
     private final String tableName;
     private final Set<String> columnFamilies;
-    private final String iteratorClass;
-    private final Map<String, String> iteratorOptions;
+    private final byte[] serialisedConfiguration;
 
     public RFileReaderRDD(final SparkConf sparkConf,
                           final String instanceName,
@@ -70,8 +72,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                           final String password,
                           final String tableName,
                           final Set<String> columnFamilies,
-                          final String iteratorClass,
-                          final Map<String, String> iteratorOptions) {
+                          final byte[] serialisedConfiguration) {
         super(new SparkContext(sparkConf), JavaConversions.asScalaBuffer(new ArrayList<>()),
                 ClassTag$.MODULE$.apply(Map.Entry.class));
         this.instanceName = instanceName;
@@ -80,21 +81,22 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         this.password = password;
         this.tableName = tableName;
         this.columnFamilies = columnFamilies;
-        this.iteratorClass = iteratorClass;
-        this.iteratorOptions = iteratorOptions;
+        this.serialisedConfiguration = serialisedConfiguration;
     }
 
     @Override
     public scala.collection.Iterator<Map.Entry<Key, Value>> compute(final Partition split, final TaskContext context) {
-        IteratorSetting is = null;
-        if (null != iteratorClass) {
-            is = new IteratorSetting(100, "NAME", iteratorClass);
-            if (null != iteratorOptions) {
-                is.addOptions(iteratorOptions);
-            }
+        final ByteArrayInputStream bais = new ByteArrayInputStream(serialisedConfiguration);
+        final Configuration configuration = new Configuration();
+        try {
+            configuration.readFields(new DataInputStream(bais));
+            bais.close();
+        } catch (final IOException e) {
+            throw new RuntimeException("IOException deserialising Configuration from byte array", e);
         }
+
         return new InterruptibleIterator<>(context,
-                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, columnFamilies, is)));
+                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, columnFamilies, configuration)));
     }
 
     @Override
