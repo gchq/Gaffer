@@ -17,7 +17,6 @@
 package uk.gov.gchq.gaffer.parquetstore.operation.addelements.handler;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
@@ -57,14 +56,9 @@ public class AddElementsFromRDDHandler implements OperationHandler<ImportRDDOfEl
             final String tempDataDirString = parquetStoreProperties.getTempFilesDir();
             final Path tempDir = new Path(tempDataDirString);
             final String rootDataDirString = parquetStoreProperties.getDataDir();
-            final String dataDirString = rootDataDirString + "/" + store.getCurrentSnapshot();
             if (fs.exists(tempDir)) {
                 fs.delete(tempDir, true);
                 LOGGER.warn("Temp data directory '" + tempDataDirString + "' has been deleted.");
-            }
-            if (store.getCurrentSnapshot() != 0L) {
-                FileUtil.copy(fs, new Path(dataDirString), fs, tempDir, false, false, fs.getConf());
-                LOGGER.debug("Copying data directory '" + dataDirString + "' has been copied to " + tempDataDirString);
             }
             final User user = context.getUser();
             if (user instanceof SparkUser) {
