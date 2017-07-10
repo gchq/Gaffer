@@ -477,18 +477,21 @@ public class AccumuloIDWithinSetRetrieverTest {
             entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
             data.add(entity);
             for (int i = 1; i < 100; i++) {
-                final Edge edge = new Edge(TestGroups.EDGE);
-                edge.setSource("A0");
-                edge.setDestination("A" + i);
-                edge.setDirected(true);
-                edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
-                edge.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edge);
+                data.add(new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("A0")
+                        .dest("A" + i)
+                        .directed(true)
+                        .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 1)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .build());
 
-                final Entity edgeEntity = new Entity(TestGroups.ENTITY);
-                edgeEntity.setVertex("A" + i);
-                edgeEntity.putProperty(AccumuloPropertyNames.COUNT, i);
-                data.add(edgeEntity);
+                data.add(new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("A" + i)
+                        .property(AccumuloPropertyNames.COUNT, i)
+                        .build()
+                );
             }
             data.add(AccumuloTestData.EDGE_C_D_DIRECTED);
             data.add(AccumuloTestData.EDGE_C_D_UNDIRECTED);

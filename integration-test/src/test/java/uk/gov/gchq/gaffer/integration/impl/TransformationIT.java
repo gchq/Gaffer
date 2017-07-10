@@ -36,7 +36,7 @@ import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreTrait;
 import uk.gov.gchq.koryphe.impl.function.Concat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -53,15 +53,22 @@ public class TransformationIT extends AbstractStoreIT {
         super.setup();
         addDefaultElements();
 
-        final Collection<Element> elements = new ArrayList<>(2);
-        final Edge sampleEdgeWithTransientProperty = new Edge(TestGroups.EDGE, VERTEX + SOURCE, VERTEX + DEST, true);
-        sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.COUNT, 1L);
-        sampleEdgeWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
-        elements.add(sampleEdgeWithTransientProperty);
+        final Collection<Element> elements = Arrays.asList(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX + SOURCE)
+                        .dest(VERTEX + DEST)
+                        .directed(true)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build(),
 
-        final Entity sampleEntityWithTransientProperty = new Entity(TestGroups.ENTITY, VERTEX);
-        sampleEntityWithTransientProperty.putProperty(TestPropertyNames.TRANSIENT_1, "test");
-        elements.add(sampleEntityWithTransientProperty);
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex(VERTEX)
+                        .property(TestPropertyNames.TRANSIENT_1, "test")
+                        .build()
+        );
 
         graph.execute(new AddElements.Builder()
                 .input(elements)

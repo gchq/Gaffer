@@ -1149,7 +1149,6 @@ public class GetElementsHandlerTest {
                 .build();
         final Edge result = (Edge) graph.execute(getElements, new User()).iterator().next();
         // Change a property
-        result.setDestination("BBB");
         result.putProperty(GetAllElementsHandlerTest.PROPERTY1, "qqq");
 
         // Then
@@ -1169,15 +1168,24 @@ public class GetElementsHandlerTest {
         elements.add(entity1);
         IntStream.range(0, NUM_LOOPS)
                 .forEach(i -> {
-                    final Edge edge1 = new Edge(GetAllElementsHandlerTest.BASIC_EDGE1, "A", "B" + i, true);
-                    edge1.putProperty(GetAllElementsHandlerTest.PROPERTY1, "q");
-                    edge1.putProperty(GetAllElementsHandlerTest.COUNT, i);
-                    elements.add(edge1);
-                    final Edge edge2 = new Edge(GetAllElementsHandlerTest.BASIC_EDGE2, "X", "Y" + i, false);
-                    edge2.putProperty(GetAllElementsHandlerTest.PROPERTY1, "r");
-                    edge2.putProperty(GetAllElementsHandlerTest.PROPERTY2, "s");
-                    edge2.putProperty(GetAllElementsHandlerTest.COUNT, 3);
-                    elements.add(edge2);
+                    elements.add(new Edge.Builder()
+                            .group(GetAllElementsHandlerTest.BASIC_EDGE1)
+                            .source("A")
+                            .dest("B" + i)
+                            .directed(true)
+                            .property(GetAllElementsHandlerTest.PROPERTY1, "q")
+                            .property(GetAllElementsHandlerTest.COUNT, i)
+                            .build());
+
+                    elements.add(new Edge.Builder()
+                            .group(GetAllElementsHandlerTest.BASIC_EDGE2)
+                            .source("X")
+                            .dest("Y" + i)
+                            .directed(false)
+                            .property(GetAllElementsHandlerTest.PROPERTY1, "r")
+                            .property(GetAllElementsHandlerTest.PROPERTY2, "s")
+                            .property(GetAllElementsHandlerTest.COUNT, 3)
+                            .build());
                 });
         return elements;
     }
