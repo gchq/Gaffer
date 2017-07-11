@@ -124,16 +124,28 @@ public class GetElementsIT extends AbstractStoreIT {
                 }
                 for (final DirectedType directedType : directedTypes) {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
+                        if (!includeEntities) {
+                            continue;
+                        }
+                        if (!includeEdges) {
+                            continue;
+                        }
+                        if (DirectedType.EITHER != directedType) {
+                            continue;
+                        }
+                        if (IncludeIncomingOutgoingType.EITHER != inOutType) {
+                            continue;
+                        }
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
@@ -226,14 +238,14 @@ public class GetElementsIT extends AbstractStoreIT {
                 }
 
                 if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
-                    expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true));
+                    expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true, EdgeId.MatchedVertex.DESTINATION));
                 }
             }
 
             if (DirectedType.DIRECTED != directedType) {
                 expectedElementIds.add(new EdgeSeed(SOURCE_1, DEST_1, false));
                 expectedElementIds.add(new EdgeSeed(SOURCE_2, DEST_2, false));
-                expectedElementIds.add(new EdgeSeed(SOURCE_3, DEST_3, false));
+                expectedElementIds.add(new EdgeSeed(SOURCE_3, DEST_3, false, EdgeId.MatchedVertex.DESTINATION));
             }
         }
 
@@ -331,6 +343,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                 .group(TestGroups.EDGE)
                                 .source(((EdgeId) seed).getSource())
                                 .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
                                 .directed(false)
                                 .property("intProperty", 1)
                                 .property("count", 1L)
@@ -342,6 +355,7 @@ public class GetElementsIT extends AbstractStoreIT {
                                 .group(TestGroups.EDGE)
                                 .source(((EdgeId) seed).getSource())
                                 .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
                                 .directed(true)
                                 .property("intProperty", 1)
                                 .property("count", 1L)
@@ -354,6 +368,7 @@ public class GetElementsIT extends AbstractStoreIT {
                             .source(((EdgeId) seed).getSource())
                             .dest(((EdgeId) seed).getDestination())
                             .directed(((EdgeId) seed).isDirected())
+                            .matchedVertex(((EdgeId) seed).getMatchedVertex())
                             .property("intProperty", 1)
                             .property("count", 1L)
                             .build();

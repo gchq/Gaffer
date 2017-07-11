@@ -19,7 +19,6 @@ package uk.gov.gchq.gaffer.accumulostore.key.core.impl.classic;
 import org.apache.accumulo.core.data.Key;
 import uk.gov.gchq.gaffer.accumulostore.key.core.AbstractCoreKeyAccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
-import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
@@ -137,8 +136,8 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected boolean getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
-                                                        final Map<String, String> options) {
+    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
+                                                              final Map<String, String> options) {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];
@@ -164,34 +163,26 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
         byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[0] + 1, positionsOfDelimiters[1]);
         sourceDestValue[0] = sourceBytes;
         sourceDestValue[1] = destBytes;
-        boolean rtn;
+        EdgeDirection rtn;
         switch (directionFlag) {
             case ClassicBytePositions.UNDIRECTED_EDGE:
                 // Edge is undirected
-                rtn = false;
+                rtn = EdgeDirection.UNDIRECTED;
                 break;
             case ClassicBytePositions.CORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the first identifier is the source of the edge
-                rtn = true;
+                rtn = EdgeDirection.DIRECTED;
                 break;
             case ClassicBytePositions.INCORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the second identifier is the source of the edge
-                if (!matchEdgeSource(options)) {
-                    sourceDestValue[0] = destBytes;
-                    sourceDestValue[1] = sourceBytes;
-                }
-                rtn = true;
+                sourceDestValue[0] = destBytes;
+                sourceDestValue[1] = sourceBytes;
+                rtn = EdgeDirection.DIRECTED_REVERSED;
                 break;
             default:
                 throw new AccumuloElementConversionException(
                         "Invalid direction flag in row key - flag was " + directionFlag);
         }
         return rtn;
-    }
-
-    private boolean matchEdgeSource(final Map<String, String> options) {
-        return options != null
-                && options.containsKey(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
-                && "true".equalsIgnoreCase(options.get(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 }

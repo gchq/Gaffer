@@ -15,8 +15,6 @@
  */
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import com.google.common.primitives.Bytes;
 import org.apache.accumulo.core.data.Key;
 import org.junit.Test;
@@ -31,6 +29,8 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class AbstractCoreKeyAccumuloElementConverterTest {
 
@@ -104,8 +104,8 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
-        protected boolean getSourceAndDestinationFromRowKey(byte[] rowKey, byte[][] sourceValueDestinationValue, Map<String, String> options) {
-            return false;
+        protected EdgeDirection getSourceAndDestinationFromRowKey(byte[] rowKey, byte[][] sourceValueDestinationValue, Map<String, String> options) {
+            return EdgeDirection.UNDIRECTED;
         }
 
     }

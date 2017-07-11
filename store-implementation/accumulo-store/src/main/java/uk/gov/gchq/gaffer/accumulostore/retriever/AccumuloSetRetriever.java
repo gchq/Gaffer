@@ -295,7 +295,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                     final Entry<Key, Value> entry = scannerIterator.next();
                     try {
                         nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
-                                operation.getOptions());
+                                false, operation.getOptions());
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create next element from key and value entry set", e);
                         continue;

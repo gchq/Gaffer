@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.integration.AbstractStoreIT;
 import uk.gov.gchq.gaffer.integration.domain.DomainObject;
 import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
@@ -107,6 +108,7 @@ public class GeneratorsIT extends AbstractStoreIT {
                 .source(NEW_SOURCE)
                 .dest(NEW_DEST)
                 .directed(false)
+                .matchedVertex(EdgeId.MatchedVertex.DESTINATION)
                 .build();
         expectedEdge.putProperty(TestPropertyNames.INT, 1);
         expectedEdge.putProperty(TestPropertyNames.COUNT, 1L);

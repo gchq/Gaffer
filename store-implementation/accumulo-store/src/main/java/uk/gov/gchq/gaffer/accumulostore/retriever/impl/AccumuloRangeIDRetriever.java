@@ -64,7 +64,7 @@ public class AccumuloRangeIDRetriever<OP extends InputOutput<Iterable<? extends 
      */
     public AccumuloRangeIDRetriever(final AccumuloStore store, final OP operation, final User user,
                                     final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, iteratorSettings);
+        super(store, operation, user, true, iteratorSettings);
     }
 
     @Override

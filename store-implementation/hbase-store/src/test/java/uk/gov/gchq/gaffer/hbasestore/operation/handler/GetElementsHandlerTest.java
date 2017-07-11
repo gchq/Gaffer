@@ -49,7 +49,7 @@ public class GetElementsHandlerTest {
                 .build();
 
         given(context.getUser()).willReturn(user);
-        given(store.createRetriever(getElements, user, ids)).willReturn(hbaseRetriever);
+        given(store.createRetriever(getElements, user, ids, true)).willReturn(hbaseRetriever);
 
         // When
         final HBaseRetriever<GetElements> result = (HBaseRetriever<GetElements>) handler.doOperation(getElements, context, store);

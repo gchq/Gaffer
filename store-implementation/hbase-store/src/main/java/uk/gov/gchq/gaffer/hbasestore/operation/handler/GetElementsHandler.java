@@ -41,7 +41,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
         }
 
         try {
-            return store.createRetriever(operation, user, operation.getInput());
+            return store.createRetriever(operation, user, operation.getInput(), true);
         } catch (final StoreException e) {
             throw new OperationException("Unable to fetch elements", e);
         }

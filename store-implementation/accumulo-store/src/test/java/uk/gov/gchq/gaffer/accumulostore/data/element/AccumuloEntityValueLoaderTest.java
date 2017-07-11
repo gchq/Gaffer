@@ -24,8 +24,7 @@ import org.mockito.Mockito;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
-import uk.gov.gchq.gaffer.data.element.LazyEntity;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.LazyProperties;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
@@ -44,7 +43,7 @@ import static org.mockito.Mockito.verify;
 public class AccumuloEntityValueLoaderTest {
 
     @Test
-    public void shouldLoadAllIdentifiersWhenGetVertexIdentifier() throws SerialisationException {
+    public void shouldLoadAllIdentifiers() throws SerialisationException {
         // Given
         final String group = TestGroups.ENTITY;
         final Key key = mock(Key.class);
@@ -52,16 +51,15 @@ public class AccumuloEntityValueLoaderTest {
         final AccumuloElementConverter converter = mock(AccumuloElementConverter.class);
         final Schema schema = createSchema();
         final AccumuloEntityValueLoader loader = new AccumuloEntityValueLoader(group, key, value, converter, schema);
-        final LazyEntity lazyEntity = mock(LazyEntity.class);
+        final Entity entity = mock(Entity.class);
         final EntityId elementId = new EntitySeed("vertex");
 
-        given(converter.getElementId(key, Collections.emptyMap())).willReturn(elementId);
+        given(converter.getElementId(key, false, Collections.emptyMap())).willReturn(elementId);
 
         // When
-        final Object identifier = loader.getIdentifier(IdentifierType.VERTEX, lazyEntity);
+        loader.loadIdentifiers(entity);
 
         // Then
-        assertEquals("vertex", identifier);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
@@ -92,7 +90,7 @@ public class AccumuloEntityValueLoaderTest {
         // Then
         assertEquals("propValue1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -118,7 +116,7 @@ public class AccumuloEntityValueLoaderTest {
         // Then
         assertEquals("propValue3", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
@@ -148,7 +146,7 @@ public class AccumuloEntityValueLoaderTest {
         // Then
         assertEquals("vis1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -176,7 +174,7 @@ public class AccumuloEntityValueLoaderTest {
         // Then
         assertEquals(timestamp, property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));

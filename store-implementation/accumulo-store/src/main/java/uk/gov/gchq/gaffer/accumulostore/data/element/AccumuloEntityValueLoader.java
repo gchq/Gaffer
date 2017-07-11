@@ -20,7 +20,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.IdentifierType;
+import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Collections;
@@ -36,9 +36,9 @@ public class AccumuloEntityValueLoader extends AccumuloElementValueLoader {
         super(group, key, value, elementConverter, schema);
     }
 
-    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "Lazy element should always be a LazyEntity")
+    @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "element provided should always be an Entity")
     @Override
-    public Object getIdentifier(final IdentifierType idType, final Element lazyElement) {
-        return ((EntityId) elementConverter.getElementId(key, Collections.emptyMap())).getVertex();
+    public void loadIdentifiers(final Element entity) {
+        ((Entity) entity).setVertex(((EntityId) elementConverter.getElementId(key, false, Collections.emptyMap())).getVertex());
     }
 }

@@ -25,7 +25,6 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
-import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAdjacentIds;
@@ -61,7 +60,7 @@ public class GetAdjacentIdsHandlerTest {
 
         given(context.getUser()).willReturn(user);
         final ArgumentCaptor<GetElements> getElementsCaptor = ArgumentCaptor.forClass(GetElements.class);
-        given(store.createRetriever(getElementsCaptor.capture(), eq(user), eq(ids))).willReturn(hbaseRetriever);
+        given(store.createRetriever(getElementsCaptor.capture(), eq(user), eq(ids), eq(true))).willReturn(hbaseRetriever);
 
         // When
         final GetAdjacentIdsHandler.ExtractDestinationEntityId result =
@@ -76,7 +75,6 @@ public class GetAdjacentIdsHandlerTest {
         assertEquals(getAdjacentIds.getDirectedType(), getElements.getDirectedType());
         assertEquals(getAdjacentIds.getIncludeIncomingOutGoing(), getElements.getIncludeIncomingOutGoing());
         assertEquals("optionValue", getElements.getOption("option1"));
-        assertEquals("true", getElements.getOption(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 
     @Test

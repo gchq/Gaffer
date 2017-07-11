@@ -41,6 +41,7 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
                                                             final User user,
                                                             final AccumuloStore store) throws OperationException {
         try {
+
             return new AccumuloElementsRetriever(store, operation, user);
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);

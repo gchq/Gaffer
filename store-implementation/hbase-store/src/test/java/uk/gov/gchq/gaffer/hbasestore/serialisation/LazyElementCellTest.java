@@ -29,7 +29,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -41,10 +40,10 @@ public class LazyElementCellTest {
         final ElementSerialisation serialisation = mock(ElementSerialisation.class);
         final Element element = mock(Element.class);
 
-        given(serialisation.getElement(cell)).willReturn(element);
+        given(serialisation.getElement(cell, false, null)).willReturn(element);
 
         // When
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation);
+        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
 
         // Then
         assertSame(cell, lazyElementCell.getCell());
@@ -55,28 +54,11 @@ public class LazyElementCellTest {
     }
 
     @Test
-    public void shouldConstructLazyElementCellWithElement() throws SerialisationException {
-        // Given
-        final Cell cell = mock(Cell.class);
-        final ElementSerialisation serialisation = mock(ElementSerialisation.class);
-        final Element element = mock(Element.class);
-
-        // When
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, element);
-
-        // Then
-        assertSame(cell, lazyElementCell.getCell());
-        assertTrue(lazyElementCell.isElementLoaded());
-        assertSame(element, lazyElementCell.getElement());
-        assertSame(serialisation, lazyElementCell.getSerialisation());
-    }
-
-    @Test
     public void shouldNotBeAbleToDeserialiseCellIfCellIsMarkedForDeletion() throws SerialisationException {
         // Given
         final Cell cell = mock(Cell.class);
         final ElementSerialisation serialisation = mock(ElementSerialisation.class);
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation);
+        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
 
         given(cell.getTypeByte()).willReturn(KeyValue.Type.Delete.getCode());
 
@@ -98,17 +80,17 @@ public class LazyElementCellTest {
         final ElementSerialisation serialisation = mock(ElementSerialisation.class);
         final Element element = mock(Element.class);
 
-        given(serialisation.getElement(cell)).willReturn(element);
+        given(serialisation.getElement(cell, false, null)).willReturn(element);
 
         // When
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation);
+        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
 
         // Then
         assertFalse(lazyElementCell.isElementLoaded());
         assertSame(element, lazyElementCell.getElement());
         assertTrue(lazyElementCell.isElementLoaded());
         assertSame(element, lazyElementCell.getElement());
-        verify(serialisation, times(1)).getElement(cell);
+        verify(serialisation, times(1)).getElement(cell, false, null);
         assertSame(serialisation, lazyElementCell.getSerialisation());
     }
 
@@ -123,33 +105,12 @@ public class LazyElementCellTest {
         given(serialisation.getGroup(cell)).willReturn(group);
 
         // When
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation);
+        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
 
         // Then
         assertEquals(group, lazyElementCell.getGroup());
         assertEquals(group, lazyElementCell.getGroup());
         assertFalse(lazyElementCell.isElementLoaded());
         verify(serialisation, times(1)).getGroup(cell);
-    }
-
-    @Test
-    public void shouldUseGroupFromElement() throws SerialisationException {
-        // Given
-        final Cell cell = mock(Cell.class);
-        final ElementSerialisation serialisation = mock(ElementSerialisation.class);
-        final Element element = mock(Element.class);
-        final String group = "a group";
-
-        given(element.getGroup()).willReturn(group);
-
-        // When
-        final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, element);
-
-        // Then
-        assertTrue(lazyElementCell.isElementLoaded());
-        assertEquals(group, lazyElementCell.getGroup());
-        assertEquals(group, lazyElementCell.getGroup());
-        verify(serialisation, never()).getGroup(cell);
-        verify(element, times(1)).getGroup();
     }
 }

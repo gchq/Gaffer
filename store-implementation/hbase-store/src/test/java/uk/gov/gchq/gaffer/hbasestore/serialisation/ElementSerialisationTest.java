@@ -73,7 +73,7 @@ public class ElementSerialisationTest {
         final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
 
         // Then
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst());
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst(), false, null);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -91,7 +91,7 @@ public class ElementSerialisationTest {
         final byte[] key = serialisation.getRowKey(entity);
 
         // Then
-        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key);
+        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key, false, null);
         assertEquals("3", newEntity.getVertex());
     }
 
@@ -174,34 +174,11 @@ public class ElementSerialisationTest {
         final Map<String, String> options = new HashMap<>();
 
         // When
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), options);
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), false, options);
 
         // Then
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
-        assertEquals(true, newEdge.isDirected());
-    }
-
-    @Test
-    public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, IOException {
-        // Given
-        final Edge edge = new Edge.Builder()
-                .group(TestGroups.EDGE)
-                .dest("2")
-                .source("1")
-                .directed(true)
-                .build();
-
-        final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
-        final Map<String, String> options = new HashMap<>();
-        options.put(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
-
-        // When
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), options);
-
-        // Then
-        assertEquals("2", newEdge.getSource());
-        assertEquals("1", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
     }
 
@@ -566,7 +543,7 @@ public class ElementSerialisationTest {
 
         // When
         final byte[] keyMax = serialisation.getRowKey(entityMax);
-        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes).getIdentifier(IdentifierType.VERTEX);
+        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes, false, null).getIdentifier(IdentifierType.VERTEX);
 
         // Then
         assertArrayEquals(expectedBytes, keyMax);

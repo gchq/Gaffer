@@ -30,7 +30,6 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.RangeFactoryException;
 import uk.gov.gchq.gaffer.accumulostore.retriever.AccumuloRetriever;
 import uk.gov.gchq.gaffer.accumulostore.retriever.RetrieverException;
-import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
@@ -66,8 +65,6 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getQueryTimeAggregatorIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store));
-
-        operation.addOption(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
         this.ids = operation.getInput();
         transformGroups = getGroupsWithTransforms(operation.getView());
     }
@@ -143,6 +140,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                         element = elementConverter.getFullElement(
                                 entry.getKey(),
                                 entry.getValue(),
+                                true,
                                 operation.getOptions());
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null",
@@ -157,7 +155,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     }
                 } else {
                     try {
-                        elementId = elementConverter.getElementId(entry.getKey(), operation.getOptions());
+                        elementId = elementConverter.getElementId(entry.getKey(), true, operation.getOptions());
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create element id returning next EntityId as null", e);
                         continue;
@@ -166,7 +164,11 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
 
                 if (null != elementId) {
                     if (elementId instanceof EdgeId) {
-                        nextId = new EntitySeed(((EdgeId) elementId).getDestination());
+                        if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) elementId).getMatchedVertex()) {
+                            nextId = new EntitySeed(((EdgeId) elementId).getSource());
+                        } else {
+                            nextId = new EntitySeed(((EdgeId) elementId).getDestination());
+                        }
                         return true;
                     } else {
                         LOGGER.error("Unexpected EntityId returned, returning next result as null");

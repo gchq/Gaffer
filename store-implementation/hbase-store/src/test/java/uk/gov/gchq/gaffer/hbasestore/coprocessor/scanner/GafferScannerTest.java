@@ -106,7 +106,7 @@ public class GafferScannerTest {
 
         final GafferScannerProcessor processor1 = mock(GafferScannerProcessor.class);
         final GafferScannerProcessor processor2 = mock(GafferScannerProcessor.class);
-        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, processor1, processor2) {
+        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, Arrays.asList(processor1, processor2), false) {
         };
         final List<LazyElementCell> processedCells1 = mock(List.class);
         given(processor1.process(Mockito.anyList())).willReturn(processedCells1);
@@ -131,7 +131,7 @@ public class GafferScannerTest {
     public void shouldCloseScanner() throws IOException {
         // Given
         final InternalScanner internalScanner = mock(InternalScanner.class);
-        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation) {
+        final GafferScanner scanner = new GafferScanner(internalScanner, serialisation, null, false) {
         };
 
         // When
