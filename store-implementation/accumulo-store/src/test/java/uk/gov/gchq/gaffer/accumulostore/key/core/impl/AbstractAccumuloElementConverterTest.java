@@ -80,7 +80,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
 
         // Then
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false, null);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -96,7 +96,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Key key = converter.getKeyFromEntity(entity);
 
         // Then
-        final Entity newEntity = (Entity) converter.getElementFromKey(key, false);
+        final Entity newEntity = (Entity) converter.getElementFromKey(key, false, null);
         assertEquals("3", newEntity.getVertex());
     }
 
@@ -113,7 +113,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false, null);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -133,7 +133,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false, null);
 
         // Then
         assertEquals("3", newEntity.getVertex());
@@ -153,7 +153,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), true);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), true, null);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -174,7 +174,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false, null);
 
         // Then
         assertEquals("3", newEntity.getVertex());

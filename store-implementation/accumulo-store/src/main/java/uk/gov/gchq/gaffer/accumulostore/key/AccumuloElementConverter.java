@@ -110,33 +110,11 @@ public interface AccumuloElementConverter {
      *
      * @param key                  the Key containing serialised parts of the Element
      * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
-     * @return A new {@link Element} including a partial set of
-     * {@link uk.gov.gchq.gaffer.data.element.Properties} that were gaffer.accumulostore in the {@link Key}
-     */
-    Element getElementFromKey(final Key key, final boolean includeMatchedVertex);
-
-    /**
-     * Gets a new {@link Element} from an Accumulo {@link Key}.
-     *
-     * @param key                  the Key containing serialised parts of the Element
-     * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
      * @param options              operation options
      * @return A new {@link Element} including a partial set of
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that were store in the {@link Key}
      */
     Element getElementFromKey(final Key key, final boolean includeMatchedVertex, final Map<String, String> options);
-
-    /**
-     * Returns an {@link Element} populated with all the properties defined
-     * within the {@link Key} and {@link Value}.
-     *
-     * @param key                  the accumulo Key containing serialised parts of the Element
-     * @param value                the accumulo Value containing serialised properties of the Element
-     * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
-     * @return Returns an {@link Element} populated with all the properties
-     * defined within the {@link Key} and {@link Value}
-     */
-    Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex);
 
     /**
      * Returns an {@link Element} populated with all the properties defined

@@ -22,16 +22,17 @@ public class ComparableOrToStringComparator implements Comparator<Object> {
     @Override
     public int compare(final Object vertex1, final Object vertex2) {
         if (null == vertex1) {
-            if (null != vertex2) {
-                return -1;
+            if (null == vertex2) {
+                return 0;
             }
-        } else if (vertex1 instanceof Comparable
-                && vertex2.getClass().equals(vertex1.getClass())) {
-            return ((Comparable) vertex1).compareTo((Comparable) vertex2);
-        } else {
-            return vertex1.toString().compareTo(vertex2.toString());
+            return -1;
         }
 
-        return 1;
+        if (vertex1 instanceof Comparable
+                && vertex2.getClass().equals(vertex1.getClass())) {
+            return ((Comparable) vertex1).compareTo(vertex2);
+        }
+
+        return vertex1.toString().compareTo(vertex2.toString());
     }
 }

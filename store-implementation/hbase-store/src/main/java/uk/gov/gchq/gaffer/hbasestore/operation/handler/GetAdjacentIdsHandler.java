@@ -20,8 +20,8 @@ import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.data.IsEdgeValidator;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
@@ -83,7 +83,14 @@ public class GetAdjacentIdsHandler implements OutputOperationHandler<GetAdjacent
 
         @Override
         protected EntityId transform(final Element element) {
-            return new EntitySeed(((Edge) element).getDestination());
+            final EntitySeed nextId;
+            if (EdgeId.MatchedVertex.DESTINATION == ((EdgeId) element).getMatchedVertex()) {
+                nextId = new EntitySeed(((EdgeId) element).getSource());
+            } else {
+                nextId = new EntitySeed(((EdgeId) element).getDestination());
+            }
+
+            return nextId;
         }
 
         @Override

@@ -19,6 +19,7 @@ import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.MiniHBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
+import uk.gov.gchq.gaffer.integration.impl.GetAdjacentIdsIT;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
@@ -27,6 +28,7 @@ public class HBaseStoreITs extends AbstractStoreITs {
 
     public HBaseStoreITs() {
         super(STORE_PROPERTIES);
+        singleTest(GetAdjacentIdsIT.class);
         try {
             TableUtils.dropAllTables(new MiniHBaseStore().getConnection());
         } catch (final StoreException e) {

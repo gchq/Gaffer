@@ -75,21 +75,6 @@ public class Entity extends Element implements EntityId {
         this.vertex = vertex;
     }
 
-    /**
-     * Reinitialises the Entity with the provided arguments. This can be used to
-     * minimise the amount of work the garbage collector has to do, if you are
-     * finding you are creating a lot of Entity instances. The properties hashmap
-     * will be cleared.
-     *
-     * @param group  the Entity group
-     * @param vertex the  vertex
-     */
-    public void reinitialise(final String group, final Object vertex) {
-        setGroup(group);
-        getProperties().clear();
-        this.vertex = vertex;
-    }
-
     @Override
     public Object getVertex() {
         return vertex;

@@ -157,7 +157,7 @@ public class ElementSerialisation {
         return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), includeMatchedVertex, options);
     }
 
-    public Element getElement(final Cell cell, boolean includeMatchedVertex, final Map<String, String> options)
+    public Element getElement(final Cell cell, final boolean includeMatchedVertex, final Map<String, String> options)
             throws SerialisationException {
         final boolean keyRepresentsEntity = isEntity(cell);
         if (keyRepresentsEntity) {

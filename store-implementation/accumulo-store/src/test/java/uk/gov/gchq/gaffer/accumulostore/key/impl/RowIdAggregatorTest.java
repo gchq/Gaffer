@@ -284,7 +284,7 @@ public class RowIdAggregatorTest {
             scanner.setRanges(Arrays.asList(r, r2));
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
-            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
+            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false, null);
 
             Edge expectedEdge = new Edge.Builder()
                     .group("BasicEdge2")
@@ -301,7 +301,7 @@ public class RowIdAggregatorTest {
             // Check we get the Result of the second provided range
             assertTrue(it.hasNext());
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false, null);
             expectedEdge = new Edge.Builder()
                     .group("BasicEdge2")
                     .source("5")
