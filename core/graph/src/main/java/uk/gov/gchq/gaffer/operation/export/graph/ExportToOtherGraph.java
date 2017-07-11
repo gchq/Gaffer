@@ -17,19 +17,28 @@
 package uk.gov.gchq.gaffer.operation.export.graph;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import uk.gov.gchq.gaffer.commonutil.Required;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.export.ExportTo;
 import uk.gov.gchq.gaffer.operation.serialisation.TypeReferenceImpl;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.schema.Schema;
+import uk.gov.gchq.koryphe.ValidationResult;
 
 public class ExportToOtherGraph<T> implements
         Operation,
         ExportTo<T> {
-    private T input;
+    @Required
     private String graphId;
+
+    private T input;
+    private GraphLibrary graphLibrary;
+
+    private String parentSchemaId;
     private Schema schema;
-    private String graphLibraryPath;
+
+    private String parentStorePropertiesId;
     private StoreProperties storeProperties;
 
     @Override
@@ -52,6 +61,14 @@ public class ExportToOtherGraph<T> implements
         this.input = input;
     }
 
+    public String getParentSchemaId() {
+        return parentSchemaId;
+    }
+
+    public void setParentSchemaId(final String parentSchemaId) {
+        this.parentSchemaId = parentSchemaId;
+    }
+
     public Schema getSchema() {
         return schema;
     }
@@ -68,6 +85,14 @@ public class ExportToOtherGraph<T> implements
         this.graphId = graphId;
     }
 
+    public String getParentStorePropertiesId() {
+        return parentStorePropertiesId;
+    }
+
+    public void setParentStorePropertiesId(final String parentStorePropertiesId) {
+        this.parentStorePropertiesId = parentStorePropertiesId;
+    }
+
     public StoreProperties getStoreProperties() {
         return storeProperties;
     }
@@ -76,17 +101,59 @@ public class ExportToOtherGraph<T> implements
         this.storeProperties = storeProperties;
     }
 
-    public String getGraphLibraryPath() {
-        return graphLibraryPath;
+    public GraphLibrary getGraphLibrary() {
+        return graphLibrary;
     }
 
-    public void setGraphLibraryPath(final String graphLibraryPath) {
-        this.graphLibraryPath = graphLibraryPath;
+    public void setGraphLibrary(final GraphLibrary graphLibrary) {
+        this.graphLibrary = graphLibrary;
     }
 
     @Override
     public TypeReference<T> getOutputTypeReference() {
         return (TypeReference) new TypeReferenceImpl.Object();
+    }
+
+    @Override
+    public ValidationResult validate() {
+        final ValidationResult result = ExportTo.super.validate();
+
+        if (null == graphLibrary) {
+            // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
+            if (null != parentSchemaId) {
+                result.addError("parentSchemaId cannot be used without a GraphLibrary");
+            }
+            if (null != parentStorePropertiesId) {
+                result.addError("parentStorePropertiesId cannot be used without a GraphLibrary");
+            }
+        } else if (graphLibrary.exists(graphId)) {
+            if (null != parentSchemaId) {
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot use a different schema. Do not set the parentSchemaId field");
+            }
+            if (null != schema) {
+                throw new IllegalArgumentException("GraphId " + graphId + "already exists so you cannot provide a different schema. Do not set the schema field.");
+            }
+            if (null != parentStorePropertiesId) {
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot use different store properties. Do not set the parentStorePropertiesId field");
+            }
+            if (null != storeProperties) {
+                throw new IllegalArgumentException("GraphId " + graphId + " already exists so you cannot provide different store properties. Do not set the storeProperties field.");
+            }
+        } else {
+            if (null != parentSchemaId) {
+                final Schema parentSchema = graphLibrary.getSchema(parentSchemaId);
+                if (null == parentSchema) {
+                    throw new IllegalArgumentException("Schema could not be found in the graphLibrary with id: " + parentSchemaId);
+                }
+            }
+            if (null != parentStorePropertiesId) {
+                final Schema parentStoreProperties = graphLibrary.getSchema(parentStorePropertiesId);
+                if (null == parentStoreProperties) {
+                    throw new IllegalArgumentException("Store properties could not be found in the graphLibrary with id: " + parentStorePropertiesId);
+                }
+            }
+        }
+        return result;
     }
 
     public static final class Builder<T> extends BaseBuilder<ExportToOtherGraph<T>, Builder<T>>
@@ -100,13 +167,23 @@ public class ExportToOtherGraph<T> implements
             return _self();
         }
 
-        public Builder<T> graphLibraryPath(final String graphLibraryPath) {
-            _getOp().setGraphLibraryPath(graphLibraryPath);
+        public Builder<T> graphLibrary(final GraphLibrary graphLibrary) {
+            _getOp().setGraphLibrary(graphLibrary);
+            return _self();
+        }
+
+        public Builder<T> parentStorePropertiesId(final String parentStorePropertiesId) {
+            _getOp().setParentStorePropertiesId(parentStorePropertiesId);
             return _self();
         }
 
         public Builder<T> storeProperties(final StoreProperties storeProperties) {
             _getOp().setStoreProperties(storeProperties);
+            return _self();
+        }
+
+        public Builder<T> parentSchemaId(final String parentSchemaId) {
+            _getOp().setParentSchemaId(parentSchemaId);
             return _self();
         }
 

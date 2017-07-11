@@ -17,15 +17,14 @@
 package uk.gov.gchq.gaffer.operation.export.graph.handler;
 
 import uk.gov.gchq.gaffer.graph.Graph;
-import uk.gov.gchq.gaffer.graph.library.FileGraphLibrary;
 import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.export.graph.OtherGraphExporter;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
+import uk.gov.gchq.gaffer.store.StoreProperties;
 import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
 
@@ -36,61 +35,81 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
 
     @Override
     protected OtherGraphExporter createExporter(final ExportToOtherGraph export, final Context context, final Store store) {
-        if (export.getGraphId() == null) {
-            throw new IllegalArgumentException("GraphId is required");
-        }
         return new OtherGraphExporter(
                 context.getUser(),
                 context.getJobId(),
-                createGraph(export));
+                createGraph(export, store)
+        );
     }
 
-    private Graph createGraph(ExportToOtherGraph export) {
-        String storePropertiesId;
-        String schemaId;
-        GraphLibrary graphLibrary = new FileGraphLibrary(export.getGraphLibraryPath());
+    private Graph createGraph(ExportToOtherGraph export, final Store store) {
+        final String exportGraphId = export.getGraphId();
+        if (store.getGraphId().equals(exportGraphId)) {
+            throw new IllegalArgumentException("Cannot export to the same graph: " + exportGraphId);
+        }
 
-        // Create new graphLibrary using the given path
-        // If graphLibrary with the given graphId already exist we must make sure this graphLibrary is not overwritten!!!
-        // Just use the same graphLibrary.
-        if (graphLibrary.exists(export.getGraphId())) {
+        final GraphLibrary graphLibrary = export.getGraphLibrary();
+
+        // No graph library so we cannot look up the graphId/schemaId/storePropertiesId
+        if (null == graphLibrary) {
+            final Schema schema = null != export.getSchema() ? export.getSchema() : store.getSchema();
+            final StoreProperties properties = null != export.getStoreProperties() ? export.getStoreProperties() : store.getProperties();
             return new Graph.Builder()
-                    .graphId(export.getGraphId())
+                    .graphId(exportGraphId)
+                    .addSchema(schema)
+                    .storeProperties(properties)
+                    .build();
+        }
+
+        // If the graphId exists in the graphLibrary then just use it
+        if (graphLibrary.exists(exportGraphId)) {
+            return new Graph.Builder()
+                    .graphId(exportGraphId)
                     .library(graphLibrary)
                     .build();
         } else {
-
-            // Else the graphLibrary with the export.graphId does not exist and we can do what we want to the graphLibrary.
-            // Just because we have checked the schema and properties are not related to the given graphId there is nothing to say they
-            // don't already exist for a different graphId but in the same path specified.  We must check these do not exist before we start
-            // recreating them to make sure we don't overwrite them.
-            if (export.getStoreProperties().getId() != null) {
-                storePropertiesId = export.getStoreProperties().getId();
-            } else {
-                throw new IllegalArgumentException("No id is defined in the provided StoreProperties");
+            Schema schema = null;
+            if (null != export.getParentSchemaId()) {
+                schema = graphLibrary.getSchema(export.getParentSchemaId());
+            }
+            if (null != export.getSchema()) {
+                if (null == schema) {
+                    schema = export.getSchema();
+                } else
+                    // delete the old schema id as we are about to modify the schema
+                    schema = new Schema.Builder()
+                            .id(null)
+                            .merge(export.getSchema())
+                            .build();
+            }
+            if (null == schema) {
+                // as a last resort just use the schema from the current store
+                schema = store.getSchema();
             }
 
-            if (export.getSchema().getId() != null) {
-                schemaId = export.getSchema().getId();
-            } else {
-                throw new IllegalArgumentException("No id is set within the provided Schema");
+            StoreProperties storeProperties = null;
+            if (null != export.getParentStorePropertiesId()) {
+                storeProperties = graphLibrary.getProperties(export.getParentStorePropertiesId());
             }
-
-            if (!Files.exists(Paths.get(export.getGraphLibraryPath() + "/" + schemaId + "Schema.json"))
-                    && !Files.exists(Paths.get(export.getGraphLibraryPath() + "/" + storePropertiesId + "Props.properties"))) {
-                // we have now checked nothing to do with any of the id's exist so we can do what we like
-                // and add the new schema and storeProperties to the graphLibrary
-                graphLibrary.add(export.getGraphId(), export.getSchema(), export.getStoreProperties());
-            } else {
-                // either the schemaId or the storePropertiesId already has a file related so we can just addOrUpdate
-                graphLibrary.addOrUpdate(export.getGraphId(), export.getSchema(), export.getStoreProperties());
+            if (null != export.getStoreProperties()) {
+                if (null == storeProperties) {
+                    storeProperties = export.getStoreProperties();
+                } else {
+                    // delete the old properties id as we are about to modify the properties
+                    storeProperties.setId(null);
+                    storeProperties.getProperties().putAll(export.getStoreProperties().getProperties());
+                }
+            }
+            if (null == storeProperties) {
+                // as a last resort just use the properties from the current store
+                storeProperties = store.getProperties();
             }
 
             return new Graph.Builder()
-                    .graphId(export.getGraphId())
+                    .graphId(exportGraphId)
                     .library(graphLibrary)
-                    .addSchema(export.getSchema())
-                    .storeProperties(export.getStoreProperties())
+                    .addSchema(schema)
+                    .storeProperties(storeProperties)
                     .build();
         }
     }

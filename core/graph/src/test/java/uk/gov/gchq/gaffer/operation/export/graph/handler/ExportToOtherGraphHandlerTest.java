@@ -69,9 +69,6 @@ public class ExportToOtherGraphHandlerTest {
 
         final ExportToOtherGraphHandler handler = new ExportToOtherGraphHandler();
 
-        handler.setGraphId(GRAPH_ID);
-        handler.setGraphLibrary(graphLibrary);
-
         final Object handlerResult = handler.doOperation(export, context, store);
     }
 }
