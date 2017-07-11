@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.named.operation;
 
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
@@ -60,9 +61,18 @@ public class AddNamedOperation implements Operation {
         this.operations = opChainNode.toString();
     }
 
-    @JsonGetter("operationChain")
-    public String getOperationChain() {
+    @JsonIgnore
+    public String getOperationChainAsString() {
         return operations;
+    }
+
+    @JsonGetter("operationChain")
+    public JsonNode getOperationChainAsJsonNode() {
+        try {
+            return SERIALISER.getJsonNodeFromString(operations);
+        } catch (SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     public void setOperationChain(final OperationChain operationChain) {
