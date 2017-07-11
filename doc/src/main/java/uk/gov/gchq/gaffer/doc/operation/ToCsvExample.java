@@ -22,11 +22,10 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToCsv;
-import uk.gov.gchq.gaffer.operation.impl.output.ToMap;
 
 public class ToCsvExample extends OperationExample {
     public ToCsvExample() {
-        super(ToMap.class);
+        super(ToCsv.class);
     }
 
     public static void main(final String[] args) throws OperationException {
@@ -56,6 +55,6 @@ public class ToCsvExample extends OperationExample {
                 .build();
         // ---------------------------------------------------------
 
-        return runExample(opChain);
+        return runExample(opChain, null);
     }
 }

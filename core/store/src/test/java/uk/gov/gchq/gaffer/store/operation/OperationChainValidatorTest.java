@@ -16,8 +16,17 @@
 
 package uk.gov.gchq.gaffer.store.operation;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
+import uk.gov.gchq.gaffer.data.element.comparison.ElementPropertyComparator;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -37,12 +46,6 @@ import uk.gov.gchq.koryphe.ValidationResult;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 public class OperationChainValidatorTest {
     @Test
     public void shouldValidateValidOperationChain() {
@@ -50,9 +53,38 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new GetElements(),
                 new ToVertices(),
-                new GetAdjacentIds(),
-                new Max()
+                new GetAdjacentIds()
         )), true);
+    }
+
+    @Test
+    public void shouldInValidateNullElementDef() {
+        // Given
+        final ViewValidator viewValidator = mock(ViewValidator.class);
+        final OperationChainValidator validator = new OperationChainValidator(viewValidator);
+        final Store store = mock(Store.class);
+        Schema mock = mock(Schema.class);
+        given(store.getSchema()).willReturn(mock);
+        given(mock.getElement(Mockito.anyString())).willReturn(null);
+
+        final User user = mock(User.class);
+        Max max = new Max();
+        max.setComparators(Lists.newArrayList(new ElementPropertyComparator.Builder()
+                .groups(TestGroups.ENTITY)
+                .property("property")
+                .build()));
+
+        ValidationResult validationResult = new ValidationResult();
+
+        // When
+        validator.validateComparables(max, validationResult, store);
+
+        // Then
+        assertEquals(false, validationResult.isValid());
+        Set<String> errors = validationResult.getErrors();
+        assertEquals(1, errors.size());
+        errors.contains(Max.class.getName()
+                + " references BasicEntity group that does not exist in the schema");
     }
 
     @Test
@@ -61,9 +93,10 @@ public class OperationChainValidatorTest {
                 new GetElements(),
                 new GetElements(),
                 new ToVertices(),
-                new GenerateObjects(),
-                new GetAdjacentIds(),
-                new Max()
+                new GenerateObjects.Builder<>()
+                        .generator(e -> e)
+                        .build(),
+                new GetAdjacentIds()
         )), true);
     }
 

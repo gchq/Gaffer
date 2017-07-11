@@ -18,7 +18,7 @@ package uk.gov.gchq.gaffer.store.schema;
 
 import com.google.common.collect.Sets;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.JsonUtil;
+import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
@@ -33,6 +33,10 @@ import uk.gov.gchq.gaffer.function.ExampleFilterFunction;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.serialisation.implementation.JavaSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser;
+import uk.gov.gchq.koryphe.impl.predicate.Exists;
 import uk.gov.gchq.koryphe.impl.predicate.IsA;
 import uk.gov.gchq.koryphe.impl.predicate.IsXMoreThanY;
 import uk.gov.gchq.koryphe.tuple.binaryoperator.TupleAdaptedBinaryOperator;
@@ -43,6 +47,7 @@ import java.io.NotSerializableException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +63,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-
 public class SchemaTest {
     public static final String EDGE_DESCRIPTION = "Edge description";
     public static final String ENTITY_DESCRIPTION = "Entity description";
@@ -66,6 +70,7 @@ public class SchemaTest {
     public static final String INTEGER_TYPE_DESCRIPTION = "Integer type description";
     public static final String TIMESTAMP_TYPE_DESCRIPTION = "Timestamp type description";
     public static final String DATE_TYPE_DESCRIPTION = "Date type description";
+    public static final String MAP_TYPE_DESCRIPTION = "Map type description";
 
     private Schema schema = new Schema.Builder().json(StreamUtil.schemas(getClass())).build();
 
@@ -80,7 +85,7 @@ public class SchemaTest {
         // Check they are different instances
         assertNotSame(schema, clonedSchema);
         // Check they are equal by comparing the json
-        JsonUtil.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
+        JsonAssert.assertEquals(schema.toJson(true), clonedSchema.toJson(true));
     }
 
     @Test
@@ -93,7 +98,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toCompactJson();
 
         // Then
-        JsonUtil.assertEquals(json1, json2);
+        JsonAssert.assertEquals(json1, json2);
     }
 
     @Test
@@ -106,7 +111,7 @@ public class SchemaTest {
         final byte[] json2 = schema2.toJson(true);
 
         // Then
-        JsonUtil.assertEquals(json1, json2);
+        JsonAssert.assertEquals(json1, json2);
     }
 
     @Test
@@ -223,6 +228,16 @@ public class SchemaTest {
         assertTrue(aggContext.getBinaryOperator() instanceof ExampleAggregateFunction);
         assertEquals(1, aggContext.getSelection().length);
         assertEquals(TestPropertyNames.DATE, aggContext.getSelection()[0]);
+
+        TypeDefinition mapTypeDef = schema.getType(TestTypes.PROP_MAP);
+        assertEquals(LinkedHashMap.class, mapTypeDef.getClazz());
+        assertEquals(MAP_TYPE_DESCRIPTION, mapTypeDef.getDescription());
+        Serialiser serialiser = mapTypeDef.getSerialiser();
+        assertEquals(MapSerialiser.class, serialiser.getClass());
+        MapSerialiser mapSerialiser = (MapSerialiser) serialiser;
+        assertEquals(StringSerialiser.class, mapSerialiser.getKeySerialiser().getClass());
+        assertEquals(RawLongSerialiser.class, mapSerialiser.getValueSerialiser().getClass());
+        assertNull(mapSerialiser.getMapClass());
     }
 
     @Test
@@ -247,10 +262,14 @@ public class SchemaTest {
 
     @Test
     public void createProgramaticSchema() {
-        schema = createSchema();
+        createSchema();
     }
 
     private Schema createSchema() {
+        MapSerialiser mapSerialiser = new MapSerialiser();
+        mapSerialiser.setKeySerialiser(new StringSerialiser());
+        mapSerialiser.setValueSerialiser(new RawLongSerialiser());
+        mapSerialiser.setMapClass(LinkedHashMap.class);
         return new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source(TestTypes.ID_STRING)
@@ -281,6 +300,12 @@ public class SchemaTest {
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
                         .build())
+                .type(TestTypes.PROP_MAP, new TypeDefinition.Builder()
+                        .description(MAP_TYPE_DESCRIPTION)
+                        .clazz(LinkedHashMap.class)
+                        .serialiser(mapSerialiser)
+                        .build()
+                )
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
                         .clazz(String.class)
                         .description(STRING_TYPE_DESCRIPTION)
@@ -300,8 +325,8 @@ public class SchemaTest {
 
     @Test
     public void writeProgramaticSchemaAsJson() throws IOException, SchemaException {
-        schema = createSchema();
-        JsonUtil.assertEquals(String.format("{%n" +
+        Schema schema = createSchema();
+        JsonAssert.assertEquals(String.format("{%n" +
                 "  \"edges\" : {%n" +
                 "    \"BasicEdge\" : {%n" +
                 "      \"properties\" : {%n" +
@@ -343,6 +368,16 @@ public class SchemaTest {
                 "    \"id.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
                 "      \"class\" : \"java.lang.String\"%n" +
+                "    },%n" +
+                "    \"prop.map\" : {%n" +
+                "      \"serialiser\" : {%n" +
+                "          \"class\" : \"uk.gov.gchq.gaffer.serialisation.implementation.MapSerialiser\",%n" +
+                "          \"keySerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser\",%n" +
+                "          \"valueSerialiser\" : \"uk.gov.gchq.gaffer.serialisation.implementation.raw.RawLongSerialiser\",%n" +
+                "          \"mapClass\" : \"java.util.LinkedHashMap\"%n" +
+                "      },%n" +
+                "      \"description\" : \"Map type description\",%n" +
+                "      \"class\" : \"java.util.LinkedHashMap\"%n" +
                 "    },%n" +
                 "    \"prop.string\" : {%n" +
                 "      \"description\" : \"String type description\",%n" +
@@ -877,6 +912,160 @@ public class SchemaTest {
 
         assertEquals(allGroups, groups);
     }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityPropertyFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEntityIdentifierFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .vertex("str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.EDGE)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .select(TestPropertyNames.PROP_1)
+                                .execute(new Exists())
+                                .build())
+                        .build())
+                .edge(TestGroups.ENTITY)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgePropertyFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, "str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.ENTITY)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnTrueWhenSchemaHasValidatorEdgeIdentifierFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .source("str")
+                        .build())
+                .type("str", new TypeDefinition.Builder()
+                        .validateFunctions(new Exists())
+                        .build())
+                .edge(TestGroups.ENTITY)
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertTrue(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasNullValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(null)
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertFalse(result);
+    }
+
+    @Test
+    public void shouldReturnFalseWhenSchemaHasEmptyValidatorEdgeFilters() {
+        // Given
+        final Schema schema = new Schema.Builder()
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .validator(new ElementFilter.Builder()
+                                .build())
+                        .build())
+                .build();
+
+        // When
+        final boolean result = schema.hasValidation();
+
+        // Then
+        assertFalse(result);
+    }
+
 
     private class SerialisationImpl implements ToBytesSerialiser<Object> {
         private static final long serialVersionUID = 5055359689222968046L;

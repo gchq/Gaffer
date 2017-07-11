@@ -38,9 +38,11 @@ public class TestEntityKryoSerializer {
     @Test
     public void testEntity() {
         // Given
-        Entity entity = new Entity("group");
-        entity.setVertex("abc");
-        entity.putProperty("property1", 1);
+        Entity entity = new Entity.Builder()
+                .group("group")
+                .vertex("abc")
+                .property("property1", 1)
+                .build();
 
         // When
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

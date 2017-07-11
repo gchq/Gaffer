@@ -53,7 +53,7 @@ public class NamedOperationCacheIT
     public static void setUp() throws ClassNotFoundException, StoreException, IllegalAccessException, InstantiationException {
         final StoreProperties storeProps = StoreProperties.loadStoreProperties(StreamUtil.storeProps(NamedOperationCacheIT.class));
         Store store = Class.forName(storeProps.getStoreClass()).asSubclass(Store.class).newInstance();
-        store.initialise(new Schema(), storeProps);
+        store.initialise("graphId", new Schema(), storeProps);
         graph = new Graph.Builder()
                 .store(store)
                 .build();
@@ -111,7 +111,7 @@ public class NamedOperationCacheIT
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(add.getOperationName())
-                .operationChain(add.getOperationChain())
+                .operationChain(add.getOperationChainAsString())
                 .creatorId(user.getUserId())
                 .readers(new ArrayList<>())
                 .writers(new ArrayList<>())
@@ -155,7 +155,7 @@ public class NamedOperationCacheIT
         AddNamedOperation update = new AddNamedOperation.Builder()
                 .name(add.getOperationName())
                 .description("a different operation")
-                .operationChain(add.getOperationChain())
+                .operationChain(add.getOperationChainAsString())
                 .overwrite()
                 .build();
 
@@ -168,7 +168,7 @@ public class NamedOperationCacheIT
 
         NamedOperationDetail expectedNamedOp = new NamedOperationDetail.Builder()
                 .operationName(update.getOperationName())
-                .operationChain(update.getOperationChain())
+                .operationChain(update.getOperationChainAsString())
                 .description(update.getDescription())
                 .creatorId(user.getUserId())
                 .readers(new ArrayList<>())

@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -55,13 +54,17 @@ public class JavaSerialiser implements ToBytesSerialiser<Object> {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
-        try (final InputStream inputStream = new ByteArrayInputStream(bytes);
-             final ObjectInputStream is = new ObjectInputStream(inputStream)) {
+    public Object deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        try (final ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(allBytes, offset, length))) {
             return is.readObject();
         } catch (final ClassNotFoundException | IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to recreate object", e);
         }
+    }
+
+    @Override
+    public Object deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

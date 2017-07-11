@@ -177,11 +177,19 @@ Maven war plugin (org.apache.maven.plugins:maven-war-plugin:3.0.0):
 - Apache License, Version 2.0
 
 
-
 Roaring Bitmap (org.roaringbitmap:RoaringBitmap:0.5.11)
 
 - Apache License, Version 2.0
 
+
+Apache Kafka (org.apache.kafka:kafka_2.11:0.10.0.0,org.apache.kafka:kafka-clients:0.10.0.0)
+
+- Apache License, Version 2.0
+
+
+Apache Flink (org.apache.curator:curator-test:0.5.11)
+
+- Apache License, Version 2.0
 
 
 ------------------------------------------------------------------------------------------------

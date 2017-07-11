@@ -37,6 +37,8 @@ public class ExistsExample extends PredicateExample {
         final Exists function = new Exists();
         // ---------------------------------------------------------
 
-        runExample(function, 1, null, "", "abc");
+        runExample(function,
+                null,
+                1, null, "", "abc");
     }
 }

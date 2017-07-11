@@ -165,6 +165,7 @@ public abstract class AbstractStoreIT {
         assumeTrue("Skipping test. Justification: " + skippedTests.get(getClass()), !skippedTests.containsKey(getClass()));
 
         graph = new Graph.Builder()
+                .graphId("integrationTestGraph")
                 .storeProperties(storeProperties)
                 .addSchema(createSchema())
                 .addSchema(storeSchema)
@@ -279,23 +280,43 @@ public abstract class AbstractStoreIT {
         final Map<EdgeId, Edge> edges = new HashMap<>();
         for (int i = 0; i <= 10; i++) {
             for (int j = 0; j < VERTEX_PREFIXES.length; j++) {
-                final Edge edge = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, false);
-                edge.putProperty(TestPropertyNames.INT, 1);
-                edge.putProperty(TestPropertyNames.COUNT, 1L);
+                final Edge edge = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_PREFIXES[0] + i)
+                        .dest(VERTEX_PREFIXES[j] + i)
+                        .directed(false)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(edge, edges);
 
-                final Edge edgeDir = new Edge(TestGroups.EDGE, VERTEX_PREFIXES[0] + i, VERTEX_PREFIXES[j] + i, true);
-                edgeDir.putProperty(TestPropertyNames.INT, 1);
-                edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
+                final Edge edgeDir = new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source(VERTEX_PREFIXES[0] + i)
+                        .dest(VERTEX_PREFIXES[j] + i)
+                        .directed(true)
+                        .property(TestPropertyNames.INT, 1)
+                        .property(TestPropertyNames.COUNT, 1L)
+                        .build();
                 addToMap(edgeDir, edges);
             }
 
-            final Edge edge = new Edge(TestGroups.EDGE, SOURCE + i, DEST + i, false);
-            edge.putProperty(TestPropertyNames.INT, 1);
-            edge.putProperty(TestPropertyNames.COUNT, 1L);
+            final Edge edge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(SOURCE + i)
+                    .dest(DEST + i)
+                    .directed(false)
+                    .property(TestPropertyNames.INT, 1)
+                    .property(TestPropertyNames.COUNT, 1L)
+                    .build();
             addToMap(edge, edges);
 
-            final Edge edgeDir = new Edge(TestGroups.EDGE, SOURCE_DIR + i, DEST_DIR + i, true);
+            final Edge edgeDir = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(SOURCE_DIR + i)
+                    .dest(DEST_DIR + i)
+                    .directed(true)
+                    .build();
             edgeDir.putProperty(TestPropertyNames.INT, 1);
             edgeDir.putProperty(TestPropertyNames.COUNT, 1L);
             addToMap(edgeDir, edges);

@@ -32,12 +32,21 @@ import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.user.User;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Operation Handler for NamedOperation
  */
 public class NamedOperationHandler implements OutputOperationHandler<NamedOperation<?, Object>, Object> {
-    private NamedOperationCache cache = new NamedOperationCache();
+    private final NamedOperationCache cache;
+
+    public NamedOperationHandler() {
+        this(new NamedOperationCache());
+    }
+
+    public NamedOperationHandler(final NamedOperationCache cache) {
+        this.cache = cache;
+    }
 
     /**
      * Gets the requested NamedOperation, updates the input and the view, then executes the operation chain, bypassing
@@ -52,12 +61,10 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
     @Override
     public Object doOperation(final NamedOperation operation, final Context context, final Store store) throws OperationException {
         try {
-            if (cache == null) {
-                throw new OperationException("Cache must not be null");
-            }
-            NamedOperationDetail namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
-            OperationChain<?> operationChain = namedOperation.getOperationChain();
-            operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache));
+            final NamedOperationDetail namedOperation = cache.getNamedOperation(operation.getOperationName(), context.getUser());
+            final Map<String, Object> params = operation.getParameters();
+            OperationChain<?> operationChain = namedOperation.getOperationChain(params);
+            operationChain = new OperationChain<>(exposeNamedOperations(operationChain, context.getUser(), cache, params));
             updateOperationInput(operationChain.getOperations().get(0), operation.getInput());
             operationChain = updateView(operation.getView(), operationChain);
             return store._execute(operationChain, context);
@@ -113,27 +120,19 @@ public class NamedOperationHandler implements OutputOperationHandler<NamedOperat
         }
     }
 
-    private List<Operation> exposeNamedOperations(final OperationChain<?> opChain, final User user, final NamedOperationCache cache) throws CacheOperationFailedException {
+    private List<Operation> exposeNamedOperations(final OperationChain<?> opChain, final User user, final NamedOperationCache cache, final Map<String, Object> params) throws CacheOperationFailedException {
         ArrayList<Operation> operations = new ArrayList<>();
         for (final Operation operation : opChain.getOperations()) {
             if (operation instanceof NamedOperation) {
                 final NamedOperation namedOp = (NamedOperation) operation;
-                OperationChain<?> innerChain = cache.getNamedOperation(namedOp.getOperationName(), user).getOperationChain();
+                final OperationChain<?> innerChain = cache.getNamedOperation(namedOp.getOperationName(), user).getOperationChain(params);
                 updateOperationInput(innerChain.getOperations().get(0), namedOp.getInput());
-                operations.addAll(exposeNamedOperations(innerChain, user, cache));
+                operations.addAll(exposeNamedOperations(innerChain, user, cache, params));
             } else {
                 operations.add(operation);
             }
         }
+
         return operations;
-
-    }
-
-    public NamedOperationCache getCache() {
-        return cache;
-    }
-
-    public void setCache(final NamedOperationCache cache) {
-        this.cache = cache;
     }
 }

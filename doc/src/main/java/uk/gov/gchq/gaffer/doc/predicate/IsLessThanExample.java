@@ -39,7 +39,9 @@ public class IsLessThanExample extends PredicateExample {
         final IsLessThan function = new IsLessThan(5);
         // ---------------------------------------------------------
 
-        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
+        runExample(function,
+                null,
+                1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanOrEqualTo5() {
@@ -47,7 +49,9 @@ public class IsLessThanExample extends PredicateExample {
         final IsLessThan function = new IsLessThan(5, true);
         // ---------------------------------------------------------
 
-        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
+        runExample(function,
+                null,
+                1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanALong5() {
@@ -55,7 +59,9 @@ public class IsLessThanExample extends PredicateExample {
         final IsLessThan function = new IsLessThan(5L);
         // ---------------------------------------------------------
 
-        runExample(function, 1, 1L, 5, 5L, 10, 10L, "1");
+        runExample(function,
+                null,
+                1, 1L, 5, 5L, 10, 10L, "1");
     }
 
     public void isLessThanAString() {
@@ -63,6 +69,8 @@ public class IsLessThanExample extends PredicateExample {
         final IsLessThan function = new IsLessThan("B");
         // ---------------------------------------------------------
 
-        runExample(function, 1, "A", "B", "C");
+        runExample(function,
+                null,
+                1, "A", "B", "C");
     }
 }

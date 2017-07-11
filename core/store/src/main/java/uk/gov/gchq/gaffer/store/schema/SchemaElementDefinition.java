@@ -21,10 +21,11 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.TransformIterable;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.function.ElementAggregator;
@@ -186,7 +187,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
         final ElementAggregator aggregator = new ElementAggregator();
         if (aggregate) {
             for (final Entry<String, String> entry : getPropertyMap().entrySet()) {
-                if (!groupBy.contains(entry.getKey())) {
+                if (!groupBy.contains(entry.getKey()) && !entry.getKey().equals(schemaReference.getVisibilityProperty())) {
                     addTypeAggregateFunction(aggregator, entry.getKey(), entry.getValue());
                 }
             }
@@ -226,6 +227,25 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
     @JsonIgnore
     public ElementFilter getOriginalValidator() {
         return validator;
+    }
+
+    public boolean hasValidation() {
+        if (null != validator && !validator.getComponents().isEmpty()) {
+            return true;
+        }
+
+        final Set<String> typeNames = Sets.newHashSet(identifiers.values());
+        typeNames.addAll(properties.values());
+        for (final String typeName : typeNames) {
+            final TypeDefinition typeDef = getTypeDef(typeName);
+            if (null != typeDef) {
+                if (null != typeDef.getValidateFunctions() && !typeDef.getValidateFunctions().isEmpty()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public ElementFilter getValidator(final boolean includeIsA) {
@@ -420,7 +440,7 @@ public abstract class SchemaElementDefinition implements ElementDefinition {
 
     protected abstract static class BaseBuilder<ELEMENT_DEF extends SchemaElementDefinition,
             CHILD_CLASS extends BaseBuilder<ELEMENT_DEF, ?>> {
-        protected ELEMENT_DEF elDef;
+        protected final ELEMENT_DEF elDef;
 
         protected BaseBuilder(final ELEMENT_DEF elementDef) {
             this.elDef = elementDef;

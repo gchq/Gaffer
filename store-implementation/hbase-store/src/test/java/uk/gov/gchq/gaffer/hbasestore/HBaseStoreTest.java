@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
@@ -27,6 +28,7 @@ import uk.gov.gchq.gaffer.hbasestore.operation.handler.AddElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetAllElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.handler.GetElementsHandler;
 import uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.AddElementsFromHdfsHandler;
+import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.hdfs.operation.AddElementsFromHdfs;
 import uk.gov.gchq.gaffer.operation.impl.Validate;
 import uk.gov.gchq.gaffer.operation.impl.add.AddElements;
@@ -43,6 +45,7 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -59,14 +62,24 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 import static uk.gov.gchq.gaffer.store.StoreTrait.VISIBILITY;
 
 public class HBaseStoreTest {
-    private static final Schema schema = Schema.fromJson(StreamUtil.schemas(HBaseStoreTest.class));
+    private static final Schema SCHEMA = Schema.fromJson(StreamUtil.schemas(HBaseStoreTest.class));
     private static final HBaseProperties PROPERTIES = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+    private static final String GRAPH_ID = "graphId";
     private static MiniHBaseStore store;
 
     @BeforeClass
     public static void setup() throws StoreException, IOException {
         store = new MiniHBaseStore();
-        store.initialise(schema, PROPERTIES);
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+    }
+
+    @Before
+    public void beforeMethod() throws StoreException, IOException {
+        try (final Admin admin = store.getConnection().getAdmin()) {
+            if (!admin.tableExists(store.getTableName())) {
+                store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+            }
+        }
     }
 
     @AfterClass
@@ -77,10 +90,90 @@ public class HBaseStoreTest {
     @Test
     public void shouldCreateTableWhenInitialised() throws StoreException, IOException {
         final Connection connection = store.getConnection();
-        final TableName tableName = store.getProperties().getTable();
+        final TableName tableName = store.getTableName();
         try (final Admin admin = connection.getAdmin()) {
             assertTrue(admin.tableExists(tableName));
         }
+    }
+
+    @Test
+    public void shouldNotCreateTableWhenInitialisedWithGeneralInitialiseMethod() throws StoreException, IOException {
+        final TableName tableName = store.getTableName();
+        Connection connection = store.getConnection();
+
+        TableUtils.dropTable(store);
+        try (final Admin admin = connection.getAdmin()) {
+            assertFalse(admin.tableExists(tableName));
+        }
+
+        store.preInitialise(GRAPH_ID, SCHEMA, PROPERTIES);
+        connection = store.getConnection();
+        try (final Admin admin = connection.getAdmin()) {
+            assertFalse(admin.tableExists(tableName));
+        }
+
+        store.initialise(GRAPH_ID, SCHEMA, PROPERTIES);
+        connection = store.getConnection();
+        try (final Admin admin = connection.getAdmin()) {
+            assertTrue(admin.tableExists(tableName));
+        }
+    }
+
+    @Test
+    public void shouldCreateAStoreUsingTableName() throws Exception {
+        // Given
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        properties.setTable("tableName");
+        final MiniHBaseStore store = new MiniHBaseStore();
+
+        // When
+        store.initialise(null, SCHEMA, properties);
+
+        // Then
+        assertEquals("tableName", store.getGraphId());
+    }
+
+    @Test
+    public void shouldCreateAStoreUsingGraphIdIfItIsEqualToTableName() throws Exception {
+        // Given
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        properties.setTable("tableName");
+        final MiniHBaseStore store = new MiniHBaseStore();
+
+        // When
+        store.initialise("tableName", SCHEMA, properties);
+
+        // Then
+        assertEquals("tableName", store.getGraphId());
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGraphIdAndTableNameAreProvidedAndDifferent() throws Exception {
+        // Given
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        properties.setTable("tableName");
+        final MiniHBaseStore store = new MiniHBaseStore();
+
+        // When / Then
+        try {
+            store.initialise("graphId", SCHEMA, properties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldCreateAStoreUsingGraphId() throws Exception {
+        // Given
+        final HBaseProperties properties = HBaseProperties.loadStoreProperties(StreamUtil.storeProps(HBaseStoreTest.class));
+        final MiniHBaseStore store = new MiniHBaseStore();
+
+        // When
+        store.initialise("graphId", SCHEMA, properties);
+
+        // Then
+        assertEquals("graphId", store.getGraphId());
     }
 
     @Test

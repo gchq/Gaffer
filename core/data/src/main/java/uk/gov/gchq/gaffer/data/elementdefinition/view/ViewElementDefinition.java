@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.function.ElementFilter;
 import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinition;
@@ -134,6 +134,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         return null != preAggregationFilter ? preAggregationFilter.getComponents() : null;
     }
 
+    public boolean hasPreAggregationFilters() {
+        return null != preAggregationFilter && !preAggregationFilter.getComponents().isEmpty();
+    }
+
     @JsonIgnore
     public ElementFilter getPostAggregationFilter() {
         return postAggregationFilter;
@@ -144,6 +148,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
         return null != postAggregationFilter ? postAggregationFilter.getComponents() : null;
     }
 
+    public boolean hasPostAggregationFilters() {
+        return null != postAggregationFilter && !postAggregationFilter.getComponents().isEmpty();
+    }
+
     @JsonIgnore
     public ElementFilter getPostTransformFilter() {
         return postTransformFilter;
@@ -152,6 +160,10 @@ public class ViewElementDefinition implements ElementDefinition, Cloneable {
     @JsonGetter("postTransformFilterFunctions")
     public List<TupleAdaptedPredicate<String, ?>> getPostTransformFilterFunctions() {
         return null != postTransformFilter ? postTransformFilter.getComponents() : null;
+    }
+
+    public boolean hasPostTransformFilters() {
+        return null != postTransformFilter && !postTransformFilter.getComponents().isEmpty();
     }
 
     @JsonIgnore

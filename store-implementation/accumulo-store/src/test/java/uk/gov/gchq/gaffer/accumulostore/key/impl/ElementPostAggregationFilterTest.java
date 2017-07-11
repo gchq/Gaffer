@@ -61,7 +61,7 @@ public class ElementPostAggregationFilterTest {
     }
 
     @Test
-    public void shouldThrowIllegalArgumentExceptionWhenValidateOptionsWithNoView() throws Exception {
+    public void shouldThrowIllegalArgumentExceptionWhenInitWithNoView() throws Exception {
         // Given
         final AbstractElementFilter filter = new ElementPostAggregationFilter();
 
@@ -72,7 +72,7 @@ public class ElementPostAggregationFilterTest {
 
         // When / Then
         try {
-            filter.validateOptions(options);
+            filter.init(null, options, null);
             fail("Expected IllegalArgumentException to be thrown on method invocation");
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getMessage().contains(AccumuloStoreConstants.VIEW));
@@ -110,6 +110,7 @@ public class ElementPostAggregationFilterTest {
 
         // When
         final boolean isValid = filter.validateOptions(options);
+        ;
 
         // Then
         assertTrue(isValid);
@@ -126,11 +127,16 @@ public class ElementPostAggregationFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
+        final Element element = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("dest")
+                .directed(true)
+                .build();
         final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -152,11 +158,16 @@ public class ElementPostAggregationFilterTest {
         options.put(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS,
                 ByteEntityAccumuloElementConverter.class.getName());
 
-        filter.validateOptions(options);
+        filter.init(null, options, null);
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
+        final Element element = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("dest")
+                .directed(true)
+                .build();
         final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 

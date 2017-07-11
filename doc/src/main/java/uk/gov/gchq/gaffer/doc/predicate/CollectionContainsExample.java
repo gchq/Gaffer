@@ -40,6 +40,7 @@ public class CollectionContainsExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 createSet(1, 2, 3),
                 createSet(1),
                 createSet(2),

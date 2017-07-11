@@ -17,14 +17,16 @@
 package uk.gov.gchq.gaffer.store.schema;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
@@ -61,6 +63,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementDefinitions.class);
     private final TypeDefinition unknownType = new TypeDefinition();
 
+    private String id;
+
     /**
      * The {@link Serialiser} for all vertices.
      */
@@ -95,6 +99,14 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
 
     public static Schema fromJson(final byte[]... jsonBytes) throws SchemaException {
         return new Schema.Builder().json(jsonBytes).build();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
@@ -180,6 +192,17 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         return result;
     }
 
+    public boolean hasValidation() {
+        for (final SchemaElementDefinition elementDef : new ChainedIterable<SchemaElementDefinition>(getEntities().values(), getEdges().values())) {
+            if (null != elementDef) {
+                if (elementDef.hasValidation()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Map<String, TypeDefinition> getTypes() {
         return types;
     }
@@ -202,11 +225,13 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
      *
      * @return An implementation of {@link Serialiser} that will be used to serialise all vertices.
      */
-    @JsonIgnore
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
     public Serialiser getVertexSerialiser() {
         return vertexSerialiser;
     }
 
+    @Deprecated
+    @JsonIgnore
     public String getVertexSerialiserClass() {
         if (null == vertexSerialiser) {
             return null;
@@ -252,6 +277,11 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
             super(schema);
         }
 
+        public CHILD_CLASS id(final String id) {
+            getThisSchema().id = id;
+            return self();
+        }
+
         @Override
         public CHILD_CLASS entity(final String group) {
             return entity(group, new SchemaEntityDefinition());
@@ -268,6 +298,7 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiser the {@link Serialiser} to set
          * @return this Builder
          */
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "class")
         public CHILD_CLASS vertexSerialiser(final Serialiser vertexSerialiser) {
             getThisSchema().vertexSerialiser = vertexSerialiser;
             return self();
@@ -279,6 +310,8 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
          * @param vertexSerialiserClass the {@link Serialiser} class name to set
          * @return this Builder
          */
+        @Deprecated
+        @JsonSetter("vertexSerialiserClass")
         public CHILD_CLASS vertexSerialiserClass(final String vertexSerialiserClass) {
             if (null == vertexSerialiserClass) {
                 getThisSchema().vertexSerialiser = null;
@@ -329,6 +362,10 @@ public class Schema extends ElementDefinitions<SchemaEntityDefinition, SchemaEdg
         public CHILD_CLASS merge(final Schema schema) {
             validateSharedGroups(getThisSchema().getEntityGroups(), schema.getEntityGroups());
             validateSharedGroups(getThisSchema().getEdgeGroups(), schema.getEdgeGroups());
+
+            if (null != schema.getId()) {
+                getThisSchema().setId(schema.getId());
+            }
 
             if (getThisSchema().getEntities().isEmpty()) {
                 getThisSchema().getEntities().putAll(schema.getEntities());

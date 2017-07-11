@@ -87,6 +87,7 @@ public abstract class RestApiTestClient {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
         System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
+        System.setProperty(SystemProperty.GRAPH_ID, SystemProperty.GRAPH_ID);
 
         reinitialiseGraph();
     }

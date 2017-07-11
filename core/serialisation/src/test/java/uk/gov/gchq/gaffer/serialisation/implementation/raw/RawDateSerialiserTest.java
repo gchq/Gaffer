@@ -16,16 +16,17 @@
 package uk.gov.gchq.gaffer.serialisation.implementation.raw;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
-import uk.gov.gchq.gaffer.serialisation.ToByteSerialisationTest;
+import uk.gov.gchq.gaffer.serialisation.ToBytesSerialisationTest;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RawDateSerialiserTest extends ToByteSerialisationTest<Date> {
+public class RawDateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
@@ -76,5 +77,14 @@ public class RawDateSerialiserTest extends ToByteSerialisationTest<Date> {
     @Override
     public Serialiser<Date, byte[]> getSerialisation() {
         return new RawDateSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(new Date(60460074000000L), new byte[]{0, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(61406234880000L), new byte[]{0, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(59514676680000L), new byte[]{0, 0, 54, 32, -41, 41, -107, 64})
+        };
     }
 }

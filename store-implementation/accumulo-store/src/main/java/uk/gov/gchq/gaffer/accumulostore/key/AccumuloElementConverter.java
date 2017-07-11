@@ -18,11 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 import java.util.Map;
 
 /**
@@ -92,6 +94,15 @@ public interface AccumuloElementConverter {
      * the property stored within the {@link Value}
      */
     Properties getPropertiesFromValue(final String group, final Value value);
+
+    /**
+     * Gets a new {@link ElementId} from an Accumulo {@link Key}.
+     *
+     * @param key     the Key containing serialised parts of the Element
+     * @param options the operation options
+     * @return A new {@link ElementId}
+     */
+    ElementId getElementId(final Key key, final Map<String, String> options);
 
     /**
      * Gets a new {@link Element} from an Accumulo {@link Key}.
@@ -174,9 +185,9 @@ public interface AccumuloElementConverter {
      * @param group    the element group
      * @param bytes    the full list of property bytes
      * @param numProps the number of properties to extract
-     * @return the truncated property bytes.
+     * @return details of the bytes range.
      */
-    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
+    BytesAndRange getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
 
     /**
      * Creates a byte array representing the group.

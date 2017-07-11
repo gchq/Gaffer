@@ -285,8 +285,11 @@ public class ExamplesService implements IExamplesService {
         final String group = getAnEntityGroup();
         final SchemaElementDefinition entityDef = getSchema().getEntity(group);
 
-        final Entity entity = new Entity(group);
-        entity.setVertex(getExampleVertex(entityDef.getIdentifierClass(IdentifierType.VERTEX), uniqueId));
+        final Entity entity = new Entity.Builder()
+                .group(group)
+                .vertex(getExampleVertex(entityDef
+                        .getIdentifierClass(IdentifierType.VERTEX), uniqueId))
+                .build();
         populateProperties(entity, entityDef, uniqueId);
 
         return entity;
@@ -296,10 +299,13 @@ public class ExamplesService implements IExamplesService {
         final String group = getAnEdgeGroup();
         final SchemaElementDefinition edgeDef = getSchema().getEdge(group);
 
-        final Edge edge = new Edge(group);
-        edge.setSource(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1));
-        edge.setDestination(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.DESTINATION), uniqueId2));
-        edge.setDirected(isAnEdgeDirected());
+        final Edge edge = new Edge.Builder()
+                .group(group)
+                .source(getExampleVertex(edgeDef.getIdentifierClass(IdentifierType.SOURCE), uniqueId1))
+                .dest(getExampleVertex(edgeDef
+                        .getIdentifierClass(IdentifierType.DESTINATION), uniqueId2))
+                .directed(isAnEdgeDirected())
+                .build();
 
         populateProperties(edge, edgeDef, uniqueId1);
 

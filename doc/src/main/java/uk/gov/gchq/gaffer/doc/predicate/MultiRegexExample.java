@@ -37,6 +37,8 @@ public class MultiRegexExample extends PredicateExample {
         final MultiRegex function = new MultiRegex(new Pattern[]{Pattern.compile("[a-d]"), Pattern.compile("[0-4]")});
         // ---------------------------------------------------------
 
-        runExample(function, "a", "z", "az", 'a', "2", 2, 2L);
+        runExample(function,
+                null,
+                "a", "z", "az", 'a', "2", 2, 2L);
     }
 }

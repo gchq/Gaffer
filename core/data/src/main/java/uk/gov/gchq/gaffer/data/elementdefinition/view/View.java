@@ -22,8 +22,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.data.elementdefinition.ElementDefinitions;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * The <code>View</code> defines the {@link uk.gov.gchq.gaffer.data.element.Element}s to be returned for an operation.
@@ -114,6 +116,19 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
     public List<GlobalViewElementDefinition> getGlobalEdges() {
         return globalEdges;
     }
+
+    public boolean hasPreAggregationFilters() {
+        return hasFilters(ViewElementDefinition::hasPreAggregationFilters);
+    }
+
+    public boolean hasPostAggregationFilters() {
+        return hasFilters(ViewElementDefinition::hasPostAggregationFilters);
+    }
+
+    public boolean hasPostTransformFilters() {
+        return hasFilters(ViewElementDefinition::hasPostTransformFilters);
+    }
+
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @SuppressFBWarnings(value = "CN_IDIOM_NO_SUPER_CALL", justification = "Only inherits from Object")
@@ -205,6 +220,17 @@ public class View extends ElementDefinitions<ViewElementDefinition, ViewElementD
         }
 
         return Collections.unmodifiableMap(newElements);
+    }
+
+    private boolean hasFilters(final Function<ViewElementDefinition, Boolean> hasFilters) {
+        for (final Map.Entry<String, ViewElementDefinition> entry : new ChainedIterable<Map.Entry<String, ViewElementDefinition>>(getEntities().entrySet(), getEdges().entrySet())) {
+            if (null != entry.getValue()) {
+                if (hasFilters.apply(entry.getValue())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

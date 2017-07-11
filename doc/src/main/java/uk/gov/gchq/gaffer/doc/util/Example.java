@@ -28,6 +28,7 @@ public abstract class Example {
     public static final String DIVIDER = "-----------------------------------------------";
     public static final String TITLE_DIVIDER = DIVIDER;
     public static final String METHOD_DIVIDER = DIVIDER + "\n";
+    public static final String KORYPHE_JAVA_DOC_URL_PREFIX = "http://gchq.github.io/koryphe/";
     public static final String JAVA_DOC_URL_PREFIX = "http://gchq.github.io/Gaffer/";
     private final Class<?> classForExample;
     private final String description;
@@ -44,10 +45,20 @@ public abstract class Example {
     public void run() {
         log(classForExample.getSimpleName() + " example");
         log(TITLE_DIVIDER);
-        log("See javadoc - [" + classForExample.getName() + "](" + JAVA_DOC_URL_PREFIX + classForExample.getName().replace(".", "/") + ".html).\n");
+        printJavaDocLink();
         printDescription();
 
         runExamples();
+    }
+
+    public void printJavaDocLink() {
+        final String urlPrefix;
+        if (classForExample.getName().contains("koryphe")) {
+            urlPrefix = KORYPHE_JAVA_DOC_URL_PREFIX;
+        } else {
+            urlPrefix = JAVA_DOC_URL_PREFIX;
+        }
+        log("See javadoc - [" + classForExample.getName() + "](" + urlPrefix + classForExample.getName().replace(".", "/") + ".html).\n");
     }
 
     public Class<?> getClassForExample() {
@@ -74,7 +85,7 @@ public abstract class Example {
 
     protected void printDescription() {
         if (StringUtils.isNotEmpty(description)) {
-            log(description);
+            log(description + "\n");
         }
     }
 
@@ -110,7 +121,6 @@ public abstract class Example {
             throw new RuntimeException(e);
         }
     }
-
 
     protected void log(final String message) {
         System.out.println(message);

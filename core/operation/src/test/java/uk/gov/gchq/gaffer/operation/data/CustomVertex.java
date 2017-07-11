@@ -16,13 +16,21 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+
 public class CustomVertex {
 
     private String type;
     private String value;
 
     public CustomVertex() {
+    }
 
+    public CustomVertex(final String type, final String value) {
+        this.type = type;
+        this.value = value;
     }
 
     public String getType() {
@@ -41,4 +49,37 @@ public class CustomVertex {
         this.value = value;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        final CustomVertex customVertex = (CustomVertex) obj;
+
+        return new EqualsBuilder()
+                .append(type, customVertex.type)
+                .append(value, customVertex.value)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(13, 37)
+                .append(type)
+                .append(value)
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("type", type)
+                .append("value", value)
+                .toString();
+    }
 }

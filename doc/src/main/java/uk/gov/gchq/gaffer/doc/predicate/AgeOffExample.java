@@ -38,6 +38,8 @@ public class AgeOffExample extends PredicateExample {
         final AgeOff function = new AgeOff(100000L);
         // ---------------------------------------------------------
 
-        runExample(function, "", now, now - 100000L, now + 100000L, String.valueOf(now));
+        runExample(function,
+                null,
+                "", now, now - 100000L, now + 100000L, String.valueOf(now));
     }
 }

@@ -61,6 +61,8 @@ import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 @RunWith(MockitoJUnitRunner.class)
 public class GraphConfigurationServiceTest {
 
+    private static final String GRAPH_ID = "graphId";
+
     @InjectMocks
     private GraphConfigurationService service;
 
@@ -80,7 +82,7 @@ public class GraphConfigurationServiceTest {
         final Schema schema = mock(Schema.class);
         final Set<StoreTrait> traits = new HashSet<>(Arrays.asList(INGEST_AGGREGATION, PRE_AGGREGATION_FILTERING, POST_TRANSFORMATION_FILTERING, POST_AGGREGATION_FILTERING, TRANSFORMATION, STORE_VALIDATION));
         given(store.getSchema()).willReturn(schema);
-        final Graph graph = new Graph.Builder().store(store).build();
+        final Graph graph = new Graph.Builder().graphId(GRAPH_ID).store(store).build();
         final Set<Class<? extends Operation>> operations = new HashSet<>();
         operations.add(AddElements.class);
         given(graphFactory.getGraph()).willReturn(graph);

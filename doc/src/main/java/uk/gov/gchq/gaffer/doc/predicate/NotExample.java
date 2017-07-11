@@ -41,7 +41,7 @@ public class NotExample extends PredicateExample {
         final Not function = new Not<>(new Exists());
         // ---------------------------------------------------------
 
-        runExample(function, 1, null, "", "abc");
+        runExample(function, null, 1, null, "", "abc");
     }
 
     public void areNotEqual() {
@@ -50,6 +50,7 @@ public class NotExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 new Tuple2<>(1, 1.0),
                 new Tuple2<>(1, 2),
                 new Tuple2<>(2.5, 2.5),

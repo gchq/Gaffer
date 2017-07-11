@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.predicate;
 
+import org.apache.commons.lang.StringUtils;
 import uk.gov.gchq.gaffer.doc.util.Example;
 import uk.gov.gchq.gaffer.doc.util.JavaSourceUtil;
 import uk.gov.gchq.koryphe.signature.Signature;
@@ -27,8 +28,11 @@ public abstract class PredicateExample extends Example {
         super(classForExample);
     }
 
-    public void runExample(final Predicate predicate, final Object... inputs) {
+    public void runExample(final Predicate predicate, final String description, final Object... inputs) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
+        if (StringUtils.isNotBlank(description)) {
+            log(description + "\n");
+        }
         printJava(JavaSourceUtil.getRawJavaSnippet(getClass(), "doc", " " + getMethodName(1) + "() {", String.format("---%n"), "// ----"));
         printAsJson(predicate);
 

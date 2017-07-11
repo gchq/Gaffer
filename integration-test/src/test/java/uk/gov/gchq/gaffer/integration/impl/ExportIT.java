@@ -58,7 +58,12 @@ public class ExportIT extends AbstractStoreIT {
     protected Map<EdgeId, Edge> createEdges() {
         final Map<EdgeId, Edge> edges = super.createEdges();
         for (int i = 0; i <= 10; i++) {
-            final Edge thirdEdge = new Edge(TestGroups.EDGE, DEST_DIR + i, SOURCE_DIR + (i + 1), true);
+            final Edge thirdEdge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source(DEST_DIR + i)
+                    .dest(SOURCE_DIR + (i + 1))
+                    .directed(true)
+                    .build();
             thirdEdge.putProperty(TestPropertyNames.INT, 1);
             thirdEdge.putProperty(TestPropertyNames.COUNT, 1L);
             addToMap(thirdEdge, edges);

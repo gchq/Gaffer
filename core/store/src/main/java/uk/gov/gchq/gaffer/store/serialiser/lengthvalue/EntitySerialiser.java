@@ -69,7 +69,7 @@ public class EntitySerialiser extends PropertiesSerialiser implements ToBytesSer
             LengthValueBytesSerialiserUtil.serialise(vertexSerialiser, entity.getVertex(), out);
             serialiseProperties(entity.getProperties(), elementDefinition, out);
             return out.toByteArray();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new SerialisationException("Unable to serialise entity into bytes", e);
         }
     }

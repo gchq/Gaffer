@@ -17,19 +17,32 @@
 package uk.gov.gchq.gaffer.named.operation;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
+import uk.gov.gchq.gaffer.commonutil.CommonConstants;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
+import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class AddNamedOperation implements Operation {
-    private OperationChain operationChain;
+    private String operations = null;
     private String operationName;
     private String description;
     private List<String> readAccessRoles = new ArrayList<>();
     private List<String> writeAccessRoles = new ArrayList<>();
     private boolean overwriteFlag = false;
+    private Map<String, ParameterDetail> parameters;
+
+    private static final JSONSerialiser SERIALISER = new JSONSerialiser();
+    private static final String CHARSET_NAME = CommonConstants.UTF_8;
 
     public boolean isOverwriteFlag() {
         return overwriteFlag;
@@ -39,12 +52,35 @@ public class AddNamedOperation implements Operation {
         this.overwriteFlag = overwriteFlag;
     }
 
-    public OperationChain getOperationChain() {
-        return operationChain;
+    public void setOperationChain(final String operationChain) {
+        this.operations = operationChain;
+    }
+
+    @JsonSetter("operationChain")
+    public void setOperationChain(final JsonNode opChainNode) {
+        this.operations = opChainNode.toString();
+    }
+
+    @JsonIgnore
+    public String getOperationChainAsString() {
+        return operations;
+    }
+
+    @JsonGetter("operationChain")
+    public JsonNode getOperationChainAsJsonNode() {
+        try {
+            return SERIALISER.getJsonNodeFromString(operations);
+        } catch (SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     public void setOperationChain(final OperationChain operationChain) {
-        this.operationChain = operationChain;
+        try {
+            this.operations = new String(SERIALISER.serialise(operationChain), Charset.forName(CHARSET_NAME));
+        } catch (SerialisationException se) {
+            throw new IllegalArgumentException(se.getMessage());
+        }
     }
 
     public String getOperationName() {
@@ -79,9 +115,22 @@ public class AddNamedOperation implements Operation {
         this.description = description;
     }
 
-    public static class Builder extends Operation.BaseBuilder<AddNamedOperation, Builder> {
+    public void setParameters(final Map<String, ParameterDetail> parameters) {
+        this.parameters = parameters;
+    }
+
+    public Map<String, ParameterDetail> getParameters() {
+        return parameters;
+    }
+
+    public static class Builder extends BaseBuilder<AddNamedOperation, Builder> {
         public Builder() {
             super(new AddNamedOperation());
+        }
+
+        public Builder operationChain(final String opChainString) {
+            _getOp().setOperationChain(opChainString);
+            return _self();
         }
 
         public Builder operationChain(final OperationChain opChain) {
@@ -106,6 +155,11 @@ public class AddNamedOperation implements Operation {
 
         public Builder writeAccessRoles(final String... roles) {
             Collections.addAll(_getOp().getWriteAccessRoles(), roles);
+            return _self();
+        }
+
+        public Builder parameters(final Map<String, ParameterDetail> parameters) {
+            _getOp().setParameters(parameters);
             return _self();
         }
 

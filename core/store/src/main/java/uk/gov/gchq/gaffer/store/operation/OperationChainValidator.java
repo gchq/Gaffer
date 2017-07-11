@@ -31,7 +31,7 @@ import uk.gov.gchq.gaffer.user.User;
 import uk.gov.gchq.koryphe.ValidationResult;
 
 public class OperationChainValidator {
-    private ViewValidator viewValidator;
+    private final ViewValidator viewValidator;
 
     public OperationChainValidator(final ViewValidator viewValidator) {
         this.viewValidator = viewValidator;
@@ -89,13 +89,14 @@ public class OperationChainValidator {
                     validationResult.addError(op.getClass().getName()
                             + " references " + pair.getFirst()
                             + " group that does not exist in the schema");
-                }
-                Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
-                if (null != propertyClass && !Comparable.class.isAssignableFrom(propertyClass)) {
-                    validationResult.addError("Property " + pair.getSecond()
-                            + " in group " + pair.getFirst()
-                            + " has a java class of " + propertyClass.getName()
-                            + " which does not extend Comparable.");
+                } else {
+                    Class<?> propertyClass = elementDef.getPropertyClass(pair.getSecond());
+                    if (null != propertyClass && !Comparable.class.isAssignableFrom(propertyClass)) {
+                        validationResult.addError("Property " + pair.getSecond()
+                                + " in group " + pair.getFirst()
+                                + " has a java class of " + propertyClass.getName()
+                                + " which does not extend Comparable.");
+                    }
                 }
             }
         }

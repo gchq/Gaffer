@@ -17,8 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,22 +27,19 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LazyEdgeTest {
-
     @Test
     public void shouldLoadPropertyFromLazyProperties() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final String propertyName = "property name";
         final String exceptedPropertyValue = "property value";
 
-        given(edgeLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
+        given(edgeLoader.getProperty(propertyName, lazyEdge.getProperties())).willReturn(exceptedPropertyValue);
 
         // When
         Object propertyValue = lazyEdge.getProperty(propertyName);
@@ -55,13 +51,13 @@ public class LazyEdgeTest {
     @Test
     public void shouldLoadIdentifierWhenNotLoaded() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.DESTINATION;
         final String exceptedIdentifierValue = "identifier value";
 
-        given(edgeLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(edgeLoader.getIdentifier(Mockito.eq(identifierType), Mockito.any(LazyEdge.class))).willReturn(exceptedIdentifierValue);
 
         // When
         Object identifierValue = lazyEdge.getIdentifier(identifierType);
@@ -74,45 +70,46 @@ public class LazyEdgeTest {
     @Test
     public void shouldNotLoadIdentifierWhenLoaded() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.SOURCE;
         final String exceptedIdentifierValue = "identifier value";
+        lazyEdge.setSource(exceptedIdentifierValue);
 
-        given(edgeLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
-        lazyEdge.getIdentifier(identifierType); // call it to load the value.
-
-        // When
-        Object identifierValue = lazyEdge.getIdentifier(identifierType); // should use the loaded value
+        // When - should use the loaded value
+        Object identifierValue = lazyEdge.getIdentifier(identifierType);
+        Object identifierValue2 = lazyEdge.getIdentifier(identifierType);
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
-        verify(edgeLoader, times(1)).getIdentifier(identifierType);
-        assertEquals(identifierValue, edge.getSource());
+        assertEquals(exceptedIdentifierValue, identifierValue2);
+        assertEquals(exceptedIdentifierValue, edge.getSource());
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
     }
 
     @Test
     public void shouldNotLoadIsDirectedWhenLoaded() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        given(edgeLoader.getIdentifier(IdentifierType.DIRECTED)).willReturn(true);
         lazyEdge.setDirected(true); // call it to load the value.
 
         // When
         boolean isDirected = lazyEdge.isDirected();
+        boolean isDirected2 = lazyEdge.isDirected();
 
         // Then
         assertTrue(isDirected);
-        verify(edgeLoader, times(1)).getIdentifier(IdentifierType.DIRECTED);
+        assertTrue(isDirected2);
+        verify(edgeLoader, never()).getIdentifier(IdentifierType.DIRECTED, lazyEdge);
     }
 
     @Test
     public void shouldDelegatePutPropertyToLazyProperties() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final String propertyName = "property name";
@@ -129,7 +126,7 @@ public class LazyEdgeTest {
     @Test
     public void shouldDelegateSetDestinationToEdge() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.DESTINATION;
@@ -139,14 +136,14 @@ public class LazyEdgeTest {
         lazyEdge.setDestination(destVertex);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(destVertex, edge.getDestination());
     }
 
     @Test
     public void shouldDelegateSetSourceToEdge() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.SOURCE;
@@ -156,14 +153,14 @@ public class LazyEdgeTest {
         lazyEdge.setSource(sourceVertex);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(sourceVertex, edge.getSource());
     }
 
     @Test
     public void shouldDelegateSetDirectedToEdge() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.DIRECTED;
@@ -173,7 +170,7 @@ public class LazyEdgeTest {
         lazyEdge.setDirected(isDirected);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType);
+        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
         assertEquals(isDirected, edge.isDirected());
     }
 
@@ -182,7 +179,7 @@ public class LazyEdgeTest {
         // Given
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final String group = "group";
-        final Edge edge = new Edge(group);
+        final Edge edge = new Edge.Builder().group(group).build();
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
 
         // When
@@ -195,7 +192,7 @@ public class LazyEdgeTest {
     @Test
     public void shouldGetLazyProperties() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
 
@@ -210,7 +207,7 @@ public class LazyEdgeTest {
     @Test
     public void shouldUnwrapEdge() {
         // Given
-        final Edge edge = new Edge();
+        final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
 

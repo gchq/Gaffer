@@ -5,6 +5,11 @@
 
     <display-name>Gaffer REST example</display-name>
 
+
+    <listener>
+        <listener-class>uk.gov.gchq.gaffer.rest.ServletLifecycleListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>Gaffer REST example v1</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer

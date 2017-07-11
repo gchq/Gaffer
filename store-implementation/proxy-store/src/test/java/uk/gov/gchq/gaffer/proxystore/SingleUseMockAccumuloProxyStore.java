@@ -42,9 +42,9 @@ public class SingleUseMockAccumuloProxyStore extends ProxyStore {
     private static final RestApiTestClient client = new RestApiV1TestClient();
 
     @Override
-    public void initialise(final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
+    public void initialise(final String graphId, final Schema accumuloSchema, final StoreProperties proxyProps) throws StoreException {
         startMockAccumuloRestApi(accumuloSchema);
-        super.initialise(new Schema(), proxyProps);
+        super.initialise(graphId, new Schema(), proxyProps);
     }
 
     protected void startMockAccumuloRestApi(final Schema accumuloSchema) throws StoreException {

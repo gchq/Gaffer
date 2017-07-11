@@ -49,7 +49,9 @@ public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
         final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2);
         // ---------------------------------------------------------
 
-        runExample(function, hllp1, hllp2, hllp3);
+        runExample(function,
+                null,
+                hllp1, hllp2, hllp3);
     }
 
     public void hyperLogLogPlusIsLessThanOrEqualTo2() {
@@ -57,6 +59,8 @@ public class HyperLogLogPlusIsLessThanExample extends PredicateExample {
         final HyperLogLogPlusIsLessThan function = new HyperLogLogPlusIsLessThan(2, true);
         // ---------------------------------------------------------
 
-        runExample(function, hllp1, hllp2, hllp3);
+        runExample(function,
+                null,
+                hllp1, hllp2, hllp3);
     }
 }

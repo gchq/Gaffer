@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "BasicEntity": {
+      "vertex": "id.string",
+      "description": "Entity description",
+      "properties": {
+        "count": "count.long",
+        "property1": "prop.string",
+        "property2": "prop.string",
+        "property3": "prop.string",
+        "visibility": "prop.string"
+      },
+      "groupBy": [
+        "property2",
+        "property3"
+      ]
+    },
+    "NonAggEntity": {
+      "vertex": "id.string",
+      "description": "Entity description",
+      "properties": {
+        "count": "count.long",
+        "property1": "prop.string",
+        "property2": "prop.string",
+        "property3": "prop.string",
+        "visibility": "prop.string"
+      },
+      "groupBy": [
+        "property2",
+        "property3"
+      ],
+      "aggregate": false
+    }
+  },
+  "edges": {
+    "BasicEdge": {
+      "source": "id.string",
+      "destination": "id.string",
+      "directed": "directed.true",
+      "description": "Edge description",
+      "properties": {
+        "count": "count.long",
+        "property1": "prop.string",
+        "property2": "prop.string",
+        "property3": "prop.string",
+        "visibility": "prop.string"
+      },
+      "groupBy": [
+        "property2",
+        "property3"
+      ]
+    }
+  },
+  "visibilityProperty": "visibility"
+}

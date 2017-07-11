@@ -47,9 +47,9 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
     }
 
     @Override
-    public RoaringBitmap deserialise(final byte[] bytes) throws SerialisationException {
+    public RoaringBitmap deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         final RoaringBitmap value = new RoaringBitmap();
-        final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(bytes);
+        final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(allBytes, offset, length);
         final ByteArrayInputStream byteIn = new ByteArrayInputStream(convertedBytes);
         final DataInputStream in = new DataInputStream(byteIn);
         try {
@@ -58,6 +58,11 @@ public class RoaringBitmapSerialiser implements ToBytesSerialiser<RoaringBitmap>
             throw new SerialisationException(e.getMessage(), e);
         }
         return value;
+    }
+
+    @Override
+    public RoaringBitmap deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override
