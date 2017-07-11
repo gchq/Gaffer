@@ -49,6 +49,7 @@ public class ToVerticesTest extends OperationTest {
         final ToVertices op = new ToVertices.Builder()
                 .input(new EntitySeed("2"))
                 .edgeVertices(EdgeVertices.BOTH)
+                .useMatchedVertex(ToVertices.MatchedEdgeVertex.OPPOSITE)
                 .build();
 
         // When

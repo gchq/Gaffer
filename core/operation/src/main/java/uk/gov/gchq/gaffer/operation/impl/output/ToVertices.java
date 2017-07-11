@@ -35,6 +35,7 @@ public class ToVertices implements
         MultiInput<ElementId> {
 
     private Iterable<? extends ElementId> input;
+    private MatchedEdgeVertex useMatchedVertex = MatchedEdgeVertex.IGNORE;
     private EdgeVertices edgeVertices = EdgeVertices.NONE;
 
     @Override
@@ -60,11 +61,25 @@ public class ToVertices implements
         this.edgeVertices = edgeVertices;
     }
 
+    public MatchedEdgeVertex getUseMatchedVertex() {
+        return useMatchedVertex;
+    }
+
+    public void setUseMatchedVertex(final MatchedEdgeVertex useMatchedVertex) {
+        this.useMatchedVertex = useMatchedVertex;
+    }
+
     public enum EdgeVertices {
         NONE,
         SOURCE,
         DESTINATION,
-        BOTH;
+        BOTH
+    }
+
+    public enum MatchedEdgeVertex {
+        IGNORE,
+        EQUAL,
+        OPPOSITE
     }
 
     public static final class Builder
@@ -77,6 +92,11 @@ public class ToVertices implements
 
         public Builder edgeVertices(final EdgeVertices edgeVertices) {
             _getOp().setEdgeVertices(edgeVertices);
+            return _self();
+        }
+
+        public Builder useMatchedVertex(final MatchedEdgeVertex useMatchedVertex) {
+            _getOp().setUseMatchedVertex(useMatchedVertex);
             return _self();
         }
     }

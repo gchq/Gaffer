@@ -40,8 +40,11 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
     public CloseableIterable<? extends Element> doOperation(final GetElements operation,
                                                             final User user,
                                                             final AccumuloStore store) throws OperationException {
-        try {
+        if (null != operation.getOption("accumulostore.operation.return_matched_id_as_edge_source")) {
+            throw new IllegalArgumentException("The accumulostore.operation.return_matched_id_as_edge_source option has been removed. Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
+        }
 
+        try {
             return new AccumuloElementsRetriever(store, operation, user);
         } catch (final IteratorSettingException | StoreException e) {
             throw new OperationException("Failed to get elements", e);

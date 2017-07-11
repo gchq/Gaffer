@@ -159,11 +159,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Element getElementFromKey(final Key key, final boolean includeMatchedVertex) {
-        return getElementFromKey(key, includeMatchedVertex, null);
-    }
-
-    @Override
     public Element getElementFromKey(final Key key, final boolean includeMatchedVertex, final Map<String, String> options) {
         final byte[] row = key.getRowData().getBackingArray();
         final boolean keyRepresentsEntity = doesKeyRepresentEntity(row);
@@ -171,11 +166,6 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
             return getEntityFromKey(key, row);
         }
         return getEdgeFromKey(key, row, includeMatchedVertex, options);
-    }
-
-    @Override
-    public Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex) {
-        return getFullElement(key, value, includeMatchedVertex, null);
     }
 
     @Override

@@ -40,6 +40,10 @@ public class GetElementsHandler implements OutputOperationHandler<GetElements, C
             return new WrappedCloseableIterable<>();
         }
 
+        if (null != operation.getOption("hbasestore.operation.return_matched_id_as_edge_source")) {
+            throw new IllegalArgumentException("The hbasestore.operation.return_matched_id_as_edge_source option has been removed. " +
+                    "Instead of flipping the Edges around the result Edges will have a matchedVertex field set specifying if the SOURCE or DESTINATION was matched.");
+        }
         try {
             return store.createRetriever(operation, user, operation.getInput(), true);
         } catch (final StoreException e) {
