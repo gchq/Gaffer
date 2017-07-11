@@ -34,7 +34,10 @@ public class EntityIdExtractorTest {
     public void shouldGetIdentifierFromEntity() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor();
-        final Entity entity = new Entity(TestGroups.ENTITY, "identifier");
+        final Entity entity = new Entity.Builder()
+                .group(TestGroups.ENTITY)
+                .vertex("identifier")
+                .build();
 
         // When
         final EntityId seed = extractor._apply(entity);
@@ -47,7 +50,12 @@ public class EntityIdExtractorTest {
     public void shouldGetSourceFromEdge() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.SOURCE);
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(false)
+                .build();
 
         // When
         final EntityId seed = extractor._apply(edge);
@@ -60,7 +68,12 @@ public class EntityIdExtractorTest {
     public void shouldGetDestinationFromEdge() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DESTINATION);
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(false)
+                .build();
 
         // When
         final EntityId seed = extractor._apply(edge);
@@ -73,7 +86,12 @@ public class EntityIdExtractorTest {
     public void shouldThrowIllegalArgumentExceptionFromEdgeWhenIdTypeIsDirected() {
         // Given
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DIRECTED);
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", false);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(false)
+                .build();
 
         // When / Then
         try {

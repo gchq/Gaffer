@@ -105,7 +105,12 @@ public class ValidatorFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "source", "dest", true);
+        final Element element = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("source")
+                .dest("dest")
+                .directed(true)
+                .build();
         final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 
@@ -130,7 +135,11 @@ public class ValidatorFilterTest {
 
         final ByteEntityAccumuloElementConverter converter = new ByteEntityAccumuloElementConverter(getSchema());
 
-        final Element element = new Edge(TestGroups.EDGE, "invalid", "dest", true);
+        final Element element = new Edge.Builder().group(TestGroups.EDGE)
+                .source("invalid")
+                .dest("dest")
+                .directed(true)
+                .build();
         final Pair<Key, Key> key = converter.getKeysFromElement(element);
         final Value value = converter.getValueFromElement(element);
 

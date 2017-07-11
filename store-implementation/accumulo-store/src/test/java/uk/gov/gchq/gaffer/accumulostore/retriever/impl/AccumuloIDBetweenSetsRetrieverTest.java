@@ -327,7 +327,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         }
 
         // False positive is "" + count so create an edge from seeds to that
-        final Edge edge = new Edge(TestGroups.EDGE, "A0", "" + count, true);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source("A0")
+                .dest("" + count)
+                .directed(true)
+                .build();
         edge.putProperty(AccumuloPropertyNames.COUNT, 1000000);
         Set<Element> data = new HashSet<>();
         data.add(edge);
@@ -492,7 +497,12 @@ public class AccumuloIDBetweenSetsRetrieverTest {
         entity.putProperty(AccumuloPropertyNames.COUNT, 10000);
         data.add(entity);
         for (int i = 1; i < 100; i++) {
-            final Edge edge = new Edge(TestGroups.EDGE, "A0", "A" + i, true);
+            final Edge edge = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("A0")
+                    .dest("A" + i)
+                    .directed(true)
+                    .build();
             edge.putProperty(AccumuloPropertyNames.COUNT, 23);
             edge.putProperty(AccumuloPropertyNames.COLUMN_QUALIFIER, 1);
             data.add(edge);
