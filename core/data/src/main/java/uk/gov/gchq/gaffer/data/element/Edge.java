@@ -183,20 +183,54 @@ public class Edge extends Element implements EdgeId {
      * @param destination  the destination vertex
      * @param directedType the edge directedType
      */
-
     public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType) {
         setIdentifiers(source, destination, directedType.isDirected());
     }
 
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source      the source vertex
+     * @param destination the destination vertex
+     * @param directed    true if the edge is directed
+     */
     public void setIdentifiers(final Object source, final Object destination, final boolean directed) {
         setIdentifiers(source, destination, directed, matchedVertex);
     }
 
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directedType  the edge directedType
+     * @param matchedVertex the vertex that matched a query seed
+     */
     @Override
     public void setIdentifiers(final Object source, final Object destination, final DirectedType directedType, final MatchedVertex matchedVertex) {
         setIdentifiers(source, destination, directedType.isDirected(), matchedVertex);
     }
 
+    /**
+     * Sets the identifiers for an Edge.
+     * <p>
+     * If the edge is undirected the the source and destination vertices may get
+     * swapped to ensure undirected edges are consistently constructed.
+     * </p>
+     *
+     * @param source        the source vertex
+     * @param destination   the destination vertex
+     * @param directed      true if the edge is directed
+     * @param matchedVertex the vertex that matched a query seed
+     */
     public void setIdentifiers(final Object source, final Object destination, final boolean directed, final MatchedVertex matchedVertex) {
         this.source = source;
         this.destination = destination;
