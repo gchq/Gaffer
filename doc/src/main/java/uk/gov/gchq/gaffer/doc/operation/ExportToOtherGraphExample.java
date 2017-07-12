@@ -15,6 +15,7 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
+import uk.gov.gchq.gaffer.accumulostore.AccumuloProperties;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
@@ -23,7 +24,6 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
-import uk.gov.gchq.gaffer.store.StoreProperties;
 import java.io.IOException;
 
 public class ExportToOtherGraphExample extends OperationExample {
@@ -43,7 +43,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public Iterable<?> simpleExport() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<? extends Element>> opChain;
-        StoreProperties storeProperties = new StoreProperties();
+        AccumuloProperties storeProperties = new AccumuloProperties();
         try {
             storeProperties.getProperties().load(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
         } catch (IOException e) {
@@ -52,6 +52,7 @@ public class ExportToOtherGraphExample extends OperationExample {
         opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
+                        .graphId("graphId")
                         .storeProperties(storeProperties)
                         .build())
                 .build();
