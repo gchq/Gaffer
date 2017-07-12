@@ -56,7 +56,7 @@
         <failsafe.version>2.18.1</failsafe.version>
         <slf4j.api.version>1.7.5</slf4j.api.version>
 
-        <koryphe.version>0.1.2</koryphe.version>
+        <koryphe.version>0.1.3</koryphe.version>
         <accumulo.version>1.7.2</accumulo.version>
         <hbase.version>1.3.0</hbase.version>
         <avro.version>1.7.7</avro.version>
