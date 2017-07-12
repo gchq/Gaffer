@@ -56,7 +56,7 @@ public class AccumuloProperties extends StoreProperties {
     private static final String CLIENT_SIDE_BLOOM_FILTER_SIZE_DEFAULT = "838860800";
     private static final String FALSE_POSITIVE_RATE_DEFAULT = "0.0002";
     private static final String MAX_BLOOM_FILTER_TO_PASS_TO_AN_ITERATOR_DEFAULT = "8388608";
-    private static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT = "1000000";
+    private static final String MAX_BUFFER_SIZE_FOR_BATCH_WRITER_DEFAULT = "100000000";
     private static final String MAX_TIME_OUT_FOR_BATCH_WRITER_DEFAULT = "1000";
     private static final String THREADS_FOR_BATCH_SCANNER_DEFAULT = "10";
     public static final String ENABLE_VALIDATOR_ITERATOR_DEFAULT = "true";

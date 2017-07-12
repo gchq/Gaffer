@@ -117,9 +117,31 @@ public class PreAggregationFilterProcessorTest {
         final PreAggregationFilterProcessor processor = new PreAggregationFilterProcessor(VIEW);
 
         // When / Then
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "invalidVertex", "dest", true), serialisation)));
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPostAggVertex", "dest", true), serialisation)));
-        assertFalse(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPostTransformVertex", "dest", true), serialisation)));
+        assertFalse(processor.test(CellUtil.getLazyCell(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("invalidVertex")
+                        .dest("dest")
+                        .directed(true)
+                        .build(),
+                serialisation)));
+
+        assertFalse(processor.test(CellUtil.getLazyCell(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("validPostAggVertex")
+                        .dest("dest")
+                        .directed(true)
+                        .build(),
+                serialisation)));
+
+        assertFalse(processor.test(CellUtil.getLazyCell(
+                new Edge.Builder().group(TestGroups.EDGE)
+                        .source("validPostTransformVertex")
+                        .dest("dest")
+                        .directed(true)
+                        .build(),
+                serialisation)));
     }
 
     @Test
@@ -128,7 +150,14 @@ public class PreAggregationFilterProcessorTest {
         final PreAggregationFilterProcessor processor = new PreAggregationFilterProcessor(VIEW);
 
         // When / Then
-        assertTrue(processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "validPreAggVertex", "dest", true), serialisation)));
+        assertTrue(processor.test(CellUtil.getLazyCell(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("validPreAggVertex")
+                        .dest("dest")
+                        .directed(true)
+                        .build(),
+                serialisation)));
     }
 
 }

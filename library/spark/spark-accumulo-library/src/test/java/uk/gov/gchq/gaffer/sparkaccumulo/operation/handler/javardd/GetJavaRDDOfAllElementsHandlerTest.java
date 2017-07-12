@@ -59,20 +59,26 @@ public class GetJavaRDDOfAllElementsHandlerTest {
         final List<Element> elements = new ArrayList<>();
         final Set<Element> expectedElements = new HashSet<>();
         for (int i = 0; i < 10; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build();
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty(TestPropertyNames.COUNT, 2);
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 2)
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty(TestPropertyNames.COUNT, 4);
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 4)
+                    .build();
 
             elements.add(edge1);
             elements.add(edge2);
@@ -127,23 +133,28 @@ public class GetJavaRDDOfAllElementsHandlerTest {
 
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
-            entity.putProperty("visibility", "public");
+            final Entity entity = new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .property("visibility", "public")
+                    .build();
 
-            final Edge edge1 = new Edge(TestGroups.EDGE);
-            edge1.setSource("" + i);
-            edge1.setDestination("B");
-            edge1.setDirected(false);
-            edge1.putProperty(TestPropertyNames.COUNT, 2);
-            edge1.putProperty("visibility", "private");
+            final Edge edge1 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 2)
+                    .property("visibility", "private")
+                    .build();
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(false);
-            edge2.putProperty(TestPropertyNames.COUNT, 4);
-            edge2.putProperty("visibility", "public");
+            final Edge edge2 = new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(false)
+                    .property(TestPropertyNames.COUNT, 4)
+                    .property("visibility", "public").build();
 
             elements.add(edge1);
             elements.add(edge2);

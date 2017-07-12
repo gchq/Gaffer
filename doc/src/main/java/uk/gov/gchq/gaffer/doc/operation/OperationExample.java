@@ -106,7 +106,7 @@ public abstract class OperationExample extends Example {
             final Output<RESULT_TYPE> operation, final String description) {
         log("#### " + getMethodNameAsSentence(1) + "\n");
         if (StringUtils.isNotBlank(description)) {
-            log(description);
+            log(description + "\n");
         }
         printGraph();
         printMethodJavaSnippet();
