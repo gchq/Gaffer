@@ -46,8 +46,11 @@ sure to include the library as a dependency:
 </dependency>
 ```
 
-When the cache service is initialised a shutdown hook is added to the JVM.
-This allows the teardown process to happen gracefully.
+When run in a servlet context, the CacheServiceLoader should be shutdown gracefully by the
+ServletLifecycleListener found in the REST package. Do not trust the shutdown hook in a
+servlet context. If running outside a servlet environment, you can either call shutdown on
+the cache service manually or use the shutdown hook upon initialisation of the cache
+service loader.
 
 If using the Hazelcast instance of the Cache service be aware that once the last
 node shuts down, all data will be lost. This is due to the data being held in

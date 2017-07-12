@@ -15,7 +15,7 @@
  */
 package uk.gov.gchq.gaffer.time.serialisation;
 
-import com.yahoo.memory.NativeMemory;
+import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.roaringbitmap.RoaringBitmap;
 import uk.gov.gchq.gaffer.bitmap.serialisation.utils.RoaringBitmapUtils;
@@ -70,11 +70,11 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
     }
 
     @Override
-    public BoundedTimestampSet deserialise(final byte[] bytes) throws SerialisationException {
-        if (0 == bytes.length) {
+    public BoundedTimestampSet deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        if (allBytes.length == 0 || length == 0) {
             return null;
         }
-        final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        final ByteArrayInputStream bais = new ByteArrayInputStream(allBytes, offset, length);
         final DataInputStream dis = new DataInputStream(bais);
         final int bucketInt = (int) CompactRawSerialisationUtils.read(dis);
         final CommonTimeUtil.TimeBucket bucket = CommonTimeUtil.TimeBucket.values()[bucketInt];
@@ -89,7 +89,7 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
                 if (-1 == dis.read(serialisedRBM)) {
                     throw new SerialisationException("Unexpected end of stream when reading serialised RoaringBitmap");
                 }
-                final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM);
+                final byte[] convertedBytes = RoaringBitmapUtils.upConvertSerialisedForm(serialisedRBM, 0, serialisedRBM.length);
                 final ByteArrayInputStream baisConvertedBytes = new ByteArrayInputStream(convertedBytes);
                 final DataInputStream disConvertedBytes = new DataInputStream(baisConvertedBytes);
                 rbm.deserialize(disConvertedBytes);
@@ -100,16 +100,21 @@ public class BoundedTimestampSetSerialiser implements ToBytesSerialiser<BoundedT
                 if (-1 == dis.read(serialisedRLU)) {
                     throw new SerialisationException("Unexpected end of stream when reading serialised ReservoirLongsUnion");
                 }
-                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.getInstance(new NativeMemory(serialisedRLU));
+                final ReservoirLongsUnion reservoirLongsUnion = ReservoirLongsUnion.heapify(WritableMemory.wrap(serialisedRLU));
                 boundedTimestampSet.setReservoirLongsUnion(reservoirLongsUnion);
             } else {
                 throw new SerialisationException("Unexpected byte indicating the state: expected " + NOT_FULL + " or "
-                + SAMPLE + ", got " + state);
+                        + SAMPLE + ", got " + state);
             }
         } catch (final IOException e) {
             throw new SerialisationException("IOException deserialising BoundedTimestampSet from byte array", e);
         }
         return boundedTimestampSet;
+    }
+
+    @Override
+    public BoundedTimestampSet deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

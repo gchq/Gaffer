@@ -52,7 +52,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? extends EntityId>, CloseableIterable<? extends Element>> & GraphFilters & Options>
-        extends AccumuloRetriever<OP> {
+        extends AccumuloRetriever<OP, Element> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSetRetriever.class);
     private boolean readEntriesIntoMemory;
 
@@ -170,7 +170,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
     }
 
     protected abstract class AbstractElementIteratorReadIntoMemory implements CloseableIterator<Element> {
-        private AccumuloRetriever<?> parentRetriever;
+        private AccumuloItemRetriever<?, ?> parentRetriever;
         private Iterator<Element> iterator;
         private Element nextElm;
 
@@ -294,8 +294,7 @@ public abstract class AccumuloSetRetriever<OP extends InputOutput<Iterable<? ext
                 while (_hasNext()) {
                     final Entry<Key, Value> entry = scannerIterator.next();
                     try {
-                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(),
-                                operation.getOptions());
+                        nextElm = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create next element from key and value entry set", e);
                         continue;

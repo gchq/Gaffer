@@ -16,9 +16,6 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * An <code>LazyEntity</code> wraps an {@link uk.gov.gchq.gaffer.data.element.Entity} and lazily loads the identifier and properties when
  * requested using a provided {@link uk.gov.gchq.gaffer.data.element.ElementValueLoader}. This will avoid loading all of an
@@ -28,8 +25,8 @@ public class LazyEntity extends Entity {
     private static final long serialVersionUID = 8067424362415322354L;
     private final Entity entity;
     private final ElementValueLoader valueLoader;
-    private final Set<IdentifierType> loadedIdentifiers;
     private final LazyProperties lazyProperties;
+    private boolean identifiersLoaded = false;
 
     /**
      * Constructs a {@link uk.gov.gchq.gaffer.data.element.LazyEntity} by wrapping the provided {@link uk.gov.gchq.gaffer.data.element.Entity}
@@ -44,11 +41,10 @@ public class LazyEntity extends Entity {
     }
 
     protected LazyEntity(final Entity entity, final ElementValueLoader valueLoader, final LazyProperties lazyProperties) {
-        super(entity.getGroup());
+        super(entity.getGroup(), null);
         this.entity = entity;
         this.valueLoader = valueLoader;
         this.lazyProperties = lazyProperties;
-        loadedIdentifiers = new HashSet<>();
     }
 
     @Override
@@ -58,13 +54,14 @@ public class LazyEntity extends Entity {
 
     @Override
     public Object getVertex() {
-        return lazyLoadIdentifier(entity.getVertex(), IdentifierType.VERTEX);
+        loadIdentifiers();
+        return entity.getVertex();
     }
 
     @Override
-    public void setVertex(final Object identifier) {
-        entity.setVertex(identifier);
-        loadedIdentifiers.add(IdentifierType.VERTEX);
+    public void setVertex(final Object vertex) {
+        entity.setVertex(vertex);
+        identifiersLoaded = true;
     }
 
     @Override
@@ -93,14 +90,9 @@ public class LazyEntity extends Entity {
     }
 
     @Override
-    public Object getIdentifier(final IdentifierType name) {
-        return lazyLoadIdentifier(entity.getIdentifier(name), name);
-    }
-
-    @Override
     public void putIdentifier(final IdentifierType name, final Object value) {
         entity.putIdentifier(name, value);
-        loadedIdentifiers.add(name);
+        identifiersLoaded = true;
     }
 
     @Override
@@ -108,14 +100,11 @@ public class LazyEntity extends Entity {
         return entity.hashCode();
     }
 
-    private Object lazyLoadIdentifier(final Object currentValue, final IdentifierType name) {
-        Object value = currentValue;
-        if (null == value && !loadedIdentifiers.contains(name)) {
-            value = valueLoader.getIdentifier(name);
-            putIdentifier(name, value);
+    private void loadIdentifiers() {
+        if (!identifiersLoaded) {
+            valueLoader.loadIdentifiers(entity);
+            identifiersLoaded = true;
         }
-
-        return value;
     }
 }
 

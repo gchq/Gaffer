@@ -69,8 +69,8 @@ public class AccumuloSingleIDRetrieverTest {
 
     @Before
     public void reInitialise() throws StoreException {
-        byteEntityStore.initialise(schema, PROPERTIES);
-        gaffer1KeyStore.initialise(schema, CLASSIC_PROPERTIES);
+        byteEntityStore.initialise("byteEntityGraph", schema, PROPERTIES);
+        gaffer1KeyStore.initialise("gaffer1Graph", schema, CLASSIC_PROPERTIES);
         setupGraph(byteEntityStore, numEntries);
         setupGraph(gaffer1KeyStore, numEntries);
     }
@@ -307,22 +307,27 @@ public class AccumuloSingleIDRetrieverTest {
     private static void setupGraph(final AccumuloStore store, final int numEntries) {
         final List<Element> elements = new ArrayList<>();
         for (int i = 0; i < numEntries; i++) {
-            final Entity entity = new Entity(TestGroups.ENTITY);
-            entity.setVertex("" + i);
+            elements.add(new Entity.Builder()
+                    .group(TestGroups.ENTITY)
+                    .vertex("" + i)
+                    .build()
+            );
 
-            final Edge edge = new Edge(TestGroups.EDGE);
-            edge.setSource("" + i);
-            edge.setDestination("B");
-            edge.setDirected(false);
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("B")
+                    .directed(false)
+                    .build()
+            );
 
-            final Edge edge2 = new Edge(TestGroups.EDGE);
-            edge2.setSource("" + i);
-            edge2.setDestination("C");
-            edge2.setDirected(true);
-
-            elements.add(edge);
-            elements.add(edge2);
-            elements.add(entity);
+            elements.add(new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("" + i)
+                    .dest("C")
+                    .directed(true)
+                    .build()
+            );
         }
         try {
             store.execute(new AddElements.Builder().input(elements).build(), new User());

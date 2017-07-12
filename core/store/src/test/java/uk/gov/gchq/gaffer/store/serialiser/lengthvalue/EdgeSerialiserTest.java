@@ -65,7 +65,11 @@ public class EdgeSerialiserTest {
     @Test
     public void testCanSerialiseEdge() throws SerialisationException {
         // Given
-        final Edge edge = new Edge(TestGroups.EDGE, "source", "destination", true);
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                .source("source")
+                .dest("destination")
+                .directed(true)
+                .build();
 
         // When
         final byte[] serialisedEdge = serialiser.serialise(edge);

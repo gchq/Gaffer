@@ -27,9 +27,11 @@ import org.slf4j.LoggerFactory;
 import uk.gov.gchq.gaffer.commonutil.ByteArrayEscapeUtils;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
+import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
@@ -39,9 +41,9 @@ import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
@@ -100,7 +102,6 @@ public class ElementSerialisation {
         }
         int lastDelimiter = 0;
         final int arrayLength = value.length;
-        long currentPropLength;
         final SchemaElementDefinition elementDefinition = schema.getElement(group);
         if (null == elementDefinition) {
             throw new SerialisationException("No SchemaElementDefinition found for group " + group + ", is this group in your schema or do your table iterators need updating?");
@@ -113,17 +114,18 @@ public class ElementSerialisation {
                 final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
                 if (null != serialiser) {
                     final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(value[lastDelimiter]);
-                    final byte[] length = new byte[numBytesForLength];
-                    System.arraycopy(value, lastDelimiter, length, 0, numBytesForLength);
+                    int currentPropLength;
                     try {
-                        currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                        // value is never larger than int.
+                        currentPropLength = (int) CompactRawSerialisationUtils.readLong(value, lastDelimiter);
                     } catch (final SerialisationException e) {
                         throw new SerialisationException("Exception reading length of property");
                     }
                     lastDelimiter += numBytesForLength;
                     if (currentPropLength > 0) {
                         try {
-                            properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(value, lastDelimiter, lastDelimiter += currentPropLength)));
+                            properties.put(propertyName, serialiser.deserialise(value, lastDelimiter, currentPropLength));
+                            lastDelimiter += currentPropLength;
                         } catch (final SerialisationException e) {
                             throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                         }
@@ -143,25 +145,17 @@ public class ElementSerialisation {
         return properties;
     }
 
-    public Element getPartialElement(final String group, final byte[] rowId) throws SerialisationException {
-        return getPartialElement(group, rowId, null);
+    public Element getPartialElement(final String group, final byte[] rowId, final boolean includeMatchedVertex) throws SerialisationException {
+        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), includeMatchedVertex);
     }
 
-    public Element getPartialElement(final String group, final byte[] rowId, final Map<String, String> options) throws SerialisationException {
-        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), options);
-    }
-
-    public Element getElement(final Cell cell) throws SerialisationException {
-        return getElement(cell, null);
-    }
-
-    public Element getElement(final Cell cell, final Map<String, String> options)
+    public Element getElement(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final boolean keyRepresentsEntity = isEntity(cell);
         if (keyRepresentsEntity) {
             return getEntity(cell);
         }
-        return getEdge(cell, options);
+        return getEdge(cell, includeMatchedVertex);
     }
 
     public byte[] getColumnVisibility(final Element element) throws SerialisationException {
@@ -249,28 +243,28 @@ public class ElementSerialisation {
             return properties;
         }
 
-        int lastDelimiter = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
+        int carriage = CompactRawSerialisationUtils.decodeVIntSize(bytes[0]) + Bytes.toBytes(group).length;
         final int arrayLength = bytes.length;
-        long currentPropLength;
 
         final Iterator<String> propertyNames = elementDefinition.getGroupBy().iterator();
-        while (propertyNames.hasNext() && lastDelimiter < arrayLength) {
+        while (propertyNames.hasNext() && carriage < arrayLength) {
             final String propertyName = propertyNames.next();
             final TypeDefinition typeDefinition = elementDefinition.getPropertyTypeDef(propertyName);
             final ToBytesSerialiser serialiser = (typeDefinition != null) ? (ToBytesSerialiser) typeDefinition.getSerialiser() : null;
             if (null != serialiser) {
-                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[lastDelimiter]);
-                final byte[] length = new byte[numBytesForLength];
-                System.arraycopy(bytes, lastDelimiter, length, 0, numBytesForLength);
+                final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(bytes[carriage]);
+                int currentPropLength;
                 try {
-                    currentPropLength = CompactRawSerialisationUtils.readLong(length);
+                    //this value is never greater than int.
+                    currentPropLength = (int) CompactRawSerialisationUtils.readLong(bytes, carriage);
                 } catch (final SerialisationException e) {
                     throw new SerialisationException("Exception reading length of property");
                 }
-                lastDelimiter += numBytesForLength;
+                carriage += numBytesForLength;
                 if (currentPropLength > 0) {
                     try {
-                        properties.put(propertyName, serialiser.deserialise(Arrays.copyOfRange(bytes, lastDelimiter, lastDelimiter += currentPropLength)));
+                        properties.put(propertyName, serialiser.deserialise(bytes, carriage, currentPropLength));
+                        carriage += currentPropLength;
                     } catch (final SerialisationException e) {
                         throw new SerialisationException("Failed to deserialise property " + propertyName, e);
                     }
@@ -393,17 +387,13 @@ public class ElementSerialisation {
     }
 
     public String getGroup(final byte[] columnQualifier) throws SerialisationException {
-        final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(columnQualifier[0]);
-        final byte[] length = new byte[numBytesForLength];
-        System.arraycopy(columnQualifier, 0, length, 0, numBytesForLength);
-        int currentPropLength;
         try {
-            currentPropLength = (int) CompactRawSerialisationUtils.readLong(length);
+            final int numBytesForLength = CompactRawSerialisationUtils.decodeVIntSize(columnQualifier[0]);
+            int currentPropLength = (int) CompactRawSerialisationUtils.readLong(columnQualifier, 0);
+            return new String(columnQualifier, numBytesForLength, currentPropLength, Charset.forName("UTF-8"));
         } catch (final SerialisationException e) {
             throw new SerialisationException("Exception reading length of property");
         }
-
-        return Bytes.toString(Arrays.copyOfRange(columnQualifier, numBytesForLength, numBytesForLength + currentPropLength));
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -494,8 +484,7 @@ public class ElementSerialisation {
         return puts;
     }
 
-    public boolean getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
-                                           final Map<String, String> options) throws SerialisationException {
+    public EdgeDirection getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues) throws SerialisationException {
         // Get element class, sourceValue, destinationValue and directed flag from row cell
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];
@@ -523,27 +512,25 @@ public class ElementSerialisation {
         } catch (final NumberFormatException e) {
             throw new SerialisationException("Error parsing direction flag from row cell - " + e);
         }
-        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, 0, positionsOfDelimiters[0]));
-        byte[] destBytes = ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]));
+        byte[] sourceBytes = ByteArrayEscapeUtils.unEscape(rowKey, 0, positionsOfDelimiters[0]);
+        byte[] destBytes = ByteArrayEscapeUtils.unEscape(rowKey, positionsOfDelimiters[1] + 1, positionsOfDelimiters[2]);
         sourceDestValues[0] = sourceBytes;
         sourceDestValues[1] = destBytes;
-        boolean rtn;
+        EdgeDirection rtn;
         switch (directionFlag) {
             case HBaseStoreConstants.UNDIRECTED_EDGE:
                 // Edge is undirected
-                rtn = false;
+                rtn = EdgeDirection.UNDIRECTED;
                 break;
             case HBaseStoreConstants.CORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the first identifier is the source of the edge
-                rtn = true;
+                rtn = EdgeDirection.DIRECTED;
                 break;
             case HBaseStoreConstants.INCORRECT_WAY_DIRECTED_EDGE:
                 // Edge is directed and the second identifier is the source of the edge
-                if (!matchEdgeSource(options)) {
-                    sourceDestValues[0] = destBytes;
-                    sourceDestValues[1] = sourceBytes;
-                }
-                rtn = true;
+                sourceDestValues[0] = destBytes;
+                sourceDestValues[1] = sourceBytes;
+                rtn = EdgeDirection.DIRECTED_REVERSED;
                 break;
             default:
                 throw new SerialisationException(
@@ -573,14 +560,27 @@ public class ElementSerialisation {
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
 
-    private Edge getEdge(final Cell cell, final Map<String, String> options)
+    private Edge getEdge(final Cell cell)
+            throws SerialisationException {
+        return getEdge(cell, false);
+    }
+
+    private Edge getEdge(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final byte[][] result = new byte[3][];
-        final boolean directed = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
+        final EdgeDirection direction = getSourceAndDestination(CellUtil.cloneRow(cell), result);
+        final EdgeId.MatchedVertex matchedVertex;
+        if (!includeMatchedVertex) {
+            matchedVertex = null;
+        } else if (EdgeDirection.DIRECTED_REVERSED == direction) {
+            matchedVertex = EdgeId.MatchedVertex.DESTINATION;
+        } else {
+            matchedVertex = EdgeId.MatchedVertex.SOURCE;
+        }
         final String group = getGroup(cell);
         try {
             final Edge edge = new Edge(group, ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[0]),
-                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), directed);
+                    ((ToBytesSerialiser) schema.getVertexSerialiser()).deserialise(result[1]), direction.isDirected(), matchedVertex, null);
             addPropertiesToElement(edge, cell);
             return edge;
         } catch (final SerialisationException e) {
@@ -593,17 +593,11 @@ public class ElementSerialisation {
         try {
             final byte[] row = CellUtil.cloneRow(cell);
             final Entity entity = new Entity(getGroup(cell), ((ToBytesSerialiser) schema.getVertexSerialiser())
-                    .deserialise(ByteArrayEscapeUtils.unEscape(Arrays.copyOfRange(row, 0, row.length - 2))));
+                    .deserialise(ByteArrayEscapeUtils.unEscape(row, 0, row.length - 2)));
             addPropertiesToElement(entity, cell);
             return entity;
         } catch (final SerialisationException e) {
             throw new SerialisationException("Failed to re-create Entity from cell", e);
         }
-    }
-
-    private boolean matchEdgeSource(final Map<String, String> options) {
-        return options != null
-                && options.containsKey(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE)
-                && "true".equalsIgnoreCase(options.get(HBaseStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE));
     }
 }

@@ -22,27 +22,29 @@ import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionE
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.hdfs.operation.mapper.AbstractAddElementsFromHdfsMapper;
+import uk.gov.gchq.gaffer.hdfs.operation.mapper.GafferMapper;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class AddElementsFromHdfsMapper<KEY_IN, VALUE_IN>
-        extends AbstractAddElementsFromHdfsMapper<KEY_IN, VALUE_IN, Key, Value> {
+        extends GafferMapper<KEY_IN, VALUE_IN, Key, Value> {
     private AccumuloElementConverter elementConverter;
 
     @Override
     protected void setup(final Context context) {
         super.setup(context);
 
-        final String converterClass = context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS);
         try {
-            final Class<?> elementConverterClass = Class.forName(converterClass);
-            elementConverter = (AccumuloElementConverter) elementConverterClass.getConstructor(Schema.class)
+            elementConverter = Class
+                    .forName(context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS))
+                    .asSubclass(AccumuloElementConverter.class)
+                    .getConstructor(Schema.class)
                     .newInstance(schema);
         } catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            throw new IllegalArgumentException("Element converter could not be created: " + converterClass, e);
+            throw new IllegalArgumentException("Element converter could not be created: "
+                    + context.getConfiguration().get(AccumuloStoreConstants.ACCUMULO_ELEMENT_CONVERTER_CLASS), e);
         }
     }
 

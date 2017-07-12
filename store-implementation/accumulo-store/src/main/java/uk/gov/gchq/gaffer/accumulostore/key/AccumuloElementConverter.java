@@ -18,12 +18,13 @@ package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
+import uk.gov.gchq.gaffer.accumulostore.utils.BytesAndRange;
 import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import java.util.Map;
+import uk.gov.gchq.gaffer.data.element.id.ElementId;
 
 /**
  * The Accumulo ElementConverter Interface details the methods necessary to
@@ -94,46 +95,35 @@ public interface AccumuloElementConverter {
     Properties getPropertiesFromValue(final String group, final Value value);
 
     /**
-     * Gets a new {@link Element} from an Accumulo {@link Key}.
+     * Gets a new {@link ElementId} from an Accumulo {@link Key}.
      *
-     * @param key the Key containing serialised parts of the Element
-     * @return A new {@link Element} including a partial set of
-     * {@link uk.gov.gchq.gaffer.data.element.Properties} that were gaffer.accumulostore in the {@link Key}
+     * @param key                  the Key containing serialised parts of the Element
+     * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
+     * @return A new {@link ElementId}
      */
-    Element getElementFromKey(final Key key);
+    ElementId getElementId(final Key key, final boolean includeMatchedVertex);
 
     /**
      * Gets a new {@link Element} from an Accumulo {@link Key}.
      *
-     * @param key     the Key containing serialised parts of the Element
-     * @param options operation options
+     * @param key                  the Key containing serialised parts of the Element
+     * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
      * @return A new {@link Element} including a partial set of
      * {@link uk.gov.gchq.gaffer.data.element.Properties} that were store in the {@link Key}
      */
-    Element getElementFromKey(final Key key, final Map<String, String> options);
+    Element getElementFromKey(final Key key, final boolean includeMatchedVertex);
 
     /**
      * Returns an {@link Element} populated with all the properties defined
      * within the {@link Key} and {@link Value}.
      *
-     * @param key   the accumulo Key containing serialised parts of the Element
-     * @param value the accumulo Value containing serialised properties of the Element
-     * @return Returns an {@link Element} populated with all the properties
-     * defined within the {@link Key} and {@link Value}
-     */
-    Element getFullElement(final Key key, final Value value);
-
-    /**
-     * Returns an {@link Element} populated with all the properties defined
-     * within the {@link Key} and {@link Value}.
-     *
-     * @param key     the accumulo Key containing serialised parts of the Element
-     * @param value   the accumulo Value containing serialised properties of the Element
-     * @param options operation options
+     * @param key                  the accumulo Key containing serialised parts of the Element
+     * @param value                the accumulo Value containing serialised properties of the Element
+     * @param includeMatchedVertex if true then the matchedVertex field is set on Edges
      * @return Returns an {@link Element} populated with all the properties defined within the {@link Key}
      * and {@link Value}
      */
-    Element getFullElement(final Key key, final Value value, final Map<String, String> options);
+    Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex);
 
     /**
      * Helper Used to create Bloom Filters, method Serialises a given object
@@ -174,9 +164,9 @@ public interface AccumuloElementConverter {
      * @param group    the element group
      * @param bytes    the full list of property bytes
      * @param numProps the number of properties to extract
-     * @return the truncated property bytes.
+     * @return details of the bytes range.
      */
-    byte[] getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
+    BytesAndRange getPropertiesAsBytesFromColumnQualifier(final String group, final byte[] bytes, final int numProps);
 
     /**
      * Creates a byte array representing the group.

@@ -50,15 +50,21 @@ public class RawLongSerialiser implements ToBytesSerialiser<Long> {
     }
 
     @Override
+    public Long deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
+        int carriage = offset;
+        return allBytes[carriage++] & 255L
+                | (allBytes[carriage++] & 255L) << 8
+                | (allBytes[carriage++] & 255L) << 16
+                | (allBytes[carriage++] & 255L) << 24
+                | (allBytes[carriage++] & 255L) << 32
+                | (allBytes[carriage++] & 255L) << 40
+                | (allBytes[carriage++] & 255L) << 48
+                | (allBytes[carriage] & 255L) << 56;
+    }
+
+    @Override
     public Long deserialise(final byte[] bytes) throws SerialisationException {
-        return (long) bytes[0] & 255L
-                | ((long) bytes[1] & 255L) << 8
-                | ((long) bytes[2] & 255L) << 16
-                | ((long) bytes[3] & 255L) << 24
-                | ((long) bytes[4] & 255L) << 32
-                | ((long) bytes[5] & 255L) << 40
-                | ((long) bytes[6] & 255L) << 48
-                | ((long) bytes[7] & 255L) << 56;
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

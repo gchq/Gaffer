@@ -28,14 +28,16 @@ import java.io.Serializable;
  */
 public interface ElementValueLoader extends Serializable {
     /**
-     * @param name the property name to extract
+     * @param name           the property name to extract
+     * @param lazyProperties the lazy properties
      * @return the property value with the given name
      */
-    Object getProperty(final String name);
+    Object getProperty(final String name, final Properties lazyProperties);
 
     /**
-     * @param idType the {@link uk.gov.gchq.gaffer.data.element.IdentifierType} to extract
-     * @return the identifier value with the given {@link uk.gov.gchq.gaffer.data.element.IdentifierType}
+     * The loaded identifiers should be set on the provided element
+     *
+     * @param element the wrapped element.
      */
-    Object getIdentifier(final IdentifierType idType);
+    void loadIdentifiers(final Element element);
 }

@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.rest;
 
+import uk.gov.gchq.gaffer.commonutil.DebugUtil;
 import uk.gov.gchq.gaffer.graph.hook.OperationChainLimiter;
 import uk.gov.gchq.gaffer.rest.factory.DefaultGraphFactory;
 import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
@@ -25,6 +26,7 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
+    public static final String GRAPH_ID = "gaffer.graph.id";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
     public static final String BASE_URL = "gaffer.rest-api.basePath";
@@ -37,7 +39,7 @@ public abstract class SystemProperty {
     public static final String OPERATION_SCORES_FILE = OperationChainLimiter.OPERATION_SCORES_FILE_KEY;
     public static final String AUTH_SCORES_FILE = OperationChainLimiter.AUTH_SCORES_FILE_KEY;
     public static final String ENABLE_CHAIN_LIMITER = "gaffer.chain.limiter.enable";
-    public static final String REST_DEBUG = uk.gov.gchq.gaffer.core.exception.Error.DEBUG;
+    public static final String REST_DEBUG = DebugUtil.DEBUG;
 
     // DEFAULTS
     /**
@@ -49,7 +51,7 @@ public abstract class SystemProperty {
     public static final String CORE_VERSION = "1.0.0";
     public static final String GRAPH_FACTORY_CLASS_DEFAULT = DefaultGraphFactory.class.getName();
     public static final String USER_FACTORY_CLASS_DEFAULT = UnknownUserFactory.class.getName();
-    public static final String REST_DEBUG_DEFAULT = uk.gov.gchq.gaffer.core.exception.Error.DEBUG_DEFAULT;
+    public static final String REST_DEBUG_DEFAULT = DebugUtil.DEBUG_DEFAULT;
 
     private SystemProperty() {
         // Private constructor to prevent instantiation.

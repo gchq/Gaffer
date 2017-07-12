@@ -15,39 +15,16 @@
  */
 package uk.gov.gchq.gaffer.hbasestore.integration;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.hbasestore.HBaseProperties;
-import uk.gov.gchq.gaffer.hbasestore.utils.TableUtils;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.store.StoreProperties;
-import java.io.IOException;
 
 public class StandaloneHBaseStoreSTs extends AbstractStoreITs {
     private static final HBaseProperties STORE_PROPERTIES = (HBaseProperties) StoreProperties.loadStoreProperties(StreamUtil.openStream(StandaloneHBaseStoreSTs.class, "standalone.store.properties"));
 
     public StandaloneHBaseStoreSTs() throws StoreException {
         super(STORE_PROPERTIES);
-        dropExistingTable();
-    }
-
-    private void dropExistingTable() throws StoreException {
-        final Configuration conf = HBaseConfiguration.create();
-        if (null != STORE_PROPERTIES.getZookeepers()) {
-            conf.set("hbase.zookeeper.quorum", STORE_PROPERTIES.getZookeepers());
-        }
-
-        final Connection connection;
-        try {
-            connection = ConnectionFactory.createConnection(conf);
-        } catch (final IOException e) {
-            throw new StoreException("Unable to create connection", e);
-        }
-
-        TableUtils.dropTable(connection, STORE_PROPERTIES);
     }
 }

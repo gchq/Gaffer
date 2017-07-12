@@ -15,54 +15,53 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.quantiles.serialisation;
 
-import com.yahoo.sketches.quantiles.DoublesUnion;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class DoublesUnionSerialiserTest {
+import com.yahoo.sketches.quantiles.DoublesUnion;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedValueSerialiserTest;
+
+public class DoublesUnionSerialiserTest extends ViaCalculatedValueSerialiserTest<DoublesUnion, Double> {
     private static final double DELTA = 0.01D;
-    private static final DoublesUnionSerialiser SERIALISER = new DoublesUnionSerialiser();
 
-    @Test
-    public void testSerialiseAndDeserialise() {
+    @Override
+    public Serialiser<DoublesUnion, byte[]> getSerialisation() {
+        return new DoublesUnionSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<DoublesUnion, byte[]>[] getHistoricSerialisationPairs() {
+        final DoublesUnion union = getExampleOutput();
+        return new Pair[]{new Pair(union, new byte[]{2, 3, 8, 0, -128, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, -16, 63, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 8, 64, 0, 0, 0, 0, 0, 0, 0, 0})};
+    }
+
+
+    @Override
+    protected DoublesUnion getExampleOutput() {
         final DoublesUnion union = DoublesUnion.builder().build();
         union.update(1.0D);
         union.update(2.0D);
         union.update(3.0D);
-        testSerialiser(union);
-
-        final DoublesUnion emptyUnion = DoublesUnion.builder().build();
-        testSerialiser(emptyUnion);
+        return union;
     }
 
-    private void testSerialiser(final DoublesUnion union) {
-        final double quantile1 = union.getResult().getQuantile(0.5D);
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(union);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+    @Override
+    protected Double getTestValue(final DoublesUnion object) {
+        return object.getResult().getQuantile(0.5D);
+//        assertEquals(quantile1, unionDeserialised.getResult().getQuantile(0.5D), DELTA);
+    }
 
-        final DoublesUnion unionDeserialised;
-        try {
-            unionDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        assertEquals(quantile1, unionDeserialised.getResult().getQuantile(0.5D), DELTA);
+    @Override
+    protected DoublesUnion getEmptyExampleOutput() {
+        return DoublesUnion.builder().build();
     }
 
     @Test
     public void testCanHandleDoublesUnion() {
-        assertTrue(SERIALISER.canHandle(DoublesUnion.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(DoublesUnion.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }

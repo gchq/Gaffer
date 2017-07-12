@@ -60,14 +60,19 @@ public class AvroSerialiser implements ToBytesSerialiser<Object> {
     }
 
     @Override
-    public Object deserialise(final byte[] bytes) throws SerialisationException {
+    public Object deserialise(final byte[] allBytes, final int offset, final int length) throws SerialisationException {
         final DatumReader<Object> datumReader = new ReflectDatumReader<>();
-        try (final InputStream inputStream = new ByteArrayInputStream(bytes);
+        try (final InputStream inputStream = new ByteArrayInputStream(allBytes, offset, length);
              final DataFileStream<Object> in = new DataFileStream<>(inputStream, datumReader)) {
             return in.next();
         } catch (final IOException e) {
             throw new SerialisationException("Unable to deserialise object, failed to read input bytes", e);
         }
+    }
+
+    @Override
+    public Object deserialise(final byte[] bytes) throws SerialisationException {
+        return deserialise(bytes, 0, bytes.length);
     }
 
     @Override

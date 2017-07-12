@@ -24,8 +24,10 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +51,46 @@ public class AggregatorUtilTest {
         } catch (final IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    public void shouldIngestAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.NON_AGG_ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .build()
+        );
+
+        final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
+            private boolean firstTime = true;
+
+            @Override
+            public Iterator<Element> iterator() {
+
+                if (firstTime) {
+                    firstTime = false;
+                    return elements.iterator();
+                }
+
+                throw new NoSuchElementException();
+            }
+        };
+
+        // when
+        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.ingestAggregate(onlyConsumingOnceIterable, schema);
+
+        // then
+        assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
@@ -142,30 +184,49 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property("count", 1)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .property("property2", "value2")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 10)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
                         .property("count", 20)
                         .property("property2", "value10")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -173,6 +234,23 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 100)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 100)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 100)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -180,6 +258,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 200)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -187,6 +266,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 1000)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -194,6 +274,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 2000)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build()
 
         );
@@ -204,18 +285,35 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property("count", 3)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 12)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .property("property2", "value2")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
                         .property("count", 20)
                         .property("property2", "value10")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -223,6 +321,15 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 300)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
+                        .build(),
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("vertex2")
+                        .dest("vertex1")
+                        .property("count", 200)
+                        .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -230,6 +337,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 3000)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build()
         );
 
@@ -289,30 +397,35 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property("count", 1)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
                         .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 2)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex1")
                         .property("count", 10)
                         .property("property2", "value2")
+                        .property("visibility", "vis2")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
                         .property("count", 20)
                         .property("property2", "value10")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -320,6 +433,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 100)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -327,6 +441,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 200)
                         .property("property2", "value1")
+                        .property("visibility", "vis2")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -334,6 +449,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 1000)
                         .property("property2", "value2")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -341,6 +457,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 2000)
                         .property("property2", "value2")
+                        .property("visibility", "vis2")
                         .build()
         );
 
@@ -350,12 +467,14 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property("count", 15)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build(),
                 new Entity.Builder()
                         .group(TestGroups.ENTITY)
                         .vertex("vertex2")
                         .property("count", 20)
                         .property("property2", "value10")
+                        .property("visibility", "vis1")
                         .build(),
                 new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -363,6 +482,7 @@ public class AggregatorUtilTest {
                         .dest("vertex1")
                         .property("count", 3300)
                         .property("property2", "value1")
+                        .property("visibility", "vis1")
                         .build()
         );
 
@@ -371,6 +491,53 @@ public class AggregatorUtilTest {
 
         // then
         assertElementEquals(expected, aggregatedElements);
+    }
+
+    @Test
+    public void shouldQueryAggregateElementsWhenProvidedIterableCanOnlyBeConsumedOnce() {
+        // given
+        final Schema schema = Schema.fromJson(StreamUtil.openStreams(getClass(), "schema-groupby"));
+        final View view = new View.Builder()
+                .entity(TestGroups.ENTITY, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .entity(TestGroups.EDGE, new ViewElementDefinition.Builder()
+                        .groupBy()
+                        .build())
+                .build();
+        final List<Element> elements = Arrays.asList(
+                new Entity.Builder()
+                        .group(TestGroups.ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 1)
+                        .build(),
+                new Entity.Builder()
+                        .group(TestGroups.NON_AGG_ENTITY)
+                        .vertex("vertex1")
+                        .property("count", 2)
+                        .build()
+        );
+
+        final Iterable<Element> onlyConsumingOnceIterable = new Iterable<Element>() {
+            private boolean firstTime = true;
+
+            @Override
+            public Iterator<Element> iterator() {
+
+                if (firstTime) {
+                    firstTime = false;
+                    return elements.iterator();
+                }
+
+                throw new NoSuchElementException();
+            }
+        };
+
+        // when
+        final CloseableIterable<Element> aggregatedElements = AggregatorUtil.queryAggregate(onlyConsumingOnceIterable, schema, view);
+
+        // then
+        assertElementEquals(elements, aggregatedElements);
     }
 
     @Test
@@ -473,6 +640,7 @@ public class AggregatorUtilTest {
                         .vertex("vertex1")
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build(),
                 fn.apply(new Entity.Builder()
                         .group(TestGroups.ENTITY)
@@ -480,6 +648,7 @@ public class AggregatorUtilTest {
                         .property("property1", "value1")
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build()));
 
         assertEquals(new Edge.Builder()
@@ -489,6 +658,7 @@ public class AggregatorUtilTest {
                         .directed(true)
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build(),
                 fn.apply(new Edge.Builder()
                         .group(TestGroups.EDGE)
@@ -498,6 +668,7 @@ public class AggregatorUtilTest {
                         .property("property1", "value1")
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build()));
     }
 
@@ -530,6 +701,7 @@ public class AggregatorUtilTest {
                         .property("property1", "value1")
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build()));
 
         assertEquals(new Edge.Builder()
@@ -547,6 +719,7 @@ public class AggregatorUtilTest {
                         .property("property1", "value1")
                         .property("property2", "value2")
                         .property("property3", "value3")
+                        .property("visibility", "vis1")
                         .build()));
     }
 

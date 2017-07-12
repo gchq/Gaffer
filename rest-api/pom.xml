@@ -19,7 +19,7 @@
     <parent>
         <artifactId>gaffer2</artifactId>
         <groupId>uk.gov.gchq.gaffer</groupId>
-        <version>0.7.5</version>
+        <version>0.7.6</version>
     </parent>
 
     <artifactId>rest-api</artifactId>

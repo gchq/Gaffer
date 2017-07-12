@@ -120,6 +120,10 @@ public abstract class StreamUtil {
                         }
                 );
 
+        if (schemas.isEmpty()) {
+            throw new IllegalArgumentException("No schemas could be found in path: " + folderPath);
+        }
+
         return schemas.toArray(new InputStream[schemas.size()]);
     }
 

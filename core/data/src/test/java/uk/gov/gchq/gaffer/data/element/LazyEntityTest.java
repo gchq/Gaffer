@@ -17,8 +17,6 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,21 +25,18 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class LazyEntityTest {
-
     @Test
     public void shouldLoadPropertyFromLoader() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
         final String propertyName = "property name";
         final String exceptedPropertyValue = "property value";
-        given(entityLoader.getProperty(propertyName)).willReturn(exceptedPropertyValue);
+        given(entityLoader.getProperty(propertyName, lazyEntity.getProperties())).willReturn(exceptedPropertyValue);
 
         // When
         Object propertyValue = lazyEntity.getProperty(propertyName);
@@ -53,14 +48,13 @@ public class LazyEntityTest {
     @Test
     public void shouldLoadIdentifierWhenNotLoaded() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = mock(Entity.class);
+        given(entity.getProperties()).willReturn(mock(Properties.class));
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
-
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
         final IdentifierType identifierType = IdentifierType.VERTEX;
         final String exceptedIdentifierValue = "identifier value";
-
-        given(entityLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
+        given(entity.getVertex()).willReturn(exceptedIdentifierValue);
 
         // When
         Object identifierValue = lazyEntity.getIdentifier(identifierType);
@@ -68,33 +62,34 @@ public class LazyEntityTest {
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
         assertEquals(identifierValue, entity.getVertex());
+        verify(entityLoader).loadIdentifiers(entity);
     }
 
     @Test
     public void shouldNotLoadIdentifierWhenLoaded() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
         final IdentifierType identifierType = IdentifierType.VERTEX;
         final String exceptedIdentifierValue = "identifier value";
+        lazyEntity.setVertex(exceptedIdentifierValue);
 
-        given(entityLoader.getIdentifier(identifierType)).willReturn(exceptedIdentifierValue);
-        lazyEntity.getIdentifier(identifierType); // call it to load the value.
-
-        // When
-        Object identifierValue = lazyEntity.getIdentifier(identifierType); // should use the loaded value
+        // When - should use the loaded value
+        Object identifierValue = lazyEntity.getIdentifier(identifierType);
+        Object identifierValue2 = lazyEntity.getIdentifier(identifierType);
 
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
-        verify(entityLoader, times(1)).getIdentifier(identifierType);
-        assertEquals(identifierValue, entity.getVertex());
+        assertEquals(exceptedIdentifierValue, identifierValue2);
+        assertEquals(exceptedIdentifierValue, entity.getVertex());
+        verify(entityLoader, never()).loadIdentifiers(entity);
     }
 
     @Test
     public void shouldDelegatePutPropertyToLazyProperties() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
         final String propertyName = "property name";
@@ -104,7 +99,7 @@ public class LazyEntityTest {
         lazyEntity.putProperty(propertyName, propertyValue);
 
         // Then
-        verify(entityLoader, never()).getProperty(propertyName);
+        verify(entityLoader, never()).getProperty(propertyName, lazyEntity.getProperties());
         assertEquals(propertyValue, entity.getProperty(propertyName));
         assertEquals(propertyValue, lazyEntity.getProperty(propertyName));
     }
@@ -112,18 +107,17 @@ public class LazyEntityTest {
     @Test
     public void shouldDelegateSetIdentifierToEntity() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
 
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
-        final IdentifierType identifierType = IdentifierType.VERTEX;
         final String vertex = "vertex";
 
         // When
         lazyEntity.setVertex(vertex);
 
         // Then
-        verify(entityLoader, never()).getIdentifier(identifierType);
+        verify(entityLoader, never()).loadIdentifiers(entity);
         assertEquals(vertex, entity.getVertex());
     }
 
@@ -145,7 +139,7 @@ public class LazyEntityTest {
     @Test
     public void shouldGetLazyProperties() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
 
@@ -160,7 +154,7 @@ public class LazyEntityTest {
     @Test
     public void shouldUnwrapEntity() {
         // Given
-        final Entity entity = new Entity();
+        final Entity entity = new Entity("group");
         final ElementValueLoader entityLoader = mock(ElementValueLoader.class);
         final LazyEntity lazyEntity = new LazyEntity(entity, entityLoader);
 

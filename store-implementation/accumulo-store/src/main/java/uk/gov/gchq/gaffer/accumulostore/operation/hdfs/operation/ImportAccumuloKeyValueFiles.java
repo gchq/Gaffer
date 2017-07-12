@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation;
 
+import uk.gov.gchq.gaffer.commonutil.Required;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.Options;
 import java.util.Map;
@@ -23,7 +24,9 @@ import java.util.Map;
 public class ImportAccumuloKeyValueFiles implements
         Operation,
         Options {
+    @Required
     private String failurePath;
+    @Required
     private String inputPath;
     private Map<String, String> options;
 

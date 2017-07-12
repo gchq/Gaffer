@@ -16,6 +16,7 @@
 package uk.gov.gchq.gaffer.serialisation;
 
 import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import java.util.Date;
 
@@ -23,15 +24,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DateSerialiserTest {
+public class DateSerialiserTest extends ToBytesSerialisationTest<Date> {
 
-    private static final DateSerialiser SERIALISER = new DateSerialiser();
 
     @Test
     public void testCanSerialiseASampleRange() throws SerialisationException {
         for (long i = 121231232; i < (121231232 + 1000); i++) {
-            byte[] b = SERIALISER.serialise(new Date(i));
-            Object o = SERIALISER.deserialise(b);
+            byte[] b = serialiser.serialise(new Date(i));
+            Object o = serialiser.deserialise(b);
             assertEquals(Date.class, o.getClass());
             assertEquals(new Date(i), o);
         }
@@ -39,20 +39,33 @@ public class DateSerialiserTest {
 
     @Test
     public void canSerialiseEpoch() throws SerialisationException {
-        byte[] b = SERIALISER.serialise(new Date(0));
-        Object o = SERIALISER.deserialise(b);
+        byte[] b = serialiser.serialise(new Date(0));
+        Object o = serialiser.deserialise(b);
         assertEquals(Date.class, o.getClass());
         assertEquals(new Date(0), o);
     }
 
     @Test
     public void cantSerialiseStringClass() throws SerialisationException {
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 
     @Test
     public void canSerialiseDateClass() throws SerialisationException {
-        assertTrue(SERIALISER.canHandle(Date.class));
+        assertTrue(serialiser.canHandle(Date.class));
     }
 
+    @Override
+    public Serialiser getSerialisation() {
+        return new DateSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
+        return new Pair[]{
+                new Pair<>(new Date(60460074000000L), new byte[]{54, 48, 52, 54, 48, 48, 55, 52, 48, 48, 48, 48, 48, 48}),
+                new Pair<>(new Date(61406234880000L), new byte[]{54, 49, 52, 48, 54, 50, 51, 52, 56, 56, 48, 48, 48, 48}),
+                new Pair<>(new Date(59514676680000L), new byte[]{53, 57, 53, 49, 52, 54, 55, 54, 54, 56, 48, 48, 48, 48})
+        };
+    }
 }

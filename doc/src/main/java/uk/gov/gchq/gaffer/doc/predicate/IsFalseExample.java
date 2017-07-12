@@ -37,6 +37,8 @@ public class IsFalseExample extends PredicateExample {
         final IsFalse function = new IsFalse();
         // ---------------------------------------------------------
 
-        runExample(function, true, false, null, "true");
+        runExample(function,
+                null,
+                true, false, null, "true");
     }
 }

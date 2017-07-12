@@ -100,7 +100,14 @@ public class GroupFilterProcessorTest {
         final GroupFilterProcessor processor = new GroupFilterProcessor(VIEW);
 
         // When
-        final boolean result = processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE, "A", "B", true), serialisation));
+        final boolean result = processor.test(CellUtil.getLazyCell(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE)
+                        .source("A")
+                        .dest("B")
+                        .directed(true)
+                        .build(),
+                serialisation));
 
         // Then
         assertFalse(result);
@@ -112,7 +119,14 @@ public class GroupFilterProcessorTest {
         final GroupFilterProcessor processor = new GroupFilterProcessor(VIEW);
 
         // When
-        final boolean result = processor.test(CellUtil.getLazyCell(new Edge(TestGroups.EDGE_2, "A", "B", true), serialisation));
+        final boolean result = processor.test(CellUtil.getLazyCell(
+                new Edge.Builder()
+                        .group(TestGroups.EDGE_2)
+                        .source("A")
+                        .dest("B")
+                        .directed(true)
+                        .build(),
+                serialisation));
         // Then
         assertTrue(result);
     }

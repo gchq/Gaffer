@@ -34,4 +34,13 @@ public class SimpleTestObject implements Serializable {
         this.x = x;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof SimpleTestObject) {
+            SimpleTestObject that = (SimpleTestObject) obj;
+            return super.equals(obj) || this.getX().equals(that.getX());
+        } else {
+            return false;
+        }
+    }
 }

@@ -23,9 +23,9 @@ import com.yahoo.sketches.sampling.ReservoirLongsUnion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil;
 import uk.gov.gchq.gaffer.commonutil.CommonTimeUtil.TimeBucket;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -199,7 +199,7 @@ public class BoundedTimestampSet implements TimestampSet {
         // Switch state from RBM to ReservoirLongsUnion, copy values from RBM to the reservoir, and set the
         // RBM to null.
         state = State.SAMPLE;
-        reservoirLongsUnion = ReservoirLongsUnion.getInstance(maxSize);
+        reservoirLongsUnion = ReservoirLongsUnion.newInstance(maxSize);
         for (final Instant instant : rbmBackedTimestampSet.getTimestamps()) {
             reservoirLongsUnion.update(instant.toEpochMilli());
         }

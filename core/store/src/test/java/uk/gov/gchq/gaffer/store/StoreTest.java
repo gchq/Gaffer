@@ -50,7 +50,8 @@ import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.serialisation.Serialiser;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
-import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
+import uk.gov.gchq.gaffer.serialisation.implementation.tostring.StringToStringSerialiser;
 import uk.gov.gchq.gaffer.store.operation.OperationChainValidator;
 import uk.gov.gchq.gaffer.store.operation.handler.CountGroupsHandler;
 import uk.gov.gchq.gaffer.store.operation.handler.OperationHandler;
@@ -151,11 +152,24 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .aggregateFunction(new StringConcat())
                         .build())
                 .type("true", Boolean.class)
                 .build();
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        try {
+            store.initialise(null, schema, properties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 
     @Test
@@ -167,7 +181,7 @@ public class StoreTest {
                         .build())
                 .type("invalidType", new TypeDefinition.Builder()
                         .clazz(Object.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .build();
         final StoreProperties properties = mock(StoreProperties.class);
@@ -175,7 +189,7 @@ public class StoreTest {
 
         // When
         try {
-            store.initialise(mySchema, properties);
+            store.initialise("graphId", mySchema, properties);
             fail();
         } catch (final SchemaException exception) {
             assertNotNull(exception.getMessage());
@@ -197,7 +211,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
@@ -217,7 +231,7 @@ public class StoreTest {
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
-        verify(schemaOptimiser).optimise(schema, true);
+        verify(schemaOptimiser).optimise(store.getSchema(), true);
     }
 
     @Test
@@ -227,7 +241,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final AddElements addElements = new AddElements();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.execute(addElements, user);
@@ -244,7 +258,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.handleOperation(operation, context);
@@ -263,7 +277,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final OperationHandler opHandler = mock(OperationHandler.class);
         store.addOperationHandler(Operation.class, opHandler);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         given(opHandler.doOperation(operation, context, store)).willThrow(new RuntimeException());
 
@@ -289,7 +303,7 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When / Then
         try {
@@ -309,7 +323,7 @@ public class StoreTest {
         final Operation operation = mock(Operation.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.execute(operation, user);
@@ -330,7 +344,7 @@ public class StoreTest {
         given(lazyElement.getElement()).willReturn(entity);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final Element result = store.populateElement(lazyElement);
@@ -362,7 +376,7 @@ public class StoreTest {
         given(getElementsHandler.doOperation(getElements, context, store))
                 .willReturn(getElementsResult);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final CloseableIterable<? extends Element> result = store.execute(opChain, user);
@@ -378,7 +392,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final int expectedNumberOfOperations = 33;
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
@@ -395,7 +409,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // WHen
         final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
@@ -414,7 +428,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final boolean supported = store.isSupported(Operation.class);
@@ -429,7 +443,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final boolean supported = store.isSupported(null);
@@ -451,7 +465,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final JobDetail resultJobDetail = store.executeJob(opChain, user);
@@ -478,7 +492,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final JobDetail resultJobDetail = store.executeJob(opChain, user);
@@ -503,7 +517,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         // When
         final JobTracker resultJobTracker = store.getJobTracker();
 
@@ -521,7 +535,7 @@ public class StoreTest {
 
     @Test(expected = SchemaException.class)
     public void shouldFindInvalidSerialiser() throws Exception {
-        final Class<StringSerialiser> invalidSerialiserClass = StringSerialiser.class;
+        final Class<StringToStringSerialiser> invalidSerialiserClass = StringToStringSerialiser.class;
         Schema invalidSchema = new Schema.Builder()
                 .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
                         .source("string")
@@ -532,7 +546,7 @@ public class StoreTest {
                         .build())
                 .type("string", new TypeDefinition.Builder()
                         .clazz(String.class)
-                        .serialiser(new uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser())
+                        .serialiser(new StringSerialiser())
                         .build())
                 .type("invalidString", new TypeDefinition.Builder()
                         .clazz(String.class)
@@ -551,7 +565,7 @@ public class StoreTest {
                 protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
                     return validSerialiserInterface;
                 }
-            }.initialise(invalidSchema, properties);
+            }.initialise("graphId", invalidSchema, properties);
         } catch (SchemaException e) {
             assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
             throw e;

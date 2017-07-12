@@ -15,64 +15,50 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import com.yahoo.sketches.sampling.ReservoirItemsUnion;
-import org.junit.Test;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-public class ReservoirStringsUnionSerialiserTest {
-    private static final ReservoirStringsUnionSerialiser SERIALISER = new ReservoirStringsUnionSerialiser();
+import com.yahoo.sketches.sampling.ReservoirItemsUnion;
+import org.junit.Test;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.serialisation.Serialiser;
+import uk.gov.gchq.gaffer.sketches.serialisation.ViaCalculatedArrayValueSerialiserTest;
 
-    @Test
-    public void testSerialiseAndDeserialise() {
-        final ReservoirItemsUnion<String> union = ReservoirItemsUnion.getInstance(20);
+public class ReservoirStringsUnionSerialiserTest extends ViaCalculatedArrayValueSerialiserTest<ReservoirItemsUnion<String>, String> {
+
+    @Override
+    protected ReservoirItemsUnion<String> getEmptyExampleOutput() {
+        return ReservoirItemsUnion.newInstance(20);
+    }
+
+    @Override
+    protected ReservoirItemsUnion<String> getExampleOutput() {
+        final ReservoirItemsUnion<String> union = ReservoirItemsUnion.newInstance(20);
         union.update("1");
         union.update("2");
         union.update("3");
-        testSerialiser(union);
-
-        final ReservoirItemsUnion<String> emptyUnion = ReservoirItemsUnion.getInstance(20);
-        testSerialiser(emptyUnion);
+        return union;
     }
 
-    private void testSerialiser(final ReservoirItemsUnion<String> union) {
-        final ReservoirItemsSketch<String> result = union.getResult();
-        final boolean resultIsNull = result == null;
-        String[] sample = new String[]{};
-        if (!resultIsNull) {
-            sample = union.getResult().getSamples();
-        }
-        final byte[] unionSerialised;
-        try {
-            unionSerialised = SERIALISER.serialise(union);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
+    @Override
+    protected String[] getTestValue(final ReservoirItemsUnion<String> object) {
+        return object.getResult().getSamples();
+    }
 
-        final ReservoirItemsUnion<String> unionDeserialised;
-        try {
-            unionDeserialised = SERIALISER.deserialise(unionSerialised);
-        } catch (final SerialisationException exception) {
-            fail("A SerialisationException occurred");
-            return;
-        }
-        final ReservoirItemsSketch<String> deserialisedResult = unionDeserialised.getResult();
-        if (deserialisedResult == null) {
-            assertTrue(resultIsNull);
-        } else {
-            assertArrayEquals(sample, unionDeserialised.getResult().getSamples());
-        }
+    @Override
+    public Serialiser<ReservoirItemsUnion<String>, byte[]> getSerialisation() {
+        return new ReservoirStringsUnionSerialiser();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<ReservoirItemsUnion<String>, byte[]>[] getHistoricSerialisationPairs() {
+        ReservoirItemsUnion<String> union = getExampleOutput();
+        return new Pair[]{new Pair(union, new byte[]{1, 2, 12, 0, 20, 0, 0, 0, -62, 2, 11, 0, 20, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 49, 1, 0, 0, 0, 50, 1, 0, 0, 0, 51})};
     }
 
     @Test
     public void testCanHandleReservoirItemsUnion() {
-        assertTrue(SERIALISER.canHandle(ReservoirItemsUnion.class));
-        assertFalse(SERIALISER.canHandle(String.class));
+        assertTrue(serialiser.canHandle(ReservoirItemsUnion.class));
+        assertFalse(serialiser.canHandle(String.class));
     }
 }

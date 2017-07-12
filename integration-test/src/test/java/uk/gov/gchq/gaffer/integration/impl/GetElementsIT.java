@@ -126,14 +126,14 @@ public class GetElementsIT extends AbstractStoreIT {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetElementsBySeed failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
 
                         try {
                             shouldGetRelatedElements(includeEntities, includeEdges, directedType, inOutType);
-                        } catch (final Exception e) {
+                        } catch (final Throwable e) {
                             throw new AssertionError("GetRelatedElements failed with parameters: \nincludeEntities=" + includeEntities
                                     + " \nincludeEdges=" + includeEdges + " \ndirectedType=" + directedType + " \ninOutType=" + inOutType, e);
                         }
@@ -226,14 +226,14 @@ public class GetElementsIT extends AbstractStoreIT {
                 }
 
                 if (null == inOutType || IncludeIncomingOutgoingType.EITHER == inOutType || IncludeIncomingOutgoingType.INCOMING == inOutType) {
-                    expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true));
+                    expectedElementIds.add(new EdgeSeed(SOURCE_DIR_3, DEST_DIR_3, true, EdgeId.MatchedVertex.DESTINATION));
                 }
             }
 
             if (DirectedType.DIRECTED != directedType) {
                 expectedElementIds.add(new EdgeSeed(SOURCE_1, DEST_1, false));
                 expectedElementIds.add(new EdgeSeed(SOURCE_2, DEST_2, false));
-                expectedElementIds.add(new EdgeSeed(SOURCE_3, DEST_3, false));
+                expectedElementIds.add(new EdgeSeed(SOURCE_3, DEST_3, false, EdgeId.MatchedVertex.DESTINATION));
             }
         }
 
@@ -289,7 +289,12 @@ public class GetElementsIT extends AbstractStoreIT {
                                     + ". \n\nSeeds: \n  " + StringUtils.join(seeds, "\n  "),
                             expectedElements.contains(edge));
                 } else {
-                    final Edge edgeReversed = new Edge(TestGroups.EDGE, edge.getDestination(), edge.getSource(), edge.isDirected());
+                    final Edge edgeReversed = new Edge.Builder()
+                            .group(TestGroups.EDGE)
+                            .source(edge.getDestination())
+                            .dest(edge.getSource())
+                            .directed(edge.isDirected())
+                            .build();
 
                     Properties properties = edge.getProperties();
                     edgeReversed.copyProperties(properties);
@@ -322,21 +327,39 @@ public class GetElementsIT extends AbstractStoreIT {
             } else {
                 if (DirectedType.isEither(((EdgeId) seed).getDirectedType())) {
                     if (BooleanUtils.isNotTrue(direction)) {
-                        final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), false);
-                        edge.putProperty("intProperty", 1);
-                        edge.putProperty("count", 1L);
+                        final Edge edge = new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(((EdgeId) seed).getSource())
+                                .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                                .directed(false)
+                                .property("intProperty", 1)
+                                .property("count", 1L)
+                                .build();
                         elements.add(edge);
                     }
                     if (BooleanUtils.isNotFalse(direction)) {
-                        final Edge edgeDir = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), true);
-                        edgeDir.putProperty("intProperty", 1);
-                        edgeDir.putProperty("count", 1L);
+                        final Edge edgeDir = new Edge.Builder()
+                                .group(TestGroups.EDGE)
+                                .source(((EdgeId) seed).getSource())
+                                .dest(((EdgeId) seed).getDestination())
+                                .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                                .directed(true)
+                                .property("intProperty", 1)
+                                .property("count", 1L)
+                                .build();
                         elements.add(edgeDir);
                     }
                 } else {
-                    final Edge edge = new Edge(TestGroups.EDGE, ((EdgeId) seed).getSource(), ((EdgeId) seed).getDestination(), ((EdgeId) seed).isDirected());
-                    edge.putProperty("intProperty", 1);
-                    edge.putProperty("count", 1L);
+                    final Edge edge = new Edge.Builder()
+                            .group(TestGroups.EDGE)
+                            .source(((EdgeId) seed).getSource())
+                            .dest(((EdgeId) seed).getDestination())
+                            .directed(((EdgeId) seed).isDirected())
+                            .matchedVertex(((EdgeId) seed).getMatchedVertex())
+                            .property("intProperty", 1)
+                            .property("count", 1L)
+                            .build();
                     elements.add(edge);
                 }
             }

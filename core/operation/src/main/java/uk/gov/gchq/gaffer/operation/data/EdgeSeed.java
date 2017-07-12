@@ -16,10 +16,14 @@
 
 package uk.gov.gchq.gaffer.operation.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
+import uk.gov.gchq.gaffer.data.element.comparison.ComparableOrToStringComparator;
 import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
+import java.util.Comparator;
 
 /**
  * An <code>EdgeSeed</code> contains source, destination and directed identifiers to identify an
@@ -28,9 +32,11 @@ import uk.gov.gchq.gaffer.data.element.id.EdgeId;
  */
 public class EdgeSeed extends ElementSeed implements EdgeId {
     private static final long serialVersionUID = -8137886975649690000L;
+    private static final Comparator<Object> VERTEX_COMPARATOR = new ComparableOrToStringComparator();
     private Object source;
     private Object destination;
     private DirectedType directed;
+    private MatchedVertex matchedVertex;
 
     public EdgeSeed() {
         this(null, null);
@@ -45,9 +51,24 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     public EdgeSeed(final Object source, final Object destination, final DirectedType directed) {
+        this(source, destination, directed, MatchedVertex.SOURCE);
+    }
+
+    public EdgeSeed(final Object source, final Object destination, final boolean directed, final MatchedVertex matchedVertex) {
+        this(source, destination, directed ? DirectedType.DIRECTED : DirectedType.UNDIRECTED, matchedVertex);
+    }
+
+    @JsonCreator
+    public EdgeSeed(@JsonProperty("source")  final Object source,
+                    @JsonProperty("destination") final Object destination,
+                    @JsonProperty("directedType") final DirectedType directed,
+                    @JsonProperty("matchedVertex") final MatchedVertex matchedVertex) {
+        this.matchedVertex = matchedVertex;
         this.source = source;
         this.destination = destination;
-        setDirectedType(directed);
+        this.directed = directed;
+        this.matchedVertex = matchedVertex;
+        orderVertices();
     }
 
     @Override
@@ -56,18 +77,8 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     @Override
-    public void setSource(final Object source) {
-        this.source = source;
-    }
-
-    @Override
     public Object getDestination() {
         return destination;
-    }
-
-    @Override
-    public void setDestination(final Object destination) {
-        this.destination = destination;
     }
 
     @Override
@@ -76,14 +87,47 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
     }
 
     @Override
-    public void setDirectedType(final DirectedType directed) {
-        if (null == directed) {
-            this.directed = DirectedType.EITHER;
-        } else {
-            this.directed = directed;
+    public void setIdentifiers(final Object source, final Object destination, final DirectedType directed, final MatchedVertex matchedVertex) {
+        this.source = source;
+        this.destination = destination;
+        this.directed = directed;
+        this.matchedVertex = matchedVertex;
+        orderVertices();
+    }
+
+    @Override
+    public MatchedVertex getMatchedVertex() {
+        return matchedVertex;
+    }
+
+    private void orderVertices() {
+        if (!DirectedType.isDirected(directed)) {
+            if (VERTEX_COMPARATOR.compare(source, destination) > 0) {
+                swapVertices();
+            }
         }
     }
 
+    private void swapVertices() {
+        final Object tmp = this.source;
+        this.source = this.destination;
+        this.destination = tmp;
+        if (matchedVertex != null) {
+            if (matchedVertex == MatchedVertex.DESTINATION) {
+                matchedVertex = MatchedVertex.SOURCE;
+            } else {
+                matchedVertex = MatchedVertex.DESTINATION;
+            }
+        }
+    }
+
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @param obj the reference object with which to compare.
+     * @return {@code true} if this object is the same as the obj
+     * argument; {@code false} otherwise.
+     */
     @Override
     public boolean equals(final Object obj) {
         return null != obj
@@ -91,23 +135,18 @@ public class EdgeSeed extends ElementSeed implements EdgeId {
                 && isEqual((EdgeSeed) obj);
     }
 
+    /**
+     * Note this does not include the matchedVertex field.
+     *
+     * @return a hash code value for this edge.
+     */
     @Override
     public int hashCode() {
-        int hash;
-        if (isDirected()) {
-            hash = new HashCodeBuilder(21, 3)
-                    .append(source)
-                    .append(destination)
-                    .append(directed)
-                    .toHashCode();
-        } else {
-            hash = new HashCodeBuilder(21, 3)
-                    .append(directed)
-                    .toHashCode();
-            hash ^= source.hashCode();
-            hash ^= destination.hashCode();
-        }
-        return hash;
+        return new HashCodeBuilder(21, 3)
+                .append(source)
+                .append(destination)
+                .append(directed)
+                .toHashCode();
     }
 
     @Override

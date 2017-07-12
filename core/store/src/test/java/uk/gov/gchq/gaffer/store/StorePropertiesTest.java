@@ -73,6 +73,32 @@ public class StorePropertiesTest {
     }
 
     @Test
+    public void shouldAddOperationDeclarationPathsWhenNullExisting() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+        assertNull(props.getOperationDeclarationPaths());
+
+        // When
+        props.addOperationDeclarationPaths("1", "2");
+
+        // Then
+        assertEquals("1,2", props.getOperationDeclarationPaths());
+    }
+
+    @Test
+    public void shouldAddOperationDeclarationPathsWhenExisting() {
+        // Given
+        final StoreProperties props = createStoreProperties();
+        props.setOperationDeclarationPaths("1");
+
+        // When
+        props.addOperationDeclarationPaths("2", "3");
+
+        // Then
+        assertEquals("1,2,3", props.getOperationDeclarationPaths());
+    }
+
+    @Test
     public void shouldGetUnknownPropertyWithDefaultValue() {
         // Given
         final StoreProperties props = createStoreProperties();

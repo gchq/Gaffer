@@ -16,39 +16,43 @@
 
 package uk.gov.gchq.gaffer.data.element;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.StringUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.commonutil.TestPropertyNames;
 import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.jsonserialisation.JSONSerialiser;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map.Entry;
+import java.util.List;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EdgeTest extends ElementTest {
 
     @Override
     @Test
     public void shouldSetAndGetFields() {
         // Given
-        final Edge edge = new Edge("group");
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("destination vertex")
+                .directed(true)
+                .build();
 
-        // When
-        edge.setSource("source vertex");
-        edge.setDestination("dest vertex");
-        edge.setDirected(true);
-
-        // Then
+        // When/Then
         assertEquals("group", edge.getGroup());
         assertEquals("source vertex", edge.getSource());
-        assertEquals("dest vertex", edge.getDestination());
+        assertEquals("destination vertex", edge.getDestination());
         assertTrue(edge.isDirected());
     }
 
@@ -86,7 +90,13 @@ public class EdgeTest extends ElementTest {
         final String propValue = "propValue";
 
         // When
-        final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(source)
+                .dest(destination)
+                .directed(directed)
+                .build();
+
         edge.putProperty(TestPropertyNames.STRING, propValue);
 
         // Then
@@ -103,10 +113,15 @@ public class EdgeTest extends ElementTest {
         final String source = "source vertex";
         final String destination = "dest vertex";
         final boolean directed = true;
-        final String propValue = "propValue";
 
         // When
-        final Edge edge = new Edge(TestGroups.EDGE, source, destination, directed);
+        final Edge edge = new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(source)
+                .dest(destination)
+                .directed(directed)
+                .build();
+
         final Edge clone = edge.emptyClone();
 
         // Then
@@ -117,10 +132,12 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnTrueForEqualsWithTheSameInstance() {
         // Given
-        final Edge edge = new Edge("group");
-        edge.setSource("source vertex");
-        edge.setDestination("dest vertex");
-        edge.setDirected(true);
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
         // When
         boolean isEqual = edge.equals(edge);
@@ -133,11 +150,13 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnTrueForShallowEqualsWhenAllCoreFieldsAreEqual() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
-        edge1.putProperty("some property", "some value");
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .property("some property", "some value")
+                .build();
 
         final Edge edge2 = cloneCoreFields(edge1);
         edge2.putProperty("some different property", "some other value");
@@ -152,12 +171,13 @@ public class EdgeTest extends ElementTest {
     @Override
     @Test
     public void shouldReturnTrueForEqualsWhenAllCoreFieldsAreEqual() {
-        // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
-        edge1.putProperty("some property", "some value");
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .property("some property", "some value")
+                .build();
 
         final Edge edge2 = cloneCoreFields(edge1);
         edge2.putProperty("some property", "some value");
@@ -173,11 +193,13 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenPropertyIsDifferent() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
-        edge1.putProperty("some property", "some value");
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .property("some property", "some value")
+                .build();
 
         final Edge edge2 = cloneCoreFields(edge1);
         edge2.putProperty("some property", "some other value");
@@ -194,15 +216,19 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenGroupIsDifferent() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
-        final Edge edge2 = new Edge("a different group");
-        edge2.setSource(edge1.getSource());
-        edge2.setDestination(edge1.getDestination());
-        edge2.setDirected(edge1.isDirected());
+        final Edge edge2 = new Edge.Builder()
+                .group("a different group")
+                .source(edge1.getSource())
+                .dest(edge1.getDestination())
+                .directed(edge1.isDirected())
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -215,13 +241,19 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenDirectedIsDifferent() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
-        final Edge edge2 = cloneCoreFields(edge1);
-        edge2.setDirected(!edge1.isDirected());
+        final Edge edge2 = new Edge.Builder()
+                .group(edge1.getGroup())
+                .source(edge1.getSource())
+                .dest(edge1.getDestination())
+                .directed(!edge1.isDirected())
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -234,13 +266,19 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenSourceIsDifferent() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
-        final Edge edge2 = cloneCoreFields(edge1);
-        edge2.setSource("different source");
+        final Edge edge2 = new Edge.Builder()
+                .group(edge1.getGroup())
+                .source("different source")
+                .dest(edge1.getDestination())
+                .directed(edge1.isDirected())
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -253,13 +291,18 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenDestinationIsDifferent() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
+        final Edge edge1 = new Edge.Builder().group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
-        final Edge edge2 = cloneCoreFields(edge1);
-        edge2.setDestination("different dest vertex");
+        final Edge edge2 = new Edge.Builder()
+                .group(edge1.getGroup())
+                .source(edge1.getSource())
+                .dest("different destination")
+                .directed(edge1.isDirected())
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -272,16 +315,20 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnTrueForEqualsWhenUndirectedIdentifiersFlipped() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(false);
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(false)
+                .build();
 
         // Given
-        final Edge edge2 = new Edge("group");
-        edge2.setSource("dest vertex");
-        edge2.setDestination("source vertex");
-        edge2.setDirected(false);
+        final Edge edge2 = new Edge.Builder()
+                .group("group")
+                .source("dest vertex")
+                .dest("source vertex")
+                .directed(false)
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -294,16 +341,20 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldReturnFalseForEqualsWhenDirectedIdentifiersFlipped() {
         // Given
-        final Edge edge1 = new Edge("group");
-        edge1.setSource("source vertex");
-        edge1.setDestination("dest vertex");
-        edge1.setDirected(true);
+        final Edge edge1 = new Edge.Builder()
+                .group("group")
+                .source("source vertex")
+                .dest("dest vertex")
+                .directed(true)
+                .build();
 
         // Given
-        final Edge edge2 = new Edge("group");
-        edge2.setSource("dest vertex");
-        edge2.setDestination("source vertex");
-        edge2.setDirected(true);
+        final Edge edge2 = new Edge.Builder()
+                .group("group")
+                .source("dest vertex")
+                .dest("source vertex")
+                .directed(true)
+                .build();
 
         // When
         boolean isEqual = edge1.equals((Object) edge2);
@@ -317,10 +368,12 @@ public class EdgeTest extends ElementTest {
     @Test
     public void shouldSerialiseAndDeserialiseIdentifiers() throws SerialisationException {
         // Given
-        final Edge edge = newElement("group");
-        edge.setSource(1L);
-        edge.setDestination(new Date(2L));
-        edge.setDirected(true);
+        final Edge edge = new Edge.Builder()
+                .group("group")
+                .source(1L)
+                .dest(new Date(2L))
+                .directed(true)
+                .build();
 
         final JSONSerialiser serialiser = new JSONSerialiser();
 
@@ -331,35 +384,228 @@ public class EdgeTest extends ElementTest {
 
         // Then
         assertEquals(edge, deserialisedElement);
+        assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.lang.Long\":1}"));
+        assertTrue(StringUtil.toString(serialisedElement).contains("{\"java.util.Date\":2}"));
     }
 
     @Override
     protected Edge newElement(final String group) {
-        return new Edge(group);
+        return new Edge.Builder().group(group).build();
     }
 
     @Override
     protected Edge newElement() {
-        return new Edge();
+        return new Edge.Builder().build();
+    }
+
+    @Test
+    public void shouldSwapVerticesIfSourceIsGreaterThanDestination_toString() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                .directed(false)
+                .source(new Vertex("2"))
+                .dest(new Vertex("1"))
+                .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Vertex("1")));
+        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+    }
+
+    @Test
+    public void shouldNotSwapVerticesIfSourceIsLessThanDestination_toString() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                .directed(false)
+                .source(new Vertex("1"))
+                .dest(new Vertex("2"))
+                .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Vertex("1")));
+        assertThat(edge.getDestination(), equalTo(new Vertex("2")));
+    }
+
+    @Test
+    public void shouldSwapVerticesIfSourceIsGreaterThanDestination_comparable() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                .directed(false)
+                .source(new Integer(2))
+                .dest(new Integer(1))
+                .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Integer(1)));
+        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+    }
+
+    @Test
+    public void shouldNotSwapVerticesIfSourceIsLessThanDestination_comparable() {
+        // Given
+        final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                .directed(false)
+                .source(new Integer(1))
+                .dest(new Integer(2))
+                .build();
+
+        // Then
+        assertThat(edge.getSource(), equalTo(new Integer(1)));
+        assertThat(edge.getDestination(), equalTo(new Integer(2)));
+    }
+
+    @Test
+    public void shouldFailToConsistentlySwapVerticesWithNoToStringImplementation() {
+        // Given
+        final List<Edge> edges = new ArrayList<>();
+        final List<Vertex2> sources = new ArrayList<>();
+        final List<Vertex2> destinations = new ArrayList<>();
+
+        // Create a load of edges with Vertex2 objects as source and destination.
+        // Vertex2 has no toString method and does not implement Comparable, so
+        // this should result in Edges being created with different sources and
+        // destinations.
+        for (int i = 0; i < 1000; i++) {
+            final Vertex2 source = new Vertex2("1");
+            final Vertex2 destination = new Vertex2("2");
+
+            sources.add(source);
+            destinations.add(destination);
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .directed(false)
+                    .source(sources.get(i))
+                    .dest(destinations.get(i))
+                    .build();
+
+            edges.add(edge);
+        }
+
+        // Then
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), greaterThan(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), greaterThan(1L));
+    }
+
+    @Test
+    public void shouldNotFailToConsistentlySwapVerticesWithStringImplementation() {
+        // Opposite to shouldFailToConsistentlySwapVerticesWithNoToStringImplementation(),
+        // showing that Edges which implement toString, equals and hashCode are
+        // consistently created with source and destination the correct way round
+
+        // Given
+        final List<Edge> edges = new ArrayList<>();
+        final List<Vertex> sources = new ArrayList<>();
+        final List<Vertex> destinations = new ArrayList<>();
+
+        for (int i = 0; i < 1000; i++) {
+            final Vertex source = new Vertex("1");
+            final Vertex destination = new Vertex("2");
+
+            sources.add(source);
+            destinations.add(destination);
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            final Edge edge = new Edge.Builder().group(TestGroups.EDGE)
+                    .directed(false)
+                    .source(sources.get(i))
+                    .dest(destinations.get(i))
+                    .build();
+
+            edges.add(edge);
+        }
+
+        // Then
+        assertThat(edges.stream().map(Edge::getSource).distinct().count(), equalTo(1L));
+        assertThat(edges.stream().map(Edge::getDestination).distinct().count(), equalTo(1L));
+    }
+
+    @Test
+    public void shouldSetIdentifiers() {
+        // Given
+        final Edge edge1 = new Edge(TestGroups.EDGE, 1, 2, false);
+        final Edge edge2 = new Edge(TestGroups.EDGE_2, 4, 3, false);
+
+        // When
+        edge1.setIdentifiers(4, 3, false);
+        edge1.setGroup(TestGroups.EDGE_2);
+
+        // Then
+        assertEquals(3, edge1.getSource());
+        assertThat(edge1, equalTo(edge2));
+    }
+
+    @Test
+    public void shouldFallbackToToStringComparisonIfSourceAndDestinationHaveDifferentTypes() {
+        // Given
+        final Edge edge1 = new Edge(TestGroups.EDGE, 1, "2", false);
+        final Edge edge2 = new Edge(TestGroups.EDGE, "2", 1, false);
+
+        // Then
+        assertThat(edge1, equalTo(edge2));
     }
 
     private Edge cloneCoreFields(final Edge edge) {
-        final Edge newEdge = new Edge(edge.getGroup());
-        newEdge.setSource(edge.getSource());
-        newEdge.setDestination(edge.getDestination());
-        newEdge.setDirected(edge.isDirected());
-
-        return newEdge;
+        return new Edge.Builder()
+                .group(edge.getGroup())
+                .source(edge.getSource())
+                .dest(edge.getDestination())
+                .directed(edge.isDirected())
+                .build();
     }
 
-    private Edge cloneAllFields(final Edge edge) {
-        final Edge newEdge = cloneCoreFields(edge);
+    private class Vertex {
+        private final String property;
 
-        final Properties properties = edge.getProperties();
-        for (final Entry<String, Object> entry : properties.entrySet()) {
-            newEdge.putProperty(entry.getKey(), entry.getValue());
+        public Vertex(final String property) {
+            this.property = property;
         }
 
-        return newEdge;
+        public String getProperty() {
+            return property;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final Vertex vertex = (Vertex) o;
+
+            return new EqualsBuilder()
+                    .append(property, vertex.property)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37)
+                    .append(property)
+                    .toHashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "Vertex[property=" + property + "]";
+        }
+    }
+
+    private class Vertex2 {
+        private final String property;
+
+        public Vertex2(final String property) {
+            this.property = property;
+        }
+
+        public String getProperty() {
+            return property;
+        }
     }
 }

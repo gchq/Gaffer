@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.store.util;
 
-import com.google.common.collect.Iterables;
 import uk.gov.gchq.gaffer.commonutil.iterable.ChainedIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
@@ -25,8 +24,11 @@ import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaElementDefinition;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BinaryOperator;
@@ -60,8 +62,18 @@ public final class AggregatorUtil {
             throw new IllegalArgumentException("Schema is required");
         }
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
-        final Iterable<? extends Element> nonAggregatedElements = Iterables.filter(elements, new IsElementNotAggregatedGPredicate(aggregatedGroups));
-        final Iterable<? extends Element> aggregatableElements = Iterables.filter(elements, new IsElementAggregatedGPredicate(aggregatedGroups));
+        final List<Element> aggregatableElements = new ArrayList<>();
+        final List<Element> nonAggregatedElements = new ArrayList<>();
+        for (final Element element : elements) {
+            if (null != element) {
+                if (aggregatedGroups.contains(element.getGroup())) {
+                    aggregatableElements.add(element);
+                } else {
+                    nonAggregatedElements.add(element);
+                }
+            }
+        }
+
         final Iterable<Element> aggregatedElements = Streams.toStream(aggregatableElements)
                 .collect(Collectors.groupingBy(new ToIngestElementKey(schema), Collectors.reducing(null, new IngestElementBinaryOperator(schema))))
                 .values();
@@ -88,8 +100,17 @@ public final class AggregatorUtil {
             throw new IllegalArgumentException("View is required");
         }
         final Collection<String> aggregatedGroups = schema.getAggregatedGroups();
-        final Iterable<? extends Element> nonAggregatedElements = Iterables.filter(elements, new IsElementNotAggregatedGPredicate(aggregatedGroups));
-        final Iterable<? extends Element> aggregatableElements = Iterables.filter(elements, new IsElementAggregatedGPredicate(aggregatedGroups));
+        final List<Element> aggregatableElements = new ArrayList<>();
+        final List<Element> nonAggregatedElements = new ArrayList<>();
+        for (final Element element : elements) {
+            if (null != element) {
+                if (aggregatedGroups.contains(element.getGroup())) {
+                    aggregatableElements.add(element);
+                } else {
+                    nonAggregatedElements.add(element);
+                }
+            }
+        }
         final Iterable<Element> aggregatedElements = Streams.toStream(aggregatableElements)
                 .collect(Collectors.groupingBy(new ToQueryElementKey(schema, view), Collectors.reducing(null, new QueryElementBinaryOperator(schema, view))))
                 .values();
@@ -103,7 +124,7 @@ public final class AggregatorUtil {
      */
     public static class ToIngestElementKey extends ToElementKey {
         public ToIngestElementKey(final Schema schema) {
-            super(getGroupBys(schema));
+            super(getIngestGroupBys(schema));
         }
     }
 
@@ -114,7 +135,7 @@ public final class AggregatorUtil {
      */
     public static class ToQueryElementKey extends ToElementKey {
         public ToQueryElementKey(final Schema schema, final View view) {
-            super(getGroupBys(schema, view));
+            super(getQueryGroupBys(schema, view));
         }
     }
 
@@ -256,52 +277,20 @@ public final class AggregatorUtil {
         }
     }
 
-    private static final class IsElementAggregatedGPredicate implements com.google.common.base.Predicate<Element> {
-        final Collection<String> aggregatedGroups;
-
-        private IsElementAggregatedGPredicate(final Collection<String> aggregatedGroups) {
-            if (null == aggregatedGroups) {
-                throw new IllegalArgumentException("Aggregated groups is required");
-            }
-            this.aggregatedGroups = aggregatedGroups;
-        }
-
-        @Override
-        public boolean apply(final Element element) {
-            return null != element && aggregatedGroups.contains(element.getGroup());
-        }
-    }
-
-    private static final class IsElementNotAggregatedGPredicate implements com.google.common.base.Predicate<Element> {
-        final Collection<String> aggregatedGroups;
-
-        private IsElementNotAggregatedGPredicate(final Collection<String> aggregatedGroups) {
-            if (null == aggregatedGroups) {
-                throw new IllegalArgumentException("Aggregated groups is required");
-            }
-            this.aggregatedGroups = aggregatedGroups;
-        }
-
-        @Override
-        public boolean apply(final Element element) {
-            return null != element && !aggregatedGroups.contains(element.getGroup());
-        }
-    }
-
-    private static Map<String, Set<String>> getGroupBys(final Schema schema) {
+    public static Map<String, Set<String>> getIngestGroupBys(final Schema schema) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
 
         final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
         for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getGroupBy(group, schema));
+            groupToGroupBys.put(group, getIngestGroupBy(group, schema));
         }
 
         return groupToGroupBys;
     }
 
-    private static Map<String, Set<String>> getGroupBys(final Schema schema, final View view) {
+    public static Map<String, Set<String>> getQueryGroupBys(final Schema schema, final View view) {
         if (null == schema) {
             throw new IllegalArgumentException("Schema is required");
         }
@@ -310,22 +299,28 @@ public final class AggregatorUtil {
         }
         final Map<String, Set<String>> groupToGroupBys = new HashMap<>();
         for (final String group : schema.getGroups()) {
-            groupToGroupBys.put(group, getGroupBy(group, schema, view));
+            groupToGroupBys.put(group, getQueryGroupBy(group, schema, view));
         }
 
         return groupToGroupBys;
     }
 
-    private static Set<String> getGroupBy(final String group, final Schema schema) {
+    public static Set<String> getIngestGroupBy(final String group, final Schema schema) {
         final SchemaElementDefinition elDef = schema.getElement(group);
         if (elDef == null) {
             throw new IllegalArgumentException("Received group " + group
                     + " which was not found in the schema");
         }
-        return elDef.getGroupBy();
+        if (null == schema.getVisibilityProperty() || !elDef.containsProperty(schema.getVisibilityProperty())) {
+            return elDef.getGroupBy();
+        }
+
+        final LinkedHashSet<String> groupBy = new LinkedHashSet<>(elDef.getGroupBy());
+        groupBy.add(schema.getVisibilityProperty());
+        return groupBy;
     }
 
-    private static Set<String> getGroupBy(final String group, final Schema schema, final View view) {
+    public static Set<String> getQueryGroupBy(final String group, final Schema schema, final View view) {
         Set<String> groupBy = null;
         if (null != view) {
             final ViewElementDefinition elDef = view.getElement(group);

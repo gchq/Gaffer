@@ -17,17 +17,19 @@
 package uk.gov.gchq.gaffer.data.element;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.gov.gchq.gaffer.commonutil.ToStringBuilder;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 
 /**
  * An <code>Entity</code> in an {@link uk.gov.gchq.gaffer.data.element.Element} containing a single vertex.
  * The vertex can be any type of {@link java.lang.Object}.
- * There is no requirement for this vertex to connect to an {@link uk.gov.gchq.gaffer.data.element.Edge}'s source or
+ * There is no requirement for this vertex to connect to an {@link uk.gov.gchq.gaffer.data.element.Entity}'s source or
  * destination vertex - for example you could have a 'graph' of just entities.
  * Entities are designed so that multiple entities can share the same vertex but are distinguished via their
  * group.
@@ -47,8 +49,29 @@ public class Entity extends Element implements EntityId {
         super(group);
     }
 
+    /**
+     * Constructs an instance of Entity.
+     *
+     * @param group  the Entity group
+     * @param vertex the vertex
+     */
     public Entity(final String group, final Object vertex) {
-        super(group);
+        this(group, vertex, null);
+    }
+
+    /**
+     * Constructs an instance of Entity.
+     *
+     * @param group      the Entity group
+     * @param vertex     the vertex
+     * @param properties the entity properties
+     */
+    @JsonCreator
+    public Entity(
+            @JsonProperty("group") final String group,
+            @JsonProperty("vertex") final Object vertex,
+            @JsonProperty("properties") final Properties properties) {
+        super(group, properties);
         this.vertex = vertex;
     }
 
@@ -73,10 +96,10 @@ public class Entity extends Element implements EntityId {
     }
 
     @Override
-    public void putIdentifier(final IdentifierType identifierType, final Object propertyToBeSet) {
+    public void putIdentifier(final IdentifierType identifierType, final Object value) {
         switch (identifierType) {
             case VERTEX:
-                setVertex(propertyToBeSet);
+                vertex = value;
                 break;
             default:
                 LOGGER.error("Unknown identifier type: {} detected.", identifierType);
@@ -120,25 +143,27 @@ public class Entity extends Element implements EntityId {
     }
 
     public static class Builder {
-        private final Entity entity = new Entity();
+        private String group = Element.DEFAULT_GROUP;
+        private Object vertex;
+        private Properties properties = new Properties();
 
         public Builder group(final String group) {
-            entity.setGroup(group);
+            this.group = group;
             return this;
         }
 
         public Builder vertex(final Object vertex) {
-            entity.setVertex(vertex);
+            this.vertex = vertex;
             return this;
         }
 
         public Builder property(final String name, final Object value) {
-            entity.putProperty(name, value);
+            properties.put(name, value);
             return this;
         }
 
         public Entity build() {
-            return entity;
+            return new Entity(group, vertex, properties);
         }
     }
 }

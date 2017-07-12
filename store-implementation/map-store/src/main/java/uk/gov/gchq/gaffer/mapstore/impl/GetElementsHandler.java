@@ -21,38 +21,16 @@ import uk.gov.gchq.gaffer.commonutil.iterable.EmptyClosableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterable;
 import uk.gov.gchq.gaffer.commonutil.iterable.WrappedCloseableIterator;
 import uk.gov.gchq.gaffer.commonutil.stream.Streams;
-import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
-import uk.gov.gchq.gaffer.data.element.Entity;
-import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.function.ElementTransformer;
-import uk.gov.gchq.gaffer.data.element.id.DirectedType;
-import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.data.element.id.ElementId;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
-import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.mapstore.MapStore;
-import uk.gov.gchq.gaffer.mapstore.utils.ElementCloner;
 import uk.gov.gchq.gaffer.operation.OperationException;
-import uk.gov.gchq.gaffer.operation.SeedMatching.SeedMatchingType;
-import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
-import uk.gov.gchq.gaffer.operation.data.EntitySeed;
-import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters.IncludeIncomingOutgoingType;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.Store;
 import uk.gov.gchq.gaffer.store.operation.handler.OutputOperationHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import static uk.gov.gchq.gaffer.mapstore.impl.MapImpl.COUNT;
 
 /**
  * An {@link OutputOperationHandler} for the {@link GetElements} operation on the {@link MapStore}.
@@ -70,199 +48,35 @@ public class GetElementsHandler
     private CloseableIterable<Element> doOperation(final GetElements operation,
                                                    final MapStore mapStore) throws OperationException {
         final MapImpl mapImpl = mapStore.getMapImpl();
-        if (!mapImpl.maintainIndex) {
+        if (!mapImpl.isMaintainIndex()) {
             throw new OperationException("Cannot execute getElements if the properties request that an index is not created");
         }
         final Iterable<? extends ElementId> seeds = operation.getInput();
         if (null == seeds) {
             return new EmptyClosableIterable<>();
         }
-        return new ElementsIterable(mapImpl, operation);
+        return new ElementsIterable(mapImpl, operation, mapStore.getSchema());
     }
 
     private static class ElementsIterable extends WrappedCloseableIterable<Element> {
         private final MapImpl mapImpl;
         private final GetElements getElements;
+        private final Schema schema;
 
-        ElementsIterable(final MapImpl mapImpl, final GetElements getElements) {
+        ElementsIterable(final MapImpl mapImpl, final GetElements getElements, final Schema schema) {
             this.mapImpl = mapImpl;
             this.getElements = getElements;
+            this.schema = schema;
         }
 
         @Override
         public CloseableIterator<Element> iterator() {
-            final Stream<Set<Element>> elementsSets = Streams.toParallelStream(getElements.getInput())
-                    .map(elementId -> getRelevantElements(mapImpl, elementId, getElements));
-            final Stream<Element> elements = elementsSets.flatMap(s -> s.stream());
-            final Stream<Element> elementsAfterIncludeEntitiesEdgesOption =
-                    applyIncludeEntitiesEdgesOptions(elements, getElements.getView().hasEntities(), getElements.getView().hasEdges(), getElements.getDirectedType());
-            // Generate final elements by copying properties into element
-            Stream<Element> elementsWithProperties = elementsAfterIncludeEntitiesEdgesOption
-                    .map(element -> {
-                        if (mapImpl.groupsWithNoAggregation.contains(element.getGroup())) {
-                            final int count = (int) mapImpl.elementToProperties.get(element).get(COUNT);
-                            List<Element> duplicateElements = new ArrayList<>(count);
-                            IntStream.range(0, count).forEach(i -> duplicateElements.add(element));
-                            return duplicateElements;
-                        } else {
-                            final Properties properties = mapImpl.elementToProperties.get(element);
-                            element.copyProperties(properties);
-                            return Collections.singletonList(element);
-                        }
-                    })
-                    .flatMap(x -> x.stream());
-            final Stream<Element> afterView = applyView(elementsWithProperties, mapImpl.schema, getElements.getView());
-            final Stream<Element> clonedElements = afterView.map(element -> ElementCloner.cloneElement(element, mapImpl.schema));
-            return new WrappedCloseableIterator<>(clonedElements.iterator());
+            Stream<Element> elements = Streams.toStream(getElements.getInput())
+                    .flatMap(elementId -> GetElementsUtil.getRelevantElements(mapImpl, elementId, getElements.getView(), getElements.getDirectedType(), getElements.getIncludeIncomingOutGoing(), getElements.getSeedMatching()).stream());
+            elements = elements.flatMap(e -> Streams.toStream(mapImpl.getElements(e)));
+            elements = GetElementsUtil.applyView(elements, schema, getElements.getView());
+            elements = elements.map(element -> mapImpl.cloneElement(element, schema));
+            return new WrappedCloseableIterator<>(elements.iterator());
         }
-    }
-
-    static Set<Element> getRelevantElements(final MapImpl mapImpl,
-                                            final ElementId elementId,
-                                            final GetElements getElements) {
-        if (elementId instanceof EntityId) {
-            final Set<Element> relevantElements = new HashSet<>();
-            final Set<Element> elements = mapImpl.entityIdToElements.get(elementId);
-            if (null != elements) {
-                relevantElements.addAll(elements);
-            }
-            if (relevantElements.isEmpty()) {
-                return Collections.emptySet();
-            }
-            // Apply inOutType options
-            // If option is EITHER then nothing to do
-            if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.INCOMING) {
-                relevantElements.removeIf(e -> e instanceof Edge
-                        && ((Edge) e).isDirected()
-                        && ((Edge) e).getSource().equals(((EntityId) elementId).getVertex())
-                        && !((Edge) e).getDestination().equals(((EntityId) elementId).getVertex()));
-            } else if (getElements.getIncludeIncomingOutGoing() == IncludeIncomingOutgoingType.OUTGOING) {
-                relevantElements.removeIf(e -> e instanceof Edge
-                        && ((Edge) e).isDirected()
-                        && ((Edge) e).getDestination().equals(((EntityId) elementId).getVertex())
-                        && !((Edge) e).getSource().equals(((EntityId) elementId).getVertex()));
-            }
-            // Apply seedMatching option
-            // If option is RELATED then nothing to do
-            if (getElements.getSeedMatching() == SeedMatchingType.EQUAL) {
-                relevantElements.removeIf(e -> e instanceof Edge);
-            }
-            return relevantElements;
-        } else {
-            final EdgeId edgeId = (EdgeSeed) elementId;
-            final Set<Element> relevantElements = new HashSet<>();
-            if (DirectedType.isEither(edgeId.getDirectedType())) {
-                final Set<Element> elements = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), false));
-                if (elements != null) {
-                    relevantElements.addAll(elements);
-                }
-                final Set<Element> elementsDir = mapImpl.edgeIdToElements.get(new EdgeSeed(edgeId.getSource(), edgeId.getDestination(), true));
-                if (elementsDir != null) {
-                    relevantElements.addAll(elementsDir);
-                }
-            } else {
-                final Set<Element> elements = mapImpl.edgeIdToElements.get(edgeId);
-                if (elements != null) {
-                    relevantElements.addAll(elements);
-                }
-            }
-            final Set<Element> elementsFromSource = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getSource()));
-            if (elementsFromSource != null) {
-                final Set<Element> related = new HashSet<>();
-                related.addAll(elementsFromSource);
-                related.removeIf(e -> e instanceof Edge);
-                relevantElements.addAll(related);
-            }
-            final Set<Element> elementsFromDest = mapImpl.entityIdToElements.get(new EntitySeed(edgeId.getDestination()));
-            if (elementsFromDest != null) {
-                final Set<Element> related = new HashSet<>();
-                related.addAll(elementsFromDest);
-                related.removeIf(e -> e instanceof Edge);
-                relevantElements.addAll(related);
-            }
-            // Apply seedMatching option
-            // If option is RELATED then nothing to do
-            if (getElements.getSeedMatching() == SeedMatchingType.EQUAL) {
-                relevantElements.removeIf(e -> e instanceof Entity);
-            }
-            return relevantElements;
-        }
-    }
-
-    static Stream<Element> applyIncludeEntitiesEdgesOptions(final Stream<Element> elements,
-                                                            final boolean includeEntities,
-                                                            final boolean includeEdges,
-                                                            final DirectedType directedType) {
-        // Apply include entities option
-        final Stream<Element> elementsAfterIncludeEntitiesOption;
-        if (!includeEntities) {
-            elementsAfterIncludeEntitiesOption = elements.filter(e -> e instanceof Edge);
-        } else {
-            elementsAfterIncludeEntitiesOption = elements;
-        }
-        // Apply include edges option
-        Stream<Element> elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
-        if (!includeEdges) {
-            elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> !(e instanceof Edge));
-        } else if (DirectedType.isEither(directedType)) {
-            elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption;
-        } else if (directedType == DirectedType.DIRECTED) {
-            elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> {
-                if (e instanceof Entity) {
-                    return true;
-                }
-                final Edge edge = (Edge) e;
-                return edge.isDirected();
-            });
-        } else if (directedType == DirectedType.UNDIRECTED) {
-            elementsAfterIncludeEdgesOption = elementsAfterIncludeEntitiesOption.filter(e -> {
-                if (e instanceof Entity) {
-                    return true;
-                }
-                final Edge edge = (Edge) e;
-                return !edge.isDirected();
-            });
-        }
-        return elementsAfterIncludeEdgesOption;
-    }
-
-    static Stream<Element> applyView(final Stream<Element> elementStream, final Schema schema, final View view) {
-        final Set<String> viewGroups = view.getGroups();
-        Stream<Element> stream = elementStream;
-        // Check group is valid
-        if (!view.getEntityGroups().equals(schema.getEntityGroups())
-                || !view.getEdgeGroups().equals(schema.getEdgeGroups())) {
-            stream = stream.filter(e -> viewGroups.contains(e.getGroup()));
-        }
-
-        // Apply pre-aggregation filter
-        stream = stream.filter(e -> {
-            final ViewElementDefinition ved = view.getElement(e.getGroup());
-            return ved.getPreAggregationFilter() == null || ved.getPreAggregationFilter().test(e);
-        });
-
-        // Apply post-aggregation filter
-        stream = stream.filter(e -> {
-            final ViewElementDefinition ved = view.getElement(e.getGroup());
-            return ved.getPostAggregationFilter() == null || ved.getPostAggregationFilter().test(e);
-        });
-
-        // Apply transform
-        stream = stream.map(e -> {
-            final ViewElementDefinition ved = view.getElement(e.getGroup());
-            final ElementTransformer transformer = ved.getTransformer();
-            if (transformer != null) {
-                transformer.apply(e);
-            }
-            return e;
-        });
-
-        // Apply post transform filter
-        stream = stream.filter(e -> {
-            final ViewElementDefinition ved = view.getElement(e.getGroup());
-            return ved.getPostTransformFilter() == null || ved.getPostTransformFilter().test(e);
-        });
-
-        return stream;
     }
 }

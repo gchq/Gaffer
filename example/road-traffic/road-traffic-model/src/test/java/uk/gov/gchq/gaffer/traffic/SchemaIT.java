@@ -15,6 +15,7 @@ public class SchemaIT {
 
         // When
         new Graph.Builder()
+                .graphId("graphId")
                 .storeProperties(storeProps)
                 .addSchemas(schema)
                 .build();
