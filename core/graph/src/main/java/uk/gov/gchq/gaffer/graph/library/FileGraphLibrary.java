@@ -74,8 +74,8 @@ public class FileGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    protected void _addSchema(final String schemaId,
-                              final byte[] schema) throws OverwritingException {
+    public void addSchema(final String schemaId,
+                          final byte[] schema) throws OverwritingException {
         if (schema != null) {
             try {
                 FileUtils.writeByteArrayToFile(getSchemaPath(schemaId).toFile(), schema);
@@ -88,8 +88,8 @@ public class FileGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    protected void _addProperties(final String propertiesId,
-                                  final StoreProperties properties) {
+    public void addProperties(final String propertiesId,
+                              final StoreProperties properties) {
         if (properties != null) {
             try (FileOutputStream propertiesFileOutputStream = new FileOutputStream(getPropertiesPath(propertiesId).toFile())) {
                 properties.getProperties().store(propertiesFileOutputStream, null);

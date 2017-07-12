@@ -27,6 +27,7 @@ import uk.gov.gchq.gaffer.store.operation.handler.export.ExportToHandler;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 
 public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGraph, OtherGraphExporter> {
+    private static final String ID = "gaffer.store.id";
 
     @Override
     protected Class<OtherGraphExporter> getExporterClass() {
@@ -42,7 +43,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
         );
     }
 
-    private Graph createGraph(ExportToOtherGraph export, final Store store) {
+    protected Graph createGraph(final ExportToOtherGraph export, final Store store) {
         final String exportGraphId = export.getGraphId();
         if (store.getGraphId().equals(exportGraphId)) {
             throw new IllegalArgumentException("Cannot export to the same graph: " + exportGraphId);
@@ -75,12 +76,14 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
             if (null != export.getSchema()) {
                 if (null == schema) {
                     schema = export.getSchema();
-                } else
+                } else {
                     // delete the old schema id as we are about to modify the schema
                     schema = new Schema.Builder()
+                            .merge(schema)
                             .id(null)
                             .merge(export.getSchema())
                             .build();
+                }
             }
             if (null == schema) {
                 // as a last resort just use the schema from the current store
@@ -96,7 +99,7 @@ public class ExportToOtherGraphHandler extends ExportToHandler<ExportToOtherGrap
                     storeProperties = export.getStoreProperties();
                 } else {
                     // delete the old properties id as we are about to modify the properties
-                    storeProperties.setId(null);
+                    storeProperties.getProperties().remove(ID);
                     storeProperties.getProperties().putAll(export.getStoreProperties().getProperties());
                 }
             }

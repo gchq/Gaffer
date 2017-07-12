@@ -40,12 +40,12 @@ public class NoGraphLibrary extends GraphLibrary {
     }
 
     @Override
-    protected void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
+    public void addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
         // do nothing
     }
 
     @Override
-    protected void _addProperties(final String propertiesId, final StoreProperties properties) {
+    public void addProperties(final String propertiesId, final StoreProperties properties) {
         // do nothing
     }
 

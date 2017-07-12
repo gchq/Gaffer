@@ -38,8 +38,8 @@ public abstract class GraphLibrary {
         final String propertiesId = null != properties && null != properties.getId() ? properties.getId() : graphId;
 
         _addIds(graphId, new Pair<>(schemaId, propertiesId));
-        _addSchema(schemaId, schemaJson);
-        _addProperties(propertiesId, properties);
+        addSchema(schemaId, schemaJson);
+        addProperties(propertiesId, properties);
     }
 
     public void addOrUpdate(final String graphId, final Schema schema, final StoreProperties properties) {
@@ -52,11 +52,11 @@ public abstract class GraphLibrary {
 
         if (null != schema) {
             final byte[] schemaJson = schema.toJson(false);
-            _addSchema(schemaId, schemaJson);
+            addSchema(schemaId, schemaJson);
         }
 
         if (null != properties) {
-            _addProperties(propertiesId, properties);
+            addProperties(propertiesId, properties);
         }
     }
 
@@ -97,11 +97,18 @@ public abstract class GraphLibrary {
         return false;
     }
 
+    public void addSchema(final String schemaId, final Schema schema) throws OverwritingException {
+        if (null != schema) {
+            final byte[] schemaJson = schema.toJson(false);
+            addSchema(schemaId, schemaJson);
+        }
+    }
+
     protected abstract void _addIds(final String graphId, final Pair<String, String> schemaAndPropsIds) throws OverwritingException;
 
-    protected abstract void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
+    public abstract void addSchema(final String schemaId, final byte[] schema) throws OverwritingException;
 
-    protected abstract void _addProperties(final String propertiesId, final StoreProperties properties);
+    public abstract void addProperties(final String propertiesId, final StoreProperties properties);
 
     protected abstract byte[] _getSchema(final String schemaId);
 

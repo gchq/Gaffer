@@ -38,13 +38,14 @@ public class HashMapGraphLibrary extends GraphLibrary {
         GRAPHS.put(graphId, schemaAndPropsIds);
     }
 
+
     @Override
-    protected void _addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
+    public void addSchema(final String schemaId, final byte[] schema) throws OverwritingException {
         SCHEMAS.put(schemaId, schema);
     }
 
     @Override
-    protected void _addProperties(final String propertiesId, final StoreProperties properties) {
+    public void addProperties(final String propertiesId, final StoreProperties properties) {
         PROPERTIES.put(propertiesId, properties);
     }
 

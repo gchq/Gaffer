@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
-import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.iterable.CloseableIterable;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -23,6 +22,8 @@ import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.export.graph.ExportToOtherGraph;
 import uk.gov.gchq.gaffer.operation.impl.export.set.ExportToSet;
 import uk.gov.gchq.gaffer.operation.impl.get.GetAllElements;
+import uk.gov.gchq.gaffer.store.StoreProperties;
+import java.nio.file.Paths;
 
 public class ExportToOtherGraphExample extends OperationExample {
     public static void main(final String[] args) throws OperationException {
@@ -43,7 +44,7 @@ public class ExportToOtherGraphExample extends OperationExample {
         final OperationChain<CloseableIterable<? extends Element>> opChain = new OperationChain.Builder()
                 .first(new GetAllElements())
                 .then(new ExportToOtherGraph.Builder<CloseableIterable<? extends Element>>()
-                        .storeProperties(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"))
+                        .storeProperties(new StoreProperties(Paths.get("/src/main/resources/othermockaccumulostore.properties")))
                         .build())
                 .build();
         // ---------------------------------------------------------

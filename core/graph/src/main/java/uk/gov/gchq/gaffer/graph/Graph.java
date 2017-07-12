@@ -283,6 +283,13 @@ public final class Graph {
         return store.getGraphId();
     }
 
+    /**
+     * @return the Store for this Graph.
+     */
+    public Store getStore() {
+        return store;
+    }
+
     public GraphLibrary getLibrary() {
         return library;
     }
