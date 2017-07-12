@@ -199,7 +199,7 @@ public class BoundedTimestampSet implements TimestampSet {
         // Switch state from RBM to ReservoirLongsUnion, copy values from RBM to the reservoir, and set the
         // RBM to null.
         state = State.SAMPLE;
-        reservoirLongsUnion = ReservoirLongsUnion.getInstance(maxSize);
+        reservoirLongsUnion = ReservoirLongsUnion.newInstance(maxSize);
         for (final Instant instant : rbmBackedTimestampSet.getTimestamps()) {
             reservoirLongsUnion.update(instant.toEpochMilli());
         }
