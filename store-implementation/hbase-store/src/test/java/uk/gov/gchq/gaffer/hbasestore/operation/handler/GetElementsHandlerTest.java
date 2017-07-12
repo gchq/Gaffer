@@ -24,6 +24,7 @@ import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.hbasestore.HBaseStore;
 import uk.gov.gchq.gaffer.hbasestore.retriever.HBaseRetriever;
 import uk.gov.gchq.gaffer.operation.OperationException;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.Context;
 import uk.gov.gchq.gaffer.store.StoreException;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.mock;
 
 public class GetElementsHandlerTest {
     @Test
-    public void shouldReturnHBaseRetriever() throws OperationException, StoreException {
+    public void shouldReturnHBaseRetrieverWithIncludeMatchexVertex() throws OperationException, StoreException {
         // Given
         final Iterable<EntityId> ids = mock(Iterable.class);
         final Context context = mock(Context.class);
@@ -46,6 +47,7 @@ public class GetElementsHandlerTest {
         final GetElementsHandler handler = new GetElementsHandler();
         final GetElements getElements = new GetElements.Builder()
                 .input(ids)
+                .seedMatching(SeedMatching.SeedMatchingType.RELATED)
                 .build();
 
         given(context.getUser()).willReturn(user);
@@ -56,7 +58,30 @@ public class GetElementsHandlerTest {
 
         // Then
         assertSame(hbaseRetriever, result);
+    }
 
+    @Test
+    public void shouldReturnHBaseRetrieverWithoutIncludeMatchexVertex() throws OperationException, StoreException {
+        // Given
+        final Iterable<EntityId> ids = mock(Iterable.class);
+        final Context context = mock(Context.class);
+        final User user = mock(User.class);
+        final HBaseStore store = mock(HBaseStore.class);
+        final HBaseRetriever<GetElements> hbaseRetriever = mock(HBaseRetriever.class);
+        final GetElementsHandler handler = new GetElementsHandler();
+        final GetElements getElements = new GetElements.Builder()
+                .input(ids)
+                .seedMatching(SeedMatching.SeedMatchingType.EQUAL)
+                .build();
+
+        given(context.getUser()).willReturn(user);
+        given(store.createRetriever(getElements, user, ids, false)).willReturn(hbaseRetriever);
+
+        // When
+        final HBaseRetriever<GetElements> result = (HBaseRetriever<GetElements>) handler.doOperation(getElements, context, store);
+
+        // Then
+        assertSame(hbaseRetriever, result);
     }
 
     @Test

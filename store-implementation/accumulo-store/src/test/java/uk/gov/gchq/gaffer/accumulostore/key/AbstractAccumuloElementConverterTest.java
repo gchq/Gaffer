@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
+package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -52,9 +51,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public abstract class AbstractAccumuloElementConverterTest {
+public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
 
-    protected AccumuloElementConverter converter;
+    protected T converter;
 
     @Before
     public void setUp() throws SchemaException, IOException {
@@ -62,7 +61,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         converter = createConverter(schema);
     }
 
-    protected abstract AccumuloElementConverter createConverter(final Schema schema);
+    protected abstract T createConverter(final Schema schema);
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test

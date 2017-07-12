@@ -16,13 +16,11 @@
 package uk.gov.gchq.gaffer.accumulostore.key.core;
 
 import com.google.common.primitives.Bytes;
-import org.apache.accumulo.core.data.Key;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.commonutil.pair.Pair;
+import uk.gov.gchq.gaffer.accumulostore.key.AbstractAccumuloElementConverterTest;
+import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
-import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.Properties;
-import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
@@ -30,8 +28,9 @@ import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-public class AbstractCoreKeyAccumuloElementConverterTest {
+public abstract class AbstractCoreKeyAccumuloElementConverterTest extends AbstractAccumuloElementConverterTest<AbstractCoreKeyAccumuloElementConverter> {
 
     @Test
     public void shouldReturnOverriddenSerialiseNull() throws Exception {
@@ -59,10 +58,70 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
                 .build();
 
         //when
-        new TestImplementation(testSchema).serialiseSizeAndPropertyValue("invalidProp", testSchema.getElement("group1"), new Properties(), stream);
+        createConverter(testSchema).serialiseSizeAndPropertyValue("invalidProp", testSchema.getElement("group1"), new Properties(), stream);
 
         //then
         assertArrayEquals(expected, stream.toByteArray());
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesCorrectWayRound() {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = converter.getRowKeysFromEdge(edge).getFirst();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.DIRECTED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesIncorrectWayRound() {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = converter.getRowKeysFromEdge(edge).getSecond();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.DIRECTED_REVERSED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesUndirected() {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = converter.getRowKeysFromEdge(edge).getSecond();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.UNDIRECTED, direction);
     }
 
     private class UnusualTestSerialiser extends StringSerialiser {
@@ -70,42 +129,5 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         public byte[] serialiseNull() {
             return "Empty".getBytes();
         }
-    }
-
-    private class TestImplementation extends AbstractCoreKeyAccumuloElementConverter {
-        public TestImplementation(Schema schema) {
-            super(schema);
-        }
-
-        @Override
-        protected EntityId getEntityId(final byte[] row) {
-            return null;
-        }
-
-        @Override
-        protected byte[] getRowKeyFromEntity(Entity entity) {
-            return new byte[0];
-        }
-
-        @Override
-        protected Pair<byte[], byte[]> getRowKeysFromEdge(Edge edge) {
-            return null;
-        }
-
-        @Override
-        protected boolean doesKeyRepresentEntity(byte[] row) {
-            return false;
-        }
-
-        @Override
-        protected Entity getEntityFromKey(Key key, byte[] row) {
-            return null;
-        }
-
-        @Override
-        protected EdgeDirection getSourceAndDestinationFromRowKey(byte[] rowKey, byte[][] sourceValueDestinationValue) {
-            return EdgeDirection.UNDIRECTED;
-        }
-
     }
 }

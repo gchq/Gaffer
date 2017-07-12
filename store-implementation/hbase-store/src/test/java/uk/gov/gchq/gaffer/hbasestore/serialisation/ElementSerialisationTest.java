@@ -28,6 +28,7 @@ import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.IdentifierType;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
+import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.hbasestore.util.HBasePropertyNames;
 import uk.gov.gchq.gaffer.hbasestore.utils.HBaseStoreConstants;
 import uk.gov.gchq.gaffer.serialisation.FreqMapSerialiser;
@@ -568,6 +569,65 @@ public class ElementSerialisationTest {
             assertArrayEquals(pair.getSecond(), columnQualifier);
             assertEquals(pair.getFirst().getProperties(), propertiesFromColumnQualifier);
         }
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesCorrectWayRound() throws SerialisationException {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getFirst();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(ElementSerialisation.EdgeDirection.DIRECTED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesIncorrectWayRound() throws SerialisationException {
+        // Given 
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(true)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getSecond();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(ElementSerialisation.EdgeDirection.DIRECTED_REVERSED, direction);
+    }
+
+    @Test
+    public void shouldDeserialiseSourceDestinationValuesUndirected() throws SerialisationException {
+        final Edge edge = new Edge.Builder()
+                .source("1")
+                .dest("2")
+                .directed(false)
+                .group(TestGroups.ENTITY)
+                .build();
+
+        final byte[] rowKey = serialisation.getRowKeys(edge).getFirst();
+        final byte[][] sourceDestValues = new byte[2][];
+
+        // When
+        final ElementSerialisation.EdgeDirection direction = serialisation.getSourceAndDestination(rowKey, sourceDestValues);
+
+        // Then
+        assertEquals(ElementSerialisation.EdgeDirection.UNDIRECTED, direction);
     }
 
     private Entity getExampleEntity(final int value) {
