@@ -103,7 +103,7 @@ public class AddOperationsToChain implements GraphHook {
         OperationChain<?> newOpChain = new OperationChain<>();
 
         if (start != null) {
-            newOpChain.getOperations().addAll(this.getStart());
+            newOpChain.getOperations().addAll(start);
         }
         if (opChain != null) {
             for (Operation originalOp : opChain.getOperations()) {
@@ -117,7 +117,7 @@ public class AddOperationsToChain implements GraphHook {
 
                 for (String afterOpKey : after.keySet()) {
                     if (originalOp.getClass().getName().contains(afterOpKey)) {
-                        newOpChain.getOperations().addAll(before.get(afterOpKey));
+                        newOpChain.getOperations().addAll(after.get(afterOpKey));
                     }
                 }
             }
