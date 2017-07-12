@@ -15,43 +15,17 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.sampling.serialisation;
 
-import com.yahoo.memory.WritableMemory;
 import com.yahoo.sketches.ArrayOfStringsSerDe;
-import com.yahoo.sketches.sampling.ReservoirItemsSketch;
-import uk.gov.gchq.gaffer.exception.SerialisationException;
-import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 
 /**
- * A <code>ReservoirStringsSketchSerialiser</code> serialises a {@link ReservoirItemsSketch} of {@link String}s using
- * its <code>toByteArray()</code> method.
+ * A <code>ReservoirStringsSketchSerialiser</code> serialises a {@link com.yahoo.sketches.sampling.ReservoirItemsSketch}
+ * of {@link String}s using its <code>toByteArray()</code> method.
  */
-public class ReservoirStringsSketchSerialiser implements ToBytesSerialiser<ReservoirItemsSketch<String>> {
+public class ReservoirStringsSketchSerialiser extends ReservoirItemsSketchSerialiser<String> {
     private static final long serialVersionUID = 5852905480385068258L;
-    private static final ArrayOfStringsSerDe SERIALISER = new ArrayOfStringsSerDe();
 
-    @Override
-    public boolean canHandle(final Class clazz) {
-        return ReservoirItemsSketch.class.equals(clazz);
-    }
-
-    @Override
-    public byte[] serialise(final ReservoirItemsSketch sketch) throws SerialisationException {
-        return sketch.toByteArray(SERIALISER);
-    }
-
-    @Override
-    public ReservoirItemsSketch<String> deserialise(final byte[] bytes) throws SerialisationException {
-        return ReservoirItemsSketch.heapify(WritableMemory.wrap(bytes), SERIALISER);
-    }
-
-    @Override
-    public ReservoirItemsSketch<String> deserialiseEmpty() throws SerialisationException {
-        return null;
-    }
-
-    @Override
-    public boolean preservesObjectOrdering() {
-        return false;
+    public ReservoirStringsSketchSerialiser() {
+        super(new ArrayOfStringsSerDe());
     }
 }
 
