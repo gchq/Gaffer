@@ -180,11 +180,9 @@ accumulo.password=password
 # description - sets the the max size in bytes of buffered writes.
 # notes
 #   - property is not required
-#   - default value is provided of 1000000
+#   - default value is provided of 100000000
 # Examples:
-# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
-
-# accumulo.maxBufferSizeForBatchWriterInBytes=1000000
+# accumulo.maxBufferSizeForBatchWriterInBytes=100000000
 
 ################################################################################
 
