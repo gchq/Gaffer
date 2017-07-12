@@ -63,13 +63,13 @@ public class ToVerticesHandler implements OutputOperationHandler<ToVertices, Ite
 
     private Stream<Object> getMatchedEdgeVertices(final ToVertices operation, final EdgeId edgeId) {
         final Stream<Object> vertices;
-        if (ToVertices.MatchedEdgeVertex.EQUAL == operation.getUseMatchedVertex()) {
+        if (ToVertices.UseMatchedVertex.EQUAL == operation.getUseMatchedVertex()) {
             if (EdgeId.MatchedVertex.SOURCE == edgeId.getMatchedVertex()) {
                 vertices = Stream.of(edgeId.getSource());
             } else {
                 vertices = Stream.of(edgeId.getDestination());
             }
-        } else if (ToVertices.MatchedEdgeVertex.OPPOSITE == operation.getUseMatchedVertex()) {
+        } else if (ToVertices.UseMatchedVertex.OPPOSITE == operation.getUseMatchedVertex()) {
             if (EdgeId.MatchedVertex.SOURCE == edgeId.getMatchedVertex()) {
                 vertices = Stream.of(edgeId.getDestination());
             } else {

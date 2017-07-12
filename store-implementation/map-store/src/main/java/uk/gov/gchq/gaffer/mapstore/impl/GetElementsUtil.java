@@ -45,6 +45,7 @@ public final class GetElementsUtil {
     public static Set<Element> getRelevantElements(final MapImpl mapImpl,
                                                    final ElementId elementId,
                                                    final View view,
+                                                   final DirectedType directedType,
                                                    final IncludeIncomingOutgoingType inOutType,
                                                    final SeedMatchingType seedMatchingType) {
         final Set<Element> relevantElements;
@@ -64,13 +65,11 @@ public final class GetElementsUtil {
             if (inOutType == IncludeIncomingOutgoingType.INCOMING) {
                 isFiltered = isFiltered.or(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
-                        && ((Edge) e).getSource().equals(((EntityId) elementId).getVertex())
-                        && !((Edge) e).getDestination().equals(((EntityId) elementId).getVertex()));
+                        && (EdgeId.MatchedVertex.SOURCE == ((Edge) e).getMatchedVertex()));
             } else if (inOutType == IncludeIncomingOutgoingType.OUTGOING) {
                 isFiltered = isFiltered.or(e -> e instanceof Edge
                         && ((Edge) e).isDirected()
-                        && ((Edge) e).getDestination().equals(((EntityId) elementId).getVertex())
-                        && !((Edge) e).getSource().equals(((EntityId) elementId).getVertex()));
+                        && (EdgeId.MatchedVertex.DESTINATION == ((Edge) e).getMatchedVertex()));
             }
             // Apply seedMatching option - if option is RELATED then nothing to do
             if (seedMatchingType == SeedMatchingType.EQUAL) {
@@ -101,6 +100,13 @@ public final class GetElementsUtil {
             if (seedMatchingType == SeedMatchingType.EQUAL) {
                 isFiltered = isFiltered.or(e -> e instanceof Entity);
             }
+        }
+
+        // Apply directedType flag
+        if (directedType == DirectedType.DIRECTED) {
+            isFiltered = isFiltered.or(e -> e instanceof Edge && !((Edge) e).isDirected());
+        } else if (directedType == DirectedType.UNDIRECTED) {
+            isFiltered = isFiltered.or(e -> e instanceof Edge && ((Edge) e).isDirected());
         }
 
         relevantElements.removeIf(isFiltered);

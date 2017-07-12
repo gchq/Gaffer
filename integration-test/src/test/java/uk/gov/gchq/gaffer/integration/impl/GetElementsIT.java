@@ -124,18 +124,6 @@ public class GetElementsIT extends AbstractStoreIT {
                 }
                 for (final DirectedType directedType : directedTypes) {
                     for (final IncludeIncomingOutgoingType inOutType : inOutTypes) {
-                        if (!includeEntities) {
-                            continue;
-                        }
-                        if (!includeEdges) {
-                            continue;
-                        }
-                        if (DirectedType.EITHER != directedType) {
-                            continue;
-                        }
-                        if (IncludeIncomingOutgoingType.EITHER != inOutType) {
-                            continue;
-                        }
                         try {
                             shouldGetElementsBySeed(includeEntities, includeEdges, directedType, inOutType);
                         } catch (final Throwable e) {

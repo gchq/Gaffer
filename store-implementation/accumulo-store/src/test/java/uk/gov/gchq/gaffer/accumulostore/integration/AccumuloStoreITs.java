@@ -17,7 +17,6 @@ package uk.gov.gchq.gaffer.accumulostore.integration;
 
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.integration.AbstractStoreITs;
-import uk.gov.gchq.gaffer.integration.impl.ExportIT;
 import uk.gov.gchq.gaffer.store.StoreProperties;
 
 public class AccumuloStoreITs extends AbstractStoreITs {
@@ -25,6 +24,5 @@ public class AccumuloStoreITs extends AbstractStoreITs {
 
     public AccumuloStoreITs() {
         super(STORE_PROPERTIES);
-        singleTest(ExportIT.class);
     }
 }

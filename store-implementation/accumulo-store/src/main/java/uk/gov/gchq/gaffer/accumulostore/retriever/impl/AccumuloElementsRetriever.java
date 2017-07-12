@@ -18,6 +18,7 @@ package uk.gov.gchq.gaffer.accumulostore.retriever.impl;
 
 import uk.gov.gchq.gaffer.accumulostore.AccumuloStore;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.IteratorSettingException;
+import uk.gov.gchq.gaffer.operation.SeedMatching;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
 import uk.gov.gchq.gaffer.store.StoreException;
 import uk.gov.gchq.gaffer.user.User;
@@ -28,6 +29,7 @@ public class AccumuloElementsRetriever extends AccumuloSingleIDRetriever<GetElem
                                      final User user)
             throws IteratorSettingException, StoreException {
         super(store, operation, user,
+                SeedMatching.SeedMatchingType.RELATED == operation.getSeedMatching(),
                 store.getKeyPackage().getIteratorFactory().getElementPreAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getElementPostAggregationFilterIteratorSetting(operation.getView(), store),
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation),

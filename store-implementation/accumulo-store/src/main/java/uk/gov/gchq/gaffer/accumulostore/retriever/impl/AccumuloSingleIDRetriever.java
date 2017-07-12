@@ -47,6 +47,12 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
                 store.getKeyPackage().getIteratorFactory().getEdgeEntityDirectionFilterIteratorSetting(operation));
     }
 
+    public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
+                                     final User user,
+                                     final IteratorSetting... iteratorSettings) throws StoreException {
+        this(store, operation, user, true, iteratorSettings);
+    }
+
     /**
      * Use of the varargs parameter here will mean the usual default iterators
      * wont be applied, (Edge Direction,Edge/Entity TypeDefinition and View Filtering) To
@@ -55,16 +61,18 @@ public class AccumuloSingleIDRetriever<OP extends InputOutput<Iterable<? extends
      * getElementFilterIteratorSetting and/Or
      * getEdgeEntityDirectionFilterIteratorSetting
      *
-     * @param store            the accumulo store
-     * @param operation        the get operation
-     * @param user             the user executing the operation
-     * @param iteratorSettings the iterator settings
+     * @param store                the accumulo store
+     * @param operation            the get operation
+     * @param user                 the user executing the operation
+     * @param includeMatchedVertex true if the matched vertex field should be set
+     * @param iteratorSettings     the iterator settings
      * @throws StoreException if any store issues occur
      */
     public AccumuloSingleIDRetriever(final AccumuloStore store, final OP operation,
                                      final User user,
+                                     final boolean includeMatchedVertex,
                                      final IteratorSetting... iteratorSettings) throws StoreException {
-        super(store, operation, user, true, iteratorSettings);
+        super(store, operation, user, includeMatchedVertex, iteratorSettings);
     }
 
     @Override
