@@ -27,19 +27,14 @@ public class LazyElementCell {
     private Cell cell;
     private Element element;
     private String group;
-
-    public LazyElementCell(final Cell cell,
-                           final ElementSerialisation serialisation) {
-        this.cell = cell;
-        this.serialisation = serialisation;
-    }
+    private boolean includeMatchedVertex;
 
     public LazyElementCell(final Cell cell,
                            final ElementSerialisation serialisation,
-                           final Element element) {
+                           final boolean includeMatchedVertex) {
         this.cell = cell;
         this.serialisation = serialisation;
-        setElement(element);
+        this.includeMatchedVertex = includeMatchedVertex;
     }
 
     public Cell getCell() {
@@ -61,7 +56,7 @@ public class LazyElementCell {
                 throw new IllegalStateException("Element has been marked for deletion it should not be used");
             }
             try {
-                setElement(serialisation.getElement(cell));
+                setElement(serialisation.getElement(cell, includeMatchedVertex));
             } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }

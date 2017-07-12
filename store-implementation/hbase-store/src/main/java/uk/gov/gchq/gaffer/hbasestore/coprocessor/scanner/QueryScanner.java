@@ -45,8 +45,9 @@ public class QueryScanner extends GafferScanner implements RegionScanner {
     public QueryScanner(final RegionScanner scanner,
                         final Scan scan,
                         final Schema schema,
-                        final ElementSerialisation serialisation) {
-        super(scanner, serialisation, createProcessors(scan, schema, serialisation));
+                        final ElementSerialisation serialisation,
+                        final boolean includeMatchedVertex) {
+        super(scanner, serialisation, createProcessors(scan, schema, serialisation), includeMatchedVertex);
     }
 
     protected static List<GafferScannerProcessor> createProcessors(

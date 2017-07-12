@@ -35,9 +35,9 @@ public interface ElementValueLoader extends Serializable {
     Object getProperty(final String name, final Properties lazyProperties);
 
     /**
-     * @param idType      the {@link IdentifierType} to extract
-     * @param lazyElement the lazy element
-     * @return the identifier value with the given {@link uk.gov.gchq.gaffer.data.element.IdentifierType}
+     * The loaded identifiers should be set on the provided element
+     *
+     * @param element the wrapped element.
      */
-    Object getIdentifier(final IdentifierType idType, final Element lazyElement);
+    void loadIdentifiers(final Element element);
 }

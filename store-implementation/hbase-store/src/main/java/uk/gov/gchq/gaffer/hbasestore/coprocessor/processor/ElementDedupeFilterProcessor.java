@@ -102,7 +102,7 @@ public class ElementDedupeFilterProcessor extends FilterProcessor {
     private boolean testForDuplicateUndirectedEdge(final Cell cell) {
         final byte[][] sourceDestValues = new byte[3][];
         try {
-            elementSerialisation.getSourceAndDestination(CellUtil.cloneRow(cell), sourceDestValues, null);
+            elementSerialisation.getSourceAndDestination(CellUtil.cloneRow(cell), sourceDestValues);
         } catch (final SerialisationException e) {
             throw new RuntimeException("Unable to deserialise element source and destination");
         }

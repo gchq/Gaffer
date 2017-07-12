@@ -198,7 +198,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
-            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
 
             final Edge expectedEdge = new Edge.Builder()
                     .group(TestGroups.EDGE)
@@ -297,7 +297,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
-            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge, readEdge);
             assertEquals(8, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COUNT));
@@ -428,7 +428,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             final Entry<Key, Value> entry = it.next();
-            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            final Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge, readEdge);
             assertEquals(8, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(15, readEdge.getProperty(AccumuloPropertyNames.COUNT));
@@ -660,25 +660,25 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
-            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge1, readEdge);
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(6, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge2, readEdge);
             assertEquals(2, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(4, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
             assertEquals(2, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge3, readEdge);
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(5, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
             assertEquals(10, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge4, readEdge);
             assertEquals(4, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(6, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
@@ -898,19 +898,19 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
-            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge1, readEdge);
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge2, readEdge);
             assertEquals(1, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(4, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
             assertEquals(2, readEdge.getProperty(AccumuloPropertyNames.COUNT));
             entry = it.next();
-            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge3, readEdge);
             assertEquals(3, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(5, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));
@@ -1106,7 +1106,7 @@ public class CoreKeyGroupByAggregatorIteratorTest {
             scanner.addScanIterator(iteratorSetting);
             final Iterator<Entry<Key, Value>> it = scanner.iterator();
             Entry<Key, Value> entry = it.next();
-            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue());
+            Element readEdge = elementConverter.getFullElement(entry.getKey(), entry.getValue(), false);
             assertEquals(expectedEdge1, readEdge);
             assertEquals(5, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
             assertEquals(10, readEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER_2));

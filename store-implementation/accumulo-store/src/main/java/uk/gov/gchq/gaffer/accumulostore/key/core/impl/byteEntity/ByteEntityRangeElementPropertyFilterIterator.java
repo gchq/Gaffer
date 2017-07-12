@@ -90,7 +90,7 @@ public class ByteEntityRangeElementPropertyFilterIterator extends Filter {
         boolean isCorrect = false;
         try {
             final byte[][] sourceDestValues = new byte[3][];
-            converter.getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), sourceDestValues, null);
+            converter.getSourceAndDestinationFromRowKey(key.getRowData().getBackingArray(), sourceDestValues);
             isCorrect = ByteUtils.compareBytes(sourceDestValues[0], sourceDestValues[1]) <= 0;
         } catch (final AccumuloElementConversionException e) {
             LOGGER.warn(e.getMessage(), e);

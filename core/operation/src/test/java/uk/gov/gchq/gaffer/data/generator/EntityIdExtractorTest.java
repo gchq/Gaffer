@@ -52,8 +52,8 @@ public class EntityIdExtractorTest {
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.SOURCE);
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
-                .source("source")
-                .dest("destination")
+                .source("1")
+                .dest("2")
                 .directed(false)
                 .build();
 
@@ -61,7 +61,7 @@ public class EntityIdExtractorTest {
         final EntityId seed = extractor._apply(edge);
 
         // Then
-        assertEquals("source", seed.getVertex());
+        assertEquals("1", seed.getVertex());
     }
 
     @Test
@@ -70,8 +70,8 @@ public class EntityIdExtractorTest {
         final EntityIdExtractor extractor = new EntityIdExtractor(IdentifierType.DESTINATION);
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
-                .source("source")
-                .dest("destination")
+                .source("1")
+                .dest("2")
                 .directed(false)
                 .build();
 
@@ -79,7 +79,7 @@ public class EntityIdExtractorTest {
         final EntityId seed = extractor._apply(edge);
 
         // Then
-        assertEquals("destination", seed.getVertex());
+        assertEquals("2", seed.getVertex());
     }
 
     @Test

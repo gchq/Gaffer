@@ -15,16 +15,20 @@
  */
 package uk.gov.gchq.gaffer.doc.operation;
 
+import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.operation.OperationChain;
 import uk.gov.gchq.gaffer.operation.OperationChain.Builder;
 import uk.gov.gchq.gaffer.operation.OperationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
+import uk.gov.gchq.gaffer.operation.graph.SeededGraphFilters;
 import uk.gov.gchq.gaffer.operation.impl.get.GetElements;
+import uk.gov.gchq.gaffer.operation.impl.output.ToSet;
 import uk.gov.gchq.gaffer.operation.impl.output.ToVertices;
+import java.util.Set;
 
 public class ToVerticesExample extends OperationExample {
     public ToVerticesExample() {
-        super(ToVertices.class, "Note - conversion into a vertices is done using in memory Streams, so it is not advised for a large number of results.");
+        super(ToVertices.class, "In these examples we use a ToSet operation after the ToVertices operation to deduplicate the results.");
     }
 
     public static void main(final String[] args) throws OperationException {
@@ -33,16 +37,107 @@ public class ToVerticesExample extends OperationExample {
 
     @Override
     public void runExamples() {
-        toVerticesExample();
+        extractEntityVertices();
+        extractDestinationVertex();
+        extractBothSourceAndDestinationVertices();
+        extractMatchedVertices();
+        extractOppositeMatchedVertices();
     }
 
-    public Iterable<?> toVerticesExample() {
+    public Iterable<?> extractEntityVertices() {
         // ---------------------------------------------------------
-        final OperationChain<Iterable<?>> opChain = new Builder()
+        final OperationChain<Set<?>> opChain = new Builder()
                 .first(new GetElements.Builder()
                         .input(new EntitySeed(1), new EntitySeed(2))
+                        .view(new View.Builder()
+                                .entity("entity")
+                                .build())
                         .build())
-                .then(new ToVertices())
+                .then(new ToVertices.Builder()
+                        .edgeVertices(ToVertices.EdgeVertices.NONE)
+                        .build())
+                .then(new ToSet<>())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, null);
+    }
+
+    public Iterable<?> extractDestinationVertex() {
+        // ---------------------------------------------------------
+        final OperationChain<Set<?>> opChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                        .view(new View.Builder()
+                                .edge("edge")
+                                .build())
+                        .build())
+                .then(new ToVertices.Builder()
+                        .edgeVertices(ToVertices.EdgeVertices.DESTINATION)
+                        .build())
+                .then(new ToSet<>())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, null);
+    }
+
+    public Iterable<?> extractBothSourceAndDestinationVertices() {
+        // ---------------------------------------------------------
+        final OperationChain<Set<?>> opChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                        .view(new View.Builder()
+                                .edge("edge")
+                                .build())
+                        .build())
+                .then(new ToVertices.Builder()
+                        .edgeVertices(ToVertices.EdgeVertices.BOTH)
+                        .build())
+                .then(new ToSet<>())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, null);
+    }
+
+
+    public Iterable<?> extractMatchedVertices() {
+        // ---------------------------------------------------------
+        final OperationChain<Set<?>> opChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                        .view(new View.Builder()
+                                .edge("edge")
+                                .build())
+                        .build())
+                .then(new ToVertices.Builder()
+                        .useMatchedVertex(ToVertices.UseMatchedVertex.EQUAL)
+                        .build())
+                .then(new ToSet<>())
+                .build();
+        // ---------------------------------------------------------
+
+        return runExample(opChain, null);
+    }
+
+    public Iterable<?> extractOppositeMatchedVertices() {
+        // ---------------------------------------------------------
+        final OperationChain<Set<?>> opChain = new Builder()
+                .first(new GetElements.Builder()
+                        .input(new EntitySeed(1), new EntitySeed(2))
+                        .inOutType(SeededGraphFilters.IncludeIncomingOutgoingType.OUTGOING)
+                        .view(new View.Builder()
+                                .edge("edge")
+                                .build())
+                        .build())
+                .then(new ToVertices.Builder()
+                        .useMatchedVertex(ToVertices.UseMatchedVertex.OPPOSITE)
+                        .build())
+                .then(new ToSet<>())
                 .build();
         // ---------------------------------------------------------
 

@@ -17,7 +17,7 @@
 package uk.gov.gchq.gaffer.data.element;
 
 import org.junit.Test;
-import org.mockito.Mockito;
+import uk.gov.gchq.gaffer.data.element.id.DirectedType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -51,13 +51,13 @@ public class LazyEdgeTest {
     @Test
     public void shouldLoadIdentifierWhenNotLoaded() {
         // Given
-        final Edge edge = new Edge.Builder().build();
+        final Edge edge = mock(Edge.class);
+        given(edge.getProperties()).willReturn(mock(Properties.class));
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.DESTINATION;
         final String exceptedIdentifierValue = "identifier value";
-
-        given(edgeLoader.getIdentifier(Mockito.eq(identifierType), Mockito.any(LazyEdge.class))).willReturn(exceptedIdentifierValue);
+        given(edge.getDestination()).willReturn(exceptedIdentifierValue);
 
         // When
         Object identifierValue = lazyEdge.getIdentifier(identifierType);
@@ -65,6 +65,7 @@ public class LazyEdgeTest {
         // Then
         assertEquals(exceptedIdentifierValue, identifierValue);
         assertEquals(identifierValue, edge.getDestination());
+        verify(edgeLoader).loadIdentifiers(edge);
     }
 
     @Test
@@ -75,7 +76,7 @@ public class LazyEdgeTest {
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
         final IdentifierType identifierType = IdentifierType.SOURCE;
         final String exceptedIdentifierValue = "identifier value";
-        lazyEdge.setSource(exceptedIdentifierValue);
+        lazyEdge.setIdentifiers(exceptedIdentifierValue, "dest", DirectedType.DIRECTED);
 
         // When - should use the loaded value
         Object identifierValue = lazyEdge.getIdentifier(identifierType);
@@ -85,7 +86,7 @@ public class LazyEdgeTest {
         assertEquals(exceptedIdentifierValue, identifierValue);
         assertEquals(exceptedIdentifierValue, identifierValue2);
         assertEquals(exceptedIdentifierValue, edge.getSource());
-        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
+        verify(edgeLoader, never()).loadIdentifiers(edge);
     }
 
     @Test
@@ -94,7 +95,7 @@ public class LazyEdgeTest {
         final Edge edge = new Edge.Builder().build();
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        lazyEdge.setDirected(true); // call it to load the value.
+        lazyEdge.setIdentifiers(null, null, DirectedType.DIRECTED); // call it to load the value.
 
         // When
         boolean isDirected = lazyEdge.isDirected();
@@ -103,7 +104,7 @@ public class LazyEdgeTest {
         // Then
         assertTrue(isDirected);
         assertTrue(isDirected2);
-        verify(edgeLoader, never()).getIdentifier(IdentifierType.DIRECTED, lazyEdge);
+        verify(edgeLoader, never()).loadIdentifiers(edge);
     }
 
     @Test
@@ -124,54 +125,19 @@ public class LazyEdgeTest {
     }
 
     @Test
-    public void shouldDelegateSetDestinationToEdge() {
+    public void shouldDelegateSetIdentifiersToEdge() {
         // Given
-        final Edge edge = new Edge.Builder().build();
+        final Edge edge = mock(Edge.class);
+        given(edge.getProperties()).willReturn(mock(Properties.class));
         final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
         final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        final IdentifierType identifierType = IdentifierType.DESTINATION;
-        final String destVertex = "dest vertex";
 
         // When
-        lazyEdge.setDestination(destVertex);
+        lazyEdge.setIdentifiers("src", "dest", DirectedType.UNDIRECTED);
 
         // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
-        assertEquals(destVertex, edge.getDestination());
-    }
-
-    @Test
-    public void shouldDelegateSetSourceToEdge() {
-        // Given
-        final Edge edge = new Edge.Builder().build();
-        final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
-        final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        final IdentifierType identifierType = IdentifierType.SOURCE;
-        final String sourceVertex = "source vertex";
-
-        // When
-        lazyEdge.setSource(sourceVertex);
-
-        // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
-        assertEquals(sourceVertex, edge.getSource());
-    }
-
-    @Test
-    public void shouldDelegateSetDirectedToEdge() {
-        // Given
-        final Edge edge = new Edge.Builder().build();
-        final ElementValueLoader edgeLoader = mock(ElementValueLoader.class);
-        final LazyEdge lazyEdge = new LazyEdge(edge, edgeLoader);
-        final IdentifierType identifierType = IdentifierType.DIRECTED;
-        final boolean isDirected = true;
-
-        // When
-        lazyEdge.setDirected(isDirected);
-
-        // Then
-        verify(edgeLoader, never()).getIdentifier(identifierType, lazyEdge);
-        assertEquals(isDirected, edge.isDirected());
+        verify(edgeLoader, never()).loadIdentifiers(edge);
+        verify(edge).setIdentifiers("src", "dest", DirectedType.UNDIRECTED);
     }
 
     @Test

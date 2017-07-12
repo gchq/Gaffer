@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.gov.gchq.gaffer.accumulostore.key.core.impl;
+package uk.gov.gchq.gaffer.accumulostore.key;
 
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.gchq.gaffer.accumulostore.key.AccumuloElementConverter;
 import uk.gov.gchq.gaffer.accumulostore.key.exception.AccumuloElementConversionException;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloPropertyNames;
 import uk.gov.gchq.gaffer.accumulostore.utils.AccumuloStoreConstants;
@@ -45,8 +44,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -54,9 +51,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public abstract class AbstractAccumuloElementConverterTest {
+public abstract class AbstractAccumuloElementConverterTest<T extends AccumuloElementConverter> {
 
-    protected AccumuloElementConverter converter;
+    protected T converter;
 
     @Before
     public void setUp() throws SchemaException, IOException {
@@ -64,7 +61,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         converter = createConverter(schema);
     }
 
-    protected abstract AccumuloElementConverter createConverter(final Schema schema);
+    protected abstract T createConverter(final Schema schema);
 
     //TEST WE CAN RETRIEVE AN ELEMENT FROM A KEY THAT HAS BEEN CREATED CORRECTLY
     @Test
@@ -80,7 +77,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
 
         // Then
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -96,7 +93,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Key key = converter.getKeyFromEntity(entity);
 
         // Then
-        final Entity newEntity = (Entity) converter.getElementFromKey(key);
+        final Entity newEntity = (Entity) converter.getElementFromKey(key, false);
         assertEquals("3", newEntity.getVertex());
     }
 
@@ -113,7 +110,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst());
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -133,7 +130,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("3", newEntity.getVertex());
@@ -153,13 +150,14 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond());
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), true);
 
         // Then
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
         assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
+        assertEquals(EdgeId.MatchedVertex.DESTINATION, newEdge.getMatchedVertex());
     }
 
     @Test
@@ -173,7 +171,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst());
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("3", newEntity.getVertex());
@@ -181,7 +179,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, IOException {
+    public void shouldGetOriginalEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -192,39 +190,13 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .build();
 
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Map<String, String> options = new HashMap<>();
 
         // When
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), options);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
-        assertEquals(true, newEdge.isDirected());
-        assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
-    }
-
-    @Test
-    public void shouldGetFlippedEdgeWithMatchAsSourceFalse() throws SchemaException, IOException {
-        // Given
-        final Edge edge = new Edge.Builder()
-                .group(TestGroups.EDGE)
-                .dest("2")
-                .source("1")
-                .directed(true)
-                .property(AccumuloPropertyNames.COLUMN_QUALIFIER, 100)
-                .build();
-
-        final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
-
-        // When
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), options);
-
-        // Then
-        assertEquals("2", newEdge.getSource());
-        assertEquals("1", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
         assertEquals(100, newEdge.getProperty(AccumuloPropertyNames.COLUMN_QUALIFIER));
     }
@@ -578,11 +550,10 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
         final Key key = converter.getKeyFromEntity(entity);
 
         // When
-        final ElementId elementId = converter.getElementId(key, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
@@ -600,42 +571,39 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
         final Key key = converter.getKeysFromEdge(edge).getFirst();
 
         // When
-        final ElementId elementId = converter.getElementId(key, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
     }
 
     @Test
-    public void shouldDeserialiseEdgeIdWithMatchAsSourceOption() {
+    public void shouldDeserialiseEdgeIdWithQueriedDestVertex() {
         // Given 
-        final EdgeId expectedElementId = new EdgeSeed("dest1", "source1", true);
+        final EdgeId expectedElementId = new EdgeSeed("vertex1", "vertex2", true, EdgeId.MatchedVertex.DESTINATION);
         final Edge edge = new Edge.Builder()
-                .source("source1")
-                .dest("dest1")
+                .source("vertex1")
+                .dest("vertex2")
                 .directed(true)
                 .group(TestGroups.ENTITY)
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "true");
 
         final Key key = converter.getKeysFromEdge(edge).getSecond();
 
         // When
-        final ElementId elementId = converter.getElementId(key, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
     }
 
     @Test
-    public void shouldDeserialiseEdgeIdWithoutMatchAsSourceOption() {
+    public void shouldDeserialiseEdgeIdWithQueriedSourceVertex() {
         // Given 
         final EdgeId expectedElementId = new EdgeSeed("source1", "dest1", true);
         final Edge edge = new Edge.Builder()
@@ -646,13 +614,11 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
-        options.put(AccumuloStoreConstants.OPERATION_RETURN_MATCHED_SEEDS_AS_EDGE_SOURCE, "false");
 
         final Key key = converter.getKeysFromEdge(edge).getSecond();
 
         // When
-        final ElementId elementId = converter.getElementId(key, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
