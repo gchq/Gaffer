@@ -1,4 +1,5 @@
 uk.gov.gchq.gaffer.accumulostore
+uk.gov.gchq.gaffer.accumulostore.data.element
 uk.gov.gchq.gaffer.accumulostore.inputformat
 uk.gov.gchq.gaffer.accumulostore.key
 uk.gov.gchq.gaffer.accumulostore.key.core
@@ -12,6 +13,7 @@ uk.gov.gchq.gaffer.accumulostore.operation.handler
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.exception
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.factory
+uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.partitioner
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.handler.job.tool
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.mapper
 uk.gov.gchq.gaffer.accumulostore.operation.hdfs.operation
@@ -20,6 +22,7 @@ uk.gov.gchq.gaffer.accumulostore.operation.impl
 uk.gov.gchq.gaffer.accumulostore.retriever
 uk.gov.gchq.gaffer.accumulostore.retriever.impl
 uk.gov.gchq.gaffer.accumulostore.utils
+uk.gov.gchq.gaffer.basic
 uk.gov.gchq.gaffer.binaryoperator
 uk.gov.gchq.gaffer.bitmap.function.aggregate
 uk.gov.gchq.gaffer.bitmap.serialisation
@@ -63,9 +66,12 @@ uk.gov.gchq.gaffer.doc.user.walkthrough
 uk.gov.gchq.gaffer.doc.util
 uk.gov.gchq.gaffer.doc.walkthrough
 uk.gov.gchq.gaffer.exception
+uk.gov.gchq.gaffer.flink.operation.handler
 uk.gov.gchq.gaffer.function
 uk.gov.gchq.gaffer.graph
+uk.gov.gchq.gaffer.graph.exception
 uk.gov.gchq.gaffer.graph.hook
+uk.gov.gchq.gaffer.graph.library
 uk.gov.gchq.gaffer.hbasestore
 uk.gov.gchq.gaffer.hbasestore.coprocessor
 uk.gov.gchq.gaffer.hbasestore.coprocessor.processor
@@ -73,7 +79,6 @@ uk.gov.gchq.gaffer.hbasestore.coprocessor.scanner
 uk.gov.gchq.gaffer.hbasestore.operation.handler
 uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler
 uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.factory
-uk.gov.gchq.gaffer.hbasestore.operation.hdfs.handler.job.tool
 uk.gov.gchq.gaffer.hbasestore.operation.hdfs.mapper
 uk.gov.gchq.gaffer.hbasestore.retriever
 uk.gov.gchq.gaffer.hbasestore.serialisation
@@ -81,13 +86,17 @@ uk.gov.gchq.gaffer.hbasestore.utils
 uk.gov.gchq.gaffer.hdfs.operation
 uk.gov.gchq.gaffer.hdfs.operation.handler.job.factory
 uk.gov.gchq.gaffer.hdfs.operation.handler.job.initialiser
+uk.gov.gchq.gaffer.hdfs.operation.handler.job.tool
 uk.gov.gchq.gaffer.hdfs.operation.mapper
 uk.gov.gchq.gaffer.hdfs.operation.mapper.generator
+uk.gov.gchq.gaffer.hdfs.operation.partitioner
 uk.gov.gchq.gaffer.jobtracker
 uk.gov.gchq.gaffer.jsonserialisation
 uk.gov.gchq.gaffer.jsonserialisation.jackson
 uk.gov.gchq.gaffer.mapstore
+uk.gov.gchq.gaffer.mapstore.factory
 uk.gov.gchq.gaffer.mapstore.impl
+uk.gov.gchq.gaffer.mapstore.multimap
 uk.gov.gchq.gaffer.mapstore.operation
 uk.gov.gchq.gaffer.mapstore.utils
 uk.gov.gchq.gaffer.named.operation
@@ -130,6 +139,8 @@ uk.gov.gchq.gaffer.serialisation.implementation.raw
 uk.gov.gchq.gaffer.serialisation.implementation.tostring
 uk.gov.gchq.gaffer.serialisation.util
 uk.gov.gchq.gaffer.sketches.binaryoperator
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality.binaryoperator
+uk.gov.gchq.gaffer.sketches.datasketches.cardinality.serialisation
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator
 uk.gov.gchq.gaffer.sketches.datasketches.frequencies.serialisation
 uk.gov.gchq.gaffer.sketches.datasketches.quantiles.binaryoperator
