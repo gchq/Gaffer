@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Crown Copyright
+ * Copyright 2016-2017 Crown Copyright
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class HyperLogLogPlusIsLessThan extends KoryphePredicate<HyperLogLogPlus>
         if (input == null) {
             return false;
         }
-        long cardinality = input.cardinality();
+        final long cardinality = input.cardinality();
         if (orEqualTo) {
             if (cardinality <= controlValue) {
                 return true;

@@ -15,7 +15,6 @@
  */
 package uk.gov.gchq.gaffer.sketches.datasketches.frequencies.binaryoperator;
 
-import com.yahoo.sketches.ArrayOfStringsSerDe;
 import com.yahoo.sketches.frequencies.ItemsSketch;
 import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
 
@@ -28,7 +27,6 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * requires a specific serialiser.
  */
 public class StringsSketchAggregator extends KorypheBinaryOperator<ItemsSketch<String>> {
-    private static final ArrayOfStringsSerDe SERIALISER = new ArrayOfStringsSerDe();
 
     @Override
     protected ItemsSketch<String> _apply(final ItemsSketch<String> a, final ItemsSketch<String> b) {
