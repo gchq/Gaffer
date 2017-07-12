@@ -43,7 +43,7 @@ public class ExportToOtherGraphExample extends OperationExample {
     public Iterable<?> simpleExport() {
         // ---------------------------------------------------------
         final OperationChain<CloseableIterable<? extends Element>> opChain;
-        AccumuloProperties storeProperties = new AccumuloProperties();
+        final AccumuloProperties storeProperties = new AccumuloProperties();
         try {
             storeProperties.getProperties().load(StreamUtil.openStream(getClass(), "othermockaccumulostore.properties"));
         } catch (IOException e) {
