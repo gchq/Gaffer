@@ -16,6 +16,7 @@
 
 package uk.gov.gchq.gaffer.data.element.comparison;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 public class ComparableOrToStringComparator implements Comparator<Object> {
@@ -25,6 +26,10 @@ public class ComparableOrToStringComparator implements Comparator<Object> {
             if (null == vertex2) {
                 return 0;
             }
+            return 1;
+        }
+
+        if (null == vertex2) {
             return -1;
         }
 
@@ -33,6 +38,20 @@ public class ComparableOrToStringComparator implements Comparator<Object> {
             return ((Comparable) vertex1).compareTo(vertex2);
         }
 
-        return vertex1.toString().compareTo(vertex2.toString());
+        final String toString1;
+        if (vertex1.getClass().isArray()) {
+            toString1 = Arrays.toString((Object[]) vertex1);
+        } else {
+            toString1 = vertex1.toString();
+        }
+
+        final String toString2;
+        if (vertex2.getClass().isArray()) {
+            toString2 = Arrays.toString((Object[]) vertex2);
+        } else {
+            toString2 = vertex2.toString();
+        }
+
+        return toString1.compareTo(toString2);
     }
 }

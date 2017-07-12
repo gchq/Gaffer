@@ -32,10 +32,31 @@ import uk.gov.gchq.gaffer.user.User;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class GetElementsHandlerTest {
+    @Test
+    public void shouldThrowExceptionIfAnOldOperationOptionIsUsed() throws OperationException, StoreException {
+        // Given
+        final Iterable<EntityId> ids = mock(Iterable.class);
+        final GetElementsHandler handler = new GetElementsHandler();
+        final GetElements getElements = new GetElements.Builder()
+                .input(ids)
+                .option("hbasestore.operation.return_matched_id_as_edge_source", "true")
+                .build();
+
+        // When / Then
+        try {
+            handler.doOperation(getElements, new Context(), null);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("return_matched_id_as_edge_source"));
+        }
+    }
+
     @Test
     public void shouldReturnHBaseRetrieverWithIncludeMatchexVertex() throws OperationException, StoreException {
         // Given
