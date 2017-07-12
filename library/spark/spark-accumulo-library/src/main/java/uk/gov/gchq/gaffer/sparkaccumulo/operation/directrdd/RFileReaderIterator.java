@@ -21,17 +21,16 @@ import org.apache.accumulo.core.client.mapreduce.lib.impl.InputConfigurator;
 import org.apache.accumulo.core.conf.AccumuloConfiguration;
 import org.apache.accumulo.core.conf.DefaultConfiguration;
 import org.apache.accumulo.core.conf.SiteConfiguration;
-import org.apache.accumulo.core.data.ByteSequence;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.data.*;
 import org.apache.accumulo.core.file.blockfile.impl.CachableBlockFile;
 import org.apache.accumulo.core.file.rfile.RFile;
 import org.apache.accumulo.core.iterators.SortedKeyValueIterator;
 import org.apache.accumulo.core.iterators.system.MultiIterator;
+import org.apache.accumulo.core.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.spark.Partition;
 import org.apache.spark.TaskContext;
@@ -49,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -60,7 +61,7 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
     private static final Logger LOGGER = LoggerFactory.getLogger(RFileReaderIterator.class);
     private final Partition partition;
     private final TaskContext taskContext;
-    private final Set<String> requiredColumnFamilies;
+//    private final Set<String> requiredColumnFamilies;
     private final List<SortedKeyValueIterator<Key, Value>> iterators = new ArrayList<>();
     private SortedKeyValueIterator<Key, Value> mergedIterator = null;
     private SortedKeyValueIterator<Key, Value> iteratorAfterIterators = null;
@@ -68,14 +69,14 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
 
     public RFileReaderIterator(final Partition partition,
                                final TaskContext taskContext,
-                               final Set<String> requiredColumnFamilies,
+//                               final Set<String> requiredColumnFamilies,
                                final Configuration configuration) {
         this.partition = partition;
         this.taskContext = taskContext;
-        if (null == requiredColumnFamilies || requiredColumnFamilies.isEmpty()) {
-            throw new IllegalArgumentException("requiredColumnFamilies must be non-null and non-empty");
-        }
-        this.requiredColumnFamilies = requiredColumnFamilies;
+//        if (null == requiredColumnFamilies || requiredColumnFamilies.isEmpty()) {
+//            throw new IllegalArgumentException("requiredColumnFamilies must be non-null and non-empty");
+//        }
+//        this.requiredColumnFamilies = requiredColumnFamilies;
         this.configuration = configuration;
         try {
             init();
@@ -105,6 +106,14 @@ public class RFileReaderIterator implements java.util.Iterator<Map.Entry<Key, Va
         LOGGER.info("Initialising RFileReaderIterator");
         final AccumuloTablet accumuloTablet = (AccumuloTablet) partition;
         final AccumuloConfiguration accumuloConfiguration = SiteConfiguration.getInstance(DefaultConfiguration.getInstance());
+
+        // Required column families according to the configuration
+        final Set<ByteSequence> requiredColumnFamilies = InputConfigurator
+                .getFetchedColumns(AccumuloInputFormat.class, configuration)
+                .stream()
+                .map(Pair::getFirst)
+                .map(c -> new ArrayByteSequence(c.toString()))
+                .collect(Collectors.toSet());
 
         // Column families
         final Set<ByteSequence> columnFamilies = new HashSet<>();

@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Creates an {@link RDD} of {@link Map.Entry}s of {@link Key}s and {@link Value}s for the data in the given table.
@@ -62,7 +61,6 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
     private final String user;
     private final String password;
     private final String tableName;
-    private final Set<String> columnFamilies;
     private final byte[] serialisedConfiguration;
 
     public RFileReaderRDD(final SparkConf sparkConf,
@@ -71,7 +69,6 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
                           final String user,
                           final String password,
                           final String tableName,
-                          final Set<String> columnFamilies,
                           final byte[] serialisedConfiguration) {
         super(new SparkContext(sparkConf), JavaConversions.asScalaBuffer(new ArrayList<>()),
                 ClassTag$.MODULE$.apply(Map.Entry.class));
@@ -80,7 +77,6 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         this.user = user;
         this.password = password;
         this.tableName = tableName;
-        this.columnFamilies = columnFamilies;
         this.serialisedConfiguration = serialisedConfiguration;
     }
 
@@ -96,7 +92,7 @@ public class RFileReaderRDD extends RDD<Map.Entry<Key, Value>> {
         }
 
         return new InterruptibleIterator<>(context,
-                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, columnFamilies, configuration)));
+                JavaConversions.asScalaIterator(new RFileReaderIterator(split, context, /**columnFamilies,*/ configuration)));
     }
 
     @Override

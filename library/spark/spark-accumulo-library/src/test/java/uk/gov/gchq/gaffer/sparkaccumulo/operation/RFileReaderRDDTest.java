@@ -105,7 +105,7 @@ public class RFileReaderRDDTest {
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDCanBeCreatedAndIsNonEmpty");
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
                 cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
-                new HashSet<>(Arrays.asList("CF")), serialiseConfiguration(new Configuration()));
+                /**new HashSet<>(Arrays.asList("CF")),*/ serialiseConfiguration(new Configuration()));
         final long count = rdd.count();
 
         // Then
@@ -168,7 +168,7 @@ public class RFileReaderRDDTest {
         final SparkConf sparkConf = getSparkConf("testRFileReaderRDDAppliesIteratorCorrectly");
         final RFileReaderRDD rdd = new RFileReaderRDD(sparkConf,
                 cluster.getInstanceName(), cluster.getZooKeepers(), USER, PASSWORD, TABLE,
-                new HashSet<>(Arrays.asList("CF")), serialiseConfiguration(job.getConfiguration()));
+                /** new HashSet<>(Arrays.asList("CF")),*/ serialiseConfiguration(job.getConfiguration()));
         final long count = rdd.count();
 
         // Then
