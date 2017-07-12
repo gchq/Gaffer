@@ -155,6 +155,7 @@ public class AddElementsFromHdfsIT {
 
     private Graph createGraph() throws StoreException {
         return new Graph.Builder()
+                .graphId("graph1")
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchemas(StreamUtil.schemas(getClass()))
                 .build();

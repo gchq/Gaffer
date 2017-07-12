@@ -40,6 +40,7 @@ public class AreInExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 createSet(1, 2, 3),
                 createSet(1, 2, 3, 4),
                 createSet(1, 4),

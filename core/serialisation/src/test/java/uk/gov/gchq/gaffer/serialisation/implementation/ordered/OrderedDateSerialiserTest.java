@@ -96,9 +96,9 @@ public class OrderedDateSerialiserTest extends ToBytesSerialisationTest<Date> {
     @SuppressWarnings("unchecked")
     public Pair<Date, byte[]>[] getHistoricSerialisationPairs() {
         return new Pair[]{
-                new Pair<>(new Date(1985, 10, 26, 9, 0, 0), new byte[]{8, -128, 0, 54, -4, -11, 59, -34, -128}),
-                new Pair<>(new Date(2015, 10, 21, 7, 28, 0), new byte[]{8, -128, 0, 55, -39, 64, -47, 40, 0}),
-                new Pair<>(new Date(1955, 11, 12, 6, 38, 0), new byte[]{8, -128, 0, 54, 32, -41, 41, -107, 64})
+                new Pair<>(new Date(60460074000000L), new byte[]{8, -128, 0, 54, -4, -11, 59, -34, -128}),
+                new Pair<>(new Date(61406234880000L), new byte[]{8, -128, 0, 55, -39, 64, -47, 40, 0}),
+                new Pair<>(new Date(59514676680000L), new byte[]{8, -128, 0, 54, 32, -41, 41, -107, 64})
         };
     }
 }

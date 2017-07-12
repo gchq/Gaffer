@@ -269,3 +269,61 @@ used to import the data. If adding elements into an empty Accumulo table or a ta
 without any splits then the SampleDataForSplitPoints and SplitStore operations will
 be executed automatically for you. You can also optionally provide your own splits 
 points for your AddElementsFromHdfs operation.
+
+
+#### I want to filter the results of my query based on the destination of the result Edges
+OK, there are several ways of doing this and you will need to chose the most appropriate
+way for your needs. Also worth reading [GetElements example](https://github.com/gchq/Gaffer/wiki/Operation-examples#getelements-example).
+
+If you are querying with just a single EntitySeed with a vertex value of X and require
+the destination to be Y then you should change your query to use an EdgeSeed 
+with source = X and destination = Y and directedType = EITHER.
+
+If you are querying with multiple EntitySeeds then just change each seed into an 
+EdgeSeed as described above.
+ 
+If you require your destination to match a provided regex than you will need to use
+the regex filter: uk.gov.gchq.koryphe.impl.predicate.Regex or uk.gov.gchq.koryphe.impl.predicate.MultiRegex.
+See the [Predicate examples](https://github.com/gchq/Gaffer/wiki/Predicate-examples).
+The predicate can then be used in you Operation View to filter out elements that
+don't match the regex. 
+
+So, assuming your edge 'yourEdge' is directed and you provide a seed 'X' that is the source of the edge then you would apply the filter (e.g a simple regex [yY]) to the DESTINATION value.
+Alternatively if your seed is the destination then your filter should be applied to the SOURCE value.
+
+```java
+GetElements results = new GetElements.Builder()
+    .input(new EntitySeed("X"))
+    .view(new View.Builder()
+        .edge("yourEdge", new ViewElementDefinition.Builder()
+            .preAggregationFilter(
+                new ElementFilter.Builder()
+                    .select(IdentifierType.DESTINATION.name())
+                    .execute(new Regex("[yY]"))
+                    .build())
+            .build())
+        .build())
+    .build();
+```
+
+Finally, if your edge is undirected or the seed could be either the source or the
+destination, then you will need to provide a filter that checks the SOURCE or the DESTINATION matches the regex. 
+GetElements results = new GetElements.Builder()
+    .input(new EntitySeed("X"))
+    .view(new View.Builder()
+        .edge("yourEdge", new ViewElementDefinition.Builder()
+            .preAggregationFilter(
+                new ElementFilter.Builder()
+                    .select(IdentifierType.SOURCE.name(), IdentifierType.DESTINATION.name())
+                    .execute(new Or.Builder<>()
+                            .select(0)
+                            .execute(new Regex("[yY]"))
+                            .select(1)
+                            .execute(new Regex("[yY]"))
+                            .build())
+                    .build())
+            .build())
+        .build())
+    .build();
+
+

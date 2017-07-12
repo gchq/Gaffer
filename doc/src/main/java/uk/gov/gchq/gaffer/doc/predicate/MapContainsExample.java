@@ -53,6 +53,8 @@ public class MapContainsExample extends PredicateExample {
         final MapContains function = new MapContains("a");
         // ---------------------------------------------------------
 
-        runExample(function, map, mapNoA, mapNullA);
+        runExample(function,
+                null,
+                map, mapNoA, mapNullA);
     }
 }

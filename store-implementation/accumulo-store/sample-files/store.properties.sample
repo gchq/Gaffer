@@ -121,17 +121,6 @@ accumulo.zookeepers=aZookeeper
 ################################################################################
 
 ################################################################################
-# accumulo store property - accumulo.table
-# description - the accumulo store table to read/write gaffer data from/to
-# notes
-#   - property is required
-#   - no default value is provided
-
-accumulo.table=table1
-
-################################################################################
-
-################################################################################
 # accumulo store property - accumulo.user
 # description - the user that will be used to connect to accumulo
 # notes

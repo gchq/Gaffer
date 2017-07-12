@@ -30,7 +30,7 @@
         <!-- Gaffer dependencies -->
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>store</artifactId>
+            <artifactId>graph</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -83,12 +83,6 @@
         </dependency>
 
         <!-- Testing dependencies -->
-        <dependency>
-            <groupId>uk.gov.gchq.gaffer</groupId>
-            <artifactId>graph</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>uk.gov.gchq.gaffer</groupId>
             <artifactId>store</artifactId>
@@ -151,6 +145,19 @@
                                     <include>com.yahoo.*</include>
                                 </includes>
                             </artifactSet>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>utility</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true
+                            </shadedArtifactAttached>
+                            <shadedClassifierName>utility
+                            </shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>

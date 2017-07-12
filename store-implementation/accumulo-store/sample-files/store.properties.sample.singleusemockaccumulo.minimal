@@ -22,6 +22,5 @@ gaffer.store.class=uk.gov.gchq.gaffer.accumulostore.SingleUseMockAccumuloStore
 gaffer.store.properties.class=uk.gov.gchq.gaffer.accumulostore.AccumuloProperties
 
 accumulo.instance=accumuloInstanceName
-accumulo.table=table1
 accumulo.user=user
 accumulo.password=password

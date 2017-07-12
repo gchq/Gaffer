@@ -595,6 +595,7 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraph() {
         return new Builder()
+                .graphId("graphId")
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -629,6 +630,7 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraphNoVisibility() {
         return new Builder()
+                .graphId("graphWithNoVisibility")
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()
@@ -656,6 +658,7 @@ public class AccumuloAggregationIT {
 
     protected Graph createGraphNoAggregators() {
         return new Builder()
+                .graphId("graphWithNoAggregators")
                 .storeProperties(STORE_PROPERTIES)
                 .addSchema(new Schema.Builder()
                         .type(TestTypes.ID_STRING, new TypeDefinition.Builder()

@@ -54,11 +54,36 @@ public class ClassicEdgeDirectedUndirectedFilterIteratorTest {
             .build();
 
     private static final List<Edge> EDGES = Arrays.asList(
-            new Edge(TestGroups.EDGE, "vertexA", "vertexB", true),
-            new Edge(TestGroups.EDGE, "vertexD", "vertexC", true),
-            new Edge(TestGroups.EDGE, "vertexE", "vertexE", true),
-            new Edge(TestGroups.EDGE, "vertexF", "vertexG", false),
-            new Edge(TestGroups.EDGE, "vertexH", "vertexH", false)
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexA")
+                    .dest("vertexB")
+                    .directed(true)
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexD")
+                    .dest("vertexC")
+                    .directed(true)
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexE")
+                    .dest("vertexE")
+                    .directed(true)
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexF")
+                    .dest("vertexG")
+                    .directed(false)
+                    .build(),
+            new Edge.Builder()
+                    .group(TestGroups.EDGE)
+                    .source("vertexH")
+                    .dest("vertexH")
+                    .directed(false)
+                    .build()
     );
 
     private final ClassicAccumuloElementConverter converter = new ClassicAccumuloElementConverter(SCHEMA);

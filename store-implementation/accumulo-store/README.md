@@ -80,7 +80,6 @@ The next stage is to create a properties file that Gaffer will use to instantiat
 - `gaffer.store.properties.class`: This is the name of the Gaffer class that contains the properties for this store. This should always be `gaffer.accumulostore.AccumuloProperties`.
 - `accumulo.instance`: The instance name of your Accumulo cluster.
 - `accumulo.zookeepers`: A comma separated list of the Zookeeper servers that your Accumulo cluster is using. Each server should specify the hostname and port separated by a colon, i.e. host:port.
-- `accumulo.table`: The name of the Accumulo table to use.
 - `accumulo.user`: The name of your Accumulo user.
 - `accumulo.password`: The password for the above Accumulo user.
 
@@ -91,7 +90,6 @@ gaffer.store.class=gaffer.accumulostore.AccumuloStore
 gaffer.store.properties.class=gaffer.accumulostore.AccumuloProperties
 accumulo.instance=myInstance
 accumulo.zookeepers=server1.com:2181,server2.com:2181,server3.com:2181
-accumulo.table=gafferTable
 accumulo.user=myUser
 accumulo.password=myPassword
 ```
@@ -107,6 +105,7 @@ See [Getting Started](Getting-Started.md) for details of how to write a schema t
 
 ```java
 Graph graph = new Graph.Builder()
+      .graphId(uniqueNameOfYourGraph)
       .addSchemas(schemas)
       .storeProperties(storeProperties)
       .build();

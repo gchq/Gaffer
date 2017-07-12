@@ -39,6 +39,7 @@ public class AreEqualExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 new Tuple2<>(1, 1.0),
                 new Tuple2<>(2.5, 2.5),
                 new Tuple2<>("", null),

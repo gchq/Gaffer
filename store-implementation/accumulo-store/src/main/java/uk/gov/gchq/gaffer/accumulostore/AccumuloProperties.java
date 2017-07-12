@@ -32,6 +32,10 @@ public class AccumuloProperties extends StoreProperties {
     public static final String KEY_PACKAGE_CLASS = "gaffer.store.accumulo.keypackage.class";
     public static final String INSTANCE_NAME = "accumulo.instance";
     public static final String ZOOKEEPERS = "accumulo.zookeepers";
+    /**
+     * @deprecated use a graphId
+     */
+    @Deprecated
     public static final String TABLE = "accumulo.table";
     public static final String USER = "accumulo.user";
     public static final String PASSWORD = "accumulo.password";
@@ -156,7 +160,9 @@ public class AccumuloProperties extends StoreProperties {
      * Get the particular table name.
      *
      * @return The accumulo table to use as set in the properties file
+     * @deprecated use {@link AccumuloStore#getTableName}
      */
+    @Deprecated
     public String getTable() {
         return get(TABLE);
     }
@@ -165,7 +171,9 @@ public class AccumuloProperties extends StoreProperties {
      * Set the table name.
      *
      * @param tableName the table name
+     * @deprecated use a graphId
      */
+    @Deprecated
     public void setTable(final String tableName) {
         set(TABLE, tableName);
     }

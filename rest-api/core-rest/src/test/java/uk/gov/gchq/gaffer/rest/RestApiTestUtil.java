@@ -44,6 +44,7 @@ import static org.junit.Assert.assertEquals;
 
 public class RestApiTestUtil {
     public static final String REST_URI = "http://localhost:8080/rest/v1";
+    public static final String GRAPH_ID = "graph1";
     public static final JSONSerialiser JSON_SERIALISER = new JSONSerialiser();
     private static final Client client = ClientBuilder.newClient();
     private static HttpServer server;
@@ -84,6 +85,7 @@ public class RestApiTestUtil {
         // set properties for REST service
         System.setProperty(SystemProperty.STORE_PROPERTIES_PATH, testFolder.getRoot() + "/store.properties");
         System.setProperty(SystemProperty.SCHEMA_PATHS, testFolder.getRoot() + "/schema.json");
+        System.setProperty(SystemProperty.GRAPH_ID, GRAPH_ID);
 
         reinitialiseGraph();
     }

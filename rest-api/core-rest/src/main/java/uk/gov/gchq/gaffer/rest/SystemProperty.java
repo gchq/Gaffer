@@ -26,6 +26,7 @@ import uk.gov.gchq.gaffer.rest.factory.UnknownUserFactory;
  */
 public abstract class SystemProperty {
     // KEYS
+    public static final String GRAPH_ID = "gaffer.graph.id";
     public static final String SCHEMA_PATHS = "gaffer.schemas";
     public static final String STORE_PROPERTIES_PATH = "gaffer.storeProperties";
     public static final String BASE_URL = "gaffer.rest-api.basePath";

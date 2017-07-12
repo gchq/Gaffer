@@ -38,6 +38,7 @@ public class IsXMoreThanYExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 new Tuple2<>(1, 5),
                 new Tuple2<>(5, 5),
                 new Tuple2<>(10, 5),

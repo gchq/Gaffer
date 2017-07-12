@@ -69,6 +69,9 @@
                             <systemProperties>
                                 <gaffer.rest-api.basePath>${standalone-path}/v1
                                 </gaffer.rest-api.basePath>
+                                <gaffer.graph.id>
+                                    roadTraffic
+                                </gaffer.graph.id>
                                 <gaffer.schemas>
                                     ${project.parent.basedir}/road-traffic-model/src/main/resources/schema
                                 </gaffer.schemas>

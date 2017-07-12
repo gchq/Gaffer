@@ -16,23 +16,6 @@
 
 package uk.gov.gchq.gaffer.store;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
-import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
-import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
-import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -93,6 +76,23 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static uk.gov.gchq.gaffer.store.StoreTrait.INGEST_AGGREGATION;
+import static uk.gov.gchq.gaffer.store.StoreTrait.ORDERED;
+import static uk.gov.gchq.gaffer.store.StoreTrait.PRE_AGGREGATION_FILTERING;
+import static uk.gov.gchq.gaffer.store.StoreTrait.TRANSFORMATION;
 
 public class StoreTest {
     private final User user = new User("user01");
@@ -160,6 +160,19 @@ public class StoreTest {
     }
 
     @Test
+    public void shouldThrowExceptionIfGraphIdIsNull() throws Exception {
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        try {
+            store.initialise(null, schema, properties);
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
     public void shouldThrowExceptionWhenPropertyIsNotSerialisable() throws StoreException {
         // Given
         final Schema mySchema = new Schema.Builder()
@@ -176,7 +189,7 @@ public class StoreTest {
 
         // When
         try {
-            store.initialise(mySchema, properties);
+            store.initialise("graphId", mySchema, properties);
             fail();
         } catch (final SchemaException exception) {
             assertNotNull(exception.getMessage());
@@ -198,7 +211,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
         // When
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // Then
         assertNotNull(store.getOperationHandlerExposed(Validate.class));
@@ -218,7 +231,7 @@ public class StoreTest {
         assertEquals(1, store.getCreateOperationHandlersCallCount());
         assertSame(schema, store.getSchema());
         assertSame(properties, store.getProperties());
-        verify(schemaOptimiser).optimise(schema, true);
+        verify(schemaOptimiser).optimise(store.getSchema(), true);
     }
 
     @Test
@@ -228,7 +241,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final AddElements addElements = new AddElements();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.execute(addElements, user);
@@ -245,7 +258,7 @@ public class StoreTest {
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final Operation operation = mock(Operation.class);
         final StoreImpl store = new StoreImpl();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.handleOperation(operation, context);
@@ -264,7 +277,7 @@ public class StoreTest {
         final StoreImpl store = new StoreImpl();
         final OperationHandler opHandler = mock(OperationHandler.class);
         store.addOperationHandler(Operation.class, opHandler);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         given(opHandler.doOperation(operation, context, store)).willThrow(new RuntimeException());
 
@@ -290,7 +303,7 @@ public class StoreTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError("error");
         given(operationChainValidator.validate(opChain, user, store)).willReturn(validationResult);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When / Then
         try {
@@ -310,7 +323,7 @@ public class StoreTest {
         final Operation operation = mock(Operation.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         store.execute(operation, user);
@@ -331,7 +344,7 @@ public class StoreTest {
         given(lazyElement.getElement()).willReturn(entity);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final Element result = store.populateElement(lazyElement);
@@ -363,7 +376,7 @@ public class StoreTest {
         given(getElementsHandler.doOperation(getElements, context, store))
                 .willReturn(getElementsResult);
 
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final CloseableIterable<? extends Element> result = store.execute(opChain, user);
@@ -379,7 +392,7 @@ public class StoreTest {
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
         final int expectedNumberOfOperations = 33;
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
@@ -396,7 +409,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // WHen
         final Set<Class<? extends Operation>> supportedOperations = store.getSupportedOperations();
@@ -415,7 +428,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final boolean supported = store.isSupported(Operation.class);
@@ -430,7 +443,7 @@ public class StoreTest {
         final Schema schema = createSchemaMock();
         final StoreProperties properties = mock(StoreProperties.class);
         given(properties.getJobExecutorThreadCount()).willReturn(1);
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final boolean supported = store.isSupported(null);
@@ -452,7 +465,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final JobDetail resultJobDetail = store.executeJob(opChain, user);
@@ -479,7 +492,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
 
         // When
         final JobDetail resultJobDetail = store.executeJob(opChain, user);
@@ -504,7 +517,7 @@ public class StoreTest {
         given(properties.getJobTrackerEnabled()).willReturn(true);
         final Store store = new StoreImpl();
         final Schema schema = new Schema();
-        store.initialise(schema, properties);
+        store.initialise("graphId", schema, properties);
         // When
         final JobTracker resultJobTracker = store.getJobTracker();
 
@@ -552,7 +565,7 @@ public class StoreTest {
                 protected Class<? extends Serialiser> getRequiredParentSerialiserClass() {
                     return validSerialiserInterface;
                 }
-            }.initialise(invalidSchema, properties);
+            }.initialise("graphId", invalidSchema, properties);
         } catch (SchemaException e) {
             assertTrue(e.getMessage().contains(invalidSerialiserClass.getSimpleName()));
             throw e;

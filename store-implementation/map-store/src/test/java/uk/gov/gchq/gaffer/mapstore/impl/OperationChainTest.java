@@ -46,6 +46,7 @@ public class OperationChainTest {
     public void testOperationChain() throws StoreException, OperationException {
         // Given
         final Graph graph = new Graph.Builder()
+                .graphId("graph1")
                 .addSchemas(StreamUtil.openStreams(getClass(), "example-schema"))
                 .storeProperties(new MapStoreProperties())
                 .build();
@@ -88,7 +89,11 @@ public class OperationChainTest {
         final Entity entity2 = new Entity("entity", "vertex2");
         entity2.putProperty("count", 2);
         elements.add(entity2);
-        final Edge edge = new Edge("edge", "vertex1", "vertex2", true);
+        final Edge edge = new Edge.Builder().group("edge")
+                .source("vertex1")
+                .dest("vertex2")
+                .directed(true)
+                .build();
         edge.putProperty("count", 1);
         elements.add(edge);
         return elements;

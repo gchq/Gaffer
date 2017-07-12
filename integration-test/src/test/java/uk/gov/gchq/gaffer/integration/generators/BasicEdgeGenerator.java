@@ -33,9 +33,13 @@ import uk.gov.gchq.gaffer.integration.domain.EdgeDomainObject;
 public class BasicEdgeGenerator implements OneToOneElementGenerator<EdgeDomainObject> {
     @Override
     public Element _apply(final EdgeDomainObject domainObject) {
-        final Edge edge = new Edge(TestGroups.EDGE, domainObject.getSource(), domainObject.getDestination(), domainObject.getDirected());
-        edge.putProperty(TestPropertyNames.INT, domainObject.getIntProperty());
-        edge.putProperty(TestPropertyNames.COUNT, 1L);
-        return edge;
+        return new Edge.Builder()
+                .group(TestGroups.EDGE)
+                .source(domainObject.getSource())
+                .dest(domainObject.getDestination())
+                .directed(domainObject.getDirected())
+                .property(TestPropertyNames.INT, domainObject.getIntProperty())
+                .property(TestPropertyNames.COUNT, 1L)
+                .build();
     }
 }

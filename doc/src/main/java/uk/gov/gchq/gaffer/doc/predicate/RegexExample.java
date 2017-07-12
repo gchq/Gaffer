@@ -38,6 +38,7 @@ public class RegexExample extends PredicateExample {
         // ---------------------------------------------------------
 
         runExample(function,
+                null,
                 "a", "z", "az", 'a', "2", 2, 2L);
     }
 }

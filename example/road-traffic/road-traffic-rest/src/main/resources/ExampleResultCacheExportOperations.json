@@ -4,6 +4,7 @@
       "operation": "uk.gov.gchq.gaffer.operation.impl.export.resultcache.ExportToGafferResultCache",
       "handler": {
         "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.ExportToGafferResultCacheHandler",
+        "graphId": "resultCacheGraph",
         "timeToLive": 86400000,
         "storePropertiesPath": "example-cache-store.properties",
         "jsonSerialiserClass": "uk.gov.gchq.gaffer.traffic.serialisation.CustomJsonSerialiser"
@@ -13,6 +14,7 @@
       "operation": "uk.gov.gchq.gaffer.operation.impl.export.resultcache.GetGafferResultCacheExport",
       "handler": {
         "class": "uk.gov.gchq.gaffer.operation.export.resultcache.handler.GetGafferResultCacheExportHandler",
+        "graphId": "resultCacheGraph",
         "timeToLive": 86400000,
         "storePropertiesPath": "example-cache-store.properties",
         "jsonSerialiserClass": "uk.gov.gchq.gaffer.traffic.serialisation.CustomJsonSerialiser"

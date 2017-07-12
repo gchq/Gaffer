@@ -20,12 +20,13 @@ import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.gchq.gaffer.commonutil.CommonTestConstants;
 import uk.gov.gchq.gaffer.commonutil.JsonAssert;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
@@ -38,6 +39,7 @@ import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.ViewElementDefinition;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.library.HashMapGraphLibrary;
 import uk.gov.gchq.gaffer.integration.store.TestStore;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
@@ -92,8 +94,11 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class GraphTest {
+    private static final String GRAPH_ID = "graphId";
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder(CommonTestConstants.TMP_DIRECTORY);
 
     @Before
     public void before() throws Exception {
@@ -104,7 +109,7 @@ public class GraphTest {
     public void shouldConstructGraphFromSchemaModules() {
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         final Schema schemaModule1 = new Schema.Builder()
                 .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
@@ -143,6 +148,7 @@ public class GraphTest {
 
         // When
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(storeProperties)
                 .addSchema(schemaModule1)
                 .addSchema(schemaModule2)
@@ -169,6 +175,7 @@ public class GraphTest {
 
             // When
             graph = new Graph.Builder()
+                    .graphId(GRAPH_ID)
                     .storeProperties(StreamUtil.storeProps(getClass()))
                     .addSchema(Paths.get(schemaDir.getPath()))
                     .build();
@@ -199,6 +206,7 @@ public class GraphTest {
 
             // When
             graph = new Graph.Builder()
+                    .graphId(GRAPH_ID)
                     .storeProperties(storeInputUri)
                     .addSchemas(typeInputUri, schemaInputUri)
                     .build();
@@ -232,6 +240,7 @@ public class GraphTest {
         given(TestStore.mockStore.execute(opChain, user)).willThrow(exception);
 
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema.Builder().build())
                 .build();
@@ -258,6 +267,7 @@ public class GraphTest {
         given(TestStore.mockStore.executeJob(opChain, user)).willThrow(exception);
 
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema.Builder().build())
                 .build();
@@ -283,6 +293,7 @@ public class GraphTest {
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema.Builder().build())
                 .addHook(hook1)
@@ -314,6 +325,7 @@ public class GraphTest {
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema.Builder().build())
                 .addHook(hook1)
@@ -339,6 +351,7 @@ public class GraphTest {
         final GraphHook hook1 = mock(GraphHook.class);
         final GraphHook hook2 = mock(GraphHook.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .addSchema(new Schema.Builder().build())
                 .addHook(hook1)
@@ -375,6 +388,7 @@ public class GraphTest {
         given(hook2.postExecute(result2, opChain, user)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
                 .addSchema(schema)
@@ -416,6 +430,7 @@ public class GraphTest {
         given(hook2.postExecute(result2, opChain, user)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
                 .addSchema(schema)
@@ -454,6 +469,7 @@ public class GraphTest {
         given(hook2.postExecute(result2, opChain, user)).willReturn(result3);
 
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .storeProperties(StreamUtil.storeProps(getClass()))
                 .store(store)
                 .addSchema(schema)
@@ -478,6 +494,7 @@ public class GraphTest {
     public void shouldConstructGraphAndCreateViewWithGroups() {
         // Given
         final Store store = mock(Store.class);
+        given(store.getGraphId()).willReturn(GRAPH_ID);
         final Schema schema = mock(Schema.class);
         given(store.getSchema()).willReturn(schema);
         final Set<String> edgeGroups = new HashSet<>();
@@ -523,6 +540,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .view(view)
                 .build();
@@ -545,6 +563,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .view(view)
                 .build();
@@ -574,6 +593,7 @@ public class GraphTest {
         final View opView = mock(View.class);
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .view(view)
                 .build();
@@ -600,9 +620,9 @@ public class GraphTest {
             () throws OperationException {
         // Given
         final Store store = mock(Store.class);
-        final View opView = mock(View.class);
         final View view = mock(View.class);
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .view(view)
                 .build();
@@ -626,6 +646,7 @@ public class GraphTest {
     public void shouldThrowExceptionIfStoreClassPropertyIsNotSet() throws OperationException {
         try {
             new Graph.Builder()
+                    .graphId(GRAPH_ID)
                     .addSchema(new Schema())
                     .storeProperties(new StoreProperties())
                     .build();
@@ -638,9 +659,10 @@ public class GraphTest {
     @Test
     public void shouldThrowExceptionIfSchemaIsInvalid() throws OperationException {
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
         try {
             new Graph.Builder()
+                    .graphId(GRAPH_ID)
                     .addSchema(new Schema.Builder()
                             .type("int", new TypeDefinition.Builder()
                                     .clazz(Integer.class)
@@ -677,6 +699,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .build();
 
@@ -696,6 +719,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .build();
 
@@ -713,6 +737,7 @@ public class GraphTest {
         final Store store = mock(Store.class);
         given(store.getSchema()).willReturn(new Schema());
         final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
                 .store(store)
                 .build();
 
@@ -731,39 +756,41 @@ public class GraphTest {
 
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         //When / Then
         try {
             new Graph.Builder()
-                    .addSchemas(StreamUtil.openStreams(GraphTest.class, "directory_that_doesnt_exist"))
+                    .graphId(GRAPH_ID)
+                    .addSchema(new Schema.Builder()
+                            .edge("group")
+                            .entity("group")
+                            .build())
                     .storeProperties(storeProperties)
                     .build();
-        } catch (SchemaException e) {
-            assertEquals("Schema is not valid. Validation errors: \n" +
-                    "Schema is missing", e.getMessage());
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("Schema is not valid"));
         }
     }
 
     @Test
     public void shouldThrowExceptionWithNullSchema() {
-
         // Given
         final StoreProperties storeProperties = new StoreProperties();
-        storeProperties.setStoreClass(StoreImpl.class.getName());
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
 
         //When / Then
         try {
             new Graph.Builder()
+                    .graphId(GRAPH_ID)
                     .storeProperties(storeProperties)
                     .build();
-        } catch (SchemaException e) {
-            assertEquals("Schema is not valid. Validation errors: \n" +
-                    "Schema is missing", e.getMessage());
+        } catch (final SchemaException e) {
+            assertTrue(e.getMessage().contains("Schema is missing"));
         }
     }
 
-    static class StoreImpl extends Store {
+    public static class TestStoreImpl extends Store {
         @Override
         public Set<StoreTrait> getTraits() {
             return new HashSet<>(0);
@@ -834,5 +861,83 @@ public class GraphTest {
         public InputStream getInput() throws IOException {
             return StreamUtil.openStream(getClass(), "/schema/" + schemaFile);
         }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfGraphIdIsInvalid() throws Exception {
+        final StoreProperties properties = mock(StoreProperties.class);
+        given(properties.getJobExecutorThreadCount()).willReturn(1);
+
+        try {
+            new Graph.Builder()
+                    .graphId("invalid-id")
+                    .build();
+            fail("Exception expected");
+        } catch (final IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
+    @Test
+    public void shouldBuildGraphUsingGraphIdAndLookupSchema() throws Exception {
+        // Given
+        HashMapGraphLibrary.clear();
+        final StoreProperties storeProperties = new StoreProperties();
+        storeProperties.setStoreClass(TestStoreImpl.class.getName());
+
+        final Schema schemaModule1 = new Schema.Builder()
+                .type(TestTypes.PROP_STRING, new TypeDefinition.Builder()
+                        .clazz(String.class)
+                        .build())
+                .edge(TestGroups.EDGE, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule2 = new Schema.Builder()
+                .type(TestTypes.PROP_INTEGER, new TypeDefinition.Builder()
+                        .clazz(Integer.class)
+                        .build())
+                .edge(TestGroups.EDGE_2, new SchemaEdgeDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule3 = new Schema.Builder()
+                .entity(TestGroups.ENTITY, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_1, TestTypes.PROP_STRING)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+        final Schema schemaModule4 = new Schema.Builder()
+                .entity(TestGroups.ENTITY_2, new SchemaEntityDefinition.Builder()
+                        .property(TestPropertyNames.PROP_2, TestTypes.PROP_INTEGER)
+                        .aggregate(false)
+                        .build())
+                .build();
+
+
+        // When
+        final Graph graph = new Graph.Builder()
+                .graphId(GRAPH_ID)
+                .library(new HashMapGraphLibrary())
+                .addSchema(schemaModule1)
+                .addSchema(schemaModule2)
+                .addSchema(schemaModule3)
+                .addSchema(schemaModule4)
+                .storeProperties(storeProperties)
+                .build();
+
+        final Graph graph2 = new Graph.Builder()
+                .graphId(GRAPH_ID)
+                .library(new HashMapGraphLibrary())
+                .storeProperties(storeProperties)
+                .build();
+
+        // Then
+        JsonAssert.assertEquals(graph.getSchema().toJson(false), graph2.getSchema().toJson(false));
     }
 }

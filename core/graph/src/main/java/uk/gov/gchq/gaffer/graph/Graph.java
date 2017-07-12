@@ -19,9 +19,12 @@ package uk.gov.gchq.gaffer.graph;
 
 import uk.gov.gchq.gaffer.commonutil.CloseableUtil;
 import uk.gov.gchq.gaffer.commonutil.StreamUtil;
+import uk.gov.gchq.gaffer.commonutil.pair.Pair;
 import uk.gov.gchq.gaffer.data.elementdefinition.exception.SchemaException;
 import uk.gov.gchq.gaffer.data.elementdefinition.view.View;
 import uk.gov.gchq.gaffer.graph.hook.GraphHook;
+import uk.gov.gchq.gaffer.graph.library.GraphLibrary;
+import uk.gov.gchq.gaffer.graph.library.NoGraphLibrary;
 import uk.gov.gchq.gaffer.jobtracker.JobDetail;
 import uk.gov.gchq.gaffer.operation.Operation;
 import uk.gov.gchq.gaffer.operation.OperationChain;
@@ -58,6 +61,8 @@ import java.util.Set;
  * @see uk.gov.gchq.gaffer.graph.Graph.Builder
  */
 public final class Graph {
+    private final GraphLibrary library;
+
     /**
      * The instance of the store.
      */
@@ -82,12 +87,14 @@ public final class Graph {
      * Constructs a <code>Graph</code> with the given {@link uk.gov.gchq.gaffer.store.Store} and
      * {@link uk.gov.gchq.gaffer.data.elementdefinition.view.View}.
      *
+     * @param library    a {@link GraphLibrary} to store the graph configuration in.
      * @param store      a {@link Store} used to store the elements and handle operations.
      * @param schema     a {@link Schema} that defines the graph. Should be the copy of the schema that the store is initialised with.
      * @param view       a {@link View} defining the view of the data for the graph.
      * @param graphHooks a list of {@link GraphHook}s
      */
-    private Graph(final Store store, final Schema schema, final View view, final List<GraphHook> graphHooks) {
+    private Graph(final GraphLibrary library, final Schema schema, final Store store, final View view, final List<GraphHook> graphHooks) {
+        this.library = library;
         this.store = store;
         this.view = view;
         this.graphHooks = graphHooks;
@@ -270,16 +277,41 @@ public final class Graph {
     }
 
     /**
+     * @return the graphId for this Graph.
+     */
+    public String getGraphId() {
+        return store.getGraphId();
+    }
+
+    public GraphLibrary getLibrary() {
+        return library;
+    }
+
+    /**
      * Builder for {@link Graph}.
      */
     public static class Builder {
         public static final String UNABLE_TO_READ_SCHEMA_FROM_URI = "Unable to read schema from URI";
         private final List<byte[]> schemaBytesList = new ArrayList<>();
         private Store store;
+        private String graphId;
+        private GraphLibrary library;
         private StoreProperties properties;
         private Schema schema;
         private View view;
         private List<GraphHook> graphHooks = new ArrayList<>();
+        private String[] parentSchemaIds;
+        private String parentStorePropertiesId;
+
+        public Builder graphId(final String graphId) {
+            this.graphId = graphId;
+            return this;
+        }
+
+        public Builder library(final GraphLibrary library) {
+            this.library = library;
+            return this;
+        }
 
         public Builder view(final View view) {
             this.view = view;
@@ -307,6 +339,11 @@ public final class Graph {
             return view(new View.Builder().json(jsonBytes).build());
         }
 
+        public Builder parentStorePropertiesId(final String parentStorePropertiesId) {
+            this.parentStorePropertiesId = parentStorePropertiesId;
+            return this;
+        }
+
         public Builder storeProperties(final StoreProperties properties) {
             this.properties = properties;
             return this;
@@ -331,6 +368,11 @@ public final class Graph {
                 throw new SchemaException("Unable to read storeProperties from URI", e);
             }
 
+            return this;
+        }
+
+        public Builder addParentSchemaIds(final String... parentSchemaIds) {
+            this.parentSchemaIds = parentSchemaIds;
             return this;
         }
 
@@ -455,14 +497,62 @@ public final class Graph {
         }
 
         public Graph build() {
-            updateSchema();
-            updateStore();
+            if (null == library) {
+                library = new NoGraphLibrary();
+            }
+
+            if (null == graphId && null != store) {
+                graphId = store.getGraphId();
+            }
+
+            if (null == graphId) {
+                throw new IllegalArgumentException("graphId is required");
+            }
+
+            final Pair<Schema, StoreProperties> parentGraph = library.get(graphId);
+            updateSchema(parentGraph);
+            updateStore(parentGraph);
             updateView();
 
-            return new Graph(store, schema, view, graphHooks);
+            library.add(graphId, schema, store.getProperties());
+
+            return new Graph(library, schema, store, view, graphHooks);
         }
 
-        private void updateSchema() {
+        private void updateSchema(final Pair<Schema, StoreProperties> parentGraph) {
+            Schema mergedParentSchema = null;
+
+            if (null != parentGraph) {
+                mergedParentSchema = parentGraph.getFirst();
+            }
+
+            if (null != parentSchemaIds) {
+                for (final String parentSchemaId : parentSchemaIds) {
+                    final Schema parentSchema = library.getSchema(parentSchemaId);
+                    if (null != parentSchema) {
+                        if (null == mergedParentSchema) {
+                            mergedParentSchema = parentSchema;
+                        } else {
+                            mergedParentSchema = new Schema.Builder()
+                                    .merge(mergedParentSchema)
+                                    .merge(parentSchema)
+                                    .build();
+                        }
+                    }
+                }
+            }
+
+            if (null != mergedParentSchema) {
+                if (null == schema) {
+                    schema = mergedParentSchema;
+                } else {
+                    schema = new Schema.Builder()
+                            .merge(mergedParentSchema)
+                            .merge(schema)
+                            .build();
+                }
+            }
+
             if (!schemaBytesList.isEmpty()) {
                 if (null == properties) {
                     throw new IllegalArgumentException("To load a schema from json, the store properties must be provided.");
@@ -476,25 +566,50 @@ public final class Graph {
             }
         }
 
-        private void updateStore() {
-            if (null == store) {
-                store = createStore(properties, cloneSchema(schema));
-            } else if (null != properties || null != schema) {
-                try {
-                    if (null == properties) {
-                        store.initialise(cloneSchema(schema), store.getProperties());
-                    } else if (null == schema) {
-                        store.initialise(store.getSchema(), properties);
-                    } else {
-                        store.initialise(cloneSchema(schema), properties);
-                    }
-                } catch (final StoreException e) {
-                    throw new IllegalArgumentException("Unable to initialise the store with the given schema and properties", e);
+        private void updateStore(final Pair<Schema, StoreProperties> parentGraph) {
+            StoreProperties mergedStoreProperties = null;
+            if (null != parentGraph) {
+                mergedStoreProperties = parentGraph.getSecond();
+            }
+
+            if (null != parentStorePropertiesId) {
+                final StoreProperties parentProperties = library.getProperties(parentStorePropertiesId);
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = parentProperties;
+                } else {
+                    mergedStoreProperties.getProperties().putAll(parentProperties.getProperties());
                 }
-            } else {
-                schema = store.getSchema();
-                store.optimiseSchema();
-                store.validateSchemas();
+            }
+
+            if (null != properties) {
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = properties;
+                } else {
+                    mergedStoreProperties.getProperties().putAll(properties.getProperties());
+                }
+            }
+
+            if (null == store) {
+                store = Store.createStore(graphId, cloneSchema(schema), mergedStoreProperties);
+            } else if ((null != graphId && !graphId.equals(store.getGraphId()))
+                    || (null != schema)
+                    || (null != mergedStoreProperties && !mergedStoreProperties.equals(store.getProperties()))) {
+                if (null == graphId) {
+                    graphId = store.getGraphId();
+                }
+                if (null == schema) {
+                    schema = store.getSchema();
+                }
+
+                if (null == mergedStoreProperties) {
+                    mergedStoreProperties = store.getProperties();
+                }
+
+                try {
+                    store.initialise(graphId, cloneSchema(schema), mergedStoreProperties);
+                } catch (final StoreException e) {
+                    throw new IllegalArgumentException("Unable to initialise the store with the given graphId, schema and properties", e);
+                }
             }
 
             if (null == schema) {
@@ -502,36 +617,11 @@ public final class Graph {
             }
         }
 
-        private Store createStore(final StoreProperties storeProperties, final Schema schema) {
-            if (null == storeProperties) {
-                throw new IllegalArgumentException("Store properties are required to create a store");
-            }
-
-            final String storeClass = storeProperties.getStoreClass();
-            if (null == storeClass) {
-                throw new IllegalArgumentException("The Store class name was not found in the store properties for key: " + StoreProperties.STORE_CLASS);
-            }
-
-            final Store newStore;
-            try {
-                newStore = Class.forName(storeClass).asSubclass(Store.class).newInstance();
-            } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-                throw new IllegalArgumentException("Could not create store of type: " + storeClass, e);
-            }
-
-            try {
-                newStore.initialise(schema, storeProperties);
-            } catch (final StoreException e) {
-                throw new IllegalArgumentException("Could not initialise the store with provided arguments.", e);
-            }
-            return newStore;
-        }
-
         private void updateView() {
             if (null == view) {
                 this.view = new View.Builder()
-                        .entities(schema.getEntityGroups())
-                        .edges(schema.getEdgeGroups())
+                        .entities(store.getSchema().getEntityGroups())
+                        .edges(store.getSchema().getEdgeGroups())
                         .build();
             }
         }
