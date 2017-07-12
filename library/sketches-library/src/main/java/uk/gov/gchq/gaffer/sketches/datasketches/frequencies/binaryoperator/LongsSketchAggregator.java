@@ -23,6 +23,7 @@ import uk.gov.gchq.koryphe.binaryoperator.KorypheBinaryOperator;
  * {@link LongsSketch}s and merges them together using {@link LongsSketch#merge(LongsSketch)}.
  */
 public class LongsSketchAggregator extends KorypheBinaryOperator<LongsSketch> {
+
     @Override
     protected LongsSketch _apply(final LongsSketch a, final LongsSketch b) {
         a.merge(b);

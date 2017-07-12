@@ -28,7 +28,7 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
 
     @Override
     protected ReservoirItemsUnion<Number> getEmptyExampleOutput() {
-        return ReservoirItemsUnion.getInstance(20);
+        return ReservoirItemsUnion.newInstance(20);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
 
     @Override
     protected ReservoirItemsUnion<Number> getExampleOutput() {
-        final ReservoirItemsUnion<Number> union = ReservoirItemsUnion.getInstance(20);
+        final ReservoirItemsUnion<Number> union = ReservoirItemsUnion.newInstance(20);
         union.update(1L);
         union.update(2L);
         union.update(3L);
@@ -55,7 +55,6 @@ public class ReservoirNumbersUnionSerialiserTest extends ViaCalculatedArrayValue
     protected Number[] getTestValue(final ReservoirItemsUnion<Number> object) {
         return object.getResult().getSamples();
     }
-
 
     @Test
     public void testCanHandleReservoirItemsUnion() {
