@@ -303,7 +303,7 @@ Then when that Exists predicate is applied to all of your existing elements, tho
 To carry out the migration you will need the following:
 
 - your schema in 1 or more json files.
-- store.properties file contain your accumulo store properties
+- store.properties file contain your HBase store properties
 - a jar-with-dependencies containing the HBase Store classes and any of your custom classes. 
 If you don't have any custom classes then you can just use the hbase-store-[version]-utility.jar. 
 Otherwise you can create one by adding a build profile to your maven pom:
