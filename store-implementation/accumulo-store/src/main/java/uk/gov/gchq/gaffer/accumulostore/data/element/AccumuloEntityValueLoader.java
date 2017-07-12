@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.Entity;
 import uk.gov.gchq.gaffer.data.element.id.EntityId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Collections;
 
 public class AccumuloEntityValueLoader extends AccumuloElementValueLoader {
     private static final long serialVersionUID = -2926043462653982497L;
@@ -39,6 +38,6 @@ public class AccumuloEntityValueLoader extends AccumuloElementValueLoader {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "element provided should always be an Entity")
     @Override
     public void loadIdentifiers(final Element entity) {
-        ((Entity) entity).setVertex(((EntityId) elementConverter.getElementId(key, false, Collections.emptyMap())).getVertex());
+        ((Entity) entity).setVertex(((EntityId) elementConverter.getElementId(key, false)).getVertex());
     }
 }

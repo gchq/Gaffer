@@ -40,7 +40,7 @@ public class LazyElementCellTest {
         final ElementSerialisation serialisation = mock(ElementSerialisation.class);
         final Element element = mock(Element.class);
 
-        given(serialisation.getElement(cell, false, null)).willReturn(element);
+        given(serialisation.getElement(cell, false)).willReturn(element);
 
         // When
         final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
@@ -80,7 +80,7 @@ public class LazyElementCellTest {
         final ElementSerialisation serialisation = mock(ElementSerialisation.class);
         final Element element = mock(Element.class);
 
-        given(serialisation.getElement(cell, false, null)).willReturn(element);
+        given(serialisation.getElement(cell, false)).willReturn(element);
 
         // When
         final LazyElementCell lazyElementCell = new LazyElementCell(cell, serialisation, false);
@@ -90,7 +90,7 @@ public class LazyElementCellTest {
         assertSame(element, lazyElementCell.getElement());
         assertTrue(lazyElementCell.isElementLoaded());
         assertSame(element, lazyElementCell.getElement());
-        verify(serialisation, times(1)).getElement(cell, false, null);
+        verify(serialisation, times(1)).getElement(cell, false);
         assertSame(serialisation, lazyElementCell.getSerialisation());
     }
 

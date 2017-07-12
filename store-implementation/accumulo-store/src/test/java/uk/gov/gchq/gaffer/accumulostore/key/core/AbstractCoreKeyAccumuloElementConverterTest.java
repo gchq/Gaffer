@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import java.io.ByteArrayOutputStream;
-import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -104,7 +103,7 @@ public class AbstractCoreKeyAccumuloElementConverterTest {
         }
 
         @Override
-        protected EdgeDirection getSourceAndDestinationFromRowKey(byte[] rowKey, byte[][] sourceValueDestinationValue, Map<String, String> options) {
+        protected EdgeDirection getSourceAndDestinationFromRowKey(byte[] rowKey, byte[][] sourceValueDestinationValue) {
             return EdgeDirection.UNDIRECTED;
         }
 

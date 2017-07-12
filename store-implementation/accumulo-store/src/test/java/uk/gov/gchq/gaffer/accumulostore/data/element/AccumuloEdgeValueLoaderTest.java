@@ -32,7 +32,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EdgeSeed;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import uk.gov.gchq.gaffer.store.schema.SchemaEdgeDefinition;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -54,7 +53,7 @@ public class AccumuloEdgeValueLoaderTest {
         final Edge edge = mock(Edge.class);
         final EdgeId elementId = new EdgeSeed("source", "dest", true);
 
-        given(converter.getElementId(key, false, Collections.emptyMap())).willReturn(elementId);
+        given(converter.getElementId(key, false)).willReturn(elementId);
 
         // When
         loader.loadIdentifiers(edge);
@@ -91,7 +90,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("propValue1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -117,7 +116,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("propValue3", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
@@ -147,7 +146,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals("vis1", property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromTimestamp(Mockito.eq(group), Mockito.anyLong());
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));
@@ -175,7 +174,7 @@ public class AccumuloEdgeValueLoaderTest {
         // Then
         assertEquals(timestamp, property);
         verify(lazyProperties).putAll(properties);
-        verify(converter, never()).getElementId(key, false, Collections.emptyMap());
+        verify(converter, never()).getElementId(key, false);
         verify(converter, never()).getPropertiesFromColumnQualifier(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromColumnVisibility(Mockito.eq(group), Mockito.any(byte[].class));
         verify(converter, never()).getPropertiesFromValue(Mockito.eq(group), Mockito.any(Value.class));

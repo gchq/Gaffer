@@ -56,7 +56,7 @@ public class LazyElementCell {
                 throw new IllegalStateException("Element has been marked for deletion it should not be used");
             }
             try {
-                setElement(serialisation.getElement(cell, includeMatchedVertex, null));
+                setElement(serialisation.getElement(cell, includeMatchedVertex));
             } catch (final SerialisationException e) {
                 throw new RuntimeException(e);
             }

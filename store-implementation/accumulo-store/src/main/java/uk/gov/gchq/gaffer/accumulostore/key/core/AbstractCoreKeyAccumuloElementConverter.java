@@ -43,7 +43,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractCoreKeyAccumuloElementConverter implements AccumuloElementConverter {
@@ -62,12 +61,12 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public ElementId getElementId(final Key key, final boolean includeMatchedVertex, final Map<String, String> options) {
+    public ElementId getElementId(final Key key, final boolean includeMatchedVertex) {
         final byte[] row = key.getRowData().getBackingArray();
         if (doesKeyRepresentEntity(row)) {
             return getEntityId(row);
         }
-        return getEdgeId(row, includeMatchedVertex, options);
+        return getEdgeId(row, includeMatchedVertex);
     }
 
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "If an element is not an Entity it must be an Edge")
@@ -159,18 +158,18 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @Override
-    public Element getElementFromKey(final Key key, final boolean includeMatchedVertex, final Map<String, String> options) {
+    public Element getElementFromKey(final Key key, final boolean includeMatchedVertex) {
         final byte[] row = key.getRowData().getBackingArray();
         final boolean keyRepresentsEntity = doesKeyRepresentEntity(row);
         if (keyRepresentsEntity) {
             return getEntityFromKey(key, row);
         }
-        return getEdgeFromKey(key, row, includeMatchedVertex, options);
+        return getEdgeFromKey(key, row, includeMatchedVertex);
     }
 
     @Override
-    public Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex, final Map<String, String> options) {
-        final Element element = getElementFromKey(key, includeMatchedVertex, options);
+    public Element getFullElement(final Key key, final Value value, final boolean includeMatchedVertex) {
+        final Element element = getElementFromKey(key, includeMatchedVertex);
         element.copyProperties(getPropertiesFromValue(element.getGroup(), value));
         return element;
     }
@@ -398,13 +397,13 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     protected abstract Entity getEntityFromKey(final Key key, final byte[] row);
 
     protected abstract EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey,
-                                                                       final byte[][] sourceValueDestinationValue, final Map<String, String> options);
+                                                                       final byte[][] sourceValueDestinationValue);
 
     protected abstract EntityId getEntityId(final byte[] row);
 
-    protected EdgeId getEdgeId(final byte[] row, final boolean includeMatchedVertex, final Map<String, String> options) {
+    protected EdgeId getEdgeId(final byte[] row, final boolean includeMatchedVertex) {
         final byte[][] result = new byte[2][];
-        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result, options);
+        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result);
         final EdgeId.MatchedVertex matchedVertex;
         if (!includeMatchedVertex) {
             matchedVertex = null;
@@ -435,9 +434,9 @@ public abstract class AbstractCoreKeyAccumuloElementConverter implements Accumul
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected Edge getEdgeFromKey(final Key key, final byte[] row, final boolean includeMatchedVertex, final Map<String, String> options) {
+    protected Edge getEdgeFromKey(final Key key, final byte[] row, final boolean includeMatchedVertex) {
         final byte[][] result = new byte[2][];
-        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result, options);
+        final EdgeDirection direction = getSourceAndDestinationFromRowKey(row, result);
         final EdgeId.MatchedVertex matchedVertex;
         if (!includeMatchedVertex) {
             matchedVertex = null;

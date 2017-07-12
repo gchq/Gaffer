@@ -29,7 +29,6 @@ import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * The ByteEntityAccumuloElementConverter converts Gaffer Elements to Accumulo
@@ -136,8 +135,7 @@ public class ByteEntityAccumuloElementConverter extends AbstractCoreKeyAccumuloE
     }
 
     @Override
-    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues,
-                                                              final Map<String, String> options) {
+    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValues) {
         // Get element class, sourceValue, destinationValue and directed flag from row key
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];

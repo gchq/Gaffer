@@ -140,8 +140,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                         element = elementConverter.getFullElement(
                                 entry.getKey(),
                                 entry.getValue(),
-                                true,
-                                operation.getOptions());
+                                true);
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to re-create an element from a key value entry set returning next EntityId as null",
                                 e);
@@ -155,7 +154,7 @@ public class AccumuloAdjacentIdRetriever extends AccumuloRetriever<GetAdjacentId
                     }
                 } else {
                     try {
-                        elementId = elementConverter.getElementId(entry.getKey(), true, operation.getOptions());
+                        elementId = elementConverter.getElementId(entry.getKey(), true);
                     } catch (final AccumuloElementConversionException e) {
                         LOGGER.error("Failed to create element id returning next EntityId as null", e);
                         continue;

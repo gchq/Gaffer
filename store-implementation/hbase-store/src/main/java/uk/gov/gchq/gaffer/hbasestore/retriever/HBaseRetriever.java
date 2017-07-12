@@ -124,7 +124,7 @@ public class HBaseRetriever<OP extends Output<CloseableIterable<? extends Elemen
 
     private Element deserialiseAndTransform(final Cell cell) {
         try {
-            Element element = serialisation.getElement(cell, includeMatchedVertex, operation.getOptions());
+            Element element = serialisation.getElement(cell, includeMatchedVertex);
             final ViewElementDefinition viewDef = operation.getView().getElement(element.getGroup());
             if (viewDef != null) {
                 final ElementTransformer transformer = viewDef.getTransformer();

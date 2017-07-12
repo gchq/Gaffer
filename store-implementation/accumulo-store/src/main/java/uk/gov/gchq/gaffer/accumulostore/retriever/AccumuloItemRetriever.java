@@ -130,8 +130,7 @@ public abstract class AccumuloItemRetriever<OP extends Output<CloseableIterable<
                     nextElm = elementConverter.getFullElement(
                             entry.getKey(),
                             entry.getValue(),
-                            includeMatchedVertex,
-                            operation.getOptions());
+                            includeMatchedVertex);
                 } catch (final AccumuloElementConversionException e) {
                     LOGGER.error("Failed to re-create an element from a key value entry set returning next element as null",
                             e);

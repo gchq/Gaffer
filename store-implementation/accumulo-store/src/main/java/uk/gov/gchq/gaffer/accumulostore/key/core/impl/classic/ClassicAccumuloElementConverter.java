@@ -28,7 +28,6 @@ import uk.gov.gchq.gaffer.exception.SerialisationException;
 import uk.gov.gchq.gaffer.operation.data.EntitySeed;
 import uk.gov.gchq.gaffer.serialisation.ToBytesSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Map;
 
 public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElementConverter {
     public ClassicAccumuloElementConverter(final Schema schema) {
@@ -136,8 +135,7 @@ public class ClassicAccumuloElementConverter extends AbstractCoreKeyAccumuloElem
     }
 
     @Override
-    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue,
-                                                              final Map<String, String> options) {
+    protected EdgeDirection getSourceAndDestinationFromRowKey(final byte[] rowKey, final byte[][] sourceDestValue) {
         // Get sourceValue, destinationValue and directed flag from row key
         // Expect to find 2 delimiters (3 fields)
         final int[] positionsOfDelimiters = new int[2];

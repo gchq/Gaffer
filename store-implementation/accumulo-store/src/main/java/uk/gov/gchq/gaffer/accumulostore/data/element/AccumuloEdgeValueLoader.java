@@ -23,7 +23,6 @@ import uk.gov.gchq.gaffer.data.element.Edge;
 import uk.gov.gchq.gaffer.data.element.Element;
 import uk.gov.gchq.gaffer.data.element.id.EdgeId;
 import uk.gov.gchq.gaffer.store.schema.Schema;
-import java.util.Collections;
 
 public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     private static final long serialVersionUID = 6857884477152298375L;
@@ -42,7 +41,7 @@ public class AccumuloEdgeValueLoader extends AccumuloElementValueLoader {
     @SuppressFBWarnings(value = "BC_UNCONFIRMED_CAST", justification = "element provided should always be an Edge")
     @Override
     public void loadIdentifiers(final Element edge) {
-        final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, includeMatchedVertex, Collections.emptyMap());
+        final EdgeId edgeId = (EdgeId) elementConverter.getElementId(key, includeMatchedVertex);
         ((Edge) edge).setIdentifiers(edgeId.getSource(), edgeId.getDestination(), edgeId.isDirected());
     }
 }

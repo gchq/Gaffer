@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
 
 public class ElementSerialisation {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementSerialisation.class);
@@ -153,17 +152,17 @@ public class ElementSerialisation {
         return properties;
     }
 
-    public Element getPartialElement(final String group, final byte[] rowId, final boolean includeMatchedVertex, final Map<String, String> options) throws SerialisationException {
-        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), includeMatchedVertex, options);
+    public Element getPartialElement(final String group, final byte[] rowId, final boolean includeMatchedVertex) throws SerialisationException {
+        return getElement(CellUtil.createCell(rowId, HBaseStoreConstants.getColFam(), getColumnQualifier(group, new Properties())), includeMatchedVertex);
     }
 
-    public Element getElement(final Cell cell, final boolean includeMatchedVertex, final Map<String, String> options)
+    public Element getElement(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final boolean keyRepresentsEntity = isEntity(cell);
         if (keyRepresentsEntity) {
             return getEntity(cell);
         }
-        return getEdge(cell, includeMatchedVertex, options);
+        return getEdge(cell, includeMatchedVertex);
     }
 
     public byte[] getColumnVisibility(final Element element) throws SerialisationException {
@@ -492,8 +491,7 @@ public class ElementSerialisation {
         return puts;
     }
 
-    public EdgeDirection getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues,
-                                                 final Map<String, String> options) throws SerialisationException {
+    public EdgeDirection getSourceAndDestination(final byte[] rowKey, final byte[][] sourceDestValues) throws SerialisationException {
         // Get element class, sourceValue, destinationValue and directed flag from row cell
         // Expect to find 3 delimiters (4 fields)
         final int[] positionsOfDelimiters = new int[3];
@@ -569,15 +567,15 @@ public class ElementSerialisation {
                 getPropertiesFromTimestamp(element.getGroup(), cell.getTimestamp()));
     }
 
-    private Edge getEdge(final Cell cell, final Map<String, String> options)
+    private Edge getEdge(final Cell cell)
             throws SerialisationException {
-        return getEdge(cell, false, options);
+        return getEdge(cell, false);
     }
 
-    private Edge getEdge(final Cell cell, final boolean includeMatchedVertex, final Map<String, String> options)
+    private Edge getEdge(final Cell cell, final boolean includeMatchedVertex)
             throws SerialisationException {
         final byte[][] result = new byte[3][];
-        final EdgeDirection direction = getSourceAndDestination(CellUtil.cloneRow(cell), result, options);
+        final EdgeDirection direction = getSourceAndDestination(CellUtil.cloneRow(cell), result);
         final EdgeId.MatchedVertex matchedVertex;
         if (!includeMatchedVertex) {
             matchedVertex = null;

@@ -73,7 +73,7 @@ public class ElementSerialisationTest {
         final Pair<byte[], byte[]> keys = serialisation.getRowKeys(edge);
 
         // Then
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst(), false, null);
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getFirst(), false);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -91,7 +91,7 @@ public class ElementSerialisationTest {
         final byte[] key = serialisation.getRowKey(entity);
 
         // Then
-        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key, false, null);
+        final Entity newEntity = (Entity) serialisation.getPartialElement(TestGroups.ENTITY, key, false);
         assertEquals("3", newEntity.getVertex());
     }
 
@@ -174,7 +174,7 @@ public class ElementSerialisationTest {
         final Map<String, String> options = new HashMap<>();
 
         // When
-        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), false, options);
+        final Edge newEdge = (Edge) serialisation.getPartialElement(TestGroups.EDGE, keys.getSecond(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -543,7 +543,7 @@ public class ElementSerialisationTest {
 
         // When
         final byte[] keyMax = serialisation.getRowKey(entityMax);
-        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes, false, null).getIdentifier(IdentifierType.VERTEX);
+        Object deserialisedVertex = serialisation.getPartialElement(TestGroups.ENTITY, expectedBytes, false).getIdentifier(IdentifierType.VERTEX);
 
         // Then
         assertArrayEquals(expectedBytes, keyMax);

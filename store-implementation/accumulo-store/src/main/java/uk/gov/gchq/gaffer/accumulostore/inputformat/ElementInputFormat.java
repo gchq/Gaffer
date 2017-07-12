@@ -92,7 +92,7 @@ public class ElementInputFormat extends InputFormatBase<Element, NullWritable> {
                 ++numKeysRead;
                 final Entry<Key, Value> entry = scannerIterator.next();
                 try {
-                    currentK = converter.getFullElement(entry.getKey(), entry.getValue(), false, null);
+                    currentK = converter.getFullElement(entry.getKey(), entry.getValue(), false);
                     final ViewElementDefinition viewDef = view.getElement(currentK.getGroup());
                     if (viewDef != null) {
                         final ElementTransformer transformer = viewDef.getTransformer();

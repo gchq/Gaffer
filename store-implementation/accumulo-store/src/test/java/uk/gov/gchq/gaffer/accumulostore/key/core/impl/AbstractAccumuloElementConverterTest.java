@@ -45,8 +45,6 @@ import uk.gov.gchq.gaffer.store.schema.SchemaEntityDefinition;
 import uk.gov.gchq.gaffer.store.schema.TypeDefinition;
 import uk.gov.gchq.gaffer.types.FreqMap;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -80,7 +78,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
 
         // Then
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false, null);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
         assertEquals("1", newEdge.getSource());
         assertEquals("2", newEdge.getDestination());
         assertEquals(true, newEdge.isDirected());
@@ -96,7 +94,7 @@ public abstract class AbstractAccumuloElementConverterTest {
         final Key key = converter.getKeyFromEntity(entity);
 
         // Then
-        final Entity newEntity = (Entity) converter.getElementFromKey(key, false, null);
+        final Entity newEntity = (Entity) converter.getElementFromKey(key, false);
         assertEquals("3", newEntity.getVertex());
     }
 
@@ -113,7 +111,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false, null);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -133,7 +131,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false, null);
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("3", newEntity.getVertex());
@@ -153,7 +151,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), true, null);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), true);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -174,7 +172,7 @@ public abstract class AbstractAccumuloElementConverterTest {
 
         // When
         final Pair<Key, Key> keys = converter.getKeysFromElement(entity);
-        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false, null);
+        final Entity newEntity = (Entity) converter.getElementFromKey(keys.getFirst(), false);
 
         // Then
         assertEquals("3", newEntity.getVertex());
@@ -182,7 +180,7 @@ public abstract class AbstractAccumuloElementConverterTest {
     }
 
     @Test
-    public void shouldGetOriginalEdgeWithMatchAsSourceNotSet() throws SchemaException, IOException {
+    public void shouldGetOriginalEdge() throws SchemaException, IOException {
         // Given
         final Edge edge = new Edge.Builder()
                 .group(TestGroups.EDGE)
@@ -193,10 +191,9 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .build();
 
         final Pair<Key, Key> keys = converter.getKeysFromElement(edge);
-        final Map<String, String> options = new HashMap<>();
 
         // When
-        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), false, options);
+        final Edge newEdge = (Edge) converter.getElementFromKey(keys.getSecond(), false);
 
         // Then
         assertEquals("1", newEdge.getSource());
@@ -554,11 +551,10 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
         final Key key = converter.getKeyFromEntity(entity);
 
         // When
-        final ElementId elementId = converter.getElementId(key, false, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
@@ -576,11 +572,10 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
         final Key key = converter.getKeysFromEdge(edge).getFirst();
 
         // When
-        final ElementId elementId = converter.getElementId(key, false, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
@@ -598,12 +593,11 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
 
         final Key key = converter.getKeysFromEdge(edge).getSecond();
 
         // When
-        final ElementId elementId = converter.getElementId(key, false, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
@@ -621,12 +615,11 @@ public abstract class AbstractAccumuloElementConverterTest {
                 .property(TestPropertyNames.PROP_1, new FreqMap())
                 .property(TestPropertyNames.PROP_2, new FreqMap())
                 .build();
-        final Map<String, String> options = new HashMap<>();
 
         final Key key = converter.getKeysFromEdge(edge).getSecond();
 
         // When
-        final ElementId elementId = converter.getElementId(key, false, options);
+        final ElementId elementId = converter.getElementId(key, false);
 
         // Then
         assertEquals(expectedElementId, elementId);
