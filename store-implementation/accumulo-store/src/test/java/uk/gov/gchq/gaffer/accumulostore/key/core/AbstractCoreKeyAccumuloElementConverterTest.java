@@ -20,6 +20,7 @@ import org.junit.Test;
 import uk.gov.gchq.gaffer.accumulostore.key.AbstractAccumuloElementConverterTest;
 import uk.gov.gchq.gaffer.commonutil.TestGroups;
 import uk.gov.gchq.gaffer.data.element.Edge;
+import uk.gov.gchq.gaffer.data.element.EdgeDirection;
 import uk.gov.gchq.gaffer.data.element.Properties;
 import uk.gov.gchq.gaffer.serialisation.implementation.StringSerialiser;
 import uk.gov.gchq.gaffer.store.schema.Schema;
@@ -78,10 +79,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+        final EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.DIRECTED, direction);
+        assertEquals(EdgeDirection.DIRECTED, direction);
     }
 
     @Test
@@ -98,10 +99,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+        final EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.DIRECTED_REVERSED, direction);
+        assertEquals(EdgeDirection.DIRECTED_REVERSED, direction);
     }
 
     @Test
@@ -118,10 +119,10 @@ public abstract class AbstractCoreKeyAccumuloElementConverterTest extends Abstra
         final byte[][] sourceDestValues = new byte[2][];
 
         // When
-        final AbstractCoreKeyAccumuloElementConverter.EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
+        final EdgeDirection direction = converter.getSourceAndDestinationFromRowKey(rowKey, sourceDestValues);
 
         // Then
-        assertEquals(AbstractCoreKeyAccumuloElementConverter.EdgeDirection.UNDIRECTED, direction);
+        assertEquals(EdgeDirection.UNDIRECTED, direction);
     }
 
     private class UnusualTestSerialiser extends StringSerialiser {
